@@ -2,7 +2,6 @@
 import type {
   Prisma,
   Server,
-  ServerGenerationEngine,
   ServerType,
 } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
@@ -17,16 +16,8 @@ interface ResolveServerInput {
   capability?: ResolveServerCapability
 }
 
-function getServerBaseUrl(
-  server: Server,
-  transport: ServerEndpointTransport = 'backend',
-): string {
-  const baseUrl =
-    transport === 'browser'
-      ? server.browserBaseUrl || server.baseUrl
-      : server.backendBaseUrl || server.baseUrl
-
-  return String(baseUrl || '').trim()
+function getServerBaseUrl(server: Server): string {
+  return String(server.baseUrl || '').trim()
 }
 
 function joinUrl(baseUrl: string, path?: string | null): string {
@@ -40,14 +31,8 @@ function joinUrl(baseUrl: string, path?: string | null): string {
   return cleanPath ? `${cleanBase}/${cleanPath}` : cleanBase
 }
 
-function normalizeA1111Endpoint(
-  server: Server,
-  transport: ServerEndpointTransport = 'backend',
-): string {
-  const endpoint = joinUrl(
-    getServerBaseUrl(server, transport),
-    server.endpointPath,
-  )
+function normalizeA1111Endpoint(server: Server): string {
+  const endpoint = joinUrl(getServerBaseUrl(server), server.endpointPath)
 
   if (endpoint.endsWith('/sdapi/v1/txt2img')) {
     return endpoint
@@ -64,14 +49,8 @@ function normalizeA1111Endpoint(
   return `${endpoint}/sdapi/v1/txt2img`
 }
 
-function normalizeComfyEndpoint(
-  server: Server,
-  transport: ServerEndpointTransport = 'backend',
-): string {
-  const endpoint = joinUrl(
-    getServerBaseUrl(server, transport),
-    server.endpointPath,
-  )
+function normalizeComfyEndpoint(server: Server): string {
+  const endpoint = joinUrl(getServerBaseUrl(server), server.endpointPath)
 
   if (endpoint.endsWith('/prompt')) {
     return endpoint
@@ -82,42 +61,34 @@ function normalizeComfyEndpoint(
 
 export function getServerEndpoint(
   server: Server,
-  transport: ServerEndpointTransport = 'backend',
+  _transport: ServerEndpointTransport = 'backend',
 ): string {
-  if (server.serverType === 'A1111' || server.generationEngine === 'A1111') {
-    return normalizeA1111Endpoint(server, transport)
+  if (server.serverType === 'A1111') {
+    return normalizeA1111Endpoint(server)
   }
 
-  if (
-    server.serverType === 'COMFY' ||
-    server.generationEngine === 'COMFY' ||
-    server.supportsComfyWorkflow
-  ) {
-    return normalizeComfyEndpoint(server, transport)
+  if (server.serverType === 'COMFY') {
+    return normalizeComfyEndpoint(server)
   }
 
-  return joinUrl(getServerBaseUrl(server, transport), server.endpointPath)
+  return joinUrl(getServerBaseUrl(server), server.endpointPath)
 }
 
 export function getServerHealthEndpoint(
   server: Server,
-  transport: ServerEndpointTransport = 'backend',
+  _transport: ServerEndpointTransport = 'backend',
 ): string {
-  const baseUrl = getServerBaseUrl(server, transport)
+  const baseUrl = getServerBaseUrl(server)
 
   if (server.healthPath) {
     return joinUrl(baseUrl, server.healthPath)
   }
 
-  if (server.serverType === 'A1111' || server.generationEngine === 'A1111') {
+  if (server.serverType === 'A1111') {
     return joinUrl(baseUrl, '/sdapi/v1/progress')
   }
 
-  if (
-    server.serverType === 'COMFY' ||
-    server.generationEngine === 'COMFY' ||
-    server.supportsComfyWorkflow
-  ) {
+  if (server.serverType === 'COMFY') {
     return joinUrl(baseUrl, '/system_stats')
   }
 
@@ -129,28 +100,23 @@ function capabilityWhere(
 ): Prisma.ServerWhereInput {
   if (capability === 'art') {
     return {
-      OR: [
-        { serverType: 'A1111' as ServerType },
-        { generationEngine: 'A1111' as ServerGenerationEngine },
-        { supportsTxt2Img: true },
-        { supportsImg2Img: true },
-      ],
+      serverType: {
+        in: ['A1111', 'COMFY', 'OPENAI'] as ServerType[],
+      },
     }
   }
 
   if (capability === 'comfy') {
     return {
-      OR: [
-        { serverType: 'COMFY' as ServerType },
-        { generationEngine: 'COMFY' as ServerGenerationEngine },
-        { supportsComfyWorkflow: true },
-      ],
+      serverType: 'COMFY' as ServerType,
     }
   }
 
   if (capability === 'chat' || capability === 'text') {
     return {
-      supportsChat: true,
+      serverType: {
+        in: ['OPENAI', 'ANTHROPIC', 'CUSTOM'] as ServerType[],
+      },
     }
   }
 
@@ -233,13 +199,21 @@ export async function resolveServer({
   if (userId) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { preferredArtServerId: true },
+      select: {
+        preferredArtServerId: true,
+        preferredTextServerId: true,
+      },
     })
 
-    if (capability === 'art' && user?.preferredArtServerId) {
+    const preferredServerId =
+      capability === 'text' || capability === 'chat'
+        ? user?.preferredTextServerId
+        : user?.preferredArtServerId
+
+    if (preferredServerId) {
       const preferredServer = await prisma.server.findFirst({
         where: {
-          AND: [baseWhere, { id: user.preferredArtServerId }],
+          AND: [baseWhere, { id: preferredServerId }],
         },
       })
 

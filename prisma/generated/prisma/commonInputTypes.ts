@@ -514,13 +514,6 @@ export type EnumServerTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumServerTypeFilter<$PrismaModel> | $Enums.ServerType
 }
 
-export type EnumServerStatusNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel> | null
-  in?: $Enums.ServerStatus[] | null
-  notIn?: $Enums.ServerStatus[] | null
-  not?: Prisma.NestedEnumServerStatusNullableFilter<$PrismaModel> | $Enums.ServerStatus | null
-}
-
 export type EnumServerAccessModeFilter<$PrismaModel = never> = {
   equals?: $Enums.ServerAccessMode | Prisma.EnumServerAccessModeFieldRefInput<$PrismaModel>
   in?: $Enums.ServerAccessMode[]
@@ -528,18 +521,18 @@ export type EnumServerAccessModeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumServerAccessModeFilter<$PrismaModel> | $Enums.ServerAccessMode
 }
 
-export type EnumServerTransportFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerTransport | Prisma.EnumServerTransportFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerTransport[]
-  notIn?: $Enums.ServerTransport[]
-  not?: Prisma.NestedEnumServerTransportFilter<$PrismaModel> | $Enums.ServerTransport
+export type EnumServerAuthTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerAuthType | Prisma.EnumServerAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerAuthType[]
+  notIn?: $Enums.ServerAuthType[]
+  not?: Prisma.NestedEnumServerAuthTypeFilter<$PrismaModel> | $Enums.ServerAuthType
 }
 
-export type EnumServerGenerationEngineFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerGenerationEngine | Prisma.EnumServerGenerationEngineFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerGenerationEngine[]
-  notIn?: $Enums.ServerGenerationEngine[]
-  not?: Prisma.NestedEnumServerGenerationEngineFilter<$PrismaModel> | $Enums.ServerGenerationEngine
+export type EnumServerStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerStatus[]
+  notIn?: $Enums.ServerStatus[]
+  not?: Prisma.NestedEnumServerStatusFilter<$PrismaModel> | $Enums.ServerStatus
 }
 
 export type EnumServerTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -552,16 +545,6 @@ export type EnumServerTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumServerTypeFilter<$PrismaModel>
 }
 
-export type EnumServerStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel> | null
-  in?: $Enums.ServerStatus[] | null
-  notIn?: $Enums.ServerStatus[] | null
-  not?: Prisma.NestedEnumServerStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ServerStatus | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumServerStatusNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumServerStatusNullableFilter<$PrismaModel>
-}
-
 export type EnumServerAccessModeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ServerAccessMode | Prisma.EnumServerAccessModeFieldRefInput<$PrismaModel>
   in?: $Enums.ServerAccessMode[]
@@ -572,24 +555,24 @@ export type EnumServerAccessModeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumServerAccessModeFilter<$PrismaModel>
 }
 
-export type EnumServerTransportWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerTransport | Prisma.EnumServerTransportFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerTransport[]
-  notIn?: $Enums.ServerTransport[]
-  not?: Prisma.NestedEnumServerTransportWithAggregatesFilter<$PrismaModel> | $Enums.ServerTransport
+export type EnumServerAuthTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerAuthType | Prisma.EnumServerAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerAuthType[]
+  notIn?: $Enums.ServerAuthType[]
+  not?: Prisma.NestedEnumServerAuthTypeWithAggregatesFilter<$PrismaModel> | $Enums.ServerAuthType
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumServerTransportFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumServerTransportFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServerAuthTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServerAuthTypeFilter<$PrismaModel>
 }
 
-export type EnumServerGenerationEngineWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerGenerationEngine | Prisma.EnumServerGenerationEngineFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerGenerationEngine[]
-  notIn?: $Enums.ServerGenerationEngine[]
-  not?: Prisma.NestedEnumServerGenerationEngineWithAggregatesFilter<$PrismaModel> | $Enums.ServerGenerationEngine
+export type EnumServerStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerStatus[]
+  notIn?: $Enums.ServerStatus[]
+  not?: Prisma.NestedEnumServerStatusWithAggregatesFilter<$PrismaModel> | $Enums.ServerStatus
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumServerGenerationEngineFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumServerGenerationEngineFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
 }
 
 export type EnumRoleFilter<$PrismaModel = never> = {
@@ -1077,13 +1060,6 @@ export type NestedEnumServerTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumServerTypeFilter<$PrismaModel> | $Enums.ServerType
 }
 
-export type NestedEnumServerStatusNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel> | null
-  in?: $Enums.ServerStatus[] | null
-  notIn?: $Enums.ServerStatus[] | null
-  not?: Prisma.NestedEnumServerStatusNullableFilter<$PrismaModel> | $Enums.ServerStatus | null
-}
-
 export type NestedEnumServerAccessModeFilter<$PrismaModel = never> = {
   equals?: $Enums.ServerAccessMode | Prisma.EnumServerAccessModeFieldRefInput<$PrismaModel>
   in?: $Enums.ServerAccessMode[]
@@ -1091,18 +1067,18 @@ export type NestedEnumServerAccessModeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumServerAccessModeFilter<$PrismaModel> | $Enums.ServerAccessMode
 }
 
-export type NestedEnumServerTransportFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerTransport | Prisma.EnumServerTransportFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerTransport[]
-  notIn?: $Enums.ServerTransport[]
-  not?: Prisma.NestedEnumServerTransportFilter<$PrismaModel> | $Enums.ServerTransport
+export type NestedEnumServerAuthTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerAuthType | Prisma.EnumServerAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerAuthType[]
+  notIn?: $Enums.ServerAuthType[]
+  not?: Prisma.NestedEnumServerAuthTypeFilter<$PrismaModel> | $Enums.ServerAuthType
 }
 
-export type NestedEnumServerGenerationEngineFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerGenerationEngine | Prisma.EnumServerGenerationEngineFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerGenerationEngine[]
-  notIn?: $Enums.ServerGenerationEngine[]
-  not?: Prisma.NestedEnumServerGenerationEngineFilter<$PrismaModel> | $Enums.ServerGenerationEngine
+export type NestedEnumServerStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerStatus[]
+  notIn?: $Enums.ServerStatus[]
+  not?: Prisma.NestedEnumServerStatusFilter<$PrismaModel> | $Enums.ServerStatus
 }
 
 export type NestedEnumServerTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -1115,16 +1091,6 @@ export type NestedEnumServerTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumServerTypeFilter<$PrismaModel>
 }
 
-export type NestedEnumServerStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel> | null
-  in?: $Enums.ServerStatus[] | null
-  notIn?: $Enums.ServerStatus[] | null
-  not?: Prisma.NestedEnumServerStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ServerStatus | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumServerStatusNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumServerStatusNullableFilter<$PrismaModel>
-}
-
 export type NestedEnumServerAccessModeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ServerAccessMode | Prisma.EnumServerAccessModeFieldRefInput<$PrismaModel>
   in?: $Enums.ServerAccessMode[]
@@ -1135,24 +1101,24 @@ export type NestedEnumServerAccessModeWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumServerAccessModeFilter<$PrismaModel>
 }
 
-export type NestedEnumServerTransportWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerTransport | Prisma.EnumServerTransportFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerTransport[]
-  notIn?: $Enums.ServerTransport[]
-  not?: Prisma.NestedEnumServerTransportWithAggregatesFilter<$PrismaModel> | $Enums.ServerTransport
+export type NestedEnumServerAuthTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerAuthType | Prisma.EnumServerAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerAuthType[]
+  notIn?: $Enums.ServerAuthType[]
+  not?: Prisma.NestedEnumServerAuthTypeWithAggregatesFilter<$PrismaModel> | $Enums.ServerAuthType
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumServerTransportFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumServerTransportFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServerAuthTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServerAuthTypeFilter<$PrismaModel>
 }
 
-export type NestedEnumServerGenerationEngineWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ServerGenerationEngine | Prisma.EnumServerGenerationEngineFieldRefInput<$PrismaModel>
-  in?: $Enums.ServerGenerationEngine[]
-  notIn?: $Enums.ServerGenerationEngine[]
-  not?: Prisma.NestedEnumServerGenerationEngineWithAggregatesFilter<$PrismaModel> | $Enums.ServerGenerationEngine
+export type NestedEnumServerStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerStatus | Prisma.EnumServerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerStatus[]
+  notIn?: $Enums.ServerStatus[]
+  not?: Prisma.NestedEnumServerStatusWithAggregatesFilter<$PrismaModel> | $Enums.ServerStatus
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumServerGenerationEngineFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumServerGenerationEngineFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumRoleFilter<$PrismaModel = never> = {

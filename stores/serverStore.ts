@@ -13,7 +13,6 @@ import type {
 import {
   getModelStatusEngine,
   type ServerRuntimeReport,
-  cleanWorkflowJson,
 } from './helpers/serverHelper'
 
 export interface ServerForm extends Partial<Server> {}
@@ -43,9 +42,6 @@ export interface ServerHealthResponse {
     responseBody: unknown
     runLocation?: 'server' | 'browser'
     accessMode?: ServerAccessMode | null
-    requiresClientSideCheck?: boolean | null
-    isPrivateNetwork?: boolean | null
-    allowBrowserRequests?: boolean | null
     savedReport?: unknown
   }
   statusCode: number
@@ -65,9 +61,6 @@ interface ServerHealthHandoffData {
   title: string
   healthUrl: string
   accessMode?: ServerAccessMode | null
-  requiresClientSideCheck?: boolean | null
-  isPrivateNetwork?: boolean | null
-  allowBrowserRequests?: boolean | null
   runLocation: 'browser'
 }
 
@@ -140,7 +133,7 @@ function isServer(value: unknown): value is Server {
   return (
     typeof candidate.id === 'number' &&
     typeof candidate.title === 'string' &&
-    typeof candidate.baseUrl === 'string'
+    typeof candidate.serverType === 'string'
   )
 }
 
@@ -303,32 +296,23 @@ export const useServerStore = defineStore('serverStore', () => {
 
   const artServers = computed<Server[]>(() =>
     visibleActiveServers.value.filter((server: Server): boolean => {
-      return (
-        server.serverType === 'ART' ||
-        server.serverType === 'A1111' ||
-        server.serverType === 'COMFY' ||
-        Boolean(server.supportsTxt2Img) ||
-        Boolean(server.supportsImg2Img) ||
-        Boolean(server.supportsComfyWorkflow)
-      )
+      return server.serverType === 'A1111' || server.serverType === 'COMFY'
     }),
   )
 
   const textServers = computed<Server[]>(() =>
     visibleActiveServers.value.filter((server: Server): boolean => {
       return (
-        server.serverType === 'TEXT' ||
-        server.serverType === 'OPENAI_COMPATIBLE' ||
-        Boolean(server.supportsChat)
+        server.serverType === 'OPENAI' ||
+        server.serverType === 'ANTHROPIC' ||
+        server.serverType === 'CUSTOM'
       )
     }),
   )
 
   const comfyServers = computed<Server[]>(() =>
     visibleActiveServers.value.filter((server: Server): boolean => {
-      return (
-        server.serverType === 'COMFY' || Boolean(server.supportsComfyWorkflow)
-      )
+      return server.serverType === 'COMFY'
     }),
   )
 
@@ -485,13 +469,6 @@ export const useServerStore = defineStore('serverStore', () => {
     return hiddenServerIdSet.value.has(id)
   }
 
-  function joinServerUrl(baseUrl: string, path: string): string {
-    const cleanBase = baseUrl.replace(/\/+$/, '')
-    const cleanPath = path.startsWith('/') ? path : `/${path}`
-
-    return `${cleanBase}${cleanPath}`
-  }
-
   function getRuntimeReport(serverId: number): ServerRuntimeReport | null {
     return runtimeReportsByServerId.value[serverId] || null
   }
@@ -573,19 +550,20 @@ export const useServerStore = defineStore('serverStore', () => {
     options: RequestInit = {},
   ) {
     const server = getHydratedServer(serverInput)
+    const baseUrl = String(server.baseUrl || '').replace(/\/+$/, '')
 
-    if (!server.allowBrowserRequests) {
+    if (!baseUrl) {
       throw new Error(
-        `Server "${server.title || server.label || server.id}" is not configured to allow browser requests. | allowBrowserRequests=${server.allowBrowserRequests} | requiresClientSideCheck=${server.requiresClientSideCheck} | isPrivateNetwork=${server.isPrivateNetwork} | accessMode=${server.accessMode} | baseUrl=${server.baseUrl} | healthPath=${server.healthPath} | serverType=${server.serverType} | id=${server.id}`,
+        `Server "${server.title || server.label || server.id}" is missing baseUrl.`,
       )
     }
 
-    const baseUrl = String(
-      server.browserBaseUrl || server.baseUrl || '',
-    ).replace(/\/$/, '')
-    const path = String(pathOverride || server.healthPath || '').startsWith('/')
-      ? String(pathOverride || server.healthPath || '')
-      : `/${String(pathOverride || server.healthPath || '')}`
+    const rawPath = String(pathOverride || server.healthPath || '')
+    const path = rawPath
+      ? rawPath.startsWith('/')
+        ? rawPath
+        : `/${rawPath}`
+      : ''
 
     return await fetch(`${baseUrl}${path}`, options)
   }
@@ -956,6 +934,7 @@ export const useServerStore = defineStore('serverStore', () => {
     payload: {
       apiKey?: string | null
       apiKeyName?: string | null
+      authType?: 'NONE' | 'BEARER' | 'HEADER' | 'QUERY' | 'API_KEY'
       clearKey?: boolean
     },
   ): Promise<{ success: boolean; message?: string }> {
@@ -1162,9 +1141,11 @@ export const useServerStore = defineStore('serverStore', () => {
     const startedAt = Date.now()
     const server = getServerById(id)
 
+    const serverBaseUrl = server?.baseUrl || ''
+
     const healthPath =
-      server && healthUrl.startsWith(server.baseUrl)
-        ? healthUrl.slice(server.baseUrl.length) || server.healthPath || '/'
+      server && serverBaseUrl && healthUrl.startsWith(serverBaseUrl)
+        ? healthUrl.slice(serverBaseUrl.length) || server.healthPath || '/'
         : server?.healthPath || '/'
 
     let report = {
@@ -1226,17 +1207,12 @@ export const useServerStore = defineStore('serverStore', () => {
                 healthPath: server.healthPath,
                 endpointPath: server.endpointPath,
                 accessMode: server.accessMode,
-                allowBrowserRequests: server.allowBrowserRequests,
-                requiresClientSideCheck: server.requiresClientSideCheck,
-                isPrivateNetwork: server.isPrivateNetwork,
-                useOidc: server.useOidc,
-                oidcProvider: server.oidcProvider,
+                authType: server.authType,
+                apiKeyName: server.apiKeyName,
                 isActive: server.isActive,
                 isDefault: server.isDefault,
                 isOfficial: server.isOfficial,
                 isPublic: server.isPublic,
-                requiresApiKey: server.requiresApiKey,
-                apiKeyName: server.apiKeyName,
                 lastStatus: server.lastStatus,
               }
             : null,
@@ -1258,9 +1234,6 @@ export const useServerStore = defineStore('serverStore', () => {
         title: server?.title,
         healthUrl,
         accessMode: server?.accessMode,
-        requiresClientSideCheck: server?.requiresClientSideCheck,
-        isPrivateNetwork: server?.isPrivateNetwork,
-        allowBrowserRequests: server?.allowBrowserRequests,
         ok: report.ok,
         status: report.status,
         statusText: report.statusText,
@@ -1317,9 +1290,6 @@ export const useServerStore = defineStore('serverStore', () => {
               title: result.data.title,
               healthUrl: result.data.healthUrl,
               accessMode: result.data.accessMode,
-              requiresClientSideCheck: result.data.requiresClientSideCheck,
-              isPrivateNetwork: result.data.isPrivateNetwork,
-              allowBrowserRequests: result.data.allowBrowserRequests,
               ok: false,
               status: 202,
               statusText: 'Browser health check required',
@@ -1410,90 +1380,48 @@ export const useServerStore = defineStore('serverStore', () => {
     syncToLocalStorage()
   }
 
-  function createNewServer(serverType: ServerType = 'ART'): void {
-    const isArtLike = serverType === 'ART' || serverType === 'A1111'
-    const isTextLike =
-      serverType === 'TEXT' || serverType === 'OPENAI_COMPATIBLE'
-    const isComfyLike = serverType === 'COMFY'
-
-    const generationEngine =
-      serverType === 'COMFY'
-        ? 'COMFY'
-        : serverType === 'A1111'
-          ? 'A1111'
-          : 'OTHER'
+  function createNewServer(serverType: ServerType = 'CUSTOM'): void {
+    const isComfy = serverType === 'COMFY'
+    const isA1111 = serverType === 'A1111'
+    const isText =
+      serverType === 'OPENAI' ||
+      serverType === 'ANTHROPIC' ||
+      serverType === 'CUSTOM'
 
     serverForm.value = {
       title: '',
       label: '',
       description: '',
-      category: isTextLike ? 'text' : 'image',
+      category: isText ? 'text' : 'image',
       serverType,
-      generationEngine,
-      defaultTransport: 'BROWSER',
 
       baseUrl: '',
-      browserBaseUrl: '',
-      backendBaseUrl: '',
-      endpointPath: isComfyLike
+      endpointPath: isComfy
         ? '/prompt'
-        : isTextLike
-          ? '/v1/chat/completions'
-          : '/sdapi/v1/txt2img',
-      healthPath: isComfyLike
+        : isA1111
+          ? '/sdapi/v1/txt2img'
+          : '/v1/chat/completions',
+      healthPath: isComfy
         ? '/system_stats'
-        : isTextLike
-          ? '/health'
-          : '/sdapi/v1/progress',
-
-      workflowPath: '',
-      workflowJson: null,
-      workflowVersion: '',
+        : isA1111
+          ? '/sdapi/v1/progress'
+          : '/health',
 
       isPublic: false,
       isOfficial: false,
       isDefault: false,
       isActive: true,
       isEditable: true,
+      isMature: false,
 
-      accessMode: 'LOCAL',
-      requiresClientSideCheck: true,
-      isPrivateNetwork: true,
-      allowBrowserRequests: true,
-
-      requiresApiKey: false,
+      accessMode: isComfy || isA1111 ? 'TAILSCALE' : 'BACKEND',
+      authType: 'NONE',
       apiKeyName: '',
-      useOidc: false,
-      oidcProvider: '',
-
-      supportsTxt2Img: isArtLike || isComfyLike,
-      supportsImg2Img: isArtLike || isComfyLike,
-      supportsImageEdit: false,
-      supportsInpaint: false,
-      supportsOutpaint: false,
-      supportsChat: isTextLike,
-      supportsComfyWorkflow: isComfyLike,
-      supportsWorkflowUpload: isComfyLike,
-      supportsFlux: false,
-      supportsKontext: false,
-      supportsCheckpointOverride: isArtLike,
-      supportsSampler: isArtLike,
-      supportsNegativePrompt: isArtLike,
-      supportsSeed: isArtLike || isComfyLike,
-      supportsSteps: isArtLike || isComfyLike,
-      supportsBatch: false,
-      supportsVideo: false,
-
-      defaultWidth: 512,
-      defaultHeight: 512,
-      defaultSteps: null,
-      defaultCfg: null,
-      defaultSampler: '',
-      defaultScheduler: '',
+      apiKey: '',
 
       apiLink: '',
       model: '',
-      designer: userStore.user?.designerName || '',
+      designer: userStore.user?.designerName || userStore.user?.username || '',
       version: '',
       notes: '',
       sortOrder: 0,
@@ -1521,62 +1449,23 @@ export const useServerStore = defineStore('serverStore', () => {
       description: serverForm.value.description,
       category: serverForm.value.category,
       serverType: serverForm.value.serverType,
-      generationEngine: serverForm.value.generationEngine,
-      defaultTransport: serverForm.value.defaultTransport,
 
       baseUrl: serverForm.value.baseUrl,
-      browserBaseUrl: serverForm.value.browserBaseUrl,
-      backendBaseUrl: serverForm.value.backendBaseUrl,
       endpointPath: serverForm.value.endpointPath,
       healthPath: serverForm.value.healthPath,
-
-      workflowPath: serverForm.value.workflowPath,
-      workflowJson: serverForm.value.workflowJson,
-      workflowVersion: serverForm.value.workflowVersion,
+      apiLink: serverForm.value.apiLink,
 
       accessMode: serverForm.value.accessMode,
-      requiresClientSideCheck: serverForm.value.requiresClientSideCheck,
-      isPrivateNetwork: serverForm.value.isPrivateNetwork,
-      allowBrowserRequests: serverForm.value.allowBrowserRequests,
+      authType: serverForm.value.authType,
+      apiKeyName: serverForm.value.apiKeyName,
 
       isPublic: serverForm.value.isPublic,
       isOfficial: serverForm.value.isOfficial,
       isDefault: serverForm.value.isDefault,
       isActive: serverForm.value.isActive,
       isEditable: serverForm.value.isEditable,
+      isMature: serverForm.value.isMature,
 
-      requiresApiKey: serverForm.value.requiresApiKey,
-      apiKeyName: serverForm.value.apiKeyName,
-
-      useOidc: serverForm.value.useOidc,
-      oidcProvider: serverForm.value.oidcProvider,
-
-      supportsTxt2Img: serverForm.value.supportsTxt2Img,
-      supportsImg2Img: serverForm.value.supportsImg2Img,
-      supportsImageEdit: serverForm.value.supportsImageEdit,
-      supportsInpaint: serverForm.value.supportsInpaint,
-      supportsOutpaint: serverForm.value.supportsOutpaint,
-      supportsChat: serverForm.value.supportsChat,
-      supportsComfyWorkflow: serverForm.value.supportsComfyWorkflow,
-      supportsWorkflowUpload: serverForm.value.supportsWorkflowUpload,
-      supportsFlux: serverForm.value.supportsFlux,
-      supportsKontext: serverForm.value.supportsKontext,
-      supportsCheckpointOverride: serverForm.value.supportsCheckpointOverride,
-      supportsSampler: serverForm.value.supportsSampler,
-      supportsNegativePrompt: serverForm.value.supportsNegativePrompt,
-      supportsSeed: serverForm.value.supportsSeed,
-      supportsSteps: serverForm.value.supportsSteps,
-      supportsBatch: serverForm.value.supportsBatch,
-      supportsVideo: serverForm.value.supportsVideo,
-
-      defaultWidth: serverForm.value.defaultWidth,
-      defaultHeight: serverForm.value.defaultHeight,
-      defaultSteps: serverForm.value.defaultSteps,
-      defaultCfg: serverForm.value.defaultCfg,
-      defaultSampler: serverForm.value.defaultSampler,
-      defaultScheduler: serverForm.value.defaultScheduler,
-
-      apiLink: serverForm.value.apiLink,
       model: serverForm.value.model,
       designer: serverForm.value.designer,
       version: serverForm.value.version,
@@ -1584,6 +1473,7 @@ export const useServerStore = defineStore('serverStore', () => {
       sortOrder: serverForm.value.sortOrder,
       lastCheckedAt: serverForm.value.lastCheckedAt,
       lastStatus: serverForm.value.lastStatus,
+      artPrompt: serverForm.value.artPrompt,
     }
 
     isSaving.value = true
@@ -1622,9 +1512,7 @@ export const useServerStore = defineStore('serverStore', () => {
 
     const canUse =
       Boolean(server.isActive) &&
-      (server.serverType === 'TEXT' ||
-        server.serverType === 'OPENAI_COMPATIBLE' ||
-        Boolean(server.supportsChat))
+      ['OPENAI', 'ANTHROPIC', 'CUSTOM'].includes(server.serverType)
 
     if (!canUse) {
       return {
@@ -1703,12 +1591,7 @@ export const useServerStore = defineStore('serverStore', () => {
 
     const canUse =
       Boolean(server.isActive) &&
-      (server.serverType === 'ART' ||
-        server.serverType === 'COMFY' ||
-        server.serverType === 'A1111' ||
-        Boolean(server.supportsTxt2Img) ||
-        Boolean(server.supportsImg2Img) ||
-        Boolean(server.supportsComfyWorkflow))
+      (server.serverType === 'A1111' || server.serverType === 'COMFY')
 
     if (!canUse) {
       return {
@@ -1794,18 +1677,13 @@ export const useServerStore = defineStore('serverStore', () => {
     return {
       ...serverInput,
       ...(storedServer ?? {}),
-      allowBrowserRequests:
-        storedServer?.allowBrowserRequests ?? serverInput.allowBrowserRequests,
-      requiresClientSideCheck:
-        storedServer?.requiresClientSideCheck ??
-        serverInput.requiresClientSideCheck,
-      isPrivateNetwork:
-        storedServer?.isPrivateNetwork ?? serverInput.isPrivateNetwork,
       accessMode: storedServer?.accessMode ?? serverInput.accessMode,
+      authType: storedServer?.authType ?? serverInput.authType,
       baseUrl: storedServer?.baseUrl ?? serverInput.baseUrl,
       healthPath: storedServer?.healthPath ?? serverInput.healthPath,
       endpointPath: storedServer?.endpointPath ?? serverInput.endpointPath,
       serverType: storedServer?.serverType ?? serverInput.serverType,
+      apiKeyName: storedServer?.apiKeyName ?? serverInput.apiKeyName,
     }
   }
 
@@ -1833,11 +1711,6 @@ export const useServerStore = defineStore('serverStore', () => {
     const patchedServer: Server = {
       ...currentServer,
       accessMode: data.accessMode ?? currentServer.accessMode,
-      requiresClientSideCheck:
-        data.requiresClientSideCheck ?? currentServer.requiresClientSideCheck,
-      isPrivateNetwork: data.isPrivateNetwork ?? currentServer.isPrivateNetwork,
-      allowBrowserRequests:
-        data.allowBrowserRequests ?? currentServer.allowBrowserRequests,
       lastStatus: nextStatus,
     }
 
@@ -1876,55 +1749,23 @@ export const useServerStore = defineStore('serverStore', () => {
           description: source.description,
           category: source.category,
           serverType: source.serverType,
+          accessMode: source.accessMode,
+          authType: source.authType,
           baseUrl: source.baseUrl,
           endpointPath: source.endpointPath,
           healthPath: source.healthPath,
-          isActive: source.isActive,
-          requiresApiKey: source.requiresApiKey,
+          apiLink: source.apiLink,
           apiKeyName: source.apiKeyName,
-          supportsTxt2Img: source.supportsTxt2Img,
-          supportsImg2Img: source.supportsImg2Img,
-          supportsChat: source.supportsChat,
-          supportsComfyWorkflow: source.supportsComfyWorkflow,
-          supportsCheckpointOverride: source.supportsCheckpointOverride,
-          supportsSampler: source.supportsSampler,
-          supportsNegativePrompt: source.supportsNegativePrompt,
-          supportsSeed: source.supportsSeed,
-          supportsSteps: source.supportsSteps,
+          model: source.model,
           designer: source.designer,
           version: source.version,
           notes: source.notes,
           sortOrder: source.sortOrder,
-          accessMode: source.accessMode,
-          requiresClientSideCheck: source.requiresClientSideCheck,
-          isPrivateNetwork: source.isPrivateNetwork,
-          allowBrowserRequests: source.allowBrowserRequests,
-          useOidc: source.useOidc,
+          isActive: source.isActive,
+          isEditable: source.isEditable,
+          isMature: source.isMature,
           lastStatus: 'UNKNOWN' as ServerStatus,
-          generationEngine: source.generationEngine,
-          defaultTransport: source.defaultTransport,
-
-          browserBaseUrl: source.browserBaseUrl,
-          backendBaseUrl: source.backendBaseUrl,
-
-          workflowPath: source.workflowPath,
-          workflowJson: cleanWorkflowJson(source.workflowJson),
-          workflowVersion: source.workflowVersion,
-
-          supportsImageEdit: source.supportsImageEdit,
-          supportsInpaint: source.supportsInpaint,
-          supportsOutpaint: source.supportsOutpaint,
-          supportsWorkflowUpload: source.supportsWorkflowUpload,
-          supportsFlux: source.supportsFlux,
-          supportsKontext: source.supportsKontext,
-          supportsBatch: source.supportsBatch,
-
-          defaultWidth: source.defaultWidth,
-          defaultHeight: source.defaultHeight,
-          defaultSteps: source.defaultSteps,
-          defaultCfg: source.defaultCfg,
-          defaultSampler: source.defaultSampler,
-          defaultScheduler: source.defaultScheduler,
+          artPrompt: source.artPrompt,
         }
       : {}
 
@@ -1998,64 +1839,23 @@ export const useServerStore = defineStore('serverStore', () => {
       label: '',
       description: '',
       category: '',
-      serverType: 'TEXT',
+      serverType: 'CUSTOM',
       baseUrl: '',
       endpointPath: '',
       healthPath: '/health',
       userId: userStore.user?.id ?? null,
+
       isPublic: false,
       isOfficial: false,
       isDefault: false,
       isActive: true,
       isEditable: true,
+      isMature: false,
 
-      accessMode: 'LOCAL',
-      requiresClientSideCheck: true,
-      isPrivateNetwork: true,
-      allowBrowserRequests: true,
-
-      requiresApiKey: false,
+      accessMode: 'BROWSER',
+      authType: 'NONE',
       apiKeyName: '',
       apiKey: '',
-
-      useOidc: false,
-      oidcProvider: '',
-
-      generationEngine: 'A1111',
-      defaultTransport: 'BROWSER',
-
-      browserBaseUrl: '',
-      backendBaseUrl: '',
-
-      workflowPath: '',
-      workflowJson: null,
-      workflowVersion: '',
-
-      supportsImageEdit: false,
-      supportsInpaint: false,
-      supportsOutpaint: false,
-      supportsWorkflowUpload: false,
-      supportsFlux: false,
-      supportsKontext: false,
-      supportsBatch: false,
-
-      defaultWidth: 512,
-      defaultHeight: 512,
-      defaultSteps: null,
-      defaultCfg: null,
-      defaultSampler: '',
-      defaultScheduler: '',
-
-      supportsTxt2Img: false,
-      supportsImg2Img: false,
-      supportsChat: true,
-      supportsComfyWorkflow: false,
-      supportsCheckpointOverride: false,
-      supportsSampler: false,
-      supportsNegativePrompt: false,
-      supportsSeed: false,
-      supportsSteps: false,
-      supportsVideo: false,
 
       apiLink: '',
       model: '',
@@ -2064,7 +1864,8 @@ export const useServerStore = defineStore('serverStore', () => {
       notes: '',
       sortOrder: 0,
       lastCheckedAt: null,
-      lastStatus: null,
+      lastStatus: 'UNKNOWN',
+      artPrompt: '',
     }
   }
 

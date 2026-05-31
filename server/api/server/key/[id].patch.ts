@@ -10,10 +10,29 @@ import {
   safeServer,
 } from './../../../utils/serverApi'
 
+type ServerKeyAuthType = 'NONE' | 'BEARER' | 'HEADER' | 'QUERY' | 'API_KEY'
+
 type KeyPayload = {
   apiKey?: string | null
   apiKeyName?: string | null
+  authType?: ServerKeyAuthType
   clearKey?: boolean
+}
+
+const authTypes: readonly ServerKeyAuthType[] = [
+  'NONE',
+  'BEARER',
+  'HEADER',
+  'QUERY',
+  'API_KEY',
+]
+
+function cleanAuthType(value: unknown): ServerKeyAuthType | undefined {
+  if (typeof value !== 'string') return undefined
+
+  return authTypes.includes(value as ServerKeyAuthType)
+    ? (value as ServerKeyAuthType)
+    : undefined
 }
 
 function cleanText(value: unknown): string | null {
@@ -45,12 +64,12 @@ export default defineEventHandler(async (event) => {
     const data: {
       apiKey?: string | null
       apiKeyName?: string | null
-      requiresApiKey?: boolean
+      authType?: KeyPayload['authType']
     } = {}
 
     if (body.clearKey) {
       data.apiKey = null
-      data.requiresApiKey = false
+      data.authType = 'NONE'
     } else {
       const apiKey = cleanText(body.apiKey)
 
@@ -62,11 +81,12 @@ export default defineEventHandler(async (event) => {
       }
 
       data.apiKey = apiKey
-      data.requiresApiKey = true
+      data.authType =
+        cleanAuthType(body.authType) || server.authType || 'API_KEY'
     }
 
     if ('apiKeyName' in body) {
-      data.apiKeyName = cleanText(body.apiKeyName) || 'API Key'
+      data.apiKeyName = cleanText(body.apiKeyName) || null
     }
 
     const updatedServer = await prisma.server.update({

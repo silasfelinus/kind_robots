@@ -1,12 +1,7 @@
 // /stores/helpers/serverHelper.ts
 import type { Server } from '~/prisma/generated/prisma/client'
 
-export type ModelStatusEngine =
-  | 'A1111'
-  | 'COMFY'
-  | 'FLUX'
-  | 'KONTEXT'
-  | 'UNKNOWN'
+export type ModelStatusEngine = 'A1111' | 'COMFY' | 'UNKNOWN'
 
 export type ModelStatusTone = 'safe' | 'warning' | 'error' | 'unknown'
 
@@ -88,20 +83,13 @@ export function getModelStatusEngine(
 ): ModelStatusEngine {
   if (!server) return 'UNKNOWN'
 
-  if (server.generationEngine === 'A1111' || server.serverType === 'A1111') {
+  if (server.serverType === 'A1111') {
     return 'A1111'
   }
 
-  if (
-    server.generationEngine === 'COMFY' ||
-    server.serverType === 'COMFY' ||
-    server.supportsComfyWorkflow
-  ) {
+  if (server.serverType === 'COMFY') {
     return 'COMFY'
   }
-
-  if (server.generationEngine === 'FLUX') return 'FLUX'
-  if (server.generationEngine === 'KONTEXT') return 'KONTEXT'
 
   return 'UNKNOWN'
 }

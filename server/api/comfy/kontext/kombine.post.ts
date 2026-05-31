@@ -1,9 +1,8 @@
 // /server/api/comfy/kontext/kombine.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import prisma from '../../../utils/prisma'
+import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
-import type { Server } from '~/prisma/generated/prisma/client'
 import { authAndGate } from '../../../utils/comfyGate'
 
 type KombineGenerateRequest = {
@@ -81,14 +80,22 @@ type DecodedImage = {
 const defaultTimeoutMs = 180_000
 const pollIntervalMs = 1_500
 
+const DEFAULT_KOMBINE_WIDTH = 768
+const DEFAULT_KOMBINE_HEIGHT = 768
+const DEFAULT_KOMBINE_STEPS = 20
+const DEFAULT_KOMBINE_CFG = 1
+const DEFAULT_KOMBINE_GUIDANCE = 2.5
+const DEFAULT_KOMBINE_SAMPLER = 'euler'
+const DEFAULT_KOMBINE_SCHEDULER = 'simple'
+const DEFAULT_KOMBINE_DENOISE = 1
+
 const defaultPrompt =
   'Combine these two source images into one coherent cinematic image, high quality style, elaborate design, gorgeous lighting, maximal detail'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<KombineGenerateRequest>(event)
-    // Shared auth + mana gate. Throws 401 (bad token) or 402 (insufficient
-    // mana on a metered server) before any expensive Comfy work happens.
+
     const gate = await authAndGate(event, {
       engine: 'kontext',
       steps: body.steps,
@@ -101,43 +108,10 @@ export default defineEventHandler(async (event) => {
       userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
-      capability: 'art',
+      capability: 'comfy',
     })
 
-    if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
-      throw createError({
-        statusCode: 400,
-        message: `Server "${server.title}" is not a Comfy server.`,
-      })
-    }
-
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
+    assertComfyServer(server)
 
     if (!body.imageDataA?.trim()) {
       throw createError({
@@ -174,15 +148,15 @@ export default defineEventHandler(async (event) => {
       prompt: body.prompt?.trim() || defaultPrompt,
       imageNameA: uploadedA.name || '',
       imageNameB: uploadedB.name || '',
-      width: body.width ?? server.defaultWidth ?? 768,
-      height: body.height ?? server.defaultHeight ?? 768,
-      steps: body.steps ?? server.defaultSteps ?? 20,
-      cfg: body.cfg ?? server.defaultCfg ?? 1,
-      guidance: body.guidance ?? 2.5,
+      width: body.width ?? DEFAULT_KOMBINE_WIDTH,
+      height: body.height ?? DEFAULT_KOMBINE_HEIGHT,
+      steps: body.steps ?? DEFAULT_KOMBINE_STEPS,
+      cfg: body.cfg ?? DEFAULT_KOMBINE_CFG,
+      guidance: body.guidance ?? DEFAULT_KOMBINE_GUIDANCE,
       seed: body.seed ?? -1,
-      sampler: body.sampler ?? server.defaultSampler ?? 'euler',
-      scheduler: body.scheduler ?? server.defaultScheduler ?? 'simple',
-      denoise: body.denoise ?? 1,
+      sampler: body.sampler ?? DEFAULT_KOMBINE_SAMPLER,
+      scheduler: body.scheduler ?? DEFAULT_KOMBINE_SCHEDULER,
+      denoise: body.denoise ?? DEFAULT_KOMBINE_DENOISE,
       stitchDirection: body.stitchDirection ?? 'right',
       matchImageSize: body.matchImageSize ?? true,
       spacingWidth: body.spacingWidth ?? 0,
@@ -238,7 +212,10 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       serverName: server.title,
       baseUrl,
-      mana: { balance, charged: gate.cost },
+      mana: {
+        balance,
+        charged: gate.cost,
+      },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -523,8 +500,24 @@ function getImageExtension(mimeType: string): string {
   return 'png'
 }
 
+function assertComfyServer(server: Server): void {
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not active.`,
+    })
+  }
+
+  if (server.serverType !== 'COMFY') {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports Comfy servers.`,
+    })
+  }
+}
+
 function getComfyBaseUrl(server: Server): string {
-  return cleanComfyBaseUrl(getServerEndpoint(server, 'backend'))
+  return cleanComfyBaseUrl(getServerEndpoint(server))
 }
 
 function cleanComfyBaseUrl(url: string): string {

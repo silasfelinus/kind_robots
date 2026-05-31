@@ -375,59 +375,17 @@ export const useArtStore = defineStore('artStore', () => {
     return new Map(state.artImages.map((image) => [image.id, image]))
   })
 
-  function isOfficialFallbackServer(server: Server): boolean {
-    return Boolean(
-      server.isOfficial ||
-      server.category === 'official' ||
-      server.userId === 9 ||
-      server.isMetered,
-    )
-  }
-
-  function isUserSupportedKontextServer(server: Server): boolean {
+  function isUserComfyServer(server: Server): boolean {
     if (!server.isActive) return false
-    if (isOfficialFallbackServer(server)) return false
+    if (server.serverType !== 'COMFY') return false
+    if (server.isOfficial) return false
+    if (server.category === 'official') return false
+    if (server.userId === 9) return false
 
-    const isComfy =
-      server.serverType === 'COMFY' ||
-      server.generationEngine === 'COMFY' ||
-      Boolean(server.supportsComfyWorkflow)
-
-    const supportsFluxWorkflow =
-      Boolean(server.supportsFlux) ||
-      Boolean(server.supportsKontext) ||
-      Boolean(server.supportsWorkflowUpload)
-
-    return isComfy && supportsFluxWorkflow
+    return true
   }
 
-  function isHostedKontextFallbackServer(server: Server): boolean {
-    if (!server.isActive) return false
-
-    const isComfy =
-      server.serverType === 'COMFY' ||
-      server.generationEngine === 'COMFY' ||
-      Boolean(server.supportsComfyWorkflow)
-
-    return isComfy && isOfficialFallbackServer(server)
-  }
-
-  function isKontextCapableServer(server: Server): boolean {
-    if (!server.isActive) return false
-
-    return (
-      server.generationEngine === 'KONTEXT' ||
-      server.generationEngine === 'COMFY' ||
-      server.serverType === 'COMFY' ||
-      Boolean(server.supportsComfyWorkflow) ||
-      Boolean(server.supportsFlux)
-    )
-  }
-
-  function findKontextServer(
-    preferredServerId?: number | null,
-    options: { allowHostedFallback?: boolean } = {},
-  ): Server | null {
+  function findKontextServer(preferredServerId?: number | null): Server | null {
     const servers = Array.isArray(serverStore.servers)
       ? (serverStore.servers as Server[])
       : []
@@ -436,84 +394,24 @@ export const useArtStore = defineStore('artStore', () => {
       const explicitServer =
         serverStore.getServerById(preferredServerId) ?? null
 
-      if (explicitServer && isUserSupportedKontextServer(explicitServer)) {
-        return explicitServer
-      }
-
-      if (
-        explicitServer &&
-        options.allowHostedFallback &&
-        isHostedKontextFallbackServer(explicitServer)
-      ) {
+      if (explicitServer && isUserComfyServer(explicitServer)) {
         return explicitServer
       }
     }
 
     const activeServer = serverStore.activeArtServer
 
-    if (activeServer && isUserSupportedKontextServer(activeServer)) {
+    if (activeServer && isUserComfyServer(activeServer)) {
       return activeServer
     }
 
-    const ownedServer =
-      servers.find((server) => {
-        return (
-          server.userId === userStore.userId &&
-          server.generationEngine === 'KONTEXT' &&
-          isUserSupportedKontextServer(server)
-        )
-      }) ||
-      servers.find((server) => {
-        return (
-          server.userId === userStore.userId &&
-          server.generationEngine === 'COMFY' &&
-          isUserSupportedKontextServer(server)
-        )
-      }) ||
-      servers.find((server) => {
-        return (
-          server.userId === userStore.userId &&
-          isUserSupportedKontextServer(server)
-        )
-      })
+    const ownedServer = servers.find((server) => {
+      return server.userId === userStore.userId && isUserComfyServer(server)
+    })
 
     if (ownedServer) return ownedServer
 
-    const personalServer =
-      servers.find((server) => {
-        return (
-          server.generationEngine === 'KONTEXT' &&
-          isUserSupportedKontextServer(server)
-        )
-      }) ||
-      servers.find((server) => {
-        return (
-          server.generationEngine === 'COMFY' &&
-          isUserSupportedKontextServer(server)
-        )
-      }) ||
-      servers.find(isUserSupportedKontextServer)
-
-    if (personalServer) return personalServer
-
-    if (!options.allowHostedFallback) return null
-
-    return (
-      servers.find((server) => {
-        return (
-          server.generationEngine === 'KONTEXT' &&
-          isHostedKontextFallbackServer(server)
-        )
-      }) ||
-      servers.find((server) => {
-        return (
-          server.generationEngine === 'COMFY' &&
-          isHostedKontextFallbackServer(server)
-        )
-      }) ||
-      servers.find(isHostedKontextFallbackServer) ||
-      null
-    )
+    return servers.find(isUserComfyServer) || null
   }
 
   const publicArtImages = computed(() => {
@@ -557,23 +455,10 @@ export const useArtStore = defineStore('artStore', () => {
 
     return servers.filter((server) => {
       if (!server.isActive) return false
-
-      if (server.generationEngine === 'OPENAI_IMAGE') return true
-      if (server.generationEngine === 'FLUX') return true
-      if (server.generationEngine === 'KONTEXT') return true
-      if (server.generationEngine === 'COMFY') return true
-      if (server.generationEngine === 'A1111') return true
-
-      if (server.serverType === 'COMFY') return true
-      if (server.serverType === 'A1111') return true
-
-      return Boolean(
-        server.supportsTxt2Img ||
-        server.supportsComfyWorkflow ||
-        server.supportsFlux,
-      )
+      return server.serverType === 'A1111' || server.serverType === 'COMFY'
     })
   })
+
   const activeGenerationServer = computed<Server | null>(() => {
     if (state.artForm.serverId) {
       return serverStore.getServerById(state.artForm.serverId) ?? null
@@ -597,7 +482,6 @@ export const useArtStore = defineStore('artStore', () => {
     return (
       state.artForm.sampler ||
       checkpointStore.selectedSampler?.name ||
-      serverStore.activeArtServer?.defaultSampler ||
       'Euler a'
     )
   })
@@ -628,9 +512,10 @@ export const useArtStore = defineStore('artStore', () => {
     return Boolean(
       !state.loading &&
       !state.isGenerating &&
-      state.artForm.serverId &&
-      selectedCheckpointName.value &&
-      finalPromptString.value,
+      finalPromptString.value &&
+      (state.artForm.engine === 'openai' ||
+        state.artForm.engine === 'kontext' ||
+        state.artForm.serverId),
     )
   })
 
@@ -1522,16 +1407,18 @@ export const useArtStore = defineStore('artStore', () => {
       'Content-Type': 'application/json',
     }
 
-    if (server.requiresApiKey && server.apiKey && server.apiKeyName) {
-      const apiKeyName = server.apiKeyName.trim()
+    if (!server.apiKey) return headers
 
-      if (apiKeyName.toLowerCase() === 'authorization') {
-        headers.Authorization = server.apiKey.startsWith('Bearer ')
-          ? server.apiKey
-          : `Bearer ${server.apiKey}`
-      } else {
-        headers[apiKeyName] = server.apiKey
-      }
+    if (server.authType === 'BEARER') {
+      headers.Authorization = server.apiKey.startsWith('Bearer ')
+        ? server.apiKey
+        : `Bearer ${server.apiKey}`
+      return headers
+    }
+
+    if (server.authType === 'HEADER' || server.authType === 'API_KEY') {
+      headers[server.apiKeyName || 'X-API-Key'] = server.apiKey
+      return headers
     }
 
     return headers
@@ -1539,9 +1426,7 @@ export const useArtStore = defineStore('artStore', () => {
 
   function getSelectedArtServer(data: GenerateArtData): Server | null {
     if (data.engine === 'kontext') {
-      return findKontextServer(data.serverId, {
-        allowHostedFallback: userStore.isGuest || data.serverId === null,
-      })
+      return findKontextServer(data.serverId)
     }
 
     const selectedServer = data.serverId
@@ -1559,56 +1444,29 @@ export const useArtStore = defineStore('artStore', () => {
     server: Server,
     data?: GenerateArtData,
   ): ArtImageGenerationEngine {
-    if (data?.engine) {
-      return data.engine
-    }
+    if (data?.engine) return data.engine
 
-    if (server.generationEngine === 'OPENAI_IMAGE') return 'openai'
-    if (server.generationEngine === 'FLUX') return 'flux'
-    if (server.generationEngine === 'KONTEXT') return 'kontext'
-    if (server.generationEngine === 'COMFY') return 'comfy'
-    if (server.generationEngine === 'A1111') return 'a1111'
-
-    if (server.serverType === 'COMFY' || server.supportsComfyWorkflow) {
-      if (server.supportsFlux) return 'flux'
-      return 'comfy'
-    }
-
-    if (server.serverType === 'A1111') {
-      return 'a1111'
-    }
+    if (server.serverType === 'A1111') return 'a1111'
+    if (server.serverType === 'COMFY') return 'comfy'
+    if (server.serverType === 'OPENAI') return 'openai'
 
     throw new Error(
-      `Server "${server.title}" is ${server.serverType}/${server.generationEngine}. This generator supports Stable Diffusion, Comfy SDXL, Comfy Flux, Kontext, and OpenAI Images only.`,
+      `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, and OpenAI image routes.`,
     )
   }
+
   function getArtImageGenerationTransport(
     server: Server,
     data?: GenerateArtData,
   ): ArtImageGenerationTransport {
-    if (data?.transport) {
-      return data.transport
-    }
+    if (data?.transport) return data.transport
 
-    const defaultTransport = String(
-      (server as Server & { defaultTransport?: string | null })
-        .defaultTransport || '',
-    ).toLowerCase()
-
-    if (defaultTransport === 'backend') {
-      return 'backend'
-    }
-
-    if (defaultTransport === 'browser') {
+    if (
+      server.accessMode === 'BROWSER' ||
+      server.accessMode === 'LOCAL' ||
+      server.accessMode === 'TAILSCALE'
+    ) {
       return 'browser'
-    }
-
-    if (server.accessMode === 'LOCAL') {
-      return 'browser'
-    }
-
-    if (server.requiresClientSideCheck || server.isPrivateNetwork) {
-      return server.allowBrowserRequests ? 'browser' : 'backend'
     }
 
     return 'backend'
@@ -1622,22 +1480,9 @@ export const useArtStore = defineStore('artStore', () => {
       throw new Error(`Server "${server.title}" is not active.`)
     }
 
-    const engine = getArtImageGenerationEngine(server, data)
-    const transport = getArtImageGenerationTransport(server, data)
-
-    if (engine === 'a1111' && !server.supportsTxt2Img) {
-      throw new Error(`Server "${server.title}" does not support txt2img.`)
-    }
-
-    if (transport === 'browser' && !server.allowBrowserRequests) {
-      throw new Error(
-        `Server "${server.title}" does not allow browser requests. Switch this server to backend/proxy transport.`,
-      )
-    }
-
     return {
-      engine,
-      transport,
+      engine: getArtImageGenerationEngine(server, data),
+      transport: getArtImageGenerationTransport(server, data),
     }
   }
 
@@ -1647,41 +1492,9 @@ export const useArtStore = defineStore('artStore', () => {
   ): Promise<string> {
     const checkpointStore = useCheckpointStore()
 
-    const serverEngine = server.generationEngine || ''
-    const serverType = server.serverType || ''
-    const isA1111Server = serverType === 'A1111' || serverEngine === 'A1111'
-    const isComfyServer =
-      serverType === 'COMFY' ||
-      serverEngine === 'COMFY' ||
-      Boolean(server.supportsComfyWorkflow)
-
-    if (!isA1111Server) {
+    if (server.serverType !== 'A1111') {
       throw new Error(
-        `Server "${server.title}" is ${serverType}/${serverEngine}. Browser A1111 generation only supports A1111 or Forge-compatible servers.`,
-      )
-    }
-
-    if (isComfyServer) {
-      throw new Error(
-        `Server "${server.title}" supports Comfy workflows. Use the Comfy browser route instead.`,
-      )
-    }
-
-    if (serverEngine === 'FLUX') {
-      throw new Error(
-        `Server "${server.title}" is a Flux server. Use the Flux browser route instead.`,
-      )
-    }
-
-    if (serverEngine === 'KONTEXT') {
-      throw new Error(
-        `Server "${server.title}" is a Kontext server. Use the Kontext browser route instead.`,
-      )
-    }
-
-    if (!server.allowBrowserRequests) {
-      throw new Error(
-        `Server "${server.title}" does not allow browser requests.`,
+        `Server "${server.title}" is ${server.serverType}. Browser A1111 generation only supports A1111 or Forge-compatible servers.`,
       )
     }
 
@@ -1717,22 +1530,16 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     const sampler =
-      form.sampler ||
-      checkpointStore.selectedSampler?.name ||
-      server.defaultSampler ||
-      'Euler a'
+      form.sampler || checkpointStore.selectedSampler?.name || 'Euler a'
 
     const requestBody: Record<string, unknown> = {
       prompt: cleanPrompt,
       negative_prompt: form.negativePrompt || ' ',
-      steps: form.steps ?? server.defaultSteps ?? 20,
-      cfg_scale: calculateCfg(
-        form.cfg ?? server.defaultCfg ?? 3,
-        form.cfgHalf ?? false,
-      ),
+      steps: form.steps ?? 20,
+      cfg_scale: calculateCfg(form.cfg ?? 3, form.cfgHalf ?? false),
       seed: form.seed ?? -1,
-      width: form.width ?? server.defaultWidth ?? 512,
-      height: form.height ?? server.defaultHeight ?? 512,
+      width: form.width ?? 512,
+      height: form.height ?? 512,
       sampler_index: sampler,
       user: form.designer || 'kindguest',
       override_settings: {
@@ -2100,20 +1907,21 @@ export const useArtStore = defineStore('artStore', () => {
       .replace(/\s+/g, ' ')
 
     const engine = artData?.engine ?? state.artForm.engine ?? undefined
+
     const explicitServerIdProvided =
       artData !== undefined &&
       Object.prototype.hasOwnProperty.call(artData, 'serverId')
+
     const explicitServerNameProvided =
       artData !== undefined &&
       Object.prototype.hasOwnProperty.call(artData, 'serverName')
 
     const kontextServer =
-      engine === 'kontext'
-        ? findKontextServer(
-            explicitServerIdProvided ? (artData?.serverId ?? null) : null,
-            { allowHostedFallback: false },
-          )
-        : null
+      engine === 'kontext' && !explicitServerIdProvided
+        ? findKontextServer()
+        : engine === 'kontext' && typeof artData?.serverId === 'number'
+          ? findKontextServer(artData.serverId)
+          : null
 
     return {
       promptString,
@@ -2156,19 +1964,17 @@ export const useArtStore = defineStore('artStore', () => {
       serverId:
         engine === 'kontext'
           ? explicitServerIdProvided
-            ? (artData?.serverId ?? kontextServer?.id ?? null)
+            ? (artData?.serverId ?? null)
             : (kontextServer?.id ?? null)
           : (artData?.serverId ??
             state.artForm.serverId ??
             serverStore.activeArtServer?.id ??
             null),
+
       serverName:
         engine === 'kontext'
           ? explicitServerNameProvided
-            ? (artData?.serverName ??
-              kontextServer?.label ??
-              kontextServer?.title ??
-              null)
+            ? (artData?.serverName ?? null)
             : (kontextServer?.label ?? kontextServer?.title ?? null)
           : (artData?.serverName ??
             state.artForm.serverName ??

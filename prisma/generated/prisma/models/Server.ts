@@ -28,22 +28,14 @@ export type AggregateServer = {
 
 export type ServerAvgAggregateOutputType = {
   id: number | null
-  userId: number | null
   sortOrder: number | null
-  defaultCfg: number | null
-  defaultHeight: number | null
-  defaultSteps: number | null
-  defaultWidth: number | null
+  userId: number | null
 }
 
 export type ServerSumAggregateOutputType = {
   id: number | null
-  userId: number | null
   sortOrder: number | null
-  defaultCfg: number | null
-  defaultHeight: number | null
-  defaultSteps: number | null
-  defaultWidth: number | null
+  userId: number | null
 }
 
 export type ServerMinAggregateOutputType = {
@@ -53,66 +45,30 @@ export type ServerMinAggregateOutputType = {
   title: string | null
   label: string | null
   description: string | null
-  serverType: $Enums.ServerType | null
   category: string | null
+  serverType: $Enums.ServerType | null
+  accessMode: $Enums.ServerAccessMode | null
+  authType: $Enums.ServerAuthType | null
   baseUrl: string | null
   endpointPath: string | null
   healthPath: string | null
+  apiLink: string | null
+  apiKey: string | null
+  apiKeyName: string | null
+  model: string | null
+  notes: string | null
+  designer: string | null
+  version: string | null
+  sortOrder: number | null
   userId: number | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
   isEditable: boolean | null
-  requiresApiKey: boolean | null
-  apiKeyName: string | null
-  supportsTxt2Img: boolean | null
-  supportsImg2Img: boolean | null
-  supportsChat: boolean | null
-  supportsComfyWorkflow: boolean | null
-  supportsCheckpointOverride: boolean | null
-  supportsSampler: boolean | null
-  supportsNegativePrompt: boolean | null
-  supportsSeed: boolean | null
-  supportsSteps: boolean | null
-  supportsVideo: boolean | null
-  apiLink: string | null
-  model: string | null
-  apiKey: string | null
-  designer: string | null
-  version: string | null
-  notes: string | null
-  sortOrder: number | null
+  isMature: boolean | null
   lastCheckedAt: Date | null
   lastStatus: $Enums.ServerStatus | null
-  oidcProvider: string | null
-  useOidc: boolean | null
-  accessMode: $Enums.ServerAccessMode | null
-  allowBrowserRequests: boolean | null
-  isPrivateNetwork: boolean | null
-  requiresClientSideCheck: boolean | null
-  backendBaseUrl: string | null
-  browserBaseUrl: string | null
-  defaultCfg: number | null
-  defaultHeight: number | null
-  defaultSampler: string | null
-  defaultScheduler: string | null
-  defaultSteps: number | null
-  defaultTransport: $Enums.ServerTransport | null
-  defaultWidth: number | null
-  generationEngine: $Enums.ServerGenerationEngine | null
-  supportsBatch: boolean | null
-  supportsFlux: boolean | null
-  supportsImageEdit: boolean | null
-  supportsInpaint: boolean | null
-  supportsKontext: boolean | null
-  supportsOutpaint: boolean | null
-  supportsWorkflowUpload: boolean | null
-  isMetered: boolean | null
-  workflowJson: string | null
-  workflowPath: string | null
-  workflowVersion: string | null
-  isMature: boolean | null
   artPrompt: string | null
 }
 
@@ -123,66 +79,30 @@ export type ServerMaxAggregateOutputType = {
   title: string | null
   label: string | null
   description: string | null
-  serverType: $Enums.ServerType | null
   category: string | null
+  serverType: $Enums.ServerType | null
+  accessMode: $Enums.ServerAccessMode | null
+  authType: $Enums.ServerAuthType | null
   baseUrl: string | null
   endpointPath: string | null
   healthPath: string | null
+  apiLink: string | null
+  apiKey: string | null
+  apiKeyName: string | null
+  model: string | null
+  notes: string | null
+  designer: string | null
+  version: string | null
+  sortOrder: number | null
   userId: number | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
   isEditable: boolean | null
-  requiresApiKey: boolean | null
-  apiKeyName: string | null
-  supportsTxt2Img: boolean | null
-  supportsImg2Img: boolean | null
-  supportsChat: boolean | null
-  supportsComfyWorkflow: boolean | null
-  supportsCheckpointOverride: boolean | null
-  supportsSampler: boolean | null
-  supportsNegativePrompt: boolean | null
-  supportsSeed: boolean | null
-  supportsSteps: boolean | null
-  supportsVideo: boolean | null
-  apiLink: string | null
-  model: string | null
-  apiKey: string | null
-  designer: string | null
-  version: string | null
-  notes: string | null
-  sortOrder: number | null
+  isMature: boolean | null
   lastCheckedAt: Date | null
   lastStatus: $Enums.ServerStatus | null
-  oidcProvider: string | null
-  useOidc: boolean | null
-  accessMode: $Enums.ServerAccessMode | null
-  allowBrowserRequests: boolean | null
-  isPrivateNetwork: boolean | null
-  requiresClientSideCheck: boolean | null
-  backendBaseUrl: string | null
-  browserBaseUrl: string | null
-  defaultCfg: number | null
-  defaultHeight: number | null
-  defaultSampler: string | null
-  defaultScheduler: string | null
-  defaultSteps: number | null
-  defaultTransport: $Enums.ServerTransport | null
-  defaultWidth: number | null
-  generationEngine: $Enums.ServerGenerationEngine | null
-  supportsBatch: boolean | null
-  supportsFlux: boolean | null
-  supportsImageEdit: boolean | null
-  supportsInpaint: boolean | null
-  supportsKontext: boolean | null
-  supportsOutpaint: boolean | null
-  supportsWorkflowUpload: boolean | null
-  isMetered: boolean | null
-  workflowJson: string | null
-  workflowPath: string | null
-  workflowVersion: string | null
-  isMature: boolean | null
   artPrompt: string | null
 }
 
@@ -193,66 +113,30 @@ export type ServerCountAggregateOutputType = {
   title: number
   label: number
   description: number
-  serverType: number
   category: number
+  serverType: number
+  accessMode: number
+  authType: number
   baseUrl: number
   endpointPath: number
   healthPath: number
+  apiLink: number
+  apiKey: number
+  apiKeyName: number
+  model: number
+  notes: number
+  designer: number
+  version: number
+  sortOrder: number
   userId: number
   isPublic: number
   isOfficial: number
   isDefault: number
   isActive: number
   isEditable: number
-  requiresApiKey: number
-  apiKeyName: number
-  supportsTxt2Img: number
-  supportsImg2Img: number
-  supportsChat: number
-  supportsComfyWorkflow: number
-  supportsCheckpointOverride: number
-  supportsSampler: number
-  supportsNegativePrompt: number
-  supportsSeed: number
-  supportsSteps: number
-  supportsVideo: number
-  apiLink: number
-  model: number
-  apiKey: number
-  designer: number
-  version: number
-  notes: number
-  sortOrder: number
+  isMature: number
   lastCheckedAt: number
   lastStatus: number
-  oidcProvider: number
-  useOidc: number
-  accessMode: number
-  allowBrowserRequests: number
-  isPrivateNetwork: number
-  requiresClientSideCheck: number
-  backendBaseUrl: number
-  browserBaseUrl: number
-  defaultCfg: number
-  defaultHeight: number
-  defaultSampler: number
-  defaultScheduler: number
-  defaultSteps: number
-  defaultTransport: number
-  defaultWidth: number
-  generationEngine: number
-  supportsBatch: number
-  supportsFlux: number
-  supportsImageEdit: number
-  supportsInpaint: number
-  supportsKontext: number
-  supportsOutpaint: number
-  supportsWorkflowUpload: number
-  isMetered: number
-  workflowJson: number
-  workflowPath: number
-  workflowVersion: number
-  isMature: number
   artPrompt: number
   _all: number
 }
@@ -260,22 +144,14 @@ export type ServerCountAggregateOutputType = {
 
 export type ServerAvgAggregateInputType = {
   id?: true
-  userId?: true
   sortOrder?: true
-  defaultCfg?: true
-  defaultHeight?: true
-  defaultSteps?: true
-  defaultWidth?: true
+  userId?: true
 }
 
 export type ServerSumAggregateInputType = {
   id?: true
-  userId?: true
   sortOrder?: true
-  defaultCfg?: true
-  defaultHeight?: true
-  defaultSteps?: true
-  defaultWidth?: true
+  userId?: true
 }
 
 export type ServerMinAggregateInputType = {
@@ -285,66 +161,30 @@ export type ServerMinAggregateInputType = {
   title?: true
   label?: true
   description?: true
-  serverType?: true
   category?: true
+  serverType?: true
+  accessMode?: true
+  authType?: true
   baseUrl?: true
   endpointPath?: true
   healthPath?: true
+  apiLink?: true
+  apiKey?: true
+  apiKeyName?: true
+  model?: true
+  notes?: true
+  designer?: true
+  version?: true
+  sortOrder?: true
   userId?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
   isActive?: true
   isEditable?: true
-  requiresApiKey?: true
-  apiKeyName?: true
-  supportsTxt2Img?: true
-  supportsImg2Img?: true
-  supportsChat?: true
-  supportsComfyWorkflow?: true
-  supportsCheckpointOverride?: true
-  supportsSampler?: true
-  supportsNegativePrompt?: true
-  supportsSeed?: true
-  supportsSteps?: true
-  supportsVideo?: true
-  apiLink?: true
-  model?: true
-  apiKey?: true
-  designer?: true
-  version?: true
-  notes?: true
-  sortOrder?: true
+  isMature?: true
   lastCheckedAt?: true
   lastStatus?: true
-  oidcProvider?: true
-  useOidc?: true
-  accessMode?: true
-  allowBrowserRequests?: true
-  isPrivateNetwork?: true
-  requiresClientSideCheck?: true
-  backendBaseUrl?: true
-  browserBaseUrl?: true
-  defaultCfg?: true
-  defaultHeight?: true
-  defaultSampler?: true
-  defaultScheduler?: true
-  defaultSteps?: true
-  defaultTransport?: true
-  defaultWidth?: true
-  generationEngine?: true
-  supportsBatch?: true
-  supportsFlux?: true
-  supportsImageEdit?: true
-  supportsInpaint?: true
-  supportsKontext?: true
-  supportsOutpaint?: true
-  supportsWorkflowUpload?: true
-  isMetered?: true
-  workflowJson?: true
-  workflowPath?: true
-  workflowVersion?: true
-  isMature?: true
   artPrompt?: true
 }
 
@@ -355,66 +195,30 @@ export type ServerMaxAggregateInputType = {
   title?: true
   label?: true
   description?: true
-  serverType?: true
   category?: true
+  serverType?: true
+  accessMode?: true
+  authType?: true
   baseUrl?: true
   endpointPath?: true
   healthPath?: true
+  apiLink?: true
+  apiKey?: true
+  apiKeyName?: true
+  model?: true
+  notes?: true
+  designer?: true
+  version?: true
+  sortOrder?: true
   userId?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
   isActive?: true
   isEditable?: true
-  requiresApiKey?: true
-  apiKeyName?: true
-  supportsTxt2Img?: true
-  supportsImg2Img?: true
-  supportsChat?: true
-  supportsComfyWorkflow?: true
-  supportsCheckpointOverride?: true
-  supportsSampler?: true
-  supportsNegativePrompt?: true
-  supportsSeed?: true
-  supportsSteps?: true
-  supportsVideo?: true
-  apiLink?: true
-  model?: true
-  apiKey?: true
-  designer?: true
-  version?: true
-  notes?: true
-  sortOrder?: true
+  isMature?: true
   lastCheckedAt?: true
   lastStatus?: true
-  oidcProvider?: true
-  useOidc?: true
-  accessMode?: true
-  allowBrowserRequests?: true
-  isPrivateNetwork?: true
-  requiresClientSideCheck?: true
-  backendBaseUrl?: true
-  browserBaseUrl?: true
-  defaultCfg?: true
-  defaultHeight?: true
-  defaultSampler?: true
-  defaultScheduler?: true
-  defaultSteps?: true
-  defaultTransport?: true
-  defaultWidth?: true
-  generationEngine?: true
-  supportsBatch?: true
-  supportsFlux?: true
-  supportsImageEdit?: true
-  supportsInpaint?: true
-  supportsKontext?: true
-  supportsOutpaint?: true
-  supportsWorkflowUpload?: true
-  isMetered?: true
-  workflowJson?: true
-  workflowPath?: true
-  workflowVersion?: true
-  isMature?: true
   artPrompt?: true
 }
 
@@ -425,66 +229,30 @@ export type ServerCountAggregateInputType = {
   title?: true
   label?: true
   description?: true
-  serverType?: true
   category?: true
+  serverType?: true
+  accessMode?: true
+  authType?: true
   baseUrl?: true
   endpointPath?: true
   healthPath?: true
+  apiLink?: true
+  apiKey?: true
+  apiKeyName?: true
+  model?: true
+  notes?: true
+  designer?: true
+  version?: true
+  sortOrder?: true
   userId?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
   isActive?: true
   isEditable?: true
-  requiresApiKey?: true
-  apiKeyName?: true
-  supportsTxt2Img?: true
-  supportsImg2Img?: true
-  supportsChat?: true
-  supportsComfyWorkflow?: true
-  supportsCheckpointOverride?: true
-  supportsSampler?: true
-  supportsNegativePrompt?: true
-  supportsSeed?: true
-  supportsSteps?: true
-  supportsVideo?: true
-  apiLink?: true
-  model?: true
-  apiKey?: true
-  designer?: true
-  version?: true
-  notes?: true
-  sortOrder?: true
+  isMature?: true
   lastCheckedAt?: true
   lastStatus?: true
-  oidcProvider?: true
-  useOidc?: true
-  accessMode?: true
-  allowBrowserRequests?: true
-  isPrivateNetwork?: true
-  requiresClientSideCheck?: true
-  backendBaseUrl?: true
-  browserBaseUrl?: true
-  defaultCfg?: true
-  defaultHeight?: true
-  defaultSampler?: true
-  defaultScheduler?: true
-  defaultSteps?: true
-  defaultTransport?: true
-  defaultWidth?: true
-  generationEngine?: true
-  supportsBatch?: true
-  supportsFlux?: true
-  supportsImageEdit?: true
-  supportsInpaint?: true
-  supportsKontext?: true
-  supportsOutpaint?: true
-  supportsWorkflowUpload?: true
-  isMetered?: true
-  workflowJson?: true
-  workflowPath?: true
-  workflowVersion?: true
-  isMature?: true
   artPrompt?: true
   _all?: true
 }
@@ -582,66 +350,30 @@ export type ServerGroupByOutputType = {
   title: string
   label: string | null
   description: string | null
-  serverType: $Enums.ServerType
   category: string | null
-  baseUrl: string
+  serverType: $Enums.ServerType
+  accessMode: $Enums.ServerAccessMode
+  authType: $Enums.ServerAuthType
+  baseUrl: string | null
   endpointPath: string | null
   healthPath: string | null
+  apiLink: string | null
+  apiKey: string | null
+  apiKeyName: string | null
+  model: string | null
+  notes: string | null
+  designer: string | null
+  version: string | null
+  sortOrder: number
   userId: number | null
   isPublic: boolean
   isOfficial: boolean
   isDefault: boolean
   isActive: boolean
   isEditable: boolean
-  requiresApiKey: boolean
-  apiKeyName: string | null
-  supportsTxt2Img: boolean
-  supportsImg2Img: boolean
-  supportsChat: boolean
-  supportsComfyWorkflow: boolean
-  supportsCheckpointOverride: boolean
-  supportsSampler: boolean
-  supportsNegativePrompt: boolean
-  supportsSeed: boolean
-  supportsSteps: boolean
-  supportsVideo: boolean
-  apiLink: string | null
-  model: string | null
-  apiKey: string | null
-  designer: string | null
-  version: string | null
-  notes: string | null
-  sortOrder: number
-  lastCheckedAt: Date | null
-  lastStatus: $Enums.ServerStatus | null
-  oidcProvider: string | null
-  useOidc: boolean
-  accessMode: $Enums.ServerAccessMode
-  allowBrowserRequests: boolean
-  isPrivateNetwork: boolean
-  requiresClientSideCheck: boolean
-  backendBaseUrl: string | null
-  browserBaseUrl: string | null
-  defaultCfg: number | null
-  defaultHeight: number
-  defaultSampler: string | null
-  defaultScheduler: string | null
-  defaultSteps: number | null
-  defaultTransport: $Enums.ServerTransport
-  defaultWidth: number
-  generationEngine: $Enums.ServerGenerationEngine
-  supportsBatch: boolean
-  supportsFlux: boolean
-  supportsImageEdit: boolean
-  supportsInpaint: boolean
-  supportsKontext: boolean
-  supportsOutpaint: boolean
-  supportsWorkflowUpload: boolean
-  isMetered: boolean
-  workflowJson: string | null
-  workflowPath: string | null
-  workflowVersion: string | null
   isMature: boolean
+  lastCheckedAt: Date | null
+  lastStatus: $Enums.ServerStatus
   artPrompt: string | null
   _count: ServerCountAggregateOutputType | null
   _avg: ServerAvgAggregateOutputType | null
@@ -675,66 +407,30 @@ export type ServerWhereInput = {
   title?: Prisma.StringFilter<"Server"> | string
   label?: Prisma.StringNullableFilter<"Server"> | string | null
   description?: Prisma.StringNullableFilter<"Server"> | string | null
-  serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
   category?: Prisma.StringNullableFilter<"Server"> | string | null
-  baseUrl?: Prisma.StringFilter<"Server"> | string
+  serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
+  baseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableFilter<"Server"> | string | null
+  version?: Prisma.StringNullableFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntFilter<"Server"> | number
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
-  requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
-  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
-  supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
-  supportsImg2Img?: Prisma.BoolFilter<"Server"> | boolean
-  supportsChat?: Prisma.BoolFilter<"Server"> | boolean
-  supportsComfyWorkflow?: Prisma.BoolFilter<"Server"> | boolean
-  supportsCheckpointOverride?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSampler?: Prisma.BoolFilter<"Server"> | boolean
-  supportsNegativePrompt?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSeed?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSteps?: Prisma.BoolFilter<"Server"> | boolean
-  supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
-  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
-  model?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableFilter<"Server"> | string | null
-  version?: Prisma.StringNullableFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntFilter<"Server"> | number
-  lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
-  lastStatus?: Prisma.EnumServerStatusNullableFilter<"Server"> | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.StringNullableFilter<"Server"> | string | null
-  useOidc?: Prisma.BoolFilter<"Server"> | boolean
-  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFilter<"Server"> | boolean
-  isPrivateNetwork?: Prisma.BoolFilter<"Server"> | boolean
-  requiresClientSideCheck?: Prisma.BoolFilter<"Server"> | boolean
-  backendBaseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
-  browserBaseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultCfg?: Prisma.FloatNullableFilter<"Server"> | number | null
-  defaultHeight?: Prisma.IntFilter<"Server"> | number
-  defaultSampler?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultScheduler?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultSteps?: Prisma.IntNullableFilter<"Server"> | number | null
-  defaultTransport?: Prisma.EnumServerTransportFilter<"Server"> | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFilter<"Server"> | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFilter<"Server"> | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFilter<"Server"> | boolean
-  supportsFlux?: Prisma.BoolFilter<"Server"> | boolean
-  supportsImageEdit?: Prisma.BoolFilter<"Server"> | boolean
-  supportsInpaint?: Prisma.BoolFilter<"Server"> | boolean
-  supportsKontext?: Prisma.BoolFilter<"Server"> | boolean
-  supportsOutpaint?: Prisma.BoolFilter<"Server"> | boolean
-  supportsWorkflowUpload?: Prisma.BoolFilter<"Server"> | boolean
-  isMetered?: Prisma.BoolFilter<"Server"> | boolean
-  workflowJson?: Prisma.StringNullableFilter<"Server"> | string | null
-  workflowPath?: Prisma.StringNullableFilter<"Server"> | string | null
-  workflowVersion?: Prisma.StringNullableFilter<"Server"> | string | null
   isMature?: Prisma.BoolFilter<"Server"> | boolean
+  lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   artPrompt?: Prisma.StringNullableFilter<"Server"> | string | null
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
@@ -750,66 +446,30 @@ export type ServerOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  serverType?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
-  baseUrl?: Prisma.SortOrder
+  serverType?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
+  baseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   endpointPath?: Prisma.SortOrderInput | Prisma.SortOrder
   healthPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  designer?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrderInput | Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  requiresApiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
-  supportsTxt2Img?: Prisma.SortOrder
-  supportsImg2Img?: Prisma.SortOrder
-  supportsChat?: Prisma.SortOrder
-  supportsComfyWorkflow?: Prisma.SortOrder
-  supportsCheckpointOverride?: Prisma.SortOrder
-  supportsSampler?: Prisma.SortOrder
-  supportsNegativePrompt?: Prisma.SortOrder
-  supportsSeed?: Prisma.SortOrder
-  supportsSteps?: Prisma.SortOrder
-  supportsVideo?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  model?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  designer?: Prisma.SortOrderInput | Prisma.SortOrder
-  version?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
-  lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  lastStatus?: Prisma.SortOrderInput | Prisma.SortOrder
-  oidcProvider?: Prisma.SortOrderInput | Prisma.SortOrder
-  useOidc?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  allowBrowserRequests?: Prisma.SortOrder
-  isPrivateNetwork?: Prisma.SortOrder
-  requiresClientSideCheck?: Prisma.SortOrder
-  backendBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  browserBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultCfg?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultHeight?: Prisma.SortOrder
-  defaultSampler?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultScheduler?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultSteps?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultTransport?: Prisma.SortOrder
-  defaultWidth?: Prisma.SortOrder
-  generationEngine?: Prisma.SortOrder
-  supportsBatch?: Prisma.SortOrder
-  supportsFlux?: Prisma.SortOrder
-  supportsImageEdit?: Prisma.SortOrder
-  supportsInpaint?: Prisma.SortOrder
-  supportsKontext?: Prisma.SortOrder
-  supportsOutpaint?: Prisma.SortOrder
-  supportsWorkflowUpload?: Prisma.SortOrder
-  isMetered?: Prisma.SortOrder
-  workflowJson?: Prisma.SortOrderInput | Prisma.SortOrder
-  workflowPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  workflowVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastStatus?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   Bots?: Prisma.BotOrderByRelationAggregateInput
@@ -829,66 +489,30 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Server"> | string
   label?: Prisma.StringNullableFilter<"Server"> | string | null
   description?: Prisma.StringNullableFilter<"Server"> | string | null
-  serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
   category?: Prisma.StringNullableFilter<"Server"> | string | null
-  baseUrl?: Prisma.StringFilter<"Server"> | string
+  serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
+  baseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableFilter<"Server"> | string | null
+  version?: Prisma.StringNullableFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntFilter<"Server"> | number
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
-  requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
-  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
-  supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
-  supportsImg2Img?: Prisma.BoolFilter<"Server"> | boolean
-  supportsChat?: Prisma.BoolFilter<"Server"> | boolean
-  supportsComfyWorkflow?: Prisma.BoolFilter<"Server"> | boolean
-  supportsCheckpointOverride?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSampler?: Prisma.BoolFilter<"Server"> | boolean
-  supportsNegativePrompt?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSeed?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSteps?: Prisma.BoolFilter<"Server"> | boolean
-  supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
-  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
-  model?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableFilter<"Server"> | string | null
-  version?: Prisma.StringNullableFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntFilter<"Server"> | number
-  lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
-  lastStatus?: Prisma.EnumServerStatusNullableFilter<"Server"> | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.StringNullableFilter<"Server"> | string | null
-  useOidc?: Prisma.BoolFilter<"Server"> | boolean
-  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFilter<"Server"> | boolean
-  isPrivateNetwork?: Prisma.BoolFilter<"Server"> | boolean
-  requiresClientSideCheck?: Prisma.BoolFilter<"Server"> | boolean
-  backendBaseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
-  browserBaseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultCfg?: Prisma.FloatNullableFilter<"Server"> | number | null
-  defaultHeight?: Prisma.IntFilter<"Server"> | number
-  defaultSampler?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultScheduler?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultSteps?: Prisma.IntNullableFilter<"Server"> | number | null
-  defaultTransport?: Prisma.EnumServerTransportFilter<"Server"> | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFilter<"Server"> | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFilter<"Server"> | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFilter<"Server"> | boolean
-  supportsFlux?: Prisma.BoolFilter<"Server"> | boolean
-  supportsImageEdit?: Prisma.BoolFilter<"Server"> | boolean
-  supportsInpaint?: Prisma.BoolFilter<"Server"> | boolean
-  supportsKontext?: Prisma.BoolFilter<"Server"> | boolean
-  supportsOutpaint?: Prisma.BoolFilter<"Server"> | boolean
-  supportsWorkflowUpload?: Prisma.BoolFilter<"Server"> | boolean
-  isMetered?: Prisma.BoolFilter<"Server"> | boolean
-  workflowJson?: Prisma.StringNullableFilter<"Server"> | string | null
-  workflowPath?: Prisma.StringNullableFilter<"Server"> | string | null
-  workflowVersion?: Prisma.StringNullableFilter<"Server"> | string | null
   isMature?: Prisma.BoolFilter<"Server"> | boolean
+  lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   artPrompt?: Prisma.StringNullableFilter<"Server"> | string | null
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
@@ -904,66 +528,30 @@ export type ServerOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  serverType?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
-  baseUrl?: Prisma.SortOrder
+  serverType?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
+  baseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   endpointPath?: Prisma.SortOrderInput | Prisma.SortOrder
   healthPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  designer?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrderInput | Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  requiresApiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
-  supportsTxt2Img?: Prisma.SortOrder
-  supportsImg2Img?: Prisma.SortOrder
-  supportsChat?: Prisma.SortOrder
-  supportsComfyWorkflow?: Prisma.SortOrder
-  supportsCheckpointOverride?: Prisma.SortOrder
-  supportsSampler?: Prisma.SortOrder
-  supportsNegativePrompt?: Prisma.SortOrder
-  supportsSeed?: Prisma.SortOrder
-  supportsSteps?: Prisma.SortOrder
-  supportsVideo?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  model?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  designer?: Prisma.SortOrderInput | Prisma.SortOrder
-  version?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
-  lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  lastStatus?: Prisma.SortOrderInput | Prisma.SortOrder
-  oidcProvider?: Prisma.SortOrderInput | Prisma.SortOrder
-  useOidc?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  allowBrowserRequests?: Prisma.SortOrder
-  isPrivateNetwork?: Prisma.SortOrder
-  requiresClientSideCheck?: Prisma.SortOrder
-  backendBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  browserBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultCfg?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultHeight?: Prisma.SortOrder
-  defaultSampler?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultScheduler?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultSteps?: Prisma.SortOrderInput | Prisma.SortOrder
-  defaultTransport?: Prisma.SortOrder
-  defaultWidth?: Prisma.SortOrder
-  generationEngine?: Prisma.SortOrder
-  supportsBatch?: Prisma.SortOrder
-  supportsFlux?: Prisma.SortOrder
-  supportsImageEdit?: Prisma.SortOrder
-  supportsInpaint?: Prisma.SortOrder
-  supportsKontext?: Prisma.SortOrder
-  supportsOutpaint?: Prisma.SortOrder
-  supportsWorkflowUpload?: Prisma.SortOrder
-  isMetered?: Prisma.SortOrder
-  workflowJson?: Prisma.SortOrderInput | Prisma.SortOrder
-  workflowPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  workflowVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastStatus?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ServerCountOrderByAggregateInput
   _avg?: Prisma.ServerAvgOrderByAggregateInput
@@ -982,66 +570,30 @@ export type ServerScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Server"> | string
   label?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  serverType?: Prisma.EnumServerTypeWithAggregatesFilter<"Server"> | $Enums.ServerType
   category?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  baseUrl?: Prisma.StringWithAggregatesFilter<"Server"> | string
+  serverType?: Prisma.EnumServerTypeWithAggregatesFilter<"Server"> | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeWithAggregatesFilter<"Server"> | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeWithAggregatesFilter<"Server"> | $Enums.ServerAuthType
+  baseUrl?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  apiKeyName?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  model?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  version?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntWithAggregatesFilter<"Server"> | number
   userId?: Prisma.IntNullableWithAggregatesFilter<"Server"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isDefault?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isEditable?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  requiresApiKey?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  apiKeyName?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  supportsTxt2Img?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsImg2Img?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsChat?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsComfyWorkflow?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsCheckpointOverride?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsSampler?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsNegativePrompt?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsSeed?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsSteps?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsVideo?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  apiLink?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  model?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  version?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntWithAggregatesFilter<"Server"> | number
-  lastCheckedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Server"> | Date | string | null
-  lastStatus?: Prisma.EnumServerStatusNullableWithAggregatesFilter<"Server"> | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  useOidc?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  accessMode?: Prisma.EnumServerAccessModeWithAggregatesFilter<"Server"> | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  isPrivateNetwork?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  requiresClientSideCheck?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  backendBaseUrl?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  browserBaseUrl?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  defaultCfg?: Prisma.FloatNullableWithAggregatesFilter<"Server"> | number | null
-  defaultHeight?: Prisma.IntWithAggregatesFilter<"Server"> | number
-  defaultSampler?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  defaultScheduler?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  defaultSteps?: Prisma.IntNullableWithAggregatesFilter<"Server"> | number | null
-  defaultTransport?: Prisma.EnumServerTransportWithAggregatesFilter<"Server"> | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntWithAggregatesFilter<"Server"> | number
-  generationEngine?: Prisma.EnumServerGenerationEngineWithAggregatesFilter<"Server"> | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsFlux?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsImageEdit?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsInpaint?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsKontext?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsOutpaint?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  supportsWorkflowUpload?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  isMetered?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  workflowJson?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  workflowPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  workflowVersion?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   isMature?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  lastCheckedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Server"> | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusWithAggregatesFilter<"Server"> | $Enums.ServerStatus
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
 }
 
@@ -1051,65 +603,29 @@ export type ServerCreateInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
@@ -1125,66 +641,30 @@ export type ServerUncheckedCreateInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
@@ -1198,65 +678,29 @@ export type ServerUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
@@ -1272,66 +716,30 @@ export type ServerUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
@@ -1346,66 +754,30 @@ export type ServerCreateManyInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
 }
 
@@ -1415,65 +787,29 @@ export type ServerUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1484,66 +820,30 @@ export type ServerUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1575,77 +875,37 @@ export type ServerCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  serverType?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  serverType?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  designer?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  requiresApiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrder
-  supportsTxt2Img?: Prisma.SortOrder
-  supportsImg2Img?: Prisma.SortOrder
-  supportsChat?: Prisma.SortOrder
-  supportsComfyWorkflow?: Prisma.SortOrder
-  supportsCheckpointOverride?: Prisma.SortOrder
-  supportsSampler?: Prisma.SortOrder
-  supportsNegativePrompt?: Prisma.SortOrder
-  supportsSeed?: Prisma.SortOrder
-  supportsSteps?: Prisma.SortOrder
-  supportsVideo?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
-  designer?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
-  oidcProvider?: Prisma.SortOrder
-  useOidc?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  allowBrowserRequests?: Prisma.SortOrder
-  isPrivateNetwork?: Prisma.SortOrder
-  requiresClientSideCheck?: Prisma.SortOrder
-  backendBaseUrl?: Prisma.SortOrder
-  browserBaseUrl?: Prisma.SortOrder
-  defaultCfg?: Prisma.SortOrder
-  defaultHeight?: Prisma.SortOrder
-  defaultSampler?: Prisma.SortOrder
-  defaultScheduler?: Prisma.SortOrder
-  defaultSteps?: Prisma.SortOrder
-  defaultTransport?: Prisma.SortOrder
-  defaultWidth?: Prisma.SortOrder
-  generationEngine?: Prisma.SortOrder
-  supportsBatch?: Prisma.SortOrder
-  supportsFlux?: Prisma.SortOrder
-  supportsImageEdit?: Prisma.SortOrder
-  supportsInpaint?: Prisma.SortOrder
-  supportsKontext?: Prisma.SortOrder
-  supportsOutpaint?: Prisma.SortOrder
-  supportsWorkflowUpload?: Prisma.SortOrder
-  isMetered?: Prisma.SortOrder
-  workflowJson?: Prisma.SortOrder
-  workflowPath?: Prisma.SortOrder
-  workflowVersion?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
 export type ServerAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  defaultCfg?: Prisma.SortOrder
-  defaultHeight?: Prisma.SortOrder
-  defaultSteps?: Prisma.SortOrder
-  defaultWidth?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type ServerMaxOrderByAggregateInput = {
@@ -1655,66 +915,30 @@ export type ServerMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  serverType?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  serverType?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  designer?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  requiresApiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrder
-  supportsTxt2Img?: Prisma.SortOrder
-  supportsImg2Img?: Prisma.SortOrder
-  supportsChat?: Prisma.SortOrder
-  supportsComfyWorkflow?: Prisma.SortOrder
-  supportsCheckpointOverride?: Prisma.SortOrder
-  supportsSampler?: Prisma.SortOrder
-  supportsNegativePrompt?: Prisma.SortOrder
-  supportsSeed?: Prisma.SortOrder
-  supportsSteps?: Prisma.SortOrder
-  supportsVideo?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
-  designer?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
-  oidcProvider?: Prisma.SortOrder
-  useOidc?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  allowBrowserRequests?: Prisma.SortOrder
-  isPrivateNetwork?: Prisma.SortOrder
-  requiresClientSideCheck?: Prisma.SortOrder
-  backendBaseUrl?: Prisma.SortOrder
-  browserBaseUrl?: Prisma.SortOrder
-  defaultCfg?: Prisma.SortOrder
-  defaultHeight?: Prisma.SortOrder
-  defaultSampler?: Prisma.SortOrder
-  defaultScheduler?: Prisma.SortOrder
-  defaultSteps?: Prisma.SortOrder
-  defaultTransport?: Prisma.SortOrder
-  defaultWidth?: Prisma.SortOrder
-  generationEngine?: Prisma.SortOrder
-  supportsBatch?: Prisma.SortOrder
-  supportsFlux?: Prisma.SortOrder
-  supportsImageEdit?: Prisma.SortOrder
-  supportsInpaint?: Prisma.SortOrder
-  supportsKontext?: Prisma.SortOrder
-  supportsOutpaint?: Prisma.SortOrder
-  supportsWorkflowUpload?: Prisma.SortOrder
-  isMetered?: Prisma.SortOrder
-  workflowJson?: Prisma.SortOrder
-  workflowPath?: Prisma.SortOrder
-  workflowVersion?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
@@ -1725,77 +949,37 @@ export type ServerMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  serverType?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  serverType?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  designer?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  requiresApiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrder
-  supportsTxt2Img?: Prisma.SortOrder
-  supportsImg2Img?: Prisma.SortOrder
-  supportsChat?: Prisma.SortOrder
-  supportsComfyWorkflow?: Prisma.SortOrder
-  supportsCheckpointOverride?: Prisma.SortOrder
-  supportsSampler?: Prisma.SortOrder
-  supportsNegativePrompt?: Prisma.SortOrder
-  supportsSeed?: Prisma.SortOrder
-  supportsSteps?: Prisma.SortOrder
-  supportsVideo?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
-  designer?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
-  oidcProvider?: Prisma.SortOrder
-  useOidc?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  allowBrowserRequests?: Prisma.SortOrder
-  isPrivateNetwork?: Prisma.SortOrder
-  requiresClientSideCheck?: Prisma.SortOrder
-  backendBaseUrl?: Prisma.SortOrder
-  browserBaseUrl?: Prisma.SortOrder
-  defaultCfg?: Prisma.SortOrder
-  defaultHeight?: Prisma.SortOrder
-  defaultSampler?: Prisma.SortOrder
-  defaultScheduler?: Prisma.SortOrder
-  defaultSteps?: Prisma.SortOrder
-  defaultTransport?: Prisma.SortOrder
-  defaultWidth?: Prisma.SortOrder
-  generationEngine?: Prisma.SortOrder
-  supportsBatch?: Prisma.SortOrder
-  supportsFlux?: Prisma.SortOrder
-  supportsImageEdit?: Prisma.SortOrder
-  supportsInpaint?: Prisma.SortOrder
-  supportsKontext?: Prisma.SortOrder
-  supportsOutpaint?: Prisma.SortOrder
-  supportsWorkflowUpload?: Prisma.SortOrder
-  isMetered?: Prisma.SortOrder
-  workflowJson?: Prisma.SortOrder
-  workflowPath?: Prisma.SortOrder
-  workflowVersion?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
 export type ServerSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  defaultCfg?: Prisma.SortOrder
-  defaultHeight?: Prisma.SortOrder
-  defaultSteps?: Prisma.SortOrder
-  defaultWidth?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type ServerCreateNestedOneWithoutArtImagesInput = {
@@ -1888,20 +1072,16 @@ export type EnumServerTypeFieldUpdateOperationsInput = {
   set?: $Enums.ServerType
 }
 
-export type NullableEnumServerStatusFieldUpdateOperationsInput = {
-  set?: $Enums.ServerStatus | null
-}
-
 export type EnumServerAccessModeFieldUpdateOperationsInput = {
   set?: $Enums.ServerAccessMode
 }
 
-export type EnumServerTransportFieldUpdateOperationsInput = {
-  set?: $Enums.ServerTransport
+export type EnumServerAuthTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ServerAuthType
 }
 
-export type EnumServerGenerationEngineFieldUpdateOperationsInput = {
-  set?: $Enums.ServerGenerationEngine
+export type EnumServerStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ServerStatus
 }
 
 export type ServerCreateNestedManyWithoutUserInput = {
@@ -1952,65 +1132,29 @@ export type ServerCreateWithoutArtImagesInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
@@ -2025,66 +1169,30 @@ export type ServerUncheckedCreateWithoutArtImagesInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
@@ -2113,65 +1221,29 @@ export type ServerUpdateWithoutArtImagesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
@@ -2186,66 +1258,30 @@ export type ServerUncheckedUpdateWithoutArtImagesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
@@ -2258,65 +1294,29 @@ export type ServerCreateWithoutBotsInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
@@ -2331,66 +1331,30 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
@@ -2419,65 +1383,29 @@ export type ServerUpdateWithoutBotsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
@@ -2492,66 +1420,30 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
@@ -2564,65 +1456,29 @@ export type ServerCreateWithoutChatsInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
@@ -2637,66 +1493,30 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
@@ -2725,65 +1545,29 @@ export type ServerUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
@@ -2798,66 +1582,30 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
@@ -2870,65 +1618,29 @@ export type ServerCreateWithoutResourcesInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
@@ -2943,66 +1655,30 @@ export type ServerUncheckedCreateWithoutResourcesInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
@@ -3040,66 +1716,30 @@ export type ServerScalarWhereInput = {
   title?: Prisma.StringFilter<"Server"> | string
   label?: Prisma.StringNullableFilter<"Server"> | string | null
   description?: Prisma.StringNullableFilter<"Server"> | string | null
-  serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
   category?: Prisma.StringNullableFilter<"Server"> | string | null
-  baseUrl?: Prisma.StringFilter<"Server"> | string
+  serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
+  baseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableFilter<"Server"> | string | null
+  version?: Prisma.StringNullableFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntFilter<"Server"> | number
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
-  requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
-  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
-  supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
-  supportsImg2Img?: Prisma.BoolFilter<"Server"> | boolean
-  supportsChat?: Prisma.BoolFilter<"Server"> | boolean
-  supportsComfyWorkflow?: Prisma.BoolFilter<"Server"> | boolean
-  supportsCheckpointOverride?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSampler?: Prisma.BoolFilter<"Server"> | boolean
-  supportsNegativePrompt?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSeed?: Prisma.BoolFilter<"Server"> | boolean
-  supportsSteps?: Prisma.BoolFilter<"Server"> | boolean
-  supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
-  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
-  model?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableFilter<"Server"> | string | null
-  version?: Prisma.StringNullableFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntFilter<"Server"> | number
-  lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
-  lastStatus?: Prisma.EnumServerStatusNullableFilter<"Server"> | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.StringNullableFilter<"Server"> | string | null
-  useOidc?: Prisma.BoolFilter<"Server"> | boolean
-  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFilter<"Server"> | boolean
-  isPrivateNetwork?: Prisma.BoolFilter<"Server"> | boolean
-  requiresClientSideCheck?: Prisma.BoolFilter<"Server"> | boolean
-  backendBaseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
-  browserBaseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultCfg?: Prisma.FloatNullableFilter<"Server"> | number | null
-  defaultHeight?: Prisma.IntFilter<"Server"> | number
-  defaultSampler?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultScheduler?: Prisma.StringNullableFilter<"Server"> | string | null
-  defaultSteps?: Prisma.IntNullableFilter<"Server"> | number | null
-  defaultTransport?: Prisma.EnumServerTransportFilter<"Server"> | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFilter<"Server"> | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFilter<"Server"> | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFilter<"Server"> | boolean
-  supportsFlux?: Prisma.BoolFilter<"Server"> | boolean
-  supportsImageEdit?: Prisma.BoolFilter<"Server"> | boolean
-  supportsInpaint?: Prisma.BoolFilter<"Server"> | boolean
-  supportsKontext?: Prisma.BoolFilter<"Server"> | boolean
-  supportsOutpaint?: Prisma.BoolFilter<"Server"> | boolean
-  supportsWorkflowUpload?: Prisma.BoolFilter<"Server"> | boolean
-  isMetered?: Prisma.BoolFilter<"Server"> | boolean
-  workflowJson?: Prisma.StringNullableFilter<"Server"> | string | null
-  workflowPath?: Prisma.StringNullableFilter<"Server"> | string | null
-  workflowVersion?: Prisma.StringNullableFilter<"Server"> | string | null
   isMature?: Prisma.BoolFilter<"Server"> | boolean
+  lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   artPrompt?: Prisma.StringNullableFilter<"Server"> | string | null
 }
 
@@ -3109,65 +1749,29 @@ export type ServerCreateWithoutUserInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
@@ -3182,65 +1786,29 @@ export type ServerUncheckedCreateWithoutUserInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
@@ -3280,65 +1848,29 @@ export type ServerUpdateWithoutResourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
@@ -3353,66 +1885,30 @@ export type ServerUncheckedUpdateWithoutResourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
@@ -3426,66 +1922,30 @@ export type ServerUncheckedUpdateManyWithoutResourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -3496,65 +1956,29 @@ export type ServerCreateManyUserInput = {
   title: string
   label?: string | null
   description?: string | null
-  serverType?: $Enums.ServerType
   category?: string | null
-  baseUrl: string
+  serverType?: $Enums.ServerType
+  accessMode?: $Enums.ServerAccessMode
+  authType?: $Enums.ServerAuthType
+  baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: string | null
-  model?: string | null
-  apiKey?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  oidcProvider?: string | null
-  useOidc?: boolean
-  accessMode?: $Enums.ServerAccessMode
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  defaultCfg?: number | null
-  defaultHeight?: number
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  defaultSteps?: number | null
-  defaultTransport?: $Enums.ServerTransport
-  defaultWidth?: number
-  generationEngine?: $Enums.ServerGenerationEngine
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: string | null
-  workflowPath?: string | null
-  workflowVersion?: string | null
   isMature?: boolean
+  lastCheckedAt?: Date | string | null
+  lastStatus?: $Enums.ServerStatus
   artPrompt?: string | null
 }
 
@@ -3564,65 +1988,29 @@ export type ServerUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
@@ -3637,65 +2025,29 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
@@ -3710,65 +2062,29 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -3837,66 +2153,30 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   title?: boolean
   label?: boolean
   description?: boolean
-  serverType?: boolean
   category?: boolean
+  serverType?: boolean
+  accessMode?: boolean
+  authType?: boolean
   baseUrl?: boolean
   endpointPath?: boolean
   healthPath?: boolean
+  apiLink?: boolean
+  apiKey?: boolean
+  apiKeyName?: boolean
+  model?: boolean
+  notes?: boolean
+  designer?: boolean
+  version?: boolean
+  sortOrder?: boolean
   userId?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: boolean
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: boolean
-  model?: boolean
-  apiKey?: boolean
-  designer?: boolean
-  version?: boolean
-  notes?: boolean
-  sortOrder?: boolean
+  isMature?: boolean
   lastCheckedAt?: boolean
   lastStatus?: boolean
-  oidcProvider?: boolean
-  useOidc?: boolean
-  accessMode?: boolean
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: boolean
-  browserBaseUrl?: boolean
-  defaultCfg?: boolean
-  defaultHeight?: boolean
-  defaultSampler?: boolean
-  defaultScheduler?: boolean
-  defaultSteps?: boolean
-  defaultTransport?: boolean
-  defaultWidth?: boolean
-  generationEngine?: boolean
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: boolean
-  workflowPath?: boolean
-  workflowVersion?: boolean
-  isMature?: boolean
   artPrompt?: boolean
   ArtImages?: boolean | Prisma.Server$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
@@ -3915,70 +2195,34 @@ export type ServerSelectScalar = {
   title?: boolean
   label?: boolean
   description?: boolean
-  serverType?: boolean
   category?: boolean
+  serverType?: boolean
+  accessMode?: boolean
+  authType?: boolean
   baseUrl?: boolean
   endpointPath?: boolean
   healthPath?: boolean
+  apiLink?: boolean
+  apiKey?: boolean
+  apiKeyName?: boolean
+  model?: boolean
+  notes?: boolean
+  designer?: boolean
+  version?: boolean
+  sortOrder?: boolean
   userId?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: boolean
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  apiLink?: boolean
-  model?: boolean
-  apiKey?: boolean
-  designer?: boolean
-  version?: boolean
-  notes?: boolean
-  sortOrder?: boolean
+  isMature?: boolean
   lastCheckedAt?: boolean
   lastStatus?: boolean
-  oidcProvider?: boolean
-  useOidc?: boolean
-  accessMode?: boolean
-  allowBrowserRequests?: boolean
-  isPrivateNetwork?: boolean
-  requiresClientSideCheck?: boolean
-  backendBaseUrl?: boolean
-  browserBaseUrl?: boolean
-  defaultCfg?: boolean
-  defaultHeight?: boolean
-  defaultSampler?: boolean
-  defaultScheduler?: boolean
-  defaultSteps?: boolean
-  defaultTransport?: boolean
-  defaultWidth?: boolean
-  generationEngine?: boolean
-  supportsBatch?: boolean
-  supportsFlux?: boolean
-  supportsImageEdit?: boolean
-  supportsInpaint?: boolean
-  supportsKontext?: boolean
-  supportsOutpaint?: boolean
-  supportsWorkflowUpload?: boolean
-  isMetered?: boolean
-  workflowJson?: boolean
-  workflowPath?: boolean
-  workflowVersion?: boolean
-  isMature?: boolean
   artPrompt?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "requiresApiKey" | "apiKeyName" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "apiLink" | "model" | "apiKey" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus" | "oidcProvider" | "useOidc" | "accessMode" | "allowBrowserRequests" | "isPrivateNetwork" | "requiresClientSideCheck" | "backendBaseUrl" | "browserBaseUrl" | "defaultCfg" | "defaultHeight" | "defaultSampler" | "defaultScheduler" | "defaultSteps" | "defaultTransport" | "defaultWidth" | "generationEngine" | "supportsBatch" | "supportsFlux" | "supportsImageEdit" | "supportsInpaint" | "supportsKontext" | "supportsOutpaint" | "supportsWorkflowUpload" | "isMetered" | "workflowJson" | "workflowPath" | "workflowVersion" | "isMature" | "artPrompt", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "category" | "serverType" | "accessMode" | "authType" | "baseUrl" | "endpointPath" | "healthPath" | "apiLink" | "apiKey" | "apiKeyName" | "model" | "notes" | "designer" | "version" | "sortOrder" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "isMature" | "lastCheckedAt" | "lastStatus" | "artPrompt", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImages?: boolean | Prisma.Server$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
@@ -4004,66 +2248,30 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     title: string
     label: string | null
     description: string | null
-    serverType: $Enums.ServerType
     category: string | null
-    baseUrl: string
+    serverType: $Enums.ServerType
+    accessMode: $Enums.ServerAccessMode
+    authType: $Enums.ServerAuthType
+    baseUrl: string | null
     endpointPath: string | null
     healthPath: string | null
+    apiLink: string | null
+    apiKey: string | null
+    apiKeyName: string | null
+    model: string | null
+    notes: string | null
+    designer: string | null
+    version: string | null
+    sortOrder: number
     userId: number | null
     isPublic: boolean
     isOfficial: boolean
     isDefault: boolean
     isActive: boolean
     isEditable: boolean
-    requiresApiKey: boolean
-    apiKeyName: string | null
-    supportsTxt2Img: boolean
-    supportsImg2Img: boolean
-    supportsChat: boolean
-    supportsComfyWorkflow: boolean
-    supportsCheckpointOverride: boolean
-    supportsSampler: boolean
-    supportsNegativePrompt: boolean
-    supportsSeed: boolean
-    supportsSteps: boolean
-    supportsVideo: boolean
-    apiLink: string | null
-    model: string | null
-    apiKey: string | null
-    designer: string | null
-    version: string | null
-    notes: string | null
-    sortOrder: number
-    lastCheckedAt: Date | null
-    lastStatus: $Enums.ServerStatus | null
-    oidcProvider: string | null
-    useOidc: boolean
-    accessMode: $Enums.ServerAccessMode
-    allowBrowserRequests: boolean
-    isPrivateNetwork: boolean
-    requiresClientSideCheck: boolean
-    backendBaseUrl: string | null
-    browserBaseUrl: string | null
-    defaultCfg: number | null
-    defaultHeight: number
-    defaultSampler: string | null
-    defaultScheduler: string | null
-    defaultSteps: number | null
-    defaultTransport: $Enums.ServerTransport
-    defaultWidth: number
-    generationEngine: $Enums.ServerGenerationEngine
-    supportsBatch: boolean
-    supportsFlux: boolean
-    supportsImageEdit: boolean
-    supportsInpaint: boolean
-    supportsKontext: boolean
-    supportsOutpaint: boolean
-    supportsWorkflowUpload: boolean
-    isMetered: boolean
-    workflowJson: string | null
-    workflowPath: string | null
-    workflowVersion: string | null
     isMature: boolean
+    lastCheckedAt: Date | null
+    lastStatus: $Enums.ServerStatus
     artPrompt: string | null
   }, ExtArgs["result"]["server"]>
   composites: {}
@@ -4445,66 +2653,30 @@ export interface ServerFieldRefs {
   readonly title: Prisma.FieldRef<"Server", 'String'>
   readonly label: Prisma.FieldRef<"Server", 'String'>
   readonly description: Prisma.FieldRef<"Server", 'String'>
-  readonly serverType: Prisma.FieldRef<"Server", 'ServerType'>
   readonly category: Prisma.FieldRef<"Server", 'String'>
+  readonly serverType: Prisma.FieldRef<"Server", 'ServerType'>
+  readonly accessMode: Prisma.FieldRef<"Server", 'ServerAccessMode'>
+  readonly authType: Prisma.FieldRef<"Server", 'ServerAuthType'>
   readonly baseUrl: Prisma.FieldRef<"Server", 'String'>
   readonly endpointPath: Prisma.FieldRef<"Server", 'String'>
   readonly healthPath: Prisma.FieldRef<"Server", 'String'>
+  readonly apiLink: Prisma.FieldRef<"Server", 'String'>
+  readonly apiKey: Prisma.FieldRef<"Server", 'String'>
+  readonly apiKeyName: Prisma.FieldRef<"Server", 'String'>
+  readonly model: Prisma.FieldRef<"Server", 'String'>
+  readonly notes: Prisma.FieldRef<"Server", 'String'>
+  readonly designer: Prisma.FieldRef<"Server", 'String'>
+  readonly version: Prisma.FieldRef<"Server", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"Server", 'Int'>
   readonly userId: Prisma.FieldRef<"Server", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isOfficial: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isDefault: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isEditable: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly requiresApiKey: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly apiKeyName: Prisma.FieldRef<"Server", 'String'>
-  readonly supportsTxt2Img: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsImg2Img: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsChat: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsComfyWorkflow: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsCheckpointOverride: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsSampler: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsNegativePrompt: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsSeed: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsSteps: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsVideo: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly apiLink: Prisma.FieldRef<"Server", 'String'>
-  readonly model: Prisma.FieldRef<"Server", 'String'>
-  readonly apiKey: Prisma.FieldRef<"Server", 'String'>
-  readonly designer: Prisma.FieldRef<"Server", 'String'>
-  readonly version: Prisma.FieldRef<"Server", 'String'>
-  readonly notes: Prisma.FieldRef<"Server", 'String'>
-  readonly sortOrder: Prisma.FieldRef<"Server", 'Int'>
+  readonly isMature: Prisma.FieldRef<"Server", 'Boolean'>
   readonly lastCheckedAt: Prisma.FieldRef<"Server", 'DateTime'>
   readonly lastStatus: Prisma.FieldRef<"Server", 'ServerStatus'>
-  readonly oidcProvider: Prisma.FieldRef<"Server", 'String'>
-  readonly useOidc: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly accessMode: Prisma.FieldRef<"Server", 'ServerAccessMode'>
-  readonly allowBrowserRequests: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly isPrivateNetwork: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly requiresClientSideCheck: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly backendBaseUrl: Prisma.FieldRef<"Server", 'String'>
-  readonly browserBaseUrl: Prisma.FieldRef<"Server", 'String'>
-  readonly defaultCfg: Prisma.FieldRef<"Server", 'Float'>
-  readonly defaultHeight: Prisma.FieldRef<"Server", 'Int'>
-  readonly defaultSampler: Prisma.FieldRef<"Server", 'String'>
-  readonly defaultScheduler: Prisma.FieldRef<"Server", 'String'>
-  readonly defaultSteps: Prisma.FieldRef<"Server", 'Int'>
-  readonly defaultTransport: Prisma.FieldRef<"Server", 'ServerTransport'>
-  readonly defaultWidth: Prisma.FieldRef<"Server", 'Int'>
-  readonly generationEngine: Prisma.FieldRef<"Server", 'ServerGenerationEngine'>
-  readonly supportsBatch: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsFlux: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsImageEdit: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsInpaint: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsKontext: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsOutpaint: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly supportsWorkflowUpload: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly isMetered: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly workflowJson: Prisma.FieldRef<"Server", 'String'>
-  readonly workflowPath: Prisma.FieldRef<"Server", 'String'>
-  readonly workflowVersion: Prisma.FieldRef<"Server", 'String'>
-  readonly isMature: Prisma.FieldRef<"Server", 'Boolean'>
   readonly artPrompt: Prisma.FieldRef<"Server", 'String'>
 }
     

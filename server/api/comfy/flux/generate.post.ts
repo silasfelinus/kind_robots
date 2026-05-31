@@ -1,5 +1,6 @@
 // /server/api/comfy/flux/generate.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
+import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { authAndGate } from '../../../utils/comfyGate'
@@ -64,6 +65,14 @@ type ComfyImageOutput = {
 const defaultTimeoutMs = 180_000
 const pollIntervalMs = 1_500
 
+const DEFAULT_FLUX_DEV_WIDTH = 1024
+const DEFAULT_FLUX_DEV_HEIGHT = 512
+const DEFAULT_FLUX_SCHNELL_WIDTH = 1024
+const DEFAULT_FLUX_SCHNELL_HEIGHT = 512
+const DEFAULT_FLUX_SAMPLER = 'euler'
+const DEFAULT_FLUX_SCHEDULER = 'normal'
+const DEFAULT_DENOISE = 1
+
 const defaultPrompt =
   'an evil magician, holding a magic wand, the magic wand creates the big words:"FLUX GGUF 🔥" appear, professional cartoon movie cover, epic scenery, eyes looking straight, ultra detailed, best movie effects, best quality, ultra professional, magic particles, colorful, midjourneyv6.1, detailmaximizer'
 
@@ -88,8 +97,6 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<FluxGenerateRequest>(event)
 
-    // Shared auth + mana gate. Throws 401 (bad token) or 402 (insufficient
-    // mana on a metered server) before any expensive Comfy work happens.
     const gate = await authAndGate(event, {
       engine: 'flux',
       steps: body.steps,
@@ -102,15 +109,10 @@ export default defineEventHandler(async (event) => {
       userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
-      capability: 'art',
+      capability: 'comfy',
     })
 
-    if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
-      throw createError({
-        statusCode: 400,
-        message: `Server "${server.title}" is not a Comfy server.`,
-      })
-    }
+    assertComfyServer(server)
 
     const variant = body.variant === 'schnell' ? 'schnell' : 'dev'
     const fluxConfig = fluxModelByVariant[variant]
@@ -120,16 +122,24 @@ export default defineEventHandler(async (event) => {
     const workflow = buildFluxWorkflow({
       prompt,
       negativePrompt: body.negativePrompt ?? '',
-      width: body.width ?? server.defaultWidth ?? 1024,
-      height: body.height ?? server.defaultHeight ?? 512,
-      steps: body.steps ?? server.defaultSteps ?? fluxConfig.defaultSteps,
-      cfg: body.cfg ?? server.defaultCfg ?? fluxConfig.defaultCfg,
+      width:
+        body.width ??
+        (variant === 'schnell'
+          ? DEFAULT_FLUX_SCHNELL_WIDTH
+          : DEFAULT_FLUX_DEV_WIDTH),
+      height:
+        body.height ??
+        (variant === 'schnell'
+          ? DEFAULT_FLUX_SCHNELL_HEIGHT
+          : DEFAULT_FLUX_DEV_HEIGHT),
+      steps: body.steps ?? fluxConfig.defaultSteps,
+      cfg: body.cfg ?? fluxConfig.defaultCfg,
       guidance: body.guidance ?? fluxConfig.defaultGuidance,
       seed: body.seed ?? -1,
       wildcardSeed: body.wildcardSeed ?? -1,
-      sampler: body.sampler ?? server.defaultSampler ?? 'euler',
-      scheduler: body.scheduler ?? server.defaultScheduler ?? 'normal',
-      denoise: body.denoise ?? 1,
+      sampler: body.sampler ?? DEFAULT_FLUX_SAMPLER,
+      scheduler: body.scheduler ?? DEFAULT_FLUX_SCHEDULER,
+      denoise: body.denoise ?? DEFAULT_DENOISE,
       unetName: fluxConfig.unetName,
       filenamePrefix: fluxConfig.filenamePrefix,
     })
@@ -164,8 +174,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const imageData = await fetchComfyImageAsDataUrl(baseUrl, imageOutput)
-
-    // Generation succeeded — charge now (no-op for free/unmetered servers).
     const { balance } = await gate.commit(`flux:${promptResponse.prompt_id}`)
 
     return {
@@ -181,7 +189,10 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       serverName: server.title,
       baseUrl,
-      mana: { balance, charged: gate.cost },
+      mana: {
+        balance,
+        charged: gate.cost,
+      },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -214,7 +225,6 @@ function buildFluxWorkflow(input: {
   const samplerSeed = resolveSeed(input.seed)
   const wildcardSeed = resolveSeed(input.wildcardSeed)
   const prompt = input.prompt.trim() || defaultPrompt
-  const negativePrompt = input.negativePrompt.trim()
 
   return {
     '4': {
@@ -325,13 +335,24 @@ function buildFluxWorkflow(input: {
   }
 }
 
-function getComfyBaseUrl(server: {
-  backendBaseUrl?: string | null
-  baseUrl?: string | null
-  endpointPath?: string | null
-  defaultTransport?: string | null
-}) {
-  const endpoint = getServerEndpoint(server as never, 'backend')
+function assertComfyServer(server: Server): void {
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not active.`,
+    })
+  }
+
+  if (server.serverType !== 'COMFY') {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports Comfy servers.`,
+    })
+  }
+}
+
+function getComfyBaseUrl(server: Server): string {
+  const endpoint = getServerEndpoint(server)
   const trimmed = endpoint.replace(/\/+$/, '')
 
   if (trimmed.endsWith('/prompt')) {

@@ -2618,66 +2618,30 @@ export const ServerScalarFieldEnum = {
   title: 'title',
   label: 'label',
   description: 'description',
-  serverType: 'serverType',
   category: 'category',
+  serverType: 'serverType',
+  accessMode: 'accessMode',
+  authType: 'authType',
   baseUrl: 'baseUrl',
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
+  apiLink: 'apiLink',
+  apiKey: 'apiKey',
+  apiKeyName: 'apiKeyName',
+  model: 'model',
+  notes: 'notes',
+  designer: 'designer',
+  version: 'version',
+  sortOrder: 'sortOrder',
   userId: 'userId',
   isPublic: 'isPublic',
   isOfficial: 'isOfficial',
   isDefault: 'isDefault',
   isActive: 'isActive',
   isEditable: 'isEditable',
-  requiresApiKey: 'requiresApiKey',
-  apiKeyName: 'apiKeyName',
-  supportsTxt2Img: 'supportsTxt2Img',
-  supportsImg2Img: 'supportsImg2Img',
-  supportsChat: 'supportsChat',
-  supportsComfyWorkflow: 'supportsComfyWorkflow',
-  supportsCheckpointOverride: 'supportsCheckpointOverride',
-  supportsSampler: 'supportsSampler',
-  supportsNegativePrompt: 'supportsNegativePrompt',
-  supportsSeed: 'supportsSeed',
-  supportsSteps: 'supportsSteps',
-  supportsVideo: 'supportsVideo',
-  apiLink: 'apiLink',
-  model: 'model',
-  apiKey: 'apiKey',
-  designer: 'designer',
-  version: 'version',
-  notes: 'notes',
-  sortOrder: 'sortOrder',
+  isMature: 'isMature',
   lastCheckedAt: 'lastCheckedAt',
   lastStatus: 'lastStatus',
-  oidcProvider: 'oidcProvider',
-  useOidc: 'useOidc',
-  accessMode: 'accessMode',
-  allowBrowserRequests: 'allowBrowserRequests',
-  isPrivateNetwork: 'isPrivateNetwork',
-  requiresClientSideCheck: 'requiresClientSideCheck',
-  backendBaseUrl: 'backendBaseUrl',
-  browserBaseUrl: 'browserBaseUrl',
-  defaultCfg: 'defaultCfg',
-  defaultHeight: 'defaultHeight',
-  defaultSampler: 'defaultSampler',
-  defaultScheduler: 'defaultScheduler',
-  defaultSteps: 'defaultSteps',
-  defaultTransport: 'defaultTransport',
-  defaultWidth: 'defaultWidth',
-  generationEngine: 'generationEngine',
-  supportsBatch: 'supportsBatch',
-  supportsFlux: 'supportsFlux',
-  supportsImageEdit: 'supportsImageEdit',
-  supportsInpaint: 'supportsInpaint',
-  supportsKontext: 'supportsKontext',
-  supportsOutpaint: 'supportsOutpaint',
-  supportsWorkflowUpload: 'supportsWorkflowUpload',
-  isMetered: 'isMetered',
-  workflowJson: 'workflowJson',
-  workflowPath: 'workflowPath',
-  workflowVersion: 'workflowVersion',
-  isMature: 'isMature',
   artPrompt: 'artPrompt'
 } as const
 
@@ -3103,21 +3067,13 @@ export const ServerOrderByRelevanceFieldEnum = {
   baseUrl: 'baseUrl',
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
-  apiKeyName: 'apiKeyName',
   apiLink: 'apiLink',
-  model: 'model',
   apiKey: 'apiKey',
+  apiKeyName: 'apiKeyName',
+  model: 'model',
+  notes: 'notes',
   designer: 'designer',
   version: 'version',
-  notes: 'notes',
-  oidcProvider: 'oidcProvider',
-  backendBaseUrl: 'backendBaseUrl',
-  browserBaseUrl: 'browserBaseUrl',
-  defaultSampler: 'defaultSampler',
-  defaultScheduler: 'defaultScheduler',
-  workflowJson: 'workflowJson',
-  workflowPath: 'workflowPath',
-  workflowVersion: 'workflowVersion',
   artPrompt: 'artPrompt'
 } as const
 
@@ -3331,13 +3287,6 @@ export type EnumServerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
- * Reference to a field of type 'ServerStatus'
- */
-export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerStatus'>
-    
-
-
-/**
  * Reference to a field of type 'ServerAccessMode'
  */
 export type EnumServerAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerAccessMode'>
@@ -3345,16 +3294,16 @@ export type EnumServerAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
- * Reference to a field of type 'ServerTransport'
+ * Reference to a field of type 'ServerAuthType'
  */
-export type EnumServerTransportFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerTransport'>
+export type EnumServerAuthTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerAuthType'>
     
 
 
 /**
- * Reference to a field of type 'ServerGenerationEngine'
+ * Reference to a field of type 'ServerStatus'
  */
-export type EnumServerGenerationEngineFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerGenerationEngine'>
+export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerStatus'>
     
 
 

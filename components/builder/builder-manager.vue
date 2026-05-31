@@ -74,16 +74,18 @@
         </aside>
       </Transition>
 
-      <main class="min-h-0 min-w-0 flex-1 overflow-y-auto p-3">
-        <builder-stage />
+      <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <section class="min-h-0 flex-1 overflow-y-auto p-3">
+          <builder-stage />
+        </section>
+
+        <section
+          class="h-[25%] min-h-28 max-h-48 shrink-0 overflow-hidden border-t border-base-300 bg-base-100/90 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
+        >
+          <builder-hand />
+        </section>
       </main>
     </div>
-
-    <footer
-      class="shrink-0 border-t border-base-300 bg-base-100/90 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
-    >
-      <builder-hand />
-    </footer>
 
     <Teleport to="body">
       <Transition name="builder-modal-fade">

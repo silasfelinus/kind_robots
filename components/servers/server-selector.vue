@@ -4,7 +4,7 @@
     <button
       class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
       type="button"
-      title="Server defaults"
+      title="Server settings"
       @click="openSelector"
     >
       <Icon name="kind-icon:server" class="h-4 w-4" />
@@ -12,14 +12,13 @@
 
     <dialog ref="selectorDialog" class="modal">
       <div
-        class="modal-box flex max-h-[90vh] w-11/12 max-w-5xl flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="modal-box flex max-h-[90vh] w-11/12 max-w-2xl flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100"
       >
         <header class="flex items-start justify-between gap-3">
           <div>
-            <h2 class="text-xl font-black text-primary">Server Selector</h2>
+            <h2 class="text-xl font-black text-primary">Servers</h2>
             <p class="text-sm text-base-content/60">
-              Choose a configured access point, add a provider key, or register
-              a local endpoint.
+              Add private API keys or local generation URLs.
             </p>
           </div>
 
@@ -44,254 +43,173 @@
           {{ statusMessage }}
         </div>
 
-        <div class="grid min-h-0 gap-4 overflow-y-auto pr-1 lg:grid-cols-2">
-          <section class="flex flex-col gap-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <h3 class="mb-2 font-black text-primary">Art</h3>
-
-              <select
-                v-model.number="selectedArtServerId"
-                class="select select-bordered w-full rounded-xl"
+        <section class="grid gap-3 md:grid-cols-2">
+          <label class="form-control">
+            <span class="label-text font-bold">Art Server</span>
+            <select
+              v-model.number="selectedArtServerId"
+              class="select select-bordered rounded-xl"
+            >
+              <option :value="null">Use system / mana route</option>
+              <option
+                v-for="server in artServers"
+                :key="server.id"
+                :value="server.id"
               >
-                <option :value="null">Use system / mana route</option>
-                <option
-                  v-for="server in artServers"
-                  :key="server.id"
-                  :value="server.id"
-                >
-                  {{ server.label || server.title }} · {{ server.serverType }}
-                </option>
-              </select>
+                {{ server.label || server.title }} · {{ server.serverType }}
+              </option>
+            </select>
+          </label>
 
-              <button
-                class="btn btn-primary mt-3 w-full rounded-xl"
-                type="button"
-                @click="applyArtServer"
+          <label class="form-control">
+            <span class="label-text font-bold">Text Server</span>
+            <select
+              v-model.number="selectedTextServerId"
+              class="select select-bordered rounded-xl"
+            >
+              <option :value="null">Use system / mana route</option>
+              <option
+                v-for="server in textServers"
+                :key="server.id"
+                :value="server.id"
               >
-                Save Art Server
-              </button>
-            </div>
+                {{ server.label || server.title }} · {{ server.serverType }}
+              </option>
+            </select>
+          </label>
 
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <h3 class="mb-2 font-black text-secondary">Text</h3>
+          <button
+            class="btn btn-primary rounded-xl md:col-span-2"
+            type="button"
+            @click="saveSelections"
+          >
+            Save Selected Servers
+          </button>
+        </section>
 
-              <select
-                v-model.number="selectedTextServerId"
-                class="select select-bordered w-full rounded-xl"
-              >
-                <option :value="null">Use system / mana route</option>
-                <option
-                  v-for="server in textServers"
-                  :key="server.id"
-                  :value="server.id"
-                >
-                  {{ server.label || server.title }} · {{ server.serverType }}
-                </option>
-              </select>
+        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <h3 class="font-black text-primary">Add API Key</h3>
 
-              <button
-                class="btn btn-secondary mt-3 w-full rounded-xl"
-                type="button"
-                @click="applyTextServer"
-              >
-                Save Text Server
-              </button>
-            </div>
+          <div class="mt-3 grid gap-3">
+            <select
+              v-model="apiProvider"
+              class="select select-bordered rounded-xl"
+            >
+              <option value="OPENAI">OpenAI</option>
+              <option value="ANTHROPIC">Anthropic</option>
+            </select>
 
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <h3 class="mb-2 font-black text-accent">Configured Servers</h3>
+            <input
+              v-model.trim="apiLabel"
+              class="input input-bordered rounded-xl"
+              type="text"
+              placeholder="Label, optional"
+            />
 
-              <div
-                v-if="configuredServers.length"
-                class="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1"
-              >
-                <button
-                  v-for="server in configuredServers"
-                  :key="server.id"
-                  class="flex w-full items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 text-left transition hover:border-primary hover:bg-base-300"
-                  type="button"
-                  @click="serverStore.setCurrentServer?.(server.id)"
-                >
-                  <span class="min-w-0">
-                    <span class="block truncate font-black">
-                      {{ server.label || server.title || `Server ${server.id}` }}
-                    </span>
-                    <span class="block truncate text-xs opacity-60">
-                      {{ server.serverType }}
-                      <span v-if="server.category"> · {{ server.category }}</span>
-                      <span v-if="server.url || server.serverUrl">
-                        · {{ server.url || server.serverUrl }}
-                      </span>
-                    </span>
-                  </span>
+            <input
+              v-model.trim="apiKey"
+              class="input input-bordered rounded-xl"
+              type="password"
+              placeholder="Private API key"
+            />
 
-                  <span
-                    class="badge shrink-0"
-                    :class="server.isActive ? 'badge-success' : 'badge-ghost'"
-                  >
-                    {{ server.isActive ? 'active' : 'inactive' }}
-                  </span>
-                </button>
-              </div>
+            <button
+              class="btn btn-primary rounded-xl"
+              type="button"
+              :disabled="isSaving || !apiKey"
+              @click="saveApiKey"
+            >
+              <span
+                v-if="isSaving"
+                class="loading loading-spinner loading-sm"
+              />
+              Save API Key
+            </button>
+          </div>
+        </section>
 
-              <p v-else class="text-sm text-base-content/60">
-                No servers are loaded yet. That is deeply rude of them.
-              </p>
-            </div>
-          </section>
+        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <h3 class="font-black text-secondary">Add Local URL</h3>
 
-          <section class="flex flex-col gap-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <h3 class="font-black text-primary">Add Provider Key</h3>
-              <p class="mb-3 text-sm text-base-content/60">
-                OpenAI creates separate text and image server entries.
-                Anthropic creates one text server entry.
-              </p>
+          <div class="mt-3 grid gap-3">
+            <select
+              v-model="urlServerType"
+              class="select select-bordered rounded-xl"
+            >
+              <option value="A1111">Stable Diffusion / A1111</option>
+              <option value="COMFY">ComfyUI</option>
+              <option value="OLLAMA">Ollama</option>
+            </select>
 
-              <label class="form-control">
-                <span class="label-text font-bold">Provider</span>
-                <select
-                  v-model="providerForm.provider"
-                  class="select select-bordered rounded-xl"
-                >
-                  <option value="OPENAI">OpenAI</option>
-                  <option value="ANTHROPIC">Anthropic</option>
-                </select>
-              </label>
+            <input
+              v-model.trim="urlLabel"
+              class="input input-bordered rounded-xl"
+              type="text"
+              placeholder="Label, optional"
+            />
 
-              <label class="form-control mt-2">
-                <span class="label-text font-bold">Label</span>
-                <input
-                  v-model.trim="providerForm.label"
-                  class="input input-bordered rounded-xl"
-                  type="text"
-                  placeholder="My OpenAI Key"
-                />
-              </label>
+            <input
+              v-model.trim="privateUrl"
+              class="input input-bordered rounded-xl"
+              type="url"
+              placeholder="http://192.168.1.50:8188"
+            />
 
-              <label class="form-control mt-2">
-                <span class="label-text font-bold">API Key</span>
-                <input
-                  v-model.trim="providerForm.apiKey"
-                  class="input input-bordered rounded-xl"
-                  type="password"
-                  placeholder="sk-..."
-                />
-              </label>
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              :disabled="isSaving || !privateUrl"
+              @click="savePrivateUrl"
+            >
+              <span
+                v-if="isSaving"
+                class="loading loading-spinner loading-sm"
+              />
+              Save Private URL
+            </button>
+          </div>
+        </section>
 
-              <div class="mt-3 grid gap-2 sm:grid-cols-2">
-                <label class="form-control">
-                  <span class="label-text font-bold">Text Model</span>
-                  <input
-                    v-model.trim="providerForm.textModel"
-                    class="input input-bordered rounded-xl"
-                    type="text"
-                    placeholder="gpt-4o-mini"
-                  />
-                </label>
+        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <h3 class="font-black text-accent">Configured</h3>
 
-                <label
-                  v-if="providerForm.provider === 'OPENAI'"
-                  class="form-control"
-                >
-                  <span class="label-text font-bold">Image Model</span>
-                  <input
-                    v-model.trim="providerForm.imageModel"
-                    class="input input-bordered rounded-xl"
-                    type="text"
-                    placeholder="gpt-image-1"
-                  />
-                </label>
-              </div>
+          <div
+            v-if="servers.length"
+            class="mt-3 flex max-h-64 flex-col gap-2 overflow-y-auto"
+          >
+            <button
+              v-for="server in servers"
+              :key="server.id"
+              class="rounded-2xl border border-base-300 bg-base-100 p-3 text-left transition hover:border-primary hover:bg-base-300"
+              type="button"
+              @click="serverStore.setCurrentServer?.(server.id)"
+            >
+              <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="truncate font-black">
+                    {{ server.label || server.title || `Server ${server.id}` }}
+                  </p>
+                  <p class="truncate text-xs opacity-60">
+                    {{ server.serverType }}
+                    <span v-if="server.category"> · {{ server.category }}</span>
+                    <span v-if="server.post"> · {{ server.post }}</span>
+                  </p>
+                </div>
 
-              <button
-                class="btn btn-primary mt-3 w-full rounded-xl"
-                type="button"
-                :disabled="isSaving || !providerForm.apiKey"
-                @click="createProviderServers"
-              >
                 <span
-                  v-if="isSaving"
-                  class="loading loading-spinner loading-sm"
-                />
-                Save Provider Server
-              </button>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <h3 class="font-black text-info">Add Custom URL</h3>
-              <p class="mb-3 text-sm text-base-content/60">
-                Use this for ComfyUI, A1111, Ollama, or a compatible local
-                service.
-              </p>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Server Type</span>
-                <select
-                  v-model="customForm.serverType"
-                  class="select select-bordered rounded-xl"
+                  class="badge shrink-0"
+                  :class="server.isActive ? 'badge-success' : 'badge-ghost'"
                 >
-                  <option value="COMFY">ComfyUI</option>
-                  <option value="A1111">Automatic1111</option>
-                  <option value="OLLAMA">Ollama</option>
-                  <option value="CUSTOM">Custom</option>
-                </select>
-              </label>
+                  {{ server.isActive ? 'active' : 'inactive' }}
+                </span>
+              </div>
+            </button>
+          </div>
 
-              <label class="form-control mt-2">
-                <span class="label-text font-bold">Label</span>
-                <input
-                  v-model.trim="customForm.label"
-                  class="input input-bordered rounded-xl"
-                  type="text"
-                  placeholder="Local Comfy"
-                />
-              </label>
-
-              <label class="form-control mt-2">
-                <span class="label-text font-bold">URL</span>
-                <input
-                  v-model.trim="customForm.url"
-                  class="input input-bordered rounded-xl"
-                  type="url"
-                  placeholder="http://192.168.5.231:8188"
-                />
-              </label>
-
-              <label class="form-control mt-2">
-                <span class="label-text font-bold">Default Model</span>
-                <input
-                  v-model.trim="customForm.model"
-                  class="input input-bordered rounded-xl"
-                  type="text"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <button
-                class="btn btn-info mt-3 w-full rounded-xl"
-                type="button"
-                :disabled="isSaving || !customForm.url"
-                @click="createCustomServer"
-              >
-                <span
-                  v-if="isSaving"
-                  class="loading loading-spinner loading-sm"
-                />
-                Save Custom Server
-              </button>
-            </div>
-          </section>
-        </div>
-
-        <server-gallery
-          mode="all"
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="true"
-          :show-card-actions="true"
-          :show-use-buttons="true"
-        />
+          <p v-else class="mt-3 text-sm text-base-content/60">
+            No configured servers loaded.
+          </p>
+        </section>
       </div>
 
       <form method="dialog" class="modal-backdrop">
@@ -302,98 +220,40 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 
-type ServerType =
-  | 'OPENAI'
-  | 'ANTHROPIC'
-  | 'A1111'
-  | 'COMFY'
-  | 'OLLAMA'
-  | 'CUSTOM'
+type ApiProvider = 'OPENAI' | 'ANTHROPIC'
+type UrlServerType = 'A1111' | 'COMFY' | 'OLLAMA'
 
-type ServerCategory = 'art' | 'text' | 'local' | 'custom'
-
-interface ServerRecord {
-  id: number
-  title?: string | null
-  label?: string | null
-  description?: string | null
-  serverType: ServerType | string
-  category?: string | null
-  url?: string | null
-  serverUrl?: string | null
-  post?: string | null
-  model?: string | null
-  defaultModel?: string | null
-  apiKey?: string | null
-  isActive?: boolean | null
-  isPublic?: boolean | null
-  userId?: number | null
-}
-
-interface ServerCreateInput {
-  title: string
-  label: string
-  description?: string
-  serverType: ServerType
-  category?: ServerCategory
-  url?: string
-  serverUrl?: string
-  post?: string
-  apiKey?: string
-  model?: string
-  defaultModel?: string
-  isActive: boolean
-  isPublic: boolean
-}
-
-type ServerStoreWithLegacyActions = ReturnType<typeof useServerStore> & {
-  servers?: ServerRecord[]
-  hasLoaded?: boolean
-  activeArtServer?: ServerRecord | null
-  activeTextServer?: ServerRecord | null
-  initialize?: (options?: { fetchRemote?: boolean }) => Promise<void>
-  fetchServers?: () => Promise<unknown>
-  createServer?: (payload: ServerCreateInput) => Promise<unknown>
-  addServer?: (payload: ServerCreateInput) => Promise<unknown>
-  setActiveArtServer?: (serverId: number | null) => Promise<void> | void
-  setActiveTextServer?: (serverId: number | null) => Promise<void> | void
-  setCurrentServer?: (serverId: number | null) => void
-  getServerById?: (serverId: number) => ServerRecord | null | undefined
-}
-
-const serverStore = useServerStore() as ServerStoreWithLegacyActions
+const serverStore = useServerStore()
 const selectorDialog = ref<HTMLDialogElement | null>(null)
+
 const selectedArtServerId = ref<number | null>(null)
 const selectedTextServerId = ref<number | null>(null)
+
+const apiProvider = ref<ApiProvider>('OPENAI')
+const apiLabel = ref('')
+const apiKey = ref('')
+
+const urlServerType = ref<UrlServerType>('COMFY')
+const urlLabel = ref('')
+const privateUrl = ref('')
+
 const isSaving = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 
-const providerForm = reactive({
-  provider: 'OPENAI' as 'OPENAI' | 'ANTHROPIC',
-  label: '',
-  apiKey: '',
-  textModel: 'gpt-4o-mini',
-  imageModel: 'gpt-image-1',
-})
+const servers = computed(() => {
+  const loadedServers = Array.isArray(serverStore.servers)
+    ? serverStore.servers
+    : []
 
-const customForm = reactive({
-  serverType: 'COMFY' as 'COMFY' | 'A1111' | 'OLLAMA' | 'CUSTOM',
-  label: '',
-  url: '',
-  model: '',
-})
-
-const configuredServers = computed(() => {
-  const servers = Array.isArray(serverStore.servers) ? serverStore.servers : []
-
-  return servers
+  return loadedServers
     .filter((server) => server && server.id)
     .sort((a, b) => {
-      const activeSort = Number(Boolean(b.isActive)) - Number(Boolean(a.isActive))
+      const activeSort =
+        Number(Boolean(b.isActive)) - Number(Boolean(a.isActive))
 
       if (activeSort) {
         return activeSort
@@ -406,43 +266,57 @@ const configuredServers = computed(() => {
 })
 
 const artServers = computed(() => {
-  return configuredServers.value.filter((server) => {
+  return servers.value.filter((server) => {
     if (server.isActive === false) {
       return false
     }
 
-    const type = server.serverType
+    const type = String(server.serverType)
     const category = String(server.category || '').toLowerCase()
 
     return (
       ['A1111', 'COMFY'].includes(type) ||
       (type === 'OPENAI' && category === 'art') ||
-      category === 'image' ||
-      category === 'art'
+      category === 'art' ||
+      category === 'image'
     )
   })
 })
 
 const textServers = computed(() => {
-  return configuredServers.value.filter((server) => {
+  return servers.value.filter((server) => {
     if (server.isActive === false) {
       return false
     }
 
-    const type = server.serverType
+    const type = String(server.serverType)
     const category = String(server.category || '').toLowerCase()
 
     return (
-      ['OPENAI', 'ANTHROPIC', 'OLLAMA', 'CUSTOM'].includes(type) ||
+      ['OPENAI', 'ANTHROPIC', 'OLLAMA'].includes(type) ||
       category === 'text' ||
       category === 'chat'
     )
   })
 })
 
+function openSelector() {
+  selectedArtServerId.value = serverStore.activeArtServer?.id ?? null
+  selectedTextServerId.value = serverStore.activeTextServer?.id ?? null
+  selectorDialog.value?.showModal()
+}
+
+function closeSelector() {
+  selectorDialog.value?.close()
+}
+
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message
   statusTone.value = tone
+}
+
+function cleanUrl(value: string) {
+  return value.trim().replace(/\/+$/, '')
 }
 
 async function refreshServers() {
@@ -456,98 +330,29 @@ async function refreshServers() {
   }
 }
 
-async function saveServer(payload: ServerCreateInput) {
-  if (typeof serverStore.createServer === 'function') {
-    return await serverStore.createServer(payload)
-  }
-
-  if (typeof serverStore.addServer === 'function') {
-    return await serverStore.addServer(payload)
-  }
-
+async function createServer(body: Record<string, unknown>) {
   return await $fetch('/api/server', {
     method: 'POST',
-    body: payload,
+    body,
   })
 }
 
-function normalizeUrl(url: string) {
-  return url.trim().replace(/\/+$/, '')
-}
+async function saveSelections() {
+  await serverStore.setActiveArtServer?.(selectedArtServerId.value)
+  await serverStore.setActiveTextServer?.(selectedTextServerId.value)
 
-function providerLabel(fallback: string) {
-  return providerForm.label.trim() || fallback
-}
-
-function customLabel() {
-  if (customForm.label.trim()) {
-    return customForm.label.trim()
+  if (selectedArtServerId.value) {
+    serverStore.setCurrentServer?.(selectedArtServerId.value)
+  } else if (selectedTextServerId.value) {
+    serverStore.setCurrentServer?.(selectedTextServerId.value)
   }
 
-  if (customForm.serverType === 'COMFY') {
-    return 'Local ComfyUI'
-  }
-
-  if (customForm.serverType === 'A1111') {
-    return 'Local Automatic1111'
-  }
-
-  if (customForm.serverType === 'OLLAMA') {
-    return 'Local Ollama'
-  }
-
-  return 'Custom Server'
+  setStatus('Server selections saved.')
 }
 
-function getServerById(serverId: number | null) {
-  if (!serverId) {
-    return null
-  }
-
-  if (typeof serverStore.getServerById === 'function') {
-    return serverStore.getServerById(serverId) ?? null
-  }
-
-  return configuredServers.value.find((server) => server.id === serverId) ?? null
-}
-
-function openSelector() {
-  selectedArtServerId.value = serverStore.activeArtServer?.id ?? null
-  selectedTextServerId.value = serverStore.activeTextServer?.id ?? null
-  selectorDialog.value?.showModal()
-}
-
-function closeSelector() {
-  selectorDialog.value?.close()
-}
-
-function applyArtServer() {
-  void serverStore.setActiveArtServer?.(selectedArtServerId.value)
-
-  const server = getServerById(selectedArtServerId.value)
-
-  if (server) {
-    serverStore.setCurrentServer?.(server.id)
-  }
-
-  closeSelector()
-}
-
-function applyTextServer() {
-  void serverStore.setActiveTextServer?.(selectedTextServerId.value)
-
-  const server = getServerById(selectedTextServerId.value)
-
-  if (server) {
-    serverStore.setCurrentServer?.(server.id)
-  }
-
-  closeSelector()
-}
-
-async function createProviderServers() {
-  if (!providerForm.apiKey.trim()) {
-    setStatus('API key required. The robots demand tribute.', 'error')
+async function saveApiKey() {
+  if (!apiKey.value) {
+    setStatus('API key required.', 'error')
     return
   }
 
@@ -555,65 +360,61 @@ async function createProviderServers() {
   statusMessage.value = ''
 
   try {
-    if (providerForm.provider === 'OPENAI') {
-      const textLabel = providerLabel('OpenAI Text')
-      const imageLabel = providerLabel('OpenAI Images')
+    if (apiProvider.value === 'OPENAI') {
+      const label = apiLabel.value || 'OpenAI'
 
-      await saveServer({
-        title: textLabel,
-        label: textLabel,
-        description: 'OpenAI text generation provider.',
+      await createServer({
+        title: `${label} Text`,
+        label: `${label} Text`,
+        description: 'Private OpenAI text server.',
         serverType: 'OPENAI',
         category: 'text',
-        apiKey: providerForm.apiKey.trim(),
-        model: providerForm.textModel.trim() || 'gpt-4o-mini',
-        defaultModel: providerForm.textModel.trim() || 'gpt-4o-mini',
+        apiKey: apiKey.value,
+        model: 'gpt-4o-mini',
         isActive: true,
         isPublic: false,
       })
 
-      await saveServer({
-        title: imageLabel,
-        label: imageLabel,
-        description: 'OpenAI image generation provider.',
+      await createServer({
+        title: `${label} Images`,
+        label: `${label} Images`,
+        description: 'Private OpenAI image server.',
         serverType: 'OPENAI',
         category: 'art',
-        apiKey: providerForm.apiKey.trim(),
-        model: providerForm.imageModel.trim() || 'gpt-image-1',
-        defaultModel: providerForm.imageModel.trim() || 'gpt-image-1',
+        apiKey: apiKey.value,
+        model: 'gpt-image-1',
         isActive: true,
         isPublic: false,
       })
 
-      setStatus('OpenAI text and image servers created. Two bots enter, two bots leave.')
+      setStatus('OpenAI text and image servers saved.')
     }
 
-    if (providerForm.provider === 'ANTHROPIC') {
-      const label = providerLabel('Anthropic Text')
+    if (apiProvider.value === 'ANTHROPIC') {
+      const label = apiLabel.value || 'Anthropic'
 
-      await saveServer({
+      await createServer({
         title: label,
         label,
-        description: 'Anthropic text generation provider.',
+        description: 'Private Anthropic text server.',
         serverType: 'ANTHROPIC',
         category: 'text',
-        apiKey: providerForm.apiKey.trim(),
-        model: providerForm.textModel.trim() || 'claude-sonnet-4-6',
-        defaultModel: providerForm.textModel.trim() || 'claude-sonnet-4-6',
+        apiKey: apiKey.value,
+        model: 'claude-sonnet-4-6',
         isActive: true,
         isPublic: false,
       })
 
-      setStatus('Anthropic text server created. Claude has entered the tiny wizard booth.')
+      setStatus('Anthropic server saved.')
     }
 
-    providerForm.apiKey = ''
-    providerForm.label = ''
+    apiLabel.value = ''
+    apiKey.value = ''
 
     await refreshServers()
   } catch (error) {
     setStatus(
-      error instanceof Error ? error.message : 'Unable to create provider server.',
+      error instanceof Error ? error.message : 'Unable to save API key.',
       'error',
     )
   } finally {
@@ -621,9 +422,9 @@ async function createProviderServers() {
   }
 }
 
-async function createCustomServer() {
-  if (!customForm.url.trim()) {
-    setStatus('Custom server URL required.', 'error')
+async function savePrivateUrl() {
+  if (!privateUrl.value) {
+    setStatus('Private URL required.', 'error')
     return
   }
 
@@ -631,39 +432,34 @@ async function createCustomServer() {
   statusMessage.value = ''
 
   try {
-    const label = customLabel()
-    const url = normalizeUrl(customForm.url)
+    const label =
+      urlLabel.value ||
+      (urlServerType.value === 'A1111'
+        ? 'Stable Diffusion'
+        : urlServerType.value === 'COMFY'
+          ? 'ComfyUI'
+          : 'Ollama')
 
-    await saveServer({
+    await createServer({
       title: label,
       label,
-      description: `${customForm.serverType} custom server endpoint.`,
-      serverType: customForm.serverType,
-      category:
-        customForm.serverType === 'OLLAMA'
-          ? 'text'
-          : customForm.serverType === 'CUSTOM'
-            ? 'custom'
-            : 'art',
-      url,
-      serverUrl: url,
-      post: url,
-      model: customForm.model.trim(),
-      defaultModel: customForm.model.trim(),
+      description: `Private ${label} endpoint.`,
+      serverType: urlServerType.value,
+      category: urlServerType.value === 'OLLAMA' ? 'text' : 'art',
+      post: cleanUrl(privateUrl.value),
       isActive: true,
       isPublic: false,
     })
 
-    customForm.label = ''
-    customForm.url = ''
-    customForm.model = ''
+    urlLabel.value = ''
+    privateUrl.value = ''
 
     await refreshServers()
 
-    setStatus(`${label} created. Local goblin pipeline restored.`)
+    setStatus(`${label} URL saved.`)
   } catch (error) {
     setStatus(
-      error instanceof Error ? error.message : 'Unable to create custom server.',
+      error instanceof Error ? error.message : 'Unable to save private URL.',
       'error',
     )
   } finally {

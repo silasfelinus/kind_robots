@@ -19,6 +19,12 @@ type SuggestServerLike = {
   endpointPath?: string | null
 }
 
+type SuggestRequestBody = SuggestBody & {
+  maxTokens?: number | null
+  max_tokens?: number | null
+  serverId?: number | null
+}
+
 function getSuggestServerId(server: unknown): number | null {
   if (!server || typeof server !== 'object') return null
   const id = (server as SuggestServerLike).id
@@ -27,7 +33,7 @@ function getSuggestServerId(server: unknown): number | null {
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<SuggestBody>(event)
+const body = await readBody<SuggestRequestBody>(event)
 
     const field = body?.field ?? ''
     const stepKey = body?.stepKey ?? body?.field ?? ''

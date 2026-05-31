@@ -180,7 +180,7 @@ export default defineEventHandler(async (event) => {
       userId: gate.user.id,
       serverId: requestData.serverId ?? null,
       serverName: requestData.serverName ?? null,
-      capability: 'art',
+      capability: 'comfy',
     })
 
     const response = await generateComfyImage({
@@ -316,7 +316,7 @@ export async function generateComfyImage({
   sampler,
   workflow,
 }: GenerateComfyImageInput): Promise<GenerateComfyImageResponse> {
-  if (server.serverType !== 'COMFY' && !server.supportsComfyWorkflow) {
+  if (server.serverType !== 'COMFY') {
     throw new Error(
       `Server "${server.title}" is ${server.serverType}. This route only supports Comfy workflow servers.`,
     )
@@ -379,7 +379,7 @@ export async function generateComfyImage({
 }
 
 function getComfyBaseUrl(server: Server): string {
-  const endpoint = getServerEndpoint(server, 'backend')
+  const endpoint = getServerEndpoint(server)
   const trimmed = endpoint.replace(/\/+$/, '')
 
   if (trimmed.endsWith('/prompt')) {

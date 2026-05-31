@@ -1,5 +1,7 @@
 // /server/api/suggest.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
+import { manaGate } from '../utils/manaGate'
+import { estimateTextCostUsd } from '../utils/manaCost'
 import { buildSuggestUserPrompt } from '../utils/suggest/suggestPrompt'
 import { getSuggestSheet } from '../utils/suggest/suggestRegistry'
 import {
@@ -9,6 +11,19 @@ import {
   str,
 } from '../utils/suggest/suggestProviders'
 import type { SuggestBody } from '../utils/suggest/suggestTypes'
+
+type SuggestServerLike = {
+  id?: number | null
+  model?: string | null
+  baseUrl?: string | null
+  endpointPath?: string | null
+}
+
+function getSuggestServerId(server: unknown): number | null {
+  if (!server || typeof server !== 'object') return null
+  const id = (server as SuggestServerLike).id
+  return typeof id === 'number' && Number.isInteger(id) ? id : null
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -47,6 +62,15 @@ export default defineEventHandler(async (event) => {
       context,
     })
 
+    const gate = await manaGate(event, {
+      kind: 'text',
+      estCostUsd: estimateTextCostUsd({
+        model,
+        maxTokens: body.maxTokens ?? body.max_tokens ?? 512,
+      }),
+      serverId: getSuggestServerId(server),
+    })
+
     console.log('[suggest]', {
       builder,
       sheet: sheet.builder,
@@ -82,10 +106,19 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    const { balance } = await gate.commit(
+      `suggest:${builder}:${stepKey || field}:${Date.now()}`,
+    )
+
     return {
       success: true,
       message: 'Suggestion generated.',
       data: { value },
+      mana: {
+        balance,
+        charged: gate.cost,
+        free: gate.free,
+      },
     }
   } catch (error) {
     console.error('[suggest] failed:', error)

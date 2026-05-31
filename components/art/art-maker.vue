@@ -468,8 +468,8 @@ const seedInput = computed<number | null>({
 const selectedServerSummary = computed(() => {
   const server = artStore.activeGenerationServer
   if (!server) return 'No server selected.'
-  const mode = server.allowBrowserRequests ? 'browser-capable' : 'backend'
-  return `${server.serverType} · ${mode}`
+  const accessMode = server.accessMode || 'BROWSER'
+  return `${server.serverType} · ${accessMode.toLowerCase()}`
 })
 
 const checkpointOptions = computed<CheckpointResource[]>(() => {

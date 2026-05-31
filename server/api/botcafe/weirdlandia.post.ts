@@ -1,19 +1,47 @@
 // /server/api/botcafe/weirdlandia.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { resolveServer } from '../../utils/serverResolver'
 import { createTextCompletion } from '../../utils/textServer'
+import { manaGate } from '../../utils/manaGate'
+import { estimateTextCostUsd } from '../../utils/manaCost'
+
+type WeirdlandiaBody = {
+  username?: string
+  genre?: string
+  synopsis?: string
+  userStatus?: string
+  text?: string
+  rounds?: number | 'infinite'
+  roundsCompleted?: number
+  flavor?: string
+  serverId?: number | null
+  serverName?: string | null
+  model?: string
+  temperature?: number
+  maxTokens?: number
+  chatId?: number | string | null
+}
+
+type OpenAIChatResponse = {
+  choices?: Array<{
+    message?: {
+      content?: string | null
+    }
+  }>
+}
 
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
-    if (!isValid) {
+
+    if (!isValid || !user) {
       event.node.res.statusCode = 401
       return { success: false, message: 'Invalid or expired token.' }
     }
 
-    const body = await readBody(event)
+    const body = await readBody<WeirdlandiaBody>(event)
 
     const {
       username,
@@ -34,6 +62,25 @@ export default defineEventHandler(async (event) => {
         message: 'Username and genre are required.',
       })
     }
+
+    const model = body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-4o-mini'
+    const maxTokens = body.maxTokens || 300
+
+    const server = await resolveServer({
+      userId: user.id,
+      serverId: typeof serverId === 'number' ? serverId : null,
+      serverName: typeof serverName === 'string' ? serverName : null,
+      capability: 'text',
+    })
+
+    const gate = await manaGate(event, {
+      kind: 'text',
+      estCostUsd: estimateTextCostUsd({
+        model,
+        maxTokens,
+      }),
+      serverId: server.id,
+    })
 
     const progress =
       rounds === 'infinite'
@@ -77,7 +124,7 @@ NARRATIVE STAGE: ${narrativeStage}.||
 FLAVOR: ${selectedFlavor}.||`
         : `Continue this story:
 SYNOPSIS: ${synopsis}||
-ACTION: ${text}||
+ACTION: ${text || ''}||
 STATUS: ${userStatus || 'Curious'}.||
 PROGRESS: ${progress}.||
 NARRATIVE STAGE: ${narrativeStage}.||
@@ -88,29 +135,26 @@ TEXT: The next scene.||
 CHOICES: Four options separated by "|".||
 STATUS: Updated state.||`
 
-    const server = await resolveServer({
-      userId: user?.id ?? null,
-      serverId: typeof serverId === 'number' ? serverId : null,
-      serverName: typeof serverName === 'string' ? serverName : null,
-      capability: 'text',
-    })
-
     const response = await createTextCompletion({
       server,
       apiKey: process.env.OPENAI_API_KEY,
-      model: body.model || 'gpt-4o-mini',
+      model,
       messages: [{ role: 'user', content: basePrompt }],
       temperature: body.temperature || 0.7,
-      max_tokens: body.maxTokens || 300,
+      max_tokens: maxTokens,
       stream: false,
     })
 
-    const responseData = await response.json()
+    const responseData = (await response.json()) as OpenAIChatResponse
     const rawResponse = responseData.choices?.[0]?.message?.content || ''
 
     const parseSection = (label: string, value: string): string =>
       (value.match(new RegExp(`${label}: (.*?)\\|\\|`, 's')) ||
         [])[1]?.trim() || ''
+
+    const { balance } = await gate.commit(
+      body.chatId ? `chat:${body.chatId}` : `weirdlandia:${Date.now()}`,
+    )
 
     return {
       success: true,
@@ -124,6 +168,11 @@ STATUS: Updated state.||`
         status: parseSection('STATUS', rawResponse),
         serverId: server.id,
         serverName: server.title,
+      },
+      mana: {
+        balance,
+        charged: gate.cost,
+        free: gate.free,
       },
     }
   } catch (error) {

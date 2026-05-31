@@ -1,45 +1,75 @@
-import { defineEventHandler, readBody, createError } from 'h3'
+// /server/api/botcafe/titleStorm.ts
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { manaGate } from '../../utils/manaGate'
+import { estimateTextCostUsd } from '../../utils/manaCost'
+
+type TitleStormBody = {
+  content?: string
+  model?: string
+  temperature?: number
+  maxTokens?: number
+  n?: number
+  stream?: boolean
+  serverId?: number | null
+  chatId?: number | string | null
+}
+
+type OpenAIChatResponse = {
+  choices?: Array<{
+    message?: {
+      content?: string | null
+    }
+  }>
+  error?: {
+    message?: string
+  }
+}
 
 export default defineEventHandler(async (event) => {
   try {
-    // Validate API Key
-    const { isValid } = await validateApiKey(event)
-    if (!isValid) {
-      event.node.res.statusCode = 401
-      return { success: false, message: 'Invalid or expired token.' }
-    }
-
-    const body = await readBody(event)
+    const body = await readBody<TitleStormBody>(event)
     const apiKey = process.env.OPENAI_API_KEY
 
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        message:
-          'Server API key is missing. Please provide a valid OpenAI API key.',
+        message: 'OPENAI_API_KEY is not configured.',
       })
     }
 
-    // Pre-created content for the request
-    const content = body.content
+    const content = body.content?.trim()
 
-    // Construct the request data for OpenAI
+    if (!content) {
+      throw createError({
+        statusCode: 400,
+        message: 'Content is required.',
+      })
+    }
+
+    const model = body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-4o-mini'
+    const maxTokens = body.maxTokens || 150
+
+    const gate = await manaGate(event, {
+      kind: 'text',
+      estCostUsd: estimateTextCostUsd({
+        model,
+        maxTokens,
+      }),
+      serverId: body.serverId ?? null,
+    })
+
     const pitchRequest = {
-      model: body.model || 'gpt-4o-mini',
+      model,
       messages: [{ role: 'user', content }],
       temperature:
         typeof body.temperature === 'number' ? body.temperature : 0.7,
-      max_tokens: body.maxTokens || 150,
+      max_tokens: maxTokens,
       n: body.n || 5,
-      stream: body.stream || false,
+      stream: false,
     }
 
-    const post = body.post || 'https://api.openai.com/v1/chat/completions'
-
-    // Call the OpenAI API
-    const response = await fetch(post, {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -48,39 +78,51 @@ export default defineEventHandler(async (event) => {
       body: JSON.stringify(pitchRequest),
     })
 
+    const responseData = (await response.json()) as OpenAIChatResponse
+
     if (!response.ok) {
-      const errorData = await response.json()
       throw createError({
         statusCode: response.status,
-        message: `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
+        message:
+          responseData.error?.message ||
+          `OpenAI request failed: ${response.statusText}.`,
       })
     }
 
-    const responseData = await response.json()
+    const rawContent = responseData.choices?.[0]?.message?.content?.trim() || ''
+    const data = rawContent.match(/\|\|(.*?)\|\|/s)?.[1]
 
-    // Extract and parse the response data within the "|| ||" delimiters
-    const rawContent = responseData.choices[0].message.content.trim()
-    const data = rawContent.match(/\|\|(.*?)\|\|/)?.[1]
+    const { balance } = await gate.commit(
+      body.chatId ? `chat:${body.chatId}` : `title-storm:${Date.now()}`,
+    )
 
     if (data) {
-      // Correct format: Split by '|' and trim each entry
       return {
         success: true,
         message: 'Examples generated successfully.',
         data,
+        mana: {
+          balance,
+          charged: gate.cost,
+          free: gate.free,
+        },
       }
-    } else {
-      // Incorrect format: Return the raw content with a warning message
-      return {
-        success: false,
-        message:
-          'Unexpected response format. Please check the response content.',
-        data: rawContent,
-      }
+    }
+
+    return {
+      success: false,
+      message: 'Unexpected response format. Please check the response content.',
+      data: rawContent,
+      mana: {
+        balance,
+        charged: gate.cost,
+        free: gate.free,
+      },
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
+
     return {
       success: false,
       message: message || 'Failed to generate pitches.',

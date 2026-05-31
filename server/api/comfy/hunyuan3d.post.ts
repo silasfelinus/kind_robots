@@ -1,6 +1,5 @@
 // /server/api/comfy/hunyuan3d.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
 import type { Server } from '~/prisma/generated/prisma/client'
@@ -128,7 +127,7 @@ export default defineEventHandler(async (event) => {
       userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
-      capability: 'art',
+      capability: 'comfy',
     })
 
     if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
@@ -445,8 +444,25 @@ function getImageExtension(mimeType: string): string {
   return 'png'
 }
 
+
+function assertComfyServer(server: Server): void {
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not active.`,
+    })
+  }
+
+  if (server.serverType !== 'COMFY') {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports Comfy servers.`,
+    })
+  }
+}
+
 function getComfyBaseUrl(server: Server): string {
-  return cleanComfyBaseUrl(getServerEndpoint(server, 'backend'))
+  return cleanComfyBaseUrl(getServerEndpoint(server))
 }
 
 function cleanComfyBaseUrl(url: string): string {

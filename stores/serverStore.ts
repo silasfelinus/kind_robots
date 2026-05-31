@@ -221,6 +221,72 @@ function sortServers(a: Server, b: Server): number {
   return a.title.localeCompare(b.title)
 }
 
+function getServerCategory(server: Server): string {
+  return String(server.category || '').toLowerCase()
+}
+
+function isImageEndpoint(server: Server): boolean {
+  return String(server.endpointPath || '')
+    .toLowerCase()
+    .includes('image')
+}
+
+function isImageModel(server: Server): boolean {
+  const model = String(server.model || '').toLowerCase()
+
+  return (
+    model.includes('image') ||
+    model.includes('dall') ||
+    model.includes('gpt-image')
+  )
+}
+
+function isOllamaServer(server: Server): boolean {
+  const category = getServerCategory(server)
+  const model = String(server.model || '').toLowerCase()
+  const label = String(server.label || server.title || '').toLowerCase()
+
+  return (
+    server.serverType === 'CUSTOM' &&
+    category === 'text' &&
+    (model.includes('ollama') || label.includes('ollama'))
+  )
+}
+
+function isArtCompatibleServer(server: Server): boolean {
+  const category = getServerCategory(server)
+
+  return (
+    server.serverType === 'A1111' ||
+    server.serverType === 'COMFY' ||
+    category === 'art' ||
+    category === 'image' ||
+    isImageEndpoint(server) ||
+    isImageModel(server)
+  )
+}
+
+function isTextCompatibleServer(server: Server): boolean {
+  const category = getServerCategory(server)
+
+  if (category === 'art' || category === 'image') {
+    return false
+  }
+
+  if (isImageEndpoint(server) || isImageModel(server)) {
+    return false
+  }
+
+  return (
+    server.serverType === 'OPENAI' ||
+    server.serverType === 'ANTHROPIC' ||
+    server.serverType === 'CUSTOM' ||
+    isOllamaServer(server) ||
+    category === 'text' ||
+    category === 'chat'
+  )
+}
+
 export const useServerStore = defineStore('serverStore', () => {
   const servers: Ref<Server[]> = ref([])
   const selectedServer: Ref<Server | null> = ref(null)
@@ -296,17 +362,13 @@ export const useServerStore = defineStore('serverStore', () => {
 
   const artServers = computed<Server[]>(() =>
     visibleActiveServers.value.filter((server: Server): boolean => {
-      return server.serverType === 'A1111' || server.serverType === 'COMFY'
+      return isArtCompatibleServer(server)
     }),
   )
 
   const textServers = computed<Server[]>(() =>
     visibleActiveServers.value.filter((server: Server): boolean => {
-      return (
-        server.serverType === 'OPENAI' ||
-        server.serverType === 'ANTHROPIC' ||
-        server.serverType === 'CUSTOM'
-      )
+      return isTextCompatibleServer(server)
     }),
   )
 
@@ -1510,9 +1572,7 @@ export const useServerStore = defineStore('serverStore', () => {
       }
     }
 
-    const canUse =
-      Boolean(server.isActive) &&
-      ['OPENAI', 'ANTHROPIC', 'CUSTOM'].includes(server.serverType)
+    const canUse = Boolean(server.isActive) && isTextCompatibleServer(server)
 
     if (!canUse) {
       return {
@@ -1589,9 +1649,7 @@ export const useServerStore = defineStore('serverStore', () => {
       }
     }
 
-    const canUse =
-      Boolean(server.isActive) &&
-      (server.serverType === 'A1111' || server.serverType === 'COMFY')
+    const canUse = Boolean(server.isActive) && isArtCompatibleServer(server)
 
     if (!canUse) {
       return {

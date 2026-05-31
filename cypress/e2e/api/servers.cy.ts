@@ -9,6 +9,45 @@ interface ApiResponse<T = any> {
   user?: T
 }
 
+type ServerType = 'A1111' | 'COMFY' | 'OPENAI' | 'ANTHROPIC' | 'CUSTOM'
+type ServerAccessMode = 'BROWSER' | 'BACKEND' | 'TAILSCALE' | 'PUBLIC' | 'LOCAL'
+type ServerAuthType = 'NONE' | 'BEARER' | 'HEADER' | 'QUERY' | 'API_KEY'
+type ServerStatus = 'ONLINE' | 'OFFLINE' | 'DEGRADED' | 'UNKNOWN'
+
+interface ServerRecord {
+  id: number
+  createdAt: string
+  updatedAt: string
+  title: string
+  label?: string | null
+  description?: string | null
+  category?: string | null
+  serverType: ServerType
+  accessMode: ServerAccessMode
+  authType: ServerAuthType
+  baseUrl?: string | null
+  endpointPath?: string | null
+  healthPath?: string | null
+  apiLink?: string | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+  model?: string | null
+  notes?: string | null
+  designer?: string | null
+  version?: string | null
+  sortOrder: number
+  userId?: number | null
+  isPublic: boolean
+  isOfficial: boolean
+  isDefault: boolean
+  isActive: boolean
+  isEditable: boolean
+  isMature: boolean
+  lastCheckedAt?: string | null
+  lastStatus: ServerStatus
+  artPrompt?: string | null
+}
+
 describe('Server API Full CRUD + Auth Tests', () => {
   const fallbackApiBase = 'https://kind-robots.vercel.app'
   const testUserId = 9
@@ -20,7 +59,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
   let apiBase = fallbackApiBase
   let baseUrl = `${fallbackApiBase}/api/server`
   let userA_apiKey = ''
-  let serverId: number
+  let serverId: number | undefined
   let badServerId: number | undefined
 
   before(() => {
@@ -34,10 +73,10 @@ describe('Server API Full CRUD + Auth Tests', () => {
     })
   })
 
-  it('POST: User A creates a private ART server', () => {
+  it('POST: User A creates a private A1111 server', () => {
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request<ApiResponse>({
+    cy.request<ApiResponse<ServerRecord>>({
       method: 'POST',
       url: baseUrl,
       headers: {
@@ -47,43 +86,68 @@ describe('Server API Full CRUD + Auth Tests', () => {
       body: {
         title: serverTitle,
         label: 'Lola Test',
-        description: 'Private test art server',
-        serverType: 'ART',
+        description: 'Private test A1111 image server',
         category: 'personal',
+        serverType: 'A1111',
+        accessMode: 'BROWSER',
+        authType: 'NONE',
         baseUrl: 'https://lola.acrocatranch.com',
         endpointPath: '/sdapi/v1/txt2img',
         healthPath: '/sdapi/v1/progress',
+        apiLink: 'https://lola.acrocatranch.com/docs',
+        apiKey: null,
+        apiKeyName: null,
+        model: 'stable-diffusion',
         userId: testUserId,
         isPublic: false,
         isOfficial: false,
         isDefault: false,
         isActive: true,
-        requiresApiKey: false,
-        supportsTxt2Img: true,
-        supportsImg2Img: true,
-        supportsChat: false,
-        supportsComfyWorkflow: false,
-        supportsCheckpointOverride: true,
-        supportsSampler: true,
-        supportsNegativePrompt: true,
-        supportsSeed: true,
-        supportsSteps: true,
+        isEditable: true,
+        isMature: false,
         designer: 'cypress',
         version: '1.0',
         notes: 'created by cypress',
         sortOrder: 1,
+        artPrompt:
+          'A tiny robot testing a server endpoint with suspicious confidence.',
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.be.true
       expect(res.body.data).to.be.an('object')
-      expect(res.body.data.title).to.eq(serverTitle)
-      expect(res.body.data.serverType).to.eq('ART')
-      expect(res.body.data.baseUrl).to.eq('https://lola.acrocatranch.com')
-      expect(res.body.data.endpointPath).to.eq('/sdapi/v1/txt2img')
-      expect(res.body.data.userId).to.eq(testUserId)
 
-      serverId = res.body.data.id
+      const server = res.body.data as ServerRecord
+
+      expect(server.title).to.eq(serverTitle)
+      expect(server.label).to.eq('Lola Test')
+      expect(server.description).to.eq('Private test A1111 image server')
+      expect(server.category).to.eq('personal')
+      expect(server.serverType).to.eq('A1111')
+      expect(server.accessMode).to.eq('BROWSER')
+      expect(server.authType).to.eq('NONE')
+      expect(server.baseUrl).to.eq('https://lola.acrocatranch.com')
+      expect(server.endpointPath).to.eq('/sdapi/v1/txt2img')
+      expect(server.healthPath).to.eq('/sdapi/v1/progress')
+      expect(server.apiLink).to.eq('https://lola.acrocatranch.com/docs')
+      expect(server.model).to.eq('stable-diffusion')
+      expect(server.userId).to.eq(testUserId)
+      expect(server.isPublic).to.eq(false)
+      expect(server.isOfficial).to.eq(false)
+      expect(server.isDefault).to.eq(false)
+      expect(server.isActive).to.eq(true)
+      expect(server.isEditable).to.eq(true)
+      expect(server.isMature).to.eq(false)
+      expect(server.designer).to.eq('cypress')
+      expect(server.version).to.eq('1.0')
+      expect(server.notes).to.eq('created by cypress')
+      expect(server.sortOrder).to.eq(1)
+      expect(server.lastStatus).to.eq('UNKNOWN')
+      expect(server.artPrompt).to.eq(
+        'A tiny robot testing a server endpoint with suspicious confidence.',
+      )
+
+      serverId = server.id
 
       expect(serverId).to.be.a('number')
     })
@@ -93,7 +157,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request<ApiResponse<any[]>>({
+    cy.request<ApiResponse<ServerRecord[]>>({
       method: 'GET',
       url: baseUrl,
       headers: {
@@ -104,19 +168,20 @@ describe('Server API Full CRUD + Auth Tests', () => {
       expect(res.body.success).to.be.true
       expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data?.find(
-        (item: Record<string, unknown>) => item.id === serverId,
-      )
+      const match = res.body.data?.find((item) => item.id === serverId)
 
       expect(match).to.not.be.undefined
       expect(match?.title).to.eq(serverTitle)
+      expect(match?.serverType).to.eq('A1111')
+      expect(match?.accessMode).to.eq('BROWSER')
+      expect(match?.authType).to.eq('NONE')
     })
   })
 
   it('GET: anonymous fetch does not include User A private server', () => {
     expect(serverId).to.exist
 
-    cy.request<ApiResponse<any[]>>({
+    cy.request<ApiResponse<ServerRecord[]>>({
       method: 'GET',
       url: baseUrl,
     }).then((res) => {
@@ -124,9 +189,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
       expect(res.body.success).to.be.true
       expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data?.find(
-        (item: Record<string, unknown>) => item.id === serverId,
-      )
+      const match = res.body.data?.find((item) => item.id === serverId)
 
       expect(match).to.be.undefined
     })
@@ -136,7 +199,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request<ApiResponse>({
+    cy.request<ApiResponse<ServerRecord>>({
       method: 'GET',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -145,10 +208,15 @@ describe('Server API Full CRUD + Auth Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
-      expect(res.body.data.id).to.eq(serverId)
-      expect(res.body.data.title).to.eq(serverTitle)
-      expect(res.body.data.serverType).to.eq('ART')
-      expect(res.body.data.userId).to.eq(testUserId)
+
+      const server = res.body.data as ServerRecord
+
+      expect(server.id).to.eq(serverId)
+      expect(server.title).to.eq(serverTitle)
+      expect(server.serverType).to.eq('A1111')
+      expect(server.accessMode).to.eq('BROWSER')
+      expect(server.authType).to.eq('NONE')
+      expect(server.userId).to.eq(testUserId)
     })
   })
 
@@ -172,7 +240,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request<ApiResponse>({
+    cy.request<ApiResponse<ServerRecord>>({
       method: 'PATCH',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -182,18 +250,30 @@ describe('Server API Full CRUD + Auth Tests', () => {
       body: {
         label: 'Lola Updated',
         description: 'Updated by owner',
-        supportsImg2Img: false,
+        accessMode: 'BACKEND',
+        authType: 'BEARER',
+        apiKeyName: 'Authorization',
+        model: 'dreamshaper',
         notes: 'owner updated this server',
         sortOrder: 5,
+        lastStatus: 'DEGRADED',
       },
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
-      expect(res.body.data.id).to.eq(serverId)
-      expect(res.body.data.label).to.eq('Lola Updated')
-      expect(res.body.data.description).to.eq('Updated by owner')
-      expect(res.body.data.supportsImg2Img).to.eq(false)
-      expect(res.body.data.sortOrder).to.eq(5)
+
+      const server = res.body.data as ServerRecord
+
+      expect(server.id).to.eq(serverId)
+      expect(server.label).to.eq('Lola Updated')
+      expect(server.description).to.eq('Updated by owner')
+      expect(server.accessMode).to.eq('BACKEND')
+      expect(server.authType).to.eq('BEARER')
+      expect(server.apiKeyName).to.eq('Authorization')
+      expect(server.model).to.eq('dreamshaper')
+      expect(server.notes).to.eq('owner updated this server')
+      expect(server.sortOrder).to.eq(5)
+      expect(server.lastStatus).to.eq('DEGRADED')
     })
   })
 
@@ -217,7 +297,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
     })
   })
 
-  it('PATCH: currently accepts invalid enum values as raw server data', () => {
+  it('PATCH: rejects invalid serverType enum value', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
@@ -233,17 +313,16 @@ describe('Server API Full CRUD + Auth Tests', () => {
       },
       failOnStatusCode: false,
     }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data.id).to.eq(serverId)
+      expect([400, 422, 500]).to.include(res.status)
+      expect(res.body.success).to.be.false
     })
   })
 
-  it('PATCH: restores valid serverType after invalid enum behavior check', () => {
+  it('PATCH: restores and confirms valid enum values', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request<ApiResponse>({
+    cy.request<ApiResponse<ServerRecord>>({
       method: 'PATCH',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -251,20 +330,29 @@ describe('Server API Full CRUD + Auth Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        serverType: 'ART',
+        serverType: 'A1111',
+        accessMode: 'BROWSER',
+        authType: 'NONE',
+        lastStatus: 'UNKNOWN',
       },
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
-      expect(res.body.data.id).to.eq(serverId)
-      expect(res.body.data.serverType).to.eq('ART')
+
+      const server = res.body.data as ServerRecord
+
+      expect(server.id).to.eq(serverId)
+      expect(server.serverType).to.eq('A1111')
+      expect(server.accessMode).to.eq('BROWSER')
+      expect(server.authType).to.eq('NONE')
+      expect(server.lastStatus).to.eq('UNKNOWN')
     })
   })
 
   it('POST: currently accepts malformed URL as raw server data', () => {
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request<ApiResponse>({
+    cy.request<ApiResponse<ServerRecord>>({
       method: 'POST',
       url: baseUrl,
       headers: {
@@ -273,23 +361,34 @@ describe('Server API Full CRUD + Auth Tests', () => {
       },
       body: {
         title: badServerTitle,
-        serverType: 'ART',
+        serverType: 'A1111',
+        accessMode: 'BROWSER',
+        authType: 'NONE',
         baseUrl: 'not-a-real-url',
         endpointPath: '/sdapi/v1/txt2img',
+        healthPath: '/sdapi/v1/progress',
         userId: testUserId,
         isPublic: false,
         isOfficial: false,
         isDefault: false,
         isActive: true,
+        isEditable: true,
+        isMature: false,
       },
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.be.true
-      expect(res.body.data.title).to.eq(badServerTitle)
-      expect(res.body.data.baseUrl).to.eq('not-a-real-url')
 
-      badServerId = res.body.data.id
+      const server = res.body.data as ServerRecord
+
+      expect(server.title).to.eq(badServerTitle)
+      expect(server.serverType).to.eq('A1111')
+      expect(server.accessMode).to.eq('BROWSER')
+      expect(server.authType).to.eq('NONE')
+      expect(server.baseUrl).to.eq('not-a-real-url')
+
+      badServerId = server.id
 
       expect(badServerId).to.be.a('number')
 
@@ -315,7 +414,9 @@ describe('Server API Full CRUD + Auth Tests', () => {
       },
       body: {
         title: `Unauthorized-${time}`,
-        serverType: 'ART',
+        serverType: 'A1111',
+        accessMode: 'BROWSER',
+        authType: 'NONE',
         baseUrl: 'https://example.com',
         endpointPath: '/sdapi/v1/txt2img',
         userId: testUserId,
@@ -337,7 +438,9 @@ describe('Server API Full CRUD + Auth Tests', () => {
       },
       body: {
         title: `Invalid-Token-${time}`,
-        serverType: 'ART',
+        serverType: 'A1111',
+        accessMode: 'BROWSER',
+        authType: 'NONE',
         baseUrl: 'https://example.com',
         endpointPath: '/sdapi/v1/txt2img',
         userId: testUserId,

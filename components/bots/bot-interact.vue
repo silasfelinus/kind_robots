@@ -421,12 +421,20 @@ const selectedBotSummary = computed(() => {
   )
 })
 
+const runtimeTextServer = computed(() => {
+  const botServerId = botStore.currentBot?.serverId
+
+  if (typeof botServerId === 'number') {
+    return serverStore.getServerById(botServerId) ?? serverStore.activeTextServer ?? null
+  }
+
+  return serverStore.activeTextServer ?? null
+})
+
 const activeServerName = computed(() => {
-  return (
-    serverStore.activeTextServer?.label ||
-    serverStore.activeTextServer?.title ||
-    'No text server selected'
-  )
+  const server = runtimeTextServer.value
+
+  return server?.label || server?.title || 'Platform text route'
 })
 
 const parsedUserPrompts = computed(() => {
@@ -591,7 +599,8 @@ async function sendMessage() {
       type: 'ToBot',
       recipientId: bot.id,
       characterId: null,
-      serverId: serverStore.activeTextServer?.id ?? null,
+      serverId: runtimeTextServer.value?.id ?? null,
+      serverName: runtimeTextServer.value?.title ?? null,
     }
 
     const newChat = await chatStore.addChat(payload)
@@ -612,11 +621,12 @@ async function sendMessage() {
       await chatStore.streamResponse(newChat.id, {
         model:
           modelName.value ||
-          serverStore.activeTextServer?.model ||
+          runtimeTextServer.value?.model ||
           'gpt-4o-mini',
         temperature: temperature.value,
         maxTokens: maxTokens.value,
-        serverId: serverStore.activeTextServer?.id ?? null,
+        serverId: runtimeTextServer.value?.id ?? null,
+        serverName: runtimeTextServer.value?.title ?? null,
         messages,
       })
     }
@@ -658,10 +668,19 @@ onMounted(async () => {
     botStore.clearPendingLaunchMessage()
   }
 
-  if (!modelName.value && serverStore.activeTextServer?.model) {
-    modelName.value = serverStore.activeTextServer.model
+  if (!modelName.value && runtimeTextServer.value?.model) {
+    modelName.value = runtimeTextServer.value.model
   }
 })
+
+watch(
+  () => runtimeTextServer.value?.model,
+  (model) => {
+    if (!modelName.value && model) {
+      modelName.value = model
+    }
+  },
+)
 
 watch(
   () => botStore.currentBot?.id,

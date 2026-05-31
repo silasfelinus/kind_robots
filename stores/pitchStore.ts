@@ -963,7 +963,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
     if (typeof value === 'object') {
       const record = value as Record<string, unknown>
       return normalizeBrainstormResponse(
-        record.text ?? record.content ?? record.message ?? record.data,
+        record.ideas ?? record.text ?? record.content ?? record.message ?? record.data,
       )
     }
 
@@ -1038,6 +1038,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
         success: true,
         data: apiResponse.value,
         message: 'Brainstorm generated',
+        mana: (res as { mana?: unknown }).mana,
       }
     } catch (error) {
       handleError(error, 'brainstorm')

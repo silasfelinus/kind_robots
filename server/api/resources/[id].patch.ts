@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
             title: true,
             label: true,
             serverType: true,
-            generationEngine: true,
+            
           },
         },
       },
@@ -183,15 +183,16 @@ export default defineEventHandler(async (event) => {
       where: { id: resourceId },
       data: updateData,
       include: {
-        Servers: {
-          select: {
-            id: true,
-            title: true,
-            label: true,
-            serverType: true,
-            generationEngine: true,
-          },
-        },
+        Server: {
+  select: {
+    id: true,
+    title: true,
+    label: true,
+    serverType: true,
+    model: true,
+    isActive: true,
+  },
+},
         ArtImage: {
           select: { id: true, imagePath: true, fileName: true },
         },

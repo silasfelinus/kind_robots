@@ -64,23 +64,33 @@
       </div>
     </Transition>
 
-    <div class="flex min-h-0 flex-1 overflow-hidden">
+    <div class="relative flex min-h-0 flex-1 overflow-hidden">
       <Transition name="builder-sheet-slide">
         <aside
           v-show="showSheet || isDesktop"
-          class="min-h-0 w-72 shrink-0 overflow-hidden border-r border-base-300 bg-base-100 p-3"
+          class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-[min(20rem,calc(100vw-2rem))] shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:static lg:z-auto lg:w-80 lg:shadow-none"
         >
-          <builder-sheet />
+          <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+            <builder-sheet />
+          </div>
         </aside>
       </Transition>
 
+      <button
+        v-if="showSheet && !isDesktop"
+        type="button"
+        class="absolute inset-0 z-20 bg-base-300/40 backdrop-blur-[1px] lg:hidden"
+        aria-label="Close builder sheet overlay"
+        @click="showSheet = false"
+      />
+
       <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <section class="min-h-0 flex-1 overflow-y-auto p-3">
+        <section class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
           <builder-stage />
         </section>
 
         <section
-          class="h-[25%] min-h-28 max-h-48 shrink-0 overflow-hidden border-t border-base-300 bg-base-100/90 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
+          class="h-[clamp(7rem,24dvh,13rem)] shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
         >
           <builder-hand />
         </section>

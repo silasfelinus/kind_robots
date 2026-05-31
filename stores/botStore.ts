@@ -219,18 +219,15 @@ export const useBotStore = defineStore('botStore', () => {
   }
 
   function normalizeBotForm(input: Partial<BotForm> = {}): BotForm {
-    const activeTextServer = serverStore.activeTextServer
-
     return {
       ...input,
-      serverId: input.serverId ?? activeTextServer?.id ?? null,
-      serverName: input.serverName ?? activeTextServer?.title ?? null,
+      serverId: input.serverId ?? null,
+      serverName: input.serverName ?? null,
     }
   }
 
   function createDefaultBotForm(overrides: Partial<BotForm> = {}): BotForm {
     const userStore = useUserStore()
-    const activeTextServer = serverStore.activeTextServer
 
     return normalizeBotForm({
       name: '',
@@ -252,8 +249,8 @@ export const useBotStore = defineStore('botStore', () => {
       canDelete: true,
       designer: userStore.user?.username || '',
       userId: userStore.userId || userStore.user?.id || null,
-      serverId: activeTextServer?.id ?? null,
-      serverName: activeTextServer?.title ?? null,
+      serverId: null,
+      serverName: null,
       ...overrides,
     })
   }

@@ -1015,7 +1015,9 @@ const textServers = computed<TextServerOption[]>(() => {
   return servers.filter(
     (s) =>
       s.isActive &&
-      (s.serverType === 'TEXT' || s.serverType === 'OPENAI_COMPATIBLE'),
+      (s.serverType === 'OPENAI' ||
+        s.serverType === 'ANTHROPIC' ||
+        s.serverType === 'CUSTOM'),
   )
 })
 

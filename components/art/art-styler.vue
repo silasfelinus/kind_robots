@@ -3,7 +3,6 @@
   <section
     class="art-styler flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
   >
-    <!-- ── Header ─────────────────────────────────────────────────────── -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:magic" class="h-5 w-5 text-primary" />
@@ -20,7 +19,6 @@
       </button>
     </div>
 
-    <!-- ── Source image selection ─────────────────────────────────────── -->
     <div
       class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
     >
@@ -28,7 +26,6 @@
         <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
         <span class="text-xs font-black text-base-content">Source Image</span>
         <div class="flex-1" />
-        <!-- Tab switcher -->
         <div
           class="flex overflow-hidden rounded-lg border border-base-300 text-xs"
         >
@@ -59,7 +56,6 @@
         </div>
       </div>
 
-      <!-- Selected source preview -->
       <Transition name="slide-fade">
         <div
           v-if="selectedSourceImage"
@@ -94,7 +90,6 @@
         </div>
       </Transition>
 
-      <!-- Upload tab -->
       <div v-if="sourceTab === 'upload'" class="flex flex-col gap-2">
         <input
           ref="fileInput"
@@ -127,17 +122,15 @@
           </span>
           <p class="text-xs font-semibold text-base-content/60">
             Drop image or
-            <span class="font-bold text-primary underline underline-offset-2"
-              >browse</span
-            >
+            <span class="font-bold text-primary underline underline-offset-2">
+              browse
+            </span>
           </p>
           <p class="text-[0.65rem] text-base-content/40">PNG · JPEG · WebP</p>
         </div>
       </div>
 
-      <!-- Gallery tab -->
       <div v-else class="flex flex-col gap-2">
-        <!-- Search -->
         <label
           class="input input-bordered input-xs flex items-center gap-1.5 bg-base-200"
         >
@@ -153,7 +146,6 @@
           />
         </label>
 
-        <!-- Image mini-grid -->
         <div
           v-if="galleryImages.length"
           class="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto rounded-xl sm:grid-cols-5 md:grid-cols-6"
@@ -215,7 +207,6 @@
       </div>
     </div>
 
-    <!-- ── Source + result preview row ───────────────────────────────── -->
     <Transition name="slide-fade">
       <div
         v-if="selectedSourceImage || resultImage"
@@ -291,7 +282,6 @@
       </div>
     </Transition>
 
-    <!-- ── Category filter pills ─────────────────────────────────────── -->
     <div class="flex flex-wrap gap-1.5">
       <button
         v-for="cat in allCategories"
@@ -310,7 +300,6 @@
       </button>
     </div>
 
-    <!-- ── Style grid ─────────────────────────────────────────────────── -->
     <div
       class="grid gap-2"
       style="
@@ -330,7 +319,6 @@
         :title="style.triggerPhrase"
         @click="selectStyle(style)"
       >
-        <!-- Style preview image (if present) -->
         <div
           v-if="style.previewImageSrc"
           class="relative w-full overflow-hidden"
@@ -341,11 +329,9 @@
             :alt="style.label"
             class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
           />
-          <!-- Subtle overlay gradient for label legibility -->
           <div
             class="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-base-300/80 to-transparent"
           />
-          <!-- Label over image -->
           <div
             class="absolute inset-x-0 bottom-0 flex flex-col items-center gap-0.5 px-1.5 pb-2 pt-1"
           >
@@ -355,7 +341,6 @@
               {{ style.label }}
             </span>
           </div>
-          <!-- Category emoji top-left -->
           <span
             class="absolute left-1.5 top-1.5 text-base leading-none drop-shadow"
           >
@@ -363,7 +348,6 @@
           </span>
         </div>
 
-        <!-- Text-only card (no preview image) -->
         <div
           v-else
           class="flex w-full flex-col items-center gap-1.5 px-2 py-3"
@@ -373,9 +357,9 @@
               : 'bg-base-100'
           "
         >
-          <span class="text-xl leading-none">{{
-            CATEGORY_ICONS[style.category]
-          }}</span>
+          <span class="text-xl leading-none">
+            {{ CATEGORY_ICONS[style.category] }}
+          </span>
           <span
             class="text-xs font-bold leading-tight"
             :class="
@@ -388,7 +372,6 @@
           </span>
         </div>
 
-        <!-- Selected checkmark -->
         <Transition name="pop">
           <div
             v-if="selectedStyle?.loraPath === style.loraPath"
@@ -398,7 +381,6 @@
           </div>
         </Transition>
 
-        <!-- DB badge -->
         <div
           v-if="style.resourceId"
           class="absolute left-1.5 top-1.5"
@@ -409,7 +391,6 @@
       </button>
     </div>
 
-    <!-- ── Prompt customization ───────────────────────────────────────── -->
     <Transition name="slide-fade">
       <div
         v-if="selectedStyle"
@@ -418,17 +399,17 @@
         <div class="flex items-center gap-1.5">
           <Icon name="kind-icon:edit" class="h-4 w-4 text-primary" />
           <span class="text-xs font-black text-base-content">Prompt</span>
-          <span class="ml-auto text-xs text-base-content/40"
-            >LoRA trigger auto-prepended</span
-          >
+          <span class="ml-auto text-xs text-base-content/40">
+            LoRA trigger auto-prepended
+          </span>
         </div>
 
         <div
           class="rounded-lg border border-base-300 bg-base-200 px-3 py-2 font-mono text-xs text-base-content/60"
         >
-          <span class="text-warning">{{
-            buildLoraReference(selectedStyle)
-          }}</span>
+          <span class="text-warning">
+            {{ buildLoraReference(selectedStyle) }}
+          </span>
           <span class="text-primary"> {{ selectedStyle.triggerPhrase }}</span>
           <span v-if="extraPrompt.trim()">, {{ extraPrompt }}</span>
         </div>
@@ -449,9 +430,9 @@
               type="checkbox"
               class="toggle toggle-primary toggle-xs"
             />
-            <span class="label-text text-xs font-semibold"
-              >Inherit negative prompt</span
-            >
+            <span class="label-text text-xs font-semibold">
+              Inherit negative prompt
+            </span>
           </label>
           <label
             class="label cursor-pointer gap-2 rounded-lg border border-base-300 bg-base-200 px-2 py-1.5"
@@ -467,7 +448,6 @@
       </div>
     </Transition>
 
-    <!-- ── Generation progress ────────────────────────────────────────── -->
     <Transition name="fade">
       <div v-if="isGenerating" class="flex flex-col gap-2">
         <div class="flex items-center gap-2 text-xs font-semibold text-primary">
@@ -478,25 +458,26 @@
       </div>
     </Transition>
 
-    <!-- ── Status messages ────────────────────────────────────────────── -->
     <Transition name="fade">
       <p
         v-if="errorMessage"
         class="flex items-center gap-1.5 text-sm font-semibold text-error"
       >
-        <Icon name="kind-icon:alert" class="h-4 w-4" />{{ errorMessage }}
+        <Icon name="kind-icon:alert" class="h-4 w-4" />
+        {{ errorMessage }}
       </p>
     </Transition>
+
     <Transition name="fade">
       <p
         v-if="successMessage"
         class="flex items-center gap-1.5 text-sm font-semibold text-success"
       >
-        <Icon name="kind-icon:check" class="h-4 w-4" />{{ successMessage }}
+        <Icon name="kind-icon:check" class="h-4 w-4" />
+        {{ successMessage }}
       </p>
     </Transition>
 
-    <!-- ── Action bar ─────────────────────────────────────────────────── -->
     <div class="flex gap-2">
       <button
         type="button"
@@ -536,9 +517,8 @@ import { useArtStore } from '@/stores/artStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useUserStore } from '@/stores/userStore'
 import { useServerStore } from '@/stores/serverStore'
-import type { ArtImage } from '~/prisma/generated/prisma/client'
+import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 
-// ── Props / emits ──────────────────────────────────────────────────────────
 const props = withDefaults(
   defineProps<{
     serverId?: number | null
@@ -551,13 +531,11 @@ const emit = defineEmits<{
   close: []
 }>()
 
-// ── Stores ─────────────────────────────────────────────────────────────────
 const artStore = useArtStore()
 const resourceStore = useResourceStore()
 const userStore = useUserStore()
 const serverStore = useServerStore()
 
-// ── Types ──────────────────────────────────────────────────────────────────
 type StyleCategory =
   | 'Painterly'
   | 'Illustration'
@@ -574,12 +552,10 @@ interface StyleEntry {
   triggerPhrase: string
   label: string
   category: StyleCategory
-  /** Optional preview image shown on the style card. Set manually via admin or style manager. */
   previewImageSrc?: string
   resourceId?: number
 }
 
-// ── Category icons ─────────────────────────────────────────────────────────
 const CATEGORY_ICONS: Record<StyleCategory, string> = {
   Painterly: '🎨',
   Illustration: '✏️',
@@ -591,10 +567,7 @@ const CATEGORY_ICONS: Record<StyleCategory, string> = {
   Ink: '🖋️',
 }
 
-// ── Built-in style catalogue ───────────────────────────────────────────────
-// previewImageSrc is intentionally absent from builtins — populate via admin or resourceStore hydration
 const BUILTIN_STYLES: StyleEntry[] = [
-  // Painterly
   {
     loraPath: 'FLUX/watercolor.safetensors',
     loraWeight: 1,
@@ -638,7 +611,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'DB4RZ Painterly',
     category: 'Painterly',
   },
-  // Illustration
   {
     loraPath: 'FLUX/digital-illustration.safetensors',
     loraWeight: 1,
@@ -681,7 +653,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Collage',
     category: 'Illustration',
   },
-  // Cartoon
   {
     loraPath: 'FLUX/disney_lora_comfy_converted.safetensors',
     loraWeight: 1,
@@ -717,7 +688,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Digital Cartoon',
     category: 'Cartoon',
   },
-  // Anime
   {
     loraPath: 'FLUX/kontext-qtorealanime.safetensors',
     loraWeight: 1,
@@ -725,7 +695,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Real Anime',
     category: 'Anime',
   },
-  // Ink
   {
     loraPath: 'FLUX/ink_style-4-500.safetensors',
     loraWeight: 1,
@@ -740,7 +709,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Fae Ink',
     category: 'Ink',
   },
-  // 3D/Craft
   {
     loraPath: 'FLUX/Claymation.safetensors',
     loraWeight: 1,
@@ -769,7 +737,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Cute Animals',
     category: '3D/Craft',
   },
-  // Trippy
   {
     loraPath: 'FLUX/LSD_and_Mushrooms_from_Trippy_Lalaland_Ethanar.safetensors',
     loraWeight: 1,
@@ -798,7 +765,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Weird Things',
     category: 'Trippy',
   },
-  // Realism
   {
     loraPath: 'FLUX/aidmaHyperrealism-FLUX-v0.3.safetensors',
     loraWeight: 1,
@@ -823,7 +789,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
   },
 ]
 
-// ── Reactive state ─────────────────────────────────────────────────────────
 const styles = ref<StyleEntry[]>([...BUILTIN_STYLES])
 const selectedStyle = ref<StyleEntry | null>(null)
 const activeCategory = ref<StyleCategory | null>(null)
@@ -835,35 +800,33 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const resultImage = ref<ArtImage | null>(null)
 
-// Source image state
 const selectedSourceImage = ref<ArtImage | null>(null)
 const sourceTab = ref<'upload' | 'gallery'>('upload')
-const uploadedImageData = ref<string | null>(null) // base64 of locally-uploaded file
+const uploadedImageData = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 
-// Gallery picker state
 const gallerySearch = ref('')
 const galleryThumbs = ref<Record<number, string>>({})
 const isLoadingGallery = ref(false)
 
-// ── Derived ────────────────────────────────────────────────────────────────
-const allCategories = computed<StyleCategory[]>(
-  () => [...new Set(styles.value.map((s) => s.category))] as StyleCategory[],
-)
+const allCategories = computed<StyleCategory[]>(() => {
+  return [...new Set(styles.value.map((style) => style.category))]
+})
 
-const filteredStyles = computed(() =>
-  activeCategory.value
-    ? styles.value.filter((s) => s.category === activeCategory.value)
-    : styles.value,
-)
+const filteredStyles = computed(() => {
+  return activeCategory.value
+    ? styles.value.filter((style) => style.category === activeCategory.value)
+    : styles.value
+})
 
-/** Gallery images filtered by search, capped for the mini-grid */
 const galleryImages = computed<ArtImage[]>(() => {
   const query = gallerySearch.value.trim().toLowerCase()
+
   return artStore.artImages
     .filter((img) => {
       if (!query) return true
+
       return [img.fileName, img.promptString, String(img.id)]
         .filter(Boolean)
         .join(' ')
@@ -874,184 +837,126 @@ const galleryImages = computed<ArtImage[]>(() => {
 })
 
 const sourceImageSrc = computed<string>(() => {
-  // Locally uploaded file takes priority
   if (uploadedImageData.value) return uploadedImageData.value
   if (!selectedSourceImage.value) return ''
+
   const img = selectedSourceImage.value as ArtImage & {
     imageData?: string | null
     thumbnailData?: string | null
     imagePath?: string | null
     path?: string | null
   }
-  if (img.thumbnailData)
+
+  if (img.thumbnailData) {
     return `data:image/${img.fileType || 'png'};base64,${img.thumbnailData}`
-  if (img.imageData)
+  }
+
+  if (img.imageData) {
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
+  }
+
   return img.imagePath || img.path || galleryThumbs.value[img.id] || ''
 })
 
 const resultImageSrc = computed<string>(() => {
   if (!resultImage.value) return ''
+
   const img = resultImage.value as ArtImage & {
     imageData?: string | null
     imagePath?: string | null
     path?: string | null
   }
-  if (img.imageData)
+
+  if (img.imageData) {
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
+  }
+
   return img.imagePath || img.path || ''
 })
 
-type KontextCapableServer = {
-  id: number
-  userId?: number | null
-  isActive?: boolean | null
-  isOfficial?: boolean | null
-  isMetered?: boolean | null
-  category?: string | null
-  serverType?: string | null
-  generationEngine?: string | null
-  supportsComfyWorkflow?: boolean | null
-  supportsFlux?: boolean | null
-  supportsKontext?: boolean | null
-  supportsWorkflowUpload?: boolean | null
-}
-
-function isOfficialFallbackServer(server: KontextCapableServer): boolean {
-  return Boolean(
-    server.isOfficial ||
-    server.category === 'official' ||
-    server.userId === 9 ||
-    server.isMetered,
-  )
-}
-
-function isUserSupportedKontextServer(server: KontextCapableServer): boolean {
-  if (!server.isActive) return false
-  if (isOfficialFallbackServer(server)) return false
-
-  const isComfy =
-    server.serverType === 'COMFY' ||
-    server.generationEngine === 'COMFY' ||
-    Boolean(server.supportsComfyWorkflow)
-
-  const supportsFluxWorkflow =
-    Boolean(server.supportsFlux) ||
-    Boolean(server.supportsKontext) ||
-    Boolean(server.supportsWorkflowUpload)
-
-  return isComfy && supportsFluxWorkflow
-}
-
-const kontextServerId = computed<number | null>(() => {
+const kontextServer = computed<Server | null>(() => {
   const servers = Array.isArray(serverStore.servers)
-    ? (serverStore.servers as KontextCapableServer[])
+    ? (serverStore.servers as Server[])
     : []
 
   if (props.serverId) {
-    const explicitServer = serverStore.getServerById(props.serverId) as
-      | KontextCapableServer
-      | null
-      | undefined
+    const explicitServer = serverStore.getServerById(props.serverId) ?? null
 
-    if (explicitServer && isUserSupportedKontextServer(explicitServer)) {
-      return explicitServer.id
+    if (isUsableKontextServer(explicitServer)) {
+      return explicitServer
     }
   }
 
-  const activeServer = serverStore.activeArtServer as
-    | KontextCapableServer
-    | null
-    | undefined
-
-  if (activeServer && isUserSupportedKontextServer(activeServer)) {
-    return activeServer.id
+  if (isUsableKontextServer(serverStore.activeArtServer)) {
+    return serverStore.activeArtServer
   }
 
   const userId = userStore.userId ?? userStore.user?.id ?? null
 
-  const ownedServer =
-    servers.find((server) => {
-      return (
-        userId &&
-        server.userId === userId &&
-        server.generationEngine === 'KONTEXT' &&
-        isUserSupportedKontextServer(server)
-      )
-    }) ||
-    servers.find((server) => {
-      return (
-        userId &&
-        server.userId === userId &&
-        server.generationEngine === 'COMFY' &&
-        isUserSupportedKontextServer(server)
-      )
-    }) ||
-    servers.find((server) => {
-      return (
-        userId &&
-        server.userId === userId &&
-        isUserSupportedKontextServer(server)
-      )
+  if (userId) {
+    const ownedServer = servers.find((server) => {
+      return server.userId === userId && isUsableKontextServer(server)
     })
 
-  if (ownedServer) return ownedServer.id
+    if (ownedServer) return ownedServer
+  }
 
-  const personalServer =
-    servers.find((server) => {
-      return (
-        server.generationEngine === 'KONTEXT' &&
-        isUserSupportedKontextServer(server)
-      )
-    }) ||
-    servers.find((server) => {
-      return (
-        server.generationEngine === 'COMFY' &&
-        isUserSupportedKontextServer(server)
-      )
-    }) ||
-    servers.find(isUserSupportedKontextServer)
-
-  return personalServer?.id ?? null
+  return servers.find(isUsableKontextServer) || null
 })
 
-function isKontextCapableServer(server: KontextCapableServer): boolean {
-  if (!server.isActive) return false
+const kontextServerId = computed<number | null>(() => {
+  return kontextServer.value?.id ?? null
+})
 
+const canGenerate = computed(() => {
   return (
-    server.generationEngine === 'KONTEXT' ||
-    server.generationEngine === 'COMFY' ||
-    server.serverType === 'COMFY' ||
-    Boolean(server.supportsComfyWorkflow) ||
-    Boolean(server.supportsFlux)
+    !isGenerating.value && !!selectedStyle.value && !!selectedSourceImage.value
   )
+})
+
+function isUsableKontextServer(
+  server: Server | null | undefined,
+): server is Server {
+  if (!server) return false
+  if (!server.isActive) return false
+  if (server.serverType !== 'COMFY') return false
+  if (server.isOfficial) return false
+  if (server.category === 'official') return false
+  if (server.userId === 9) return false
+
+  return true
 }
 
-const canGenerate = computed(
-  () =>
-    !isGenerating.value && !!selectedStyle.value && !!selectedSourceImage.value,
-)
-
-// ── Upload handlers ────────────────────────────────────────────────────────
 function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
-  if (input.files?.[0]) processUploadedFile(input.files[0])
-  if (fileInput.value) fileInput.value.value = ''
+
+  if (input.files?.[0]) {
+    processUploadedFile(input.files[0])
+  }
+
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
 }
 
 function handleDrop(event: DragEvent) {
   isDragging.value = false
+
   const file = event.dataTransfer?.files?.[0]
-  if (file && file.type.startsWith('image/')) processUploadedFile(file)
+
+  if (file && file.type.startsWith('image/')) {
+    processUploadedFile(file)
+  }
 }
 
 function processUploadedFile(file: File) {
   const reader = new FileReader()
-  reader.onload = (e) => {
-    const dataUrl = e.target?.result as string
+
+  reader.onload = (event) => {
+    const dataUrl = event.target?.result as string
+
     uploadedImageData.value = dataUrl
 
-    // Build a synthetic ArtImage-like object so the rest of the logic is uniform
     const synthetic = {
       id: -1,
       fileName: file.name,
@@ -1066,36 +971,37 @@ function processUploadedFile(file: File) {
     successMessage.value = ''
     resultImage.value = null
   }
+
   reader.readAsDataURL(file)
 }
 
-// ── Gallery handlers ───────────────────────────────────────────────────────
 async function selectGalleryImage(image: ArtImage) {
   uploadedImageData.value = null
   resultImage.value = null
   errorMessage.value = ''
   successMessage.value = ''
 
-  // Use cached thumb if available
   if (galleryThumbs.value[image.id]) {
     selectedSourceImage.value = image
     return
   }
 
-  // Attempt to hydrate thumb
   try {
     const fetched = await artStore.getArtImageById(image.id, {
       includeImageData: false,
       includeThumbnailData: true,
     })
+
     if (fetched) {
       const hydrated = fetched as ArtImage & { thumbnailData?: string | null }
+
       if (hydrated.thumbnailData) {
         galleryThumbs.value = {
           ...galleryThumbs.value,
           [image.id]: `data:image/${hydrated.fileType || 'png'};base64,${hydrated.thumbnailData}`,
         }
       }
+
       selectedSourceImage.value = hydrated
     } else {
       selectedSourceImage.value = image
@@ -1113,13 +1019,15 @@ function clearSourceImage() {
   successMessage.value = ''
 }
 
-// ── Gallery lazy-load thumbnails for the mini-grid ────────────────────────
 async function hydrateGalleryThumbs() {
   const missing = galleryImages.value
     .filter((img) => !galleryThumbs.value[img.id])
     .slice(0, 24)
+
   if (!missing.length) return
+
   isLoadingGallery.value = true
+
   try {
     await Promise.all(
       missing.map(async (img) => {
@@ -1128,9 +1036,11 @@ async function hydrateGalleryThumbs() {
             includeImageData: false,
             includeThumbnailData: true,
           })
+
           const hydrated = fetched as
             | (ArtImage & { thumbnailData?: string | null })
             | null
+
           if (hydrated?.thumbnailData) {
             galleryThumbs.value = {
               ...galleryThumbs.value,
@@ -1143,7 +1053,7 @@ async function hydrateGalleryThumbs() {
             }
           }
         } catch {
-          // non-fatal
+          return
         }
       }),
     )
@@ -1152,7 +1062,6 @@ async function hydrateGalleryThumbs() {
   }
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
 function buildLoraReference(style: StyleEntry): string {
   return `<lora:${style.loraPath}:${style.loraWeight}>`
 }
@@ -1173,69 +1082,77 @@ function clearSelection() {
   resultImage.value = null
 }
 
-// ── DB resource hydration ─────────────────────────────────────────────────
 async function hydrateFromResourceStore(): Promise<void> {
   try {
-    if (!resourceStore.hasLoaded) await resourceStore.getResources()
+    if (!resourceStore.hasLoaded) {
+      await resourceStore.getResources()
+    }
 
-    const dbLoras = resourceStore.resources.filter(
-      (r) =>
-        r.resourceType === 'LORA' &&
-        (r.supportedServer === 'KONTEXT' ||
-          r.supportedServer === 'FLUX' ||
-          r.supportedServer === 'GENERIC'),
-    )
+    const dbLoras = resourceStore.resources.filter((resource) => {
+      return (
+        resource.resourceType === 'LORA' &&
+        (resource.supportedServer === 'KONTEXT' ||
+          resource.supportedServer === 'FLUX' ||
+          resource.supportedServer === 'GENERIC')
+      )
+    })
+
     if (!dbLoras.length) return
 
-    const builtinPaths = new Set(styles.value.map((s) => s.loraPath))
+    const builtinPaths = new Set(styles.value.map((style) => style.loraPath))
 
     const updated = styles.value.map((style) => {
       const stem =
         style.loraPath.split('/').pop()?.replace('.safetensors', '') || ''
-      const match = dbLoras.find(
-        (r) =>
-          (stem && r.localPath?.includes(stem)) ||
-          r.name?.toLowerCase().includes(style.label.toLowerCase()),
-      )
+
+      const match = dbLoras.find((resource) => {
+        return (
+          (stem && resource.localPath?.includes(stem)) ||
+          resource.name?.toLowerCase().includes(style.label.toLowerCase())
+        )
+      })
+
       if (!match) return style
+
       return {
         ...style,
         resourceId: match.id,
-        // Hydrate previewImageSrc from resource if available and not already set
         previewImageSrc: style.previewImageSrc || match.imagePath || undefined,
       }
     })
 
     const newFromDb = dbLoras
-      .filter((r) => {
-        if (!r.localPath) return false
-        const fullPath = r.localPath.startsWith('FLUX/')
-          ? r.localPath
-          : `FLUX/${r.localPath}`
+      .filter((resource) => {
+        if (!resource.localPath) return false
+
+        const fullPath = resource.localPath.startsWith('FLUX/')
+          ? resource.localPath
+          : `FLUX/${resource.localPath}`
+
         return !builtinPaths.has(fullPath)
       })
-      .map(
-        (r): StyleEntry => ({
-          loraPath: r.localPath!.startsWith('FLUX/')
-            ? r.localPath!
-            : `FLUX/${r.localPath}`,
+      .map((resource): StyleEntry => {
+        return {
+          loraPath: resource.localPath!.startsWith('FLUX/')
+            ? resource.localPath!
+            : `FLUX/${resource.localPath}`,
           loraWeight: 1,
-          triggerPhrase: r.artPrompt || r.customLabel || r.name,
-          label: r.customLabel || r.name,
+          triggerPhrase:
+            resource.artPrompt || resource.customLabel || resource.name,
+          label: resource.customLabel || resource.name,
           category: 'Illustration',
-          resourceId: r.id,
-          previewImageSrc: r.imagePath || undefined,
-        }),
-      )
+          resourceId: resource.id,
+          previewImageSrc: resource.imagePath || undefined,
+        }
+      })
 
     styles.value = [...updated, ...newFromDb]
-  } catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') return
-    console.warn('[art-styler] hydrateFromResourceStore:', err)
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') return
+    console.warn('[art-styler] hydrateFromResourceStore:', error)
   }
 }
 
-// ── Core generation ──────────────
 async function runStyleTransfer(): Promise<void> {
   if (!selectedStyle.value || !selectedSourceImage.value) return
 
@@ -1289,11 +1206,16 @@ async function runStyleTransfer(): Promise<void> {
       throw new Error('Could not load full image data for style transfer.')
     }
 
+    const serverId = kontextServerId.value
+    const serverName =
+      kontextServer.value?.label ?? kontextServer.value?.title ?? null
+
     const result = await artStore.generateArt({
       promptString,
       negativePrompt: useNegative.value ? sourceImage.negativePrompt || '' : '',
       userId: userStore.userId ?? undefined,
-      serverId: kontextServerId.value,
+      serverId,
+      serverName,
       engine: 'kontext',
       transport: 'backend',
       isPublic: isPublic.value,
@@ -1309,39 +1231,41 @@ async function runStyleTransfer(): Promise<void> {
     resultImage.value = result.data
     successMessage.value = `Style applied! Image #${result.data.id} created.`
     emit('generated', result.data)
-  } catch (err) {
+  } catch (error) {
     errorMessage.value =
-      err instanceof Error ? err.message : 'Generation failed.'
+      error instanceof Error ? error.message : 'Generation failed.'
   } finally {
     isGenerating.value = false
   }
 }
 
-// ── Watchers ───────────────────────────────────────────────────────────────
 watch(sourceTab, async (tab) => {
-  if (tab === 'gallery') {
-    if (!artStore.artImages.length) {
-      isLoadingGallery.value = true
-      try {
-        await artStore.fetchAllArtImages({
-          force: false,
-          includeImageData: false,
-          includeThumbnailData: false,
-          includePitches: false,
-        })
-      } finally {
-        isLoadingGallery.value = false
-      }
+  if (tab !== 'gallery') return
+
+  if (!artStore.artImages.length) {
+    isLoadingGallery.value = true
+
+    try {
+      await artStore.fetchAllArtImages({
+        force: false,
+        includeImageData: false,
+        includeThumbnailData: false,
+        includePitches: false,
+      })
+    } finally {
+      isLoadingGallery.value = false
     }
-    await hydrateGalleryThumbs()
   }
+
+  await hydrateGalleryThumbs()
 })
 
-watch(gallerySearch, () => hydrateGalleryThumbs())
+watch(gallerySearch, () => {
+  void hydrateGalleryThumbs()
+})
 
-// ── Lifecycle ──────────────────────────────────────────────────────────────
 onMounted(() => {
-  hydrateFromResourceStore()
+  void hydrateFromResourceStore()
 })
 </script>
 
@@ -1352,29 +1276,35 @@ onMounted(() => {
     opacity 0.2s ease,
     transform 0.2s ease;
 }
+
 .slide-fade-enter-from,
 .slide-fade-leave-to {
   opacity: 0;
   transform: translateY(-6px);
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.18s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
+
 .pop-enter-active {
   transition:
     opacity 0.15s ease,
     transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 .pop-leave-active {
   transition:
     opacity 0.1s ease,
     transform 0.1s ease;
 }
+
 .pop-enter-from,
 .pop-leave-to {
   opacity: 0;

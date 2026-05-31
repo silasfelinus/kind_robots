@@ -184,7 +184,7 @@ export default defineEventHandler(async (event) => {
             title: true,
             label: true,
             serverType: true,
-            generationEngine: true,
+            
           },
         },
         ArtImage: {

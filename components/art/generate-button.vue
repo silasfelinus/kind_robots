@@ -18,7 +18,7 @@
           :disabled="artStore.isGenerating || !serverOptions.length"
           @change="handleServerChange"
         >
-          <option disabled value="">Select image server</option>
+          <option value="">Platform / Mana</option>
 
           <option
             v-for="server in serverOptions"
@@ -51,7 +51,7 @@
 
         <span v-else class="flex items-center gap-2">
           <icon :name="icon" class="h-5 w-5" />
-          {{ canAfford ? label : 'Out of mana — top up' }}
+          {{ canAfford ? label : 'Out of mana, top up' }}
         </span>
       </button>
     </div>
@@ -73,6 +73,13 @@
           }}
         </span>
       </div>
+    </div>
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/30 bg-warning/10 p-3 text-xs font-semibold text-warning"
+    >
+      Platform generation selected. This will use mana.
     </div>
 
     <div
@@ -155,16 +162,21 @@ const selectedServerId = computed(() => {
 
 const activeServer = computed(() => artStore.activeGenerationServer)
 
-// Can the user afford to generate? Family is always free; BYO/local is free;
-// otherwise they need a positive balance. We don't know exact cost client-side,
-// so we gate on "has any mana" and let the server 402 handle the exact check.
+const usesOwnServer = computed(() => {
+  const server = activeServer.value
+
+  if (!server) return false
+  if (!server.isActive) return false
+  if (server.userId && server.userId === userStore.userId) return true
+  if (server.isPublic && !server.isOfficial) return true
+
+  return false
+})
+
 const canAfford = computed(() => {
   if (manaStore.isFamily) return true
-  const server = activeServer.value
-  // No server, or a metered platform server → needs mana.
-  const metered =
-    !server || (server as Server & { isMetered?: boolean }).isMetered
-  if (!metered) return true
+  if (usesOwnServer.value) return true
+
   return manaStore.balance > 0
 })
 
@@ -177,14 +189,12 @@ onMounted(async () => {
 })
 
 function getServerEngineLabel(server: Server): string {
-  if (server.generationEngine === 'OPENAI_IMAGE') return 'OpenAI Images'
-  if (server.generationEngine === 'FLUX' || server.supportsFlux)
-    return 'Comfy Flux'
-  if (server.generationEngine === 'COMFY' || server.serverType === 'COMFY')
-    return 'Comfy SDXL'
-  if (server.generationEngine === 'A1111' || server.serverType === 'A1111')
-    return 'Stable Diffusion'
-  return server.generationEngine || server.serverType || 'Image'
+  if (server.serverType === 'OPENAI') return 'OpenAI Images'
+  if (server.serverType === 'COMFY') return 'Comfy'
+  if (server.serverType === 'A1111') return 'Stable Diffusion'
+  if (server.serverType === 'ANTHROPIC') return 'Anthropic'
+
+  return 'Image'
 }
 
 function getServerDisplayLabel(server: Server): string {
@@ -210,7 +220,6 @@ async function handleGenerate() {
   if (!result.success || !result.data) {
     const message = result.message || 'Generation failed.'
 
-    // Insufficient mana → point them at the wallet instead of a dead-end error.
     if (/mana|⚡/i.test(message)) {
       errorStore.addError(
         ErrorType.INTERACTION_ERROR,

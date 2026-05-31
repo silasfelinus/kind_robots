@@ -67,7 +67,7 @@
       :style="displayStore.headerStyle"
     >
       <slot name="header">
-        <full-header />
+        <full-header v-if="displayStore.viewportSize !== 'small'" />
       </slot>
     </header>
   </div>

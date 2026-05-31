@@ -208,8 +208,8 @@ const isTextServer = computed(() => {
 const serverIcon = computed(() => {
   if (props.server.serverType === 'COMFY') return 'kind-icon:workflow'
   if (props.server.serverType === 'A1111') return 'kind-icon:image'
-  if (props.server.serverType === 'OPENAI') return 'kind-icon:sparkles'
-  if (props.server.serverType === 'ANTHROPIC') return 'kind-icon:message-circle'
+  if (props.server.serverType === 'OPENAI') return 'kind-icon:openai'
+  if (props.server.serverType === 'ANTHROPIC') return 'kind-icon:anthropic'
   return 'kind-icon:server'
 })
 

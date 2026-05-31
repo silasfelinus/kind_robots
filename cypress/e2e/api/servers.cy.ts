@@ -1,4 +1,4 @@
-// /cypress/e2e/api/server.cy.ts
+// /cypress/e2e/api/servers.cy.ts
 /// <reference types="cypress" />
 
 interface ApiResponse<T = any> {

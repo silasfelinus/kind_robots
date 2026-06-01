@@ -25,13 +25,6 @@
           class="h-full max-h-full aspect-square shrink-0 rounded-full border border-primary/60 object-cover"
         />
       </div>
-
-      <!-- Role label -->
-      <span
-        class="block h-[1.1em] w-full shrink-0 text-center text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em] text-primary"
-      >
-        {{ roleLabel }}
-      </span>
     </div>
 
     <!-- Guest state — plain icon, no label needed -->
@@ -53,12 +46,6 @@ const userStore = useUserStore()
 const chatStore = useChatStore()
 
 const isLoggedIn = computed(() => userStore.isLoggedIn)
-
-// Show the user's role in title-case as the label (USER → User, ADMIN → Admin, etc.)
-const roleLabel = computed(() => {
-  const raw = userStore.user?.Role ?? 'USER'
-  return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase()
-})
 
 const hasUnread = computed(() =>
   (chatStore.unreadMessages ?? []).some(

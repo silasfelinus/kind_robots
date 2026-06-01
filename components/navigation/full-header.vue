@@ -204,7 +204,7 @@ const prependIcons = computed(() => [
     id: '__login',
     component: 'login-icon',
     color: 'text-primary',
-    label: userStore.isLoggedIn ? userStore.username || 'Profile' : 'Login',
+    label: userStore.isLoggedIn ? userStore.role || 'Profile' : 'Login',
   },
   {
     id: '__jellybean',

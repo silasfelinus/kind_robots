@@ -186,7 +186,7 @@
               </p>
             </div>
           </div>
-          <generate-button />
+          <generate-button :overrides="generationOverrides" />
         </div>
 
         <aside
@@ -345,7 +345,6 @@ import { computed, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { handleError } from '@/stores/utils'
 
-
 type ArtCreatorPurpose =
   | 'user'
   | 'pitch'
@@ -460,6 +459,25 @@ const modeTabs = [
     icon: 'kind-icon:wand',
   },
 ]
+
+const generationOverrides = computed(() => ({
+  purpose: props.purpose,
+  modelId: props.modelId,
+  modelTitle: props.modelTitle,
+  imageRole: resolvedImageRole.value,
+  prompt: localPrompt.value,
+  promptString: localPrompt.value,
+  artPrompt: localPrompt.value,
+  negativePrompt: localNegativePrompt.value,
+  width: width.value,
+  height: height.value,
+  steps: steps.value,
+  cfg: cfg.value,
+  seed: seed.value,
+  engine: undefined,
+  transport: undefined,
+  generationRequirement: undefined,
+}))
 
 const contextMap: Record<
   ArtCreatorPurpose,

@@ -357,14 +357,32 @@ function handleServerChoiceChange() {
   artStore.selectGenerationServer(serverId)
 }
 
-function buildGenerationOverrides(): GenerateArtDataWithRouting {
-  const baseOverrides: GenerateArtDataWithRouting = {
-    ...props.overrides,
+function hasOverrideKey(key: keyof GenerateArtData): boolean {
+  return Object.prototype.hasOwnProperty.call(props.overrides, key)
+}
+
+function buildCleanRoutingOverrides(): Pick<
+  GenerateArtDataWithRouting,
+  'engine' | 'transport' | 'generationRequirement'
+> {
+  return {
+    engine: hasOverrideKey('engine') ? props.overrides.engine : undefined,
+    transport: hasOverrideKey('transport')
+      ? props.overrides.transport
+      : undefined,
+    generationRequirement: hasOverrideKey('generationRequirement')
+      ? props.overrides.generationRequirement
+      : undefined,
   }
+}
+
+function buildGenerationOverrides(): GenerateArtDataWithRouting {
+  const cleanRouting = buildCleanRoutingOverrides()
 
   if (serverChoice.value === 'default') {
     return {
-      ...baseOverrides,
+      ...props.overrides,
+      ...cleanRouting,
       serverId: null,
       serverName: null,
       serverSelectionMode: 'default',
@@ -373,7 +391,8 @@ function buildGenerationOverrides(): GenerateArtDataWithRouting {
 
   if (serverChoice.value === 'any') {
     return {
-      ...baseOverrides,
+      ...props.overrides,
+      ...cleanRouting,
       serverId: null,
       serverName: null,
       serverSelectionMode: 'any',
@@ -383,7 +402,8 @@ function buildGenerationOverrides(): GenerateArtDataWithRouting {
   const server = selectedSpecificServer.value
 
   return {
-    ...baseOverrides,
+    ...props.overrides,
+    ...cleanRouting,
     serverId: server?.id ?? null,
     serverName: server
       ? server.label || server.title || `Server #${server.id}`

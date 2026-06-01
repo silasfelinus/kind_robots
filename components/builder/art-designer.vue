@@ -410,13 +410,14 @@ const emit = defineEmits<{
       modelId: number | null
       modelTitle: string
       prompt: string
+      artPrompt: string
       negativePrompt: string
       imageRole: string
       imagePath: string | null
+      artImageId: number | null
     },
   ]
 }>()
-
 const artStore = useArtStore() as unknown as ArtStoreLike
 
 const mode = ref<ArtCreatorMode>('prompt')
@@ -428,6 +429,14 @@ const steps = ref(28)
 const cfg = ref(3.5)
 const seed = ref(-1)
 const syncMessage = ref('')
+
+const previewImageId = computed(
+  () =>
+    artStore.selectedArtImage?.id ||
+    artStore.selectedImage?.id ||
+    artStore.selectedArt?.id ||
+    null,
+)
 
 const modeTabs = [
   {
@@ -484,6 +493,17 @@ const contextMap: Record<
     role: 'cover',
     hint: 'Sell the premise at a glance. Prioritize bold composition and clear genre signal.',
     placeholder: 'A cinematic cover image for a surreal fantasy world where...',
+  },
+  builder: {
+    label: 'Builder',
+    icon: 'kind-icon:hammer',
+    title: 'Create Builder Asset',
+    description:
+      'Create, upload, select, or generate the image asset for this builder sheet.',
+    role: 'builder',
+    hint: 'Focus on a clear reusable asset with strong silhouette, readable composition, and enough visual personality to survive repeated UI use.',
+    placeholder:
+      'A polished reusable game asset with strong silhouette, expressive lighting, clean composition, no text, no watermark...',
   },
   dream: {
     label: 'Dream',
@@ -683,9 +703,11 @@ function emitUpdate() {
     modelId: props.modelId,
     modelTitle: props.modelTitle,
     prompt: localPrompt.value,
+    artPrompt: localPrompt.value,
     negativePrompt: localNegativePrompt.value,
     imageRole: resolvedImageRole.value,
     imagePath: previewImage.value,
+    artImageId: previewImageId.value,
   })
 }
 

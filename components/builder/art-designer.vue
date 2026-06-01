@@ -186,7 +186,7 @@
               </p>
             </div>
           </div>
-          <art-generator />
+          <generate-button />
         </div>
 
         <aside
@@ -632,6 +632,8 @@ function syncToArtStore() {
     modelTitle: props.modelTitle,
     imageRole: resolvedImageRole.value,
     prompt: localPrompt.value,
+    promptString: localPrompt.value,
+    artPrompt: localPrompt.value,
     negativePrompt: localNegativePrompt.value,
     width: width.value,
     height: height.value,

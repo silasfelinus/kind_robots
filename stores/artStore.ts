@@ -34,6 +34,8 @@ type ApiResponse<T> = {
   message?: string
 }
 
+export type ArtServerSelectionMode = 'default' | 'any' | 'specific'
+
 type ArtStoreInitializeOptions = {
   force?: boolean
   fetchRemote?: boolean
@@ -103,6 +105,8 @@ export interface GenerateArtData {
   collection?: string
   collectionLabel?: string
   artCollectionId?: number | null
+  generationRequirement?: ArtGenerationRequirement
+  serverSelectionMode?: ArtServerSelectionMode
 
   userId?: number | null
   promptId?: number | null
@@ -136,6 +140,20 @@ export interface GenerateArtData {
   sourceImageId?: number | null
   sourceImageBase64?: string | null
   maskImageBase64?: string | null
+}
+
+export type ArtGenerationProvider = 'any' | 'comfy' | 'a1111' | 'openai'
+
+export type ArtGenerationModelFamily =
+  | 'any'
+  | 'sdxl'
+  | 'flux'
+  | 'kontext'
+  | 'openai-image'
+
+export interface ArtGenerationRequirement {
+  provider?: ArtGenerationProvider
+  modelFamily?: ArtGenerationModelFamily
 }
 
 type ArtImageConnectionInput = {
@@ -455,16 +473,18 @@ export const useArtStore = defineStore('artStore', () => {
 
     return servers.filter((server) => {
       if (!server.isActive) return false
-      return server.serverType === 'A1111' || server.serverType === 'COMFY'
+
+      return (
+        server.serverType === 'A1111' ||
+        server.serverType === 'COMFY' ||
+        (server.serverType === 'OPENAI' &&
+          serverSupportsModelFamily(server, 'openai-image'))
+      )
     })
   })
 
   const activeGenerationServer = computed<Server | null>(() => {
-    if (state.artForm.serverId) {
-      return serverStore.getServerById(state.artForm.serverId) ?? null
-    }
-
-    return serverStore.activeArtServer ?? null
+    return resolveArtServer(state.artForm)
   })
 
   const selectedCheckpointName = computed(() => {
@@ -515,7 +535,7 @@ export const useArtStore = defineStore('artStore', () => {
       finalPromptString.value &&
       (state.artForm.engine === 'openai' ||
         state.artForm.engine === 'kontext' ||
-        state.artForm.serverId),
+        activeGenerationServer.value),
     )
   })
 
@@ -595,10 +615,6 @@ export const useArtStore = defineStore('artStore', () => {
           : serverStore.initialize({ fetchRemote: true }),
         ensureCollectionsReady(),
       ])
-
-      if (!state.artForm.serverId && serverStore.activeArtServer?.id) {
-        selectGenerationServer(serverStore.activeArtServer.id)
-      }
 
       if (!state.artForm.sampler) {
         selectGenerationSampler('Euler a')
@@ -778,11 +794,10 @@ export const useArtStore = defineStore('artStore', () => {
       seed: null,
       promptId: null,
       pitchId: null,
-      serverId: serverStore.activeArtServer?.id ?? null,
-      serverName:
-        serverStore.activeArtServer?.label ||
-        serverStore.activeArtServer?.title ||
-        null,
+      serverId: null,
+      serverName: null,
+      generationRequirement: undefined,
+      serverSelectionMode: 'default',
       ...overrides,
     }
   }
@@ -1424,17 +1439,183 @@ export const useArtStore = defineStore('artStore', () => {
     return headers
   }
 
-  function getSelectedArtServer(data: GenerateArtData): Server | null {
-    if (data.engine === 'kontext') {
-      return findKontextServer(data.serverId)
+  function isUsableGenerationServer(
+    server: Server | null | undefined,
+  ): server is Server {
+    return Boolean(server?.isActive)
+  }
+
+  function resolvePreferredArtServer(): Server | null {
+    return serverStore.activeArtServer ?? null
+  }
+
+  function normalizeServerSearchText(server: Server): string {
+    return [
+      server.title,
+      server.label,
+      server.description,
+      server.category,
+      server.model,
+      server.endpointPath,
+      server.healthPath,
+      server.notes,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+  }
+
+  function getServerProvider(server: Server): ArtGenerationProvider {
+    if (server.serverType === 'COMFY') return 'comfy'
+    if (server.serverType === 'A1111') return 'a1111'
+    if (server.serverType === 'OPENAI') return 'openai'
+    return 'any'
+  }
+
+  function serverSupportsModelFamily(
+    server: Server,
+    modelFamily: ArtGenerationModelFamily = 'any',
+  ): boolean {
+    if (modelFamily === 'any') return true
+
+    const searchText = normalizeServerSearchText(server)
+
+    if (modelFamily === 'sdxl') {
+      return (
+        server.serverType === 'A1111' ||
+        searchText.includes('sdxl') ||
+        searchText.includes('stable diffusion xl')
+      )
     }
 
-    const selectedServer = data.serverId
-      ? serverStore.getServerById(data.serverId)
-      : serverStore.activeArtServer
+    if (modelFamily === 'flux') {
+      return server.serverType === 'COMFY' && searchText.includes('flux')
+    }
 
-    if (!selectedServer) {
-      throw new Error('No active image generation server selected.')
+    if (modelFamily === 'kontext') {
+      return server.serverType === 'COMFY' && searchText.includes('kontext')
+    }
+
+    if (modelFamily === 'openai-image') {
+      return (
+        server.serverType === 'OPENAI' &&
+        (searchText.includes('image') ||
+          searchText.includes('images') ||
+          searchText.includes('dall') ||
+          searchText.includes('gpt-image'))
+      )
+    }
+
+    return false
+  }
+
+  function serverMatchesGenerationRequirement(
+    server: Server | null | undefined,
+    requirement: ArtGenerationRequirement = {},
+  ): server is Server {
+    if (!isUsableGenerationServer(server)) return false
+
+    const provider = requirement.provider ?? 'any'
+    const modelFamily = requirement.modelFamily ?? 'any'
+
+    if (provider !== 'any' && getServerProvider(server) !== provider) {
+      return false
+    }
+
+    return serverSupportsModelFamily(server, modelFamily)
+  }
+
+  function getServerByOptionalId(serverId?: number | null): Server | null {
+    if (!serverId) return null
+    return serverStore.getServerById(serverId) ?? null
+  }
+
+  function getGenerationRequirement(
+    data: GenerateArtData,
+  ): ArtGenerationRequirement {
+    if (data.generationRequirement) return data.generationRequirement
+
+    if (data.engine === 'flux') {
+      return { provider: 'comfy', modelFamily: 'flux' }
+    }
+
+    if (data.engine === 'kontext') {
+      return { provider: 'comfy', modelFamily: 'kontext' }
+    }
+
+    if (data.engine === 'openai') {
+      return { provider: 'openai', modelFamily: 'openai-image' }
+    }
+
+    if (data.engine === 'a1111') {
+      return { provider: 'a1111', modelFamily: 'sdxl' }
+    }
+
+    if (data.engine === 'comfy') {
+      return { provider: 'comfy' }
+    }
+
+    return { provider: 'any', modelFamily: 'any' }
+  }
+
+  function getCandidateGenerationServers(): Server[] {
+    return generationServers.value.filter(isUsableGenerationServer)
+  }
+
+  function resolveArtServer(data: GenerateArtData): Server | null {
+    const requirement = getGenerationRequirement(data)
+    const selectionMode = data.serverSelectionMode ?? 'default'
+    const explicitServer = getServerByOptionalId(data.serverId)
+
+    if (
+      selectionMode === 'specific' &&
+      serverMatchesGenerationRequirement(explicitServer, requirement)
+    ) {
+      return explicitServer
+    }
+
+    if (selectionMode === 'specific') {
+      return null
+    }
+
+    if (selectionMode === 'default') {
+      const activeServer = serverStore.activeArtServer
+
+      if (serverMatchesGenerationRequirement(activeServer, requirement)) {
+        return activeServer
+      }
+    }
+
+    const ownedServer = getCandidateGenerationServers().find((server) => {
+      return (
+        server.userId === userStore.userId &&
+        serverMatchesGenerationRequirement(server, requirement)
+      )
+    })
+
+    if (ownedServer) return ownedServer
+
+    const publicServer = getCandidateGenerationServers().find((server) => {
+      return (
+        Boolean(server.isPublic) &&
+        serverMatchesGenerationRequirement(server, requirement)
+      )
+    })
+
+    if (publicServer) return publicServer
+
+    return (
+      getCandidateGenerationServers().find((server) => {
+        return serverMatchesGenerationRequirement(server, requirement)
+      }) ?? null
+    )
+  }
+
+  function getSelectedArtServer(data: GenerateArtData): Server | null {
+    const selectedServer = resolveArtServer(data)
+
+    if (!selectedServer && data.engine !== 'kontext') {
+      throw new Error('No compatible image generation server is available.')
     }
 
     return selectedServer
@@ -1446,12 +1627,24 @@ export const useArtStore = defineStore('artStore', () => {
   ): ArtImageGenerationEngine {
     if (data?.engine) return data.engine
 
+    const modelFamily = data?.generationRequirement?.modelFamily
+
+    if (modelFamily === 'flux') return 'flux'
+    if (modelFamily === 'kontext') return 'kontext'
+    if (modelFamily === 'openai-image') return 'openai'
+
     if (server.serverType === 'A1111') return 'a1111'
-    if (server.serverType === 'COMFY') return 'comfy'
+
+    if (server.serverType === 'COMFY') {
+      if (serverSupportsModelFamily(server, 'flux')) return 'flux'
+      if (serverSupportsModelFamily(server, 'kontext')) return 'kontext'
+      return 'comfy'
+    }
+
     if (server.serverType === 'OPENAI') return 'openai'
 
     throw new Error(
-      `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, and OpenAI image routes.`,
+      `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, Flux, Kontext, and OpenAI image routes.`,
     )
   }
 
@@ -1961,26 +2154,14 @@ export const useArtStore = defineStore('artStore', () => {
       seed: artData?.seed ?? state.artForm.seed ?? null,
       promptId: artData?.promptId ?? state.artForm.promptId ?? null,
       pitchId: artData?.pitchId ?? state.artForm.pitchId ?? null,
-      serverId:
-        engine === 'kontext'
-          ? explicitServerIdProvided
-            ? (artData?.serverId ?? null)
-            : (kontextServer?.id ?? null)
-          : (artData?.serverId ??
-            state.artForm.serverId ??
-            serverStore.activeArtServer?.id ??
-            null),
+      serverId: explicitServerIdProvided ? (artData?.serverId ?? null) : null,
 
-      serverName:
-        engine === 'kontext'
-          ? explicitServerNameProvided
-            ? (artData?.serverName ?? null)
-            : (kontextServer?.label ?? kontextServer?.title ?? null)
-          : (artData?.serverName ??
-            state.artForm.serverName ??
-            serverStore.activeArtServer?.label ??
-            serverStore.activeArtServer?.title ??
-            null),
+      serverName: explicitServerNameProvided
+        ? (artData?.serverName ?? null)
+        : null,
+
+      generationRequirement:
+        artData?.generationRequirement ?? state.artForm.generationRequirement,
       engine,
       transport: artData?.transport ?? state.artForm.transport ?? undefined,
       workflow: artData?.workflow ?? state.artForm.workflow ?? null,
@@ -2085,7 +2266,15 @@ export const useArtStore = defineStore('artStore', () => {
       }
       const server = getSelectedArtServer(data)
 
-      if (data.engine === 'kontext' && !server) {
+      const resolvedData: GenerateArtData = server
+        ? {
+            ...data,
+            serverId: server.id,
+            serverName: getServerLabel(server),
+          }
+        : data
+
+      if (resolvedData.engine === 'kontext' && !server) {
         const dataWithHostedKontext: GenerateArtData = {
           ...data,
           serverId: null,
@@ -2131,20 +2320,19 @@ export const useArtStore = defineStore('artStore', () => {
         throw new Error('No active image generation server selected.')
       }
 
-      const route = getArtImageGenerationRoute(server, data)
+      const route = getArtImageGenerationRoute(server, resolvedData)
 
       const dataWithServer: GenerateArtData = {
-        ...data,
-        serverId: server.id,
-        serverName: server.label || server.title,
+        ...resolvedData,
         engine: route.engine,
-        transport: data.engine === 'kontext' ? 'backend' : route.transport,
+        transport: route.engine === 'kontext' ? 'backend' : route.transport,
       }
 
       const image =
         dataWithServer.transport === 'browser'
           ? await generateBrowserArtImage(server, dataWithServer, route.engine)
           : await generateBackendArtImage(dataWithServer, route.engine)
+
       addOrUpdateArtImages([image])
 
       state.generatedArtImages = mergeUniqueArtImages(

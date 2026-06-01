@@ -12,18 +12,22 @@
         </div>
 
         <select
+          v-model="serverChoice"
           class="select select-bordered w-full rounded-2xl font-semibold"
           :class="props.compact ? 'select-sm text-sm' : 'min-h-14 text-base'"
-          :value="selectedServerId"
-          :disabled="artStore.isGenerating || !serverOptions.length"
-          @change="handleServerChange"
+          :disabled="artStore.isGenerating || !hasServerChoices"
+          @change="handleServerChoiceChange"
         >
-          <option value="">Platform / Mana</option>
+          <option value="default">
+            {{ defaultServerOptionLabel }}
+          </option>
+
+          <option value="any">Whatever is available</option>
 
           <option
-            v-for="server in serverOptions"
+            v-for="server in alternateServerOptions"
             :key="server.id"
-            :value="server.id"
+            :value="getSpecificServerValue(server.id)"
           >
             {{ getServerDisplayLabel(server) }}
           </option>
@@ -57,29 +61,24 @@
     </div>
 
     <div
-      v-if="activeServer"
       class="rounded-2xl border border-base-300 bg-base-200/70 p-3 text-xs font-semibold text-base-content/70"
     >
       <div class="flex flex-wrap items-center gap-2">
-        <span class="badge badge-primary badge-sm rounded-2xl">
-          {{ getServerEngineLabel(activeServer) }}
+        <span class="badge badge-sm rounded-2xl" :class="selectionBadgeClass">
+          {{ selectionBadgeLabel }}
         </span>
 
         <span class="truncate">
-          {{
-            activeServer.title ||
-            activeServer.label ||
-            `Server #${activeServer.id}`
-          }}
+          {{ selectionSummary }}
         </span>
       </div>
-    </div>
 
-    <div
-      v-else
-      class="rounded-2xl border border-warning/30 bg-warning/10 p-3 text-xs font-semibold text-warning"
-    >
-      Platform generation selected. This will use mana.
+      <p
+        v-if="selectionDetail"
+        class="mt-1 text-[0.7rem] leading-relaxed text-base-content/50"
+      >
+        {{ selectionDetail }}
+      </p>
     </div>
 
     <div
@@ -112,12 +111,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useArtStore, type GenerateArtData } from '@/stores/artStore'
 import { useManaStore } from '@/stores/manaStore'
 import { useUserStore } from '@/stores/userStore'
+import { useServerStore } from '@/stores/serverStore'
+
+type ServerChoice = 'default' | 'any' | `server:${number}`
+
+type GenerateArtDataWithRouting = Partial<GenerateArtData> & {
+  serverSelectionMode?: 'default' | 'any' | 'specific'
+}
 
 const props = withDefaults(
   defineProps<{
@@ -149,21 +155,120 @@ const artStore = useArtStore()
 const errorStore = useErrorStore()
 const manaStore = useManaStore()
 const userStore = useUserStore()
+const serverStore = useServerStore()
+
+const serverChoice = ref<ServerChoice>('default')
 
 const resultImage = computed(
   () => artStore.lastGeneratedArtImage || artStore.currentArtImage || null,
 )
 
-const serverOptions = computed(() => artStore.generationServers)
-
-const selectedServerId = computed(() => {
-  return artStore.artForm.serverId ? String(artStore.artForm.serverId) : ''
+const serverOptions = computed<Server[]>(() => {
+  return Array.isArray(artStore.generationServers)
+    ? [...artStore.generationServers]
+    : []
 })
 
-const activeServer = computed(() => artStore.activeGenerationServer)
+const defaultServer = computed<Server | null>(() => {
+  return serverStore.activeArtServer || null
+})
+
+const defaultServerId = computed(() => defaultServer.value?.id ?? null)
+
+const hasServerChoices = computed(() => {
+  return Boolean(defaultServer.value || serverOptions.value.length)
+})
+
+const alternateServerOptions = computed<Server[]>(() => {
+  const defaultId = defaultServerId.value
+
+  return serverOptions.value.filter((server) => {
+    if (!server?.id) return false
+    return server.id !== defaultId
+  })
+})
+
+const selectedSpecificServerId = computed<number | null>(() => {
+  if (!serverChoice.value.startsWith('server:')) return null
+
+  const id = Number(serverChoice.value.replace('server:', ''))
+
+  return Number.isInteger(id) && id > 0 ? id : null
+})
+
+const selectedSpecificServer = computed<Server | null>(() => {
+  const id = selectedSpecificServerId.value
+  if (!id) return null
+
+  return serverStore.getServerById(id) || null
+})
+
+const displayServer = computed<Server | null>(() => {
+  if (serverChoice.value === 'default') {
+    return defaultServer.value
+  }
+
+  if (serverChoice.value.startsWith('server:')) {
+    return selectedSpecificServer.value
+  }
+
+  return artStore.activeGenerationServer || defaultServer.value || null
+})
+
+const billingServer = computed<Server | null>(() => {
+  return displayServer.value || artStore.activeGenerationServer || null
+})
+
+const defaultServerOptionLabel = computed(() => {
+  if (!defaultServer.value) {
+    return 'Default Image Server'
+  }
+
+  return `Default: ${getServerDisplayLabel(defaultServer.value)}`
+})
+
+const selectionBadgeLabel = computed(() => {
+  if (serverChoice.value === 'default') return 'Default'
+  if (serverChoice.value === 'any') return 'Auto'
+  return 'Override'
+})
+
+const selectionBadgeClass = computed(() => {
+  if (serverChoice.value === 'default') return 'badge-primary'
+  if (serverChoice.value === 'any') return 'badge-info'
+  return 'badge-secondary'
+})
+
+const selectionSummary = computed(() => {
+  if (serverChoice.value === 'any') {
+    return 'Whatever compatible image server is available'
+  }
+
+  const server = displayServer.value
+
+  if (!server) {
+    return 'No image server selected'
+  }
+
+  return getServerDisplayLabel(server)
+})
+
+const selectionDetail = computed(() => {
+  if (serverChoice.value === 'default') {
+    return defaultServer.value
+      ? 'Uses your preferred image server. Change this in Server Connections.'
+      : 'No preferred image server is currently saved.'
+  }
+
+  if (serverChoice.value === 'any') {
+    return 'The art store will pick the best compatible server for this request.'
+  }
+
+  return 'Uses this server for this generation only.'
+})
 
 const usesOwnServer = computed(() => {
-  const server = activeServer.value
+  const server = billingServer.value
 
   if (!server) return false
   if (!server.isActive) return false
@@ -180,13 +285,41 @@ const canAfford = computed(() => {
   return manaStore.balance > 0
 })
 
-const canClick = computed(
-  () => artStore.canGenerateArt && !artStore.isGenerating && canAfford.value,
+const canClick = computed(() => {
+  return Boolean(
+    artStore.canGenerateArt &&
+    !artStore.isGenerating &&
+    canAfford.value &&
+    hasServerChoices.value,
+  )
+})
+
+watch(
+  () => artStore.artForm.serverId,
+  (serverId) => {
+    if (!serverId) {
+      if (serverChoice.value.startsWith('server:')) {
+        serverChoice.value = 'default'
+      }
+
+      return
+    }
+
+    serverChoice.value = getSpecificServerValue(serverId)
+  },
 )
 
 onMounted(async () => {
   await artStore.prepareArtGenerator()
+
+  if (artStore.artForm.serverId) {
+    serverChoice.value = getSpecificServerValue(artStore.artForm.serverId)
+  }
 })
+
+function getSpecificServerValue(serverId: number): ServerChoice {
+  return `server:${serverId}`
+}
 
 function getServerEngineLabel(server: Server): string {
   if (server.serverType === 'OPENAI') return 'OpenAI Images'
@@ -202,20 +335,65 @@ function getServerDisplayLabel(server: Server): string {
   return `${title} · ${getServerEngineLabel(server)}`
 }
 
-function handleServerChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const serverId = Number(target.value)
-
-  if (!Number.isInteger(serverId) || serverId <= 0) {
+function handleServerChoiceChange() {
+  if (serverChoice.value === 'default') {
     artStore.selectGenerationServer(null)
+    return
+  }
+
+  if (serverChoice.value === 'any') {
+    artStore.selectGenerationServer(null)
+    return
+  }
+
+  const serverId = selectedSpecificServerId.value
+
+  if (!serverId) {
+    artStore.selectGenerationServer(null)
+    serverChoice.value = 'default'
     return
   }
 
   artStore.selectGenerationServer(serverId)
 }
 
+function buildGenerationOverrides(): GenerateArtDataWithRouting {
+  const baseOverrides: GenerateArtDataWithRouting = {
+    ...props.overrides,
+  }
+
+  if (serverChoice.value === 'default') {
+    return {
+      ...baseOverrides,
+      serverId: null,
+      serverName: null,
+      serverSelectionMode: 'default',
+    }
+  }
+
+  if (serverChoice.value === 'any') {
+    return {
+      ...baseOverrides,
+      serverId: null,
+      serverName: null,
+      serverSelectionMode: 'any',
+    }
+  }
+
+  const server = selectedSpecificServer.value
+
+  return {
+    ...baseOverrides,
+    serverId: server?.id ?? null,
+    serverName: server
+      ? server.label || server.title || `Server #${server.id}`
+      : null,
+    serverSelectionMode: 'specific',
+  }
+}
+
 async function handleGenerate() {
-  const result = await artStore.generateCurrentArt(props.overrides)
+  const result = await artStore.generateCurrentArt(buildGenerationOverrides())
 
   if (!result.success || !result.data) {
     const message = result.message || 'Generation failed.'

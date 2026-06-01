@@ -1,7 +1,7 @@
 <!-- /components/builder/builder-manager.vue -->
 <template>
   <section
-    class="flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    class="flex h-[100dvh] max-h-[100dvh] min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
     <header
       class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-3"
@@ -84,13 +84,15 @@
         @click="showSheet = false"
       />
 
-      <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <section class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+      <main
+        class="grid min-h-0 min-w-0 flex-1 grid-rows-[minmax(0,1fr)_auto] overflow-hidden"
+      >
+        <section class="min-h-0 overflow-y-auto overscroll-contain p-3">
           <builder-stage />
         </section>
 
         <section
-          class="h-[clamp(7rem,24dvh,13rem)] shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
+          class="min-h-[7rem] max-h-[13rem] shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur sm:h-[22dvh] lg:h-[24dvh]"
         >
           <builder-hand />
         </section>

@@ -76,6 +76,13 @@ type ArtDesignerPurpose =
   | 'builder'
 
 type BuilderArtConfig = {
+  purpose?: ArtDesignerPurpose
+  imageRole?: string
+  title?: string
+  description?: string
+}
+
+type BuilderProjectArtConfig = {
   key?: string
   label?: string
   title?: string
@@ -86,11 +93,19 @@ type BuilderArtConfig = {
   artDescription?: string
 }
 
-const store = useBuilderStore()
+type BuilderStoreWithArtConfig = ReturnType<typeof useBuilderStore> & {
+  activeArtConfig?: BuilderArtConfig
+}
+
+const store = useBuilderStore() as BuilderStoreWithArtConfig
 
 const activeConfig = computed(
-  () => store.activeConfig as unknown as BuilderArtConfig,
+  () => store.activeConfig as unknown as BuilderProjectArtConfig,
 )
+
+const activeArtConfig = computed<BuilderArtConfig | null>(() => {
+  return store.activeArtConfig ?? null
+})
 
 const artPrompt = computed(() => String(store.sheet.artPrompt ?? ''))
 
@@ -108,6 +123,7 @@ const modelTitle = computed(() =>
 )
 
 const artPurpose = computed<ArtDesignerPurpose>(() => {
+  if (activeArtConfig.value?.purpose) return activeArtConfig.value.purpose
   if (activeConfig.value.artPurpose) return activeConfig.value.artPurpose
   if (activeConfig.value.key === 'adventure') return 'character'
   if (activeConfig.value.modelType === 'adventure') return 'character'
@@ -120,6 +136,7 @@ const artPurpose = computed<ArtDesignerPurpose>(() => {
 })
 
 const imageRole = computed(() => {
+  if (activeArtConfig.value?.imageRole) return activeArtConfig.value.imageRole
   if (activeConfig.value.artImageRole) return activeConfig.value.artImageRole
   if (artPurpose.value === 'character') return 'avatar'
   if (artPurpose.value === 'scenario') return 'scene'
@@ -130,16 +147,25 @@ const imageRole = computed(() => {
 })
 
 const artTitle = computed(() => {
+  if (activeArtConfig.value?.title) return activeArtConfig.value.title
   if (activeConfig.value.artTitle) return activeConfig.value.artTitle
   if (artPurpose.value === 'character') return 'Character Avatar Designer'
   return `${activeConfig.value.label || activeConfig.value.title || 'Builder'} Art Designer`
 })
 
 const artDescription = computed(() => {
-  if (activeConfig.value.artDescription) return activeConfig.value.artDescription
-  if (artPurpose.value === 'character') {
-    return 'Create, upload, select, or generate avatar art for this adventure character.'
+  if (activeArtConfig.value?.description) {
+    return activeArtConfig.value.description
   }
+
+  if (activeConfig.value.artDescription) {
+    return activeConfig.value.artDescription
+  }
+
+  if (artPurpose.value === 'character') {
+    return 'Create, upload, select, or generate avatar art for this character.'
+  }
+
   return 'Create, upload, select, or generate art for this builder sheet.'
 })
 
@@ -149,6 +175,7 @@ const imageRoleLabel = computed(() => {
   if (imageRole.value === 'scene') return 'Scene image'
   if (imageRole.value === 'object') return 'Reward image'
   if (imageRole.value === 'cover') return 'Cover image'
+  if (imageRole.value === 'world') return 'World image'
   return 'Image asset'
 })
 

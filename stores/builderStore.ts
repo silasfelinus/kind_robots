@@ -58,6 +58,11 @@ const defaultBuilderConfig: BuilderProjectConfig = {
   label: 'Builder',
   title: 'Builder',
   modelType: 'builder',
+  artPurpose: 'builder',
+  artImageRole: 'builder',
+  artTitle: 'Builder Art Designer',
+  artDescription:
+    'Create, upload, select, or generate art for this builder sheet.',
   storageKey: 'kindrobots.builder.default.v1',
   cards: [],
   splash: EMPTY_BUILDER_SPLASH,
@@ -106,6 +111,55 @@ export const useBuilderStore = defineStore('builderStore', () => {
 
   const activeConfig = computed<BuilderProjectConfig>(() => {
     return registry[activeBuilderKey.value] ?? defaultBuilderConfig
+  })
+
+  const activeArtConfig = computed(() => {
+    const config = activeConfig.value
+
+    const artPurpose =
+      config.artPurpose ??
+      (config.modelType === 'adventure'
+        ? 'character'
+        : config.modelType === 'character'
+          ? 'character'
+          : config.modelType === 'scenario'
+            ? 'scenario'
+            : config.modelType === 'reward'
+              ? 'reward'
+              : config.modelType === 'pitch'
+                ? 'pitch'
+                : config.modelType === 'dream'
+                  ? 'dream'
+                  : 'builder')
+
+    const artImageRole =
+      config.artImageRole ??
+      (artPurpose === 'character'
+        ? 'avatar'
+        : artPurpose === 'scenario'
+          ? 'scene'
+          : artPurpose === 'reward'
+            ? 'object'
+            : artPurpose === 'pitch'
+              ? 'cover'
+              : artPurpose === 'dream'
+                ? 'world'
+                : 'builder')
+
+    return {
+      purpose: artPurpose,
+      imageRole: artImageRole,
+      title:
+        config.artTitle ??
+        (artPurpose === 'character'
+          ? 'Character Avatar Designer'
+          : `${config.label || config.title || 'Builder'} Art Designer`),
+      description:
+        config.artDescription ??
+        (artPurpose === 'character'
+          ? 'Create, upload, select, or generate avatar art for this character.'
+          : 'Create, upload, select, or generate art for this builder sheet.'),
+    }
   })
 
   const cards = computed<BuilderCard[]>(() => activeConfig.value.cards)
@@ -711,5 +765,6 @@ export const useBuilderStore = defineStore('builderStore', () => {
     setStatus,
     getUtilityCard,
     getUtilityImagePath,
+activeArtConfig,
   }
 })

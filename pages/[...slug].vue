@@ -1,8 +1,14 @@
 <!-- /pages/[...slug].vue -->
 <template>
   <NuxtLayout :name="layout">
-    <div v-if="pageStore.page && pageStore.page.body" class="h-full min-h-0">
-      <ContentRenderer :value="pageStore.page" />
+    <div
+      v-if="pageStore.page && pageStore.page.body"
+      :class="pageShell === 'builder' ? 'h-full min-h-0 overflow-hidden' : ''"
+    >
+      <ContentRenderer
+        :value="pageStore.page"
+        :class="pageShell === 'builder' ? 'h-full min-h-0 overflow-hidden' : ''"
+      />
     </div>
 
     <template #fallback>
@@ -35,15 +41,15 @@ import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 
 type PageLayoutName = 'default' | 'builder'
+type FooterState = 'compact' | 'open' | 'hidden' | 'priority' | 'disabled'
 
 type ContentPage = ContentType & {
   dashboard?: string | null
   footer?: string | null
   footerState?: string | null
-  layout?: string | null
+  shell?: string | null
+  builder?: string | null
 }
-
-type FooterState = 'compact' | 'open' | 'hidden' | 'priority' | 'disabled'
 
 const footerStates = [
   'compact',
@@ -66,6 +72,18 @@ const scenarioStore = useScenarioStore()
 const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
+
+const typedPage = computed<ContentPage | null>(() => {
+  return pageStore.page ? normalizePage(pageStore.page) : null
+})
+
+const pageShell = computed<PageLayoutName>(() => {
+  return typedPage.value?.shell === 'builder' ? 'builder' : 'default'
+})
+
+const layout = computed<PageLayoutName>(() => {
+  return pageShell.value
+})
 
 function normalizePage(page: unknown): ContentPage {
   return page as ContentPage
@@ -93,14 +111,8 @@ function normalizeFooterComponent(value?: string | null): string {
   return normalized
 }
 
-function normalizeLayout(value?: string | null): PageLayoutName {
-  const normalized = (value ?? '').trim()
-
-  return normalized === 'builder' ? 'builder' : 'default'
-}
-
 function pageUsesBuilderLayout(page: ContentPage): boolean {
-  return normalizeLayout(page.layout) === 'builder'
+  return page.shell === 'builder'
 }
 
 function applyFooterStateFromContent(footerState?: string | null): void {
@@ -130,6 +142,7 @@ function applyBuilderLayoutSettings(): void {
   displayStore.footerState = 'disabled'
   displayStore.sidebarLeftState = 'hidden'
   displayStore.sidebarRightState = 'hidden'
+  displayStore.headerState = 'hidden'
 }
 
 function applyPageSettings(page: ContentPage): void {
@@ -183,10 +196,6 @@ watch(
     await loadPage(newPath)
   },
 )
-
-const layout = computed<PageLayoutName>(() => {
-  return normalizeLayout(normalizePage(pageStore.page).layout)
-})
 
 onMounted(async () => {
   const {

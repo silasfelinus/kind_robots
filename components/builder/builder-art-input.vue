@@ -2,13 +2,13 @@
 <template>
   <div class="flex flex-col gap-4">
     <ArtDesigner
-      purpose="builder"
-      title="Builder Asset Designer"
-      description="Create, upload, select, or generate the image asset for this builder sheet."
+      :purpose="artPurpose"
+      :title="artTitle"
+      :description="artDescription"
       :model-id="null"
       :model-title="modelTitle"
       :prompt="artPrompt"
-      image-role="builder"
+      :image-role="imageRole"
       @update="handleArtUpdate"
     />
 
@@ -53,7 +53,7 @@
         >
           <p class="font-black text-base-content">{{ modelTitle }}</p>
           <p class="text-xs text-base-content/60">
-            Asset attached to builder sheet.
+            {{ imageRoleLabel }} attached to builder sheet.
           </p>
         </div>
       </div>
@@ -66,7 +66,31 @@ import { computed } from 'vue'
 import ArtDesigner from '@/components/builder/art-designer.vue'
 import { useBuilderStore } from '@/stores/builderStore'
 
+type ArtDesignerPurpose =
+  | 'user'
+  | 'pitch'
+  | 'dream'
+  | 'character'
+  | 'reward'
+  | 'scenario'
+  | 'builder'
+
+type BuilderArtConfig = {
+  key?: string
+  label?: string
+  title?: string
+  modelType?: string
+  artPurpose?: ArtDesignerPurpose
+  artImageRole?: string
+  artTitle?: string
+  artDescription?: string
+}
+
 const store = useBuilderStore()
+
+const activeConfig = computed(
+  () => store.activeConfig as unknown as BuilderArtConfig,
+)
 
 const artPrompt = computed(() => String(store.sheet.artPrompt ?? ''))
 
@@ -78,10 +102,55 @@ const modelTitle = computed(() =>
   String(
     store.sheet.name ||
       store.sheet.title ||
-      store.activeConfig.title ||
+      activeConfig.value.title ||
       'Builder asset',
   ),
 )
+
+const artPurpose = computed<ArtDesignerPurpose>(() => {
+  if (activeConfig.value.artPurpose) return activeConfig.value.artPurpose
+  if (activeConfig.value.key === 'adventure') return 'character'
+  if (activeConfig.value.modelType === 'adventure') return 'character'
+  if (activeConfig.value.modelType === 'character') return 'character'
+  if (activeConfig.value.modelType === 'scenario') return 'scenario'
+  if (activeConfig.value.modelType === 'reward') return 'reward'
+  if (activeConfig.value.modelType === 'pitch') return 'pitch'
+  if (activeConfig.value.modelType === 'dream') return 'dream'
+  return 'builder'
+})
+
+const imageRole = computed(() => {
+  if (activeConfig.value.artImageRole) return activeConfig.value.artImageRole
+  if (artPurpose.value === 'character') return 'avatar'
+  if (artPurpose.value === 'scenario') return 'scene'
+  if (artPurpose.value === 'reward') return 'object'
+  if (artPurpose.value === 'pitch') return 'cover'
+  if (artPurpose.value === 'dream') return 'world'
+  return 'builder'
+})
+
+const artTitle = computed(() => {
+  if (activeConfig.value.artTitle) return activeConfig.value.artTitle
+  if (artPurpose.value === 'character') return 'Character Avatar Designer'
+  return `${activeConfig.value.label || activeConfig.value.title || 'Builder'} Art Designer`
+})
+
+const artDescription = computed(() => {
+  if (activeConfig.value.artDescription) return activeConfig.value.artDescription
+  if (artPurpose.value === 'character') {
+    return 'Create, upload, select, or generate avatar art for this adventure character.'
+  }
+  return 'Create, upload, select, or generate art for this builder sheet.'
+})
+
+const imageRoleLabel = computed(() => {
+  if (imageRole.value === 'avatar') return 'Character avatar'
+  if (imageRole.value === 'portrait') return 'Character portrait'
+  if (imageRole.value === 'scene') return 'Scene image'
+  if (imageRole.value === 'object') return 'Reward image'
+  if (imageRole.value === 'cover') return 'Cover image'
+  return 'Image asset'
+})
 
 function handleArtUpdate(payload: {
   prompt?: string

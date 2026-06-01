@@ -1,7 +1,5 @@
 <template>
   <div class="flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-base-200">
-    <dashboard-shell class="shrink-0" />
-
     <div
       class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-2 sm:p-3 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_20rem]"
     >

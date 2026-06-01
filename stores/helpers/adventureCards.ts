@@ -2894,82 +2894,28 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     ],
   },
 
-  // ── Common Skill ─────────────────────────────────────────────────────────
+  // ── Starting Skill ───────────────────────────────────────────────────────
   {
-    key: 'common-skill',
-    label: 'Common Skill',
-    title: 'The reliable trick',
-    icon: 'kind-icon:bolt',
-    flourish: '✧',
-    deckImage: '/images/adventure/thumb/skill-common.webp',
-    heroImage: '/images/adventure/hero/skill-common.webp',
-    tagline: 'Practical. Theirs. It works.',
-    narrative:
-      "Every entity carries a reliable trick. Not a miracle — a tool. Four options have been drawn from the Bureau of Narrative Competency's general-applicability stacks. Each has been evaluated for broad utility across species, genre, and ontological status. One of them belongs to this character.",
-    required: true,
-    rewardSlotKey: 'common-skill',
-    restoresFields: ['common-skill'],
-    unlockCondition: 'coreComplete',
-    steps: [
-      {
-        key: 'common-skill',
-        title: 'Choose a Common Skill',
-        narrative:
-          "Four options. None are perfect — perfection is above the common tier's pay grade. But one of them is exactly right, in the specific way that something can be exactly right without being impressive.",
-        inputType: 'reward',
-      },
-    ],
-  },
-
-  // ── Uncommon Skill ───────────────────────────────────────────────────────
-  {
-    key: 'uncommon-skill',
-    label: 'Uncommon Skill',
-    title: 'The specialised edge',
-    icon: 'kind-icon:comet',
-    flourish: '✶',
-    deckImage: '/images/adventure/thumb/skill-uncommon.webp',
-    heroImage: '/images/adventure/hero/skill-uncommon.webp',
-    tagline: 'Situational. But when the situation arrives.',
-    narrative:
-      'An uncommon skill is not for everyday use. It is for the exact right moment — the one that comes along twice per campaign, and both times feels as though it was waiting specifically for this entity. The skill has been patient. It has been waiting longer than the entity has been alive, in some cases.',
-    required: true,
-    rewardSlotKey: 'uncommon-skill',
-    restoresFields: ['uncommon-skill'],
-    unlockCondition: 'coreComplete',
-    steps: [
-      {
-        key: 'uncommon-skill',
-        title: 'Choose an Uncommon Skill',
-        narrative:
-          'These skills sit quietly for long stretches, not complaining. Then the situation arrives, and they are exactly correct in a way that feels inevitable.',
-        inputType: 'reward',
-      },
-    ],
-  },
-
-  // ── Rare Skill ───────────────────────────────────────────────────────────
-  {
-    key: 'rare-skill',
-    label: 'Rare Skill',
-    title: 'The signature move',
+    key: 'starting-skill',
+    label: 'Starting Skill',
+    title: 'The signature trick',
     icon: 'kind-icon:sparkles',
     flourish: '❋',
     deckImage: '/images/adventure/thumb/skill-rare.webp',
     heroImage: '/images/adventure/hero/skill-rare.webp',
-    tagline: 'The table should say: wait, you can do WHAT?',
+    tagline: 'One trick. One card. Possibly illegal in three kingdoms.',
     narrative:
-      "This is the signature move. The one that earns a pause. The one referenced later, across sessions, across sequels: 'Wait — can you do that again?' A rare skill is powerful not because of what it does. It is powerful because of what it says about who — or what — this entity fundamentally is.",
+      'Every entity carries one starting skill. Sometimes it is practical. Sometimes it is rare enough to make the table pause. Sometimes it is mythic and the paperwork quietly catches fire. Four options have been drawn. One belongs to this character.',
     required: true,
-    rewardSlotKey: 'rare-skill',
-    restoresFields: ['rare-skill'],
+    rewardSlotKey: 'starting-skill',
+    restoresFields: ['starting-skill'],
     unlockCondition: 'coreComplete',
     steps: [
       {
-        key: 'rare-skill',
-        title: 'Choose a Rare Skill',
+        key: 'starting-skill',
+        title: 'Choose One Starting Skill',
         narrative:
-          "Choose carefully. Or don't — the universe has a documented soft spot for entities who stumbled into their greatest strength without quite meaning to. The skill does not mind how it was chosen. It has already decided to be remarkable.",
+          'Choose one skill. Just one. The universe is generous today, but not doing inventory management for a whole backpack of nonsense.',
         inputType: 'reward',
       },
     ],

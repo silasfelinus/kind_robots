@@ -60,16 +60,6 @@
         <slot />
       </div>
     </main>
-
-    <!-- Header -->
-    <header
-      class="fixed z-40 overflow-visible transition-all duration-300 ease-out"
-      :style="displayStore.headerStyle"
-    >
-      <slot name="header">
-        <full-header v-if="displayStore.viewportSize !== 'small'" />
-      </slot>
-    </header>
   </div>
 </template>
 

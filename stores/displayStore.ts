@@ -252,18 +252,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
     const sizes: Record<DisplayState, Record<ViewportSize, number>> = {
       open: {
         small: 0,
-        medium: 13,
-        large: 12,
-        extraLarge: 13,
+        medium: 0,
+        large: 0,
+        extraLarge: 0,
       },
       compact: {
         small: 0,
-        medium: 7,
-        large: 6,
-        extraLarge: 6,
+        medium: 0,
+        large: 0,
+        extraLarge: 0,
       },
       hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
-      priority: { small: 14, medium: 13, large: 12, extraLarge: 13 },
+      priority: { small: 0, medium: 0, large: 0, extraLarge: 0 },
       disabled: { small: 0, medium: 0, large: 0, extraLarge: 0 },
     }
 
@@ -694,19 +694,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleHeader(mode: 'cycle' | HeaderStage = 'cycle') {
-  if (mode !== 'cycle') {
-    state.headerState = mode
+    if (mode !== 'cycle') {
+      state.headerState = mode
+      saveState()
+      return
+    }
+
+    const order: HeaderStage[] = ['open', 'compact', 'hidden']
+    const currentIndex = order.indexOf(state.headerState as HeaderStage)
+    const safeIndex = currentIndex === -1 ? 0 : currentIndex
+    state.headerState = order[(safeIndex + 1) % order.length] ?? 'open'
     saveState()
-    return
   }
-
-  const order: HeaderStage[] = ['open', 'compact', 'hidden']
-  const currentIndex = order.indexOf(state.headerState as HeaderStage)
-  const safeIndex = currentIndex === -1 ? 0 : currentIndex
-  state.headerState = order[(safeIndex + 1) % order.length] ?? 'open'
-  saveState()
-}
-
 
   const headerCornerToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
@@ -1029,13 +1028,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
       }
 
       if (
-  state.headerState !== 'open' &&
-  state.headerState !== 'compact' &&
-  state.headerState !== 'hidden'
-) {
-  state.headerState = 'compact'
-}
-
+        state.headerState !== 'open' &&
+        state.headerState !== 'compact' &&
+        state.headerState !== 'hidden'
+      ) {
+        state.headerState = 'compact'
+      }
 
       state.footerState = 'disabled'
       clearPromptOffset()

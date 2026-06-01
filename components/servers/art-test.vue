@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // /components/servers/art-test.vue
 import { computed, onMounted, ref, watch } from 'vue'
+import { useArtStore } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
-import { performFetch } from '@/stores/utils'
 
 type EndpointId = 'a1111' | 'sdxl' | 'flux' | 'kontext' | 'kombine'
 type EndpointMode = 'text' | 'remix' | 'combine'
@@ -58,6 +58,28 @@ interface ArtistStyleDef {
   key: ArtistStyleKey
   label: string
   stylePrompt: string
+}
+
+type ArtImageLike = {
+  id?: number
+  imagePath?: string | null
+  imageData?: string | null
+  path?: string | null
+  url?: string | null
+  fileType?: string | null
+}
+
+type ArtStoreLike = ReturnType<typeof useArtStore> & {
+  artForm?: Record<string, unknown>
+  selectedArtImage?: ArtImageLike | null
+  selectedImage?: ArtImageLike | null
+  selectedArt?: ArtImageLike | null
+  generationMessage?: string
+  generationMessageTone?: 'success' | 'error' | 'info' | string
+  isGenerating?: boolean
+  setArtForm?: (patch: Record<string, unknown>) => void
+  updateArtForm?: (patch: Record<string, unknown>) => void
+  prepareArtGenerator?: () => Promise<void>
 }
 
 const ENDPOINTS: EndpointDef[] = [
@@ -132,7 +154,7 @@ const ENDPOINTS: EndpointDef[] = [
     description: 'Combine any two animal test images into one hybrid',
     icon: '⊕',
     color: 'text-accent',
-    engine: 'KONTEXT',
+    engine: 'KOMBINE',
     mode: 'combine',
     needsNegative: false,
     needsSteps: true,
@@ -272,6 +294,7 @@ const fallbackAnimal = ANIMALS[0]!
 const fallbackAnimalB = ANIMALS[1] ?? fallbackAnimal
 const fallbackArtistStyle = ARTIST_STYLES[0]!
 
+const artStore = useArtStore() as ArtStoreLike
 const serverStore = useServerStore()
 
 const selectedEndpointId = ref<EndpointId>('flux')
@@ -297,19 +320,14 @@ const sourceImagePreview = ref<string | null>(null)
 const sourceImage2Base64 = ref<string | null>(null)
 const sourceImage2Preview = ref<string | null>(null)
 
-const isGenerating = ref(false)
-const resultImage = ref<string | null>(null)
-const resultData = ref<Record<string, unknown> | null>(null)
-const errorMsg = ref('')
-const elapsedMs = ref(0)
 const showPayload = ref(false)
 const showRawResult = ref(false)
-
-let timerInterval: ReturnType<typeof setInterval> | null = null
+const syncMessage = ref('')
 
 const endpointDef = computed<EndpointDef>(() => {
   return (
-    ENDPOINTS.find((e) => e.id === selectedEndpointId.value) ?? fallbackEndpoint
+    ENDPOINTS.find((endpoint) => endpoint.id === selectedEndpointId.value) ??
+    fallbackEndpoint
   )
 })
 
@@ -342,6 +360,46 @@ const selectedStyleDef = computed<ArtistStyleDef>(() => {
     fallbackArtistStyle
   )
 })
+
+const generatedRecord = computed<ArtImageLike | null>(() => {
+  return (
+    artStore.selectedArtImage ??
+    artStore.selectedImage ??
+    artStore.selectedArt ??
+    null
+  )
+})
+
+const resultImage = computed(() => {
+  const image = generatedRecord.value
+
+  if (!image) return null
+  if (typeof image.imagePath === 'string' && image.imagePath) {
+    return image.imagePath
+  }
+  if (typeof image.path === 'string' && image.path) {
+    return image.path
+  }
+  if (typeof image.url === 'string' && image.url) {
+    return image.url
+  }
+  if (typeof image.imageData === 'string' && image.imageData) {
+    if (image.imageData.startsWith('data:')) return image.imageData
+
+    const fileType = image.fileType || 'png'
+    return `data:image/${fileType};base64,${image.imageData}`
+  }
+
+  return null
+})
+
+const resultData = computed(() => {
+  return generatedRecord.value ?? artStore.artForm ?? null
+})
+
+const generationMessage = computed(() => artStore.generationMessage ?? '')
+
+const isGenerating = computed(() => Boolean(artStore.isGenerating))
 
 function joinParts(parts: Array<string | null | undefined>): string {
   return parts
@@ -378,7 +436,7 @@ function buildTextPrompt(): string {
 
 function buildRemixPrompt(): string {
   return joinParts([
-    `Use the provided animal reference image as the subject.`,
+    'Use the provided animal reference image as the subject.',
     `Remix it into a new illustration in the style of ${selectedStyleDef.value.label}.`,
     selectedStyleDef.value.stylePrompt,
     'Preserve the animal identity and keep it clearly recognizable.',
@@ -462,201 +520,119 @@ async function syncSourceImages(): Promise<void> {
     await setImageSlot(1, selectedAnimalA.value)
     await setImageSlot(2, selectedAnimalB.value)
   }
+
+  syncToArtStore()
 }
 
-const builtPayload = computed(() => {
-  const payload: Record<string, unknown> = {
+const artFormPatch = computed<Record<string, unknown>>(() => {
+  const patch: Record<string, unknown> = {
+    mode: endpointDef.value.mode,
+    workflow: endpointDef.value.id,
+    endpoint: endpointDef.value.route,
+    route: endpointDef.value.route,
+    engine: endpointDef.value.engine,
+    designer: endpointDef.value.engine,
     serverId: serverId.value,
+    prompt: builtPrompt.value,
     promptString: builtPrompt.value,
+    artPrompt: builtPrompt.value,
+    title: `Art Test ${endpointDef.value.label}`,
+    pitch: endpointDef.value.mode,
+    width: width.value,
+    height: height.value,
+    steps: steps.value,
+    cfg: cfg.value,
+    guidance: guidance.value,
+    seed: seed.value,
+    sourceAnimal: selectedAnimal.value,
+    sourceAnimalA: selectedAnimalA.value,
+    sourceAnimalB: selectedAnimalB.value,
+    sourceStyle: selectedStyle.value,
   }
 
-  if (endpointDef.value.needsNegative)
-    payload.negativePrompt = negativePrompt.value
-  if (endpointDef.value.needsSteps) payload.steps = steps.value
-  if (endpointDef.value.needsCfg) payload.cfg = cfg.value
-  if (endpointDef.value.needsGuidance) payload.guidance = guidance.value
-  if (endpointDef.value.needsSeed) payload.seed = seed.value
-
-  if (endpointDef.value.needsSize) {
-    payload.width = width.value
-    payload.height = height.value
+  if (endpointDef.value.needsNegative) {
+    patch.negativePrompt = negativePrompt.value
   }
 
-  if (sourceImageBase64.value) {
-    payload.sourceImageBase64 = `[${sourceImageBase64.value.length} chars]`
+  if (endpointDef.value.mode === 'remix') {
+    patch.sourceImageBase64 = sourceImageBase64.value
+    patch.sourceImageABase64 = sourceImageBase64.value
+    patch.sourceImagePreview = sourceImagePreview.value
+    patch.imageId = null
+    patch.imageIdA = null
   }
 
-  if (sourceImage2Base64.value) {
-    payload.sourceImage2Base64 = `[${sourceImage2Base64.value.length} chars]`
-    payload.maskImageBase64 = `[${sourceImage2Base64.value.length} chars]`
+  if (endpointDef.value.mode === 'combine') {
+    patch.sourceImageBase64 = sourceImageBase64.value
+    patch.sourceImage2Base64 = sourceImage2Base64.value
+    patch.sourceImageABase64 = sourceImageBase64.value
+    patch.sourceImageBBase64 = sourceImage2Base64.value
+    patch.sourceImagePreview = sourceImagePreview.value
+    patch.sourceImage2Preview = sourceImage2Preview.value
+    patch.imageIdA = null
+    patch.imageIdB = null
+  }
+
+  return patch
+})
+
+const builtPayload = computed(() => {
+  const payload: Record<string, unknown> = { ...artFormPatch.value }
+
+  if (typeof payload.sourceImageBase64 === 'string') {
+    payload.sourceImageBase64 = `[${payload.sourceImageBase64.length} chars]`
+  }
+
+  if (typeof payload.sourceImage2Base64 === 'string') {
+    payload.sourceImage2Base64 = `[${payload.sourceImage2Base64.length} chars]`
+  }
+
+  if (typeof payload.sourceImageABase64 === 'string') {
+    payload.sourceImageABase64 = `[${payload.sourceImageABase64.length} chars]`
+  }
+
+  if (typeof payload.sourceImageBBase64 === 'string') {
+    payload.sourceImageBBase64 = `[${payload.sourceImageBBase64.length} chars]`
   }
 
   return payload
 })
 
-watch(
-  artServers,
-  (servers) => {
-    if (!serverId.value && servers.length) {
-      serverId.value = servers[0]?.id ?? null
-    }
-  },
-  { immediate: true },
-)
+function syncToArtStore(): void {
+  const patch = artFormPatch.value
 
-watch(
-  [selectedEndpointId, selectedAnimal, selectedAnimalA, selectedAnimalB],
-  async () => {
-    resultImage.value = null
-    resultData.value = null
-    errorMsg.value = ''
-    await syncSourceImages()
-  },
-  { immediate: false },
-)
-
-onMounted(async () => {
-  if (!serverStore.hasLoaded) {
-    serverStore.initialize({ fetchRemote: true })
+  if (typeof artStore.setArtForm === 'function') {
+    artStore.setArtForm(patch)
+    syncMessage.value = 'Art form synced to generator.'
+    return
   }
 
-  await syncSourceImages()
-})
-
-function startTimer(): void {
-  elapsedMs.value = 0
-  const start = Date.now()
-
-  timerInterval = setInterval(() => {
-    elapsedMs.value = Date.now() - start
-  }, 100)
-}
-
-function stopTimer(): void {
-  if (timerInterval) {
-    clearInterval(timerInterval)
-    timerInterval = null
-  }
-}
-
-function extractResultImage(data: Record<string, unknown>): string | null {
-  const nested = (data.data as Record<string, unknown> | undefined) ?? undefined
-
-  const candidates = [
-    data.imageData,
-    data.imagePath,
-    data.image,
-    data.url,
-    data.path,
-    nested?.imageData,
-    nested?.imagePath,
-    nested?.image,
-    nested?.url,
-    nested?.path,
-  ]
-
-  for (const candidate of candidates) {
-    if (typeof candidate === 'string' && candidate.length > 0) {
-      return candidate
-    }
+  if (typeof artStore.updateArtForm === 'function') {
+    artStore.updateArtForm(patch)
+    syncMessage.value = 'Art form updated for generator.'
+    return
   }
 
-  return null
-}
-
-async function generate(): Promise<void> {
-  if (isGenerating.value) return
-
-  isGenerating.value = true
-  resultImage.value = null
-  resultData.value = null
-  errorMsg.value = ''
-  startTimer()
-
-  const body: Record<string, unknown> = {
-    serverId: serverId.value,
-    promptString: builtPrompt.value,
+  if (artStore.artForm && typeof artStore.artForm === 'object') {
+    Object.assign(artStore.artForm, patch)
+    syncMessage.value = 'Art form patched directly.'
+    return
   }
 
-  if (endpointDef.value.needsNegative) {
-    body.negativePrompt = negativePrompt.value
-  }
-
-  if (endpointDef.value.needsSteps) {
-    body.steps = steps.value
-  }
-
-  if (endpointDef.value.needsCfg) {
-    body.cfg = cfg.value
-  }
-
-  if (endpointDef.value.needsGuidance) {
-    body.guidance = guidance.value
-  }
-
-  if (endpointDef.value.needsSeed) {
-    body.seed = seed.value
-  }
-
-  if (endpointDef.value.needsSize) {
-    body.width = width.value
-    body.height = height.value
-  }
-
-  if (sourceImageBase64.value) {
-    body.sourceImageBase64 = sourceImageBase64.value
-  }
-
-  if (sourceImage2Base64.value) {
-    body.sourceImage2Base64 = sourceImage2Base64.value
-    body.maskImageBase64 = sourceImage2Base64.value
-  }
-
-  try {
-    const response = await performFetch<Record<string, unknown>>(
-      endpointDef.value.route,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      },
-      1,
-      180_000,
-    )
-
-    resultData.value = response as unknown as Record<string, unknown>
-
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to generate image.')
-    }
-
-    const data = response.data as Record<string, unknown>
-    resultData.value = data
-
-    const imageValue = extractResultImage(data)
-
-    if (!imageValue) {
-      throw new Error('No image result was returned.')
-    }
-
-    resultImage.value = imageValue.startsWith('data:')
-      ? imageValue
-      : imageValue.startsWith('/')
-        ? imageValue
-        : `data:image/png;base64,${imageValue}`
-  } catch (error) {
-    errorMsg.value = error instanceof Error ? error.message : String(error)
-  } finally {
-    stopTimer()
-    isGenerating.value = false
-  }
+  syncMessage.value = 'No writable art form method found.'
 }
 
 function clearResult(): void {
-  resultImage.value = null
-  resultData.value = null
-  errorMsg.value = ''
-  elapsedMs.value = 0
+  if (typeof artStore.setArtForm === 'function') {
+    artStore.setArtForm({
+      ...artFormPatch.value,
+      imagePath: null,
+      imageData: null,
+      artImageId: null,
+    })
+  }
+
+  syncMessage.value = 'Result cleared locally.'
 }
 
 async function copyOutput(): Promise<void> {
@@ -675,6 +651,58 @@ function downloadImage(): void {
   anchor.download = `art-test-${selectedEndpointId.value}-${Date.now()}.png`
   anchor.click()
 }
+
+watch(
+  artServers,
+  (servers) => {
+    if (!serverId.value && servers.length) {
+      serverId.value = servers[0]?.id ?? null
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  [selectedEndpointId, selectedAnimal, selectedAnimalA, selectedAnimalB],
+  async () => {
+    await syncSourceImages()
+  },
+  { immediate: false },
+)
+
+watch(
+  [
+    serverId,
+    selectedStyle,
+    extraPrompt,
+    negativePrompt,
+    steps,
+    cfg,
+    guidance,
+    seed,
+    width,
+    height,
+    sourceImageBase64,
+    sourceImage2Base64,
+  ],
+  () => {
+    syncToArtStore()
+  },
+  { immediate: false },
+)
+
+onMounted(async () => {
+  if (!serverStore.hasLoaded) {
+    serverStore.initialize({ fetchRemote: true })
+  }
+
+  if (typeof artStore.prepareArtGenerator === 'function') {
+    await artStore.prepareArtGenerator()
+  }
+
+  await syncSourceImages()
+  syncToArtStore()
+})
 </script>
 
 <template>
@@ -1204,19 +1232,24 @@ function downloadImage(): void {
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
-          <div class="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              class="btn btn-primary rounded-2xl"
-              :disabled="isGenerating || !serverId"
-              @click="generate"
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-lg font-bold">Generate</div>
+              <div class="text-sm opacity-60">
+                Synced to artStore and routed through generate-button.
+              </div>
+            </div>
+
+            <div
+              v-if="syncMessage"
+              class="rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-xs font-semibold text-info"
             >
-              <span
-                v-if="isGenerating"
-                class="loading loading-spinner loading-sm"
-              />
-              <span v-else>{{ endpointDef.icon }} Generate</span>
-            </button>
+              {{ syncMessage }}
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <generate-button />
 
             <button
               type="button"
@@ -1227,13 +1260,6 @@ function downloadImage(): void {
               Clear
             </button>
 
-            <div
-              v-if="elapsedMs > 0"
-              class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm"
-            >
-              {{ (elapsedMs / 1000).toFixed(1) }}s
-            </div>
-
             <div v-if="isGenerating" class="badge badge-success badge-lg">
               Generating...
             </div>
@@ -1242,14 +1268,13 @@ function downloadImage(): void {
               Select a server first
             </div>
           </div>
-        </div>
 
-        <div
-          v-if="errorMsg"
-          class="rounded-2xl border border-error/30 bg-error/10 p-4 text-error"
-        >
-          <div class="mb-1 font-bold">Error</div>
-          <div class="text-sm">{{ errorMsg }}</div>
+          <div
+            v-if="generationMessage"
+            class="mt-3 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
+          >
+            {{ generationMessage }}
+          </div>
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
@@ -1285,9 +1310,6 @@ function downloadImage(): void {
               <div class="text-lg font-bold">
                 Generating with {{ endpointDef.label }}
               </div>
-              <div class="text-sm opacity-70">
-                {{ (elapsedMs / 1000).toFixed(1) }}s elapsed
-              </div>
             </div>
 
             <img
@@ -1314,7 +1336,7 @@ function downloadImage(): void {
           v-if="showRawResult && resultData"
           class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6"
         >
-          <div class="mb-3 text-lg font-bold">Raw API Response</div>
+          <div class="mb-3 text-lg font-bold">Raw API / Store Result</div>
           <pre
             class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100 p-4 text-xs"
             >{{ JSON.stringify(resultData, null, 2) }}</pre

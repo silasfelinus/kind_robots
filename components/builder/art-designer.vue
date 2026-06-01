@@ -345,6 +345,7 @@ import { computed, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { handleError } from '@/stores/utils'
 
+
 type ArtCreatorPurpose =
   | 'user'
   | 'pitch'
@@ -352,6 +353,8 @@ type ArtCreatorPurpose =
   | 'character'
   | 'reward'
   | 'scenario'
+  | 'builder'
+
 type ArtCreatorMode = 'prompt' | 'upload' | 'gallery' | 'generate'
 
 type ArtStoreLike = {

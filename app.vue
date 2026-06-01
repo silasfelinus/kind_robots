@@ -1,22 +1,23 @@
 <template>
-  <div class="relative min-h-screen w-full overflow-hidden bg-base-100">
-    <div v-if="showLoader" class="fixed inset-0 z-40 pointer-events-none">
+  <div class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100">
+    <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
       <kind-loader @pageReady="handlePageReady" />
     </div>
+
     <butterfly-layer />
     <animation-layer />
+    <milestone-popup />
 
-  <milestone-popup />
     <div
       v-if="isNavigating"
-      class="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
+      class="fixed inset-0 z-50 flex animate-fade-in items-center justify-center"
     >
       <div class="loading loading-dots loading-lg text-primary" />
     </div>
 
-    <main v-if="pageStore.ready" class="contents">
+    <main v-if="pageStore.ready" class="h-full min-h-0 w-full overflow-hidden">
       <NuxtPage
-        class="min-h-full w-full bg-base-300 transition-opacity duration-300"
+        class="h-full min-h-0 w-full bg-base-300 transition-opacity duration-300"
       />
     </main>
   </div>
@@ -26,14 +27,12 @@
 // /app.vue
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDisplayStore } from '@/stores/displayStore'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useThemeStore } from '@/stores/themeStore'
 
 const router = useRouter()
-const displayStore = useDisplayStore()
 const layoutStore = useLayoutStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
@@ -56,6 +55,7 @@ onMounted(async () => {
       clearTimeout(navigationTimer)
       navigationTimer = null
     }
+
     isNavigating.value = true
   })
 
@@ -69,10 +69,6 @@ onMounted(async () => {
       navigationTimer = null
     }, 450)
   })
-
-  if (!displayStore.isInitialized) {
-    displayStore.initialize()
-  }
 
   layoutStore.initializeStore()
   pageStore.initialize()
@@ -97,6 +93,6 @@ onUnmounted(() => {
 })
 
 useHead({
-  link: [{ rel: 'icon', type: 'image/png', href: 'favicon.ico' }],
+  link: [{ rel: 'icon', type: 'image/png', href: '/favicon.ico' }],
 })
 </script>

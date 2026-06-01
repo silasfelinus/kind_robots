@@ -1,78 +1,39 @@
-<!-- /layouts/default.vue -->
 <template>
-  <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
-    <!-- Left sidebar -->
-    <aside
-      class="fixed overflow-visible transition-all duration-300 ease-out"
-      :style="displayStore.leftSidebarStyle"
-    >
-      <div class="h-full overflow-y-auto">
-        <slot name="left">
-          <splash-tutorial />
-        </slot>
-      </div>
-    </aside>
+  <div class="flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-base-200">
+    <dashboard-shell class="shrink-0" />
 
-    <!-- Right sidebar -->
-    <aside
-      class="fixed overflow-visible transition-all duration-300 ease-out"
-      :style="displayStore.rightSidebarStyle"
+    <div
+      class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-2 sm:p-3 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_20rem]"
     >
-      <div class="h-full overflow-y-auto">
-        <slot name="right">
-          <user-panel />
-        </slot>
-      </div>
-    </aside>
-
-    <!-- Left sidebar back-toggle -->
-    <template v-if="displayStore.sidebarLeftVisible">
-      <button
-        :style="displayStore.leftSidebarBackToggleStyle"
-        class="btn btn-circle btn-xs border border-base-300 bg-base-100/90 text-base-content shadow-md backdrop-blur transition-all duration-300 ease-out hover:border-secondary hover:bg-secondary hover:text-secondary-content active:scale-90"
-        aria-label="Reduce left sidebar"
-        type="button"
-        @click="displayStore.toggleLeftSidebar('backward')"
+      <aside
+        class="hidden min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 lg:flex lg:flex-col"
       >
-        <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
-      </button>
-    </template>
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+          <slot name="left">
+            <splash-tutorial />
+          </slot>
+        </div>
+      </aside>
 
-    <!-- Right sidebar back-toggle -->
-    <template v-if="displayStore.sidebarRightVisible">
-      <button
-        :style="displayStore.rightSidebarBackToggleStyle"
-        class="btn btn-circle btn-xs border border-base-300 bg-base-100/90 text-base-content shadow-md backdrop-blur transition-all duration-300 ease-out hover:border-secondary hover:bg-secondary hover:text-secondary-content active:scale-90"
-        aria-label="Reduce right sidebar"
-        type="button"
-        @click="displayStore.toggleRightSidebar('backward')"
+      <main
+        class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
-      </button>
-    </template>
+        <div
+          class="h-full min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-4"
+        >
+          <slot />
+        </div>
+      </main>
 
-    <!-- Main content -->
-    <main
-      class="fixed overflow-hidden bg-base-200 transition-all duration-300 ease-out"
-      :style="displayStore.mainContentStyle"
-    >
-      <div class="absolute inset-0 overflow-y-auto px-4 pb-4 pt-2">
-        <slot />
-      </div>
-    </main>
+      <aside
+        class="hidden min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:flex xl:flex-col"
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+          <slot name="right">
+            <user-panel />
+          </slot>
+        </div>
+      </aside>
+    </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-
-const displayStore = useDisplayStore()
-
-onMounted(() => {
-  displayStore.initialize()
-})
-onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
-})
-</script>

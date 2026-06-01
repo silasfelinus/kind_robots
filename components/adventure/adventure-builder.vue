@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
 import { useUserStore } from '@/stores/userStore'
@@ -58,8 +58,6 @@ import {
 } from '@/stores/helpers/adventureCards'
 import {
   ADVENTURE_CORE_CARD_KEYS,
-  ADVENTURE_REQUIRED_CARD_KEYS,
-  ADVENTURE_SKILL_RARITY,
   adventureRewardToBuilderOption,
   builderOptionToAdventureReward,
   buildAdventureArtPrompt,
@@ -74,6 +72,31 @@ const savedCharId = ref<number | null>(null)
 const isSaving = ref(false)
 const saveMessage = ref('')
 const saveError = ref('')
+
+const ADVENTURE_STARTING_SKILL_KEY = 'starting-skill'
+
+const ADVENTURE_REQUIRED_CARD_KEYS = [
+  'role',
+  'name',
+  'origin',
+  'identity',
+  'personality',
+  'stats',
+  'background',
+  ADVENTURE_STARTING_SKILL_KEY,
+]
+
+const ADVENTURE_SKILL_RARITY_WEIGHTS: Array<{
+  rarity: Rarity
+  weight: number
+}> = [
+  { rarity: 'COMMON', weight: 40 },
+  { rarity: 'UNCOMMON', weight: 25 },
+  { rarity: 'RARE', weight: 18 },
+  { rarity: 'EPIC', weight: 10 },
+  { rarity: 'LEGENDARY', weight: 5 },
+  { rarity: 'MYTHIC', weight: 2 },
+]
 
 const canSave = computed(() => {
   return (
@@ -90,10 +113,30 @@ const saveLabel = computed(() =>
       : 'Save Character',
 )
 
+function rollAdventureSkillRarity(): Rarity {
+  const total = ADVENTURE_SKILL_RARITY_WEIGHTS.reduce(
+    (sum, option) => sum + option.weight,
+    0,
+  )
+
+  let roll = Math.random() * total
+
+  for (const option of ADVENTURE_SKILL_RARITY_WEIGHTS) {
+    roll -= option.weight
+
+    if (roll <= 0) {
+      return option.rarity
+    }
+  }
+
+  return 'COMMON'
+}
+
 function seedAdventureRewardSlot(slotKey: string): void {
+  if (slotKey !== ADVENTURE_STARTING_SKILL_KEY) return
   if (builderStore.rewardOptions[slotKey]?.length) return
 
-  const rarity = ADVENTURE_SKILL_RARITY[slotKey] ?? 'COMMON'
+  const rarity = rollAdventureSkillRarity()
   const options = generatorStore
     .rollRewardOptions(rarity, 4)
     .map(adventureRewardToBuilderOption)
@@ -117,6 +160,7 @@ function resetAdventureBuilder(): void {
   builderStore.resetBuilder()
   builderStore.updateSheet({
     userId: userStore.userId || 10,
+    rewards: {},
   })
 
   builderStore.randomCard()
@@ -133,9 +177,11 @@ function getAdventureRewards(): RolledReward[] {
     return []
   }
 
-  return Object.values(rawRewards as Record<string, BuilderRewardOption>).map(
-    builderOptionToAdventureReward,
-  )
+  const selected = (rawRewards as Record<string, BuilderRewardOption>)[
+    ADVENTURE_STARTING_SKILL_KEY
+  ]
+
+  return selected ? [builderOptionToAdventureReward(selected)] : []
 }
 
 async function saveRewards(): Promise<number[]> {
@@ -250,16 +296,16 @@ async function saveCharacter(): Promise<void> {
 
 onMounted(() => {
   builderStore.registerBuilder({
-  key: 'adventure',
-  label: 'Adventure',
-  title: 'Adventure Builder',
-  modelType: 'adventure',
-  artPurpose: 'character',
-  artImageRole: 'avatar',
-  artTitle: 'Character Avatar Designer',
-  artDescription:
-    'Create, upload, select, or generate avatar art for this adventure character.',
-  storageKey: 'kindrobots.builder.adventure.v1',
+    key: 'adventure',
+    label: 'Adventure',
+    title: 'Adventure Builder',
+    modelType: 'adventure',
+    artPurpose: 'character',
+    artImageRole: 'avatar',
+    artTitle: 'Character Avatar Designer',
+    artDescription:
+      'Create, upload, select, or generate avatar art for this adventure character.',
+    storageKey: 'kindrobots.builder.adventure.v2',
     cards: ADVENTURE_CARDS,
     splash: ADVENTURE_SPLASH,
     defaultSheet: () => defaultAdventureSheet(userStore.userId || 10),

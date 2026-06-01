@@ -1,12 +1,12 @@
 // /stores/chatStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useUserStore } from './userStore'
 import { useServerStore } from './serverStore'
 import { useManaStore } from './manaStore'
 import { ErrorType } from './errorStore'
-import { performFetch, handleError } from './utils'
-import type { Chat } from '~/prisma/generated/prisma/client'
+import { handleError } from './utils'
+import type { Chat, Server } from '~/prisma/generated/prisma/client'
 import {
   buildNewChat,
   createChat,
@@ -14,11 +14,17 @@ import {
   deleteChatById,
   fetchChatsForUser,
   markChatAsRead,
-  streamChatResponse,
   type AddChatInput,
 } from '@/stores/helpers/chatHelper'
 
 const isClient = typeof window !== 'undefined'
+const chatsStorageKey = 'chats'
+
+type ApiResponse<T> = {
+  success: boolean
+  data?: T
+  message?: string
+}
 
 type BotCafeMessage = {
   role: 'system' | 'user' | 'assistant'
@@ -43,6 +49,123 @@ type BotCafeResponse = {
   }>
 }
 
+export type TextServerSelectionMode = 'default' | 'any' | 'specific'
+export type TextGenerationProvider = 'any' | 'openai' | 'anthropic' | 'ollama'
+
+export interface TextGenerationRequirement {
+  provider?: TextGenerationProvider
+}
+
+export interface GenerateTextData {
+  prompt: string
+  botId?: number | null
+  recipientId?: number | null
+  characterId?: number | null
+  userId?: number | null
+  type?: AddChatInput['type']
+  isPublic?: boolean
+  model?: string
+  temperature?: number
+  maxTokens?: number
+  messages?: BotCafeMessage[]
+  stream?: boolean
+  serverId?: number | null
+  serverName?: string | null
+  serverSelectionMode?: TextServerSelectionMode
+  generationRequirement?: TextGenerationRequirement
+  useOwnResource?: boolean
+  userApiKey?: string | null
+}
+
+type StreamResponseOptions = Omit<GenerateTextData, 'prompt'>
+
+type GenerateTextResult = {
+  chat: Chat
+  text: string
+}
+
+type TextBilling = {
+  useOwnResource: boolean
+  userApiKey: string | null
+  serverId: number | null
+}
+
+type ChatStoreState = {
+  isGenerating: boolean
+  generationMessage: string
+  generationMessageTone: 'success' | 'error'
+  lastGeneratedText: string
+  lastGeneratedChat: Chat | null
+  textForm: GenerateTextData
+}
+
+function validateTextPrompt(prompt: string): ApiResponse<true> {
+  const cleanPrompt = prompt.trim()
+
+  if (!cleanPrompt) {
+    return { success: false, message: 'Text prompt is empty.' }
+  }
+
+  if (cleanPrompt.length < 2) {
+    return { success: false, message: 'Text prompt is too short.' }
+  }
+
+  if (cleanPrompt.length > 24000) {
+    return {
+      success: false,
+      message: `Text prompt is too long. Received ${cleanPrompt.length} characters. Maximum is 24000.`,
+    }
+  }
+
+  return { success: true, data: true }
+}
+
+function safeGetLocalStorage(key: string): string | null {
+  if (!isClient) return null
+
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  if (!isClient) return
+
+  try {
+    localStorage.setItem(key, value)
+  } catch {}
+}
+
+function safeRemoveLocalStorage(key: string): void {
+  if (!isClient) return
+
+  try {
+    localStorage.removeItem(key)
+  } catch {}
+}
+
+function normalizeServerSearchText(server: Server): string {
+  return [
+    server.title,
+    server.label,
+    server.description,
+    server.category,
+    server.model,
+    server.endpointPath,
+    server.healthPath,
+    server.notes,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
+
+function getServerLabel(server: Server): string {
+  return server.label || server.title || `Server #${server.id}`
+}
+
 export const useChatStore = defineStore('chatStore', () => {
   const chats = ref<Chat[]>([])
   const unreadMessages = ref<Chat[]>([])
@@ -53,6 +176,33 @@ export const useChatStore = defineStore('chatStore', () => {
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchChatsPromise = ref<Promise<void> | null>(null)
   const lastFetchedUserId = ref<number | null>(null)
+
+  const state = reactive<ChatStoreState>({
+    isGenerating: false,
+    generationMessage: '',
+    generationMessageTone: 'success',
+    lastGeneratedText: '',
+    lastGeneratedChat: null,
+    textForm: {
+      prompt: '',
+      botId: null,
+      recipientId: null,
+      characterId: null,
+      userId: null,
+      type: 'ToForum',
+      isPublic: false,
+      model: '',
+      temperature: 0.7,
+      maxTokens: 2048,
+      messages: [],
+      stream: true,
+      serverId: null,
+      serverName: null,
+      serverSelectionMode: 'default',
+      generationRequirement: { provider: 'any' },
+      userApiKey: null,
+    },
+  })
 
   const userStore = useUserStore()
   const serverStore = useServerStore()
@@ -79,43 +229,244 @@ export const useChatStore = defineStore('chatStore', () => {
     })
   })
 
-  type BotCafeResponseData = {
-    content: string
-    raw?: unknown
+  const generationServers = computed<Server[]>(() => {
+    const servers = Array.isArray(serverStore.textServers)
+      ? (serverStore.textServers as Server[])
+      : []
+
+    return servers.filter((server) => {
+      if (!server.isActive) return false
+      return ['OPENAI', 'ANTHROPIC', 'OLLAMA'].includes(
+        String(server.serverType),
+      )
+    })
+  })
+
+  const activeGenerationServer = computed<Server | null>(() => {
+    return resolveTextServer(state.textForm)
+  })
+
+  const canGenerateText = computed(() => {
+    return Boolean(!state.isGenerating && state.textForm.prompt.trim())
+  })
+
+  function setGenerationMessage(
+    tone: 'success' | 'error',
+    message: string,
+  ): void {
+    state.generationMessageTone = tone
+    state.generationMessage = message
   }
 
-  type StreamResponseOptions = {
-    model?: string
-    temperature?: number
-    maxTokens?: number
-    serverId?: number | null
-    serverName?: string | null
-    messages?: BotCafeMessage[]
-    stream?: boolean
-    // BYO-key / local-server billing. Leave undefined to auto-detect from the
-    // selected server; pass explicitly to force free (true) or charged (false).
-    useOwnResource?: boolean
-    // The user-supplied key to forward when running on their own resource.
-    userApiKey?: string | null
+  function clearGenerationMessage(): void {
+    state.generationMessage = ''
   }
 
-  type TextBilling = {
-    useOwnResource: boolean
-    userApiKey: string | null
-    serverId: number | null
+  function setTextForm(updates: Partial<GenerateTextData>): void {
+    state.textForm = {
+      ...state.textForm,
+      ...updates,
+    }
   }
 
-  /**
-   * Decide whether this generation runs on the user's own resource (free) or
-   * our community tokens (charged). Mirrors the art store's transport logic:
-   * a LOCAL server or one carrying a user-supplied key is "their own."
-   */
+  function resetTextForm(overrides: Partial<GenerateTextData> = {}): void {
+    state.textForm = {
+      prompt: '',
+      botId: null,
+      recipientId: null,
+      characterId: null,
+      userId: userStore.userId || userStore.user?.id || 10,
+      type: 'ToForum',
+      isPublic: false,
+      model: '',
+      temperature: 0.7,
+      maxTokens: 2048,
+      messages: [],
+      stream: true,
+      serverId: null,
+      serverName: null,
+      serverSelectionMode: 'default',
+      generationRequirement: { provider: 'any' },
+      userApiKey: null,
+      ...overrides,
+    }
+  }
+
+  function selectGenerationServer(serverId: number | null): void {
+    const server = serverId ? getServerByOptionalId(serverId) : null
+
+    setTextForm({
+      serverId,
+      serverName: server ? getServerLabel(server) : null,
+    })
+  }
+
+  async function prepareTextGenerator(): Promise<ApiResponse<true>> {
+    try {
+      clearGenerationMessage()
+
+      if (!serverStore.hasLoaded) {
+        await serverStore.initialize({ fetchRemote: true })
+      }
+
+      if (!state.textForm.userId) {
+        setTextForm({ userId: userStore.userId || userStore.user?.id || 10 })
+      }
+
+      return {
+        success: true,
+        data: true,
+        message: 'Text generator ready.',
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to load text generator.'
+
+      handleError(error, 'preparing text generator')
+      setGenerationMessage('error', message)
+
+      return {
+        success: false,
+        message,
+      }
+    }
+  }
+
+  function getServerProvider(server: Server): TextGenerationProvider {
+    if (server.serverType === 'OPENAI') return 'openai'
+    if (server.serverType === 'ANTHROPIC') return 'anthropic'
+    if (server.serverType === 'OLLAMA') return 'ollama'
+    return 'any'
+  }
+
+  function serverSupportsTextProvider(
+    server: Server,
+    provider: TextGenerationProvider = 'any',
+  ): boolean {
+    if (provider === 'any') return true
+
+    const directProvider = getServerProvider(server)
+    if (directProvider === provider) return true
+
+    const searchText = normalizeServerSearchText(server)
+    return searchText.includes(provider)
+  }
+
+  function isUsableTextServer(
+    server: Server | null | undefined,
+  ): server is Server {
+    return Boolean(server?.isActive)
+  }
+
+  function serverMatchesGenerationRequirement(
+    server: Server | null | undefined,
+    requirement: TextGenerationRequirement = {},
+  ): server is Server {
+    if (!isUsableTextServer(server)) return false
+
+    const provider = requirement.provider ?? 'any'
+    return serverSupportsTextProvider(server, provider)
+  }
+
+  function getServerByOptionalId(serverId?: number | null): Server | null {
+    if (!serverId) return null
+    return serverStore.getServerById(serverId) ?? null
+  }
+
+  function getGenerationRequirement(
+    data: Partial<GenerateTextData>,
+  ): TextGenerationRequirement {
+    if (data.generationRequirement) return data.generationRequirement
+
+    const server = getServerByOptionalId(data.serverId)
+    if (server) return { provider: getServerProvider(server) }
+
+    return { provider: 'any' }
+  }
+
+  function getCandidateGenerationServers(): Server[] {
+    return generationServers.value.filter(isUsableTextServer)
+  }
+
+  function resolveTextServer(data: Partial<GenerateTextData> = {}): Server | null {
+    const requirement = getGenerationRequirement(data)
+    const selectionMode = data.serverSelectionMode ?? 'default'
+    const explicitServer = getServerByOptionalId(data.serverId)
+
+    if (
+      selectionMode === 'specific' &&
+      serverMatchesGenerationRequirement(explicitServer, requirement)
+    ) {
+      return explicitServer
+    }
+
+    if (selectionMode === 'specific') {
+      return null
+    }
+
+    if (selectionMode === 'default') {
+      const activeServer = serverStore.activeTextServer
+
+      if (serverMatchesGenerationRequirement(activeServer, requirement)) {
+        return activeServer
+      }
+    }
+
+    const ownedServer = getCandidateGenerationServers().find((server) => {
+      return (
+        server.userId === userStore.userId &&
+        serverMatchesGenerationRequirement(server, requirement)
+      )
+    })
+
+    if (ownedServer) return ownedServer
+
+    const publicServer = getCandidateGenerationServers().find((server) => {
+      return (
+        Boolean(server.isPublic) &&
+        serverMatchesGenerationRequirement(server, requirement)
+      )
+    })
+
+    if (publicServer) return publicServer
+
+    return (
+      getCandidateGenerationServers().find((server) => {
+        return serverMatchesGenerationRequirement(server, requirement)
+      }) ?? null
+    )
+  }
+
+  function getSelectedTextServer(data: Partial<GenerateTextData>): Server | null {
+    const selectedServer = resolveTextServer(data)
+
+    if (data.serverSelectionMode === 'specific' && !selectedServer) {
+      throw new Error('The selected text server is not available.')
+    }
+
+    return selectedServer
+  }
+
+  function serverUsesOwnResource(server: Server | null | undefined): boolean {
+    if (!server) return false
+    if (!server.isActive) return false
+    if (server.userId && server.userId === userStore.userId) return true
+    if (server.isPublic && !server.isOfficial) return true
+
+    return (
+      server.accessMode === 'BROWSER' ||
+      server.accessMode === 'LOCAL' ||
+      server.accessMode === 'TAILSCALE' ||
+      server.serverType === 'OLLAMA'
+    )
+  }
+
   function resolveTextBilling(options: StreamResponseOptions): TextBilling {
-    const serverId =
-      options.serverId ?? serverStore.activeTextServer?.id ?? null
-    const server = serverId ? serverStore.getServerById?.(serverId) : null
+    const server = getSelectedTextServer(options)
+    const serverId = server?.id ?? null
 
-    // Explicit override always wins.
     if (typeof options.useOwnResource === 'boolean') {
       return {
         useOwnResource: options.useOwnResource,
@@ -124,19 +475,8 @@ export const useChatStore = defineStore('chatStore', () => {
       }
     }
 
-    // A user's own API key on their account counts as BYO.
     const ownKey = options.userApiKey ?? userStore.apiKey ?? null
-
-    const isLocal =
-      (server as { accessMode?: string } | null)?.accessMode === 'LOCAL'
-
-    const requiresBrowserLikeAccess =
-      server?.accessMode === 'BROWSER' ||
-      server?.accessMode === 'LOCAL' ||
-      server?.accessMode === 'TAILSCALE'
-
-    // BYO when they bring a key, OR the selected server is their own/local.
-    const useOwnResource = Boolean(ownKey) || requiresBrowserLikeAccess
+    const useOwnResource = Boolean(ownKey) || serverUsesOwnResource(server)
 
     return {
       useOwnResource,
@@ -151,7 +491,6 @@ export const useChatStore = defineStore('chatStore', () => {
     }
 
     const data = payload.data as BotCafeResponse | undefined
-
     const directChoice = payload.choices?.[0]?.message?.content
     if (directChoice?.trim()) return directChoice
 
@@ -274,7 +613,6 @@ export const useChatStore = defineStore('chatStore', () => {
 
   async function readJsonResponse(response: Response): Promise<string> {
     const payload = (await response.json()) as BotCafeResponse
-
     return extractBotText(payload)
   }
 
@@ -293,19 +631,15 @@ export const useChatStore = defineStore('chatStore', () => {
 
     while (true) {
       const { done, value } = await reader.read()
-
       if (done) break
 
       pending += decoder.decode(value, { stream: true })
-
       const lines = pending.split(/\r?\n/)
       pending = lines.pop() ?? ''
 
       for (const line of lines) {
         const token = parseStreamLine(line)
-
         if (!token) continue
-
         fullText += token
         onToken(token)
       }
@@ -328,11 +662,51 @@ export const useChatStore = defineStore('chatStore', () => {
     return fullText
   }
 
+  function buildMessagesForChat(
+    chat: Chat,
+    options: StreamResponseOptions,
+  ): BotCafeMessage[] {
+    if (options.messages?.length) return options.messages
+
+    return [
+      {
+        role: 'user',
+        content: chat.content,
+      },
+    ]
+  }
+
+  function buildStreamPayload(
+    chatId: number,
+    messages: BotCafeMessage[],
+    options: StreamResponseOptions,
+    billing: TextBilling,
+  ): Record<string, unknown> {
+    const server = getSelectedTextServer(options)
+    const provider = server ? getServerProvider(server) : 'openai'
+    const model =
+      options.model || server?.model || (provider === 'ollama' ? 'llama3.1' : 'gpt-4o-mini')
+
+    return {
+      model,
+      provider,
+      serverType: server?.serverType ?? null,
+      serverName: server ? getServerLabel(server) : options.serverName ?? null,
+      messages,
+      temperature: options.temperature ?? 0.7,
+      maxTokens: options.maxTokens ?? 2048,
+      stream: options.stream ?? true,
+      serverId: billing.serverId,
+      chatId,
+      useOwnResource: billing.useOwnResource,
+      userApiKey: billing.userApiKey,
+    }
+  }
+
   async function streamResponse(
     chatId: number,
     options: StreamResponseOptions = {},
   ): Promise<string> {
-    // Guests become real users before generating text (ownership + wallet).
     if (userStore.isGuest) {
       const promo = await userStore.ensureRealUser()
       if (!promo.success) {
@@ -341,6 +715,7 @@ export const useChatStore = defineStore('chatStore', () => {
             'We could not set up your account for generating. Please try again.',
         )
       }
+      void useManaStore().fetch()
     }
 
     const chat = chats.value.find((entry) => entry.id === chatId)
@@ -349,39 +724,30 @@ export const useChatStore = defineStore('chatStore', () => {
       throw new Error(`Chat ${chatId} was not found.`)
     }
 
-    const messages: BotCafeMessage[] = options.messages?.length
-      ? options.messages
-      : [
-          {
-            role: 'user',
-            content: chat.content,
-          },
-        ]
+    const selectedServer = getSelectedTextServer(options)
+    const runtimeOptions: StreamResponseOptions = selectedServer
+      ? {
+          ...options,
+          serverId: selectedServer.id,
+          serverName: getServerLabel(selectedServer),
+        }
+      : options
+
+    const messages = buildMessagesForChat(chat, runtimeOptions)
+    const billing = resolveTextBilling(runtimeOptions)
 
     updateChat(chatId, {
       botResponse: '',
-    })
-
-    const billing = resolveTextBilling(options)
+      serverId: billing.serverId,
+    } as Partial<Chat>)
 
     try {
       const response = await fetch('/api/botcafe/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: options.model || 'gpt-4o-mini',
-          messages,
-          temperature: options.temperature ?? 0.7,
-          maxTokens: options.maxTokens ?? 2048,
-          stream: options.stream ?? true,
-          serverId: billing.serverId,
-          chatId,
-          // Billing signals for the server-side mana gate. When the user
-          // runs on their own resource, the backend treats it as free and
-          // uses this key instead of our house tokens.
-          useOwnResource: billing.useOwnResource,
-          userApiKey: billing.userApiKey,
-        }),
+        body: JSON.stringify(
+          buildStreamPayload(chatId, messages, runtimeOptions, billing),
+        ),
       })
 
       if (!response.ok) {
@@ -400,7 +766,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
       const contentType = response.headers.get('content-type') || ''
       const shouldReadAsStream =
-        options.stream !== false &&
+        runtimeOptions.stream !== false &&
         response.body &&
         !contentType.includes('application/json')
 
@@ -425,6 +791,7 @@ export const useChatStore = defineStore('chatStore', () => {
       try {
         await patchChat(chatId, {
           botResponse: cleanText,
+          serverId: billing.serverId,
         } as Partial<Chat>)
       } catch (error) {
         handleError(
@@ -433,12 +800,12 @@ export const useChatStore = defineStore('chatStore', () => {
         )
       }
 
-      // Streaming responses can't carry a trailing balance field, so pull the
-      // authoritative post-charge balance. Skip when the user ran on their own
-      // resource — nothing was charged.
       if (!billing.useOwnResource) {
         void useManaStore().fetch()
       }
+
+      state.lastGeneratedText = cleanText
+      state.lastGeneratedChat = chats.value.find((entry) => entry.id === chatId) ?? null
 
       return cleanText
     } catch (error) {
@@ -451,6 +818,114 @@ export const useChatStore = defineStore('chatStore', () => {
 
       throw error
     }
+  }
+
+  async function generateText(
+    data: Partial<GenerateTextData> = {},
+  ): Promise<ApiResponse<GenerateTextResult>> {
+    const prompt = data.prompt?.trim() || state.textForm.prompt.trim()
+    const promptValidation = validateTextPrompt(prompt)
+
+    clearGenerationMessage()
+
+    if (!promptValidation.success) {
+      const message = promptValidation.message || 'Invalid text prompt.'
+      setGenerationMessage('error', message)
+      return { success: false, message }
+    }
+
+    state.isGenerating = true
+
+    try {
+      if (userStore.isGuest) {
+        const promo = await userStore.ensureRealUser()
+        if (!promo.success) {
+          throw new Error(
+            promo.message ||
+              'We could not set up your account for generating. Please try again.',
+          )
+        }
+        void useManaStore().fetch()
+      }
+
+      const mergedData: GenerateTextData = {
+        ...state.textForm,
+        ...data,
+        prompt,
+        userId: data.userId ?? state.textForm.userId ?? userStore.userId ?? userStore.user?.id ?? 10,
+        type:
+          data.type ??
+          state.textForm.type ??
+          (data.botId || state.textForm.botId ? 'ToBot' : 'ToForum'),
+      }
+
+      const server = getSelectedTextServer(mergedData)
+      const runtimeData: GenerateTextData = server
+        ? {
+            ...mergedData,
+            serverId: server.id,
+            serverName: getServerLabel(server),
+          }
+        : mergedData
+
+      const chatPayload = buildNewChat({
+        botId: runtimeData.botId ?? undefined,
+        content: prompt,
+        isPublic: runtimeData.isPublic ?? false,
+        userId: runtimeData.userId ?? 10,
+        type: runtimeData.type ?? 'ToForum',
+        recipientId:
+          runtimeData.recipientId ?? runtimeData.botId ?? undefined,
+        characterId: runtimeData.characterId ?? null,
+        serverId: runtimeData.serverId ?? null,
+        serverName: runtimeData.serverName ?? null,
+        username: userStore.username ?? 'Unknown User',
+      } as AddChatInput & { serverName?: string | null })
+
+      const newChat = await createChat(chatPayload)
+      chats.value.push(newChat)
+      refreshUnreadMessages()
+      saveToLocalStorage()
+
+      const text = await streamResponse(newChat.id, runtimeData)
+      const generatedChat = chats.value.find((entry) => entry.id === newChat.id) ?? newChat
+
+      state.lastGeneratedText = text
+      state.lastGeneratedChat = generatedChat
+      setGenerationMessage('success', 'Response generated.')
+
+      return {
+        success: true,
+        data: {
+          chat: generatedChat,
+          text,
+        },
+        message: 'Response generated.',
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Text generation failed.'
+
+      handleError(error, 'generating text')
+      setGenerationMessage('error', message)
+
+      return {
+        success: false,
+        message,
+      }
+    } finally {
+      state.isGenerating = false
+    }
+  }
+
+  async function generateCurrentText(
+    overrides: Partial<GenerateTextData> = {},
+  ): Promise<ApiResponse<GenerateTextResult>> {
+    return await generateText({
+      ...state.textForm,
+      ...overrides,
+      prompt: overrides.prompt?.trim() || state.textForm.prompt || '',
+    })
   }
 
   function refreshUnreadMessages(): void {
@@ -636,20 +1111,20 @@ export const useChatStore = defineStore('chatStore', () => {
 
   function saveToLocalStorage(): void {
     if (!isClient) return
-    localStorage.setItem('chats', JSON.stringify(chats.value))
+    safeSetLocalStorage(chatsStorageKey, JSON.stringify(chats.value))
   }
 
   function loadFromLocalStorage(): void {
     if (!isClient) return
 
-    const saved = localStorage.getItem('chats')
+    const saved = safeGetLocalStorage(chatsStorageKey)
     if (!saved) return
 
     try {
       const parsed = JSON.parse(saved)
 
       if (!Array.isArray(parsed)) {
-        localStorage.removeItem('chats')
+        safeRemoveLocalStorage(chatsStorageKey)
         chats.value = []
         return
       }
@@ -668,7 +1143,7 @@ export const useChatStore = defineStore('chatStore', () => {
       chats.value = normalized as Chat[]
     } catch (error) {
       handleError(ErrorType.PARSE_ERROR, `Failed to parse chats: ${error}`)
-      localStorage.removeItem('chats')
+      safeRemoveLocalStorage(chatsStorageKey)
       chats.value = []
     }
   }
@@ -682,6 +1157,16 @@ export const useChatStore = defineStore('chatStore', () => {
     initializePromise,
     fetchChatsPromise,
     lastFetchedUserId,
+    state,
+    textForm: computed(() => state.textForm),
+    isGenerating: computed(() => state.isGenerating),
+    generationMessage: computed(() => state.generationMessage),
+    generationMessageTone: computed(() => state.generationMessageTone),
+    lastGeneratedText: computed(() => state.lastGeneratedText),
+    lastGeneratedChat: computed(() => state.lastGeneratedChat),
+    generationServers,
+    activeGenerationServer,
+    canGenerateText,
     activeChatsByBotId,
     chatsByUserId,
     unreadCountByRecipient,
@@ -694,6 +1179,8 @@ export const useChatStore = defineStore('chatStore', () => {
     addChat,
     updateChat,
     streamResponse,
+    generateText,
+    generateCurrentText,
     appendBotResponse,
     deleteChat,
     editChat,
@@ -701,7 +1188,17 @@ export const useChatStore = defineStore('chatStore', () => {
     selectRecipient,
     saveToLocalStorage,
     loadFromLocalStorage,
+    prepareTextGenerator,
+    setTextForm,
+    resetTextForm,
+    selectGenerationServer,
+    clearGenerationMessage,
+    setGenerationMessage,
+    resolveTextServer,
+    getSelectedTextServer,
+    serverUsesOwnResource,
+    getServerProvider,
   }
 })
 
-export type { Chat }
+export type { Chat, BotCafeMessage, GenerateTextResult }

@@ -703,13 +703,6 @@ export const dashboardConfigs = {
         title: 'Chats',
         summary: 'Review conversations and message activity.',
       },
-      {
-        key: 'galleries',
-        label: 'Galleries',
-        icon: 'kind-icon:gallery',
-        title: 'Galleries',
-        summary: 'Browse generated and curated media.',
-      },
     ],
   },
 

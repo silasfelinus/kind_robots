@@ -9,17 +9,38 @@
     ]
   },
   {
+    "folderName": "adventure",
+    "components": [
+      "adventure-art",
+      "adventure-builder",
+      "adventure-card",
+      "adventure-choices",
+      "adventure-hand",
+      "adventure-list",
+      "adventure-preset",
+      "adventure-reward",
+      "adventure-sheet",
+      "adventure-stage",
+      "adventure-stats",
+      "adventure-text"
+    ]
+  },
+  {
     "folderName": "art",
     "components": [
-      "add-art",
-      "art-card",
-      "art-footer",
+      "add-collection",
+      "art-creator",
       "art-gallery",
       "art-interact",
+      "art-maker",
       "art-manager",
       "art-randomizer",
       "art-reactions",
+      "art-styler",
       "collection-card",
+      "collection-picker",
+      "generate-button",
+      "image-card",
       "image-upload",
       "list-manager"
     ]
@@ -28,11 +49,19 @@
     "folderName": "bots",
     "components": [
       "add-bot",
+      "bot-builder",
       "bot-card",
-      "bot-footer",
       "bot-gallery",
+      "bot-hand",
       "bot-interact",
-      "bot-manager"
+      "bot-intros",
+      "bot-manager",
+      "bot-modules",
+      "bot-personality",
+      "bot-sheet",
+      "bot-stage",
+      "bot-text",
+      "text-generate"
     ]
   },
   {
@@ -40,13 +69,38 @@
     "components": [
       "add-pitch",
       "add-prompt",
-      "brainstorm-footer",
       "brainstorm-interact",
       "brainstorm-manager",
       "pitch-card",
+      "pitch-creator",
       "pitch-gallery",
       "prompt-card",
       "prompt-gallery"
+    ]
+  },
+  {
+    "folderName": "builder",
+    "components": [
+      "art-designer",
+      "builder-art-input",
+      "builder-card-grid",
+      "builder-card",
+      "builder-custom-input",
+      "builder-hand",
+      "builder-input",
+      "builder-list-input",
+      "builder-manager",
+      "builder-preset-input",
+      "builder-reward-input",
+      "builder-sheet",
+      "builder-splash",
+      "builder-stage",
+      "builder-stats-input",
+      "builder-step-panel",
+      "builder-summary",
+      "builder-text-input",
+      "builder-visibility-input",
+      "creator-manager"
     ]
   },
   {
@@ -63,7 +117,6 @@
       "butterfly-component",
       "butterfly-demo",
       "butterfly-flip",
-      "butterfly-footer",
       "butterfly-front",
       "butterfly-gallery",
       "butterfly-grid",
@@ -86,24 +139,51 @@
     "folderName": "characters",
     "components": [
       "add-character",
+      "character-builder",
       "character-card",
-      "character-footer",
       "character-gallery",
       "character-interact",
-      "character-manager"
+      "character-manager",
+      "character-sheet"
+    ]
+  },
+  {
+    "folderName": "code",
+    "components": [
+      "code-canvas",
+      "code-controls",
+      "code-library",
+      "code-node",
+      "code-palette",
+      "code-settings",
+      "code-workbench"
+    ]
+  },
+  {
+    "folderName": "composition",
+    "components": [
+      "add-composition",
+      "composition-card",
+      "composition-gallery",
+      "composition-interact",
+      "composition-mananger"
     ]
   },
   {
     "folderName": "dreams",
     "components": [
       "add-dream",
+      "dream-builder",
       "dream-card",
-      "dream-footer",
       "dream-gallery",
+      "dream-hand",
       "dream-interact",
       "dream-list",
       "dream-manager",
-      "dream-prompts"
+      "dream-prompts",
+      "dream-sheet",
+      "dream-stage",
+      "dream-text"
     ]
   },
   {
@@ -111,9 +191,10 @@
     "components": [
       "cart-interact",
       "credit-purchase",
-      "giftshop-footer",
       "giftshop-interact",
       "giftshop-manager",
+      "mana-wallet",
+      "mana-widget",
       "print-swag",
       "shopping-cart",
       "subscription-manager"
@@ -142,8 +223,8 @@
     "folderName": "milestones",
     "components": [
       "earned-milestone-card",
-      "jellybean-counter",
       "locked-milestones",
+      "milestone-gallery",
       "milestone-leaderboard",
       "milestone-popup",
       "unearned-milestone-card"
@@ -153,16 +234,12 @@
     "folderName": "navigation",
     "components": [
       "ami-chat",
-      "channel-selector",
-      "corner-panel",
-      "corner-toggle",
+      "channel-select",
       "dashboard-shell",
-      "footer-selector",
       "full-header",
-      "gallery-gallery",
       "kind-title",
+      "navigation-trimmed",
       "page-image",
-      "smart-panel",
       "splash-tutorial",
       "title-card"
     ]
@@ -185,14 +262,29 @@
     ]
   },
   {
+    "folderName": "pitches",
+    "components": [
+      "pitch-builder",
+      "pitch-hand",
+      "pitch-icon",
+      "pitch-sheet",
+      "pitch-stage",
+      "pitch-text"
+    ]
+  },
+  {
     "folderName": "rewards",
     "components": [
       "add-reward",
+      "reward-builder",
       "reward-card",
-      "reward-footer",
       "reward-gallery",
+      "reward-hand",
       "reward-interact",
-      "reward-manager"
+      "reward-manager",
+      "reward-sheet",
+      "reward-stage",
+      "reward-text"
     ]
   },
   {
@@ -202,11 +294,17 @@
       "choice-manager",
       "choice-preview",
       "choice-selector",
+      "scenario-builder",
       "scenario-card",
-      "scenario-footer",
+      "scenario-classification",
       "scenario-gallery",
+      "scenario-hand",
       "scenario-interact",
-      "scenario-manager"
+      "scenario-intros",
+      "scenario-manager",
+      "scenario-sheet",
+      "scenario-stage",
+      "scenario-text"
     ]
   },
   {
@@ -257,13 +355,26 @@
     "components": [
       "add-checkpoint",
       "add-server",
+      "art-test",
+      "chat-test",
       "checkpoint-card",
       "checkpoint-gallery",
       "server-card",
       "server-gallery",
       "server-interact",
       "server-manager",
+      "server-selector",
       "server-status"
+    ]
+  },
+  {
+    "folderName": "stages",
+    "components": [
+      "performer-creator",
+      "stage-manager",
+      "stage-message",
+      "stage-preset",
+      "stage-slot"
     ]
   },
   {
@@ -271,7 +382,6 @@
     "components": [
       "add-theme",
       "theme-card",
-      "theme-footer",
       "theme-gallery",
       "theme-lab",
       "theme-manager"
@@ -285,15 +395,16 @@
       "chat-card",
       "chat-gallery",
       "chat-view",
+      "friend-gallery",
       "google-login",
       "login-form",
       "login-page",
       "login-persister",
       "registration-page",
       "user-avatar",
+      "user-builder",
       "user-dashboard",
-      "user-footer",
-      "user-gallery",
+      "user-galleries",
       "user-manager",
       "user-panel",
       "user-picture"
@@ -305,7 +416,6 @@
       "component-card",
       "component-count",
       "component-sync",
-      "lab-footer",
       "lab-gallery",
       "lab-interact",
       "lab-manager",

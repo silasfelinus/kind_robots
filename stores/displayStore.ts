@@ -251,13 +251,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
     const sizes: Record<DisplayState, Record<ViewportSize, number>> = {
       open: {
-        small: 14,
+        small: 0,
         medium: 13,
         large: 12,
         extraLarge: 13,
       },
       compact: {
-        small: 8,
+        small: 0,
         medium: 7,
         large: 6,
         extraLarge: 6,

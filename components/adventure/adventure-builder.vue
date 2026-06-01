@@ -250,11 +250,16 @@ async function saveCharacter(): Promise<void> {
 
 onMounted(() => {
   builderStore.registerBuilder({
-    key: 'adventure',
-    label: 'Adventure',
-    title: 'Adventure Builder',
-    modelType: 'adventure',
-    storageKey: 'kindrobots.builder.adventure.v1',
+  key: 'adventure',
+  label: 'Adventure',
+  title: 'Adventure Builder',
+  modelType: 'adventure',
+  artPurpose: 'character',
+  artImageRole: 'avatar',
+  artTitle: 'Character Avatar Designer',
+  artDescription:
+    'Create, upload, select, or generate avatar art for this adventure character.',
+  storageKey: 'kindrobots.builder.adventure.v1',
     cards: ADVENTURE_CARDS,
     splash: ADVENTURE_SPLASH,
     defaultSheet: () => defaultAdventureSheet(userStore.userId || 10),

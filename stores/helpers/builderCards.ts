@@ -67,6 +67,15 @@ export type BuilderStep = {
   payload?: Record<string, unknown>
 }
 
+export type BuilderArtPurpose =
+  | 'user'
+  | 'pitch'
+  | 'dream'
+  | 'character'
+  | 'reward'
+  | 'scenario'
+  | 'builder'
+
 export type BuilderCard = {
   key: string
   label: string
@@ -147,6 +156,10 @@ export type BuilderProjectConfig<TSheet extends BuilderSheet = BuilderSheet> = {
   clearFieldDefaults?: Record<string, BuilderFieldValue>
   persistActiveCard?: boolean
   allowCompletedCardsInDeck?: boolean
+  artPurpose?: BuilderArtPurpose
+  artImageRole?: string
+  artTitle?: string
+  artDescription?: string
 }
 
 export type BuilderSnapshot<TSheet extends BuilderSheet = BuilderSheet> = {

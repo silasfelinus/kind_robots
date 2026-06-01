@@ -79,6 +79,14 @@ function getContentPath(): string {
   return route.path
 }
 
+function getQueryNumber(value: unknown): number | null {
+  if (typeof value !== 'string') return null
+
+  const parsed = Number(value)
+
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 async function loadPage(path: string): Promise<void> {
   const data = await queryCollection('content').path(path).first()
 
@@ -127,18 +135,25 @@ onMounted(async () => {
     promptId,
   } = route.query
 
-  if (botId) botStore.selectBot(Number(botId))
-  if (characterId) characterStore.selectCharacter(Number(characterId))
-  if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
-  if (chatId) chatStore.selectChat(Number(chatId))
-  if (pitchId) pitchStore.selectPitch(Number(pitchId))
-  if (promptId) promptStore.selectPrompt(Number(promptId))
+  const selectedBotId = getQueryNumber(botId)
+  const selectedCharacterId = getQueryNumber(characterId)
+  const selectedScenarioId = getQueryNumber(scenarioId)
+  const selectedChatId = getQueryNumber(chatId)
+  const selectedPitchId = getQueryNumber(pitchId)
+  const selectedPromptId = getQueryNumber(promptId)
 
-  if (queryToken && !userStore.user) {
-    await userStore.initialize(queryToken as string)
+  if (selectedBotId) botStore.selectBot(selectedBotId)
+  if (selectedCharacterId) characterStore.selectCharacter(selectedCharacterId)
+  if (selectedScenarioId) scenarioStore.selectScenario(selectedScenarioId)
+  if (selectedChatId) chatStore.selectChat(selectedChatId)
+  if (selectedPitchId) pitchStore.selectPitch(selectedPitchId)
+  if (selectedPromptId) promptStore.selectPrompt(selectedPromptId)
+
+  if (typeof queryToken === 'string' && queryToken && !userStore.user) {
+    await userStore.initialize(queryToken)
   }
 
-  if (!userStore.user && queryToken) {
+  if (!userStore.user && typeof queryToken === 'string' && queryToken) {
     await router.push('/login')
   }
 })

@@ -1621,17 +1621,57 @@ export const useArtStore = defineStore('artStore', () => {
     return selectedServer
   }
 
+  function serverCanUseEngine(
+    server: Server,
+    engine: ArtImageGenerationEngine,
+  ): boolean {
+    if (engine === 'a1111') return server.serverType === 'A1111'
+    if (engine === 'openai') return server.serverType === 'OPENAI'
+    if (engine === 'comfy') return server.serverType === 'COMFY'
+    if (engine === 'flux') {
+      return (
+        server.serverType === 'COMFY' &&
+        serverSupportsModelFamily(server, 'flux')
+      )
+    }
+    if (engine === 'kontext') {
+      return (
+        server.serverType === 'COMFY' &&
+        serverSupportsModelFamily(server, 'kontext')
+      )
+    }
+
+    return false
+  }
+
   function getArtImageGenerationEngine(
     server: Server,
     data?: GenerateArtData,
   ): ArtImageGenerationEngine {
-    if (data?.engine) return data.engine
+    if (data?.engine && serverCanUseEngine(server, data.engine)) {
+      return data.engine
+    }
 
     const modelFamily = data?.generationRequirement?.modelFamily
 
-    if (modelFamily === 'flux') return 'flux'
-    if (modelFamily === 'kontext') return 'kontext'
-    if (modelFamily === 'openai-image') return 'openai'
+    if (modelFamily === 'flux' && serverSupportsModelFamily(server, 'flux')) {
+      return 'flux'
+    }
+
+    if (
+      modelFamily === 'kontext' &&
+      serverSupportsModelFamily(server, 'kontext')
+    ) {
+      return 'kontext'
+    }
+
+    if (
+      modelFamily === 'openai-image' &&
+      server.serverType === 'OPENAI' &&
+      serverSupportsModelFamily(server, 'openai-image')
+    ) {
+      return 'openai'
+    }
 
     if (server.serverType === 'A1111') return 'a1111'
 
@@ -2325,7 +2365,12 @@ export const useArtStore = defineStore('artStore', () => {
       const dataWithServer: GenerateArtData = {
         ...resolvedData,
         engine: route.engine,
-        transport: route.engine === 'kontext' ? 'backend' : route.transport,
+        transport:
+          route.engine === 'comfy' ||
+          route.engine === 'flux' ||
+          route.engine === 'kontext'
+            ? 'backend'
+            : route.transport,
       }
 
       const image =

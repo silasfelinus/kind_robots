@@ -1,7 +1,7 @@
 <!-- /components/builder/builder-art-input.vue -->
 <template>
   <div class="flex flex-col gap-4">
-    <ArtDesigner
+    <art-designer
       :purpose="artPurpose"
       :title="artTitle"
       :description="artDescription"

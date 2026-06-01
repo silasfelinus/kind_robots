@@ -3,8 +3,8 @@
   <NuxtLink
     :to="routeToNavigate"
     class="flex h-full w-full min-w-0 items-center justify-center overflow-hidden rounded-2xl transition-transform hover:scale-105"
-    :title="Dashboard"
-    :aria-label="Dashboard"
+    :title="navLabel"
+    :aria-label="navLabel"
   >
     <div
       v-if="isLoggedIn"
@@ -47,10 +47,22 @@ const chatStore = useChatStore()
 
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 
+// Show the user's role in title-case as the label (USER → User, ADMIN → Admin, etc.)
+const roleLabel = computed(() => {
+  const raw = userStore.user?.Role ?? 'USER'
+  return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase()
+})
+
 const hasUnread = computed(() =>
   (chatStore.unreadMessages ?? []).some(
     (msg) => msg.recipientId === userStore.user?.id,
   ),
+)
+
+const navLabel = computed(() =>
+  isLoggedIn.value
+    ? `${roleLabel.value}${hasUnread.value ? ' (unread messages)' : ''}`
+    : 'Login?',
 )
 
 const routeToNavigate = computed(() =>

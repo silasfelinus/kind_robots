@@ -23,9 +23,7 @@
         :class="navZClass"
       >
         <div class="flex flex-col gap-3 p-3 lg:p-4">
-          <!-- Row 1: image · title · controls -->
           <div class="flex items-start gap-3">
-            <!-- Collapse-on-click image -->
             <button
               type="button"
               title="Hide header"
@@ -45,7 +43,6 @@
               </span>
             </button>
 
-            <!-- Title + summary -->
             <div class="min-w-0 flex-1 pt-0.5">
               <p
                 v-if="title"
@@ -66,7 +63,6 @@
               </p>
             </div>
 
-            <!-- Top-right controls: actions slot · channel picker · refresh -->
             <div class="flex shrink-0 items-center gap-1.5 pt-0.5">
               <slot
                 name="actions"
@@ -78,7 +74,6 @@
               <server-selector />
               <mana-widget />
 
-              <!-- Refresh -->
               <button
                 v-if="showRefresh"
                 class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
@@ -96,24 +91,77 @@
             </div>
           </div>
 
-          <!-- Row 2: tabs — flex-wrap, always fits available width -->
-          <nav v-if="resolvedTabs.length" class="flex flex-wrap gap-1.5">
+          <div
+            v-if="resolvedTabs.length"
+            class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch gap-1.5"
+          >
             <button
-              v-for="tab in resolvedTabs"
-              :key="tab.key"
-              class="btn btn-sm min-h-9 flex-1 basis-30 justify-start rounded-xl transition-all"
               type="button"
+              class="btn btn-sm min-h-9 rounded-xl border border-base-300"
               :class="
-                normalizedActiveTab === tab.key
+                leftSidebarOpen
                   ? 'btn-primary shadow-sm'
-                  : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
+                  : 'btn-ghost bg-base-100 hover:bg-base-200'
               "
-              @click="setTab(tab.key)"
+              :title="leftSidebarOpen ? 'Hide left panel' : 'Show left panel'"
+              :aria-pressed="leftSidebarOpen"
+              @click="displayStore.toggleLeftSidebar()"
             >
-              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span class="min-w-0 truncate">{{ tab.label }}</span>
+              <Icon
+                :name="
+                  leftSidebarOpen
+                    ? 'kind-icon:panel-left-close'
+                    : 'kind-icon:panel-left-open'
+                "
+                class="h-4 w-4"
+              />
             </button>
-          </nav>
+
+            <nav class="grid min-w-0 gap-1.5" :class="resolvedNavGridClass">
+              <button
+                v-for="tab in resolvedTabs"
+                :key="tab.key"
+                class="btn btn-sm min-h-9 justify-start rounded-xl transition-all"
+                type="button"
+                :class="
+                  normalizedActiveTab === tab.key
+                    ? 'btn-primary shadow-sm'
+                    : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
+                "
+                @click="setTab(tab.key)"
+              >
+                <Icon
+                  :name="tab.icon || fallbackIcon"
+                  class="h-4 w-4 shrink-0"
+                />
+                <span class="min-w-0 truncate">{{ tab.label }}</span>
+              </button>
+            </nav>
+
+            <button
+              type="button"
+              class="btn btn-sm min-h-9 rounded-xl border border-base-300"
+              :class="
+                rightSidebarOpen
+                  ? 'btn-secondary shadow-sm'
+                  : 'btn-ghost bg-base-100 hover:bg-base-200'
+              "
+              :title="
+                rightSidebarOpen ? 'Hide right panel' : 'Show right panel'
+              "
+              :aria-pressed="rightSidebarOpen"
+              @click="displayStore.toggleRightSidebar()"
+            >
+              <Icon
+                :name="
+                  rightSidebarOpen
+                    ? 'kind-icon:panel-right-close'
+                    : 'kind-icon:panel-right-open'
+                "
+                class="h-4 w-4"
+              />
+            </button>
+          </div>
         </div>
       </header>
     </transition>
@@ -138,15 +186,58 @@
       </div>
     </transition>
 
-    <main
-      class="relative z-0 min-h-0 flex-1 overflow-y-auto rounded-xl border border-base-300 bg-base-100 shadow-sm"
+    <section
+      class="relative z-0 grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden"
+      :class="contentGridClass"
     >
-      <slot
-        :active-tab="normalizedActiveTab"
-        :active-tab-config="activeTabConfig"
-        :set-tab="setTab"
-      />
-    </main>
+      <transition name="fade-up">
+        <aside
+          v-if="leftSidebarOpen"
+          class="min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+        >
+          <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-3">
+            <slot
+              name="left"
+              :active-tab="normalizedActiveTab"
+              :active-tab-config="activeTabConfig"
+              :set-tab="setTab"
+            >
+              <splash-tutorial />
+            </slot>
+          </div>
+        </aside>
+      </transition>
+
+      <main
+        class="min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+      >
+        <div class="h-full min-h-0 overflow-y-auto overscroll-contain">
+          <slot
+            :active-tab="normalizedActiveTab"
+            :active-tab-config="activeTabConfig"
+            :set-tab="setTab"
+          />
+        </div>
+      </main>
+
+      <transition name="fade-up">
+        <aside
+          v-if="rightSidebarOpen"
+          class="min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+        >
+          <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-3">
+            <slot
+              name="right"
+              :active-tab="normalizedActiveTab"
+              :active-tab-config="activeTabConfig"
+              :set-tab="setTab"
+            >
+              <user-panel />
+            </slot>
+          </div>
+        </aside>
+      </transition>
+    </section>
   </div>
 </template>
 
@@ -157,6 +248,7 @@ import {
   type DashboardKey,
   type DashboardTabConfig,
 } from '@/stores/helpers/dashboardHelper'
+import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
 
 const fallbackIcon = 'kind-icon:sparkles'
@@ -175,6 +267,9 @@ const props = withDefaults(
     showRefresh?: boolean
     refreshLabel?: string
     navZClass?: string
+    navGridClass?: string
+    leftSidebarWidth?: string
+    rightSidebarWidth?: string
   }>(),
   {
     title: 'Dashboard',
@@ -188,6 +283,9 @@ const props = withDefaults(
     showRefresh: true,
     refreshLabel: 'Refresh',
     navZClass: 'z-40',
+    navGridClass: '',
+    leftSidebarWidth: '18rem',
+    rightSidebarWidth: '20rem',
   },
 )
 
@@ -197,8 +295,17 @@ const emit = defineEmits<{
 }>()
 
 const navStore = useNavStore()
+const displayStore = useDisplayStore()
 
 const showHeader = ref(true)
+
+const leftSidebarOpen = computed(() => {
+  return displayStore.sidebarLeftState !== 'hidden'
+})
+
+const rightSidebarOpen = computed(() => {
+  return displayStore.sidebarRightState !== 'hidden'
+})
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = (props.dashboardKey ?? '').trim()
@@ -210,6 +317,11 @@ const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   const dashboardKey = resolvedDashboardKey.value
   if (dashboardKey) return navStore.getDashboardTabs(dashboardKey)
   return props.tabs
+})
+
+const resolvedNavGridClass = computed(() => {
+  if (props.navGridClass.trim()) return props.navGridClass
+  return 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
 })
 
 const requestedActiveTab = computed(() => {
@@ -246,17 +358,33 @@ const activeTabConfig = computed<DashboardTabConfig>(() => {
   return resolvedTabs.value[0] ?? fallbackTab.value
 })
 
-const normalizedActiveTab = computed(
-  () => requestedActiveTab.value || activeTabConfig.value.key,
-)
+const normalizedActiveTab = computed(() => {
+  return requestedActiveTab.value || activeTabConfig.value.key
+})
 
-const activeTitle = computed(
-  () => activeTabConfig.value.title || activeTabConfig.value.label,
-)
+const activeTitle = computed(() => {
+  return activeTabConfig.value.title || activeTabConfig.value.label
+})
 
-const activeSummary = computed(
-  () => activeTabConfig.value.summary || props.summary || '',
-)
+const activeSummary = computed(() => {
+  return activeTabConfig.value.summary || props.summary || ''
+})
+
+const contentGridClass = computed(() => {
+  if (leftSidebarOpen.value && rightSidebarOpen.value) {
+    return `lg:grid-cols-[${props.leftSidebarWidth}_minmax(0,1fr)] xl:grid-cols-[${props.leftSidebarWidth}_minmax(0,1fr)_${props.rightSidebarWidth}]`
+  }
+
+  if (leftSidebarOpen.value) {
+    return `lg:grid-cols-[${props.leftSidebarWidth}_minmax(0,1fr)]`
+  }
+
+  if (rightSidebarOpen.value) {
+    return `xl:grid-cols-[minmax(0,1fr)_${props.rightSidebarWidth}]`
+  }
+
+  return 'grid-cols-1'
+})
 
 function setTab(tabKey: string) {
   const dashboardKey = resolvedDashboardKey.value

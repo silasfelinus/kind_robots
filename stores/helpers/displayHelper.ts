@@ -8,32 +8,6 @@ export function setCustomVh() {
 }
 
 export type NavDock = 'top' | 'bottom'
-
-export interface DisplayStoreState {
-  headerState: DisplayState
-  sidebarLeftState: DisplayState
-  sidebarRightState: DisplayState
-  footerState: DisplayState
-  navDock: NavDock
-  isVertical: boolean
-  viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
-  isTouchDevice: boolean
-  showTutorial: boolean
-  isInitialized: boolean
-  flipState: FlipState
-  isFullScreen: boolean
-  isMobileViewport: boolean
-  isAnimating: boolean
-  currentAnimation: string
-  resizeTimeout: ReturnType<typeof setTimeout> | null
-  fullscreenState: FullscreenState
-  displayMode: displayModeState
-  displayAction: displayActionState
-  previousRoute: string
-  mainComponent: string
-  SmartState: SmartState
-}
-
 export type SmartState = 'front' | 'back' | 'dash'
 
 export type DisplayState =
@@ -42,8 +16,10 @@ export type DisplayState =
   | 'open'
   | 'priority'
   | 'disabled'
+
 export type FlipState = 'tutorial' | 'main' | 'toTutorial' | 'toMain'
 export type FullscreenState = 'nuxt' | 'fullscreen' | 'splash'
+
 export type displayModeState =
   | 'scenario'
   | 'character'
@@ -69,13 +45,16 @@ export type EffectId =
   | 'rain-effect'
   | 'butterfly-animation'
 
+export type ViewportSize = 'small' | 'medium' | 'large' | 'extraLarge'
+
 export interface DisplayStoreState {
   headerState: DisplayState
   sidebarLeftState: DisplayState
   sidebarRightState: DisplayState
   footerState: DisplayState
+  navDock: NavDock
   isVertical: boolean
-  viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
+  viewportSize: ViewportSize
   isTouchDevice: boolean
   showTutorial: boolean
   isInitialized: boolean
@@ -83,12 +62,17 @@ export interface DisplayStoreState {
   isFullScreen: boolean
   isMobileViewport: boolean
   isAnimating: boolean
-  currentAnimation: string
+  currentAnimation: EffectId | ''
   resizeTimeout: ReturnType<typeof setTimeout> | null
   fullscreenState: FullscreenState
   displayMode: displayModeState
   displayAction: displayActionState
   previousRoute: string
   mainComponent: string
+  showLeft: boolean
+  showCenter: boolean
+  showRight: boolean
+  showExtended: boolean
+  showCorner: boolean
   SmartState: SmartState
 }

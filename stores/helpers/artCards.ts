@@ -113,6 +113,11 @@ const EXTENDED_PUNK: string[] = [
 // ── Sheet ──────────────────────────────────────────────────────────────────
 
 export type ArtBuilderSheet = BuilderSheet & {
+  mode: string
+  sourceImage: string
+  sourceImages: string[]
+  sourceImageIds: number[]
+  blendInstruction: string
   subject: string
   figureCount: string
   figureSpecies: string
@@ -139,6 +144,11 @@ export type ArtBuilderSheet = BuilderSheet & {
 
 export function defaultArtSheet(userId = 10): ArtBuilderSheet {
   return {
+    mode: 'text2img',
+    sourceImage: '',
+    sourceImages: [],
+    sourceImageIds: [],
+    blendInstruction: '',
     subject: '',
     figureCount: '',
     figureSpecies: '',
@@ -178,7 +188,150 @@ export const ART_SPLASH: BuilderSplash = {
 // ── Cards ──────────────────────────────────────────────────────────────────
 
 export const ART_CARDS: ArtCard[] = [
+  // ── Mode ────────────────────────────────────────────────────────────────
+  // The entry point. The chosen mode (payload.mode) determines which cards
+  // the art builder store surfaces next:
+  //   text2img -> subject, figures, style, punk, setting, mood, resources, generate
+  //   img2img  -> source-image, style, punk, setting, mood, resources, generate
+  //   kombine  -> source-images, blend, style, punk, mood, resources, generate
+  // The store should read sheet.mode and filter visibleCards accordingly.
+  {
+    key: 'mode',
+    label: 'Mode',
+    title: 'Where do we start',
+    icon: 'kind-icon:sparkles',
+    flourish: '◇',
+    deckImage: '/images/art/mode.webp',
+    heroImage: '/images/art/mode.webp',
+    tagline: 'Text, an image, or several. Pick the on-ramp.',
+    narrative:
+      'Every image starts somewhere. From pure text, where words become a picture. From a single image, reworked into something new. Or from several images kombined into one. Choose the on-ramp — the rest of the build adapts to fit.',
+    required: true,
+    restoresFields: ['mode'],
+    steps: [
+      {
+        key: 'mode',
+        title: 'Choose Your Starting Point',
+        narrative:
+          'Three ways in. Generate from text builds a prompt from scratch. Generate from image reworks a picture you already have. Kombine fuses two or more images into something new.',
+        inputType: 'preset',
+        field: 'mode',
+        choices: [
+          {
+            value: 'text2img',
+            label: '✦ Generate Art from Text',
+            subtext:
+              'Start with nothing but words. Build a prompt — subject, style, mood — and let the model paint it.',
+            image: '/images/art/mode/text2img.webp',
+            payload: { mode: 'text2img', highlight: true },
+          },
+          {
+            value: 'img2img',
+            label: '◐ Generate from Image',
+            subtext:
+              'Start with a picture. Restyle it, reimagine it, push it somewhere new while keeping its bones.',
+            image: '/images/art/mode/img2img.webp',
+            payload: { mode: 'img2img', highlight: true },
+          },
+          {
+            value: 'kombine',
+            label: '⊕ Kombine',
+            subtext:
+              'Start with two or more images. Fuse subjects, styles, and worlds into a single new piece.',
+            image: '/images/art/mode/kombine.webp',
+            payload: { mode: 'kombine', highlight: true },
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── Source Image (img2img) ───────────────────────────────────────────────
+  // Shown only when mode === 'img2img'. The store gates this via
+  // unlockCondition 'modeImg2img' (interpret in artBuilderStore).
+  {
+    key: 'source-image',
+    label: 'Source',
+    title: 'The image to rework',
+    icon: 'kind-icon:image',
+    flourish: '▦',
+    deckImage: '/images/art/source-image.webp',
+    heroImage: '/images/art/source-image.webp',
+    tagline: 'Pick the picture this build grows from.',
+    narrative:
+      'This is the seed image. Everything after — style, mood, the punk mix — will rework it rather than start from blank canvas. Pick from the gallery, your uploads, or anything generated on the site.',
+    required: true,
+    unlockCondition: 'modeImg2img',
+    restoresFields: ['sourceImage', 'sourceImageIds'],
+    steps: [
+      {
+        key: 'sourceImage',
+        title: 'Choose a Source Image',
+        narrative:
+          'Select one image to transform. The model will keep its composition and bones while the later cards push it somewhere new.',
+        inputType: 'relation-picker',
+        field: 'sourceImage',
+        payload: {
+          resource: 'art-image',
+          source: 'gallery-single',
+          mode: 'img2img',
+        },
+      },
+    ],
+  },
+
+  // ── Source Images (kombine) ────────────────────────────────────────────────
+  // Shown only when mode === 'kombine'. Gated via unlockCondition
+  // 'modeKombine'. Needs 2+ images plus a blend instruction.
+  {
+    key: 'source-images',
+    label: 'Sources',
+    title: 'The images to kombine',
+    icon: 'kind-icon:image',
+    flourish: '⊕',
+    deckImage: '/images/art/source-images.webp',
+    heroImage: '/images/art/source-images.webp',
+    tagline: 'Two or more. The model finds the seam.',
+    narrative:
+      'Kombine fuses multiple images into one. Pick two or more — a subject from one, a world from another, a palette from a third — then describe how they should merge. The model does the rest.',
+    required: true,
+    unlockCondition: 'modeKombine',
+    restoresFields: ['sourceImages', 'sourceImageIds', 'blendInstruction'],
+    steps: [
+      {
+        key: 'sourceImages',
+        title: 'Choose Images to Kombine',
+        narrative:
+          'Select two or more images. Each contributes something — subject, style, color, mood. The combination is the point.',
+        inputType: 'collection-picker',
+        field: 'sourceImages',
+        multiSelect: true,
+        payload: {
+          resource: 'art-image',
+          source: 'gallery-multi',
+          mode: 'kombine',
+          minSelect: 2,
+        },
+      },
+      {
+        key: 'blendInstruction',
+        title: 'How Should They Merge',
+        narrative:
+          'Describe the fusion. Whose subject, whose style, whose world wins where? The more specific, the more controlled the kombine.',
+        inputType: 'long',
+        field: 'blendInstruction',
+        generatorKey: 'blend',
+        placeholder:
+          'Keep the figure from the first, the palette from the second, the setting from the third...',
+        inputLabel: 'Blend Instruction',
+        needsLLM: true,
+      },
+    ],
+  },
+
   // ── Subject ───────────────────────────────────────────────────────────────
+  // Shown for text2img (and optionally img2img to add detail). Gated via
+  // unlockCondition 'modeText2img'.
   {
     key: 'subject',
     label: 'Subject',
@@ -191,6 +344,7 @@ export const ART_CARDS: ArtCard[] = [
     narrative:
       'Before anything else, the canvas needs a center of gravity. A person, a crowd, a place, a thing, an avatar pulled from somewhere on the site. Choose what the image is fundamentally about. Everything after this — style, light, mood — orbits this decision.',
     required: true,
+    unlockCondition: 'modeText2img',
     restoresFields: ['subject'],
     steps: [
       {
@@ -296,7 +450,7 @@ export const ART_CARDS: ArtCard[] = [
     narrative:
       'If there are figures in the image, the count and the species change everything — composition, scale, the negative space, the way the eye travels. One figure is a portrait. Five is a story. A figure that is not human is a different problem and a more interesting one.',
     required: false,
-    unlockCondition: 'always',
+    unlockCondition: 'modeText2img',
     restoresFields: ['figureCount', 'figureSpecies'],
     steps: [
       {
@@ -781,6 +935,7 @@ export const ART_CARDS: ArtCard[] = [
         inputType: 'art',
         needsLLM: true,
         payload: {
+          mode: 'sheet.mode',
           assembleFrom: [
             'subject',
             'figureCount',
@@ -794,6 +949,7 @@ export const ART_CARDS: ArtCard[] = [
             'emotion',
             'prettifiers',
           ],
+          sourceFrom: ['sourceImage', 'sourceImages', 'blendInstruction'],
           negativeFrom: ['negativeFilters'],
           resourceFrom: ['loras', 'checkpoint', 'artServer'],
         },

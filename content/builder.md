@@ -10,7 +10,7 @@ dottitip: AMI, I added a universe builder. Someone is going to use it to build a
 amitip: That's the thing about free will. Give people the option to do what they want, and they'll do it.
 layout: workspace
 dashboardKey: builder
-dashboardTab: builder
+dashboardTab: character
 cards: builderCards
 loadingMessage: Loading builder systems...
 refreshLabel: Refresh Builder

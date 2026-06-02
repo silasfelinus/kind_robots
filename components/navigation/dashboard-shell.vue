@@ -91,77 +91,27 @@
             </div>
           </div>
 
-          <div
+          <nav
             v-if="resolvedTabs.length"
-            class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch gap-1.5"
+            class="grid min-w-0 gap-1.5"
+            :class="resolvedNavGridClass"
           >
             <button
+              v-for="tab in resolvedTabs"
+              :key="tab.key"
+              class="btn btn-sm min-h-9 justify-start rounded-xl transition-all"
               type="button"
-              class="btn btn-sm min-h-9 rounded-xl border border-base-300"
               :class="
-                leftSidebarOpen
+                normalizedActiveTab === tab.key
                   ? 'btn-primary shadow-sm'
-                  : 'btn-ghost bg-base-100 hover:bg-base-200'
+                  : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
               "
-              :title="leftSidebarOpen ? 'Hide left panel' : 'Show left panel'"
-              :aria-pressed="leftSidebarOpen"
-              @click="displayStore.toggleLeftSidebar()"
+              @click="setTab(tab.key)"
             >
-              <Icon
-                :name="
-                  leftSidebarOpen
-                    ? 'kind-icon:panel-left-close'
-                    : 'kind-icon:panel-left-open'
-                "
-                class="h-4 w-4"
-              />
+              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
+              <span class="min-w-0 truncate">{{ tab.label }}</span>
             </button>
-
-            <nav class="grid min-w-0 gap-1.5" :class="resolvedNavGridClass">
-              <button
-                v-for="tab in resolvedTabs"
-                :key="tab.key"
-                class="btn btn-sm min-h-9 justify-start rounded-xl transition-all"
-                type="button"
-                :class="
-                  normalizedActiveTab === tab.key
-                    ? 'btn-primary shadow-sm'
-                    : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
-                "
-                @click="setTab(tab.key)"
-              >
-                <Icon
-                  :name="tab.icon || fallbackIcon"
-                  class="h-4 w-4 shrink-0"
-                />
-                <span class="min-w-0 truncate">{{ tab.label }}</span>
-              </button>
-            </nav>
-
-            <button
-              type="button"
-              class="btn btn-sm min-h-9 rounded-xl border border-base-300"
-              :class="
-                rightSidebarOpen
-                  ? 'btn-secondary shadow-sm'
-                  : 'btn-ghost bg-base-100 hover:bg-base-200'
-              "
-              :title="
-                rightSidebarOpen ? 'Hide right panel' : 'Show right panel'
-              "
-              :aria-pressed="rightSidebarOpen"
-              @click="displayStore.toggleRightSidebar()"
-            >
-              <Icon
-                :name="
-                  rightSidebarOpen
-                    ? 'kind-icon:panel-right-close'
-                    : 'kind-icon:panel-right-open'
-                "
-                class="h-4 w-4"
-              />
-            </button>
-          </div>
+          </nav>
         </div>
       </header>
     </transition>
@@ -238,6 +188,37 @@
         </aside>
       </transition>
     </section>
+
+    <!-- Corner-anchored sidebar toggles -->
+    <button
+      type="button"
+      class="absolute bottom-3 left-3 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-base-300 shadow-lg backdrop-blur transition-all hover:scale-105 active:scale-95 sm:bottom-4 sm:left-4"
+      :class="
+        leftSidebarOpen
+          ? 'btn-primary bg-primary text-primary-content'
+          : 'bg-base-100 text-base-content hover:border-primary hover:text-primary'
+      "
+      :title="leftSidebarOpen ? 'Hide left panel' : 'Show left panel'"
+      :aria-pressed="leftSidebarOpen"
+      @click="displayStore.toggleLeftSidebar()"
+    >
+      <Icon name="kind-icon:sheet" class="h-5 w-5" />
+    </button>
+
+    <button
+      type="button"
+      class="absolute bottom-3 right-3 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-base-300 shadow-lg backdrop-blur transition-all hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
+      :class="
+        rightSidebarOpen
+          ? 'btn-secondary bg-secondary text-secondary-content'
+          : 'bg-base-100 text-base-content hover:border-secondary hover:text-secondary'
+      "
+      :title="rightSidebarOpen ? 'Hide help panel' : 'Show help panel'"
+      :aria-pressed="rightSidebarOpen"
+      @click="displayStore.toggleRightSidebar()"
+    >
+      <Icon name="kind-icon:question-mark" class="h-5 w-5" />
+    </button>
   </div>
 </template>
 

@@ -12,6 +12,12 @@ export type BuilderInputType =
   | 'relation-picker'
   | 'collection-picker'
   | 'custom'
+  // ── Model-specific step renderers ─────────────────────────────────────
+  | 'icon' //        dream / pitch / reward: icon picker
+  | 'intros' //      scenario: intro/opening-lines editor
+  | 'personality' // bot: personality trait selector
+  | 'modules' //     bot: module/capability multi-select
+  | 'classification' // scenario: tier/group/difficulty classifier
 
 export type BuilderUnlockCondition =
   | 'always'
@@ -65,6 +71,8 @@ export type BuilderStep = {
   suggestInstruction?: string
   suggestContext?: Record<string, unknown>
   payload?: Record<string, unknown>
+  maxLength?: number
+  optional?: boolean
 }
 
 export type BuilderArtPurpose =

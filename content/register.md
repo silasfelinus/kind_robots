@@ -9,6 +9,12 @@ amitip: And keep track of who tries to beat me on the leaderboards!
 icon: kind-icon:register
 sort: highlight
 dottitip: If people register for an account, then we can customize their experience.
+layout: workspace
+dashboardKey: admin
+dashboardTab: user
+cards: navCards
+loadingMessage: Loading registration
+refreshLabel: Refresh registration
 ---
 
 :registration-page

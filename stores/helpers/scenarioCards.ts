@@ -7,55 +7,7 @@
 // Schema: title, description, intros (pipe-separated), genres, inspirations,
 //         locations, tier, group, difficulty, secretNotes, artPrompt
 
-// ── Types ──────────────────────────────────────────────────────────────────
-
-export type ScenarioInputType =
-  | 'preset'
-  | 'text'
-  | 'long'
-  | 'intros'
-  | 'classification'
-  | 'art'
-
-export type ScenarioChoice = {
-  value: string
-  label: string
-  subtext?: string
-  image?: string
-  opensCustom?: boolean
-  opensList?: boolean
-  listOptions?: string[]
-}
-
-export type ScenarioStep = {
-  key: string
-  title: string
-  narrative: string
-  inputType: ScenarioInputType
-  field?: string
-  choices?: ScenarioChoice[]
-  placeholder?: string
-  inputLabel?: string
-  maxLength?: number
-  optional?: boolean
-  needsLLM?: boolean
-}
-
-export type ScenarioCard = {
-  key: string
-  label: string
-  title: string
-  icon: string
-  flourish: string
-  deckImage: string
-  heroImage: string
-  tagline: string
-  narrative: string
-  required?: boolean
-  restoresFields: string[]
-  unlockCondition?: 'always' | 'coreComplete'
-  steps: ScenarioStep[]
-}
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 // ── Genre + extended list (shared with adventure/pitch) ────────────────────
 
@@ -208,7 +160,7 @@ export const SCENARIO_TYPES: ScenarioTypeTag[] = [
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 
-export const SCENARIO_CARDS: ScenarioCard[] = [
+export const SCENARIO_CARDS: BuilderCard[] = [
   // ── Genre ──────────────────────────────────────────────────────────────
   {
     key: 'genre',
@@ -216,8 +168,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'The gravitational field',
     icon: 'kind-icon:compass',
     flourish: '⊕',
-    deckImage: '/images/scenarios/thumb/genre.png',
-    heroImage: '/images/scenarios/hero/genre.png',
+    deckImage: '/images/scenarios/genre.webp',
+    heroImage: '/images/scenarios/genre.webp',
     tagline: 'What kind of story does this scenario live inside.',
     narrative:
       'Genre shapes everything — the stakes, the tone, the kind of trouble that makes sense here. A trap in a horror scenario is different from a trap in a comedy, even if the mechanism is identical. Name the field this scenario inhabits.',
@@ -236,76 +188,76 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
             value: 'Gothic Comedy',
             label: 'Gothic Comedy',
             subtext: 'Elegant decay. Comedic timing in the crypt.',
-            image: '/images/adventure/genre/gothic.png',
+            image: '/images/adventure/genre/gothic.webp',
           },
           {
             value: 'Cozy Horror',
             label: 'Cozy Horror',
             subtext: 'Something outside the window. Cup of tea inside.',
-            image: '/images/adventure/genre/cozy.png',
+            image: '/images/adventure/genre/cozy.webp',
           },
           {
             value: 'Mythic Sci-Fi',
             label: 'Mythic Sci-Fi',
             subtext: 'Gods with spaceships. Heroes with launch codes.',
-            image: '/images/adventure/genre/scifi.png',
+            image: '/images/adventure/genre/science-fiction.webp',
           },
           {
             value: 'Cosmic Dread',
             label: 'Cosmic Dread',
             subtext: 'Tiny figure. Enormous moon. The moon has a door.',
-            image: '/images/adventure/genre/cosmic.png',
+            image: '/images/adventure/genre/cosmic.webp',
           },
           {
             value: 'Fantasy',
             label: 'Classic Fantasy',
             subtext:
               'Dragon on a castle. The dragon is reading something, unconcerned.',
-            image: '/images/adventure/genre/fantasy.png',
+            image: '/images/adventure/genre/fantasy.webp',
           },
           {
             value: 'Mystery',
             label: 'Mystery',
             subtext: 'The magnifying glass is pointed at the viewer.',
-            image: '/images/adventure/genre/mystery.png',
+            image: '/images/adventure/genre/mystery.webp',
           },
           {
             value: 'Horror',
             label: 'Horror',
             subtext:
               'The reaching hand is coming from the lantern, not the ground.',
-            image: '/images/adventure/genre/horror.png',
+            image: '/images/adventure/genre/horror.webp',
           },
           {
             value: 'Romance',
             label: 'Romance',
             subtext:
               'Two figures almost touching. Both looking at the same third thing.',
-            image: '/images/adventure/genre/romance.png',
+            image: '/images/adventure/genre/romance.webp',
           },
           {
             value: 'Comedy',
             label: 'Comedy',
             subtext: 'Motion lines that spell something.',
-            image: '/images/adventure/genre/comedy.png',
+            image: '/images/adventure/genre/comedy.webp',
           },
           {
             value: 'Pastoral Apocalypse',
             label: 'Pastoral Apocalypse',
             subtext: 'Green sky. Laundry still on the line.',
-            image: '/images/adventure/genre/apocalypse.png',
+            image: '/images/adventure/genre/apocalypse.webp',
           },
           {
             value: 'Carnival',
             label: 'Carnival',
             subtext: 'Abandoned fairground, still running. There is a queue.',
-            image: '/images/adventure/genre/carnival.png',
+            image: '/images/adventure/genre/carnival.webp',
           },
           {
             value: 'Infinite Archive',
             label: 'Infinite Archive',
             subtext: 'The book is reading back.',
-            image: '/images/adventure/genre/archive.png',
+            image: '/images/scenarios/genre/infinite-archive.webp',
           },
           {
             value: '',
@@ -346,8 +298,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'What it is called',
     icon: 'kind-icon:edit',
     flourish: '✒',
-    deckImage: '/images/scenarios/thumb/title.png',
-    heroImage: '/images/scenarios/hero/title.png',
+    deckImage: '/images/scenarios/title.webp',
+    heroImage: '/images/scenarios/title.webp',
     tagline: 'The name. Usually two to five words.',
     narrative:
       "The title is what players will see before they know what the scenario contains. It should create anticipation without explaining everything. 'The Locked Room' tells you where you are. 'The Room That Locks From The Inside' tells you what the problem is.",
@@ -377,8 +329,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'The setup',
     icon: 'kind-icon:book',
     flourish: '§',
-    deckImage: '/images/scenarios/thumb/description.png',
-    heroImage: '/images/scenarios/hero/description.png',
+    deckImage: '/images/scenarios/description.webp',
+    heroImage: '/images/scenarios/description.webp',
     tagline: 'What the player reads before choosing.',
     narrative:
       'The description is what sets the scene before any choices are presented. It should establish situation, stakes, and tone — enough for the player to feel grounded. The intros are what they choose between; the description is why those choices matter.',
@@ -407,8 +359,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'The choices',
     icon: 'kind-icon:layers',
     flourish: '◈',
-    deckImage: '/images/scenarios/thumb/intros.png',
-    heroImage: '/images/scenarios/hero/intros.png',
+    deckImage: '/images/scenarios/intros.webp',
+    heroImage: '/images/scenarios/intros.webp',
     tagline: 'The 1–4 options the player chooses between.',
     narrative:
       'Intros are the choices. Each one is a complete scenario prompt — a situation the player is dropped into, framed as an opening scene rather than a question. Write them like opening lines of a story, not a menu of options. The player picks one and everything follows from there.',
@@ -435,8 +387,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'Where it happens',
     icon: 'kind-icon:map',
     flourish: '◎',
-    deckImage: '/images/scenarios/thumb/locations.png',
-    heroImage: '/images/scenarios/hero/locations.png',
+    deckImage: '/images/scenarios/locations.webp',
+    heroImage: '/images/scenarios/locations.webp',
     tagline: 'Optional. Places the scenario can take place.',
     narrative:
       'Locations give the scenario physical grounding. They can be a single place or a comma-separated list of possible settings — each one a scene where this scenario might unfold.',
@@ -465,8 +417,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'Tier, group, difficulty',
     icon: 'kind-icon:target',
     flourish: '⊗',
-    deckImage: '/images/scenarios/thumb/classification.png',
-    heroImage: '/images/scenarios/hero/classification.png',
+    deckImage: '/images/scenarios/classification.webp',
+    heroImage: '/images/scenarios/classification.webp',
     tagline: 'Optional. How this scenario fits into a larger system.',
     narrative:
       "Tier, group, and difficulty allow scenarios to be organised into systems. A dungeon might have 'trap' tier encounters at difficulty 2 in the 'dungeon-one' group. None of this is required — it only matters if you're building something larger.",
@@ -491,8 +443,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'Instructions after the choice',
     icon: 'kind-icon:eye',
     flourish: '◉',
-    deckImage: '/images/scenarios/thumb/secret.png',
-    heroImage: '/images/scenarios/hero/secret.png',
+    deckImage: '/images/scenarios/secret.webp',
+    heroImage: '/images/scenarios/secret.webp',
     tagline: "Optional. What the LLM knows that the player doesn't.",
     narrative:
       "Secret notes are instructions to the language model that run after the player makes a choice. They can shape how the AI responds, add hidden context, specify output formats, or introduce consequences the player hasn't anticipated yet.",
@@ -522,8 +474,8 @@ export const SCENARIO_CARDS: ScenarioCard[] = [
     title: 'Make it visible',
     icon: 'kind-icon:palette',
     flourish: '▣',
-    deckImage: '/images/scenarios/thumb/art.png',
-    heroImage: '/images/scenarios/hero/art.png',
+    deckImage: '/images/scenarios/art.webp',
+    heroImage: '/images/scenarios/art.webp',
     tagline: 'Optional. An image for the scenario.',
     narrative:
       "An image makes a scenario real in a way text alone doesn't. Build the art prompt from the title, description, and genre — then generate.",

@@ -8,7 +8,12 @@ icon: kind-icon:vortex
 tooltip: 'Browse rewards that inject wonder, mischief, or magic into the story.'
 dottitip: Are some of these rewards a tad unbalanced?
 amitip: That's the beauty of a narrative-driven adventure. Anything can keep the story going!
-sort: gallery
+layout: workspace
+dashboardKey: admin
+dashboardTab: reward
+cards: rewardCards
+loadingMessage: Loading rewards...
+refreshLabel: Refresh Rewards
 ---
 
 :reward-manager

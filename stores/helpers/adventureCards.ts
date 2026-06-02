@@ -18,10 +18,6 @@ import type {
 } from '@/stores/helpers/builderCards'
 import type { Rarity } from '@/stores/rewardStore'
 
-export type PresetChoice = BuilderChoice
-export type AdventureStep = BuilderStep
-export type AdventureCard = BuilderCard
-
 const EXTENDED_GENRES: string[] = [
   'Bureaucratic Fantasy',
   'Academic Eldritch',
@@ -226,7 +222,7 @@ export const ADVENTURE_SPLASH: BuilderSplash = {
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 
-export const ADVENTURE_CARDS: AdventureCard[] = [
+export const ADVENTURE_CARDS: BuilderCard[] = [
   // ── Role ────────────────────────────────────────────────────────────────
   {
     key: 'role',

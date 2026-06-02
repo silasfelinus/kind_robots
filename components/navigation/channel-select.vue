@@ -366,6 +366,13 @@ const bottomProjectChannels: ChannelRoute[] = [
     summary:
       'Experiment, test reactions, and let the robots touch the shiny buttons.',
   },
+  {
+    key: 'sanctuary',
+    label: 'Sanctuary',
+    path: '/sanctuary',
+    icon: 'kind-icon:butterfly',
+    summary: 'help us reach our goal to make the world a better place.',
+  },
 ]
 
 const projectChannels = computed<ChannelRoute[]>(() => [

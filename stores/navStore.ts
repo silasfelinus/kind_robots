@@ -39,24 +39,49 @@ export interface DashboardShellState {
   refreshLabel: string
 }
 
-const navIconsStorageKey = 'navIcons'
-const navFavoritesStorageKey = 'navFavorites'
-const dashboardTabsStorageKey = 'dashboardTabs'
-const wonderLabFolderStorageKey = 'wonderLabFolder'
+export interface ContentDashboardInput {
+  shell?: string | null
+  title?: string | null
+  subtitle?: string | null
+  description?: string | null
+  summary?: string | null
+  dashboardKey?: string | null
+  builder?: string | null
+  cards?: string | null
+  loadingMessage?: string | null
+  refreshLabel?: string | null
+}
 
-const isClient = typeof window !== 'undefined'
+export interface DashboardShellState {
+  enabled: boolean
+  dashboardKey: DashboardKey | null
+  activeTabHint: string | null
+  cards: string | null
+  title: string
+  summary: string
+  loadingMessage: string
+  refreshLabel: string
+}
 
 function defaultDashboardShellState(): DashboardShellState {
   return {
     enabled: false,
     dashboardKey: null,
     activeTabHint: null,
+    cards: null,
     title: 'Dashboard',
     summary: '',
     loadingMessage: 'Loading…',
     refreshLabel: 'Refresh',
   }
 }
+
+const navIconsStorageKey = 'navIcons'
+const navFavoritesStorageKey = 'navFavorites'
+const dashboardTabsStorageKey = 'dashboardTabs'
+const wonderLabFolderStorageKey = 'wonderLabFolder'
+
+const isClient = typeof window !== 'undefined'
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
@@ -305,6 +330,7 @@ export const useNavStore = defineStore('navStore', () => {
 
     const dashboardKey = inferDashboardKeyFromContent(input)
     const activeTabHint = (input.builder ?? '').trim() || null
+    const cards = (input.cards ?? '').trim() || null
 
     if (dashboardKey && activeTabHint) {
       setDashboardTab(dashboardKey, activeTabHint, 'content frontmatter')
@@ -314,6 +340,7 @@ export const useNavStore = defineStore('navStore', () => {
       enabled: true,
       dashboardKey,
       activeTabHint,
+      cards,
       title: input.title?.trim() || input.subtitle?.trim() || 'Dashboard',
       summary: input.summary?.trim() || input.description?.trim() || '',
       loadingMessage: input.loadingMessage?.trim() || 'Loading dashboard…',

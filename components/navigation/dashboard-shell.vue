@@ -6,7 +6,7 @@
     <transition name="fade-up">
       <button
         v-if="!showHeader"
-        class="absolute left-1 top-1 z-50 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
+        class="absolute left-1 top-1 z-30 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
         type="button"
         title="Show header"
         @click="toggleHeader"
@@ -117,7 +117,7 @@
         <!-- Toggles flank the header's bottom corners, floating outside it -->
         <button
           type="button"
-          class="absolute -bottom-4 left-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
+          class="absolute -bottom-4 left-0 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
           :class="
             leftSidebarOpen
               ? 'bg-primary text-primary-content'
@@ -132,7 +132,7 @@
 
         <button
           type="button"
-          class="absolute -bottom-4 right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
+          class="absolute -bottom-4 right-0 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
           :class="
             rightSidebarOpen
               ? 'bg-secondary text-secondary-content'
@@ -150,7 +150,7 @@
     <transition name="fade-up">
       <div
         v-if="loading"
-        class="relative z-40 mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-info/30 bg-info/10 px-4 py-2.5 text-sm font-medium text-info"
+        class="relative z-30 mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-info/30 bg-info/10 px-4 py-2.5 text-sm font-medium text-info"
       >
         <Icon name="kind-icon:spinner" class="h-4 w-4 animate-spin" />
         {{ loadingMessage }}
@@ -160,7 +160,7 @@
     <transition name="fade-up">
       <div
         v-if="error"
-        class="relative z-40 mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm font-medium text-error"
+        class="relative z-30 mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm font-medium text-error"
       >
         <Icon name="kind-icon:alert" class="h-4 w-4 shrink-0" />
         {{ error }}
@@ -222,7 +222,7 @@ const props = withDefaults(
     error: null,
     showRefresh: true,
     refreshLabel: 'Refresh',
-    navZClass: 'z-40',
+    navZClass: 'z-30',
     navGridClass: '',
   },
 )

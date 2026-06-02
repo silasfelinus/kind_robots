@@ -10,7 +10,7 @@
 
     <div
       v-if="isNavigating"
-      class="fixed inset-0 z-50 flex animate-fade-in items-center justify-center"
+      class="pointer-events-none fixed inset-0 z-50 flex animate-fade-in items-center justify-center"
     >
       <div class="loading loading-dots loading-lg text-primary" />
     </div>
@@ -31,12 +31,16 @@ import { useLayoutStore } from '@/stores/layoutStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useNavStore } from '@/stores/navStore'
 
 const router = useRouter()
 const layoutStore = useLayoutStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 const themeStore = useThemeStore()
+const displayStore = useDisplayStore()
+const navStore = useNavStore()
 
 const isNavigating = ref(false)
 const showLoader = ref(true)
@@ -71,7 +75,12 @@ onMounted(async () => {
   })
 
   layoutStore.initializeStore()
+  displayStore.initialize()
   pageStore.initialize()
+
+  if (!navStore.isInitialized) {
+    await navStore.initialize()
+  }
 
   if (!userStore.initialized) {
     await userStore.initialize()

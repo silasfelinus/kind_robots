@@ -18,35 +18,13 @@ import { handleError } from '@/stores/utils'
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
 export interface ContentDashboardInput {
-  shell?: string | null
+  layout?: string | null
   title?: string | null
   subtitle?: string | null
   description?: string | null
   summary?: string | null
   dashboardKey?: string | null
-  builder?: string | null
-  loadingMessage?: string | null
-  refreshLabel?: string | null
-}
-
-export interface DashboardShellState {
-  enabled: boolean
-  dashboardKey: DashboardKey | null
-  activeTabHint: string | null
-  title: string
-  summary: string
-  loadingMessage: string
-  refreshLabel: string
-}
-
-export interface ContentDashboardInput {
-  shell?: string | null
-  title?: string | null
-  subtitle?: string | null
-  description?: string | null
-  summary?: string | null
-  dashboardKey?: string | null
-  builder?: string | null
+  dashboardTab?: string | null
   cards?: string | null
   loadingMessage?: string | null
   refreshLabel?: string | null
@@ -310,18 +288,12 @@ export const useNavStore = defineStore('navStore', () => {
       return explicitKey as DashboardKey
     }
 
-    const builder = (input.builder ?? '').trim()
-
-    if (builder && 'builder' in dashboardConfigs) {
-      return 'builder' as DashboardKey
-    }
-
     return null
   }
 
   function setDashboardShellFromContent(input: ContentDashboardInput): void {
-    const shell = (input.shell ?? '').trim()
-    const enabled = shell === 'dashboard'
+    const layout = (input.layout ?? '').trim()
+    const enabled = layout === 'workspace'
 
     if (!enabled) {
       clearDashboardShell()
@@ -329,7 +301,7 @@ export const useNavStore = defineStore('navStore', () => {
     }
 
     const dashboardKey = inferDashboardKeyFromContent(input)
-    const activeTabHint = (input.builder ?? '').trim() || null
+    const activeTabHint = (input.dashboardTab ?? '').trim() || null
     const cards = (input.cards ?? '').trim() || null
 
     if (dashboardKey && activeTabHint) {

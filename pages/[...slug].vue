@@ -2,11 +2,11 @@
   <NuxtLayout :name="layout">
     <div
       v-if="pageStore.page && pageStore.page.body"
-      :class="pageShell === 'builder' ? 'h-full min-h-0 overflow-hidden' : ''"
+      :class="isWorkspaceLayout ? 'h-full min-h-0 overflow-hidden' : ''"
     >
       <ContentRenderer
         :value="pageStore.page"
-        :class="pageShell === 'builder' ? 'h-full min-h-0 overflow-hidden' : ''"
+        :class="isWorkspaceLayout ? 'h-full min-h-0 overflow-hidden' : ''"
       />
     </div>
 
@@ -36,14 +36,19 @@ import { usePromptStore } from '@/stores/promptStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 
-type PageLayoutName = 'default' | 'builder'
+type PageLayoutName = 'default' | 'workspace'
 
 type ContentPage = ContentType & {
-  dashboard?: string | null
+  layout?: string | null
+  dashboardKey?: string | null
+  dashboardTab?: string | null
+  cards?: string | null
   footer?: string | null
   footerState?: string | null
-  shell?: string | null
-  builder?: string | null
+  subtitle?: string | null
+  summary?: string | null
+  loadingMessage?: string | null
+  refreshLabel?: string | null
 }
 
 const route = useRoute()
@@ -63,16 +68,20 @@ const typedPage = computed<ContentPage | null>(() => {
   return pageStore.page ? normalizePage(pageStore.page) : null
 })
 
-const pageShell = computed<PageLayoutName>(() => {
-  return typedPage.value?.shell === 'builder' ? 'builder' : 'default'
+const layout = computed<PageLayoutName>(() => {
+  return normalizeLayoutName(typedPage.value?.layout)
 })
 
-const layout = computed<PageLayoutName>(() => {
-  return pageShell.value
+const isWorkspaceLayout = computed(() => {
+  return layout.value === 'workspace'
 })
 
 function normalizePage(page: unknown): ContentPage {
   return page as ContentPage
+}
+
+function normalizeLayoutName(value?: string | null): PageLayoutName {
+  return value === 'workspace' ? 'workspace' : 'default'
 }
 
 function getContentPath(): string {
@@ -87,10 +96,31 @@ function getQueryNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null
 }
 
+function syncDashboardShellFromPage(page: ContentPage): void {
+  if (normalizeLayoutName(page.layout) !== 'workspace') {
+    navStore.clearDashboardShell()
+    return
+  }
+
+  navStore.setDashboardShellFromContent({
+    layout: page.layout,
+    title: page.title,
+    subtitle: page.subtitle,
+    description: page.description,
+    summary: page.summary,
+    dashboardKey: page.dashboardKey,
+    dashboardTab: page.dashboardTab,
+    cards: page.cards,
+    loadingMessage: page.loadingMessage,
+    refreshLabel: page.refreshLabel,
+  })
+}
+
 async function loadPage(path: string): Promise<void> {
   const data = await queryCollection('content').path(path).first()
 
   if (!data) {
+    navStore.clearDashboardShell()
     await router.push('/error')
     return
   }
@@ -99,6 +129,7 @@ async function loadPage(path: string): Promise<void> {
 
   pageStore.setPage(normalizedPage)
   navStore.recordVisit(path)
+  syncDashboardShellFromPage(normalizedPage)
 }
 
 const { data: pageData } = await useAsyncData(
@@ -107,6 +138,7 @@ const { data: pageData } = await useAsyncData(
 )
 
 if (!pageData.value) {
+  navStore.clearDashboardShell()
   await router.push('/error')
 }
 
@@ -115,6 +147,7 @@ if (pageData.value) {
 
   pageStore.setPage(normalizedPage)
   navStore.recordVisit(getContentPath())
+  syncDashboardShellFromPage(normalizedPage)
 }
 
 watch(

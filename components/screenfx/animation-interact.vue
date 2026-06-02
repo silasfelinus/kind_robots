@@ -1,16 +1,15 @@
-<!-- components/screen-fx/animation-interact.vue -->
+<!-- /components/screen-fx/animation-interact.vue -->
 <template>
   <div
     v-if="animationStore.isActive"
-    class="pointer-events-none fixed inset-0"
-    style="z-index: 9999"
+    class="pointer-events-none fixed inset-0 z-9999"
   >
     <div
-      class="pointer-events-auto absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+      class="pointer-events-auto absolute left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 px-3"
       :style="controlsStyle"
     >
       <div
-        class="flex items-center gap-1 rounded-2xl border border-white/20 bg-black/50 px-3 py-2 backdrop-blur-sm"
+        class="flex items-center gap-1 rounded-2xl border border-white/20 bg-black/50 px-3 py-2 shadow-xl backdrop-blur-sm"
       >
         <button
           class="btn btn-xs btn-ghost text-white hover:bg-white/20"
@@ -22,7 +21,7 @@
         </button>
 
         <span
-          class="min-w-28 text-center text-xs font-semibold text-white/90 select-none"
+          class="min-w-28 select-none text-center text-xs font-semibold text-white/90"
         >
           {{ animationStore.activeEffect?.label ?? 'Animating' }}
         </span>
@@ -48,7 +47,7 @@
         </button>
       </div>
 
-      <p class="text-xs font-medium text-white/60 select-none">
+      <p class="select-none text-center text-xs font-medium text-white/60">
         {{ animationStore.message }}
       </p>
     </div>
@@ -56,18 +55,15 @@
 </template>
 
 <script setup lang="ts">
+// /components/screen-fx/animation-interact.vue
 import { computed } from 'vue'
 import { useAnimationStore } from '@/stores/animationStore'
-import { useDisplayStore } from '@/stores/displayStore'
 
 const animationStore = useAnimationStore()
-const displayStore = useDisplayStore()
 
 const controlsStyle = computed(() => {
-  const headerH = displayStore.headerHeight
-  const padding = displayStore.sectionPaddingSize
   return {
-    top: `calc(var(--vh) * ${headerH + padding} + 1rem)`,
+    top: 'calc(env(safe-area-inset-top, 0px) + 1rem)',
   }
 })
 </script>

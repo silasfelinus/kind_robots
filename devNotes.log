@@ -147,3 +147,6 @@ Character builder included the "adventure" folder, though the adventure to a cha
 
 5/25/26 5:43pm
 On the tail end of the character builder. Just converted all images to webp, dropping sizes about 90%. Added splash image to memory dungeon. Noted some errors accessing collections, currently waiting for the results of the first bug fixes.
+
+6/1/26 5:39pm
+This has been a productive set of days but a lot of it was spent reducing backend complexity. I strongly cut back the Server model, built out a more user friendly server select system, rebuilt a significant amount of infrastructure built around the server setup, and worked towards developing a new Builder-focused front end. With a heavy heart, I killed several darlings, including the header and smart-icons, and the intelligent displayStore based layout system.

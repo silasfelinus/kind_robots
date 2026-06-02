@@ -97,7 +97,7 @@
       <section
         class="fixed inset-x-0 bottom-0 z-40 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
       >
-        <div class="h-32 sm:h-[22dvh] sm:max-h-52">
+        <div class="h-25 sm:h-[22dvh] sm:max-h-52">
           <builder-hand />
         </div>
       </section>

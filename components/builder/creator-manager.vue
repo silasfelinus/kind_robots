@@ -54,7 +54,7 @@
       v-else
       class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
-      Unknown builder stage: {{ activeTab }}
+      Unknown builder stage: {{ activeTab || 'none selected' }}
     </div>
   </section>
 </template>
@@ -63,13 +63,41 @@
 import { computed } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
+type CreatorTab =
+  | 'user'
+  | 'pitch'
+  | 'dream'
+  | 'character'
+  | 'bot'
+  | 'reward'
+  | 'scenario'
+
 const navStore = useNavStore()
 
-const activeTab = computed(() => {
-  const dashboardKey = navStore.dashboardShell.dashboardKey
+const defaultDashboardKey = 'builder'
+const defaultTab: CreatorTab = 'character'
 
-  if (!dashboardKey) return ''
+const validTabs: CreatorTab[] = [
+  'user',
+  'pitch',
+  'dream',
+  'character',
+  'bot',
+  'reward',
+  'scenario',
+]
 
-  return navStore.getDashboardTab(dashboardKey)
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
+})
+
+const activeTab = computed<CreatorTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
+
+  if (validTabs.includes(selectedTab as CreatorTab)) {
+    return selectedTab as CreatorTab
+  }
+
+  return defaultTab
 })
 </script>

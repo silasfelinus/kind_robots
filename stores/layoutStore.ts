@@ -1,11 +1,10 @@
 // /stores/layoutStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
+import { computed, ref } from 'vue'
 
-export const layoutKeys = ['default', 'mobile', 'tablet', 'desktop'] as const
+export const layoutKeys = ['default', 'workspace'] as const
+
 export type LayoutKey = (typeof layoutKeys)[number]
-export type ResolvedLayoutKey = Exclude<LayoutKey, 'default'>
 
 const LOCAL_STORAGE_KEY = 'currentLayout'
 
@@ -18,76 +17,88 @@ function getStoredLayout(defaultValue: LayoutKey): LayoutKey {
 
   try {
     const storedValue = window.localStorage.getItem(LOCAL_STORAGE_KEY)
+
     return isLayoutKey(storedValue) ? storedValue : defaultValue
   } catch (error) {
-    console.error('Error accessing localStorage:', error)
+    console.error('Error accessing layout localStorage:', error)
     return defaultValue
   }
 }
 
-export const useLayoutStore = defineStore('layoutStore', () => {
-  const displayStore = useDisplayStore()
+function saveStoredLayout(layout: LayoutKey): void {
+  if (typeof window === 'undefined') return
 
+  try {
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, layout)
+  } catch (error) {
+    console.error('Failed to save layout to localStorage:', error)
+  }
+}
+
+export const useLayoutStore = defineStore('layoutStore', () => {
   const currentLayout = ref<LayoutKey>('default')
   const isSidebarOpen = ref(true)
+  const isInitialized = ref(false)
 
   const availableLayouts = computed<LayoutKey[]>(() => [...layoutKeys])
-  const isAutoLayout = computed(() => currentLayout.value === 'default')
-  const getCurrentLayout = computed(() => currentLayout.value)
 
-  const resolvedLayout = computed<ResolvedLayoutKey>(() => {
-    if (currentLayout.value === 'mobile') return 'mobile'
-    if (currentLayout.value === 'tablet') return 'tablet'
-    if (currentLayout.value === 'desktop') return 'desktop'
+  const isDefaultLayout = computed(() => currentLayout.value === 'default')
+  const isWorkspaceLayout = computed(() => currentLayout.value === 'workspace')
 
-    if (displayStore.viewportSize === 'small') return 'mobile'
-    if (displayStore.viewportSize === 'medium') return 'tablet'
-    return 'desktop'
-  })
+  const layoutName = computed<LayoutKey>(() => currentLayout.value)
 
-  function toggleSidebar() {
+  function toggleSidebar(): void {
     isSidebarOpen.value = !isSidebarOpen.value
   }
 
-  function setLayout(newLayout: LayoutKey) {
+  function setSidebarOpen(value: boolean): void {
+    isSidebarOpen.value = value
+  }
+
+  function setLayout(newLayout: LayoutKey): void {
     if (!isLayoutKey(newLayout)) {
       console.warn(`Invalid layout option: ${String(newLayout)}`)
       return
     }
 
     currentLayout.value = newLayout
-
-    if (typeof window === 'undefined') return
-
-    try {
-      window.localStorage.setItem(LOCAL_STORAGE_KEY, newLayout)
-    } catch (error) {
-      console.error('Failed to save layout to localStorage:', error)
-    }
+    saveStoredLayout(newLayout)
   }
 
-  function setAutoLayout() {
+  function setDefaultLayout(): void {
     setLayout('default')
   }
 
-  function initializeStore() {
-    currentLayout.value = getStoredLayout('default')
+  function setWorkspaceLayout(): void {
+    setLayout('workspace')
   }
 
-  function resetLayout() {
+  function initializeStore(): void {
+    if (isInitialized.value) return
+
+    currentLayout.value = getStoredLayout('default')
+    isInitialized.value = true
+  }
+
+  function resetLayout(): void {
     setLayout('default')
   }
 
   return {
     currentLayout,
     isSidebarOpen,
+    isInitialized,
+
     availableLayouts,
-    isAutoLayout,
-    getCurrentLayout,
-    resolvedLayout,
+    isDefaultLayout,
+    isWorkspaceLayout,
+    layoutName,
+
     toggleSidebar,
+    setSidebarOpen,
     setLayout,
-    setAutoLayout,
+    setDefaultLayout,
+    setWorkspaceLayout,
     initializeStore,
     resetLayout,
   }

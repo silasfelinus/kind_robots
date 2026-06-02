@@ -5,7 +5,6 @@
       v-if="activeCount > 0"
       class="effect-container"
       :class="{ 'effect-container--interactive': hasBlockingEffect }"
-      
     >
       <component
         :is="activeComponent.component"
@@ -785,7 +784,7 @@ const clearAll = () => {
 
 .fx-zone-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
   gap: 0.65rem;
 }
 
@@ -900,7 +899,7 @@ const clearAll = () => {
 
 .fx-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
   gap: 0.75rem;
 }
 
@@ -1144,36 +1143,14 @@ const clearAll = () => {
   }
 }
 
-@media (min-width: 640px) {
-  .fx-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .fx-zone-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .fx-zone-btn {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-  }
-}
-
-@media (min-width: 1024px) {
-  .screen-fx-shell {
-    padding: 1rem;
-  }
-
-  .fx-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1280px) {
-  .fx-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
+.fx-zone-btn {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  min-height: 4.25rem;
+  align-items: center;
+  text-align: center;
 }
 
 @media (max-width: 480px) {

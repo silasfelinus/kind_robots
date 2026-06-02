@@ -1,22 +1,37 @@
 <template>
-  <NuxtLayout :name="layout">
+  <component :is="layoutComponent">
     <div
-      v-if="pageStore.page && pageStore.page.body"
+      v-if="isLoading"
+      class="flex min-h-64 flex-col items-center justify-center gap-3"
+    >
+      <Icon name="kind-icon:loading" class="h-10 w-10 text-info" />
+      <p class="text-center text-base text-info">Loading page...</p>
+    </div>
+
+    <div
+      v-else-if="notFound"
+      class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-base-100 p-6 text-center"
+    >
+      <Icon name="kind-icon:warning" class="h-10 w-10 text-warning" />
+      <h1 class="text-2xl font-bold">Page not found</h1>
+      <p class="max-w-xl text-base text-base-content/70">
+        This route does not have a matching content page yet.
+      </p>
+      <NuxtLink to="/" class="btn btn-primary rounded-2xl">
+        Go Home
+      </NuxtLink>
+    </div>
+
+    <div
+      v-else-if="typedPage && typedPage.body"
       :class="isWorkspaceLayout ? 'h-full min-h-0 overflow-hidden' : ''"
     >
       <ContentRenderer
-        :value="pageStore.page"
+        :value="typedPage"
         :class="isWorkspaceLayout ? 'h-full min-h-0 overflow-hidden' : ''"
       />
     </div>
-
-    <template #fallback>
-      <div class="flex min-h-64 flex-col items-center justify-center gap-3">
-        <Icon name="kind-icon:loading" class="h-10 w-10 text-info" />
-        <p class="text-center text-base text-info">Loading page...</p>
-      </div>
-    </template>
-  </NuxtLayout>
+  </component>
 
   <error-popup />
 </template>
@@ -24,8 +39,11 @@
 <script setup lang="ts">
 // /pages/[...slug].vue
 import { useRoute, useRouter } from '#app'
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import type { Component } from 'vue'
 import type { ContentType } from '~/content.config'
+import DefaultLayout from '@/layouts/default.vue'
+import WorkspaceLayout from '@/layouts/workspace.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -64,25 +82,39 @@ const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
-const typedPage = computed<ContentPage | null>(() => {
-  return pageStore.page ? normalizePage(pageStore.page) : null
-})
+const notFound = ref(false)
 
-const layout = computed<PageLayoutName>(() => {
-  return normalizeLayoutName(typedPage.value?.layout)
-})
-
-const isWorkspaceLayout = computed(() => {
-  return layout.value === 'workspace'
-})
-
-const { data: pageData } = useAsyncData(
+const {
+  data: pageData,
+  status: pageStatus,
+  error: pageError,
+} = useAsyncData(
   () => `content-${route.path}`,
   () => queryCollection('content').path(route.path).first(),
   {
     watch: [() => route.path],
   },
 )
+
+const typedPage = computed<ContentPage | null>(() => {
+  return pageData.value ? normalizePage(pageData.value) : null
+})
+
+const layout = computed<PageLayoutName>(() => {
+  return normalizeLayoutName(typedPage.value?.layout)
+})
+
+const layoutComponent = computed<Component>(() => {
+  return layout.value === 'workspace' ? WorkspaceLayout : DefaultLayout
+})
+
+const isWorkspaceLayout = computed(() => {
+  return layout.value === 'workspace'
+})
+
+const isLoading = computed(() => {
+  return pageStatus.value === 'idle' || pageStatus.value === 'pending'
+})
 
 function normalizePage(page: unknown): ContentPage {
   return page as ContentPage
@@ -121,17 +153,23 @@ function syncDashboardShellFromPage(page: ContentPage): void {
 }
 
 function applyPage(page: ContentPage): void {
+  notFound.value = false
   pageStore.setPage(page)
   navStore.recordVisit(route.path)
   syncDashboardShellFromPage(page)
 }
 
 watch(
-  pageData,
-  async (value) => {
-    if (!value) {
+  [pageData, pageStatus, pageError],
+  ([value, status, error]) => {
+    if (status === 'idle' || status === 'pending') {
+      notFound.value = false
+      return
+    }
+
+    if (error || !value) {
+      notFound.value = true
       navStore.clearDashboardShell()
-      await router.push('/error')
       return
     }
 

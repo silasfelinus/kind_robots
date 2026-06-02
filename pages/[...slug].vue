@@ -1,5 +1,5 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout :name="nuxtLayoutName">
     <div
       v-if="pageStore.page && pageStore.page.body"
       :class="isWorkspaceLayout ? 'h-full min-h-0 overflow-hidden' : ''"
@@ -39,7 +39,7 @@ import { useNavStore } from '@/stores/navStore'
 type PageLayoutName = 'default' | 'workspace'
 
 type ContentPage = ContentType & {
-  layout?: string | null
+  layout?: PageLayoutName | string | null
   dashboardKey?: string | null
   dashboardTab?: string | null
   cards?: string | null
@@ -72,6 +72,10 @@ const layout = computed<PageLayoutName>(() => {
   return normalizeLayoutName(typedPage.value?.layout)
 })
 
+const nuxtLayoutName = computed(() => {
+  return layout.value as unknown as 'default'
+})
+
 const isWorkspaceLayout = computed(() => {
   return layout.value === 'workspace'
 })
@@ -97,24 +101,25 @@ function getQueryNumber(value: unknown): number | null {
 }
 
 function syncDashboardShellFromPage(page: ContentPage): void {
-  if (normalizeLayoutName(page.layout) !== 'workspace') {
+  const pageLayout = normalizeLayoutName(page.layout)
+
+  if (pageLayout !== 'workspace') {
     navStore.clearDashboardShell()
     return
   }
 
-  navStore.setDashboardShellFromContent({
-    layout: page.layout,
-    title: page.title,
-    subtitle: page.subtitle,
-    description: page.description,
-    summary: page.summary,
-    dashboardKey: page.dashboardKey,
-    dashboardTab: page.dashboardTab,
-    cards: page.cards,
-    loadingMessage: page.loadingMessage,
-    refreshLabel: page.refreshLabel,
-  })
-}
+navStore.setDashboardShellFromContent({
+  layout: page.layout,
+  title: page.title,
+  subtitle: page.subtitle,
+  description: page.description,
+  summary: page.summary,
+  dashboardKey: page.dashboardKey,
+  dashboardTab: page.dashboardTab,
+  cards: page.cards,
+  loadingMessage: page.loadingMessage,
+  refreshLabel: page.refreshLabel,
+})
 
 async function loadPage(path: string): Promise<void> {
   const data = await queryCollection('content').path(path).first()

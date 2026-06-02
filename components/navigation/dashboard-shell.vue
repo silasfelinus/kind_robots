@@ -117,7 +117,7 @@
         <!-- Toggles flank the header's bottom corners, floating outside it -->
         <button
           type="button"
-          class="absolute -bottom-4 left-0 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
+          class="absolute -bottom-4 -left-3 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
           :class="
             leftSidebarOpen
               ? 'bg-primary text-primary-content'
@@ -132,7 +132,7 @@
 
         <button
           type="button"
-          class="absolute -bottom-4 right-0 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
+          class="absolute -bottom-4 -right-3 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
           :class="
             rightSidebarOpen
               ? 'bg-secondary text-secondary-content'

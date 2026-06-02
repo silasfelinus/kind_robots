@@ -5,13 +5,17 @@
     class="space-y-4 max-w-2xl mx-auto pb-4 px-1 sm:px-2"
   >
     <!-- Dotti bubble -->
-    <div class="chat chat-end animate-fade-in-up delay-300 text-black">
+    <div class="chat chat-end motion-safe:animate-fade-in-up delay-300">
       <div class="chat-image avatar">
-        <div class="w-10 h-10 rounded-full border-2 border-primary">
+        <div
+          class="w-10 h-10 rounded-full border-2 border-primary transition-transform duration-300 hover:scale-110 hover:-rotate-3"
+        >
           <img src="/images/avatars/dottie1.webp" alt="DottiBot Avatar" />
         </div>
       </div>
-      <div class="chat-bubble bg-primary text-black border border-black">
+      <div
+        class="chat-bubble bg-primary text-primary-content border border-black/20 shadow-md"
+      >
         <span class="font-semibold text-xs sm:text-sm lg:text-base block mb-1">
           DottiBot:
         </span>
@@ -22,13 +26,17 @@
     </div>
 
     <!-- AMI bubble -->
-    <div class="chat chat-start animate-fade-in-up delay-500">
+    <div class="chat chat-start motion-safe:animate-fade-in-up delay-500">
       <div class="chat-image avatar">
-        <div class="w-10 h-10 rounded-full border-2 border-secondary">
+        <div
+          class="w-10 h-10 rounded-full border-2 border-secondary transition-transform duration-300 hover:scale-110 hover:rotate-3"
+        >
           <img src="/images/amibotsquare1.webp" alt="AMIbot Avatar" />
         </div>
       </div>
-      <div class="chat-bubble bg-secondary text-black border border-black">
+      <div
+        class="chat-bubble bg-secondary text-secondary-content border border-black/20 shadow-md"
+      >
         <span class="font-semibold text-xs sm:text-sm lg:text-base block mb-1">
           AMIbot:
         </span>
@@ -41,7 +49,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/ami-chat.vue
 import { computed } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
 

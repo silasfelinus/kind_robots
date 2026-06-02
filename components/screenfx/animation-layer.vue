@@ -5,7 +5,7 @@
       <section
         v-if="animationStore.isActive && activeComponent"
         class="pointer-events-none fixed z-83 overflow-hidden rounded-2xl border border-primary/20 bg-base-300/10 shadow-2xl backdrop-blur-[1px]"
-        :style="animationStore.layerStyle"
+        
         aria-live="polite"
       >
         <div class="absolute inset-0 z-83 pointer-events-none">

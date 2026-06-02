@@ -17,12 +17,46 @@ import { handleError } from '@/stores/utils'
 
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
+export interface ContentDashboardInput {
+  shell?: string | null
+  title?: string | null
+  subtitle?: string | null
+  description?: string | null
+  summary?: string | null
+  dashboardKey?: string | null
+  builder?: string | null
+  loadingMessage?: string | null
+  refreshLabel?: string | null
+}
+
+export interface DashboardShellState {
+  enabled: boolean
+  dashboardKey: DashboardKey | null
+  activeTabHint: string | null
+  title: string
+  summary: string
+  loadingMessage: string
+  refreshLabel: string
+}
+
 const navIconsStorageKey = 'navIcons'
 const navFavoritesStorageKey = 'navFavorites'
 const dashboardTabsStorageKey = 'dashboardTabs'
 const wonderLabFolderStorageKey = 'wonderLabFolder'
 
 const isClient = typeof window !== 'undefined'
+
+function defaultDashboardShellState(): DashboardShellState {
+  return {
+    enabled: false,
+    dashboardKey: null,
+    activeTabHint: null,
+    title: 'Dashboard',
+    summary: '',
+    loadingMessage: 'Loading…',
+    refreshLabel: 'Refresh',
+  }
+}
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
@@ -98,10 +132,10 @@ export const useNavStore = defineStore('navStore', () => {
   const lastError = ref<string | null>(null)
   const initializePromise = ref<Promise<void> | null>(null)
 
+  const dashboardShell = ref<DashboardShellState>(defaultDashboardShellState())
+
   const routeHistory = ref<string[]>([])
   const currentIndex = ref(-1)
-
-  const navDebug = true
 
   const dashboardTabs = ref<Record<DashboardKey, string>>(
     getDashboardDefaultTabs(),
@@ -240,6 +274,59 @@ export const useNavStore = defineStore('navStore', () => {
     )
 
     return nextTab
+  }
+
+  function inferDashboardKeyFromContent(
+    input: ContentDashboardInput,
+  ): DashboardKey | null {
+    const explicitKey = (input.dashboardKey ?? '').trim()
+
+    if (explicitKey && explicitKey in dashboardConfigs) {
+      return explicitKey as DashboardKey
+    }
+
+    const builder = (input.builder ?? '').trim()
+
+    if (builder && 'builder' in dashboardConfigs) {
+      return 'builder' as DashboardKey
+    }
+
+    return null
+  }
+
+  function setDashboardShellFromContent(input: ContentDashboardInput): void {
+    const shell = (input.shell ?? '').trim()
+    const enabled = shell === 'dashboard'
+
+    if (!enabled) {
+      clearDashboardShell()
+      return
+    }
+
+    const dashboardKey = inferDashboardKeyFromContent(input)
+    const activeTabHint = (input.builder ?? '').trim() || null
+
+    if (dashboardKey && activeTabHint) {
+      setDashboardTab(dashboardKey, activeTabHint, 'content frontmatter')
+    }
+
+    dashboardShell.value = {
+      enabled: true,
+      dashboardKey,
+      activeTabHint,
+      title: input.title?.trim() || input.subtitle?.trim() || 'Dashboard',
+      summary: input.summary?.trim() || input.description?.trim() || '',
+      loadingMessage: input.loadingMessage?.trim() || 'Loading dashboard…',
+      refreshLabel: input.refreshLabel?.trim() || 'Refresh',
+    }
+  }
+
+  function clearDashboardShell(): void {
+    dashboardShell.value = defaultDashboardShellState()
+  }
+
+  async function refreshDashboardShell(): Promise<void> {
+    await initialize(true)
   }
 
   function syncWonderLabFolderToLocalStorage(): void {
@@ -511,6 +598,8 @@ export const useNavStore = defineStore('navStore', () => {
     lastError,
     initializePromise,
 
+    dashboardShell,
+
     routeHistory,
     currentIndex,
 
@@ -551,6 +640,10 @@ export const useNavStore = defineStore('navStore', () => {
     setDashboardTab,
     resetDashboardTab,
     getDashboardActiveTabConfig,
+
+    setDashboardShellFromContent,
+    clearDashboardShell,
+    refreshDashboardShell,
 
     recordVisit,
     clearRouteHistory,

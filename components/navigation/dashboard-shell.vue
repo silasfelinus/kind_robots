@@ -211,7 +211,7 @@
       <main
         class="min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <div class="h-full min-h-0 overflow-y-auto overscroll-contain">
+        <div class="h-full min-h-0 overflow-hidden">
           <slot
             :active-tab="normalizedActiveTab"
             :active-tab-config="activeTabConfig"

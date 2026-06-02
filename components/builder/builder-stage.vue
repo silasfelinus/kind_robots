@@ -1,6 +1,6 @@
 <!-- /components/builder/builder-stage.vue -->
 <template>
-  <div class="flex min-h-full flex-col gap-3">
+  <div class="flex min-h-0 flex-col gap-3">
     <builder-splash v-if="showSplash" />
     <builder-step-panel v-else-if="store.activeCard" />
     <builder-summary v-else-if="store.allComplete" />
@@ -15,6 +15,10 @@ import { useBuilderStore } from '@/stores/builderStore'
 const store = useBuilderStore()
 
 const showSplash = computed(() => {
-  return !store.activeCard && !store.completedCardList.length && !store.visibleCards.length
+  return (
+    !store.activeCard &&
+    !store.completedCardList.length &&
+    !store.visibleCards.length
+  )
 })
 </script>

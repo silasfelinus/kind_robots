@@ -468,27 +468,39 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useButterflyStore } from '@/stores/butterflyStore'
-import { useDisplayStore } from '@/stores/displayStore'
+
 import { useUserStore } from '@/stores/userStore'
 
 const butterflyStore = useButterflyStore()
-const displayStore = useDisplayStore()
 const userStore = useUserStore()
+
+import { onBeforeUnmount } from 'vue'
+
+const isSinglePane = ref(false)
+let mediaQuery: MediaQueryList | null = null
+
+function syncSinglePane() {
+  if (!mediaQuery) return
+  isSinglePane.value = mediaQuery.matches
+}
+
+onMounted(() => {
+  if (typeof window === 'undefined') return
+
+  mediaQuery = window.matchMedia('(max-width: 1023px)')
+  syncSinglePane()
+  mediaQuery.addEventListener('change', syncSinglePane)
+})
+
+onBeforeUnmount(() => {
+  mediaQuery?.removeEventListener('change', syncSinglePane)
+  mediaQuery = null
+})
 
 const { butterflies, selectedButterflyId, showNames, showSwarm } =
   storeToRefs(butterflyStore)
 
 const mobilePanel = ref<'roster' | 'guide'>('roster')
-
-const centerHeight = computed(() => displayStore.mainPanelHeight)
-const centerWidth = computed(() => displayStore.mainContentWidth)
-
-const isSinglePane = computed(() => {
-  return (
-    displayStore.viewportSize === 'small' ||
-    displayStore.viewportSize === 'medium'
-  )
-})
 
 const selectableButterflies = computed(() =>
   butterflies.value.filter((b) => !b.isExiting),
@@ -584,11 +596,15 @@ function clearButterflies() {
   if (isSinglePane.value) mobilePanel.value = 'roster'
 }
 
+const emit = defineEmits<{
+  edit: [butterflyId: string]
+}>()
+
 function editSelectedButterfly() {
   const butterfly = currentButterfly.value
   if (!butterfly || !canEditSelected.value) return
 
   butterflyStore.setInspected(butterfly)
-  displayStore.setMainComponent?.('edit-butterfly')
+  emit('edit', butterfly.id)
 }
 </script>

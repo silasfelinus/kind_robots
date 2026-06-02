@@ -1,6 +1,5 @@
 // /stores/helpers/butterflyEffects.ts
 import { ref, type ComputedRef, type Ref, type CSSProperties } from 'vue'
-import { useDisplayStore } from '../displayStore'
 import { ErrorType } from '../errorStore'
 import {
   type Butterfly,
@@ -238,36 +237,67 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
   // ─── Toggle anchor sync ───────────────────────────────────────────────────
 
-  function syncToggleAnchorFromDisplayStore(
-    key: ToggleButterflyKey,
-    style: CSSProperties,
-  ) {
+  const toggleAnchorSelectors: Record<ToggleButterflyKey, string[]> = {
+    header: [
+      '[data-butterfly-anchor="header"]',
+      '[data-debug="dashboard-header"]',
+      'header',
+    ],
+    footer: [
+      '[data-butterfly-anchor="footer"]',
+      '[data-debug="footer"]',
+      'footer',
+    ],
+    'left-sidebar': [
+      '[data-butterfly-anchor="left-sidebar"]',
+      '[data-debug="left-sidebar"]',
+      'aside[data-side="left"]',
+    ],
+    'right-sidebar': [
+      '[data-butterfly-anchor="right-sidebar"]',
+      '[data-debug="right-sidebar"]',
+      'aside[data-side="right"]',
+    ],
+  }
+
+  const fallbackToggleAnchors: Record<ToggleButterflyKey, ToggleAnchor> = {
+    header: { x: 50, y: 6 },
+    footer: { x: 50, y: 94 },
+    'left-sidebar': { x: 4, y: 50 },
+    'right-sidebar': { x: 96, y: 50 },
+  }
+
+  function getFirstMatchingElement(selectors: string[]) {
+    if (typeof document === 'undefined') return null
+
+    for (const selector of selectors) {
+      const element = document.querySelector(selector)
+      if (element) return element as HTMLElement
+    }
+
+    return null
+  }
+
+  function getAnchorFromElement(element: HTMLElement): ToggleAnchor {
+    const rect = element.getBoundingClientRect()
+    const cx = rect.left + rect.width / 2
+    const cy = rect.top + rect.height / 2
+
+    return {
+      x: clampPercent((cx / window.innerWidth) * 100),
+      y: clampPercent((cy / window.innerHeight) * 100),
+    }
+  }
+
+  function syncToggleAnchorFromElement(key: ToggleButterflyKey) {
     if (typeof window === 'undefined') return
 
-    const parsePercent = (value?: string | number) => {
-      if (typeof value === 'number') return value
-      if (typeof value !== 'string') return null
-      const match = value.match(/-?\d+(\.\d+)?/)
-      if (!match) return null
-      const parsed = Number(match[0])
-      return Number.isFinite(parsed) ? parsed : null
-    }
+    const element = getFirstMatchingElement(toggleAnchorSelectors[key])
+    const anchor = element
+      ? getAnchorFromElement(element)
+      : fallbackToggleAnchors[key]
 
-    const top = parsePercent(style.top)
-    const left = parsePercent(style.left)
-    const right = parsePercent(style.right)
-
-    let x = 50
-    let y = 50
-
-    if (top != null) y = top
-    if (left != null) {
-      x = left
-    } else if (right != null) {
-      x = 100 - right
-    }
-
-    toggleAnchors.value[key] = { x: clampPercent(x), y: clampPercent(y) }
+    toggleAnchors.value[key] = anchor
 
     const butterflyId = toggleButterflyIds.value[key]
     if (!butterflyId) return
@@ -275,8 +305,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     const state = toggleStates[butterflyId]
     if (!state) return
 
-    state.anchor = { ...toggleAnchors.value[key] }
-    state.home = { ...toggleAnchors.value[key] }
+    state.anchor = { ...anchor }
+    state.home = { ...anchor }
 
     const butterfly = getButterflyById(butterflyId)
     if (!butterfly || butterfly.isExiting) return
@@ -286,23 +316,17 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       state.mode === 'approaching' ||
       state.mode === 'returning'
     ) {
-      butterfly.goal.x = state.anchor.x
-      butterfly.goal.y = state.anchor.y
+      butterfly.goal.x = anchor.x
+      butterfly.goal.y = anchor.y
     }
   }
 
   function syncToggleAnchors() {
     try {
-      const displayStore = useDisplayStore()
-      syncToggleAnchorFromDisplayStore('header', displayStore.headerToggleStyle)
-      syncToggleAnchorFromDisplayStore(
-        'left-sidebar',
-        displayStore.leftToggleStyle,
-      )
-      syncToggleAnchorFromDisplayStore(
-        'right-sidebar',
-        displayStore.rightToggleStyle,
-      )
+      syncToggleAnchorFromElement('header')
+      syncToggleAnchorFromElement('footer')
+      syncToggleAnchorFromElement('left-sidebar')
+      syncToggleAnchorFromElement('right-sidebar')
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -1225,12 +1249,18 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     )
   }
 
+  function dispatchToggleButterflyEvent(key: ToggleButterflyKey) {
+    if (typeof window === 'undefined') return
+
+    window.dispatchEvent(
+      new CustomEvent('kind:toggle-butterfly-click', {
+        detail: { key },
+      }),
+    )
+  }
+
   function handleToggleButterflyClick(key: ToggleButterflyKey) {
-    const displayStore = useDisplayStore()
-    if (key === 'header') displayStore.toggleHeader()
-    if (key === 'footer') displayStore.toggleFooter()
-    if (key === 'left-sidebar') displayStore.toggleLeftSidebar()
-    if (key === 'right-sidebar') displayStore.toggleRightSidebar()
+    dispatchToggleButterflyEvent(key)
     syncToggleAnchors()
     sendToggleButterflyAway(key)
   }
@@ -1342,7 +1372,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     loaderStates,
     activeLoaderPreset,
     clampPercent,
-    syncToggleAnchorFromDisplayStore,
+    syncToggleAnchorFromElement,
     syncToggleAnchors,
     createToggleButterflyState,
     getToggleButterflyState,

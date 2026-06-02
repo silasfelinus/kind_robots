@@ -5,55 +5,7 @@
 // compositions, or any combination. It can replicate other models or
 // create new interactive experiences.
 
-// ── Types ──────────────────────────────────────────────────────────────────
-
-export type BotInputType =
-  | 'preset'
-  | 'text'
-  | 'long'
-  | 'personality'
-  | 'intros'
-  | 'modules'
-  | 'art'
-
-export type BotChoice = {
-  value: string
-  label: string
-  subtext?: string
-  image?: string
-  opensCustom?: boolean
-}
-
-export type BotStep = {
-  key: string
-  title: string
-  narrative: string
-  inputType: BotInputType
-  field?: string
-  choices?: BotChoice[]
-  placeholder?: string
-  inputLabel?: string
-  maxLength?: number
-  optional?: boolean
-  needsLLM?: boolean
-  multiSelect?: boolean
-}
-
-export type BotCard = {
-  key: string
-  label: string
-  title: string
-  icon: string
-  flourish: string
-  deckImage: string
-  heroImage: string
-  tagline: string
-  narrative: string
-  required?: boolean
-  restoresFields: string[]
-  unlockCondition?: 'always' | 'coreComplete'
-  steps: BotStep[]
-}
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 // ── BotType presets ───────────────────────────────────────────────────────
 
@@ -70,56 +22,56 @@ export const BOT_TYPES: BotTypeOption[] = [
     label: 'Assistant',
     subtext:
       'General purpose. Answers questions, helps with tasks, does what it is told. The reliable one.',
-    image: '/images/bots/type/assistant.png',
+    image: '/images/bots/type/assistant.webp',
   },
   {
     value: 'story',
     label: 'Story Bot',
     subtext:
       'Narrative-driven. Generates story beats, continues scenes, plays characters. Thinks in chapters.',
-    image: '/images/bots/type/story.png',
+    image: '/images/bots/type/story.webp',
   },
   {
     value: 'art',
     label: 'Art Bot',
     subtext:
       'Generates and refines art prompts. Can drive image generation workflows. Thinks in visuals.',
-    image: '/images/bots/type/art.png',
+    image: '/images/bots/type/art.webp',
   },
   {
     value: 'composition',
     label: 'Composition Bot',
     subtext:
       'Modular synthesis. Combines characters, dreams, scenarios, pitches, and rewards into cohesive output.',
-    image: '/images/bots/type/composition.png',
+    image: '/images/bots/type/composition.webp',
   },
   {
     value: 'character',
     label: 'Character Bot',
     subtext:
       'Speaks as a specific character. Has a voice, a perspective, opinions. Stays in role.',
-    image: '/images/bots/type/character.png',
+    image: '/images/bots/type/character.webp',
   },
   {
     value: 'scenario',
     label: 'Scenario Bot',
     subtext:
       'Runs interactive scenarios. Presents choices, responds to decisions, drives narrative events.',
-    image: '/images/bots/type/scenario.png',
+    image: '/images/bots/type/scenario.webp',
   },
   {
     value: 'guide',
     label: 'Guide Bot',
     subtext:
       'Teaches, explains, and orients. Knows the platform and helps users understand what it can do.',
-    image: '/images/bots/type/guide.png',
+    image: '/images/bots/type/guide.webp',
   },
   {
     value: 'custom',
     label: 'Custom',
     subtext:
       'Undefined type. The bot is whatever you make it. Name it something good.',
-    image: '/images/bots/type/custom.png',
+    image: '/images/bots/type/custom.webp',
   },
 ]
 
@@ -265,7 +217,7 @@ export const MODULE_PRESETS: Array<{
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 
-export const BOT_CARDS: BotCard[] = [
+export const BOT_CARDS: BuilderCard[] = [
   // ── Type ──────────────────────────────────────────────────────────────
   {
     key: 'type',
@@ -273,8 +225,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'What kind of bot',
     icon: 'kind-icon:robot',
     flourish: '◈',
-    deckImage: '/images/bots/thumb/type.png',
-    heroImage: '/images/bots/hero/type.png',
+    deckImage: '/images/bots/type.webp',
+    heroImage: '/images/bots/type.webp',
     tagline: 'What this bot fundamentally does.',
     narrative:
       "A bot's type is its purpose. An assistant answers questions. A story bot generates narrative. An art bot drives image workflows. A composition bot synthesizes multiple models into a single output. The type shapes the prompt, the intros, and how the bot is presented to users.",
@@ -299,8 +251,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'Name, subtitle, tagline',
     icon: 'kind-icon:person',
     flourish: '✦',
-    deckImage: '/images/bots/thumb/identity.png',
-    heroImage: '/images/bots/hero/identity.png',
+    deckImage: '/images/bots/identity.webp',
+    heroImage: '/images/bots/identity.webp',
     tagline: 'What the bot is called and how it introduces itself.',
     narrative:
       "The name is required and unique — it is the bot's handle across the platform. The subtitle is a short descriptor (what it is). The tagline is the hook — one sentence that makes someone want to use it.",
@@ -356,8 +308,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'The system instruction',
     icon: 'kind-icon:bolt',
     flourish: '⚡',
-    deckImage: '/images/bots/thumb/prompt.png',
-    heroImage: '/images/bots/hero/prompt.png',
+    deckImage: '/images/bots/prompt.webp',
+    heroImage: '/images/bots/prompt.webp',
     tagline: 'What the bot knows about itself. The foundation.',
     narrative:
       "The prompt is the core instruction — what the bot is, what it does, how it speaks, what it won't do. It runs silently behind every exchange. Write it in second person (You are...) or third person (This bot...). It shapes everything.",
@@ -387,8 +339,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'How the bot speaks',
     icon: 'kind-icon:sparkles',
     flourish: '✳',
-    deckImage: '/images/bots/thumb/personality.png',
-    heroImage: '/images/bots/hero/personality.png',
+    deckImage: '/images/bots/personality.webp',
+    heroImage: '/images/bots/personality.webp',
     tagline: 'Optional. Traits that shape tone and voice.',
     narrative:
       "Personality traits are appended to the system prompt to shape how the bot sounds. A bot can be warm and earnest, or deadpan and terse, or playful and mischievous. Pick the traits that fit — they'll be stored as a pipe-separated list and referenced during generation.",
@@ -419,8 +371,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'Opening messages',
     icon: 'kind-icon:message',
     flourish: '◎',
-    deckImage: '/images/bots/thumb/intros.png',
-    heroImage: '/images/bots/hero/intros.png',
+    deckImage: '/images/bots/intros.webp',
+    heroImage: '/images/bots/intros.webp',
     tagline: 'Optional. What the bot says first. Pipe-separated, up to 4.',
     narrative:
       "Bot intros are the opening messages — what the bot says when a conversation starts. Multiple intros are chosen randomly, giving the bot variety across sessions. Write them in the bot's voice, as if it's speaking. These are stored as a pipe-separated string in botIntro.",
@@ -449,8 +401,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'User interface text',
     icon: 'kind-icon:eye',
     flourish: '◉',
-    deckImage: '/images/bots/thumb/presentation.png',
-    heroImage: '/images/bots/hero/presentation.png',
+    deckImage: '/images/bots/presentation.webp',
+    heroImage: '/images/bots/presentation.webp',
     tagline: 'Optional. What the user sees before they start.',
     narrative:
       "The user intro is what's shown to the user when they arrive at the bot — a description or invitation. The sample response is an example of what the bot sounds like, shown to set expectations.",
@@ -509,8 +461,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'Avatar and image',
     icon: 'kind-icon:palette',
     flourish: '▣',
-    deckImage: '/images/bots/thumb/art.png',
-    heroImage: '/images/bots/hero/art.png',
+    deckImage: '/images/bots/art.webp',
+    heroImage: '/images/bots/art.webp',
     tagline: 'Optional. Give the bot a face.',
     narrative:
       "An avatar makes a bot real — it becomes a presence rather than a text field. Build the art prompt from the bot's name, type, and personality, then generate.",
@@ -538,8 +490,8 @@ export const BOT_CARDS: BotCard[] = [
     title: 'Modules and settings',
     icon: 'kind-icon:grid',
     flourish: '⊕',
-    deckImage: '/images/bots/thumb/extras.png',
-    heroImage: '/images/bots/hero/extras.png',
+    deckImage: '/images/bots/extras.webp',
+    heroImage: '/images/bots/extras.webp',
     tagline: 'Optional. Modules and advanced settings. Expandable later.',
     narrative:
       'Modules are additional capabilities that load with the bot — image generation, translation support, memory, composition synthesis. The module system is under active development; these selections are stored now and will be activated as support is added.',

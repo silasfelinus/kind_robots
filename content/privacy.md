@@ -9,7 +9,11 @@ tooltip: Kind Robots privacy policy and data philosophy.
 dottitip: 'Your data belongs to you. Full stop.'
 amitip: "Even robots have a code of ethics. Ours just happens to be written down."
 sort: info
----
-
+layout: workspace
+dashboardKey: admin
+dashboardTab: user
+cards: navCards
+loadingMessage: Loading privacy
+refreshLabel: Refresh Privacy
 ---
 :privacy-page

@@ -5,49 +5,7 @@
 // Could be a physical place, a psychological state, an atmospheric condition,
 // or something harder to categorise.
 
-// ── Types ──────────────────────────────────────────────────────────────────
-
-export type DreamInputType = 'preset' | 'text' | 'long' | 'icon' | 'art'
-
-export type DreamChoice = {
-  value: string
-  label: string
-  subtext?: string
-  image?: string
-  opensCustom?: boolean
-  opensList?: boolean
-  listOptions?: string[]
-}
-
-export type DreamStep = {
-  key: string
-  title: string
-  narrative: string
-  inputType: DreamInputType
-  field?: string
-  choices?: DreamChoice[]
-  placeholder?: string
-  inputLabel?: string
-  maxLength?: number
-  optional?: boolean
-  needsLLM?: boolean
-}
-
-export type DreamCard = {
-  key: string
-  label: string
-  title: string
-  icon: string
-  flourish: string
-  deckImage: string
-  heroImage: string
-  tagline: string
-  narrative: string
-  required?: boolean
-  restoresFields: string[]
-  unlockCondition?: 'always' | 'coreComplete'
-  steps: DreamStep[]
-}
+import type { BuilderCard, BuilderChoice } from '@/stores/helpers/builderCards'
 
 // ── Atmosphere categories ──────────────────────────────────────────────────
 // Used as an optional vibe tag — not stored directly but informs the LLM
@@ -228,7 +186,7 @@ export const ATMOSPHERE_TAGS: AtmosphereTag[] = [
 
 // ── Access mode options ─────────────────────────────────────────────────────
 
-export const ACCESS_MODES: DreamChoice[] = [
+export const ACCESS_MODES: BuilderChoice[] = [
   {
     value: 'OPEN',
     label: 'Open',
@@ -251,7 +209,7 @@ export const ACCESS_MODES: DreamChoice[] = [
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 
-export const DREAM_CARDS: DreamCard[] = [
+export const DREAM_CARDS: BuilderCard[] = [
   // ── Atmosphere ────────────────────────────────────────────────────────────
   {
     key: 'atmosphere',
@@ -276,13 +234,13 @@ export const DREAM_CARDS: DreamCard[] = [
         field: 'vibeTag',
         choices: (
           ATMOSPHERE_TAGS.map(
-            (tag): DreamChoice => ({
+            (tag): BuilderChoice => ({
               value: tag.key,
               label: tag.label,
               subtext: tag.subtext,
               image: `/images/dreams/atmosphere/${tag.key}.png`,
             }),
-          ) as DreamChoice[]
+          ) as BuilderChoice[]
         ).concat([
           {
             value: '',

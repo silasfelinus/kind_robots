@@ -26,19 +26,32 @@
       </Transition>
 
       <main class="relative min-h-0 overflow-hidden">
-        <dashboard-shell
-          class="h-full min-h-0"
-          :title="dashboardShell.title"
-          :summary="dashboardShell.summary"
-          :dashboard-key="dashboardShell.dashboardKey"
-          :loading="navStore.loading"
-          :loading-message="dashboardShell.loadingMessage"
-          :error="navStore.lastError"
-          :refresh-label="dashboardShell.refreshLabel"
-          @refresh="navStore.refreshDashboardShell"
-        >
-          <slot />
-        </dashboard-shell>
+        <div class="flex h-full min-h-0 flex-col overflow-hidden">
+          <section class="min-h-0 flex-1 overflow-hidden">
+            <dashboard-shell
+              class="h-full min-h-0"
+              :title="dashboardShell.title"
+              :summary="dashboardShell.summary"
+              :dashboard-key="dashboardShell.dashboardKey"
+              :loading="navStore.loading"
+              :loading-message="dashboardShell.loadingMessage"
+              :error="navStore.lastError"
+              :refresh-label="dashboardShell.refreshLabel"
+              @refresh="navStore.refreshDashboardShell"
+            >
+              <slot />
+            </dashboard-shell>
+          </section>
+
+          <section
+            v-if="hasBuilderCards"
+            class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
+          >
+            <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
+              <builder-hand :cards="builderCards" />
+            </div>
+          </section>
+        </div>
       </main>
 
       <Transition
@@ -68,11 +81,20 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
+import { getModelCards } from '@/stores/helpers/modelCards'
 
 const displayStore = useDisplayStore()
 const navStore = useNavStore()
 
 const dashboardShell = computed(() => navStore.dashboardShell)
+
+const builderCards = computed(() => {
+  return getModelCards(dashboardShell.value.cards)
+})
+
+const hasBuilderCards = computed(() => {
+  return builderCards.value.length > 0
+})
 
 const leftSidebarOpen = computed(() => {
   return displayStore.sidebarLeftState !== 'hidden'

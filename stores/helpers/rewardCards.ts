@@ -4,49 +4,7 @@
 // Rewards can be skills, items, treasures, titles, powers, or story beats.
 // Each has a name (text), an effect (power), a rarity, and optionally a collection.
 
-// ── Types ──────────────────────────────────────────────────────────────────
-
-export type RewardInputType = 'preset' | 'text' | 'long' | 'icon' | 'art'
-
-export type RewardChoice = {
-  value: string
-  label: string
-  subtext?: string
-  image?: string
-  opensCustom?: boolean
-  opensList?: boolean
-  listOptions?: string[]
-}
-
-export type RewardStep = {
-  key: string
-  title: string
-  narrative: string
-  inputType: RewardInputType
-  field?: string
-  choices?: RewardChoice[]
-  placeholder?: string
-  inputLabel?: string
-  maxLength?: number
-  optional?: boolean
-  needsLLM?: boolean
-}
-
-export type RewardCard = {
-  key: string
-  label: string
-  title: string
-  icon: string
-  flourish: string
-  deckImage: string
-  heroImage: string
-  tagline: string
-  narrative: string
-  required?: boolean
-  restoresFields: string[]
-  unlockCondition?: 'always' | 'coreComplete'
-  steps: RewardStep[]
-}
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 // ── Collection presets ─────────────────────────────────────────────────────
 
@@ -237,7 +195,7 @@ export const REWARD_EXAMPLES: Record<
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 
-export const REWARD_CARDS: RewardCard[] = [
+export const REWARD_CARDS: BuilderCard[] = [
   // ── Type ─────────────────────────────────────────────────────────────────
   {
     key: 'type',
@@ -245,8 +203,8 @@ export const REWARD_CARDS: RewardCard[] = [
     title: 'What kind of reward',
     icon: 'kind-icon:gift',
     flourish: '✦',
-    deckImage: '/images/rewards/thumb/type.png',
-    heroImage: '/images/rewards/hero/type.png',
+    deckImage: '/images/rewards/type.webp',
+    heroImage: '/images/rewards/type.webp',
     tagline: 'What does the entity get to keep.',
     narrative:
       'Rewards are the things that change an entity after the story. A skill changes what they can do. An item changes what they carry. A treasure changes what they have. A title changes how the world sees them. A power changes what they are. A story beat changes what happens next.',
@@ -266,42 +224,42 @@ export const REWARD_CARDS: RewardCard[] = [
             label: 'Skill',
             subtext:
               'Something they can now do. Practiced, earned, or accidentally acquired through repeated near-disasters.',
-            image: '/images/rewards/type/skill.png',
+            image: '/images/rewards/type/skill.webp',
           },
           {
             value: 'ITEM',
             label: 'Item',
             subtext:
               'Something they carry. Objects accumulate history. The best items have opinions.',
-            image: '/images/rewards/type/item.png',
+            image: '/images/rewards/type/item.webp',
           },
           {
             value: 'TREASURE',
             label: 'Treasure',
             subtext:
               'Something with value. Monetary, cultural, sentimental, or dangerously specific.',
-            image: '/images/rewards/type/treasure.png',
+            image: '/images/rewards/type/treasure.webp',
           },
           {
             value: 'TITLE',
             label: 'Title',
             subtext:
               'Something the world calls them now. May or may not reflect reality. Often opens doors. Sometimes closes them.',
-            image: '/images/rewards/type/title.png',
+            image: '/images/rewards/type/title.webp',
           },
           {
             value: 'POWER',
             label: 'Power',
             subtext:
               "Something innate. A capacity that was always there, or wasn't, or became. The distinction is unclear.",
-            image: '/images/rewards/type/power.png',
+            image: '/images/rewards/type/power.webp',
           },
           {
             value: 'STORY',
             label: 'Story',
             subtext:
               'Something narrative. A debt, a connection, a complication. The kind of reward that keeps giving.',
-            image: '/images/rewards/type/story.png',
+            image: '/images/rewards/type/story.webp',
           },
         ],
       },
@@ -315,8 +273,8 @@ export const REWARD_CARDS: RewardCard[] = [
     title: 'How rare',
     icon: 'kind-icon:gem',
     flourish: '◈',
-    deckImage: '/images/rewards/thumb/rarity.png',
-    heroImage: '/images/rewards/hero/rarity.png',
+    deckImage: '/images/rewards/rarity.webp',
+    heroImage: '/images/rewards/rarity.webp',
     tagline: 'How much reality bends around this thing.',
     narrative:
       'Rarity is not just value. It is how much the universe had to agree to make this thing exist. A common reward is reliable. A mythic reward is the kind of thing stories are still explaining centuries later.',
@@ -336,42 +294,42 @@ export const REWARD_CARDS: RewardCard[] = [
             label: 'Common',
             subtext:
               'Reliable. Present. Does what it says. Nobody writes songs about it, which is fine — it is busy working.',
-            image: '/images/rewards/rarity/common.png',
+            image: '/images/rewards/rarity/common.webp',
           },
           {
             value: 'UNCOMMON',
             label: 'Uncommon',
             subtext:
               "Slightly better than expected. The kind of thing you mention but don't lead with.",
-            image: '/images/rewards/rarity/uncommon.png',
+            image: '/images/rewards/rarity/uncommon.webp',
           },
           {
             value: 'RARE',
             label: 'Rare',
             subtext:
               'Noteworthy. People ask where you got it. The honest answer is complicated.',
-            image: '/images/rewards/rarity/rare.png',
+            image: '/images/rewards/rarity/rare.webp',
           },
           {
             value: 'EPIC',
             label: 'Epic',
             subtext:
               'Significant. Changes the shape of situations it enters. Has a backstory whether you want it to or not.',
-            image: '/images/rewards/rarity/epic.png',
+            image: '/images/rewards/rarity/epic.webp',
           },
           {
             value: 'LEGENDARY',
             label: 'Legendary',
             subtext:
               "Historical. The kind of thing that already exists in the world's memory before you find it.",
-            image: '/images/rewards/rarity/legendary.png',
+            image: '/images/rewards/rarity/legendary.webp',
           },
           {
             value: 'MYTHIC',
             label: 'Mythic',
             subtext:
               'Should not exist. Does anyway. Reality has filed several complaints. None have been acknowledged.',
-            image: '/images/rewards/rarity/mythic.png',
+            image: '/images/rewards/rarity/mythic.webp',
           },
         ],
       },
@@ -385,8 +343,8 @@ export const REWARD_CARDS: RewardCard[] = [
     title: 'What it is called',
     icon: 'kind-icon:edit',
     flourish: '✒',
-    deckImage: '/images/rewards/thumb/name.png',
-    heroImage: '/images/rewards/hero/name.png',
+    deckImage: '/images/rewards/name.webp',
+    heroImage: '/images/rewards/name.webp',
     tagline: 'The thing people say when they mean this.',
     narrative:
       "A good reward name does two things: it tells you what the thing is, and it implies a story. 'The Good Pen' tells you more than 'Enchanted Writing Implement'. Name it like something that already exists in the world. It does.",
@@ -416,8 +374,8 @@ export const REWARD_CARDS: RewardCard[] = [
     title: 'What it does',
     icon: 'kind-icon:bolt',
     flourish: '⚡',
-    deckImage: '/images/rewards/thumb/power.png',
-    heroImage: '/images/rewards/hero/power.png',
+    deckImage: '/images/rewards/power.webp',
+    heroImage: '/images/rewards/power.webp',
     tagline: 'The actual thing that changes.',
     narrative:
       "Power is the mechanical truth of a reward. It should be specific enough to use at the table and interesting enough to remember. The best powers have a rule and a personality. 'Add 2 to rolls' has a rule. 'You do not fall off things you chose to climb' has a personality.",
@@ -446,8 +404,8 @@ export const REWARD_CARDS: RewardCard[] = [
     title: 'Where it belongs',
     icon: 'kind-icon:folder',
     flourish: '§',
-    deckImage: '/images/rewards/thumb/collection.png',
-    heroImage: '/images/rewards/hero/collection.png',
+    deckImage: '/images/rewards/collection.webp',
+    heroImage: '/images/rewards/collection.webp',
     tagline: 'Optional. Groups rewards that belong together.',
     narrative:
       'Collections are how rewards find each other. Rewards in the same collection share a source, a theme, or a very specific origin story. The collection name is just a string — any rewards with the same string are in the same collection.',
@@ -480,8 +438,8 @@ export const REWARD_CARDS: RewardCard[] = [
     title: 'The symbol',
     icon: 'kind-icon:grid',
     flourish: '⊕',
-    deckImage: '/images/rewards/thumb/icon.png',
-    heroImage: '/images/rewards/hero/icon.png',
+    deckImage: '/images/rewards/icon.webp',
+    heroImage: '/images/rewards/icon.webp',
     tagline: 'Optional. A small visual handle.',
     narrative:
       'An icon is not the reward. It is the symbol on the card — the small image that makes this reward findable at a glance in a list of fifty. Pick one that fits, obliquely or directly.',
@@ -507,8 +465,8 @@ export const REWARD_CARDS: RewardCard[] = [
     title: 'Make it visible',
     icon: 'kind-icon:palette',
     flourish: '▣',
-    deckImage: '/images/rewards/thumb/art.png',
-    heroImage: '/images/rewards/hero/art.png',
+    deckImage: '/images/rewards/art.webp',
+    heroImage: '/images/rewards/art.webp',
     tagline: 'Optional. Give the reward a face.',
     narrative:
       'A reward with an image is a reward someone remembers. Build the art prompt from the name, power, and type. Generate the image. The reward becomes a thing with a presence.',

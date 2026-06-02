@@ -127,7 +127,7 @@
           :aria-pressed="leftSidebarOpen"
           @click="displayStore.toggleLeftSidebar()"
         >
-          <Icon name="kind-icon:sheet" class="h-4 w-4" />
+          <Icon name="kind-icon:robot" class="h-4 w-4" />
         </button>
 
         <button
@@ -142,7 +142,7 @@
           :aria-pressed="rightSidebarOpen"
           @click="displayStore.toggleRightSidebar()"
         >
-          <Icon name="kind-icon:question-mark" class="h-4 w-4" />
+          <Icon name="kind-icon:question" class="h-4 w-4" />
         </button>
       </header>
     </transition>

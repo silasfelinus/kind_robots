@@ -64,46 +64,44 @@
       </div>
     </Transition>
 
-    <div
-      class="relative grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] overflow-hidden"
-    >
-      <div class="relative flex min-h-0 overflow-hidden">
-        <Transition name="builder-sheet-slide">
-          <aside
-            v-show="showSheet || isDesktop"
-            class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-[min(20rem,calc(100vw-2rem))] shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:static lg:z-auto lg:w-80 lg:shadow-none"
+    <div class="relative flex min-h-0 flex-1 overflow-hidden">
+      <Transition name="builder-sheet-slide">
+        <aside
+          v-show="showSheet || isDesktop"
+          class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-[min(20rem,calc(100vw-2rem))] shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:static lg:z-auto lg:w-80 lg:shadow-none"
+        >
+          <div
+            class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 pb-2"
           >
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-              <builder-sheet />
-            </div>
-          </aside>
-        </Transition>
+            <builder-sheet />
+          </div>
+        </aside>
+      </Transition>
 
-        <button
-          v-if="showSheet && !isDesktop"
-          type="button"
-          class="absolute inset-0 z-20 bg-base-300/40 backdrop-blur-[1px] lg:hidden"
-          aria-label="Close builder sheet overlay"
-          @click="showSheet = false"
-        />
+      <button
+        v-if="showSheet && !isDesktop"
+        type="button"
+        class="absolute inset-0 z-20 bg-base-300/40 backdrop-blur-[1px] lg:hidden"
+        aria-label="Close builder sheet overlay"
+        @click="showSheet = false"
+      />
 
-        <main class="min-h-0 min-w-0 flex-1 overflow-hidden">
-          <section
-            class="h-full min-h-0 overflow-y-auto overscroll-contain p-3"
-          >
-            <builder-stage />
-          </section>
-        </main>
-      </div>
+      <main class="min-h-0 min-w-0 flex-1 overflow-hidden">
+        <section class="h-full min-h-0 overflow-y-auto overscroll-contain p-3">
+          <builder-stage />
+        </section>
+      </main>
+    </div>
 
+    <Teleport to="body">
       <section
-        class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
+        class="fixed inset-x-0 bottom-0 z-40 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
       >
         <div class="h-32 sm:h-[22dvh] sm:max-h-52">
           <builder-hand />
         </div>
       </section>
-    </div>
+    </Teleport>
 
     <Teleport to="body">
       <Transition name="builder-modal-fade">
@@ -156,6 +154,9 @@ const showSheet = ref(false)
 const showResetConfirm = ref(false)
 const isDesktop = ref(false)
 
+const HAND_SPACE_DESKTOP = '22dvh'
+const HAND_SPACE_MOBILE = '8rem'
+
 const title = computed(() => {
   const sheetTitle = String(store.sheet.name || store.sheet.title || '').trim()
   return (
@@ -173,19 +174,36 @@ function updateDesktop(): void {
   isDesktop.value = window.matchMedia('(min-width: 1024px)').matches
 }
 
+function applyHandReserve(): void {
+  const space = isDesktop.value
+    ? `min(${HAND_SPACE_DESKTOP}, 13rem)`
+    : HAND_SPACE_MOBILE
+  document.documentElement.style.setProperty(
+    '--builder-hand-space',
+    `calc(${space} + 1rem)`,
+  )
+}
+
 function resetBuilder(): void {
   store.resetBuilder(true)
   showResetConfirm.value = false
 }
 
+function handleResize(): void {
+  updateDesktop()
+  applyHandReserve()
+}
+
 onMounted(() => {
   store.hydrate()
   updateDesktop()
-  window.addEventListener('resize', updateDesktop)
+  applyHandReserve()
+  window.addEventListener('resize', handleResize)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateDesktop)
+  window.removeEventListener('resize', handleResize)
+  document.documentElement.style.removeProperty('--builder-hand-space')
 })
 </script>
 

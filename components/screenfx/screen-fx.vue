@@ -5,7 +5,7 @@
       v-if="activeCount > 0"
       class="effect-container"
       :class="{ 'effect-container--interactive': hasBlockingEffect }"
-      :style="animationStore.layerStyle"
+      
     >
       <component
         :is="activeComponent.component"

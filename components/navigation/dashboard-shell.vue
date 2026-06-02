@@ -113,6 +113,37 @@
             </button>
           </nav>
         </div>
+
+        <!-- Toggles flank the header's bottom corners, floating outside it -->
+        <button
+          type="button"
+          class="absolute -bottom-4 left-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
+          :class="
+            leftSidebarOpen
+              ? 'bg-primary text-primary-content'
+              : 'bg-base-100 text-base-content hover:border-primary hover:text-primary'
+          "
+          :title="leftSidebarOpen ? 'Hide left panel' : 'Show left panel'"
+          :aria-pressed="leftSidebarOpen"
+          @click="displayStore.toggleLeftSidebar()"
+        >
+          <Icon name="kind-icon:sheet" class="h-4 w-4" />
+        </button>
+
+        <button
+          type="button"
+          class="absolute -bottom-4 right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
+          :class="
+            rightSidebarOpen
+              ? 'bg-secondary text-secondary-content'
+              : 'bg-base-100 text-base-content hover:border-secondary hover:text-secondary'
+          "
+          :title="rightSidebarOpen ? 'Hide help panel' : 'Show help panel'"
+          :aria-pressed="rightSidebarOpen"
+          @click="displayStore.toggleRightSidebar()"
+        >
+          <Icon name="kind-icon:question-mark" class="h-4 w-4" />
+        </button>
       </header>
     </transition>
 
@@ -136,30 +167,9 @@
       </div>
     </transition>
 
-    <section
-      class="relative z-0 grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden"
-      :class="contentGridClass"
-    >
-      <transition name="fade-up">
-        <aside
-          v-if="leftSidebarOpen"
-          class="min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
-        >
-          <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-3">
-            <slot
-              name="left"
-              :active-tab="normalizedActiveTab"
-              :active-tab-config="activeTabConfig"
-              :set-tab="setTab"
-            >
-              <splash-tutorial />
-            </slot>
-          </div>
-        </aside>
-      </transition>
-
+    <section class="relative z-0 min-h-0 flex-1 overflow-hidden">
       <main
-        class="min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+        class="h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div class="h-full min-h-0 overflow-hidden">
           <slot
@@ -169,56 +179,7 @@
           />
         </div>
       </main>
-
-      <transition name="fade-up">
-        <aside
-          v-if="rightSidebarOpen"
-          class="min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
-        >
-          <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-3">
-            <slot
-              name="right"
-              :active-tab="normalizedActiveTab"
-              :active-tab-config="activeTabConfig"
-              :set-tab="setTab"
-            >
-              <user-panel />
-            </slot>
-          </div>
-        </aside>
-      </transition>
     </section>
-
-    <!-- Corner-anchored sidebar toggles -->
-    <button
-      type="button"
-      class="absolute bottom-3 left-3 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-base-300 shadow-lg backdrop-blur transition-all hover:scale-105 active:scale-95 sm:bottom-4 sm:left-4"
-      :class="
-        leftSidebarOpen
-          ? 'btn-primary bg-primary text-primary-content'
-          : 'bg-base-100 text-base-content hover:border-primary hover:text-primary'
-      "
-      :title="leftSidebarOpen ? 'Hide left panel' : 'Show left panel'"
-      :aria-pressed="leftSidebarOpen"
-      @click="displayStore.toggleLeftSidebar()"
-    >
-      <Icon name="kind-icon:sheet" class="h-5 w-5" />
-    </button>
-
-    <button
-      type="button"
-      class="absolute bottom-3 right-3 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-base-300 shadow-lg backdrop-blur transition-all hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
-      :class="
-        rightSidebarOpen
-          ? 'btn-secondary bg-secondary text-secondary-content'
-          : 'bg-base-100 text-base-content hover:border-secondary hover:text-secondary'
-      "
-      :title="rightSidebarOpen ? 'Hide help panel' : 'Show help panel'"
-      :aria-pressed="rightSidebarOpen"
-      @click="displayStore.toggleRightSidebar()"
-    >
-      <Icon name="kind-icon:question-mark" class="h-5 w-5" />
-    </button>
   </div>
 </template>
 
@@ -249,8 +210,6 @@ const props = withDefaults(
     refreshLabel?: string
     navZClass?: string
     navGridClass?: string
-    leftSidebarWidth?: string
-    rightSidebarWidth?: string
   }>(),
   {
     title: 'Dashboard',
@@ -265,8 +224,6 @@ const props = withDefaults(
     refreshLabel: 'Refresh',
     navZClass: 'z-40',
     navGridClass: '',
-    leftSidebarWidth: '18rem',
-    rightSidebarWidth: '20rem',
   },
 )
 
@@ -349,22 +306,6 @@ const activeTitle = computed(() => {
 
 const activeSummary = computed(() => {
   return activeTabConfig.value.summary || props.summary || ''
-})
-
-const contentGridClass = computed(() => {
-  if (leftSidebarOpen.value && rightSidebarOpen.value) {
-    return `lg:grid-cols-[${props.leftSidebarWidth}_minmax(0,1fr)] xl:grid-cols-[${props.leftSidebarWidth}_minmax(0,1fr)_${props.rightSidebarWidth}]`
-  }
-
-  if (leftSidebarOpen.value) {
-    return `lg:grid-cols-[${props.leftSidebarWidth}_minmax(0,1fr)]`
-  }
-
-  if (rightSidebarOpen.value) {
-    return `xl:grid-cols-[minmax(0,1fr)_${props.rightSidebarWidth}]`
-  }
-
-  return 'grid-cols-1'
 })
 
 function setTab(tabKey: string) {

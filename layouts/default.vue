@@ -25,7 +25,9 @@
       <main
         class="relative min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-4">
+        <div
+          class="h-full min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-4"
+        >
           <slot />
         </div>
       </main>
@@ -37,10 +39,7 @@
         <div
           class="flex shrink-0 items-center gap-2 border-b border-base-300 px-3 py-2"
         >
-          <Icon
-            name="kind-icon:sidebar-right"
-            class="h-4 w-4 text-secondary"
-          />
+          <Icon name="kind-icon:sidebar-right" class="h-4 w-4 text-secondary" />
           <span class="truncate text-sm font-bold">Right Panel</span>
         </div>
 
@@ -60,7 +59,7 @@ import { computed, resolveComponent, type Component } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePageStore } from '@/stores/pageStore'
 
-type SidebarComponentKey = 'splash-tutorial' | 'user-panel'
+type SidebarComponentKey = 'builder-sheet' | 'splash-tutorial'
 type SidebarKey = SidebarComponentKey | 'none'
 
 type SidebarPage = {
@@ -77,7 +76,7 @@ const typedPage = computed<SidebarPage | null>(() => {
 
 const sidebarComponentMap: Record<SidebarComponentKey, Component | string> = {
   'splash-tutorial': resolveComponent('SplashTutorial'),
-  'user-panel': resolveComponent('UserPanel'),
+  'builder-sheet': resolveComponent('BuilderSheet'),
 }
 
 function normalizeSidebarKey(
@@ -86,7 +85,7 @@ function normalizeSidebarKey(
 ): SidebarKey {
   if (value === 'none') return 'none'
   if (value === 'splash-tutorial') return 'splash-tutorial'
-  if (value === 'user-panel') return 'user-panel'
+  if (value === 'builder-sheet') return 'builder-sheet'
   return fallback
 }
 
@@ -95,7 +94,7 @@ const leftSidebarKey = computed<SidebarKey>(() => {
 })
 
 const rightSidebarKey = computed<SidebarKey>(() => {
-  return normalizeSidebarKey(typedPage.value?.rightSidebar, 'user-panel')
+  return normalizeSidebarKey(typedPage.value?.rightSidebar, 'builder-sheet')
 })
 
 const leftSidebarOpen = computed(() => {
@@ -122,7 +121,7 @@ const leftSidebarComponent = computed<Component | string>(() => {
 
 const rightSidebarComponent = computed<Component | string>(() => {
   if (rightSidebarKey.value === 'none') {
-    return sidebarComponentMap['user-panel']
+    return sidebarComponentMap['builder-sheet']
   }
 
   return sidebarComponentMap[rightSidebarKey.value]

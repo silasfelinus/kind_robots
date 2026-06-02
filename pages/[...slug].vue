@@ -1,5 +1,5 @@
 <template>
-  <NuxtLayout :name="nuxtLayoutName">
+  <NuxtLayout :name="layout">
     <div
       v-if="pageStore.page && pageStore.page.body"
       :class="isWorkspaceLayout ? 'h-full min-h-0 overflow-hidden' : ''"
@@ -39,7 +39,7 @@ import { useNavStore } from '@/stores/navStore'
 type PageLayoutName = 'default' | 'workspace'
 
 type ContentPage = ContentType & {
-  layout?: PageLayoutName | string | null
+  layout?: string | null
   dashboardKey?: string | null
   dashboardTab?: string | null
   cards?: string | null
@@ -72,13 +72,17 @@ const layout = computed<PageLayoutName>(() => {
   return normalizeLayoutName(typedPage.value?.layout)
 })
 
-const nuxtLayoutName = computed(() => {
-  return layout.value as unknown as 'default'
-})
-
 const isWorkspaceLayout = computed(() => {
   return layout.value === 'workspace'
 })
+
+const { data: pageData } = useAsyncData(
+  () => `content-${route.path}`,
+  () => queryCollection('content').path(route.path).first(),
+  {
+    watch: [() => route.path],
+  },
+)
 
 function normalizePage(page: unknown): ContentPage {
   return page as ContentPage
@@ -86,10 +90,6 @@ function normalizePage(page: unknown): ContentPage {
 
 function normalizeLayoutName(value?: string | null): PageLayoutName {
   return value === 'workspace' ? 'workspace' : 'default'
-}
-
-function getContentPath(): string {
-  return route.path
 }
 
 function getQueryNumber(value: unknown): number | null {
@@ -101,65 +101,43 @@ function getQueryNumber(value: unknown): number | null {
 }
 
 function syncDashboardShellFromPage(page: ContentPage): void {
-  const pageLayout = normalizeLayoutName(page.layout)
-
-  if (pageLayout !== 'workspace') {
+  if (normalizeLayoutName(page.layout) !== 'workspace') {
     navStore.clearDashboardShell()
     return
   }
 
-navStore.setDashboardShellFromContent({
-  layout: page.layout,
-  title: page.title,
-  subtitle: page.subtitle,
-  description: page.description,
-  summary: page.summary,
-  dashboardKey: page.dashboardKey,
-  dashboardTab: page.dashboardTab,
-  cards: page.cards,
-  loadingMessage: page.loadingMessage,
-  refreshLabel: page.refreshLabel,
-})
-
-async function loadPage(path: string): Promise<void> {
-  const data = await queryCollection('content').path(path).first()
-
-  if (!data) {
-    navStore.clearDashboardShell()
-    await router.push('/error')
-    return
-  }
-
-  const normalizedPage = normalizePage(data)
-
-  pageStore.setPage(normalizedPage)
-  navStore.recordVisit(path)
-  syncDashboardShellFromPage(normalizedPage)
+  navStore.setDashboardShellFromContent({
+    layout: page.layout,
+    title: page.title,
+    subtitle: page.subtitle,
+    description: page.description,
+    summary: page.summary,
+    dashboardKey: page.dashboardKey,
+    dashboardTab: page.dashboardTab,
+    cards: page.cards,
+    loadingMessage: page.loadingMessage,
+    refreshLabel: page.refreshLabel,
+  })
 }
 
-const { data: pageData } = await useAsyncData(
-  () => getContentPath(),
-  () => queryCollection('content').path(getContentPath()).first(),
-)
-
-if (!pageData.value) {
-  navStore.clearDashboardShell()
-  await router.push('/error')
-}
-
-if (pageData.value) {
-  const normalizedPage = normalizePage(pageData.value)
-
-  pageStore.setPage(normalizedPage)
-  navStore.recordVisit(getContentPath())
-  syncDashboardShellFromPage(normalizedPage)
+function applyPage(page: ContentPage): void {
+  pageStore.setPage(page)
+  navStore.recordVisit(route.path)
+  syncDashboardShellFromPage(page)
 }
 
 watch(
-  () => route.path,
-  async (newPath) => {
-    await loadPage(newPath)
+  pageData,
+  async (value) => {
+    if (!value) {
+      navStore.clearDashboardShell()
+      await router.push('/error')
+      return
+    }
+
+    applyPage(normalizePage(value))
   },
+  { immediate: true },
 )
 
 onMounted(async () => {

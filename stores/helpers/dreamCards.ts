@@ -191,19 +191,19 @@ export const ACCESS_MODES: BuilderChoice[] = [
     value: 'OPEN',
     label: 'Open',
     subtext: 'Anyone can enter. The door is always unlocked.',
-    image: '/images/dreams/access/open.png',
+    image: '/images/dreams/access/open.webp',
   },
   {
     value: 'PRIVATE',
     label: 'Private',
     subtext: 'Only you. The space is yours alone.',
-    image: '/images/dreams/access/private.png',
+    image: '/images/dreams/access/private.webp',
   },
   {
     value: 'CODE',
     label: 'Code',
     subtext: 'Anyone with the code can enter. The door has a specific answer.',
-    image: '/images/dreams/access/code.png',
+    image: '/images/dreams/access/code.webp',
   },
 ]
 
@@ -217,8 +217,8 @@ export const DREAM_CARDS: BuilderCard[] = [
     title: 'The quality of the space',
     icon: 'kind-icon:cloud',
     flourish: '◌',
-    deckImage: '/images/dreams/thumb/atmosphere.png',
-    heroImage: '/images/dreams/hero/atmosphere.png',
+    deckImage: '/images/dreams/atmosphere.webp',
+    heroImage: '/images/dreams/atmosphere.webp',
     tagline: "What kind of place is this. Even if it isn't a place.",
     narrative:
       'A Dream can be a forest, a city, a feeling, a specific quality of light at a certain time of day. The atmosphere is the first thing — the category the space belongs to before it has a name. Choose the one that fits. This shapes everything that follows.',
@@ -238,7 +238,7 @@ export const DREAM_CARDS: BuilderCard[] = [
               value: tag.key,
               label: tag.label,
               subtext: tag.subtext,
-              image: `/images/dreams/atmosphere/${tag.key}.png`,
+              image: `/images/dreams/atmosphere/${tag.key}.webp`,
             }),
           ) as BuilderChoice[]
         ).concat([
@@ -261,8 +261,8 @@ export const DREAM_CARDS: BuilderCard[] = [
     title: 'What it is called',
     icon: 'kind-icon:edit',
     flourish: '✒',
-    deckImage: '/images/dreams/thumb/title.png',
-    heroImage: '/images/dreams/hero/title.png',
+    deckImage: '/images/dreams/title.webp',
+    heroImage: '/images/dreams/title.webp',
     tagline: 'The name. Short. The kind others repeat.',
     narrative:
       "A good dream name tells you what kind of thing it is before you know anything else about it. 'The Drowned Archive' is different from 'The Archive' in ways that matter immediately. Name it like it already exists somewhere, waiting.",
@@ -292,8 +292,8 @@ export const DREAM_CARDS: BuilderCard[] = [
     title: 'What it is',
     icon: 'kind-icon:book',
     flourish: '§',
-    deckImage: '/images/dreams/thumb/description.png',
-    heroImage: '/images/dreams/hero/description.png',
+    deckImage: '/images/dreams/description.webp',
+    heroImage: '/images/dreams/description.webp',
     tagline: 'The baseline. What it is when nothing is happening.',
     narrative:
       'The description is the permanent version of this place — what it is before anything happens in it, what it returns to when the visitors have left. Atmosphere, history, defining features. What someone would write in a guidebook if the guidebook were honest.',
@@ -322,8 +322,8 @@ export const DREAM_CARDS: BuilderCard[] = [
     title: 'Right now',
     icon: 'kind-icon:wave',
     flourish: '〜',
-    deckImage: '/images/dreams/thumb/vibe.png',
-    heroImage: '/images/dreams/hero/vibe.png',
+    deckImage: '/images/dreams/vibe.webp',
+    heroImage: '/images/dreams/vibe.webp',
     tagline: 'The mood in this moment. Can change between sessions.',
     narrative:
       "The current vibe is the space's mood right now — not its permanent character, but its current condition. A forest can be peaceful or menacing depending on the season, the weather, what recently happened there. The vibe changes. The description doesn't.",
@@ -352,8 +352,8 @@ export const DREAM_CARDS: BuilderCard[] = [
     title: 'What happens here',
     icon: 'kind-icon:bolt',
     flourish: '⚡',
-    deckImage: '/images/dreams/thumb/prompt.png',
-    heroImage: '/images/dreams/hero/prompt.png',
+    deckImage: '/images/dreams/prompt.webp',
+    heroImage: '/images/dreams/prompt.webp',
     tagline: 'Optional. The inciting detail. What visitors encounter.',
     narrative:
       'The current prompt is the active element — the thing that is happening when someone arrives. Not the place itself, but the event, the condition, the thing that makes this particular visit interesting. It is what the space is doing right now.',
@@ -382,8 +382,8 @@ export const DREAM_CARDS: BuilderCard[] = [
     title: 'Who can enter',
     icon: 'kind-icon:lock',
     flourish: '⊘',
-    deckImage: '/images/dreams/thumb/access.png',
-    heroImage: '/images/dreams/hero/access.png',
+    deckImage: '/images/dreams/access.webp',
+    heroImage: '/images/dreams/access.webp',
     tagline: 'Optional. Open to all, private, or code-locked.',
     narrative:
       'Access determines who can enter this dream space. Open means anyone. Private means only you. Code means anyone who knows the word.',
@@ -421,8 +421,8 @@ export const DREAM_CARDS: BuilderCard[] = [
     title: 'Make it visible',
     icon: 'kind-icon:palette',
     flourish: '▣',
-    deckImage: '/images/dreams/thumb/art.png',
-    heroImage: '/images/dreams/hero/art.png',
+    deckImage: '/images/dreams/art.webp',
+    heroImage: '/images/dreams/art.webp',
     tagline: 'Optional. Give the space a face.',
     narrative:
       "An image makes a dream real in a way description alone doesn't. Build the art prompt from the title, atmosphere, and description. Generate the image. The dream becomes a place someone can picture before they've read a word.",

@@ -15,6 +15,8 @@ export type NavCard = BuilderCard
 
 // Small helper to keep nav cards consistent and DRY. Every nav card is a
 // single non-data 'custom' step whose payload mirrors the card payload.
+// One image per concept: deckImage and heroImage point at the same flat
+// /images/nav/<key>.webp file (downscaled at render time where needed).
 function navCard(input: {
   key: string
   label: string
@@ -35,14 +37,16 @@ function navCard(input: {
     ...(input.tab ? { tab: input.tab } : {}),
   }
 
+  const image = `/images/nav/${input.key}.webp`
+
   return {
     key: input.key,
     label: input.label,
     title: input.title,
     icon: input.icon,
     flourish: input.flourish,
-    deckImage: input.deckImage ?? `/images/nav/thumb/${input.key}.webp`,
-    heroImage: input.heroImage ?? `/images/nav/hero/${input.key}.webp`,
+    deckImage: input.deckImage ?? image,
+    heroImage: input.heroImage ?? image,
     tagline: input.tagline,
     narrative: input.narrative,
     required: false,

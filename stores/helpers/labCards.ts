@@ -12,6 +12,8 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 export type LabCard = BuilderCard
 
+// One image per concept: deckImage and heroImage point at the same flat
+// /images/lab/<key>.webp file (downscaled at render time where needed).
 function labCard(input: {
   key: string
   label: string
@@ -31,14 +33,16 @@ function labCard(input: {
     tab: input.tab,
   }
 
+  const image = `/images/lab/${input.key}.webp`
+
   return {
     key: input.key,
     label: input.label,
     title: input.title,
     icon: input.icon,
     flourish: input.flourish,
-    deckImage: input.deckImage ?? `/images/lab/thumb/${input.key}.webp`,
-    heroImage: input.heroImage ?? `/images/lab/hero/${input.key}.webp`,
+    deckImage: input.deckImage ?? image,
+    heroImage: input.heroImage ?? image,
     tagline: input.tagline,
     narrative: input.narrative,
     required: false,

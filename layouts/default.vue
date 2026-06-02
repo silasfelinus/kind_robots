@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-base-200">
     <div
-      class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-2 sm:p-3"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden p-2 sm:gap-3 sm:p-3"
       :class="gridClass"
     >
       <aside
@@ -9,21 +9,10 @@
         class="hidden min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 lg:flex lg:flex-col"
       >
         <div
-          class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
+          class="flex shrink-0 items-center gap-2 border-b border-base-300 px-3 py-2"
         >
-          <div class="flex min-w-0 items-center gap-2">
-            <Icon name="kind-icon:sidebar-left" class="h-4 w-4 text-primary" />
-            <span class="truncate text-sm font-bold">Left Panel</span>
-          </div>
-
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs rounded-xl"
-            title="Hide left panel"
-            @click="displayStore.toggleLeftSidebar()"
-          >
-            <Icon name="kind-icon:collapse-left" class="h-4 w-4" />
-          </button>
+          <Icon name="kind-icon:sidebar-left" class="h-4 w-4 text-primary" />
+          <span class="truncate text-sm font-bold">Left Panel</span>
         </div>
 
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
@@ -36,61 +25,7 @@
       <main
         class="relative min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <div
-          class="absolute left-2 top-2 z-30 flex items-center gap-1 lg:hidden"
-        >
-          <button
-            type="button"
-            class="btn btn-circle btn-sm border border-base-300 bg-base-100"
-            :class="leftSidebarOpen ? 'btn-primary' : 'btn-ghost'"
-            title="Toggle left panel"
-            @click="displayStore.toggleLeftSidebar()"
-          >
-            <Icon name="kind-icon:sidebar-left" class="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-circle btn-sm border border-base-300 bg-base-100 xl:hidden"
-            :class="rightSidebarOpen ? 'btn-secondary' : 'btn-ghost'"
-            title="Toggle right panel"
-            @click="displayStore.toggleRightSidebar()"
-          >
-            <Icon name="kind-icon:sidebar-right" class="h-4 w-4" />
-          </button>
-        </div>
-
-        <div
-          class="absolute left-2 top-2 z-30 hidden items-center gap-1 lg:flex"
-        >
-          <button
-            v-if="!leftSidebarOpen"
-            type="button"
-            class="btn btn-circle btn-sm border border-base-300 bg-base-100 btn-ghost"
-            title="Show left panel"
-            @click="displayStore.toggleLeftSidebar()"
-          >
-            <Icon name="kind-icon:sidebar-left" class="h-4 w-4" />
-          </button>
-        </div>
-
-        <div
-          class="absolute right-2 top-2 z-30 hidden items-center gap-1 xl:flex"
-        >
-          <button
-            v-if="!rightSidebarOpen"
-            type="button"
-            class="btn btn-circle btn-sm border border-base-300 bg-base-100 btn-ghost"
-            title="Show right panel"
-            @click="displayStore.toggleRightSidebar()"
-          >
-            <Icon name="kind-icon:sidebar-right" class="h-4 w-4" />
-          </button>
-        </div>
-
-        <div
-          class="h-full min-h-0 overflow-y-auto overscroll-contain p-3 pt-14 sm:p-4 sm:pt-14 lg:pt-4"
-        >
+        <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-4">
           <slot />
         </div>
       </main>
@@ -100,24 +35,13 @@
         class="hidden min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:flex xl:flex-col"
       >
         <div
-          class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
+          class="flex shrink-0 items-center gap-2 border-b border-base-300 px-3 py-2"
         >
-          <div class="flex min-w-0 items-center gap-2">
-            <Icon
-              name="kind-icon:sidebar-right"
-              class="h-4 w-4 text-secondary"
-            />
-            <span class="truncate text-sm font-bold">Right Panel</span>
-          </div>
-
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs rounded-xl"
-            title="Hide right panel"
-            @click="displayStore.toggleRightSidebar()"
-          >
-            <Icon name="kind-icon:collapse-right" class="h-4 w-4" />
-          </button>
+          <Icon
+            name="kind-icon:sidebar-right"
+            class="h-4 w-4 text-secondary"
+          />
+          <span class="truncate text-sm font-bold">Right Panel</span>
         </div>
 
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
@@ -129,6 +53,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 // /layouts/default.vue
 import { computed, resolveComponent, type Component } from 'vue'

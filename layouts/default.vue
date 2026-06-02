@@ -47,7 +47,7 @@
         >
           <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
             <slot name="right">
-              <builder-sheet />
+              <screen-fx />
             </slot>
           </div>
         </aside>

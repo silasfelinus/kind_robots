@@ -47,21 +47,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
+import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-
-const props = withDefaults(
-  defineProps<{
-    cards?: BuilderCard[]
-  }>(),
-  {
-    cards: () => [],
-  },
-)
 
 const store = useBuilderStore()
 
-const sourceCards = computed(() => {
-  return props.cards.length ? props.cards : store.cards
+// builder cards when a real stage is active; otherwise the nav deck
+const sourceCards = computed<BuilderCard[]>(() => {
+  return store.cards.length ? store.cards : NAV_CARDS
 })
 
 const handCards = computed(() => {
@@ -71,20 +64,20 @@ const handCards = computed(() => {
     ? sourceCards.value.filter((card) => card.key === store.activeCardKey)
     : []
 
-  const completed = sourceCards.value.filter((card) => {
-    return store.completedCards[card.key]
-  })
+  const completed = sourceCards.value.filter(
+    (card) => store.completedCards[card.key],
+  )
 
-  const available = sourceCards.value.filter((card) => {
-    return !store.completedCards[card.key] && card.key !== store.activeCardKey
-  })
+  const available = sourceCards.value.filter(
+    (card) =>
+      !store.completedCards[card.key] && card.key !== store.activeCardKey,
+  )
 
-  return [...active, ...completed, ...available].filter((card, index, list) => {
-    return (
+  return [...active, ...completed, ...available].filter(
+    (card, index, list) =>
       list.findIndex((entry) => entry.key === card.key) === index &&
-      map.has(card.key)
-    )
-  })
+      map.has(card.key),
+  )
 })
 
 function getCardPath(card: BuilderCard): string {
@@ -94,12 +87,10 @@ function getCardPath(card: BuilderCard): string {
 
 function handleCardClick(card: BuilderCard): void {
   const path = getCardPath(card)
-
   if (path) {
     void navigateTo(path)
     return
   }
-
   store.selectCard(card.key)
 }
 
@@ -107,11 +98,9 @@ function thumbClass(cardKey: string): string {
   if (store.activeCardKey === cardKey) {
     return 'border-primary bg-primary/10 shadow shadow-primary/20'
   }
-
   if (store.completedCards[cardKey]) {
     return 'border-success/60 bg-success/5'
   }
-
   return 'border-base-300 bg-base-200 hover:border-primary/60'
 }
 </script>

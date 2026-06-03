@@ -10,55 +10,56 @@
       >
         <dashboard-shell>
           <div class="flex h-full min-h-0 flex-col overflow-hidden">
-            <section class="min-h-0 flex-1 overflow-hidden bg-base-200/40">
-              <div
-                v-if="showBuilderFrame"
-                class="relative flex h-full min-h-0 overflow-hidden"
-              >
-                <Transition name="builder-sheet-slide">
-                  <aside
-                    v-show="showSheet || isDesktop"
-                    class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-[min(20rem,calc(100vw-2rem))] shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:static lg:z-auto lg:w-80 lg:shadow-none"
-                  >
-                    <div
-                      class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
-                    >
-                      <builder-sheet />
-                    </div>
-                  </aside>
-                </Transition>
-
-                <button
-                  v-if="showSheet && !isDesktop"
-                  type="button"
-                  class="absolute inset-0 z-20 bg-base-300/40 backdrop-blur-[1px] lg:hidden"
-                  aria-label="Close builder sheet overlay"
-                  @click="showSheet = false"
-                />
-
-                <main
-                  class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+            <!-- ── Scrollable middle: builder sheet + stage ───────────── -->
+            <section
+              class="relative flex min-h-0 flex-1 overflow-hidden bg-base-200/40"
+            >
+              <Transition name="builder-sheet-slide">
+                <aside
+                  v-show="showSheet || isDesktop"
+                  class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-[min(20rem,calc(100vw-2rem))] shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:static lg:z-auto lg:w-80 lg:shadow-none"
                 >
-                  <section
-                    class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+                  <div
+                    class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
                   >
-                    <builder-stage>
-                      <slot />
-                    </builder-stage>
-                  </section>
-                </main>
-              </div>
+                    <builder-sheet />
+                  </div>
+                </aside>
+              </Transition>
 
-              <div v-else class="h-full min-h-0 overflow-y-auto p-3 sm:p-4">
-                <slot />
+              <button
+                v-if="showSheet && !isDesktop"
+                type="button"
+                class="absolute inset-0 z-20 bg-base-300/40 backdrop-blur-[1px] lg:hidden"
+                aria-label="Close builder sheet overlay"
+                @click="showSheet = false"
+              />
+
+              <main
+                class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+              >
+                <section
+                  class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+                >
+                  <builder-stage>
+                    <slot />
+                  </builder-stage>
+                </section>
+              </main>
+            </section>
+
+            <!-- ── Pinned hand: shrink-0 sibling, never scrolls ───────── -->
+            <section
+              class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
+            >
+              <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
+                <builder-hand />
               </div>
             </section>
           </div>
         </dashboard-shell>
-        <builder-hand />
 
         <button
-          v-if="showBuilderFrame"
           type="button"
           class="absolute right-3 top-3 z-20 btn btn-sm btn-ghost rounded-xl lg:hidden"
           :class="showSheet ? 'btn-active' : ''"
@@ -82,50 +83,11 @@ import {
   isBuilderStageKey,
   defaultBuilderStage,
 } from '@/stores/seeds/builderSchema'
+import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 
-const dashboardBuilderKey = computed(
-  () => navStore.dashboardShell.dashboardKey || 'builder',
-)
-
-// The active TAB within the current dashboard — this is what was missing
-const activeStage = computed(() => {
-  const tab = navStore.getDashboardTab(
-    dashboardBuilderKey.value as DashboardKey,
-  )
-  return isBuilderStageKey(tab) ? tab : defaultBuilderStage
-})
-
-function syncWorkspaceBuilder(): void {
-  // If the dashboard ships its own cards (content-driven workspace), keep that path
-  if (dashboardCards.value.length) {
-    builderStore.registerWorkspaceBuilder({
-      key: dashboardBuilderKey.value,
-      label: dashboardTitle.value,
-      title: dashboardTitle.value,
-      modelType: dashboardBuilderKey.value,
-      cards: dashboardCards.value,
-      storageKey: `kindrobots.builder.${dashboardBuilderKey.value}.v1`,
-    })
-    builderStore.setBuilder(dashboardBuilderKey.value)
-    return
-  }
-
-  // Otherwise we're in the builder dashboard: switch to the active stage's builder
-  if (builderStore.registry[activeStage.value]) {
-    builderStore.setBuilder(activeStage.value)
-  }
-}
-
-watch(
-  () => [
-    dashboardBuilderKey.value,
-    activeStage.value, // ← the missing watch source
-    dashboardCards.value.length,
-  ],
-  () => syncWorkspaceBuilder(),
-  { immediate: true },
-)
-
+// Stores declared FIRST — the previous version referenced these inside the
+// watcher/sync function before declaration, which is a temporal-dead-zone crash
+// in <script setup> ("Cannot access 'navStore' before initialization").
 const displayStore = useDisplayStore()
 const navStore = useNavStore()
 const builderStore = useBuilderStore()
@@ -133,72 +95,67 @@ const builderStore = useBuilderStore()
 const showSheet = ref(false)
 const isDesktop = ref(false)
 
-const leftSidebarOpen = computed(() => {
-  return displayStore.sidebarLeftState !== 'hidden'
+// ── Tab identity lives in navStore. The active builder dashboard tab IS the
+// builder stage key (user, pitch, dream, character, bot, reward, scenario, art).
+const dashboardBuilderKey = computed(
+  () => navStore.dashboardShell.dashboardKey || 'builder',
+)
+
+const activeStage = computed(() => {
+  const tab = navStore.getDashboardTab(
+    dashboardBuilderKey.value as DashboardKey,
+  )
+  return isBuilderStageKey(tab) ? tab : defaultBuilderStage
 })
 
-const rightSidebarOpen = computed(() => {
-  return displayStore.sidebarRightState !== 'hidden'
-})
+// The workspace's only job re: builders — activate the stage the tab points to.
+// All configs are registered up front by registerBuilderStore; the registry
+// guard makes the call safe even before registration has run.
+function syncBuilder(): void {
+  if (builderStore.registry[activeStage.value]) {
+    builderStore.setBuilder(activeStage.value)
+  }
+}
 
-const showBuilderFrame = computed(() => {
-  return navStore.hasDashboardCards || builderStore.cards.length > 0
-})
-
-const dashboardCards = computed(() => {
-  return navStore.dashboardCards ?? []
-})
-
-const dashboardTitle = computed(() => {
-  return navStore.dashboardTitle || 'Builder'
-})
+// ── Layout ────────────────────────────────────────────────────────────────
+const leftSidebarOpen = computed(
+  () => displayStore.sidebarLeftState !== 'hidden',
+)
+const rightSidebarOpen = computed(
+  () => displayStore.sidebarRightState !== 'hidden',
+)
 
 const gridClass = computed(() => {
   if (leftSidebarOpen.value && rightSidebarOpen.value) {
     return 'lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_20rem]'
   }
-
   if (leftSidebarOpen.value) {
     return 'lg:grid-cols-[18rem_minmax(0,1fr)]'
   }
-
   if (rightSidebarOpen.value) {
     return 'xl:grid-cols-[minmax(0,1fr)_20rem]'
   }
-
   return 'grid-cols-1'
 })
 
 function updateDesktop(): void {
   if (typeof window === 'undefined') return
-
   isDesktop.value = window.matchMedia('(min-width: 1024px)').matches
-
-  if (isDesktop.value) {
-    showSheet.value = false
-  }
+  if (isDesktop.value) showSheet.value = false
 }
 
-function handleResize(): void {
-  updateDesktop()
-}
-
-watch(
-  () => [dashboardBuilderKey.value, dashboardCards.value.length],
-  () => {
-    syncWorkspaceBuilder()
-  },
-  { immediate: true },
-)
+// React to tab changes within the builder dashboard.
+watch(activeStage, syncBuilder)
 
 onMounted(() => {
-  syncWorkspaceBuilder()
+  ensureBuildersRegistered() // fill the registry once
+  syncBuilder() // then activate the current tab's builder
   updateDesktop()
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', updateDesktop)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('resize', updateDesktop)
 })
 </script>
 

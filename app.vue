@@ -1,28 +1,40 @@
 <!-- /app.vue -->
 <template>
   <div class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100">
-    <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
-      <kind-loader @pageReady="handlePageReady" />
-    </div>
+    <ClientOnly>
+      <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
+        <kind-loader @pageReady="handlePageReady" />
+      </div>
 
-    <butterfly-layer />
-    <animation-layer />
-    <milestone-popup />
+      <butterfly-layer />
+      <animation-layer />
+      <milestone-popup />
+    </ClientOnly>
 
-    <div
-      v-if="isNavigating"
-      class="pointer-events-none fixed inset-0 z-50 flex animate-fade-in items-center justify-center"
-    >
-      <div class="loading loading-dots loading-lg text-primary" />
-    </div>
+    <ClientOnly>
+      <div
+        v-if="isNavigating"
+        class="pointer-events-none fixed inset-0 z-50 flex animate-fade-in items-center justify-center"
+      >
+        <div class="loading loading-dots loading-lg text-primary" />
+      </div>
+    </ClientOnly>
 
     <main class="h-full min-h-0 w-full overflow-hidden bg-base-200 p-2 sm:p-3">
       <section
         class="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <dashboard-shell>
-          <NuxtPage />
-        </dashboard-shell>
+        <ClientOnly>
+          <dashboard-shell>
+            <NuxtPage />
+          </dashboard-shell>
+
+          <template #fallback>
+            <div class="h-full min-h-0 w-full overflow-y-auto p-3 sm:p-4">
+              <NuxtPage />
+            </div>
+          </template>
+        </ClientOnly>
       </section>
     </main>
   </div>

@@ -9,17 +9,12 @@ import { SCENARIO_CARDS } from '@/stores/helpers/scenarioCards'
 import type {
   BuilderFieldValue,
   BuilderProjectConfig,
+  BuilderSaveResult,
   BuilderSheet,
 } from '@/stores/helpers/builderCards'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
-
-type SaveLike<T = unknown> =
-  | { success?: boolean; message?: string; data?: T | null }
-  | T
-  | null
-  | undefined
 
 const builder = useBuilderStore()
 const scenarioStore = useScenarioStore()
@@ -30,51 +25,51 @@ const startCard = 'genre'
 
 function sheetText(key: string): string {
   const value = builder.sheet[key]
+
   return typeof value === 'string' ? value : ''
 }
 
 function sheetNumber(key: string): number | null {
   const value = builder.sheet[key]
+
   if (typeof value === 'number') return value
+
   if (typeof value === 'string') {
     const parsed = Number(value)
+
     return Number.isFinite(parsed) ? parsed : null
   }
+
   return null
 }
 
 function sheetBoolean(key: string, fallback = false): boolean {
   const value = builder.sheet[key]
+
   return typeof value === 'boolean' ? value : fallback
 }
 
 function normalizeArrayField(value: BuilderFieldValue): string[] {
-  if (Array.isArray(value))
+  if (Array.isArray(value)) {
     return value.filter((entry): entry is string => typeof entry === 'string')
+  }
+
   if (typeof value === 'string') {
     return value
-      .split('|')
+      .split(/\n---\n|\|/)
       .map((entry) => entry.trim())
       .filter(Boolean)
   }
+
   return []
 }
 
-function saveSucceeded(value: SaveLike): boolean {
-  if (!value) return false
-  if (typeof value === 'object' && 'success' in value)
-    return value.success !== false && Boolean(value.data)
-  return true
+function joinTextBlock(value: BuilderFieldValue): string {
+  return normalizeArrayField(value).join('\n---\n')
 }
 
-function saveMessage(value: SaveLike, fallback: string): string {
-  if (value && typeof value === 'object' && 'message' in value && value.message)
-    return value.message
-  return fallback
-}
-
-function setBuilderError(message: string) {
-  builder.setLastError(new Error(message), message)
+function joinPiped(value: BuilderFieldValue): string {
+  return normalizeArrayField(value).join('|')
 }
 
 function defaultScenarioSheet(): BuilderSheet {
@@ -100,6 +95,7 @@ function defaultScenarioSheet(): BuilderSheet {
         : (userStore.userId ?? userStore.user?.id ?? 10),
     isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
     isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
+    isActive: typeof form.isActive === 'boolean' ? form.isActive : true,
   }
 }
 
@@ -107,13 +103,14 @@ function syncSheetToScenarioForm() {
   const resolvedUserId =
     sheetNumber('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
 
-  scenarioStore.setScenarioForm({
+  scenarioStore.scenarioForm = {
+    ...scenarioStore.scenarioForm,
     title: sheetText('title'),
     description: sheetText('description'),
-    intros: normalizeArrayField(builder.sheet.intros),
-    genres: normalizeArrayField(builder.sheet.genres),
-    inspirations: normalizeArrayField(builder.sheet.inspirations),
-    locations: normalizeArrayField(builder.sheet.locations),
+    intros: joinTextBlock(builder.sheet.intros),
+    genres: joinPiped(builder.sheet.genres),
+    inspirations: joinTextBlock(builder.sheet.inspirations),
+    locations: joinTextBlock(builder.sheet.locations),
     tier: sheetText('tier'),
     group: sheetText('group'),
     difficulty: sheetNumber('difficulty') ?? 1,
@@ -127,25 +124,59 @@ function syncSheetToScenarioForm() {
     userId: resolvedUserId,
     isPublic: sheetBoolean('isPublic', true),
     isMature: sheetBoolean('isMature', false),
-  })
+    isActive: sheetBoolean('isActive', true),
+  }
 }
 
-async function saveScenarioBuilder() {
+async function saveScenarioBuilder(): Promise<BuilderSaveResult> {
   builder.clearError()
   syncSheetToScenarioForm()
-  const result = await scenarioStore.saveScenario()
 
-  if (saveSucceeded(result)) {
+  const scenario = await scenarioStore.saveScenario()
+
+  if (scenario) {
     builder.setStatus('Scenario saved.')
-    return result
+
+    return {
+      success: true,
+      message: 'Scenario saved.',
+      data: scenario,
+    }
   }
 
-  setBuilderError(saveMessage(result, scenarioStore.error ?? 'Save failed.'))
-  return result
+  const message = 'Failed to save scenario.'
+
+  builder.setLastError(new Error(message), message)
+
+  return {
+    success: false,
+    message,
+    data: null,
+  }
 }
 
 function resetScenarioBuilder() {
-  scenarioStore.startAddingScenario()
+  scenarioStore.scenarioForm = {
+    ...scenarioStore.scenarioForm,
+    title: '',
+    description: '',
+    intros: '',
+    genres: '',
+    inspirations: '',
+    locations: '',
+    tier: '',
+    group: '',
+    difficulty: 1,
+    secretNotes: '',
+    artPrompt: '',
+    imagePath: null,
+    artImageId: null,
+    userId: userStore.userId ?? userStore.user?.id ?? 10,
+    isPublic: true,
+    isMature: false,
+    isActive: true,
+  }
+
   builder.resetBuilder(true)
   builder.selectCard(startCard)
 }
@@ -182,6 +213,7 @@ const scenarioBuilderConfig: BuilderProjectConfig = {
     userId: 10,
     isPublic: true,
     isMature: false,
+    isActive: true,
     intros: [],
     genres: [],
     inspirations: [],
@@ -194,18 +226,17 @@ const scenarioBuilderConfig: BuilderProjectConfig = {
     builder: 'scenario',
     tone: 'Interactive, punchy, playable, and rich with choice pressure.',
   },
-  payload: {
-    save: saveScenarioBuilder,
-    reset: resetScenarioBuilder,
-    startCard,
-  },
+  startCardKey: startCard,
+  save: saveScenarioBuilder,
+  reset: resetScenarioBuilder,
 }
 
 onMounted(() => {
   builder.registerBuilder(scenarioBuilderConfig)
   builder.setBuilder(builderKey, true)
 
-  if (!builder.activeCardKey && builder.visibleCards.length)
+  if (!builder.activeCardKey && builder.visibleCards.length) {
     builder.selectCard(startCard)
+  }
 })
 </script>

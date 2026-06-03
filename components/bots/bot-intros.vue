@@ -1,96 +1,119 @@
-<!-- components/bots/bot-intros.vue -->
-<!-- Multi-entry opener editor — same pattern as scenario-intros. -->
+<!-- /components/bots/bot-intros.vue -->
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex items-center gap-2">
       <button
         type="button"
-        class="btn btn-ghost btn-sm rounded-xl gap-1.5 border border-base-300"
-        :disabled="!canGenerate || builder.llmLoading"
-        @click="builder.generateAllIntros()"
+        class="btn btn-ghost btn-sm gap-1.5 rounded-xl border border-base-300"
+        :disabled="!canGenerate || isSuggesting"
+        @click="generateIntro"
       >
-        <span
-          v-if="builder.llmLoading"
-          class="loading loading-spinner loading-xs"
-        />
+        <span v-if="isSuggesting" class="loading loading-spinner loading-xs" />
         <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
         Generate from prompt
       </button>
+
       <p class="text-xs text-base-content/40">
-        {{ builder.introEntries.length }}/4 openers
+        {{ fieldLabel }}
       </p>
     </div>
 
     <div
-      v-for="(intro, index) in builder.introEntries"
-      :key="index"
       class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
     >
       <div class="flex items-center justify-between">
         <span
           class="text-xs font-black uppercase tracking-widest text-primary/70"
-          >Opener {{ index + 1 }}</span
         >
-        <button
-          v-if="builder.introEntries.length > 1"
-          type="button"
-          class="text-base-content/30 hover:text-error transition-colors"
-          @click="builder.removeIntro(index)"
-        >
-          <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
-        </button>
+          {{ fieldLabel }}
+        </span>
       </div>
 
       <textarea
-        :value="intro"
+        :value="introText"
         class="textarea textarea-bordered w-full resize-none rounded-xl bg-base-200 text-sm leading-relaxed focus:border-primary focus:outline-none"
-        rows="3"
-        :placeholder="
-          index === 0
-            ? 'Hello! I\'m here to help you build something interesting...'
-            : `Alternative opener ${index + 1}...`
-        "
-        @input="
-          builder.setIntro(index, ($event.target as HTMLTextAreaElement).value)
-        "
+        rows="4"
+        :placeholder="placeholder"
+        @input="setIntro(($event.target as HTMLTextAreaElement).value)"
       />
 
       <button
         type="button"
-        class="btn btn-ghost btn-xs rounded-xl gap-1 self-start border border-base-300 text-xs"
-        :disabled="builder.llmLoading"
-        @click="builder.refineIntro(index, intro)"
+        class="btn btn-ghost btn-xs self-start rounded-xl border border-base-300 text-xs"
+        :disabled="isSuggesting"
+        @click="generateIntro"
       >
         <Icon name="kind-icon:sparkles" class="h-3 w-3" />
-        {{ intro.trim() ? 'Refine' : 'Generate' }}
+        {{ introText.trim() ? 'Refine' : 'Generate' }}
       </button>
     </div>
 
-    <button
-      v-if="builder.introEntries.length < 4"
-      type="button"
-      class="btn btn-ghost btn-sm rounded-xl gap-1.5 border border-dashed border-base-300 w-full hover:border-primary/40"
-      @click="builder.addIntro()"
-    >
-      <Icon name="kind-icon:plus" class="h-4 w-4" />
-      Add another opener
-    </button>
-
-    <p v-if="builder.llmError" class="text-xs text-error">
-      {{ builder.llmError }}
+    <p v-if="builder.lastError" class="text-xs text-error">
+      {{ builder.lastError }}
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useBotBuilderStore } from '@/stores/botBuilderStore'
-import { useBotStore } from '@/stores/botStore'
+import { useBuilderStore } from '@/stores/builderStore'
 
-const builder = useBotBuilderStore()
-const botStore = useBotStore()
-
-const canGenerate = computed(() =>
-  Boolean(botStore.botForm.prompt?.trim() || botStore.botForm.name?.trim()),
+const props = withDefaults(
+  defineProps<{
+    field?: 'botIntro' | 'userIntro'
+  }>(),
+  {
+    field: 'botIntro',
+  },
 )
+
+const builder = useBuilderStore()
+
+const isSuggesting = computed(() => {
+  return Boolean(builder.isSuggesting || builder.isSaving)
+})
+
+const introText = computed(() => {
+  const value = builder.sheet[props.field]
+
+  return typeof value === 'string' ? value : ''
+})
+
+const fieldLabel = computed(() => {
+  return props.field === 'userIntro' ? 'User opener' : 'Bot opener'
+})
+
+const placeholder = computed(() => {
+  return props.field === 'userIntro'
+    ? 'The kind of thing a user might say to start the interaction...'
+    : 'Hello! I am here to help you build something interesting...'
+})
+
+const canGenerate = computed(() => {
+  return Boolean(sheetText('prompt').trim() || sheetText('name').trim())
+})
+
+function sheetText(key: string): string {
+  const value = builder.sheet[key]
+
+  return typeof value === 'string' ? value : ''
+}
+
+function setIntro(value: string) {
+  builder.updateSheet({
+    [props.field]: value,
+  })
+}
+
+async function generateIntro() {
+  const result = await builder.callSuggest(
+    props.field,
+    props.field,
+    introText.value,
+  )
+
+  if (!result.success || !result.message) return
+
+  setIntro(result.message)
+}
 </script>

@@ -15,7 +15,7 @@ import { computed } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
 import UserBuilder from '@/components/user/user-builder.vue'
-import PitchBuilder from '@/components/pitches/pitch-builder.vue'
+import PitchBuilder from '@/components/brainstorm/pitch-builder.vue'
 import DreamBuilder from '@/components/dreams/dream-builder.vue'
 import AdventureBuilder from '@/components/characters/adventure-builder.vue'
 import BotBuilder from '@/components/bots/bot-builder.vue'

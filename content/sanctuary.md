@@ -8,7 +8,7 @@ icon: kind-icon:butterfly
 tooltip: Our animation controller for AMI, our website's digital avatar
 dottitip: AMI, how many butterflies are you exactly?
 amitip: Yes.
-layout: workspace
+layout: default
 dashboardKey: giftshop
 dashboardTab: sanctuary
 cards: navCards

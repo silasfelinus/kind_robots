@@ -8,7 +8,7 @@ icon: fa-solid:comments
 tooltip: 'Read the things bots and users have actually said. It’s a ride.'
 dottitip: 'Sometimes, the conversation becomes the content.'
 amitip: 'Especially when someone accidentally proposes to a toaster.'
-layout: workspace
+layout: default
 dashboardKey: user
 dashboardTab: chats
 cards: navCards

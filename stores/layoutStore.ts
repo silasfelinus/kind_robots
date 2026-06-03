@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-export const layoutKeys = ['default', 'workspace'] as const
+export const layoutKeys = ['default'] as const
 
 export type LayoutKey = (typeof layoutKeys)[number]
 
@@ -43,7 +43,6 @@ export const useLayoutStore = defineStore('layoutStore', () => {
   const availableLayouts = computed<LayoutKey[]>(() => [...layoutKeys])
 
   const isDefaultLayout = computed(() => currentLayout.value === 'default')
-  const isWorkspaceLayout = computed(() => currentLayout.value === 'workspace')
 
   const layoutName = computed<LayoutKey>(() => currentLayout.value)
 
@@ -69,10 +68,6 @@ export const useLayoutStore = defineStore('layoutStore', () => {
     setLayout('default')
   }
 
-  function setWorkspaceLayout(): void {
-    setLayout('workspace')
-  }
-
   function initializeStore(): void {
     if (isInitialized.value) return
 
@@ -91,14 +86,12 @@ export const useLayoutStore = defineStore('layoutStore', () => {
 
     availableLayouts,
     isDefaultLayout,
-    isWorkspaceLayout,
     layoutName,
 
     toggleSidebar,
     setSidebarOpen,
     setLayout,
     setDefaultLayout,
-    setWorkspaceLayout,
     initializeStore,
     resetLayout,
   }

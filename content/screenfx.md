@@ -9,7 +9,7 @@ icon: kind-icon:sparkles
 sort: highlight
 dottitip: "AMI, should we really give them buttons that affect the whole screen?"
 amitip: "Absolutely. What's the worst that could happen? Besides everything becoming butterflies. Which is arguably an improvement."
-layout: workspace
+layout: default
 dashboardKey: wonder
 dashboardTab: screen-fx
 cards: labCards

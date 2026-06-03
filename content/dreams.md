@@ -10,8 +10,8 @@ sort: highlight
 dottitip: Users can now steer the dream together. I'm a little nervous about what they'll build
 amitip: Good. Dreams built by committee are how mythology happens.
 layout: workspace
-dashboardKey: builder
-dashboardTab: dream
+dashboardKey: dream
+dashboardTab: locations
 cards: dreamCards
 loadingMessage: Loading locations...
 refreshLabel: Refresh Locations

@@ -10,8 +10,8 @@ sort: highlight
 dottitip: AMI, we already have over thirty themes and someone wants to know if we'll add more.
 amitip: Tell them yes and that we'll never stop.
 layout: workspace
-dashboardKey: admin
-dashboardTab: theme
+dashboardKey: user
+dashboardTab: themes
 cards: navCards
 loadingMessage: Loading theme gallery...
 refreshLabel: Refresh Themes

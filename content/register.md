@@ -10,8 +10,8 @@ icon: kind-icon:register
 sort: highlight
 dottitip: If people register for an account, then we can customize their experience.
 layout: workspace
-dashboardKey: admin
-dashboardTab: user
+dashboardKey: user
+dashboardTab: dashboard
 cards: navCards
 loadingMessage: Loading registration
 refreshLabel: Refresh registration

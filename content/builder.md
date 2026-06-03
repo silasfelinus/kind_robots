@@ -16,4 +16,4 @@ loadingMessage: Loading builder systems...
 refreshLabel: Refresh Builder
 ---
 
-:creator-manager
+:builder-manager

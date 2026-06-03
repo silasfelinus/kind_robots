@@ -1,4 +1,4 @@
-<!-- /components/builder/builder-hand.vue -->
+<!-- /components/navigation/workspace-hand.vue -->
 <template>
   <div class="flex h-full min-h-0 items-center gap-2 overflow-x-auto px-1 py-1">
     <button

@@ -54,7 +54,6 @@ builderStore.setBuilder('scenario')
 - `builder-splash.vue`: landing panel
 - `builder-card-grid.vue`: large selectable card grid
 - `builder-card.vue`: large card
-- `builder-hand.vue`: bottom tray
 - `builder-step-panel.vue`: active card/step layout
 - `builder-input.vue`: input switcher
 - `builder-preset-input.vue`: choice cards with custom/list expansion
@@ -65,5 +64,4 @@ builderStore.setBuilder('scenario')
 - `builder-art-input.vue`: art prompt and `art-creator`
 - `builder-visibility-input.vue`: public/mature toggles
 - `builder-custom-input.vue`: fallback input
-- `builder-sheet.vue`: live sheet sidebar
 - `builder-summary.vue`: generic completion screen

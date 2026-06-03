@@ -1,4 +1,4 @@
-<!-- /components/builders/creator-manager.vue -->
+<!-- /components/builder/creator-manager.vue -->
 <template>
   <section class="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
     <div class="min-h-0 flex-1 overflow-hidden">

@@ -21,6 +21,8 @@ import type {
   BuilderSheet,
 } from '@/stores/helpers/builderCards'
 
+import { EMPTY_BUILDER_SPLASH } from '@/stores/helpers/builderCards'
+
 import { useBuilderStore } from '@/stores/builderStore'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
@@ -79,6 +81,35 @@ function makeSheetReaders(builder: BuilderStoreInstance) {
   }
 
   return { text, num, bool }
+}
+
+function buildArtConfig(): BuilderProjectConfig {
+  const builder = useBuilderStore()
+  return {
+    key: 'art',
+    label: 'Art Builder',
+    title: 'Art Builder',
+    modelType: 'art',
+    storageKey: 'kindrobots.builder.art.v1',
+    cards: [], // no deck — art-builder is the whole UI
+    splash: EMPTY_BUILDER_SPLASH,
+    defaultSheet: () => ({
+      artPrompt: '',
+      negativePrompt: '',
+      imagePath: null,
+      artImageId: null,
+      userId: 10,
+      isPublic: true,
+    }),
+    coreCardKeys: [],
+    requiredCardKeys: [],
+    finalCardKey: 'art',
+    artPurpose: 'builder',
+    artImageRole: 'builder',
+    persistActiveCard: false,
+    allowCompletedCardsInDeck: false,
+    startCardKey: undefined,
+  }
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -1149,6 +1180,7 @@ const CONFIG_BUILDERS: ConfigBuilder[] = [
   buildBotConfig,
   buildRewardConfig,
   buildScenarioConfig,
+  buildArtConfig,
 ]
 
 export const useRegisterBuilderStore = defineStore(

@@ -10,7 +10,7 @@ dottitip: People keep asking if AI art is 'real' art. I never know what to say.
 amitip: "If it makes you stop and look, have a conversation, or feel something new, I’d say it does it's job!"
 sort: highlight
 layout: workspace
-dashboardKey: builder
+dashboardKey: art
 dashboardTab: art
 cards: artCards
 loadingMessage: Loading art gallery...

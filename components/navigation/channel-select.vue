@@ -253,6 +253,14 @@ const artChannel: ChannelRoute = {
   summary: 'Generate and browse AI artwork.',
 }
 
+const builderChannel: ChannelRoute = {
+  key: 'builder',
+  label: 'Builder',
+  path: '/builder',
+  icon: 'kind-icon:foundry',
+  summary: 'Build easily with our step by step builder',
+}
+
 const storiesChannel: ChannelRoute = {
   key: 'stories',
   label: 'Stories',
@@ -312,6 +320,7 @@ const bottomProjectChannels: ChannelRoute[] = [
 const allChannels = computed<ChannelRoute[]>(() => [
   ...utilityChannels,
   artChannel,
+  builderChannel,
   storiesChannel,
   ...bottomProjectChannels,
 ])

@@ -25,9 +25,7 @@
         class="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
         <ClientOnly>
-          <dashboard-shell>
-            <NuxtPage />
-          </dashboard-shell>
+          <NuxtPage />
 
           <template #fallback>
             <div class="h-full min-h-0 w-full overflow-y-auto p-3 sm:p-4">

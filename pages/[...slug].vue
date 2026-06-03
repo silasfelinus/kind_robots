@@ -31,6 +31,7 @@ import type {
   displayModeState,
   displayActionState,
 } from '@/stores/displayStore'
+import type { ContentType } from '~/content.config'
 
 const route = useRoute()
 
@@ -45,37 +46,50 @@ const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
 const contentPath = computed(() => {
-  return route.path === '/' ? '/' : route.path.replace(/\/$/, '')
-})
+  const cleanPath = route.path.replace(/\/$/, '')
 
-function normalizePageData(page: typeof pageData.value) {
-  if (!page) return null
-
-  return {
-    ...page,
-    navigation: page.navigation ?? false,
-    seo: page.seo ?? {},
+  if (!cleanPath) {
+    return '/'
   }
-}
+
+  return cleanPath
+})
 
 const { data: pageData, error: pageError } = await useAsyncData(
   () => `content-page-${contentPath.value}`,
-  () => queryCollection('content').path(contentPath.value).first(),
+  async () => {
+    const candidates =
+      contentPath.value === '/' ? ['/', '/index', '/home'] : [contentPath.value]
+
+    for (const candidate of candidates) {
+      const page = await queryCollection('content').path(candidate).first()
+
+      if (page) {
+        return page
+      }
+    }
+
+    return null
+  },
   {
     watch: [contentPath],
   },
 )
 
-if (pageError.value) {
-  console.error('[slug] Content loading failed:', pageError.value)
+function normalizePageData(page: typeof pageData.value): ContentType | null {
+  if (!page) return null
+
+  return {
+    ...page,
+    path: page.path,
+    body: page.body,
+    seo: page.seo ?? {},
+    navigation: page.navigation ?? false,
+  } as ContentType
 }
 
-if (!pageData.value) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: `Page not found: ${contentPath.value}`,
-    fatal: false,
-  })
+if (pageError.value) {
+  console.error('[slug] Content loading failed:', pageError.value)
 }
 
 const normalizedPage = normalizePageData(pageData.value)

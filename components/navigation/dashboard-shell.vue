@@ -44,11 +44,8 @@
             </button>
 
             <div class="min-w-0 flex-1 pt-0.5">
-              <p
-                v-if="title"
-                class="truncate text-[0.6rem] font-bold uppercase tracking-[0.22em] text-base-content/40"
-              >
-                {{ title }}
+              <p v-if="shellTitle">
+                {{ shellTitle }}
               </p>
               <h1
                 class="truncate text-xl font-black leading-tight text-base-content sm:text-2xl"
@@ -79,7 +76,7 @@
                 class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
                 type="button"
                 :disabled="loading"
-                :title="refreshLabel"
+                :title="shellRefreshLabel"
                 @click="emit('refresh')"
               >
                 <Icon
@@ -122,7 +119,7 @@
         class="relative z-30 mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-info/30 bg-info/10 px-4 py-2.5 text-sm font-medium text-info"
       >
         <Icon name="kind-icon:spinner" class="h-4 w-4 animate-spin" />
-        {{ loadingMessage }}
+        {{ shellLoadingMessage }}
       </div>
     </transition>
 
@@ -138,14 +135,37 @@
 
     <section class="relative z-0 min-h-0 flex-1 overflow-hidden">
       <main
-        class="h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+        class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <div class="h-full min-h-0 overflow-hidden">
-          <slot
-            :active-tab="normalizedActiveTab"
-            :active-tab-config="activeTabConfig"
-            :set-tab="setTab"
-          />
+        <Transition name="workspace-sheet-slide">
+          <aside
+            v-show="sheetVisible"
+            class="hidden min-h-0 w-80 shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 lg:flex"
+          >
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+              <workspace-sheet />
+            </div>
+          </aside>
+        </Transition>
+
+        <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <section
+            class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+          >
+            <slot
+              :active-tab="normalizedActiveTab"
+              :active-tab-config="activeTabConfig"
+              :set-tab="setTab"
+            />
+          </section>
+
+          <section
+            class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
+          >
+            <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
+              <workspace-hand />
+            </div>
+          </section>
         </div>
       </main>
     </section>
@@ -160,6 +180,7 @@ import {
 } from '@/stores/helpers/dashboardHelper'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const fallbackIcon = 'kind-icon:sparkles'
 const storageKey = 'kind-dashboard-shell-show-header'
@@ -179,15 +200,15 @@ const props = withDefaults(
     navGridClass?: string
   }>(),
   {
-    title: 'Dashboard',
+    title: '',
     summary: '',
     tabs: () => [],
     activeTab: '',
     loading: false,
-    loadingMessage: 'Loading…',
+    loadingMessage: '',
     error: null,
     showRefresh: true,
-    refreshLabel: 'Refresh',
+    refreshLabel: '',
     navZClass: 'z-30',
     navGridClass: '',
   },
@@ -200,11 +221,40 @@ const emit = defineEmits<{
 
 const navStore = useNavStore()
 const displayStore = useDisplayStore()
+const pageStore = usePageStore()
 
 const showHeader = ref(true)
 
+const shellTitle = computed(() => {
+  return props.title || pageStore.room || pageStore.title || 'Kind Robots'
+})
+
+const shellSummary = computed(() => {
+  return props.summary || pageStore.subtitle || pageStore.description || ''
+})
+
+const shellLoadingMessage = computed(() => {
+  return props.loadingMessage || pageStore.loadingMessage || 'Loading…'
+})
+
+const shellRefreshLabel = computed(() => {
+  return props.refreshLabel || pageStore.refreshLabel || 'Refresh'
+})
+
+const shellDashboardKey = computed(() => {
+  return pageStore.dashboardKey || navStore.dashboardShell.dashboardKey || ''
+})
+
+const shellActiveTab = computed(() => {
+  return props.activeTab || pageStore.dashboardTab || ''
+})
+
+const sheetVisible = computed(() => {
+  return !['hidden', 'disabled'].includes(displayStore.sidebarLeftState)
+})
+
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
-  const key = (navStore.dashboardShell.dashboardKey ?? '').trim()
+  const key = shellDashboardKey.value.trim()
   if (!key || !isDashboardKey(key)) return null
   return key
 })
@@ -217,8 +267,10 @@ const resolvedTabs = computed<DashboardTabConfig[]>(() => {
 
 const requestedActiveTab = computed(() => {
   const key = resolvedDashboardKey.value
-  if (key) return navStore.getDashboardTab(key)
-  return props.activeTab
+  if (key) {
+    return navStore.getDashboardTab(key) || shellActiveTab.value
+  }
+  return shellActiveTab.value
 })
 
 const resolvedNavGridClass = computed(() => {
@@ -229,28 +281,32 @@ const resolvedNavGridClass = computed(() => {
 const fallbackTab = computed<DashboardTabConfig>(() => {
   const firstTab = resolvedTabs.value[0]
   const requested = requestedActiveTab.value
+
   return {
     key: requested || firstTab?.key || 'overview',
     label: firstTab?.label || requested || 'Overview',
     icon: firstTab?.icon || fallbackIcon,
-    title: firstTab?.title || firstTab?.label || requested || 'Overview',
-    summary: firstTab?.summary || props.summary || '',
+    title: firstTab?.title || firstTab?.label || requested || pageStore.title,
+    summary: firstTab?.summary || shellSummary.value,
   }
 })
 
 const activeTabConfig = computed<DashboardTabConfig>(() => {
-  const requested = (requestedActiveTab.value || '').trim()
+  const requested = requestedActiveTab.value.trim()
+
   if (requested) {
     const matched = resolvedTabs.value.find((tab) => tab.key === requested)
     if (matched) return matched
+
     return {
       key: requested,
       label: requested,
       icon: fallbackIcon,
       title: requested,
-      summary: props.summary || '',
+      summary: shellSummary.value,
     }
   }
+
   return resolvedTabs.value[0] ?? fallbackTab.value
 })
 
@@ -259,15 +315,20 @@ const normalizedActiveTab = computed(() => {
 })
 
 const activeTitle = computed(() => {
-  return activeTabConfig.value.title || activeTabConfig.value.label
+  return (
+    activeTabConfig.value.title ||
+    activeTabConfig.value.label ||
+    pageStore.title
+  )
 })
 
 const activeSummary = computed(() => {
-  return activeTabConfig.value.summary || props.summary || ''
+  return activeTabConfig.value.summary || shellSummary.value
 })
 
 function setTab(tabKey: string) {
   const key = resolvedDashboardKey.value
+
   if (key) {
     const saved = navStore.setDashboardTab(
       key,
@@ -277,6 +338,7 @@ function setTab(tabKey: string) {
     emit('set-tab', saved)
     return
   }
+
   emit('set-tab', tabKey)
 }
 
@@ -286,12 +348,17 @@ function toggleHeader() {
 
 function loadHeaderPreference() {
   if (!import.meta.client) return
+
   const saved = localStorage.getItem(storageKey)
+
   if (saved === 'true') {
     showHeader.value = true
     return
   }
-  if (saved === 'false') showHeader.value = false
+
+  if (saved === 'false') {
+    showHeader.value = false
+  }
 }
 
 watch(showHeader, (value) => {
@@ -299,9 +366,38 @@ watch(showHeader, (value) => {
   localStorage.setItem(storageKey, String(value))
 })
 
+watch(
+  resolvedDashboardKey,
+  (dashboardKey) => {
+    if (!dashboardKey) return
+
+    navStore.hydrateDashboardTabs(true)
+
+    if (pageStore.dashboardTab) {
+      navStore.setDashboardTab(
+        dashboardKey,
+        pageStore.dashboardTab,
+        'page front matter dashboardTab',
+      )
+    }
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
   loadHeaderPreference()
-  const dashboardKey = resolvedDashboardKey.value
-  if (dashboardKey) navStore.hydrateDashboardTabs(true)
 })
 </script>
+
+<style scoped>
+.workspace-sheet-slide-enter-active,
+.workspace-sheet-slide-leave-active {
+  transition: all 180ms ease;
+}
+
+.workspace-sheet-slide-enter-from,
+.workspace-sheet-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-1rem);
+}
+</style>

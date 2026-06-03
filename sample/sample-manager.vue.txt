@@ -1,65 +1,90 @@
 <!-- /components/content/sample/sample-manager.vue -->
 <template>
-  <dashboard-shell
-    title="Sample Manager"
-    :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading sample model data..."
-    nav-grid-class="xl:grid-cols-5"
-    @set-tab="setTab"
-    @refresh="refreshManagerData"
-  >
-    <template #default="{ activeTab: currentTab }">
-      <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <sample-gallery
-              variant="row"
-              title="Samples"
-              subtitle="Pick a reusable sample entry."
-              :show-controls="false"
-              :show-toolbar="true"
-              :show-images="true"
-              :compact="true"
-            />
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <sample-interact />
-          </div>
-        </div>
-      </section>
-
-      <sample-gallery
-        v-else-if="currentTab === 'samples'"
-        variant="dashboard"
-        title="Sample Gallery"
-        subtitle="Select, add, edit, or delete sample entries."
-      />
-
-      <sample-gallery
-        v-else-if="currentTab === 'types'"
-        variant="dashboard"
-        title="Sample Types"
-        subtitle="Browse sample records by type."
-        :show-controls="true"
-        :show-toolbar="true"
-      />
-
-
-      <sample-interact v-else-if="currentTab === 'interact'" />
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+  <section class="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+    <div class="flex shrink-0 justify-end">
+      <button
+        class="btn btn-ghost btn-sm rounded-xl"
+        type="button"
+        :disabled="isLoadingManager"
+        @click="refreshManagerData"
       >
-        Unknown sample tab: {{ currentTab }}
+        <span
+          v-if="isLoadingManager"
+          class="loading loading-spinner loading-xs"
+        />
+        <Icon v-else name="kind-icon:refresh" class="size-4" />
+        Refresh
+      </button>
+    </div>
+
+    <div
+      v-if="managerError"
+      class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+    >
+      {{ managerError }}
+    </div>
+
+    <div
+      v-if="isLoadingManager"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-4"
+    >
+      <span class="loading loading-spinner loading-sm" />
+      <span class="ml-2">Loading sample model data...</span>
+    </div>
+
+    <section
+      v-if="activeTab === 'overview'"
+      class="min-h-0 flex-1 overflow-y-auto"
+    >
+      <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <sample-gallery
+            variant="row"
+            title="Samples"
+            subtitle="Pick a reusable sample entry."
+            :show-controls="false"
+            :show-toolbar="true"
+            :show-images="true"
+            :compact="true"
+          />
+        </div>
+
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <sample-interact />
+        </div>
       </div>
-    </template>
-  </dashboard-shell>
+    </section>
+
+    <sample-gallery
+      v-else-if="activeTab === 'samples'"
+      class="min-h-0 flex-1"
+      variant="dashboard"
+      title="Sample Gallery"
+      subtitle="Select, add, edit, or delete sample entries."
+    />
+
+    <sample-gallery
+      v-else-if="activeTab === 'types'"
+      class="min-h-0 flex-1"
+      variant="dashboard"
+      title="Sample Types"
+      subtitle="Browse sample records by type."
+      :show-controls="true"
+      :show-toolbar="true"
+    />
+
+    <sample-interact
+      v-else-if="activeTab === 'interact'"
+      class="min-h-0 flex-1"
+    />
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown sample tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -67,7 +92,11 @@ import { computed, onMounted, ref } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { useSampleModelStore } from '@/stores/sampleModelStore'
 
+type SampleTab = 'overview' | 'samples' | 'types' | 'interact'
+
 const dashboardKey = 'sample' as const
+const fallbackTab: SampleTab = 'overview'
+const validTabs: SampleTab[] = ['overview', 'samples', 'types', 'interact']
 
 const navStore = useNavStore()
 const sampleStore = useSampleModelStore()
@@ -75,19 +104,13 @@ const sampleStore = useSampleModelStore()
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
+const activeTab = computed<SampleTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey)
 
-const managerSummary = computed(() => {
-  const sampleCount = sampleStore.items.length
-  const selectedSample = sampleStore.selected?.title || 'no sample'
-
-  return `${sampleCount} samples loaded. Current selection: ${selectedSample}.`
+  return validTabs.includes(selectedTab as SampleTab)
+    ? (selectedTab as SampleTab)
+    : fallbackTab
 })
-
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-}
 
 async function loadManagerData(force = false) {
   isLoadingManager.value = true

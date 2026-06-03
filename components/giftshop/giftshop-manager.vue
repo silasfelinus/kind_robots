@@ -1,113 +1,125 @@
 <!-- /components/content/giftshop/giftshop-manager.vue -->
 <template>
-  <dashboard-shell
-    :title="dashboardTitle"
-    :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Counting butterfly inventory... tiny clipboards take time."
-    @set-tab="setTab"
-    @refresh="refreshManagerData"
-  >
-    <template #actions>
-      <div class="flex flex-wrap items-center justify-end gap-2">
-        <button
-          type="button"
-          class="btn btn-sm rounded-2xl"
-          :class="
-            activeTab === 'cart'
-              ? 'btn-secondary'
-              : cartStore.hasItems
-                ? 'btn-primary'
-                : 'btn-ghost'
-          "
-          @click="setTab('cart')"
-        >
-          <Icon name="kind-icon:cart" class="h-4 w-4" />
-          <span>{{ cartStore.totalItems }}</span>
-        </button>
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager || managerError"
+      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
+    >
+      <p
+        class="min-w-0 flex-1 text-base-content/70"
+        :class="managerError ? 'text-error' : ''"
+      >
+        {{ managerError || managerSummary }}
+      </p>
 
-        <div v-if="cartStore.hasItems" class="badge badge-secondary gap-1 p-3">
-          <Icon name="kind-icon:jellybean" class="h-3 w-3" />
-          ${{ cartStore.formattedTotalPrice }}
-        </div>
+      <button
+        type="button"
+        class="btn btn-sm rounded-2xl"
+        :class="managerError ? 'btn-error' : 'btn-ghost'"
+        :disabled="isLoadingManager"
+        @click="refreshManagerData"
+      >
+        <Icon
+          name="kind-icon:refresh"
+          class="h-4 w-4"
+          :class="isLoadingManager ? 'animate-spin' : ''"
+        />
+        Refresh
+      </button>
+    </div>
 
-        <div class="badge badge-accent gap-1 p-3">
-          <Icon name="kind-icon:butterfly" class="h-3 w-3" />
-          Swarm-operated
-        </div>
-      </div>
-    </template>
-
-    <template #default="{ activeTab: currentTab }">
-      <section class="flex min-h-0 flex-col gap-4">
+    <section class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+      <div class="flex shrink-0 flex-wrap items-center justify-between gap-3">
         <div
-          class="rounded-2xl border border-base-300 bg-base-200/70 px-4 py-3 text-sm text-base-content/70"
+          class="min-w-0 flex-1 rounded-2xl border border-base-300 bg-base-200/70 px-4 py-3 text-sm text-base-content/70"
         >
           <span class="font-bold text-primary">Swarm memo:</span>
           {{ swarmMemo }}
         </div>
 
-        <section class="min-h-0 flex-1">
-          <butterfly-sanctuary
-            v-if="currentTab === 'sanctuary'"
-            class="min-h-128 rounded-2xl border border-base-300 bg-base-100"
-          />
-
-          <about-page
-            v-else-if="currentTab === 'about'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          />
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            class="btn btn-sm rounded-2xl"
+            :class="
+              activeTab === 'cart'
+                ? 'btn-secondary'
+                : cartStore.hasItems
+                  ? 'btn-primary'
+                  : 'btn-ghost'
+            "
+            @click="setTab('cart')"
+          >
+            <Icon name="kind-icon:cart" class="h-4 w-4" />
+            <span>{{ cartStore.totalItems }}</span>
+          </button>
 
           <div
-            v-else-if="currentTab === 'butterfly-lab'"
-            class="grid grid-cols-1 gap-4 2xl:grid-cols-2"
+            v-if="cartStore.hasItems"
+            class="badge badge-secondary gap-1 p-3"
           >
-            <butterfly-lab
-              class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
-            />
-
-            <butterfly-grid
-              class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
-            />
+            <Icon name="kind-icon:jellybean" class="h-3 w-3" />
+            ${{ cartStore.formattedTotalPrice }}
           </div>
 
-          <giftshop-interact v-else-if="currentTab === 'giftshop'" />
-
-          <cart-interact
-            v-else-if="currentTab === 'cart'"
-            class="rounded-2xl"
-          />
-
-          <mana-wallet
-            v-else-if="currentTab === 'wallet'"
-            class="rounded-2xl"
-          />
-
-          <subscription-manager
-            v-else-if="currentTab === 'subscriptions'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          />
-
-          <sponsor-page
-            v-else-if="currentTab === 'sponsor'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          />
-
-          <div
-            v-else
-            class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-          >
-            The butterflies misplaced tab
-            <span class="font-bold">{{ currentTab }}</span>
-            >. This is why we do not let them near the router unsupervised.
+          <div class="badge badge-accent gap-1 p-3">
+            <Icon name="kind-icon:butterfly" class="h-3 w-3" />
+            Swarm-operated
           </div>
-        </section>
+        </div>
+      </div>
+
+      <section class="min-h-0 flex-1 overflow-y-auto">
+        <butterfly-sanctuary
+          v-if="activeTab === 'sanctuary'"
+          class="min-h-128 rounded-2xl border border-base-300 bg-base-100"
+        />
+
+        <about-page
+          v-else-if="activeTab === 'about'"
+          class="rounded-2xl border border-base-300 bg-base-100 p-4"
+        />
+
+        <div
+          v-else-if="activeTab === 'butterfly-lab'"
+          class="grid grid-cols-1 gap-4 2xl:grid-cols-2"
+        >
+          <butterfly-lab
+            class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
+          />
+
+          <butterfly-grid
+            class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
+          />
+        </div>
+
+        <giftshop-interact v-else-if="activeTab === 'giftshop'" />
+
+        <cart-interact v-else-if="activeTab === 'cart'" class="rounded-2xl" />
+
+        <mana-wallet v-else-if="activeTab === 'wallet'" class="rounded-2xl" />
+
+        <subscription-manager
+          v-else-if="activeTab === 'subscriptions'"
+          class="rounded-2xl border border-base-300 bg-base-100 p-4"
+        />
+
+        <sponsor-page
+          v-else-if="activeTab === 'sponsor'"
+          class="rounded-2xl border border-base-300 bg-base-100 p-4"
+        />
+
+        <div
+          v-else
+          class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+        >
+          The butterflies misplaced tab
+          <span class="font-bold">{{ activeTab }}</span>
+          >. This is why we do not let them near the router unsupervised.
+        </div>
       </section>
-    </template>
-  </dashboard-shell>
+    </section>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -122,8 +134,8 @@ import { useUserStore } from '@/stores/userStore'
 
 type GiftshopTabKey = (typeof dashboardConfigs.giftshop.tabs)[number]['key']
 
-const dashboardKey = 'giftshop' as const
-const dashboardConfig = dashboardConfigs[dashboardKey]
+const defaultDashboardKey = 'giftshop' as const
+const dashboardConfig = dashboardConfigs[defaultDashboardKey]
 
 const cartStore = useCartStore()
 const navStore = useNavStore()
@@ -132,13 +144,14 @@ const userStore = useUserStore()
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const tabs = computed(() => [...dashboardConfig.tabs])
-const dashboardTitle = computed(() => dashboardConfig.label)
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
+})
 
 const storedTab = computed(() => {
-  const tab = navStore.getDashboardTab?.(dashboardKey)
+  const tab = navStore.getDashboardTab?.(dashboardKey.value)
 
-  if (typeof tab === 'string' && isDashboardTabKey(dashboardKey, tab)) {
+  if (typeof tab === 'string' && isDashboardTabKey(defaultDashboardKey, tab)) {
     return tab as GiftshopTabKey
   }
 
@@ -180,17 +193,17 @@ const swarmMemo = computed(() => {
 onMounted(async () => {
   await refreshManagerData()
 
-  if (!isDashboardTabKey(dashboardKey, storedTab.value)) {
+  if (!isDashboardTabKey(defaultDashboardKey, storedTab.value)) {
     setTab(dashboardConfig.defaultTab)
   }
 })
 
 function setTab(tab: string) {
-  const nextTab = isDashboardTabKey(dashboardKey, tab)
+  const nextTab = isDashboardTabKey(defaultDashboardKey, tab)
     ? tab
     : dashboardConfig.defaultTab
 
-  navStore.setDashboardTab?.(dashboardKey, nextTab)
+  navStore.setDashboardTab?.(dashboardKey.value, nextTab)
 }
 
 async function refreshManagerData() {

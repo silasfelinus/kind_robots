@@ -1,132 +1,202 @@
 <!-- /components/characters/character-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="character"
-    title="Character Workshop"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading characters, rewards, scenarios, and narrative goblin permits..."
-    nav-grid-class="xl:grid-cols-6"
-    @refresh="refreshManagerData"
-  >
-    <template #default="{ activeTab: currentTab }">
-      <section
-        v-if="currentTab === 'overview'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager || managerError"
+      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
+    >
+      <p
+        class="min-w-0 flex-1 text-base-content/70"
+        :class="managerError ? 'text-error' : ''"
       >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-          <character-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-mode-buttons="false"
-            :show-meta="true"
-            :compact="true"
-          />
+        {{ managerError || managerSummary }}
+      </p>
 
-          <scenario-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-inspirations="false"
-            :show-choices="false"
-            :show-meta="false"
-            :compact="true"
-          />
-
-          <reward-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-meta="false"
-            :compact="true"
-          />
-
-          <dream-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-open-button="false"
-            :show-stats="false"
-            :show-meta="false"
-            :compact="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-7">
-          <character-interact />
-        </div>
-      </section>
-
-      <adventure-builder
-        v-else-if="currentTab === 'adventure'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <stage-manager v-else-if="currentTab === 'stage'" />
-
-      <character-gallery
-        v-else-if="currentTab === 'characters'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <scenario-gallery
-        v-else-if="currentTab === 'scenarios'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <reward-gallery
-        v-else-if="currentTab === 'rewards'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <dream-gallery
-        v-else-if="currentTab === 'dreams'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <character-interact v-else-if="currentTab === 'interact'" />
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      <button
+        type="button"
+        class="btn btn-sm rounded-2xl"
+        :class="managerError ? 'btn-error' : 'btn-ghost'"
+        :disabled="isLoadingManager"
+        @click="refreshManagerData"
       >
-        Unknown character tab: {{ currentTab }}
+        <Icon
+          name="kind-icon:refresh"
+          class="h-4 w-4"
+          :class="isLoadingManager ? 'animate-spin' : ''"
+        />
+        Refresh
+      </button>
+    </div>
+
+    <section
+      v-if="activeTab === 'overview'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-12"
+    >
+      <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+        <character-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-mode-buttons="false"
+          :show-meta="true"
+          :compact="true"
+        />
+
+        <scenario-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-inspirations="false"
+          :show-choices="false"
+          :show-meta="false"
+          :compact="true"
+        />
+
+        <reward-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-meta="false"
+          :compact="true"
+        />
+
+        <dream-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-open-button="false"
+          :show-stats="false"
+          :show-meta="false"
+          :compact="true"
+        />
       </div>
-    </template>
-  </dashboard-shell>
+
+      <div class="min-h-0 xl:col-span-7">
+        <character-interact />
+      </div>
+    </section>
+
+    <section
+      v-else-if="activeTab === 'adventure'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <adventure-builder variant="dashboard" :show-header="false" />
+    </section>
+
+    <section
+      v-else-if="activeTab === 'stage'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <stage-manager />
+    </section>
+
+    <section
+      v-else-if="activeTab === 'characters'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <character-gallery variant="dashboard" :show-header="false" />
+    </section>
+
+    <section
+      v-else-if="activeTab === 'scenarios'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <scenario-gallery variant="dashboard" :show-header="false" />
+    </section>
+
+    <section
+      v-else-if="activeTab === 'rewards'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <reward-gallery variant="dashboard" :show-header="false" />
+    </section>
+
+    <section
+      v-else-if="activeTab === 'dreams'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <dream-gallery variant="dashboard" :show-header="false" />
+    </section>
+
+    <section
+      v-else-if="activeTab === 'interact'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <character-interact />
+    </section>
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown character tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
+type CharacterTab =
+  | 'overview'
+  | 'adventure'
+  | 'stage'
+  | 'characters'
+  | 'scenarios'
+  | 'rewards'
+  | 'dreams'
+  | 'interact'
+
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
+const navStore = useNavStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
 
+const defaultDashboardKey = 'character'
+const defaultTab: CharacterTab = 'overview'
+const validTabs: CharacterTab[] = [
+  'overview',
+  'adventure',
+  'stage',
+  'characters',
+  'scenarios',
+  'rewards',
+  'dreams',
+  'interact',
+]
+
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
+
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
+})
+
+const activeTab = computed<CharacterTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
+
+  if (validTabs.includes(selectedTab as CharacterTab)) {
+    return selectedTab as CharacterTab
+  }
+
+  return defaultTab
+})
 
 const selectedCharacterName = computed(() => {
   const character = characterStore.selectedCharacter

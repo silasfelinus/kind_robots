@@ -1,41 +1,21 @@
-<!-- /pages/[[...slug]].vue -->
+<!-- /pages/[...slug].vue -->
 <template>
-  <div
-    v-if="isLoading"
-    class="flex min-h-64 flex-col items-center justify-center gap-3"
-  >
-    <Icon name="kind-icon:loading" class="h-10 w-10 text-info" />
-    <p class="text-center text-base text-info">
-      {{ typedPage?.loadingMessage || 'Loading page...' }}
-    </p>
-  </div>
-
-  <div
-    v-else-if="notFound"
-    class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-base-100 p-6 text-center"
-  >
-    <Icon name="kind-icon:warning" class="h-10 w-10 text-warning" />
-    <h1 class="text-2xl font-bold">Page not found</h1>
-    <p class="max-w-xl text-base text-base-content/70">
-      This route does not have a matching content page yet.
-    </p>
-    <NuxtLink to="/" class="btn btn-primary rounded-2xl"> Go Home </NuxtLink>
-  </div>
-
-  <div v-else-if="typedPage?.body" class="h-full min-h-0 overflow-hidden">
-    <ContentRenderer
-      :value="typedPage"
-      class="h-full min-h-0 overflow-hidden"
-    />
-  </div>
-
+  <NuxtLayout :name="layout">
+    <div v-if="pageStore.page && pageStore.page.body">
+      <ContentRenderer :value="pageStore.page" />
+    </div>
+    <template #fallback>
+      <Icon name="kind-icon:loading" class="w-10 h-10 text-info" />
+      <p class="text-center text-base text-info p-4">Loading page...</p>
+    </template>
+  </NuxtLayout>
   <error-popup />
 </template>
 
 <script setup lang="ts">
+// /pages/[...slug].vue
 import { useRoute, useRouter } from '#app'
-import { computed, onMounted, ref, watch } from 'vue'
-import type { ContentType } from '~/content.config'
+import { watch, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -43,29 +23,19 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useChatStore } from '@/stores/chatStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import type {
+  displayModeState,
+  displayActionState,
+} from '@/stores/displayStore'
+import type { ContentType } from '~/content.config'
 import { usePageStore } from '@/stores/pageStore'
-import { useNavStore } from '@/stores/navStore'
-
-type ContentPage = ContentType & {
-  path?: string
-  title?: string
-  description?: string
-  dashboardKey?: string | null
-  dashboardTab?: string | null
-  cards?: string | null
-  footer?: string | null
-  footerState?: string | null
-  subtitle?: string | null
-  summary?: string | null
-  loadingMessage?: string | null
-  refreshLabel?: string | null
-}
 
 const route = useRoute()
 const router = useRouter()
 
 const pageStore = usePageStore()
-const navStore = useNavStore()
+const displayStore = useDisplayStore()
 const userStore = useUserStore()
 const botStore = useBotStore()
 const characterStore = useCharacterStore()
@@ -74,136 +44,52 @@ const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
-const notFound = ref(false)
-
-const contentPath = computed(() => {
-  const rawPath = route.path || '/'
-  const cleanedPath = rawPath.replace(/\/+$/, '')
-
-  return cleanedPath || '/'
-})
-
-const contentPathCandidates = computed(() => {
-  const path = contentPath.value
-
-  if (path === '/') {
-    return ['/', '/index']
-  }
-
-  return [path, `${path}/`, `${path}/index`]
-})
-
-const {
-  data: pageData,
-  status: pageStatus,
-  error: pageError,
-} = await useAsyncData(
-  () => `content-page-${contentPath.value}`,
-  async () => {
-    for (const path of contentPathCandidates.value) {
-      const page = await queryCollection('content').path(path).first()
-
-      if (page) return page
-    }
-
-    return null
-  },
-  {
-    watch: [contentPath],
-  },
-)
-
-const typedPage = computed<ContentPage | null>(() => {
-  return pageData.value ? normalizePage(pageData.value) : null
-})
-
-const isLoading = computed(() => {
-  return pageStatus.value === 'idle' || pageStatus.value === 'pending'
-})
-
-function normalizePage(page: unknown): ContentPage {
-  return page as ContentPage
-}
-
-function getQueryNumber(value: unknown): number | null {
-  if (typeof value !== 'string') return null
-
-  const parsed = Number(value)
-
-  return Number.isFinite(parsed) ? parsed : null
-}
-
-function syncDashboardShellFromPage(page: ContentPage): void {
-  navStore.setDashboardShellFromContent({
-    title: page.title,
-    subtitle: page.subtitle,
-    description: page.description,
-    summary: page.summary,
-    dashboardKey: page.dashboardKey,
-    dashboardTab: page.dashboardTab,
-    cards: page.cards,
-    loadingMessage: page.loadingMessage,
-    refreshLabel: page.refreshLabel,
-  })
-}
-
-function applyPage(page: ContentPage): void {
-  notFound.value = false
-  pageStore.setPage(page)
-  navStore.recordVisit(route.path)
-  syncDashboardShellFromPage(page)
-}
-
 watch(
-  [pageData, pageStatus, pageError],
-  ([value, status, error]) => {
-    if (status === 'idle' || status === 'pending') {
-      notFound.value = false
-      return
+  () => route.fullPath,
+  async (newPath) => {
+    const { data }: { data: Ref<ContentType | null> } = await useAsyncData(
+      newPath,
+      () => queryCollection('content').path(newPath).first(),
+    )
+    if (!data.value) {
+      await router.push('/error')
+    } else {
+      pageStore.setPage(data.value)
     }
-
-    if (error || !value) {
-      notFound.value = true
-      navStore.clearDashboardShell()
-      return
-    }
-
-    applyPage(normalizePage(value))
   },
   { immediate: true },
 )
 
-onMounted(async () => {
-  const {
-    token: queryToken,
-    botId,
-    characterId,
-    scenarioId,
-    chatId,
-    pitchId,
-    promptId,
-  } = route.query
+const layout = computed(() => {
+  const val = pageStore.page?.layout
+  return ['default', 'minimal', 'vertical-scroll'].includes(val as string)
+    ? (val as LayoutKey)
+    : 'default'
+}) as ComputedRef<LayoutKey>
 
-  const selectedBotId = getQueryNumber(botId)
-  const selectedCharacterId = getQueryNumber(characterId)
-  const selectedScenarioId = getQueryNumber(scenarioId)
-  const selectedChatId = getQueryNumber(chatId)
-  const selectedPitchId = getQueryNumber(pitchId)
-  const selectedPromptId = getQueryNumber(promptId)
+const {
+  token: queryToken,
+  botId,
+  characterId,
+  scenarioId,
+  chatId,
+  pitchId,
+  promptId,
+  displayMode,
+  displayAction,
+} = route.query
 
-  if (selectedBotId) botStore.selectBot(selectedBotId)
-  if (selectedCharacterId) characterStore.selectCharacter(selectedCharacterId)
-  if (selectedScenarioId) scenarioStore.selectScenario(selectedScenarioId)
-  if (selectedChatId) chatStore.selectChat(selectedChatId)
-  if (selectedPitchId) pitchStore.selectPitch(selectedPitchId)
-  if (selectedPromptId) promptStore.selectPrompt(selectedPromptId)
+if (displayMode) displayStore.displayMode = displayMode as displayModeState
+if (displayAction)
+  displayStore.displayAction = displayAction as displayActionState
+if (botId) botStore.selectBot(Number(botId))
+if (characterId) characterStore.selectCharacter(Number(characterId))
+if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
+if (chatId) chatStore.selectChat(Number(chatId))
+if (pitchId) pitchStore.selectPitch(Number(pitchId))
+if (promptId) promptStore.selectPrompt(Number(promptId))
 
-  if (typeof queryToken === 'string' && queryToken && !userStore.user) {
-    await userStore.initialize(queryToken)
-  }
-
-  if (!userStore.user && typeof queryToken === 'string' && queryToken) {
-    await router.push('/login')
-  }
-})
+if (queryToken && !userStore.user)
+  await userStore.initialize(queryToken as string)
+if (!userStore.user && queryToken) await router.push('/login')
 </script>

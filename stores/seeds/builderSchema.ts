@@ -9,6 +9,7 @@ export type BuilderStageKey =
   | 'bot'
   | 'reward'
   | 'scenario'
+  | 'art'
 
 export type BuilderStageConfig = DashboardTabConfig & {
   key: BuilderStageKey
@@ -67,7 +68,8 @@ export const builderStages = [
     label: 'Bots',
     icon: 'kind-icon:robot-color',
     title: 'Bot Builder',
-    summary: 'Create bot assistants with particular skills, personalities, and mildly suspicious charm.',
+    summary:
+      'Create bot assistants with particular skills, personalities, and mildly suspicious charm.',
     modelType: 'bot',
     route: '/bots',
     requiredBeforeNext: ['name'],
@@ -93,6 +95,17 @@ export const builderStages = [
     modelType: 'scenario',
     route: '/stories',
     requiredBeforeNext: ['title', 'intro'],
+  },
+  {
+    key: 'art',
+    label: 'Art',
+    icon: 'kind-icon:palette',
+    title: 'Art Builder',
+    summary:
+      'Assemble an image one card at a time: subject, figures, style, the punk mix, setting, mood, and resources.',
+    modelType: 'art',
+    route: '/art',
+    requiredBeforeNext: ['style'],
   },
 ] satisfies [BuilderStageConfig, ...BuilderStageConfig[]]
 

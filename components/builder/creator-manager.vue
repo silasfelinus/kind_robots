@@ -1,67 +1,26 @@
 <!-- /components/builders/creator-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 flex-col overflow-hidden">
-    <section
-      v-if="activeTab === 'user'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <user-builder />
-    </section>
+  <component :is="activeBuilderComponent" v-if="activeBuilderComponent" />
 
-    <section
-      v-else-if="activeTab === 'pitch'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <pitch-builder />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'dream'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-builder />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'character'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <adventure-builder />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'bot'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <bot-builder />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'reward'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <reward-builder />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'scenario'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <scenario-builder />
-    </section>
-
-    <div
-      v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-    >
-      Unknown builder stage: {{ activeTab || 'none selected' }}
-    </div>
-  </section>
+  <div
+    v-else
+    class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+  >
+    Unknown builder stage: {{ activeTab || 'none selected' }}
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useNavStore } from '@/stores/navStore'
+
+import UserBuilder from '@/components/users/user-builder.vue'
+import PitchBuilder from '@/components/pitch/pitch-builder.vue'
+import DreamBuilder from '@/components/dreams/dream-builder.vue'
+import AdventureBuilder from '@/components/adventure/adventure-builder.vue'
+import BotBuilder from '@/components/bots/bot-builder.vue'
+import RewardBuilder from '@/components/rewards/reward-builder.vue'
+import ScenarioBuilder from '@/components/scenarios/scenario-builder.vue'
 
 type CreatorTab =
   | 'user'
@@ -99,5 +58,19 @@ const activeTab = computed<CreatorTab>(() => {
   }
 
   return defaultTab
+})
+
+const builderComponentMap: Record<CreatorTab, Component> = {
+  user: UserBuilder,
+  pitch: PitchBuilder,
+  dream: DreamBuilder,
+  character: AdventureBuilder,
+  bot: BotBuilder,
+  reward: RewardBuilder,
+  scenario: ScenarioBuilder,
+}
+
+const activeBuilderComponent = computed(() => {
+  return builderComponentMap[activeTab.value] ?? null
 })
 </script>

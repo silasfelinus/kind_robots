@@ -9,6 +9,7 @@
 
       <art-builder
         v-else-if="activeTab === 'art'"
+        purpose="builder"
         class="h-full min-h-0 overflow-hidden"
       />
     </div>
@@ -23,9 +24,6 @@ import {
   isBuilderStageKey,
   type BuilderStageKey,
 } from '@/stores/seeds/builderSchema'
-
-import UserBuilder from '@/components/user/user-builder.vue'
-import ArtDesigner from '~/components/builder/art-builder.vue'
 
 const navStore = useNavStore()
 

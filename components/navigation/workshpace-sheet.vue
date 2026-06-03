@@ -1,4 +1,4 @@
-<!-- /components/builder/builder-sheet.vue -->
+<!-- /components/builder/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-3 overflow-y-auto">
     <!-- View toggle (builder dashboards only) -->

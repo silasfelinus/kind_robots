@@ -1,35 +1,31 @@
 <!-- /components/builder/builder-manager.vue -->
 <template>
   <section
-    class="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
+    <user-builder
+      v-if="activeTab === 'user'"
+      class="hidden"
+      aria-hidden="true"
+    />
+
     <header
       class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-3"
     >
-      <button
-        type="button"
-        class="btn btn-sm btn-ghost rounded-xl lg:hidden"
-        :class="showSheet ? 'btn-active' : ''"
-        :aria-label="showSheet ? 'Hide builder sheet' : 'Show builder sheet'"
-        @click="showSheet = !showSheet"
-      >
-        <Icon name="kind-icon:blueprint" class="h-4 w-4" />
-      </button>
-
       <div class="min-w-0 flex-1">
         <h2
           class="flex items-center gap-2 truncate text-lg font-black leading-tight text-base-content"
         >
-          <Icon
-            name="kind-icon:sparkles"
-            class="h-5 w-5 shrink-0 text-primary"
-          />
+          <Icon :name="headerIcon" class="h-5 w-5 shrink-0 text-primary" />
           <span class="truncate">{{ title }}</span>
         </h2>
-        <p class="truncate text-xs text-base-content/50">{{ subtitle }}</p>
+
+        <p class="truncate text-xs text-base-content/50">
+          {{ subtitle }}
+        </p>
       </div>
 
-      <div class="flex shrink-0 items-center gap-2">
+      <div v-if="showBuilderControls" class="flex shrink-0 items-center gap-2">
         <button
           type="button"
           class="btn btn-sm btn-ghost rounded-xl text-base-content/50 hover:text-primary"
@@ -64,32 +60,32 @@
       </div>
     </Transition>
 
-    <div class="relative flex min-h-0 flex-1 overflow-hidden">
-      <Transition name="builder-sheet-slide">
-        <aside
-          v-show="showSheet || isDesktop"
-          class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-[min(20rem,calc(100vw-2rem))] shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:static lg:z-auto lg:w-80 lg:shadow-none"
+    <main class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4">
+      <section class="flex min-h-0 flex-col gap-3">
+        <template v-if="isBuilderActive">
+          <builder-splash v-if="showSplash" />
+          <builder-step-panel v-else-if="store.activeCard" />
+          <builder-summary v-else-if="store.allComplete" />
+          <builder-card-grid v-else />
+        </template>
+
+        <div
+          v-else
+          class="flex min-h-96 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
         >
-          <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-            <builder-sheet />
-          </div>
-        </aside>
-      </Transition>
+          <Icon name="kind-icon:blueprint" class="h-12 w-12 text-primary/70" />
 
-      <button
-        v-if="showSheet && !isDesktop"
-        type="button"
-        class="absolute inset-0 z-20 bg-base-300/40 backdrop-blur-[1px] lg:hidden"
-        aria-label="Close builder sheet overlay"
-        @click="showSheet = false"
-      />
+          <h3 class="mt-4 text-lg font-black text-base-content">
+            Builder is warming up
+          </h3>
 
-      <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <section class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <builder-stage />
-        </section>
-      </main>
-    </div>
+          <p class="mt-2 max-w-md text-sm leading-relaxed text-base-content/60">
+            Pick a builder tab to start shaping a user, character, bot, reward,
+            scenario, dream, pitch, or art project.
+          </p>
+        </div>
+      </section>
+    </main>
 
     <Teleport to="body">
       <Transition name="builder-modal-fade">
@@ -99,17 +95,20 @@
           @click.self="showResetConfirm = false"
         >
           <div class="absolute inset-0 bg-base-300/60 backdrop-blur-sm" />
+
           <div
             class="relative w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-xl"
           >
             <h3 class="text-lg font-black text-base-content">
               Clear this builder?
             </h3>
+
             <p class="mt-2 text-sm leading-relaxed text-base-content/60">
               This clears staged answers, completed cards, rewards, stats, and
               local saved state for this builder. Pure potential. Slightly
               haunted.
             </p>
+
             <div class="mt-5 flex justify-end gap-2">
               <button
                 type="button"
@@ -118,6 +117,7 @@
               >
                 Keep it
               </button>
+
               <button
                 type="button"
                 class="btn btn-sm btn-error rounded-xl"
@@ -134,30 +134,104 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
+import { useNavStore } from '@/stores/navStore'
+import { type DashboardKey } from '@/stores/helpers/dashboardHelper'
+import {
+  defaultBuilderStage,
+  isBuilderStageKey,
+  type BuilderStageKey,
+} from '@/stores/seeds/builderSchema'
+import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 
 const store = useBuilderStore()
-const showSheet = ref(false)
+const navStore = useNavStore()
+
 const showResetConfirm = ref(false)
-const isDesktop = ref(false)
+
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || 'builder'
+})
+
+const activeTab = computed<BuilderStageKey>(() => {
+  const selectedTab = navStore.getDashboardTab(
+    dashboardKey.value as DashboardKey,
+  )
+
+  return isBuilderStageKey(selectedTab) ? selectedTab : defaultBuilderStage
+})
+
+const isBuilderActive = computed(() => {
+  return store.activeConfig.modelType !== 'builder' && store.cards.length > 0
+})
+
+const showSplash = computed(() => {
+  return (
+    !store.activeCard &&
+    !store.completedCardList.length &&
+    !store.visibleCards.length
+  )
+})
+
+const showBuilderControls = computed(() => {
+  return isBuilderActive.value
+})
+
+const headerIcon = computed(() => {
+  return fallbackIcon.value
+})
+
+const fallbackIcon = computed(() => {
+  if (activeTab.value === 'user') return 'kind-icon:user'
+  if (activeTab.value === 'art') return 'kind-icon:palette'
+  return 'kind-icon:blueprint'
+})
 
 const title = computed(() => {
   const sheetTitle = String(store.sheet.name || store.sheet.title || '').trim()
 
   return (
-    sheetTitle || store.activeConfig.title || store.splash.title || 'Builder'
+    sheetTitle ||
+    store.activeConfig.title ||
+    store.splash.title ||
+    fallbackTitle.value
   )
+})
+
+const fallbackTitle = computed(() => {
+  if (activeTab.value === 'user') return 'User Builder'
+  if (activeTab.value === 'art') return 'Art Builder'
+  return 'Builder'
 })
 
 const subtitle = computed(() => {
   if (store.activeCard) return store.activeCard.title
   if (store.allComplete) return 'Ready for final review and interaction.'
-  return store.splash.tagline || store.activeConfig.label
+
+  return (
+    store.splash.tagline || store.activeConfig.label || fallbackSubtitle.value
+  )
 })
 
-function updateDesktop(): void {
-  isDesktop.value = window.matchMedia('(min-width: 1024px)').matches
+const fallbackSubtitle = computed(() => {
+  if (activeTab.value === 'user') {
+    return 'Shape the human side of the Kind Robots universe.'
+  }
+
+  if (activeTab.value === 'art') {
+    return 'Generate and refine artwork for the builder flow.'
+  }
+
+  return 'Choose a builder card and start shaping the project.'
+})
+
+async function syncBuilder(): Promise<void> {
+  await nextTick()
+
+  if (store.registry[activeTab.value]) {
+    store.setBuilder(activeTab.value)
+  }
 }
 
 function resetBuilder(): void {
@@ -165,26 +239,18 @@ function resetBuilder(): void {
   showResetConfirm.value = false
 }
 
-function handleResize(): void {
-  updateDesktop()
-}
+watch(activeTab, syncBuilder)
 
-onMounted(() => {
+onMounted(async () => {
+  ensureBuildersRegistered()
   store.hydrate()
-  updateDesktop()
-  window.addEventListener('resize', handleResize)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
+  await syncBuilder()
 })
 </script>
 
 <style scoped>
 .builder-feedback-enter-active,
 .builder-feedback-leave-active,
-.builder-sheet-slide-enter-active,
-.builder-sheet-slide-leave-active,
 .builder-modal-fade-enter-active,
 .builder-modal-fade-leave-active {
   transition: all 180ms ease;
@@ -194,12 +260,6 @@ onBeforeUnmount(() => {
 .builder-feedback-leave-to {
   opacity: 0;
   transform: translateY(-0.5rem);
-}
-
-.builder-sheet-slide-enter-from,
-.builder-sheet-slide-leave-to {
-  opacity: 0;
-  transform: translateX(-1rem);
 }
 
 .builder-modal-fade-enter-from,

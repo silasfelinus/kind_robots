@@ -430,8 +430,8 @@ const debugTargets: DebugTarget[] = [
     labelClass: 'bg-secondary text-secondary-content',
   },
   {
-    label: 'Builder Hand',
-    selector: '[data-debug="builder-hand"]',
+    label: 'Worksheet Hand',
+    selector: '[data-debug="Worksheet-hand"]',
     class: 'border-emerald-300 bg-emerald-300/20 text-emerald-50',
     labelClass: 'bg-emerald-400 text-emerald-950',
   },

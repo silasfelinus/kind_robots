@@ -14,6 +14,7 @@ import {
 } from '@/stores/helpers/dashboardHelper'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import { handleError } from '@/stores/utils'
+import { getModelCards } from '@/stores/helpers/modelCards'
 
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
@@ -385,6 +386,22 @@ export const useNavStore = defineStore('navStore', () => {
     }
   }
 
+  const dashboardTitle = computed(() => {
+    return dashboardShell.value.title || 'Dashboard'
+  })
+
+  const dashboardSummary = computed(() => {
+    return dashboardShell.value.summary || ''
+  })
+
+  const dashboardCards = computed(() => {
+    return getModelCards(dashboardShell.value.cards)
+  })
+
+  const hasDashboardCards = computed(() => {
+    return dashboardCards.value.length > 0
+  })
+
   async function initialize(force = false): Promise<void> {
     if (initializePromise.value && !force) {
       return initializePromise.value
@@ -649,5 +666,9 @@ export const useNavStore = defineStore('navStore', () => {
 
     setWonderLabFolder,
     setDashboardTabFromContent,
+    dashboardTitle,
+    dashboardSummary,
+    dashboardCards,
+    hasDashboardCards,
   }
 })

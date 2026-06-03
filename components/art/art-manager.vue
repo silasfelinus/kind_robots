@@ -1,67 +1,96 @@
 <!-- /components/art/art-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="art"
-    title="Image Workshop"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading images, collections, checkpoints, and pixel goblin infrastructure..."
-    nav-grid-class="xl:grid-cols-6"
-    @refresh="refreshManagerData"
-  >
-    <template #default="{ activeTab: currentTab }">
-      <section
-        v-if="currentTab === 'generate'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-          <art-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :compact="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-7">
-          <art-maker />
-        </div>
-      </section>
-
-      <art-gallery
-        v-else-if="currentTab === 'gallery'"
-        variant="dashboard"
-        :show-header="false"
-        :show-selected-panel="false"
-      />
-
-      <image-upload v-else-if="currentTab === 'upload'" />
-
-      <checkpoint-gallery
-        v-else-if="currentTab === 'checkpoints'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <art-styler v-else-if="currentTab === 'styler'" />
-
-      <code-workbench v-else-if="currentTab === 'workbench'" />
-
-      <memory-dungeon
-        v-else-if="currentTab === 'memory-dungeon'"
-        class="h-full w-full"
-        :show-header="false"
-      />
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-      >
-        Unknown image tab: {{ currentTab }}
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6"
+    >
+      <div class="flex flex-col items-center gap-3 text-center">
+        <span class="loading loading-spinner loading-lg text-primary" />
+        <p class="text-sm text-base-content/70">
+          Loading images, collections, checkpoints, and pixel goblin
+          infrastructure...
+        </p>
       </div>
-    </template>
-  </dashboard-shell>
+    </div>
+
+    <div
+      v-else-if="managerError"
+      class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span>{{ managerError }}</span>
+        <button
+          type="button"
+          class="btn btn-error btn-sm rounded-2xl"
+          @click="refreshManagerData"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <section
+      v-else-if="activeTab === 'generate'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+    >
+      <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+        <art-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :compact="true"
+        />
+      </div>
+
+      <div class="min-h-0 xl:col-span-7">
+        <art-maker />
+      </div>
+    </section>
+
+    <art-gallery
+      v-else-if="activeTab === 'gallery'"
+      class="min-h-0 flex-1 overflow-hidden"
+      variant="dashboard"
+      :show-header="false"
+      :show-selected-panel="false"
+    />
+
+    <image-upload
+      v-else-if="activeTab === 'upload'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <checkpoint-gallery
+      v-else-if="activeTab === 'checkpoints'"
+      class="min-h-0 flex-1 overflow-hidden"
+      variant="dashboard"
+      :show-header="false"
+    />
+
+    <art-styler
+      v-else-if="activeTab === 'styler'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <code-workbench
+      v-else-if="activeTab === 'workbench'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <memory-dungeon
+      v-else-if="activeTab === 'memory-dungeon'"
+      class="h-full min-h-0 w-full flex-1 overflow-hidden"
+      :show-header="false"
+    />
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown image tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -69,52 +98,52 @@ import { computed, onMounted, ref } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
+
+type ArtTab =
+  | 'generate'
+  | 'gallery'
+  | 'upload'
+  | 'checkpoints'
+  | 'styler'
+  | 'workbench'
+  | 'memory-dungeon'
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
+const navStore = useNavStore()
 const serverStore = useServerStore()
+
+const defaultDashboardKey = 'art'
+const defaultTab: ArtTab = 'generate'
+
+const validTabs: ArtTab[] = [
+  'generate',
+  'gallery',
+  'upload',
+  'checkpoints',
+  'styler',
+  'workbench',
+  'memory-dungeon',
+]
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const activeArtServerLabel = computed(() => {
-  return (
-    serverStore.activeArtServer?.label ||
-    serverStore.activeArtServer?.title ||
-    'no image server'
-  )
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
 })
 
-const selectedCheckpointLabel = computed(() => {
-  return (
-    checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.name ||
-    'no checkpoint'
-  )
-})
+const activeTab = computed<ArtTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
 
-const selectedCollectionLabel = computed(() => {
-  const selected =
-    collectionStore.selectedCollections?.[0] ||
-    collectionStore.collections.find((collection) => {
-      return collection.id === collectionStore.selectedCollectionIds?.[0]
-    })
+  if (validTabs.includes(selectedTab as ArtTab)) {
+    return selectedTab as ArtTab
+  }
 
-  return selected?.label || 'no collection'
-})
-
-const selectedArtLabel = computed(() => {
-  if (artStore.currentArtImage) return `Image #${artStore.currentArtImage.id}`
-  return 'nothing selected'
-})
-
-const managerSummary = computed(() => {
-  const imageCount = artStore.artImages.length
-  const collectionCount = collectionStore.collections.length
-
-  return `${imageCount} images and ${collectionCount} collections loaded. Current setup: ${activeArtServerLabel.value}, ${selectedCheckpointLabel.value}, ${selectedCollectionLabel.value}. Focus: ${selectedArtLabel.value}.`
+  return defaultTab
 })
 
 async function loadManagerData(force = false) {

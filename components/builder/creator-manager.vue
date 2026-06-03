@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
 import UserBuilder from '@/components/user/user-builder.vue'

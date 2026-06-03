@@ -8,7 +8,6 @@ icon: kind-icon:rocket
 tooltip: Ongoing support makes long-term imagination possible.
 amitip: We're basically a butterfly-powered nonprofit with server bills.
 dottitip: Subscriptions are the adult version of putting a star sticker on our forehead.
-layout: default
 dashboardKey: giftshop
 dashboardTab: subscriptions
 cards: navCards

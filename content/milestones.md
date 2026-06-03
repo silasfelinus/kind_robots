@@ -9,7 +9,6 @@ tooltip: Ready for a hunt? Find all 11 jellybeans hidden across the site.
 sort: highlight
 dottitip: I hid a bunch of jellybeans around the laboratory for visitors to find. How do we tell them that they absolutely SHOULD NOT EAT them.
 amitip: Uhm, what happens if they eat them? Are we talking silica-gel-packet-bad or Bruce Banner-bad? Because humans will eat jellybeans off a laboratory floor if they think it could give them superpowers.
-layout: default
 dashboardKey: user
 dashboardTab: milestones
 cards: navCards

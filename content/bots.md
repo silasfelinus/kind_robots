@@ -9,7 +9,6 @@ tooltip: Every bot uses ChatGPT under the hood, generating infinite designer con
 sort: highlight
 dottitip: "I've been meaning to ask you, AMI...What's it like being a robot? I make bots all day, but I can't imagine what what its like to be on the other side of the circuit board."
 amitip: "Uhm, Dotti...I think we might need to have a talk."
-layout: default
 dashboardKey: bot
 dashboardTab: bots
 cards: botCards

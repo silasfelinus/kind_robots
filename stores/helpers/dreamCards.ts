@@ -4,8 +4,15 @@
 // A Dream is a location, vibe, mood, or space — somewhere a story can happen.
 // Could be a physical place, a psychological state, an atmospheric condition,
 // or something harder to categorise.
+import type {
+  BuilderCard,
+  BuilderChoice,
+  BuilderStep,
+} from '@/stores/helpers/builderCards'
 
-import type { BuilderCard, BuilderChoice } from '@/stores/helpers/builderCards'
+export type DreamCard = BuilderCard
+export type DreamChoice = BuilderChoice
+export type DreamStep = BuilderStep
 
 // ── Atmosphere categories ──────────────────────────────────────────────────
 // Used as an optional vibe tag — not stored directly but informs the LLM

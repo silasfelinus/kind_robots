@@ -1,7 +1,7 @@
 <!-- /components/adventure/adventure-builder.vue -->
 <template>
   <section
-    class="flex h-[calc(100dvh-var(--builder-shell-offset,5rem))] max-h-[calc(100dvh-var(--builder-shell-offset,5rem))] min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl bg-base-200"
+    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl bg-base-200"
   >
     <div
       v-if="saveMessage || saveError"

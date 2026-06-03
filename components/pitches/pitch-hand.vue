@@ -36,7 +36,6 @@
 
 <script setup lang="ts">
 import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
-import type { PitchCard } from '@/stores/helpers/pitchCards'
 
 const store = usePitchBuilderStore()
 

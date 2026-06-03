@@ -1,26 +1,45 @@
 <!-- /components/content/brainstorm/brainstorm-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="brainstorm"
-    title="Brainstorm Workshop"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading pitches, prompts, art hooks, and idea goblin infrastructure..."
-    nav-grid-class="xl:grid-cols-4"
-    @refresh="refreshManagerData"
-  >
-    <template #actions>
-      <span v-if="selectedPitch" class="badge badge-primary">
-        {{ selectedPitch.title || 'Selected pitch' }}
-      </span>
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6"
+    >
+      <div class="flex flex-col items-center gap-3 text-center">
+        <span class="loading loading-spinner loading-lg text-primary" />
+        <p class="text-sm text-base-content/70">
+          Loading pitches, prompts, art hooks, and idea goblin infrastructure...
+        </p>
+      </div>
+    </div>
 
-      <span :class="sourceBadgeClass(activeCreationSource)">
-        {{ activeCreationSource }}
-      </span>
-    </template>
+    <div
+      v-else-if="managerError"
+      class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span>{{ managerError }}</span>
+        <button
+          type="button"
+          class="btn btn-error btn-sm rounded-2xl"
+          @click="refreshManagerData"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
 
-    <template #default="{ activeTab: currentTab }">
+    <template v-else>
+      <div class="mb-3 flex flex-wrap items-center gap-2">
+        <span v-if="selectedPitch" class="badge badge-primary">
+          {{ selectedPitch.title || 'Selected pitch' }}
+        </span>
+
+        <span :class="sourceBadgeClass(activeCreationSource)">
+          {{ activeCreationSource }}
+        </span>
+      </div>
+
       <div
         v-if="statusMessage"
         class="mb-3 rounded-2xl border p-3 text-sm"
@@ -41,7 +60,7 @@
       </div>
 
       <section
-        v-if="currentTab === 'overview' || currentTab === 'interact'"
+        v-if="activeTab === 'overview' || activeTab === 'interact'"
         class="grid min-h-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]"
       >
         <main
@@ -555,42 +574,43 @@
       </section>
 
       <section
-        v-else-if="currentTab === 'pitches'"
+        v-else-if="activeTab === 'pitches'"
         class="min-h-0 rounded-2xl border border-base-300 bg-base-200 p-3"
       >
         <pitch-gallery :show-header="false" />
       </section>
 
       <section
-        v-else-if="currentTab === 'prompts'"
+        v-else-if="activeTab === 'prompts'"
         class="min-h-0 rounded-2xl border border-base-300 bg-base-200 p-3"
       >
         <prompt-gallery :show-header="false" />
       </section>
 
-      <pitch-builder v-else-if="currentTab === 'builder'" />
+      <pitch-builder v-else-if="activeTab === 'builder'" />
 
       <div
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
-        Unknown brainstorm tab: {{ currentTab }}
+        Unknown brainstorm tab: {{ activeTab }}
       </div>
     </template>
-  </dashboard-shell>
+  </section>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { usePitchStore, PitchType } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 
 type CreationSourceType = 'HUMAN' | 'AI' | 'HYBRID' | 'UPLOAD' | 'UNKNOWN'
 type CandidateStatus = 'pending' | 'accepted' | 'rejected'
+type BrainstormTab = 'overview' | 'interact' | 'pitches' | 'prompts' | 'builder'
 
 type BrainstormCandidate = {
   id: string
@@ -616,8 +636,34 @@ type PromptStoreWithCreate = ReturnType<typeof usePromptStore> & {
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore() as PromptStoreWithCreate
 const artStore = useArtStore()
+const navStore = useNavStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
+
+const defaultDashboardKey = 'brainstorm'
+const defaultTab: BrainstormTab = 'overview'
+
+const validTabs: BrainstormTab[] = [
+  'overview',
+  'interact',
+  'pitches',
+  'prompts',
+  'builder',
+]
+
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
+})
+
+const activeTab = computed<BrainstormTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
+
+  if (validTabs.includes(selectedTab as BrainstormTab)) {
+    return selectedTab as BrainstormTab
+  }
+
+  return defaultTab
+})
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
@@ -703,14 +749,6 @@ const canGenerate = computed(() => {
 
 const promptPreview = computed(() => {
   return buildPromptFragmentString()
-})
-
-const managerSummary = computed(() => {
-  const pitchCount = pitchStore.pitches?.length ?? 0
-  const promptCount = promptStore.prompts?.length ?? 0
-  const selected = selectedPitch.value?.title || 'no pitch selected'
-
-  return `${pitchCount} pitches and ${promptCount} prompts loaded. Selected: ${selected}.`
 })
 
 async function loadManagerData(force = false) {

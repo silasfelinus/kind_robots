@@ -37,33 +37,31 @@
                   class="h-5 w-5 shrink-0 text-primary"
                 />
                 <h1 class="truncate text-xl font-black text-base-content">
-                  {{ dashboardTitle }}
+                  {{ navStore.dashboardTitle }}
                 </h1>
               </div>
 
               <p
-                v-if="dashboardSummary"
+                v-if="navStore.dashboardSummary"
                 class="line-clamp-2 text-sm text-base-content/70"
               >
-                {{ dashboardSummary }}
+                {{ navStore.dashboardSummary }}
               </p>
             </div>
           </header>
 
           <section class="min-h-0 flex-1 overflow-hidden bg-base-200/40">
-            <div
-              class="h-full min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-4"
-            >
+            <div class="h-full min-h-0 overflow-hidden p-3 sm:p-4">
               <slot />
             </div>
           </section>
 
           <section
-            v-if="hasBuilderCards"
+            v-if="navStore.hasDashboardCards"
             class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
           >
             <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
-              <builder-hand :cards="builderCards" />
+              <builder-hand :cards="navStore.dashboardCards" />
             </div>
           </section>
         </div>
@@ -95,28 +93,9 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
-import { getModelCards } from '@/stores/helpers/modelCards'
 
 const displayStore = useDisplayStore()
 const navStore = useNavStore()
-
-const dashboardShell = computed(() => navStore.dashboardShell)
-
-const dashboardTitle = computed(() => {
-  return dashboardShell.value.title || 'Dashboard'
-})
-
-const dashboardSummary = computed(() => {
-  return dashboardShell.value.summary || ''
-})
-
-const builderCards = computed(() => {
-  return getModelCards(dashboardShell.value.cards)
-})
-
-const hasBuilderCards = computed(() => {
-  return builderCards.value.length > 0
-})
 
 const leftSidebarOpen = computed(() => {
   return displayStore.sidebarLeftState !== 'hidden'

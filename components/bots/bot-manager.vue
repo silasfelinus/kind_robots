@@ -1,106 +1,145 @@
 <!-- /components/content/bots/bot-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="bot"
-    title="Bot Workshop"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading bots, text engines, and charming little nonsense modules..."
-    nav-grid-class="xl:grid-cols-5"
-    @refresh="refreshManagerData"
-  >
-    <template #default="{ activeTab: currentTab }">
-      <section
-        v-if="currentTab === 'overview'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-          <bot-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-launch-button="false"
-            :show-meta="true"
-            :show-personality="true"
-            :compact="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-7">
-          <bot-interact />
-        </div>
-      </section>
-
-      <bot-gallery
-        v-else-if="currentTab === 'bots'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <bot-interact v-else-if="currentTab === 'interact'" />
-
-      <composition-manager v-else-if="currentTab === 'composition'" />
-
-      <bot-builder v-else-if="currentTab === 'builder'" />
-
-      <section
-        v-else-if="currentTab === 'forge'"
-        class="rounded-2xl border border-base-300 bg-base-200 p-3"
-      >
-        <add-bot
-          :mode="botStore.currentBot ? 'edit' : 'add'"
-          @saved="handleBotSaved"
-        />
-      </section>
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-      >
-        Unknown bot tab: {{ currentTab }}
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6"
+    >
+      <div class="flex flex-col items-center gap-3 text-center">
+        <span class="loading loading-spinner loading-lg text-primary" />
+        <p class="text-sm text-base-content/70">
+          Loading bots, text engines, and charming little nonsense modules...
+        </p>
       </div>
-    </template>
-  </dashboard-shell>
+    </div>
+
+    <div
+      v-else-if="managerError"
+      class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span>{{ managerError }}</span>
+        <button
+          type="button"
+          class="btn btn-error btn-sm rounded-2xl"
+          @click="refreshManagerData"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <section
+      v-else-if="activeTab === 'overview'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+    >
+      <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+        <bot-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-launch-button="false"
+          :show-meta="true"
+          :show-personality="true"
+          :compact="true"
+        />
+      </div>
+
+      <div class="min-h-0 xl:col-span-7">
+        <bot-interact />
+      </div>
+    </section>
+
+    <bot-gallery
+      v-else-if="activeTab === 'bots'"
+      class="min-h-0 flex-1 overflow-hidden"
+      variant="dashboard"
+      :show-header="false"
+    />
+
+    <bot-interact
+      v-else-if="activeTab === 'interact'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <composition-manager
+      v-else-if="activeTab === 'composition'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <bot-builder
+      v-else-if="activeTab === 'builder'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <section
+      v-else-if="activeTab === 'forge'"
+      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
+      <add-bot
+        :mode="botStore.currentBot ? 'edit' : 'add'"
+        @saved="handleBotSaved"
+      />
+    </section>
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown bot tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
+import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
+
+type BotTab =
+  | 'overview'
+  | 'bots'
+  | 'interact'
+  | 'composition'
+  | 'builder'
+  | 'forge'
 
 const botStore = useBotStore()
 const chatStore = useChatStore()
+const navStore = useNavStore()
 const serverStore = useServerStore()
+
+const defaultDashboardKey = 'bot'
+const defaultTab: BotTab = 'overview'
+
+const validTabs: BotTab[] = [
+  'overview',
+  'bots',
+  'interact',
+  'composition',
+  'builder',
+  'forge',
+]
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const selectedBotName = computed(() => {
-  return (
-    botStore.currentBot?.name ||
-    botStore.currentBot?.subtitle ||
-    botStore.currentBot?.tagline ||
-    'no bot'
-  )
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
 })
 
-const activeTextServerName = computed(() => {
-  return (
-    serverStore.activeTextServer?.label ||
-    serverStore.activeTextServer?.title ||
-    'no text server'
-  )
-})
+const activeTab = computed<BotTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
 
-const managerSummary = computed(() => {
-  const botCount = botStore.bots.length
-  const visibleCount = botStore.visibleBots.length
+  if (validTabs.includes(selectedTab as BotTab)) {
+    return selectedTab as BotTab
+  }
 
-  return `${botCount} bots loaded, ${visibleCount} visible. Current setup: ${selectedBotName.value}, ${activeTextServerName.value}.`
+  return defaultTab
 })
 
 async function loadManagerData(force = false) {

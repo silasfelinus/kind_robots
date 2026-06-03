@@ -9,23 +9,6 @@
     ]
   },
   {
-    "folderName": "adventure",
-    "components": [
-      "adventure-art",
-      "adventure-builder",
-      "adventure-card",
-      "adventure-choices",
-      "adventure-hand",
-      "adventure-list",
-      "adventure-preset",
-      "adventure-reward",
-      "adventure-sheet",
-      "adventure-stage",
-      "adventure-stats",
-      "adventure-text"
-    ]
-  },
-  {
     "folderName": "art",
     "components": [
       "add-collection",
@@ -49,18 +32,13 @@
     "folderName": "bots",
     "components": [
       "add-bot",
-      "bot-builder",
       "bot-card",
       "bot-gallery",
-      "bot-hand",
       "bot-interact",
       "bot-intros",
       "bot-manager",
       "bot-modules",
       "bot-personality",
-      "bot-sheet",
-      "bot-stage",
-      "bot-text",
       "text-generate"
     ]
   },
@@ -86,21 +64,18 @@
       "builder-card-grid",
       "builder-card",
       "builder-custom-input",
-      "workspace-hand",
       "builder-input",
       "builder-list-input",
       "builder-manager",
       "builder-preset-input",
       "builder-reward-input",
-      "builder-sheet",
       "builder-splash",
       "builder-stage",
       "builder-stats-input",
       "builder-step-panel",
       "builder-summary",
       "builder-text-input",
-      "builder-visibility-input",
-      "creator-manager"
+      "builder-visibility-input"
     ]
   },
   {
@@ -139,7 +114,6 @@
     "folderName": "characters",
     "components": [
       "add-character",
-      "character-builder",
       "character-card",
       "character-gallery",
       "character-interact",
@@ -170,24 +144,15 @@
     ]
   },
   {
-    "folderName": "content",
-    "components": []
-  },
-  {
     "folderName": "dreams",
     "components": [
       "add-dream",
-      "dream-builder",
       "dream-card",
       "dream-gallery",
-      "dream-hand",
       "dream-interact",
       "dream-list",
       "dream-manager",
-      "dream-prompts",
-      "dream-sheet",
-      "dream-stage",
-      "dream-text"
+      "dream-prompts"
     ]
   },
   {
@@ -237,14 +202,12 @@
   {
     "folderName": "navigation",
     "components": [
-      "ami-chat",
       "channel-select",
       "dashboard-shell",
-      "kind-title",
       "navigation-trimmed",
       "page-image",
-      "splash-tutorial",
-      "title-card"
+      "workshpace-sheet",
+      "workspace-hand"
     ]
   },
   {
@@ -265,29 +228,13 @@
     ]
   },
   {
-    "folderName": "pitches",
-    "components": [
-      "pitch-builder",
-      "pitch-hand",
-      "pitch-icon",
-      "pitch-sheet",
-      "pitch-stage",
-      "pitch-text"
-    ]
-  },
-  {
     "folderName": "rewards",
     "components": [
       "add-reward",
-      "reward-builder",
       "reward-card",
       "reward-gallery",
-      "reward-hand",
       "reward-interact",
-      "reward-manager",
-      "reward-sheet",
-      "reward-stage",
-      "reward-text"
+      "reward-manager"
     ]
   },
   {
@@ -297,17 +244,12 @@
       "choice-manager",
       "choice-preview",
       "choice-selector",
-      "scenario-builder",
       "scenario-card",
       "scenario-classification",
       "scenario-gallery",
-      "scenario-hand",
       "scenario-interact",
       "scenario-intros",
-      "scenario-manager",
-      "scenario-sheet",
-      "scenario-stage",
-      "scenario-text"
+      "scenario-manager"
     ]
   },
   {

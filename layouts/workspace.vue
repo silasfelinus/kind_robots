@@ -5,24 +5,6 @@
       class="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden p-2 sm:gap-3 sm:p-3"
       :class="gridClass"
     >
-      <Transition
-        enter-active-class="transition duration-200 ease-out"
-        enter-from-class="-translate-x-6 opacity-0"
-        enter-to-class="translate-x-0 opacity-100"
-        leave-active-class="transition duration-150 ease-in"
-        leave-from-class="translate-x-0 opacity-100"
-        leave-to-class="-translate-x-6 opacity-0"
-      >
-        <aside
-          v-if="leftSidebarOpen"
-          class="hidden min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 lg:flex lg:flex-col"
-        >
-          <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <splash-tutorial />
-          </div>
-        </aside>
-      </Transition>
-
       <main
         class="relative min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
@@ -77,7 +59,7 @@
               class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
             >
               <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
-                <builder-hand :cards="navStore.dashboardCards" />
+                <builder-hand />
               </div>
             </section>
           </div>
@@ -94,33 +76,16 @@
           <Icon name="kind-icon:blueprint" class="h-4 w-4" />
         </button>
       </main>
-
-      <Transition
-        enter-active-class="transition duration-200 ease-out"
-        enter-from-class="translate-x-6 opacity-0"
-        enter-to-class="translate-x-0 opacity-100"
-        leave-active-class="transition duration-150 ease-in"
-        leave-from-class="translate-x-0 opacity-100"
-        leave-to-class="translate-x-6 opacity-0"
-      >
-        <aside
-          v-if="rightSidebarOpen"
-          class="hidden min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:flex xl:flex-col"
-        >
-          <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <builder-sheet />
-          </div>
-        </aside>
-      </Transition>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
+import { type DashboardKey } from '@/stores/helpers/dashboardHelper'
 
 const displayStore = useDisplayStore()
 const navStore = useNavStore()
@@ -138,9 +103,35 @@ const rightSidebarOpen = computed(() => {
 })
 
 const showBuilderFrame = computed(() => {
-  return navStore.hasDashboardCards
+  return navStore.hasDashboardCards || builderStore.cards.length > 0
 })
 
+const dashboardCards = computed(() => {
+  return navStore.dashboardCards ?? []
+})
+
+const dashboardBuilderKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || 'builder'
+})
+
+const dashboardTitle = computed(() => {
+  return navStore.dashboardTitle || 'Builder'
+})
+
+function syncWorkspaceBuilder(): void {
+  if (!dashboardCards.value.length) return
+
+  builderStore.registerWorkspaceBuilder({
+    key: dashboardBuilderKey.value,
+    label: dashboardTitle.value,
+    title: dashboardTitle.value,
+    modelType: dashboardBuilderKey.value,
+    cards: dashboardCards.value,
+    storageKey: `kindrobots.builder.${dashboardBuilderKey.value}.v1`,
+  })
+
+  builderStore.setBuilder(dashboardBuilderKey.value)
+}
 const gridClass = computed(() => {
   if (leftSidebarOpen.value && rightSidebarOpen.value) {
     return 'lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_20rem]'
@@ -171,8 +162,16 @@ function handleResize(): void {
   updateDesktop()
 }
 
+watch(
+  () => [dashboardBuilderKey.value, dashboardCards.value.length],
+  () => {
+    syncWorkspaceBuilder()
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
-  builderStore.hydrate()
+  syncWorkspaceBuilder()
   updateDesktop()
   window.addEventListener('resize', handleResize)
 })

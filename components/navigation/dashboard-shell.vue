@@ -113,37 +113,6 @@
             </button>
           </nav>
         </div>
-
-        <!-- Toggles flank the header's bottom corners, floating outside it -->
-        <button
-          type="button"
-          class="absolute bottom-0 -left-10 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
-          :class="
-            leftSidebarOpen
-              ? 'bg-primary text-primary-content'
-              : 'bg-base-100 text-base-content hover:border-primary hover:text-primary'
-          "
-          :title="leftSidebarOpen ? 'Hide left panel' : 'Show left panel'"
-          :aria-pressed="leftSidebarOpen"
-          @click="displayStore.toggleLeftSidebar()"
-        >
-          <Icon name="kind-icon:robot" class="h-4 w-4" />
-        </button>
-
-        <button
-          type="button"
-          class="absolute bottom-0 -right-10 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 shadow-md backdrop-blur transition-all hover:scale-105 active:scale-95"
-          :class="
-            rightSidebarOpen
-              ? 'bg-secondary text-secondary-content'
-              : 'bg-base-100 text-base-content hover:border-secondary hover:text-secondary'
-          "
-          :title="rightSidebarOpen ? 'Hide help panel' : 'Show help panel'"
-          :aria-pressed="rightSidebarOpen"
-          @click="displayStore.toggleRightSidebar()"
-        >
-          <Icon name="kind-icon:question" class="h-4 w-4" />
-        </button>
       </header>
     </transition>
 
@@ -236,14 +205,6 @@ const navStore = useNavStore()
 const displayStore = useDisplayStore()
 
 const showHeader = ref(true)
-
-const leftSidebarOpen = computed(() => {
-  return displayStore.sidebarLeftState !== 'hidden'
-})
-
-const rightSidebarOpen = computed(() => {
-  return displayStore.sidebarRightState !== 'hidden'
-})
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = (props.dashboardKey ?? '').trim()

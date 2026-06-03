@@ -7,7 +7,7 @@
       type="button"
       class="group relative flex min-w-24 max-w-24 shrink-0 flex-col overflow-hidden rounded-2xl border transition-all duration-200 hover:-translate-y-0.5"
       :class="thumbClass(card.key)"
-      @click="store.selectCard(card.key)"
+      @click="handleCardClick(card)"
     >
       <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
         <img
@@ -86,6 +86,22 @@ const handCards = computed(() => {
     )
   })
 })
+
+function getCardPath(card: BuilderCard): string {
+  const path = card.payload?.path
+  return typeof path === 'string' ? path : ''
+}
+
+function handleCardClick(card: BuilderCard): void {
+  const path = getCardPath(card)
+
+  if (path) {
+    void navigateTo(path)
+    return
+  }
+
+  store.selectCard(card.key)
+}
 
 function thumbClass(cardKey: string): string {
   if (store.activeCardKey === cardKey) {

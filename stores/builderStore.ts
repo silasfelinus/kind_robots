@@ -272,6 +272,72 @@ export const useBuilderStore = defineStore('builderStore', () => {
     registry[config.key] = config
   }
 
+  function registerWorkspaceBuilder(input: {
+    key: string
+    label?: string
+    title?: string
+    modelType?: string
+    cards: BuilderCard[]
+    splash?: BuilderSplash
+    coreCardKeys?: string[]
+    requiredCardKeys?: string[]
+    finalCardKey?: string
+    startCardKey?: string
+    storageKey?: string
+    persistActiveCard?: boolean
+    allowCompletedCardsInDeck?: boolean
+  }): void {
+    if (!input.key || !input.cards.length) return
+
+    const existing = registry[input.key]
+
+    registry[input.key] = {
+      ...defaultBuilderConfig,
+      ...existing,
+      key: input.key,
+      label: input.label ?? existing?.label ?? input.title ?? input.key,
+      title: input.title ?? existing?.title ?? input.label ?? input.key,
+      modelType: input.modelType ?? existing?.modelType ?? input.key,
+      storageKey:
+        input.storageKey ??
+        existing?.storageKey ??
+        `kindrobots.builder.${input.key}.v1`,
+      cards: input.cards,
+      splash: input.splash ?? existing?.splash ?? EMPTY_BUILDER_SPLASH,
+      defaultSheet: existing?.defaultSheet ?? defaultBuilderSheet,
+      coreCardKeys:
+        input.coreCardKeys ??
+        existing?.coreCardKeys ??
+        input.cards.filter((card) => card.required).map((card) => card.key),
+      requiredCardKeys:
+        input.requiredCardKeys ??
+        existing?.requiredCardKeys ??
+        input.cards.filter((card) => card.required).map((card) => card.key),
+      finalCardKey:
+        input.finalCardKey ??
+        existing?.finalCardKey ??
+        input.cards.at(-1)?.key ??
+        'art',
+      utilityCards: existing?.utilityCards ?? builderUtilityCards,
+      clearFieldDefaults:
+        existing?.clearFieldDefaults ?? defaultBuilderConfig.clearFieldDefaults,
+      persistActiveCard:
+        input.persistActiveCard ?? existing?.persistActiveCard ?? true,
+      allowCompletedCardsInDeck:
+        input.allowCompletedCardsInDeck ??
+        existing?.allowCompletedCardsInDeck ??
+        false,
+      startCardKey: input.startCardKey ?? existing?.startCardKey,
+      suggestContext: existing?.suggestContext,
+      artPurpose: existing?.artPurpose,
+      artImageRole: existing?.artImageRole,
+      artTitle: existing?.artTitle,
+      artDescription: existing?.artDescription,
+      save: existing?.save,
+      reset: existing?.reset,
+    }
+  }
+
   function setBuilder(builderKey: string, hydrateState = true): void {
     const nextConfig = registry[builderKey]
 
@@ -280,11 +346,21 @@ export const useBuilderStore = defineStore('builderStore', () => {
       return
     }
 
+    if (activeBuilderKey.value === builderKey && isHydrated.value) {
+      return
+    }
+
     activeBuilderKey.value = builderKey
     resetRuntimeState(nextConfig)
 
     if (hydrateState) {
       hydrate()
+    } else {
+      isHydrated.value = true
+    }
+
+    if (!activeCardKey.value && nextConfig.startCardKey) {
+      selectCard(nextConfig.startCardKey)
     }
   }
 
@@ -349,9 +425,8 @@ export const useBuilderStore = defineStore('builderStore', () => {
   function randomCard(): void {
     if (!visibleCards.value.length) return
 
-    const pick = visibleCards.value[
-      Math.floor(Math.random() * visibleCards.value.length)
-    ]
+    const pick =
+      visibleCards.value[Math.floor(Math.random() * visibleCards.value.length)]
 
     if (pick) selectCard(pick.key)
   }
@@ -434,7 +509,10 @@ export const useBuilderStore = defineStore('builderStore', () => {
     persist()
   }
 
-  function setRewardOptions(slotKey: string, options: BuilderRewardOption[]): void {
+  function setRewardOptions(
+    slotKey: string,
+    options: BuilderRewardOption[],
+  ): void {
     rewardOptions[slotKey] = options
     if (!selectedRewardId[slotKey] && options[0]) {
       selectedRewardId[slotKey] = options[0].id
@@ -555,7 +633,9 @@ export const useBuilderStore = defineStore('builderStore', () => {
     if (payload.imagePath !== undefined) sheet.imagePath = payload.imagePath
     if (payload.artImageId !== undefined) sheet.artImageId = payload.artImageId
 
-    completedCards.art = Boolean(sheet.artPrompt || sheet.imagePath || sheet.artImageId)
+    completedCards.art = Boolean(
+      sheet.artPrompt || sheet.imagePath || sheet.artImageId,
+    )
     persist()
   }
 
@@ -646,8 +726,10 @@ export const useBuilderStore = defineStore('builderStore', () => {
         sheet,
         completedCards,
         stagedValues,
-        activeCardKey: config.persistActiveCard === false ? null : activeCardKey.value,
-        activeStepIndex: config.persistActiveCard === false ? 0 : activeStepIndex.value,
+        activeCardKey:
+          config.persistActiveCard === false ? null : activeCardKey.value,
+        activeStepIndex:
+          config.persistActiveCard === false ? 0 : activeStepIndex.value,
         selectedListOptions,
         selectedChoiceValues,
         rewardOptions,
@@ -673,7 +755,11 @@ export const useBuilderStore = defineStore('builderStore', () => {
     Object.assign(rewardOptions, snapshot.rewardOptions)
     Object.assign(selectedRewardId, snapshot.selectedRewardId)
 
-    draftStats.splice(0, draftStats.length, ...cloneBuilderValue(snapshot.draftStats))
+    draftStats.splice(
+      0,
+      draftStats.length,
+      ...cloneBuilderValue(snapshot.draftStats),
+    )
     activeCardKey.value = snapshot.activeCardKey
     activeStepIndex.value = snapshot.activeStepIndex
     isHydrated.value = true
@@ -765,6 +851,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
     setStatus,
     getUtilityCard,
     getUtilityImagePath,
-activeArtConfig,
+    activeArtConfig,
+    registerWorkspaceBuilder,
   }
 })

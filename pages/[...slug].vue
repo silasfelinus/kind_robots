@@ -47,6 +47,9 @@ import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 
 type ContentPage = ContentType & {
+  path?: string
+  title?: string
+  description?: string
   dashboardKey?: string | null
   dashboardTab?: string | null
   cards?: string | null
@@ -74,7 +77,20 @@ const promptStore = usePromptStore()
 const notFound = ref(false)
 
 const contentPath = computed(() => {
-  return route.path === '' ? '/' : route.path
+  const rawPath = route.path || '/'
+  const cleanedPath = rawPath.replace(/\/+$/, '')
+
+  return cleanedPath || '/'
+})
+
+const contentPathCandidates = computed(() => {
+  const path = contentPath.value
+
+  if (path === '/') {
+    return ['/', '/index']
+  }
+
+  return [path, `${path}/`, `${path}/index`]
 })
 
 const {
@@ -82,16 +98,12 @@ const {
   status: pageStatus,
   error: pageError,
 } = await useAsyncData(
-  () => `content-${contentPath.value}`,
+  () => `content-page-${contentPath.value}`,
   async () => {
-    const directPage = await queryCollection('content')
-      .path(contentPath.value)
-      .first()
+    for (const path of contentPathCandidates.value) {
+      const page = await queryCollection('content').path(path).first()
 
-    if (directPage) return directPage
-
-    if (contentPath.value === '/') {
-      return await queryCollection('content').path('/index').first()
+      if (page) return page
     }
 
     return null

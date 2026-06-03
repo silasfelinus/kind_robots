@@ -705,11 +705,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { handleError } from '@/stores/utils'
-
-// ── Types ──────────────────────────────────────────────────────────────────
 
 type AccountMode = 'login' | 'register'
 type DesignerMode = 'username' | 'custom'
@@ -726,11 +724,10 @@ type ArtCreatorPayload = {
   } | null
 }
 
-// ── Store ──────────────────────────────────────────────────────────────────
+const isClient = typeof window !== 'undefined'
+const STORAGE_KEY = 'userBuilderState'
 
 const userStore = useUserStore()
-
-// ── Card definitions ───────────────────────────────────────────────────────
 
 const CARDS = [
   {
@@ -785,8 +782,6 @@ const CARDS = [
 
 type CardKey = (typeof CARDS)[number]['key']
 
-// ── UI state ───────────────────────────────────────────────────────────────
-
 const activeCardKey = ref<CardKey | null>(null)
 const completedCards = reactive<Partial<Record<CardKey, boolean>>>({})
 
@@ -810,28 +805,28 @@ const isSavingSettings = ref(false)
 const settingsMessage = ref('')
 const settingsError = ref(false)
 
-// ── Computed ───────────────────────────────────────────────────────────────
+const activeCard = computed(() => {
+  return CARDS.find((card) => card.key === activeCardKey.value) ?? null
+})
 
-const activeCard = computed(
-  () => CARDS.find((c) => c.key === activeCardKey.value) ?? null,
-)
+const currentCardIndex = computed(() => {
+  return CARDS.findIndex((card) => card.key === activeCardKey.value)
+})
 
-const currentCardIndex = computed(() =>
-  CARDS.findIndex((c) => c.key === activeCardKey.value),
-)
+const isLastCard = computed(() => {
+  return currentCardIndex.value >= CARDS.length - 1
+})
 
-const isLastCard = computed(() => currentCardIndex.value >= CARDS.length - 1)
-
-// Cards that save themselves — no footer Next button needed
 const selfSavingCards: CardKey[] = ['designer', 'avatar', 'settings']
 const noFooterCards: CardKey[] = ['account', 'theme', 'summary']
 
-const showFooter = computed(
-  () =>
+const showFooter = computed(() => {
+  return (
     activeCardKey.value !== null &&
-    !selfSavingCards.includes(activeCardKey.value as CardKey) &&
-    !noFooterCards.includes(activeCardKey.value as CardKey),
-)
+    !selfSavingCards.includes(activeCardKey.value) &&
+    !noFooterCards.includes(activeCardKey.value)
+  )
+})
 
 const summaryItems = computed(() => [
   {
@@ -869,21 +864,25 @@ const summaryItems = computed(() => [
   {
     key: 'settings',
     label: 'Settings',
-    value: `${showMature.value ? 'Mature on' : 'Mature off'} · ${defaultPublic.value ? 'Public' : 'Private'} default`,
+    value: `${showMature.value ? 'Mature on' : 'Mature off'} · ${
+      defaultPublic.value ? 'Public' : 'Private'
+    } default`,
     icon: 'kind-icon:sliders',
     image: null as string | null,
     editCard: 'settings' as CardKey,
   },
 ])
 
-// ── Methods ────────────────────────────────────────────────────────────────
-
 function handCardClass(key: string): string {
-  if (activeCardKey.value === key)
-    return 'border-primary bg-primary/10 text-primary scale-105 shadow-md shadow-primary/20'
-  if (completedCards[key as CardKey])
+  if (activeCardKey.value === key) {
+    return 'scale-105 border-primary bg-primary/10 text-primary shadow-md shadow-primary/20'
+  }
+
+  if (completedCards[key as CardKey]) {
     return 'border-success/40 bg-success/5 text-success/80 hover:border-success'
-  return 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/40 hover:text-primary hover:-translate-y-0.5'
+  }
+
+  return 'border-base-300 bg-base-100 text-base-content/70 hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary'
 }
 
 function selectCard(key: CardKey | string) {
@@ -893,25 +892,30 @@ function selectCard(key: CardKey | string) {
 }
 
 function startFromBeginning() {
-  // If already logged in, skip account card
   const startKey: CardKey = userStore.isLoggedIn ? 'designer' : 'account'
+
   selectCard(startKey)
 }
 
 function finishCard() {
   if (!activeCardKey.value) return
+
   completedCards[activeCardKey.value] = true
   persistState()
 
   const idx = currentCardIndex.value
-  if (idx < CARDS.length - 1) {
+
+  if (idx >= 0 && idx < CARDS.length - 1) {
     selectCard(CARDS[idx + 1]!.key)
   }
 }
 
 function goPrev() {
   const idx = currentCardIndex.value
-  if (idx > 0) selectCard(CARDS[idx - 1]!.key)
+
+  if (idx > 0) {
+    selectCard(CARDS[idx - 1]!.key)
+  }
 }
 
 function useUsernameAsDesigner() {
@@ -939,11 +943,12 @@ async function saveDesignerName() {
     await userStore.updateUser({ designerName: name })
 
     designerMessage.value = 'Designer name saved.'
-    completedCards['designer'] = true
+    completedCards.designer = true
     persistState()
 
-    // Auto-advance after a beat
-    setTimeout(() => finishCard(), 800)
+    window.setTimeout(() => {
+      finishCard()
+    }, 800)
   } catch (error) {
     handleError(error, 'saving designer name')
     designerMessage.value =
@@ -956,12 +961,12 @@ async function saveDesignerName() {
 
 function updateAvatarArt(payload: ArtCreatorPayload) {
   avatarPrompt.value = payload.prompt ?? avatarPrompt.value
-  // The art-designer component saves directly to userStore/API
-  // When an image is confirmed, mark avatar complete
+
   const path =
     payload.imagePath ?? payload.artImage?.imagePath ?? payload.artImage?.path
+
   if (path) {
-    completedCards['avatar'] = true
+    completedCards.avatar = true
     persistState()
   }
 }
@@ -975,10 +980,12 @@ async function saveSettings() {
     await userStore.updateUser({ showMature: showMature.value })
 
     settingsMessage.value = 'Settings saved.'
-    completedCards['settings'] = true
+    completedCards.settings = true
     persistState()
 
-    setTimeout(() => finishCard(), 800)
+    window.setTimeout(() => {
+      finishCard()
+    }, 800)
   } catch (error) {
     handleError(error, 'saving settings')
     settingsMessage.value =
@@ -989,11 +996,9 @@ async function saveSettings() {
   }
 }
 
-// ── Persistence ───────────────────────────────────────────────────────────
-
-const STORAGE_KEY = 'userBuilderState'
-
 function persistState() {
+  if (!isClient) return
+
   try {
     localStorage.setItem(
       STORAGE_KEY,
@@ -1006,50 +1011,71 @@ function persistState() {
 }
 
 function restoreState() {
+  if (!isClient) return
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
+
     if (!raw) return
-    const s = JSON.parse(raw) as {
+
+    const state = JSON.parse(raw) as {
       completedCards?: Record<string, boolean>
       activeCardKey?: string
     }
-    if (s.completedCards) Object.assign(completedCards, s.completedCards)
-    if (s.activeCardKey) activeCardKey.value = s.activeCardKey as CardKey
+
+    if (state.completedCards) {
+      Object.assign(completedCards, state.completedCards)
+    }
+
+    if (
+      state.activeCardKey &&
+      CARDS.some((card) => card.key === state.activeCardKey)
+    ) {
+      activeCardKey.value = state.activeCardKey as CardKey
+    }
   } catch {}
 }
 
-// ── Watchers ──────────────────────────────────────────────────────────────
+function updateBreakpoint() {
+  if (!isClient) return
 
-// Mark account card complete when user logs in
+  isMobile.value = window.innerWidth < 1024
+}
+
 watch(
   () => userStore.isLoggedIn,
   (loggedIn) => {
-    if (loggedIn) {
-      completedCards['account'] = true
-      designerName.value =
-        userStore.user?.designerName ?? userStore.username ?? ''
-      showMature.value = userStore.user?.showMature ?? false
-      persistState()
-    }
+    if (!loggedIn) return
+
+    completedCards.account = true
+    designerName.value =
+      userStore.user?.designerName ?? userStore.username ?? ''
+    showMature.value = userStore.user?.showMature ?? false
+    persistState()
   },
   { immediate: true },
 )
 
-// ── Lifecycle ─────────────────────────────────────────────────────────────
-
-function updateBreakpoint() {
-  isMobile.value = window.innerWidth < 1024
-}
-
 onMounted(() => {
   restoreState()
   updateBreakpoint()
-  window.addEventListener('resize', updateBreakpoint)
 
-  // Pre-fill from store
-  if (userStore.user?.designerName)
+  if (isClient) {
+    window.addEventListener('resize', updateBreakpoint)
+  }
+
+  if (userStore.user?.designerName) {
     designerName.value = userStore.user.designerName
-  if (userStore.user?.showMature !== undefined)
+  }
+
+  if (userStore.user?.showMature !== undefined) {
     showMature.value = userStore.user.showMature
+  }
+})
+
+onBeforeUnmount(() => {
+  if (!isClient) return
+
+  window.removeEventListener('resize', updateBreakpoint)
 })
 </script>

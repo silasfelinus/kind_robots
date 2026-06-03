@@ -12,9 +12,32 @@ import type {
   BuilderStatEntry,
   BuilderStep,
   BuilderUtilityCard,
+  DashboardTabConfig,
 } from '@/stores/helpers/builderCards'
 
 const isClient = typeof window !== 'undefined'
+
+export function prefixBuilderKey(builderKey: string, cardKey: string): string {
+  return `${builderKey}-${cardKey}`
+}
+
+export function unprefixBuilderKey(builderKey: string, tabKey: string): string {
+  const prefix = `${builderKey}-`
+  return tabKey.startsWith(prefix) ? tabKey.slice(prefix.length) : tabKey
+}
+
+export function builderCardsToDashboardTabs(
+  builderKey: string,
+  cards: BuilderCard[],
+): DashboardTabConfig[] {
+  return cards.map((card) => ({
+    key: prefixBuilderKey(builderKey, card.key),
+    label: card.label,
+    icon: card.icon,
+    title: card.title,
+    summary: card.tagline,
+  }))
+}
 
 export function makeBuilderId(prefix = 'builder'): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {

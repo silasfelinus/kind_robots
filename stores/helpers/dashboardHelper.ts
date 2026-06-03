@@ -4,14 +4,7 @@ import {
   builderDashboardTabs,
   defaultBuilderStage,
 } from '@/stores/seeds/builderSchema'
-
-export type DashboardTabConfig = {
-  key: string
-  label: string
-  icon: string
-  title?: string
-  summary?: string
-}
+import type { DashboardTabConfig } from '@/stores/helpers/builderCards'
 
 export type DashboardConfig = {
   key: string
@@ -840,3 +833,5 @@ export function normalizeDashboardTabs(
 
   return normalized
 }
+
+export type { DashboardTabConfig }

@@ -1,15 +1,15 @@
 <!-- /pages/[...slug].vue -->
 <template>
-  <div v-if="pageStore.page?.body" class="h-full min-h-0 w-full">
-    <ContentRenderer :value="pageStore.page" />
+  <div v-if="page" class="h-full min-h-0 w-full">
+    <ContentRenderer :value="page" />
   </div>
 
   <div
     v-else
     class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
   >
-    <Icon name="kind-icon:loading" class="h-10 w-10 text-info" />
-    <p class="text-base font-bold text-info">Loading page...</p>
+    <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
+    <p class="text-base font-bold text-warning">Page not found</p>
   </div>
 
   <error-popup />
@@ -45,71 +45,31 @@ const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
-const contentPath = computed(() => {
-  const cleanPath = route.path.replace(/\/$/, '')
+const contentPath = computed(() => route.path)
 
-  if (!cleanPath) {
-    return '/'
-  }
-
-  return cleanPath
-})
-
-const { data: pageData, error: pageError } = await useAsyncData(
+const { data: page } = await useAsyncData(
   () => `content-page-${contentPath.value}`,
-  async () => {
-    const candidates =
-      contentPath.value === '/' ? ['/', '/index', '/home'] : [contentPath.value]
-
-    for (const candidate of candidates) {
-      const page = await queryCollection('content').path(candidate).first()
-
-      if (page) {
-        return page
-      }
-    }
-
-    return null
-  },
+  () => queryCollection('content').path(contentPath.value).first(),
   {
     watch: [contentPath],
   },
 )
 
-function normalizePageData(page: typeof pageData.value): ContentType | null {
-  if (!page) return null
-
-  return {
-    ...page,
-    path: page.path,
-    body: page.body,
-    seo: page.seo ?? {},
-    navigation: page.navigation ?? false,
-  } as ContentType
-}
-
-if (pageError.value) {
-  console.error('[slug] Content loading failed:', pageError.value)
-}
-
-const normalizedPage = normalizePageData(pageData.value)
-
-if (!normalizedPage) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: `Page not found: ${contentPath.value}`,
-    fatal: false,
-  })
-}
-
-pageStore.setPage(normalizedPage)
+useSeoMeta({
+  title: () => page.value?.title || 'Kind Robots',
+  description: () =>
+    page.value?.description ||
+    'A friendly AI playground for humans and robots.',
+})
 
 watchEffect(() => {
-  const normalized = normalizePageData(pageData.value)
+  if (!page.value) return
 
-  if (normalized) {
-    pageStore.setPage(normalized)
-  }
+  pageStore.setPage({
+    ...page.value,
+    seo: page.value.seo ?? {},
+    navigation: page.value.navigation ?? false,
+  } as ContentType)
 })
 
 watchEffect(() => {

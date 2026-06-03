@@ -1,7 +1,6 @@
-<!-- /components/builder/workspace-sheet.vue -->
+<!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-3 overflow-y-auto">
-    <!-- View toggle (builder dashboards only) -->
     <div
       v-if="isBuilder"
       class="grid grid-cols-2 gap-1 rounded-2xl border border-base-300 bg-base-200 p-1"
@@ -19,6 +18,7 @@
         <Icon name="kind-icon:info" class="h-3.5 w-3.5" />
         Info
       </button>
+
       <button
         type="button"
         class="flex items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors"
@@ -40,7 +40,6 @@
       </button>
     </div>
 
-    <!-- ── INFO VIEW (default, and the only view off-builder) ───── -->
     <template v-if="!isBuilder || view === 'info'">
       <div
         class="overflow-hidden rounded-2xl border border-base-300 bg-base-100"
@@ -52,6 +51,7 @@
             :alt="title"
             class="h-full w-full object-cover"
           />
+
           <div
             v-else
             class="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center"
@@ -62,15 +62,18 @@
             </p>
           </div>
         </div>
+
         <div class="flex flex-col gap-1 p-4">
           <p class="font-black leading-tight text-base-content">
             {{ title }}
           </p>
+
           <p
             class="text-xs font-black uppercase tracking-widest text-primary/70"
           >
             {{ label }}
           </p>
+
           <p
             v-if="narrative"
             class="mt-1 text-sm leading-relaxed text-base-content/65"
@@ -81,7 +84,6 @@
       </div>
     </template>
 
-    <!-- ── SHEET VIEW: progress + completed cards (builder only) ── -->
     <template v-else>
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
         <div class="mb-2 flex items-center justify-between">
@@ -90,10 +92,12 @@
           >
             Progress
           </p>
+
           <p class="text-xs font-black tabular-nums text-primary">
             {{ completedCount }}/{{ requiredCount }}
           </p>
         </div>
+
         <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
           <div
             class="h-full rounded-full bg-primary transition-all duration-500"
@@ -102,23 +106,28 @@
         </div>
       </div>
 
-      <div v-if="store.completedCardList.length" class="flex flex-col gap-2">
+      <div
+        v-if="builderStore.completedCardList.length"
+        class="flex flex-col gap-2"
+      >
         <section
-          v-for="card in store.completedCardList"
+          v-for="card in builderStore.completedCardList"
           :key="card.key"
           class="rounded-2xl border border-base-300 bg-base-100 p-3"
         >
           <div class="mb-2 flex items-center justify-between gap-2">
             <div class="flex min-w-0 items-center gap-2">
               <Icon :name="card.icon" class="h-4 w-4 shrink-0 text-primary" />
+
               <p class="truncate text-sm font-black text-base-content">
                 {{ card.label }}
               </p>
             </div>
+
             <button
               type="button"
               class="btn btn-xs btn-ghost rounded-xl text-error"
-              @click="store.removeSection(card.key)"
+              @click="builderStore.removeSection(card.key)"
             >
               Clear
             </button>
@@ -135,6 +144,7 @@
               >
                 {{ field.key }}
               </p>
+
               <p
                 class="mt-0.5 line-clamp-3 text-xs font-semibold leading-relaxed text-base-content/70"
               >
@@ -153,6 +163,7 @@
           name="kind-icon:cards"
           class="mx-auto h-8 w-8 text-base-content/25"
         />
+
         <p class="mt-2 text-sm font-bold text-base-content/60">
           No completed cards yet.
         </p>
@@ -163,88 +174,159 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
-import { useNavStore } from '@/stores/navStore'
+import { usePageStore } from '@/stores/pageStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
-const store = useBuilderStore()
-const navStore = useNavStore()
+const route = useRoute()
+const builderStore = useBuilderStore()
+const pageStore = usePageStore()
 
 const view = ref<'info' | 'sheet'>('info')
 
-// Which dashboard are we on? The shared shell mounts this sheet everywhere.
-const dashboardKey = computed(() => navStore.dashboardShell?.dashboardKey || '')
+const isBuilder = computed(() => {
+  return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0
+})
 
-// Only the builder dashboard drives an actual sheet/toggle.
-const isBuilder = computed(() => dashboardKey.value === 'builder')
+const builderCards = computed<BuilderCard[]>(() => {
+  return builderStore.visibleCards.length
+    ? builderStore.visibleCards
+    : builderStore.cards
+})
 
-// For non-builder dashboards, pull hero + narration from the matching nav card.
-const navCard = computed(() =>
-  NAV_CARDS.find((card) => card.payload?.dashboardKey === dashboardKey.value),
-)
+const sourceCards = computed<BuilderCard[]>(() => {
+  if (isBuilder.value && builderCards.value.length) {
+    return builderCards.value
+  }
+
+  if (pageStore.cards.length) {
+    return pageStore.cards
+  }
+
+  return NAV_CARDS
+})
+
+const routeCardKey = computed(() => {
+  return (
+    sourceCards.value.find((card) => getCardPath(card) === route.path)?.key ??
+    sourceCards.value[0]?.key ??
+    ''
+  )
+})
+
+const activeCardKey = computed(() => {
+  if (isBuilder.value) {
+    return builderStore.activeCardKey || sourceCards.value[0]?.key || ''
+  }
+
+  return pageStore.workspaceCardKey || routeCardKey.value
+})
+
+const activeCard = computed(() => {
+  return (
+    sourceCards.value.find((card) => card.key === activeCardKey.value) ?? null
+  )
+})
 
 const title = computed(() => {
   if (isBuilder.value) {
     return String(
-      store.sheet.name ||
-        store.sheet.title ||
-        store.activeConfig.title ||
-        'Untitled builder',
+      builderStore.sheet.name ||
+        builderStore.sheet.title ||
+        activeCard.value?.title ||
+        builderStore.activeConfig.title ||
+        pageStore.title,
     )
   }
-  return navCard.value?.title || 'Kind Robots'
+
+  return activeCard.value?.title || pageStore.title
 })
 
 const label = computed(() => {
-  if (isBuilder.value) return store.activeConfig.label
-  return navCard.value?.label || ''
+  if (isBuilder.value) {
+    return activeCard.value?.label || builderStore.activeConfig.label
+  }
+
+  return activeCard.value?.label || pageStore.room
 })
 
 const narrative = computed(() => {
   if (isBuilder.value) {
     return String(
-      store.sheet.narrative ||
-        store.sheet.description ||
-        store.activeCard?.narrative ||
-        store.activeConfig.splash?.description ||
-        '',
+      builderStore.sheet.narrative ||
+        builderStore.sheet.description ||
+        activeCard.value?.narrative ||
+        builderStore.activeConfig.splash?.description ||
+        pageStore.description,
     )
   }
-  return navCard.value?.narrative || ''
+
+  return (
+    activeCard.value?.narrative ||
+    activeCard.value?.tagline ||
+    pageStore.description ||
+    pageStore.subtitle
+  )
 })
 
 const imagePath = computed(() => {
   if (isBuilder.value) {
-    return typeof store.sheet.imagePath === 'string'
-      ? store.sheet.imagePath
-      : ''
+    const sheetImage = builderStore.sheet.imagePath
+    if (typeof sheetImage === 'string' && sheetImage) {
+      return normalizeImagePath(sheetImage)
+    }
+
+    return normalizeImagePath(
+      activeCard.value?.heroImage ||
+        activeCard.value?.deckImage ||
+        builderStore.activeConfig.splash?.imagePath ||
+        pageStore.image,
+    )
   }
-  return navCard.value?.heroImage || ''
+
+  return normalizeImagePath(
+    activeCard.value?.heroImage ||
+      activeCard.value?.deckImage ||
+      pageStore.image,
+  )
 })
 
-const placeholderIcon = computed(() =>
-  isBuilder.value
-    ? 'kind-icon:blueprint'
-    : navCard.value?.icon || 'kind-icon:blueprint',
-)
+const placeholderIcon = computed(() => {
+  return activeCard.value?.icon || pageStore.icon || 'kind-icon:blueprint'
+})
 
-const requiredCount = computed(
-  () => store.activeConfig.requiredCardKeys?.length || store.cards.length || 1,
-)
+const requiredCount = computed(() => {
+  return (
+    builderStore.activeConfig.requiredCardKeys?.length ||
+    builderStore.cards.length ||
+    1
+  )
+})
+
 const completedCount = computed(() => {
   const required =
-    store.activeConfig.requiredCardKeys ?? store.cards.map((card) => card.key)
-  return required.filter((key) => store.completedCards[key]).length
+    builderStore.activeConfig.requiredCardKeys ??
+    builderStore.cards.map((card) => card.key)
+
+  return required.filter((key) => builderStore.completedCards[key]).length
 })
-const progressPct = computed(() =>
-  Math.round((completedCount.value / requiredCount.value) * 100),
-)
+
+const progressPct = computed(() => {
+  return Math.round((completedCount.value / requiredCount.value) * 100)
+})
+
+function getCardPath(card: BuilderCard): string {
+  const path = card.payload?.path ?? card.payload?.to ?? card.payload?.href
+  return typeof path === 'string' ? path : ''
+}
 
 function visibleFields(
   fields: string[],
 ): Array<{ key: string; value: string }> {
   return fields
-    .map((key) => ({ key, value: stringifyValue(store.sheet[key]) }))
+    .map((key) => ({ key, value: stringifyValue(builderStore.sheet[key]) }))
     .filter((entry) => entry.value.trim().length > 0)
 }
 
@@ -256,8 +338,16 @@ function stringifyValue(value: unknown): string {
       )
       .join(', ')
   }
+
   if (value && typeof value === 'object') return JSON.stringify(value)
   if (value == null) return ''
+
   return String(value)
+}
+
+function normalizeImagePath(path: string): string {
+  if (!path) return ''
+  if (path.startsWith('/') || path.startsWith('http')) return path
+  return `/images/${path}`
 }
 </script>

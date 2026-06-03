@@ -12,7 +12,7 @@
       <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
         <img
           v-if="card.deckImage"
-          :src="card.deckImage"
+          :src="normalizeImagePath(card.deckImage)"
           :alt="card.label"
           class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
@@ -25,7 +25,7 @@
         </div>
 
         <div
-          v-if="store.completedCards[card.key]"
+          v-if="isCardComplete(card.key)"
           class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]"
         >
           <Icon
@@ -46,61 +46,112 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
+import { usePageStore } from '@/stores/pageStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
-const store = useBuilderStore()
+const route = useRoute()
+const builderStore = useBuilderStore()
+const pageStore = usePageStore()
 
-// builder cards when a real stage is active; otherwise the nav deck
+const isBuilderDeck = computed(() => pageStore.cardsKey === 'builderCards')
+
+const builderCards = computed<BuilderCard[]>(() => {
+  return builderStore.visibleCards.length
+    ? builderStore.visibleCards
+    : builderStore.cards
+})
+
 const sourceCards = computed<BuilderCard[]>(() => {
-  return store.cards.length ? store.cards : NAV_CARDS
+  if (isBuilderDeck.value && builderCards.value.length) {
+    return builderCards.value
+  }
+
+  if (pageStore.cards.length) {
+    return pageStore.cards
+  }
+
+  return NAV_CARDS
+})
+
+const routeCardKey = computed(() => {
+  return (
+    sourceCards.value.find((card) => getCardPath(card) === route.path)?.key ??
+    sourceCards.value[0]?.key ??
+    ''
+  )
+})
+
+const activeCardKey = computed(() => {
+  if (isBuilderDeck.value) {
+    return builderStore.activeCardKey || sourceCards.value[0]?.key || ''
+  }
+
+  return pageStore.workspaceCardKey || routeCardKey.value
 })
 
 const handCards = computed(() => {
-  const map = new Map(sourceCards.value.map((card) => [card.key, card]))
-
-  const active = store.activeCardKey
-    ? sourceCards.value.filter((card) => card.key === store.activeCardKey)
-    : []
+  const active = sourceCards.value.filter(
+    (card) => card.key === activeCardKey.value,
+  )
 
   const completed = sourceCards.value.filter(
-    (card) => store.completedCards[card.key],
+    (card) => isCardComplete(card.key) && card.key !== activeCardKey.value,
   )
 
   const available = sourceCards.value.filter(
-    (card) =>
-      !store.completedCards[card.key] && card.key !== store.activeCardKey,
+    (card) => !isCardComplete(card.key) && card.key !== activeCardKey.value,
   )
 
   return [...active, ...completed, ...available].filter(
     (card, index, list) =>
-      list.findIndex((entry) => entry.key === card.key) === index &&
-      map.has(card.key),
+      list.findIndex((entry) => entry.key === card.key) === index,
   )
 })
 
 function getCardPath(card: BuilderCard): string {
-  const path = card.payload?.path
+  const path = card.payload?.path ?? card.payload?.to ?? card.payload?.href
   return typeof path === 'string' ? path : ''
 }
 
 function handleCardClick(card: BuilderCard): void {
+  pageStore.setWorkspaceCardKey(card.key)
+
   const path = getCardPath(card)
+
   if (path) {
     void navigateTo(path)
     return
   }
-  store.selectCard(card.key)
+
+  if (isBuilderDeck.value) {
+    builderStore.selectCard(card.key)
+  }
+}
+
+function isCardComplete(cardKey: string): boolean {
+  return isBuilderDeck.value
+    ? Boolean(builderStore.completedCards[cardKey])
+    : false
 }
 
 function thumbClass(cardKey: string): string {
-  if (store.activeCardKey === cardKey) {
+  if (activeCardKey.value === cardKey) {
     return 'border-primary bg-primary/10 shadow shadow-primary/20'
   }
-  if (store.completedCards[cardKey]) {
+
+  if (isCardComplete(cardKey)) {
     return 'border-success/60 bg-success/5'
   }
+
   return 'border-base-300 bg-base-200 hover:border-primary/60'
+}
+
+function normalizeImagePath(path: string): string {
+  if (!path) return ''
+  if (path.startsWith('/') || path.startsWith('http')) return path
+  return `/images/${path}`
 }
 </script>

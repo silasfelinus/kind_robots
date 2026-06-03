@@ -17,7 +17,9 @@
                 >
                   <div
                     class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
-                  ></div>
+                  >
+                    <workspace-sheet />
+                  </div>
                 </aside>
               </Transition>
 
@@ -35,10 +37,11 @@
             <section
               class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
             >
-              <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52"></div>
+              <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
+                <workspace-hand />
+              </div>
             </section>
           </div>
-          <workspace-hand />
         </dashboard-shell>
       </main>
     </div>

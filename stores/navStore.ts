@@ -527,7 +527,7 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function getDashboardTabs(dashboardKey: DashboardKey): DashboardTabConfig[] {
-    return dashboardConfigs[dashboardKey].tabs
+    return [...dashboardConfigs[dashboardKey].tabs]
   }
 
   function resetDashboardTab(

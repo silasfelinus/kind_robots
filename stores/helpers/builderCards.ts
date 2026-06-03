@@ -147,6 +147,14 @@ export type BuilderSuggestPayload = {
   extra?: Record<string, unknown>
 }
 
+export type DashboardTabConfig = {
+  key: string
+  label: string
+  icon: string
+  title?: string
+  summary?: string
+}
+
 export type BuilderSaveResult = {
   success: boolean
   message: string

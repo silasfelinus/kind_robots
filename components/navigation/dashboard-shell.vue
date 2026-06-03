@@ -151,7 +151,6 @@
     </section>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import {
@@ -169,7 +168,6 @@ const props = withDefaults(
   defineProps<{
     title?: string
     summary?: string
-    dashboardKey?: DashboardKey | string | null
     tabs?: DashboardTabConfig[]
     activeTab?: string
     loading?: boolean
@@ -183,7 +181,6 @@ const props = withDefaults(
   {
     title: 'Dashboard',
     summary: '',
-    dashboardKey: null,
     tabs: () => [],
     activeTab: '',
     loading: false,
@@ -207,26 +204,26 @@ const displayStore = useDisplayStore()
 const showHeader = ref(true)
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
-  const key = (props.dashboardKey ?? '').trim()
+  const key = (navStore.dashboardShell.dashboardKey ?? '').trim()
   if (!key || !isDashboardKey(key)) return null
   return key
 })
 
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
-  const dashboardKey = resolvedDashboardKey.value
-  if (dashboardKey) return navStore.getDashboardTabs(dashboardKey)
+  const key = resolvedDashboardKey.value
+  if (key) return navStore.getDashboardTabs(key)
   return props.tabs
+})
+
+const requestedActiveTab = computed(() => {
+  const key = resolvedDashboardKey.value
+  if (key) return navStore.getDashboardTab(key)
+  return props.activeTab
 })
 
 const resolvedNavGridClass = computed(() => {
   if (props.navGridClass.trim()) return props.navGridClass
   return 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
-})
-
-const requestedActiveTab = computed(() => {
-  const dashboardKey = resolvedDashboardKey.value
-  if (dashboardKey) return navStore.getDashboardTab(dashboardKey)
-  return props.activeTab
 })
 
 const fallbackTab = computed<DashboardTabConfig>(() => {
@@ -270,14 +267,14 @@ const activeSummary = computed(() => {
 })
 
 function setTab(tabKey: string) {
-  const dashboardKey = resolvedDashboardKey.value
-  if (dashboardKey) {
-    const savedTab = navStore.setDashboardTab(
-      dashboardKey,
+  const key = resolvedDashboardKey.value
+  if (key) {
+    const saved = navStore.setDashboardTab(
+      key,
       tabKey,
       'dashboard-shell tab button',
     )
-    emit('set-tab', savedTab)
+    emit('set-tab', saved)
     return
   }
   emit('set-tab', tabKey)

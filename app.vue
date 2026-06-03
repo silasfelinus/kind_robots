@@ -2,10 +2,6 @@
 <template>
   <div class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100">
     <ClientOnly>
-      <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
-        <kind-loader @pageReady="handlePageReady" />
-      </div>
-
       <butterfly-layer />
       <animation-layer />
       <milestone-popup />

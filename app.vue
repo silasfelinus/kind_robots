@@ -15,7 +15,7 @@
       <div class="loading loading-dots loading-lg text-primary" />
     </div>
 
-    <main v-if="pageStore.ready" class="h-full min-h-0 w-full overflow-hidden">
+    <main class="h-full min-h-0 w-full overflow-hidden">
       <NuxtPage
         class="h-full min-h-0 w-full bg-base-300 transition-opacity duration-300"
       />
@@ -48,12 +48,46 @@ const showLoader = ref(true)
 let removeAfter: (() => void) | null = null
 let removeBefore: (() => void) | null = null
 let navigationTimer: ReturnType<typeof setTimeout> | null = null
+let loaderTimer: ReturnType<typeof setTimeout> | null = null
 
 function handlePageReady() {
   showLoader.value = false
+
+  if (loaderTimer) {
+    clearTimeout(loaderTimer)
+    loaderTimer = null
+  }
 }
 
-onMounted(async () => {
+async function initializeStores() {
+  layoutStore.initializeStore()
+  displayStore.initialize()
+  pageStore.initialize()
+
+  const tasks: Promise<unknown>[] = []
+
+  if (!navStore.isInitialized) {
+    tasks.push(navStore.initialize())
+  }
+
+  if (!userStore.initialized) {
+    tasks.push(userStore.initialize())
+  }
+
+  if (!themeStore.initialized) {
+    tasks.push(themeStore.initialize({ fetchShared: false }))
+  }
+
+  const results = await Promise.allSettled(tasks)
+
+  results.forEach((result) => {
+    if (result.status === 'rejected') {
+      console.error('[app] Store initialization failed:', result.reason)
+    }
+  })
+}
+
+onMounted(() => {
   removeBefore = router.beforeEach(() => {
     if (navigationTimer) {
       clearTimeout(navigationTimer)
@@ -74,27 +108,23 @@ onMounted(async () => {
     }, 450)
   })
 
-  layoutStore.initializeStore()
-  displayStore.initialize()
-  pageStore.initialize()
+  loaderTimer = setTimeout(() => {
+    showLoader.value = false
+    loaderTimer = null
+  }, 2500)
 
-  if (!navStore.isInitialized) {
-    await navStore.initialize()
-  }
-
-  if (!userStore.initialized) {
-    await userStore.initialize()
-  }
-
-  if (!themeStore.initialized) {
-    await themeStore.initialize({ fetchShared: false })
-  }
+  void initializeStores()
 })
 
 onUnmounted(() => {
   if (navigationTimer) {
     clearTimeout(navigationTimer)
     navigationTimer = null
+  }
+
+  if (loaderTimer) {
+    clearTimeout(loaderTimer)
+    loaderTimer = null
   }
 
   removeBefore?.()

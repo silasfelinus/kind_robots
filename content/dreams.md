@@ -9,7 +9,7 @@ tooltip: A shared room where prompts, images, and chat bend the experience toget
 sort: highlight
 dottitip: Users can now steer the dream together. I'm a little nervous about what they'll build
 amitip: Good. Dreams built by committee are how mythology happens.
-layout: workspace
+layout: default
 dashboardKey: dream
 dashboardTab: locations
 cards: dreamCards

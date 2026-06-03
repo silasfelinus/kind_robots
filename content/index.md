@@ -9,7 +9,7 @@ tooltip: Hi! I'm Silas, human programmer for Kind Robots!
 dottitip: AMI, we've been building this lab a while. Do you think it's ready?
 amitip: It was ready the moment we decided weird things should exist. Everything else is details.
 sort: highlight
-layout: workspace
+layout: default
 dashboardKey: user
 dashboardTab: dashboard
 cards: navCards

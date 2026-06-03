@@ -8,7 +8,7 @@ icon: fa-solid:mask
 tooltip: 'Meet the characters behind the chaos.'
 dottitip: 'Characters give your bots depth and direction.'
 amitip: 'One of mine insists on being addressed as “Captain Marshmallow.”'
-layout: workspace
+layout: default
 dashboardKey: character
 dashboardTab: characters
 cards: characterCards

@@ -1,8 +1,9 @@
 <!-- /components/builder/builder-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-3 overflow-y-auto">
-    <!-- View toggle -->
+    <!-- View toggle (builder dashboards only) -->
     <div
+      v-if="isBuilder"
       class="grid grid-cols-2 gap-1 rounded-2xl border border-base-300 bg-base-200 p-1"
     >
       <button
@@ -39,8 +40,8 @@
       </button>
     </div>
 
-    <!-- ── INFO VIEW (default): image + narrative ───────────────── -->
-    <template v-if="view === 'info'">
+    <!-- ── INFO VIEW (default, and the only view off-builder) ───── -->
+    <template v-if="!isBuilder || view === 'info'">
       <div
         class="overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
@@ -55,10 +56,7 @@
             v-else
             class="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center"
           >
-            <Icon
-              name="kind-icon:blueprint"
-              class="h-10 w-10 text-primary/25"
-            />
+            <Icon :name="placeholderIcon" class="h-10 w-10 text-primary/25" />
             <p class="text-xs italic text-base-content/35">
               Sheet waiting for its portrait era.
             </p>
@@ -71,7 +69,7 @@
           <p
             class="text-xs font-black uppercase tracking-widest text-primary/70"
           >
-            {{ store.activeConfig.label }}
+            {{ label }}
           </p>
           <p
             v-if="narrative"
@@ -83,7 +81,7 @@
       </div>
     </template>
 
-    <!-- ── SHEET VIEW: progress + completed cards ───────────────── -->
+    <!-- ── SHEET VIEW: progress + completed cards (builder only) ── -->
     <template v-else>
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
         <div class="mb-2 flex items-center justify-between">
@@ -166,31 +164,70 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
+import { useNavStore } from '@/stores/navStore'
+import { NAV_CARDS } from '@/stores/helpers/navCards'
 
 const store = useBuilderStore()
+const navStore = useNavStore()
 
 const view = ref<'info' | 'sheet'>('info')
 
-const title = computed(() =>
-  String(
-    store.sheet.name ||
-      store.sheet.title ||
-      store.activeConfig.title ||
-      'Untitled builder',
-  ),
+// Which dashboard are we on? The shared shell mounts this sheet everywhere.
+const dashboardKey = computed(() => navStore.dashboardShell?.dashboardKey || '')
+
+// Only the builder dashboard drives an actual sheet/toggle.
+const isBuilder = computed(() => dashboardKey.value === 'builder')
+
+// For non-builder dashboards, pull hero + narration from the matching nav card.
+const navCard = computed(() =>
+  NAV_CARDS.find((card) => card.payload?.dashboardKey === dashboardKey.value),
 )
-const narrative = computed(() =>
-  String(
-    store.sheet.narrative ||
-      store.sheet.description ||
-      store.activeCard?.narrative ||
-      store.activeConfig.splash?.description ||
-      '',
-  ),
+
+const title = computed(() => {
+  if (isBuilder.value) {
+    return String(
+      store.sheet.name ||
+        store.sheet.title ||
+        store.activeConfig.title ||
+        'Untitled builder',
+    )
+  }
+  return navCard.value?.title || 'Kind Robots'
+})
+
+const label = computed(() => {
+  if (isBuilder.value) return store.activeConfig.label
+  return navCard.value?.label || ''
+})
+
+const narrative = computed(() => {
+  if (isBuilder.value) {
+    return String(
+      store.sheet.narrative ||
+        store.sheet.description ||
+        store.activeCard?.narrative ||
+        store.activeConfig.splash?.description ||
+        '',
+    )
+  }
+  return navCard.value?.narrative || ''
+})
+
+const imagePath = computed(() => {
+  if (isBuilder.value) {
+    return typeof store.sheet.imagePath === 'string'
+      ? store.sheet.imagePath
+      : ''
+  }
+  return navCard.value?.heroImage || ''
+})
+
+const placeholderIcon = computed(() =>
+  isBuilder.value
+    ? 'kind-icon:blueprint'
+    : navCard.value?.icon || 'kind-icon:blueprint',
 )
-const imagePath = computed(() =>
-  typeof store.sheet.imagePath === 'string' ? store.sheet.imagePath : '',
-)
+
 const requiredCount = computed(
   () => store.activeConfig.requiredCardKeys?.length || store.cards.length || 1,
 )

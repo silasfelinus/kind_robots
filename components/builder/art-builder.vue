@@ -1,4 +1,4 @@
-<!-- /components/builder/art-designer.vue -->
+<!-- /components/builder/art-builder.vue -->
 <template>
   <section
     class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -710,7 +710,7 @@ function syncToArtStore() {
     syncMessage.value = 'No writable art form method found.'
     emitUpdate()
   } catch (error) {
-    handleError(error, 'syncing art-designer to artStore')
+    handleError(error, 'syncing art-builder to artStore')
     syncMessage.value = 'Could not sync options to art store.'
   }
 }

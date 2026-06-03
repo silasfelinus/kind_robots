@@ -30,7 +30,6 @@
           :style="menuStyle"
           @click.stop
         >
-          <!-- Header -->
           <div
             class="flex items-center gap-2 border-b border-base-300 bg-base-200/60 px-3 py-2"
           >
@@ -81,8 +80,7 @@
           </div>
 
           <div class="space-y-3 p-3">
-            <!-- Featured row: Art + Stories at equal width -->
-            <div class="grid grid-cols-2 gap-1.5">
+            <div class="grid grid-cols-3 gap-1.5">
               <NuxtLink
                 :to="artChannel.path"
                 class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md"
@@ -103,7 +101,11 @@
                 >
                   <Icon :name="artChannel.icon" class="h-5 w-5" />
                 </span>
-                <span class="text-sm font-black">{{ artChannel.label }}</span>
+
+                <span class="text-sm font-black">
+                  {{ artChannel.label }}
+                </span>
+
                 <span
                   v-if="artChannel.summary"
                   class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
@@ -111,6 +113,40 @@
                   {{ artChannel.summary }}
                 </span>
               </NuxtLink>
+
+              <NuxtLink
+                :to="builderChannel.path"
+                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md"
+                :class="
+                  isChannelActive(builderChannel)
+                    ? 'border-primary bg-primary text-primary-content shadow-sm'
+                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
+                "
+                @click="closeMenu"
+              >
+                <span
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
+                  :class="
+                    isChannelActive(builderChannel)
+                      ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
+                      : 'border-base-300 bg-base-100 text-base-content'
+                  "
+                >
+                  <Icon :name="builderChannel.icon" class="h-5 w-5" />
+                </span>
+
+                <span class="text-sm font-black">
+                  {{ builderChannel.label }}
+                </span>
+
+                <span
+                  v-if="builderChannel.summary"
+                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
+                >
+                  {{ builderChannel.summary }}
+                </span>
+              </NuxtLink>
+
               <NuxtLink
                 :to="storiesChannel.path"
                 class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md"
@@ -131,9 +167,11 @@
                 >
                   <Icon :name="storiesChannel.icon" class="h-5 w-5" />
                 </span>
-                <span class="text-sm font-black">{{
-                  storiesChannel.label
-                }}</span>
+
+                <span class="text-sm font-black">
+                  {{ storiesChannel.label }}
+                </span>
+
                 <span
                   v-if="storiesChannel.summary"
                   class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
@@ -143,7 +181,6 @@
               </NuxtLink>
             </div>
 
-            <!-- Bottom projects: Bots, Rewards, Locations, Characters, Brainstorm -->
             <div>
               <p
                 class="mb-1.5 px-0.5 text-[0.6rem] font-black uppercase tracking-widest text-base-content/40"
@@ -257,8 +294,8 @@ const builderChannel: ChannelRoute = {
   key: 'builder',
   label: 'Builder',
   path: '/builder',
-  icon: 'kind-icon:foundry',
-  summary: 'Build easily with our step by step builder',
+  icon: 'kind-icon:blueprint',
+  summary: 'Build easily with our step by step builder.',
 }
 
 const storiesChannel: ChannelRoute = {

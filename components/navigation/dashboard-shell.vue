@@ -250,7 +250,7 @@ const shellActiveTab = computed(() => {
 })
 
 const sheetVisible = computed(() => {
-  return !['hidden', 'disabled'].includes(displayStore.sidebarLeftState)
+  return ['open', 'compact'].includes(displayStore.sidebarLeftState)
 })
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {

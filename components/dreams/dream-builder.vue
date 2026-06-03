@@ -8,6 +8,7 @@ import { onMounted } from 'vue'
 import { DREAM_CARDS } from '@/stores/helpers/dreamCards'
 import type {
   BuilderProjectConfig,
+  BuilderSaveResult,
   BuilderSheet,
 } from '@/stores/helpers/builderCards'
 import { useBuilderStore } from '@/stores/builderStore'
@@ -21,34 +22,7 @@ const dreamStore = useDreamStore()
 const userStore = useUserStore()
 
 const builderKey = 'dream'
-
-function defaultDreamSheet(): BuilderSheet {
-  const form = dreamStore.dreamForm as Record<string, unknown>
-
-  return {
-    vibeTag: '',
-    title: typeof form.title === 'string' ? form.title : '',
-    description: typeof form.description === 'string' ? form.description : '',
-    currentVibe: typeof form.currentVibe === 'string' ? form.currentVibe : '',
-    currentPrompt:
-      typeof form.currentPrompt === 'string' ? form.currentPrompt : '',
-    accessMode:
-      form.accessMode === 'PRIVATE' || form.accessMode === 'CODE'
-        ? form.accessMode
-        : 'OPEN',
-    privacyCode:
-      typeof form.privacyCode === 'string' ? form.privacyCode : '',
-    artPrompt: typeof form.artPrompt === 'string' ? form.artPrompt : '',
-    imagePath: typeof form.imagePath === 'string' ? form.imagePath : null,
-    artImageId: typeof form.artImageId === 'number' ? form.artImageId : null,
-    userId:
-      typeof form.userId === 'number'
-        ? form.userId
-        : userStore.userId || userStore.user?.id || 10,
-    isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
-    isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
-  }
-}
+const startCard = 'atmosphere'
 
 function sheetText(key: string): string {
   const value = builder.sheet[key]
@@ -76,6 +50,32 @@ function getAccessMode(): DreamAccessMode {
   return 'OPEN'
 }
 
+function defaultDreamSheet(): BuilderSheet {
+  const form = dreamStore.dreamForm as Record<string, unknown>
+
+  return {
+    vibeTag: '',
+    title: typeof form.title === 'string' ? form.title : '',
+    description: typeof form.description === 'string' ? form.description : '',
+    currentVibe: typeof form.currentVibe === 'string' ? form.currentVibe : '',
+    currentPrompt:
+      typeof form.currentPrompt === 'string' ? form.currentPrompt : '',
+    accessMode:
+      form.accessMode === 'PRIVATE' || form.accessMode === 'CODE'
+        ? form.accessMode
+        : 'OPEN',
+    privacyCode: typeof form.privacyCode === 'string' ? form.privacyCode : '',
+    artPrompt: typeof form.artPrompt === 'string' ? form.artPrompt : '',
+    artImageId: typeof form.artImageId === 'number' ? form.artImageId : null,
+    userId:
+      typeof form.userId === 'number'
+        ? form.userId
+        : (userStore.userId ?? userStore.user?.id ?? 10),
+    isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
+    isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
+  }
+}
+
 function syncSheetToDreamForm() {
   const mode = getAccessMode()
   const resolvedUserId =
@@ -89,10 +89,6 @@ function syncSheetToDreamForm() {
     accessMode: mode,
     privacyCode: mode === 'CODE' ? sheetText('privacyCode') : '',
     artPrompt: sheetText('artPrompt'),
-    imagePath:
-      typeof builder.sheet.imagePath === 'string'
-        ? builder.sheet.imagePath
-        : undefined,
     artImageId: sheetNumber('artImageId') ?? undefined,
     userId: resolvedUserId,
     isPublic: sheetBoolean('isPublic', true),
@@ -100,7 +96,7 @@ function syncSheetToDreamForm() {
   })
 }
 
-async function saveDreamBuilder() {
+async function saveDreamBuilder(): Promise<BuilderSaveResult> {
   builder.clearError()
   syncSheetToDreamForm()
 
@@ -108,17 +104,29 @@ async function saveDreamBuilder() {
 
   if (result.success && result.data) {
     builder.setStatus('Dream saved.')
-    return result
+
+    return {
+      success: true,
+      message: 'Dream saved.',
+      data: result.data,
+    }
   }
 
-  builder.setError(result.message ?? dreamStore.error ?? 'Save failed.')
-  return result
+  const message = result.message || dreamStore.error || 'Failed to save dream.'
+
+  builder.setLastError(new Error(message), message)
+
+  return {
+    success: false,
+    message,
+    data: result.data ?? null,
+  }
 }
 
 function resetDreamBuilder() {
   dreamStore.startAddingDream()
   builder.resetBuilder(true)
-  builder.selectCard('atmosphere')
+  builder.selectCard(startCard)
 }
 
 const dreamBuilderConfig: BuilderProjectConfig = {
@@ -149,7 +157,6 @@ const dreamBuilderConfig: BuilderProjectConfig = {
     'Create, upload, select, or generate art for this dream space.',
   clearFieldDefaults: {
     vibeTag: '',
-    imagePath: null,
     artImageId: null,
     accessMode: 'OPEN',
     privacyCode: '',
@@ -163,11 +170,9 @@ const dreamBuilderConfig: BuilderProjectConfig = {
     builder: 'dream',
     tone: 'Atmospheric, specific, eerie, whimsical, and useful for stories.',
   },
-  payload: {
-    save: saveDreamBuilder,
-    reset: resetDreamBuilder,
-    startCard: 'atmosphere',
-  },
+  startCardKey: startCard,
+  save: saveDreamBuilder,
+  reset: resetDreamBuilder,
 }
 
 onMounted(() => {
@@ -175,7 +180,7 @@ onMounted(() => {
   builder.setBuilder(builderKey, true)
 
   if (!builder.activeCardKey && builder.visibleCards.length) {
-    builder.selectCard('atmosphere')
+    builder.selectCard(startCard)
   }
 })
 </script>

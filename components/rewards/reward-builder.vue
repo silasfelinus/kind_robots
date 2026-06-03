@@ -1,145 +1,45 @@
 <!-- /components/rewards/reward-builder.vue -->
 <template>
-  <div class="relative flex h-full w-full flex-col overflow-hidden">
-    <header
-      class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100/80 px-4 py-2.5 backdrop-blur-sm"
-    >
-      <div class="flex items-center gap-2.5">
-        <Icon name="kind-icon:gift" class="h-5 w-5 text-primary" />
-
-        <h1 class="text-lg font-black tracking-tight">Reward Builder</h1>
-
-        <span
-          v-if="rewardType"
-          class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary capitalize"
-        >
-          {{ rewardType.toLowerCase() }}
-        </span>
-
-        <span
-          v-if="rarity"
-          class="rounded-full border px-2.5 py-0.5 text-xs font-bold capitalize"
-          :class="rarityClass(rarity)"
-        >
-          {{ rarity.toLowerCase() }}
-        </span>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-sm btn-ghost rounded-xl text-base-content/40 hover:text-error"
-          :disabled="isSaving"
-          @click="showResetConfirm = true"
-        >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
-          <span class="hidden sm:inline">Reset</span>
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-sm btn-primary gap-1.5 rounded-xl"
-          :disabled="!canSave || isSaving"
-          @click="doSave"
-        >
-          <span v-if="isSaving" class="loading loading-spinner loading-xs" />
-          <Icon v-else name="kind-icon:save" class="h-4 w-4" />
-          <span class="hidden sm:inline">Save</span>
-        </button>
-      </div>
-    </header>
-
-    <div class="flex flex-1 overflow-hidden">
-      <aside
-        v-if="!isMobile"
-        class="flex w-64 shrink-0 flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm"
-      >
-        <reward-sheet />
-      </aside>
-
-      <main class="flex flex-1 flex-col overflow-hidden">
-        <reward-stage class="flex-1 overflow-y-auto" />
-      </main>
-    </div>
-
-    <reward-hand
-      class="shrink-0 border-t border-base-300 bg-base-100/80 backdrop-blur-sm"
-    />
-
-    <Transition name="fade">
-      <div
-        v-if="showResetConfirm"
-        class="absolute inset-0 z-50 flex items-center justify-center bg-base-300/60 backdrop-blur-sm"
-        @click.self="showResetConfirm = false"
-      >
-        <div
-          class="rounded-3xl border border-base-300 bg-base-100 p-8 shadow-2xl"
-        >
-          <p class="mb-1 text-lg font-black">Reset reward?</p>
-
-          <p class="mb-6 text-sm text-base-content/60">
-            Clears everything and starts fresh.
-          </p>
-
-          <div class="flex gap-3">
-            <button
-              type="button"
-              class="btn btn-outline rounded-xl"
-              @click="showResetConfirm = false"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-error rounded-xl"
-              @click="doReset"
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
-
-    <Transition name="slide-up">
-      <div
-        v-if="saveMessage"
-        class="absolute bottom-24 left-1/2 z-40 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-bold shadow-lg"
-        :class="
-          saveError
-            ? 'bg-error text-error-content'
-            : 'bg-success text-success-content'
-        "
-      >
-        {{ saveMessage }}
-      </div>
-    </Transition>
-  </div>
+  <div class="hidden" aria-hidden="true" />
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { REWARD_CARDS } from '@/stores/helpers/rewardCards'
 import type {
   BuilderProjectConfig,
+  BuilderSaveResult,
   BuilderSheet,
 } from '@/stores/helpers/builderCards'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useUserStore } from '@/stores/userStore'
+import type { Rarity, RewardType } from '~/prisma/generated/prisma/client'
 
 const builder = useBuilderStore()
 const rewardStore = useRewardStore()
 const userStore = useUserStore()
 
-const rewardBuilderKey = 'reward'
+const builderKey = 'reward'
+const startCard = 'type'
 
-const isMobile = ref(false)
-const showResetConfirm = ref(false)
-const saveMessage = ref('')
-const saveError = ref(false)
-const savedRewardId = ref<number | null>(null)
+const rewardTypeValues = [
+  'SKILL',
+  'ITEM',
+  'TREASURE',
+  'TITLE',
+  'POWER',
+  'STORY',
+] as const
+
+const rarityValues = [
+  'COMMON',
+  'UNCOMMON',
+  'RARE',
+  'EPIC',
+  'LEGENDARY',
+  'MYTHIC',
+] as const
 
 function sheetText(key: string): string {
   const value = builder.sheet[key]
@@ -159,57 +59,107 @@ function sheetBoolean(key: string, fallback = false): boolean {
   return typeof value === 'boolean' ? value : fallback
 }
 
-const rewardType = computed(() => {
-  return sheetText('rewardType') || 'SKILL'
-})
+function sheetRewardType(key: string): RewardType {
+  const value = sheetText(key)
 
-const rarity = computed(() => {
-  return sheetText('rarity') || 'COMMON'
-})
+  return rewardTypeValues.includes(value as RewardType)
+    ? (value as RewardType)
+    : 'SKILL'
+}
 
-const isSaving = computed(() => {
-  return Boolean(builder.isSaving || rewardStore.isSaving)
-})
+function sheetRarity(key: string): Rarity {
+  const value = sheetText(key)
 
-const canSave = computed(() => {
-  return (
-    Boolean(sheetText('text').trim()) &&
-    Boolean(sheetText('power').trim()) &&
-    !isSaving.value
-  )
-})
+  return rarityValues.includes(value as Rarity) ? (value as Rarity) : 'COMMON'
+}
 
 function defaultRewardSheet(): BuilderSheet {
   const form = rewardStore.rewardForm as Record<string, unknown>
 
   return {
-    rewardType:
-      typeof form.rewardType === 'string' ? form.rewardType : 'SKILL',
+    rewardType: typeof form.rewardType === 'string' ? form.rewardType : 'ITEM',
     rarity: typeof form.rarity === 'string' ? form.rarity : 'COMMON',
+    icon: typeof form.icon === 'string' ? form.icon : 'kind-icon:gift',
     text: typeof form.text === 'string' ? form.text : '',
     power: typeof form.power === 'string' ? form.power : '',
     collection:
       typeof form.collection === 'string'
         ? form.collection
         : 'starting-character-reward',
-    icon: typeof form.icon === 'string' ? form.icon : 'kind-icon:gift',
-    description:
-      typeof form.description === 'string' ? form.description : '',
-    artPrompt: typeof form.artPrompt === 'string' ? form.artPrompt : '',
+    label: typeof form.label === 'string' ? form.label : '',
     imagePath: typeof form.imagePath === 'string' ? form.imagePath : null,
-    artImageId:
-      typeof form.artImageId === 'number' ? form.artImageId : null,
+    artPrompt: typeof form.artPrompt === 'string' ? form.artPrompt : '',
+    artImageId: typeof form.artImageId === 'number' ? form.artImageId : null,
     userId:
       typeof form.userId === 'number'
         ? form.userId
-        : userStore.userId || userStore.user?.id || 10,
+        : (userStore.userId ?? userStore.user?.id ?? 10),
     isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
     isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
+    isActive: typeof form.isActive === 'boolean' ? form.isActive : true,
   }
 }
 
+function syncSheetToRewardForm() {
+  const resolvedUserId =
+    sheetNumber('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
+
+  rewardStore.rewardForm = {
+    ...rewardStore.rewardForm,
+    rewardType: sheetRewardType('rewardType'),
+    rarity: sheetRarity('rarity'),
+    icon: sheetText('icon') || 'kind-icon:gift',
+    text: sheetText('text'),
+    power: sheetText('power'),
+    collection: sheetText('collection') || 'starting-character-reward',
+    label: sheetText('label'),
+    imagePath:
+      typeof builder.sheet.imagePath === 'string'
+        ? builder.sheet.imagePath
+        : undefined,
+    artPrompt: sheetText('artPrompt'),
+    artImageId: sheetNumber('artImageId') ?? undefined,
+    userId: resolvedUserId,
+    isPublic: sheetBoolean('isPublic', true),
+    isMature: sheetBoolean('isMature', false),
+    isActive: sheetBoolean('isActive', true),
+  }
+}
+async function saveRewardBuilder(): Promise<BuilderSaveResult> {
+  builder.clearError()
+  syncSheetToRewardForm()
+
+  const reward = await rewardStore.saveReward()
+
+  if (reward?.id) {
+    builder.setStatus('Reward saved.')
+
+    return {
+      success: true,
+      message: 'Reward saved.',
+      data: reward,
+    }
+  }
+
+  const message = rewardStore.error || 'Failed to save reward.'
+
+  builder.setLastError(new Error(message), message)
+
+  return {
+    success: false,
+    message,
+    data: null,
+  }
+}
+
+function resetRewardBuilder() {
+  rewardStore.startAddingReward()
+  builder.resetBuilder(true)
+  builder.selectCard(startCard)
+}
+
 const rewardBuilderConfig: BuilderProjectConfig = {
-  key: rewardBuilderKey,
+  key: builderKey,
   label: 'Reward Builder',
   title: 'Reward Builder',
   modelType: 'reward',
@@ -232,14 +182,14 @@ const rewardBuilderConfig: BuilderProjectConfig = {
   artPurpose: 'reward',
   artImageRole: 'object',
   artTitle: 'Reward Image Designer',
-  artDescription:
-    'Create, upload, select, or generate art for this reward.',
+  artDescription: 'Create, upload, select, or generate art for this reward.',
   clearFieldDefaults: {
     imagePath: null,
     artImageId: null,
     userId: 10,
     isPublic: true,
     isMature: false,
+    isActive: true,
   },
   persistActiveCard: true,
   allowCompletedCardsInDeck: false,
@@ -247,131 +197,17 @@ const rewardBuilderConfig: BuilderProjectConfig = {
     builder: 'reward',
     tone: 'Punchy, flavorful, useful in interactive narrative play.',
   },
-}
-
-function updateBreakpoint() {
-  if (typeof window === 'undefined') return
-
-  isMobile.value = window.innerWidth < 1024
-}
-
-function rarityClass(value: string): string {
-  const map: Record<string, string> = {
-    COMMON: 'border-base-300 text-base-content/50',
-    UNCOMMON: 'border-green-400/50 text-green-600',
-    RARE: 'border-blue-400/50 text-blue-600',
-    EPIC: 'border-purple-400/50 text-purple-600',
-    LEGENDARY: 'border-yellow-400/50 text-yellow-600',
-    MYTHIC: 'border-red-400/50 text-red-600',
-  }
-
-  return map[value] ?? 'border-base-300'
-}
-
-function syncSheetToRewardForm() {
-  const resolvedUserId =
-    sheetNumber('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
-
-  rewardStore.setRewardForm({
-    rewardType: rewardType.value,
-    rarity: rarity.value,
-    text: sheetText('text'),
-    power: sheetText('power'),
-    collection: sheetText('collection') || 'starting-character-reward',
-    icon: sheetText('icon') || 'kind-icon:gift',
-    description: sheetText('description'),
-    artPrompt: sheetText('artPrompt'),
-    imagePath:
-      typeof builder.sheet.imagePath === 'string'
-        ? builder.sheet.imagePath
-        : undefined,
-    artImageId: sheetNumber('artImageId') ?? undefined,
-    userId: resolvedUserId,
-    isPublic: sheetBoolean('isPublic', true),
-    isMature: sheetBoolean('isMature', false),
-  })
-}
-
-function initializeBuilder() {
-  builder.registerBuilder(rewardBuilderConfig)
-  builder.setBuilder(rewardBuilderKey, true)
-
-  if (!builder.activeCardKey && builder.visibleCards.length) {
-    builder.selectCard('type')
-  }
+  startCardKey: startCard,
+  save: saveRewardBuilder,
+  reset: resetRewardBuilder,
 }
 
 onMounted(() => {
-  initializeBuilder()
-  updateBreakpoint()
-  window.addEventListener('resize', updateBreakpoint)
-})
+  builder.registerBuilder(rewardBuilderConfig)
+  builder.setBuilder(builderKey, true)
 
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateBreakpoint)
-})
-
-function doReset() {
-  showResetConfirm.value = false
-  savedRewardId.value = null
-  saveMessage.value = ''
-  saveError.value = false
-  rewardStore.startAddingReward()
-  builder.resetBuilder(true)
-  builder.selectCard('type')
-}
-
-async function doSave() {
-  saveMessage.value = ''
-  saveError.value = false
-  builder.clearError()
-  syncSheetToRewardForm()
-
-  const result = await rewardStore.saveReward()
-
-  if (result?.id) {
-    savedRewardId.value = result.id
-    saveMessage.value = 'Reward saved.'
-    saveError.value = false
-    builder.setStatus('Reward saved.')
-  } else {
-    saveMessage.value =
-      builder.lastError ?? rewardStore.error ?? 'Save failed.'
-    saveError.value = true
+  if (!builder.activeCardKey && builder.visibleCards.length) {
+    builder.selectCard(startCard)
   }
-
-  window.setTimeout(() => {
-    saveMessage.value = ''
-  }, 3000)
-}
+})
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 200ms ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.slide-up-enter-active {
-  transition:
-    opacity 200ms ease,
-    transform 200ms cubic-bezier(0.34, 1.2, 0.64, 1);
-}
-
-.slide-up-leave-active {
-  transition:
-    opacity 150ms ease,
-    transform 150ms ease;
-}
-
-.slide-up-enter-from,
-.slide-up-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(10px);
-}
-</style>

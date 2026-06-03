@@ -14,10 +14,10 @@
 import { computed } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
-import UserBuilder from '@/components/users/user-builder.vue'
-import PitchBuilder from '@/components/pitch/pitch-builder.vue'
+import UserBuilder from '@/components/user/user-builder.vue'
+import PitchBuilder from '@/components/pitches/pitch-builder.vue'
 import DreamBuilder from '@/components/dreams/dream-builder.vue'
-import AdventureBuilder from '@/components/adventure/adventure-builder.vue'
+import AdventureBuilder from '@/components/characters/adventure-builder.vue'
 import BotBuilder from '@/components/bots/bot-builder.vue'
 import RewardBuilder from '@/components/rewards/reward-builder.vue'
 import ScenarioBuilder from '@/components/scenarios/scenario-builder.vue'

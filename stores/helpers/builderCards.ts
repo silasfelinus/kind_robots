@@ -147,6 +147,12 @@ export type BuilderSuggestPayload = {
   extra?: Record<string, unknown>
 }
 
+export type BuilderSaveResult = {
+  success: boolean
+  message: string
+  data?: unknown
+}
+
 export type BuilderProjectConfig<TSheet extends BuilderSheet = BuilderSheet> = {
   key: string
   label: string
@@ -168,6 +174,9 @@ export type BuilderProjectConfig<TSheet extends BuilderSheet = BuilderSheet> = {
   artImageRole?: string
   artTitle?: string
   artDescription?: string
+  startCardKey?: string
+  save?: () => Promise<BuilderSaveResult>
+  reset?: () => void
 }
 
 export type BuilderSnapshot<TSheet extends BuilderSheet = BuilderSheet> = {

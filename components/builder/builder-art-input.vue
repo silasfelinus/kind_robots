@@ -1,7 +1,7 @@
 <!-- /components/builder/builder-art-input.vue -->
 <template>
   <div class="flex flex-col gap-4">
-    <art-designer
+    <art-builder
       :purpose="artPurpose"
       :title="artTitle"
       :description="artDescription"
@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import ArtDesigner from '@/components/builder/art-designer.vue'
+import ArtDesigner from '~/components/builder/art-builder.vue'
 import { useBuilderStore } from '@/stores/builderStore'
 
 type ArtDesignerPurpose =

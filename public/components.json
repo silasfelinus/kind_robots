@@ -81,7 +81,7 @@
   {
     "folderName": "builder",
     "components": [
-      "art-designer",
+      "art-builder",
       "builder-art-input",
       "builder-card-grid",
       "builder-card",

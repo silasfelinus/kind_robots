@@ -279,7 +279,7 @@
                 />
               </label>
 
-              <art-designer
+              <art-builder
                 purpose="character"
                 :model-id="selectedCharacterId"
                 :model-title="sheet.name"

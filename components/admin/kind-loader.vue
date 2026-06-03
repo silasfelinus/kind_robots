@@ -35,6 +35,7 @@ import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
@@ -129,6 +130,7 @@ async function initializeStores() {
       themeStore.initialize({
         fetchShared: true,
       }),
+      ensureBuildersRegistered(),
     ])
 
     // Servers + checkpoints are sequential: checkpoints need a loaded server array

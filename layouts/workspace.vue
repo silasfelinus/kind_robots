@@ -86,6 +86,53 @@ import { useBuilderStore } from '@/stores/builderStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
 import { type DashboardKey } from '@/stores/helpers/dashboardHelper'
+import {
+  isBuilderStageKey,
+  defaultBuilderStage,
+} from '@/stores/seeds/builderSchema'
+
+const dashboardBuilderKey = computed(
+  () => navStore.dashboardShell.dashboardKey || 'builder',
+)
+
+// The active TAB within the current dashboard — this is what was missing
+const activeStage = computed(() => {
+  const tab = navStore.getDashboardTab(
+    dashboardBuilderKey.value as DashboardKey,
+  )
+  return isBuilderStageKey(tab) ? tab : defaultBuilderStage
+})
+
+function syncWorkspaceBuilder(): void {
+  // If the dashboard ships its own cards (content-driven workspace), keep that path
+  if (dashboardCards.value.length) {
+    builderStore.registerWorkspaceBuilder({
+      key: dashboardBuilderKey.value,
+      label: dashboardTitle.value,
+      title: dashboardTitle.value,
+      modelType: dashboardBuilderKey.value,
+      cards: dashboardCards.value,
+      storageKey: `kindrobots.builder.${dashboardBuilderKey.value}.v1`,
+    })
+    builderStore.setBuilder(dashboardBuilderKey.value)
+    return
+  }
+
+  // Otherwise we're in the builder dashboard: switch to the active stage's builder
+  if (builderStore.registry[activeStage.value]) {
+    builderStore.setBuilder(activeStage.value)
+  }
+}
+
+watch(
+  () => [
+    dashboardBuilderKey.value,
+    activeStage.value, // ← the missing watch source
+    dashboardCards.value.length,
+  ],
+  () => syncWorkspaceBuilder(),
+  { immediate: true },
+)
 
 const displayStore = useDisplayStore()
 const navStore = useNavStore()
@@ -110,28 +157,10 @@ const dashboardCards = computed(() => {
   return navStore.dashboardCards ?? []
 })
 
-const dashboardBuilderKey = computed(() => {
-  return navStore.dashboardShell.dashboardKey || 'builder'
-})
-
 const dashboardTitle = computed(() => {
   return navStore.dashboardTitle || 'Builder'
 })
 
-function syncWorkspaceBuilder(): void {
-  if (!dashboardCards.value.length) return
-
-  builderStore.registerWorkspaceBuilder({
-    key: dashboardBuilderKey.value,
-    label: dashboardTitle.value,
-    title: dashboardTitle.value,
-    modelType: dashboardBuilderKey.value,
-    cards: dashboardCards.value,
-    storageKey: `kindrobots.builder.${dashboardBuilderKey.value}.v1`,
-  })
-
-  builderStore.setBuilder(dashboardBuilderKey.value)
-}
 const gridClass = computed(() => {
   if (leftSidebarOpen.value && rightSidebarOpen.value) {
     return 'lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_20rem]'

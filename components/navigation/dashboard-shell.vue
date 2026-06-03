@@ -67,9 +67,25 @@
                 :active-tab-config="activeTabConfig"
               />
 
-              <channel-select />
-              <server-selector />
-              <mana-widget />
+              <ClientOnly>
+                <channel-select />
+                <server-selector />
+                <mana-widget />
+
+                <template #fallback>
+                  <div class="flex items-center gap-1.5">
+                    <div
+                      class="h-8 w-8 rounded-xl border border-base-300 bg-base-200"
+                    />
+                    <div
+                      class="h-8 w-8 rounded-xl border border-base-300 bg-base-200"
+                    />
+                    <div
+                      class="h-8 w-16 rounded-xl border border-base-300 bg-base-200"
+                    />
+                  </div>
+                </template>
+              </ClientOnly>
 
               <button
                 v-if="showRefresh"
@@ -143,7 +159,9 @@
             class="hidden min-h-0 w-80 shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 lg:flex"
           >
             <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-              <workspace-sheet />
+              <ClientOnly>
+                <workspace-sheet />
+              </ClientOnly>
             </div>
           </aside>
         </Transition>
@@ -163,7 +181,9 @@
             class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
           >
             <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
-              <workspace-hand />
+              <ClientOnly>
+                <workspace-hand />
+              </ClientOnly>
             </div>
           </section>
         </div>

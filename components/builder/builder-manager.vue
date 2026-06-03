@@ -95,7 +95,7 @@
       <Transition name="builder-modal-fade">
         <div
           v-if="showResetConfirm"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          class="fixed inset-0 z-30 flex items-center justify-center p-4"
           @click.self="showResetConfirm = false"
         >
           <div class="absolute inset-0 bg-base-300/60 backdrop-blur-sm" />

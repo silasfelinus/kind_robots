@@ -53,15 +53,15 @@
         v-if="!isMobile"
         class="flex w-64 shrink-0 flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm"
       >
-        <dream-sheet />
+        <builder-sheet />
       </aside>
 
       <main class="flex flex-1 flex-col overflow-hidden">
-        <dream-stage class="flex-1 overflow-y-auto" />
+        <builder-stage class="flex-1 overflow-y-auto" />
       </main>
     </div>
 
-    <dream-hand
+    <builder-hand
       class="shrink-0 border-t border-base-300 bg-base-100/80 backdrop-blur-sm"
     />
 
@@ -261,6 +261,8 @@ function updateBreakpoint() {
 
 function syncSheetToDreamForm() {
   const mode = accessMode.value
+  const resolvedUserId =
+    sheetNumber('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
 
   dreamStore.setDreamForm({
     title: sheetText('title'),
@@ -275,8 +277,7 @@ function syncSheetToDreamForm() {
         ? builder.sheet.imagePath
         : undefined,
     artImageId: sheetNumber('artImageId') ?? undefined,
-    userId:
-      sheetNumber('userId') ?? userStore.userId || userStore.user?.id || 10,
+    userId: resolvedUserId,
     isPublic: sheetBoolean('isPublic', true),
     isMature: sheetBoolean('isMature', false),
   })

@@ -18,7 +18,6 @@ import {
 } from '@/stores/helpers/builderCards'
 import {
   builderArrayFromPiped,
-  builderCardsToDashboardTabs,
   builderStepCanFinish,
   clearBuilderCardFields,
   clearBuilderSnapshot,
@@ -32,7 +31,6 @@ import {
   getVisibleBuilderCards,
   loadBuilderSnapshot,
   mergeBuilderSheet,
-  prefixBuilderKey,
   resetBuilderObject,
   saveBuilderSnapshot,
   selectBuilderChoiceValue,
@@ -365,24 +363,6 @@ export const useBuilderStore = defineStore('builderStore', () => {
     if (!activeCardKey.value && nextConfig.startCardKey) {
       selectCard(nextConfig.startCardKey)
     }
-  }
-
-  const dashboardActiveTab = computed(() =>
-    activeCardKey.value
-      ? prefixBuilderKey(activeBuilderKey.value, activeCardKey.value)
-      : '',
-  )
-
-  const dashboardTabs = computed<DashboardTabConfig[]>(() =>
-    builderCardsToDashboardTabs(activeBuilderKey.value, cards.value),
-  )
-
-  function ownsDashboard(dashboardKey: string): boolean {
-    return activeBuilderKey.value === dashboardKey && cards.value.length > 0
-  }
-
-  function dashboardTabsFor(dashboardKey: string): DashboardTabConfig[] {
-    return ownsDashboard(dashboardKey) ? dashboardTabs.value : []
   }
 
   function resetRuntimeState(config = activeConfig.value): void {
@@ -874,9 +854,5 @@ export const useBuilderStore = defineStore('builderStore', () => {
     getUtilityImagePath,
     activeArtConfig,
     registerWorkspaceBuilder,
-    dashboardActiveTab,
-    dashboardTabs,
-    ownsDashboard,
-    dashboardTabsFor,
   }
 })

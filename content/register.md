@@ -9,7 +9,6 @@ amitip: And keep track of who tries to beat me on the leaderboards!
 icon: kind-icon:register
 sort: highlight
 dottitip: If people register for an account, then we can customize their experience.
-layout: default
 dashboardKey: user
 dashboardTab: dashboard
 cards: navCards

@@ -242,7 +242,7 @@ const shellRefreshLabel = computed(() => {
 })
 
 const shellDashboardKey = computed(() => {
-  return pageStore.dashboardKey || navStore.dashboardShell.dashboardKey || ''
+  return pageStore.dashboardKey || navStore.dashboardShell?.dashboardKey || ''
 })
 
 const shellActiveTab = computed(() => {
@@ -365,10 +365,10 @@ watch(showHeader, (value) => {
   if (!import.meta.client) return
   localStorage.setItem(storageKey, String(value))
 })
-
 watch(
   resolvedDashboardKey,
   (dashboardKey) => {
+    if (!import.meta.client) return
     if (!dashboardKey) return
 
     navStore.hydrateDashboardTabs(true)

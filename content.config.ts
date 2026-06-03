@@ -2,8 +2,6 @@
 import { defineCollection, defineContentConfig } from '@nuxt/content'
 import * as z from 'zod'
 
-export const pageLayoutSchema = z.enum(['default', 'workspace'])
-
 const contentSchema = z.object({
   title: z.string().optional(),
   room: z.string().optional(),
@@ -16,8 +14,6 @@ const contentSchema = z.object({
   amitip: z.string().optional(),
   artPrompt: z.string().optional(),
   sort: z.string().optional(),
-
-  layout: pageLayoutSchema.default('default'),
   dashboardKey: z.string().optional(),
   dashboardTab: z.string().optional(),
   cards: z.string().optional(),
@@ -51,11 +47,11 @@ const contentSchema = z.object({
       z.boolean(),
       z.object({
         title: z.string(),
-        description: z.string(),
         icon: z.string(),
+        description: z.string(),
       }),
     ])
-    .default(true),
+    .default(false),
 })
 
 export type ContentType = z.infer<typeof contentSchema> & {
@@ -68,8 +64,6 @@ export type ContentType = z.infer<typeof contentSchema> & {
   }
 }
 
-export type PageLayoutName = z.infer<typeof pageLayoutSchema>
-
 export type PageBrief = {
   title: string
   room: string
@@ -81,7 +75,6 @@ export type PageBrief = {
   dottitip: string
   amitip: string
   artPrompt: string
-  layout: PageLayoutName
   dashboardKey?: string
   dashboardTab?: string
   cards?: string

@@ -1,3 +1,4 @@
+<!-- /app.vue -->
 <template>
   <div class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100">
     <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
@@ -15,19 +16,22 @@
       <div class="loading loading-dots loading-lg text-primary" />
     </div>
 
-    <main class="h-full min-h-0 w-full overflow-hidden">
-      <NuxtPage
-        class="h-full min-h-0 w-full bg-base-300 transition-opacity duration-300"
-      />
+    <main class="h-full min-h-0 w-full overflow-hidden bg-base-200 p-2 sm:p-3">
+      <section
+        class="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <dashboard-shell>
+          <NuxtPage />
+        </dashboard-shell>
+      </section>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-// /app.vue
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useLayoutStore } from '@/stores/layoutStore'
+
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useThemeStore } from '@/stores/themeStore'
@@ -35,7 +39,6 @@ import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
 
 const router = useRouter()
-const layoutStore = useLayoutStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 const themeStore = useThemeStore()
@@ -60,7 +63,6 @@ function handlePageReady() {
 }
 
 async function initializeStores() {
-  layoutStore.initializeStore()
   displayStore.initialize()
   pageStore.initialize()
 

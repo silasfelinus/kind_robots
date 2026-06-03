@@ -8,7 +8,6 @@ icon: kind-icon:map
 tooltip: 'You can’t get lost if you enjoy the journey.'
 dottitip: 'Organized navigation is a kindness to future-you.'
 amitip: 'I navigated the nav to the other nav. Now I’m the nav.'
-layout: default
 dashboardKey: admin
 dashboardTab: user
 cards: navCards

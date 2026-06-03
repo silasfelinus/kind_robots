@@ -1,21 +1,23 @@
 <!-- /pages/[...slug].vue -->
 <template>
-  <NuxtLayout :name="layout">
-    <div v-if="pageStore.page && pageStore.page.body">
-      <ContentRenderer :value="pageStore.page" />
-    </div>
-    <template #fallback>
-      <Icon name="kind-icon:loading" class="w-10 h-10 text-info" />
-      <p class="text-center text-base text-info p-4">Loading page...</p>
-    </template>
-  </NuxtLayout>
+  <div v-if="pageStore.page?.body" class="h-full min-h-0 w-full">
+    <ContentRenderer :value="pageStore.page" />
+  </div>
+
+  <div
+    v-else
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+  >
+    <Icon name="kind-icon:loading" class="h-10 w-10 text-info" />
+    <p class="text-base font-bold text-info">Loading page...</p>
+  </div>
+
   <error-popup />
 </template>
 
 <script setup lang="ts">
-// /pages/[...slug].vue
-import { useRoute, useRouter } from '#app'
-import { watch, computed } from 'vue'
+import { computed, watchEffect } from 'vue'
+import { useRoute } from '#app'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -24,15 +26,13 @@ import { useChatStore } from '@/stores/chatStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { usePageStore } from '@/stores/pageStore'
 import type {
   displayModeState,
   displayActionState,
 } from '@/stores/displayStore'
-import type { ContentType } from '~/content.config'
-import { usePageStore } from '@/stores/pageStore'
 
 const route = useRoute()
-const router = useRouter()
 
 const pageStore = usePageStore()
 const displayStore = useDisplayStore()
@@ -44,52 +44,106 @@ const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
-watch(
-  () => route.fullPath,
-  async (newPath) => {
-    const { data }: { data: Ref<ContentType | null> } = await useAsyncData(
-      newPath,
-      () => queryCollection('content').path(newPath).first(),
-    )
-    if (!data.value) {
-      await router.push('/error')
-    } else {
-      pageStore.setPage(data.value)
-    }
+const contentPath = computed(() => {
+  return route.path === '/' ? '/' : route.path.replace(/\/$/, '')
+})
+
+function normalizePageData(page: typeof pageData.value) {
+  if (!page) return null
+
+  return {
+    ...page,
+    navigation: page.navigation ?? false,
+    seo: page.seo ?? {},
+  }
+}
+
+const { data: pageData, error: pageError } = await useAsyncData(
+  () => `content-page-${contentPath.value}`,
+  () => queryCollection('content').path(contentPath.value).first(),
+  {
+    watch: [contentPath],
   },
-  { immediate: true },
 )
 
-const layout = computed(() => {
-  const val = pageStore.page?.layout
-  return ['default', 'minimal', 'vertical-scroll'].includes(val as string)
-    ? (val as LayoutKey)
-    : 'default'
-}) as ComputedRef<LayoutKey>
+if (pageError.value) {
+  console.error('[slug] Content loading failed:', pageError.value)
+}
 
-const {
-  token: queryToken,
-  botId,
-  characterId,
-  scenarioId,
-  chatId,
-  pitchId,
-  promptId,
-  displayMode,
-  displayAction,
-} = route.query
+if (!pageData.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: `Page not found: ${contentPath.value}`,
+    fatal: false,
+  })
+}
 
-if (displayMode) displayStore.displayMode = displayMode as displayModeState
-if (displayAction)
-  displayStore.displayAction = displayAction as displayActionState
-if (botId) botStore.selectBot(Number(botId))
-if (characterId) characterStore.selectCharacter(Number(characterId))
-if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
-if (chatId) chatStore.selectChat(Number(chatId))
-if (pitchId) pitchStore.selectPitch(Number(pitchId))
-if (promptId) promptStore.selectPrompt(Number(promptId))
+const normalizedPage = normalizePageData(pageData.value)
 
-if (queryToken && !userStore.user)
-  await userStore.initialize(queryToken as string)
-if (!userStore.user && queryToken) await router.push('/login')
+if (!normalizedPage) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: `Page not found: ${contentPath.value}`,
+    fatal: false,
+  })
+}
+
+pageStore.setPage(normalizedPage)
+
+watchEffect(() => {
+  const normalized = normalizePageData(pageData.value)
+
+  if (normalized) {
+    pageStore.setPage(normalized)
+  }
+})
+
+watchEffect(() => {
+  const displayMode = route.query.displayMode
+  const displayAction = route.query.displayAction
+  const botId = route.query.botId
+  const characterId = route.query.characterId
+  const scenarioId = route.query.scenarioId
+  const chatId = route.query.chatId
+  const pitchId = route.query.pitchId
+  const promptId = route.query.promptId
+
+  if (typeof displayMode === 'string') {
+    displayStore.displayMode = displayMode as displayModeState
+  }
+
+  if (typeof displayAction === 'string') {
+    displayStore.displayAction = displayAction as displayActionState
+  }
+
+  if (typeof botId === 'string') {
+    botStore.selectBot(Number(botId))
+  }
+
+  if (typeof characterId === 'string') {
+    characterStore.selectCharacter(Number(characterId))
+  }
+
+  if (typeof scenarioId === 'string') {
+    scenarioStore.selectScenario(Number(scenarioId))
+  }
+
+  if (typeof chatId === 'string') {
+    chatStore.selectChat(Number(chatId))
+  }
+
+  if (typeof pitchId === 'string') {
+    pitchStore.selectPitch(Number(pitchId))
+  }
+
+  if (typeof promptId === 'string') {
+    promptStore.selectPrompt(Number(promptId))
+  }
+})
+
+const queryToken = computed(() => route.query.token)
+
+if (typeof queryToken.value === 'string' && !userStore.user) {
+  await userStore.initialize(queryToken.value)
+}
 </script>

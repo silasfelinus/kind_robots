@@ -1,344 +1,238 @@
-<!-- /components/adventure/adventure-builder.vue -->
+<!-- /components/characters/adventure-builder.vue -->
 <template>
-  <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl bg-base-200"
-  >
-    <div
-      v-if="saveMessage || saveError"
-      class="rounded-2xl border px-4 py-3 text-sm font-semibold"
-      :class="
-        saveError
-          ? 'border-error/30 bg-error/10 text-error'
-          : 'border-success/30 bg-success/10 text-success'
-      "
-    >
-      {{ saveError || saveMessage }}
-    </div>
-
-    <div class="flex items-center justify-end gap-2">
-      <button
-        type="button"
-        class="btn btn-sm btn-ghost rounded-2xl text-base-content/50 hover:text-error"
-        :disabled="isSaving"
-        @click="resetAdventureBuilder"
-      >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
-        Reset
-      </button>
-
-      <button
-        type="button"
-        class="btn btn-sm btn-primary rounded-2xl"
-        :disabled="isSaving || !canSave"
-        @click="saveCharacter"
-      >
-        <span v-if="isSaving" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:save" class="h-4 w-4" />
-        {{ saveLabel }}
-      </button>
-    </div>
-
-    <builder-manager class="min-h-0 flex-1" />
-  </section>
+  <div class="hidden" aria-hidden="true" />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useBuilderStore } from '@/stores/builderStore'
-import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
-import { useUserStore } from '@/stores/userStore'
-import { handleError, performFetch } from '@/stores/utils'
-import type { BuilderRewardOption } from '@/stores/helpers/builderCards'
-import type { Rarity } from '@/stores/rewardStore'
+import { onMounted } from 'vue'
 import {
   ADVENTURE_CARDS,
   ADVENTURE_SPLASH,
   defaultAdventureSheet,
-  defaultAdventureStats,
 } from '@/stores/helpers/adventureCards'
 import {
   ADVENTURE_CORE_CARD_KEYS,
-  adventureRewardToBuilderOption,
-  builderOptionToAdventureReward,
+  ADVENTURE_REQUIRED_CARD_KEYS,
   buildAdventureArtPrompt,
   syncAdventureStatTiers,
 } from '@/stores/helpers/adventureHelper'
+import type {
+  BuilderProjectConfig,
+  BuilderSaveResult,
+  BuilderSheet,
+} from '@/stores/helpers/builderCards'
+import { useBuilderStore } from '@/stores/builderStore'
+import { useCharacterStore } from '@/stores/characterStore'
+import { useUserStore } from '@/stores/userStore'
+import type { Rarity } from '~/prisma/generated/prisma/client'
 
-const builderStore = useBuilderStore()
-const generatorStore = useGeneratorStore()
+const builder = useBuilderStore()
+const characterStore = useCharacterStore()
 const userStore = useUserStore()
 
-const savedCharId = ref<number | null>(null)
-const isSaving = ref(false)
-const saveMessage = ref('')
-const saveError = ref('')
+const builderKey = 'character'
+const startCard = 'role'
 
-const ADVENTURE_STARTING_SKILL_KEY = 'starting-skill'
+const rarityValues = [
+  'COMMON',
+  'UNCOMMON',
+  'RARE',
+  'EPIC',
+  'LEGENDARY',
+  'MYTHIC',
+] as const
 
-const ADVENTURE_REQUIRED_CARD_KEYS = [
-  'role',
-  'name',
-  'origin',
-  'identity',
-  'personality',
-  'stats',
-  'background',
-  ADVENTURE_STARTING_SKILL_KEY,
-]
+function sheetText(key: string): string {
+  const value = builder.sheet[key]
 
-const ADVENTURE_SKILL_RARITY_WEIGHTS: Array<{
-  rarity: Rarity
-  weight: number
-}> = [
-  { rarity: 'COMMON', weight: 40 },
-  { rarity: 'UNCOMMON', weight: 25 },
-  { rarity: 'RARE', weight: 18 },
-  { rarity: 'EPIC', weight: 10 },
-  { rarity: 'LEGENDARY', weight: 5 },
-  { rarity: 'MYTHIC', weight: 2 },
-]
+  return typeof value === 'string' ? value : ''
+}
 
-const canSave = computed(() => {
-  return (
-    Boolean(String(builderStore.sheet.name ?? '').trim()) &&
-    builderStore.allComplete
-  )
-})
+function sheetNumber(key: string): number | null {
+  const value = builder.sheet[key]
 
-const saveLabel = computed(() =>
-  isSaving.value
-    ? 'Saving...'
-    : savedCharId.value
-      ? 'Update Character'
-      : 'Save Character',
-)
+  return typeof value === 'number' ? value : null
+}
 
-function rollAdventureSkillRarity(): Rarity {
-  const total = ADVENTURE_SKILL_RARITY_WEIGHTS.reduce(
-    (sum, option) => sum + option.weight,
-    0,
+function sheetBoolean(key: string, fallback = false): boolean {
+  const value = builder.sheet[key]
+
+  return typeof value === 'boolean' ? value : fallback
+}
+
+function sheetRarity(key: string): Rarity {
+  const value = sheetText(key)
+
+  return rarityValues.includes(value as Rarity) ? (value as Rarity) : 'COMMON'
+}
+
+function defaultCharacterSheet(): BuilderSheet {
+  const form = characterStore.characterForm as Record<string, unknown>
+  const sheet = defaultAdventureSheet(
+    userStore.userId ?? userStore.user?.id ?? 10,
   )
 
-  let roll = Math.random() * total
-
-  for (const option of ADVENTURE_SKILL_RARITY_WEIGHTS) {
-    roll -= option.weight
-
-    if (roll <= 0) {
-      return option.rarity
-    }
+  return {
+    ...sheet,
+    id: typeof form.id === 'number' ? form.id : null,
+    name: typeof form.name === 'string' ? form.name : sheet.name,
+    honorific:
+      typeof form.honorific === 'string' ? form.honorific : sheet.honorific,
+    title: typeof form.title === 'string' ? form.title : '',
+    role: typeof form.role === 'string' ? form.role : '',
+    genre: typeof form.genre === 'string' ? form.genre : sheet.genre,
+    species: typeof form.species === 'string' ? form.species : sheet.species,
+    class: typeof form.class === 'string' ? form.class : sheet.class,
+    alignment:
+      typeof form.alignment === 'string' ? form.alignment : sheet.alignment,
+    gender: typeof form.gender === 'string' ? form.gender : sheet.gender,
+    personality:
+      typeof form.personality === 'string'
+        ? form.personality
+        : sheet.personality,
+    backstory:
+      typeof form.backstory === 'string' ? form.backstory : sheet.backstory,
+    quirks: typeof form.quirks === 'string' ? form.quirks : sheet.quirks,
+    artPrompt:
+      typeof form.artPrompt === 'string' ? form.artPrompt : sheet.artPrompt,
+    imagePath:
+      typeof form.imagePath === 'string' ? form.imagePath : sheet.imagePath,
+    artImageId:
+      typeof form.artImageId === 'number' ? form.artImageId : sheet.artImageId,
+    luck: typeof form.luck === 'string' ? form.luck : sheet.luck,
+    might: typeof form.might === 'string' ? form.might : sheet.might,
+    wits: typeof form.wits === 'string' ? form.wits : sheet.wits,
+    grace: typeof form.grace === 'string' ? form.grace : sheet.grace,
+    charm: typeof form.charm === 'string' ? form.charm : sheet.charm,
+    empathy: typeof form.empathy === 'string' ? form.empathy : sheet.empathy,
+    userId:
+      typeof form.userId === 'number'
+        ? form.userId
+        : (userStore.userId ?? userStore.user?.id ?? 10),
+    isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
+    isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
   }
-
-  return 'COMMON'
 }
 
-function seedAdventureRewardSlot(slotKey: string): void {
-  if (slotKey !== ADVENTURE_STARTING_SKILL_KEY) return
-  if (builderStore.rewardOptions[slotKey]?.length) return
+function syncSheetToCharacterForm() {
+  const resolvedUserId =
+    sheetNumber('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
 
-  const rarity = rollAdventureSkillRarity()
-  const options = generatorStore
-    .rollRewardOptions(rarity, 4)
-    .map(adventureRewardToBuilderOption)
+  syncAdventureStatTiers(builder.sheet)
 
-  builderStore.setRewardOptions(slotKey, options)
-}
-
-function seedActiveRewardSlot(): void {
-  const slotKey = builderStore.activeCard?.rewardSlotKey
-
-  if (!slotKey) return
-
-  seedAdventureRewardSlot(slotKey)
-}
-
-function resetAdventureBuilder(): void {
-  savedCharId.value = null
-  saveMessage.value = ''
-  saveError.value = ''
-
-  builderStore.resetBuilder()
-  builderStore.updateSheet({
-    userId: userStore.userId || 10,
-    rewards: {},
+  characterStore.setCharacterForm({
+    id: sheetNumber('id') ?? undefined,
+    name: sheetText('name'),
+    honorific: sheetText('honorific'),
+    title: sheetText('title'),
+    role: sheetText('role'),
+    genre: sheetText('genre'),
+    species: sheetText('species'),
+    class: sheetText('class'),
+    alignment: sheetText('alignment'),
+    gender: sheetText('gender'),
+    presentation: sheetText('presentation'),
+    drive: sheetText('drive'),
+    achievements: sheetText('achievements'),
+    personality: sheetText('personality'),
+    backstory: sheetText('backstory'),
+    quirks: sheetText('quirks'),
+    artPrompt: sheetText('artPrompt') || buildAdventureArtPrompt(builder.sheet),
+    imagePath:
+      typeof builder.sheet.imagePath === 'string'
+        ? builder.sheet.imagePath
+        : undefined,
+    artImageId: sheetNumber('artImageId') ?? undefined,
+    luck: sheetRarity('luck'),
+    might: sheetRarity('might'),
+    wits: sheetRarity('wits'),
+    grace: sheetRarity('grace'),
+    charm: sheetRarity('charm'),
+    empathy: sheetRarity('empathy'),
+    userId: resolvedUserId,
+    isPublic: sheetBoolean('isPublic', true),
+    isMature: sheetBoolean('isMature', false),
+    isActive: sheetBoolean('isActive', true),
   })
-
-  builderStore.randomCard()
 }
 
-function getAdventureRewards(): RolledReward[] {
-  const rawRewards = builderStore.sheet.rewards
+async function saveCharacterBuilder(): Promise<BuilderSaveResult> {
+  builder.clearError()
+  syncSheetToCharacterForm()
 
-  if (
-    !rawRewards ||
-    typeof rawRewards !== 'object' ||
-    Array.isArray(rawRewards)
-  ) {
-    return []
-  }
+  const result = await characterStore.saveCharacter()
 
-  const selected = (rawRewards as Record<string, BuilderRewardOption>)[
-    ADVENTURE_STARTING_SKILL_KEY
-  ]
+  if (result.success && result.data) {
+    builder.setStatus('Character saved.')
 
-  return selected ? [builderOptionToAdventureReward(selected)] : []
-}
-
-async function saveRewards(): Promise<number[]> {
-  const ids: number[] = []
-
-  for (const reward of getAdventureRewards()) {
-    type RewardResponse = { id: number }
-
-    const response = await performFetch<RewardResponse>('/api/rewards', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        label: reward.label,
-        text: reward.text,
-        power: reward.power,
-        rarity: reward.rarity as Rarity,
-        rewardType: 'SKILL',
-        icon: reward.icon,
-        collection: 'adventure-starting-skill',
-        userId: userStore.userId || 10,
-        isPublic: Boolean(builderStore.sheet.isPublic),
-        isMature: Boolean(builderStore.sheet.isMature),
-        isActive: true,
-      }),
-    })
-
-    if (response.success && response.data?.id) {
-      ids.push(response.data.id)
+    return {
+      success: true,
+      message: 'Character saved.',
+      data: result.data,
     }
   }
 
-  return ids
+  const message =
+    result.message || characterStore.error || 'Failed to save character.'
+
+  builder.setLastError(new Error(message), message)
+
+  return {
+    success: false,
+    message,
+    data: result.data ?? null,
+  }
 }
 
-async function saveCharacter(): Promise<void> {
-  if (!canSave.value || isSaving.value) return
+function resetCharacterBuilder() {
+  characterStore.startAddingCharacter()
+  builder.resetBuilder(true)
+  builder.selectCard(startCard)
+}
 
-  isSaving.value = true
-  saveMessage.value = ''
-  saveError.value = ''
-
-  try {
-    syncAdventureStatTiers(builderStore.sheet)
-
-    if (!String(builderStore.sheet.artPrompt ?? '').trim()) {
-      builderStore.updateArt({
-        artPrompt: buildAdventureArtPrompt(builderStore.sheet),
-      })
-    }
-
-    const savedRewardIds = await saveRewards()
-    const s = builderStore.sheet
-
-    const body: Record<string, unknown> = {
-      name: String(s.name ?? '').trim(),
-      honorific: String(s.honorific ?? '').trim() || 'adventurer',
-      genre: String(s.genre ?? '').trim() || null,
-      species: String(s.species ?? '').trim() || null,
-      class: String(s.class ?? '').trim() || null,
-      alignment: String(s.alignment ?? '').trim() || null,
-      gender: String(s.gender ?? '').trim() || null,
-      personality: String(s.personality ?? '').trim() || null,
-      backstory: String(s.backstory ?? '').trim() || null,
-      quirks: String(s.quirks ?? '').trim() || null,
-      artPrompt: String(s.artPrompt ?? '').trim() || null,
-      artImageId: Number(s.artImageId ?? 0) || null,
-      imagePath: s.imagePath || null,
-      luck: s.luck,
-      might: s.might,
-      wits: s.wits,
-      grace: s.grace,
-      charm: s.charm,
-      empathy: s.empathy,
-      userId: userStore.userId || Number(s.userId ?? 10) || 10,
-      isPublic: Boolean(s.isPublic),
-      isMature: Boolean(s.isMature),
-      isActive: true,
-      experience: 0,
-      level: 1,
-      rewardIds: savedRewardIds,
-    }
-
-    const method = savedCharId.value ? 'PATCH' : 'POST'
-    const endpoint = savedCharId.value
-      ? `/api/characters/${savedCharId.value}`
-      : '/api/characters'
-
-    type CharResponse = { id: number }
-
-    const response = await performFetch<CharResponse>(endpoint, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to save character.')
-    }
-
-    savedCharId.value = response.data.id
-    saveMessage.value = `Character #${response.data.id} committed to the record. The ledger has been updated.`
-  } catch (error) {
-    handleError(error, 'saving adventure character')
-    saveError.value =
-      error instanceof Error
-        ? error.message
-        : 'The save failed. The ledger is unmoved.'
-  } finally {
-    isSaving.value = false
-  }
+const characterBuilderConfig: BuilderProjectConfig = {
+  key: builderKey,
+  label: 'Character Builder',
+  title: 'Character Builder',
+  modelType: 'character',
+  storageKey: 'kindrobots.builder.character.v1',
+  cards: ADVENTURE_CARDS,
+  splash: ADVENTURE_SPLASH,
+  defaultSheet: defaultCharacterSheet,
+  coreCardKeys: ADVENTURE_CORE_CARD_KEYS,
+  requiredCardKeys: ADVENTURE_REQUIRED_CARD_KEYS,
+  finalCardKey: 'art',
+  artPurpose: 'character',
+  artImageRole: 'avatar',
+  artTitle: 'Character Portrait Designer',
+  artDescription:
+    'Create, upload, select, or generate portrait art for this character.',
+  clearFieldDefaults: {
+    imagePath: null,
+    artImageId: null,
+    userId: 10,
+    isPublic: true,
+    isMature: false,
+    rewards: {},
+    stats: [],
+  },
+  persistActiveCard: true,
+  allowCompletedCardsInDeck: false,
+  suggestContext: {
+    builder: 'character',
+    tone: 'Disco Elysium meets Douglas Adams, playable, strange, and vivid.',
+  },
+  startCardKey: startCard,
+  save: saveCharacterBuilder,
+  reset: resetCharacterBuilder,
 }
 
 onMounted(() => {
-  builderStore.registerBuilder({
-    key: 'adventure',
-    label: 'Adventure',
-    title: 'Adventure Builder',
-    modelType: 'adventure',
-    artPurpose: 'character',
-    artImageRole: 'avatar',
-    artTitle: 'Character Avatar Designer',
-    artDescription:
-      'Create, upload, select, or generate avatar art for this adventure character.',
-    storageKey: 'kindrobots.builder.adventure.v2',
-    cards: ADVENTURE_CARDS,
-    splash: ADVENTURE_SPLASH,
-    defaultSheet: () => defaultAdventureSheet(userStore.userId || 10),
-    coreCardKeys: ADVENTURE_CORE_CARD_KEYS,
-    requiredCardKeys: ADVENTURE_REQUIRED_CARD_KEYS,
-    finalCardKey: 'art',
-    clearFieldDefaults: {
-      honorific: 'adventurer',
-      imagePath: null,
-      artImageId: null,
-      artPrompt: '',
-      userId: userStore.userId || 10,
-      isPublic: true,
-      isMature: false,
-      rewards: {},
-      stats: defaultAdventureStats(),
-    },
-  })
+  builder.registerBuilder(characterBuilderConfig)
+  builder.setBuilder(builderKey, true)
 
-  builderStore.setBuilder('adventure')
-  builderStore.updateSheet({
-    userId: userStore.userId || 10,
-  })
-
-  if (!builderStore.activeCardKey && builderStore.visibleCards.length) {
-    builderStore.randomCard()
+  if (!builder.activeCardKey && builder.visibleCards.length) {
+    builder.selectCard(startCard)
   }
-
-  seedActiveRewardSlot()
 })
-
-watch(
-  () => builderStore.activeCard?.rewardSlotKey,
-  () => seedActiveRewardSlot(),
-)
 </script>

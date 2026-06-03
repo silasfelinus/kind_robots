@@ -1,101 +1,144 @@
 <!-- /components/scenarios/scenario-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="scenario"
-    title="Choose Your Own Weird Adventure"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading weirdness from the database..."
-    nav-grid-class="xl:grid-cols-8"
-    @refresh="refreshManagerData"
-  >
-    <template #default="{ activeTab: currentTab }">
-      <section
-        v-if="currentTab === 'overview'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-          <scenario-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-inspirations="false"
-            :show-choices="false"
-            :show-card-actions="false"
-            :show-meta="false"
-            :compact="true"
-          />
-
-          <character-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-meta="false"
-            :compact="true"
-          />
-
-          <reward-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-meta="false"
-            :compact="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-7">
-          <scenario-interact />
-        </div>
-      </section>
-
-      <scenario-gallery
-        v-else-if="currentTab === 'scenarios'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <scenario-builder v-else-if="currentTab === 'builder'" />
-
-      <character-gallery
-        v-else-if="currentTab === 'characters'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <reward-gallery
-        v-else-if="currentTab === 'rewards'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <scenario-interact v-else-if="currentTab === 'interact'" />
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-      >
-        Unknown scenario tab: {{ currentTab }}
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager || managerError"
+      class="mb-4 shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
+    >
+      <div v-if="isLoadingManager" class="flex items-center gap-2 text-sm">
+        <span class="loading loading-spinner loading-sm text-primary" />
+        <span>Loading weirdness from the database...</span>
       </div>
-    </template>
-  </dashboard-shell>
+
+      <div v-if="managerError" class="mt-2 text-sm text-error">
+        {{ managerError }}
+      </div>
+
+      <button
+        v-if="managerError"
+        type="button"
+        class="btn btn-sm btn-outline mt-3 rounded-2xl"
+        @click="refreshManagerData"
+      >
+        Try Again
+      </button>
+    </div>
+
+    <section
+      v-if="activeTab === 'overview'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+    >
+      <div class="flex min-h-0 flex-col gap-4 overflow-y-auto xl:col-span-5">
+        <scenario-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-inspirations="false"
+          :show-choices="false"
+          :show-card-actions="false"
+          :show-meta="false"
+          :compact="true"
+        />
+
+        <character-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-meta="false"
+          :compact="true"
+        />
+
+        <reward-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-meta="false"
+          :compact="true"
+        />
+      </div>
+
+      <div class="min-h-0 overflow-y-auto xl:col-span-7">
+        <scenario-interact />
+      </div>
+    </section>
+
+    <scenario-gallery
+      v-else-if="activeTab === 'scenarios'"
+      class="min-h-0 flex-1 overflow-y-auto"
+      variant="dashboard"
+      :show-header="false"
+    />
+
+    <scenario-builder
+      v-else-if="activeTab === 'builder'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <character-gallery
+      v-else-if="activeTab === 'characters'"
+      class="min-h-0 flex-1 overflow-y-auto"
+      variant="dashboard"
+      :show-header="false"
+    />
+
+    <reward-gallery
+      v-else-if="activeTab === 'rewards'"
+      class="min-h-0 flex-1 overflow-y-auto"
+      variant="dashboard"
+      :show-header="false"
+    />
+
+    <scenario-interact
+      v-else-if="activeTab === 'interact'"
+      class="min-h-0 flex-1 overflow-y-auto"
+    />
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown scenario tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChoiceStore } from '@/stores/choiceStore'
+import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
+type ScenarioTab =
+  | 'overview'
+  | 'scenarios'
+  | 'builder'
+  | 'characters'
+  | 'rewards'
+  | 'interact'
+
+const scenarioTabs: ScenarioTab[] = [
+  'overview',
+  'scenarios',
+  'builder',
+  'characters',
+  'rewards',
+  'interact',
+]
+
+const defaultDashboardKey = 'scenario'
+const defaultTab: ScenarioTab = 'overview'
+
 const characterStore = useCharacterStore()
 const choiceStore = useChoiceStore()
+const navStore = useNavStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
@@ -103,26 +146,18 @@ const serverStore = useServerStore()
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const managerSummary = computed(() => {
-  const scenarioCount = scenarioStore.scenarios.length
-  const characterCount = characterStore.characters.length
-  const rewardCount = rewardStore.rewards.length
-  const textCount = serverStore.textServers.length
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
+})
 
-  const scenarioName = scenarioStore.selectedScenario?.title || 'no scenario'
+const activeTab = computed<ScenarioTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
 
-  const characterName =
-    characterStore.selectedCharacter?.name ||
-    characterStore.selectedCharacter?.honorific ||
-    'no character'
+  if (scenarioTabs.includes(selectedTab as ScenarioTab)) {
+    return selectedTab as ScenarioTab
+  }
 
-  const rewardName =
-    rewardStore.selectedReward?.label ||
-    rewardStore.selectedReward?.text ||
-    rewardStore.selectedReward?.power ||
-    'no reward'
-
-  return `${scenarioCount} scenarios, ${characterCount} characters, ${rewardCount} rewards, and ${textCount} text servers loaded. Active setup: ${scenarioName}, ${characterName}, ${rewardName}.`
+  return defaultTab
 })
 
 async function loadManagerData(force = false) {

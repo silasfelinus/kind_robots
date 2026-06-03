@@ -1,109 +1,126 @@
 <!-- /components/content/rewards/reward-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="reward"
-    title="Reward Workshop"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading rewards and story goblin collateral..."
-    nav-grid-class="xl:grid-cols-5"
-    @refresh="refreshManagerData"
-  >
-    <template #default="{ activeTab: currentTab }">
-      <section
-        v-if="currentTab === 'overview'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-          <reward-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :compact="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-7">
-          <reward-interact />
-        </div>
-      </section>
-
-      <reward-gallery
-        v-else-if="currentTab === 'rewards'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <reward-gallery
-        v-else-if="currentTab === 'collections'"
-        variant="dashboard"
-        :show-header="false"
-        :show-controls="true"
-        :show-images="true"
-      />
-
-      <reward-builder v-else-if="currentTab === 'builder'" />
-
-      <reward-interact v-else-if="currentTab === 'interact'" />
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-      >
-        Unknown reward tab: {{ currentTab }}
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager || managerError"
+      class="mb-4 shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
+    >
+      <div v-if="isLoadingManager" class="flex items-center gap-2 text-sm">
+        <span class="loading loading-spinner loading-sm text-primary" />
+        <span>Loading rewards and story goblin collateral...</span>
       </div>
-    </template>
-  </dashboard-shell>
+
+      <div v-if="managerError" class="mt-2 text-sm text-error">
+        {{ managerError }}
+      </div>
+
+      <button
+        v-if="managerError"
+        type="button"
+        class="btn btn-sm btn-outline mt-3 rounded-2xl"
+        @click="refreshManagerData"
+      >
+        Try Again
+      </button>
+    </div>
+
+    <section
+      v-if="activeTab === 'overview'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+    >
+      <div class="flex min-h-0 flex-col gap-4 overflow-y-auto xl:col-span-5">
+        <reward-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-descriptions="true"
+          :show-meta="true"
+          :compact="true"
+        />
+      </div>
+
+      <div class="min-h-0 overflow-y-auto xl:col-span-7">
+        <reward-interact />
+      </div>
+    </section>
+
+    <reward-gallery
+      v-else-if="activeTab === 'rewards'"
+      class="min-h-0 flex-1 overflow-y-auto"
+      variant="dashboard"
+      :show-header="false"
+    />
+
+    <reward-gallery
+      v-else-if="activeTab === 'collections'"
+      class="min-h-0 flex-1 overflow-y-auto"
+      variant="dashboard"
+      :show-header="false"
+      :show-controls="true"
+      :show-images="true"
+    />
+
+    <reward-builder
+      v-else-if="activeTab === 'builder'"
+      class="min-h-0 flex-1 overflow-hidden"
+    />
+
+    <reward-interact
+      v-else-if="activeTab === 'interact'"
+      class="min-h-0 flex-1 overflow-y-auto"
+    />
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown reward tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
+import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useServerStore } from '@/stores/serverStore'
 
+type RewardTab = 'overview' | 'rewards' | 'collections' | 'builder' | 'interact'
+
+const rewardTabs: RewardTab[] = [
+  'overview',
+  'rewards',
+  'collections',
+  'builder',
+  'interact',
+]
+
+const defaultDashboardKey = 'reward'
+const defaultTab: RewardTab = 'overview'
+
 const characterStore = useCharacterStore()
+const navStore = useNavStore()
 const rewardStore = useRewardStore()
 const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const selectedRewardText = computed(() => {
-  return (
-    rewardStore.selectedReward?.label ||
-    rewardStore.selectedReward?.text ||
-    rewardStore.selectedReward?.power ||
-    'no reward'
-  )
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
 })
 
-const selectedCharacterName = computed(() => {
-  return (
-    characterStore.selectedCharacter?.name ||
-    characterStore.selectedCharacter?.honorific ||
-    'no optional character'
-  )
-})
+const activeTab = computed<RewardTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
 
-const selectedTextServerName = computed(() => {
-  return (
-    serverStore.activeTextServer?.label ||
-    serverStore.activeTextServer?.title ||
-    'no text server'
-  )
-})
+  if (rewardTabs.includes(selectedTab as RewardTab)) {
+    return selectedTab as RewardTab
+  }
 
-const managerSummary = computed(() => {
-  const rewardCount = rewardStore.rewards.length
-  const textCount = serverStore.textServers.length
-
-  return `${rewardCount} rewards and ${textCount} text servers loaded. Current setup: ${selectedRewardText.value}, ${selectedTextServerName.value}, optional character: ${selectedCharacterName.value}.`
+  return defaultTab
 })
 
 async function loadManagerData(force = false) {

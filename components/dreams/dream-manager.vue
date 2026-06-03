@@ -1,40 +1,60 @@
 <!-- /components/dreams/dream-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="dream"
-    title="Dream Atlas"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Mapping dreamhouses, suspicious doors, and plot-adjacent furniture..."
-    nav-grid-class="sm:grid-cols-3 xl:grid-cols-7"
-    @refresh="refreshManagerData"
-  >
-    <template #default="{ activeTab: currentTab, setTab: setShellTab }">
-      <section
-        v-if="currentTab === 'overview'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager || managerError"
+      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
+    >
+      <p
+        class="min-w-0 flex-1 text-base-content/70"
+        :class="managerError ? 'text-error' : ''"
       >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-          <dream-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-open-button="true"
-            :show-stats="true"
-            :show-meta="true"
-          />
-        </div>
+        {{ managerError || managerSummary }}
+      </p>
 
-        <div class="min-h-0 xl:col-span-7">
-          <dream-interact />
-        </div>
-      </section>
+      <button
+        type="button"
+        class="btn btn-sm rounded-2xl"
+        :class="managerError ? 'btn-error' : 'btn-ghost'"
+        :disabled="isLoadingManager"
+        @click="refreshManagerData"
+      >
+        <Icon
+          name="kind-icon:refresh"
+          class="h-4 w-4"
+          :class="isLoadingManager ? 'animate-spin' : ''"
+        />
+        Refresh
+      </button>
+    </div>
 
+    <section
+      v-if="activeTab === 'overview'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-12"
+    >
+      <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+        <dream-gallery
+          variant="dropdown"
+          :show-header="false"
+          :show-controls="false"
+          :show-images="true"
+          :show-card-actions="false"
+          :show-open-button="true"
+          :show-stats="true"
+          :show-meta="true"
+        />
+      </div>
+
+      <div class="min-h-0 xl:col-span-7">
+        <dream-interact />
+      </div>
+    </section>
+
+    <section
+      v-else-if="activeTab === 'dreams'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
       <dream-gallery
-        v-else-if="currentTab === 'dreams'"
         variant="dashboard"
         :show-header="false"
         :show-controls="true"
@@ -44,198 +64,232 @@
         :show-stats="true"
         :show-meta="true"
       />
+    </section>
 
-      <add-dream
-        v-else-if="currentTab === 'add'"
-        @saved="() => onDreamSaved(setShellTab)"
-        @created="() => onDreamSaved(setShellTab)"
-      />
+    <section
+      v-else-if="activeTab === 'add'"
+      class="flex min-h-0 flex-1 flex-col overflow-y-auto"
+    >
+      <add-dream @saved="onDreamSaved" @created="onDreamSaved" />
+    </section>
 
-      <dream-prompts v-else-if="currentTab === 'prompts'" />
+    <section
+      v-else-if="activeTab === 'prompts'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <dream-prompts />
+    </section>
 
-      <section
-        v-else-if="currentTab === 'art'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-        @vue:mounted="setupUploadTarget"
-      >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-8">
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
-          >
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Dream Art
-            </p>
+    <section
+      v-else-if="activeTab === 'art'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-12"
+      @vue:mounted="setupUploadTarget"
+    >
+      <div class="flex min-h-0 flex-col gap-4 xl:col-span-8">
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow">
+          <p class="text-xs font-bold uppercase tracking-wide text-primary">
+            Dream Art
+          </p>
 
-            <h2 class="text-2xl font-black text-base-content">
-              Visuals for {{ selectedTitle }}
-            </h2>
+          <h2 class="text-2xl font-black text-base-content">
+            Visuals for {{ selectedTitle }}
+          </h2>
 
-            <p class="mt-2 text-sm text-base-content/70">
-              Upload images, browse the gallery, or generate art for this dream.
-            </p>
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <image-upload />
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <art-gallery :show-header="false" />
-          </div>
+          <p class="mt-2 text-sm text-base-content/70">
+            Upload images, browse the gallery, or generate art for this dream.
+          </p>
         </div>
 
-        <aside class="flex min-h-0 flex-col gap-4 xl:col-span-4">
-          <collection-gallery
-            variant="dropdown"
-            :show-header="true"
-            :show-controls="false"
-            :allow-add="true"
-            :allow-edit="false"
-            :allow-delete="false"
-            :allow-merge="false"
-            :allow-refresh="false"
-          />
-
-          <dream-list list-type="art" />
-        </aside>
-      </section>
-
-      <dream-builder v-else-if="currentTab === 'builder'" />
-
-      <section
-        v-else-if="currentTab === 'collections'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="min-h-0 xl:col-span-8">
-          <div
-            class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
-          >
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Collections
-            </p>
-
-            <h2 class="text-2xl font-black text-base-content">
-              Dream Collections
-            </h2>
-
-            <p class="mt-2 text-sm text-base-content/70">
-              Manage shared art collections connected to the dream.
-            </p>
-          </div>
-
-          <collection-gallery :show-header="false" />
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <image-upload />
         </div>
 
-        <aside class="min-h-0 xl:col-span-4">
-          <dream-list list-type="art" />
-        </aside>
-      </section>
-
-      <section
-        v-else-if="currentTab === 'scenarios'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="xl:col-span-4">
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
-          >
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Scenario Link
-            </p>
-
-            <h2 class="text-2xl font-black text-base-content">
-              Scenario in Dream
-            </h2>
-
-            <p class="mt-2 text-sm leading-relaxed text-base-content/70">
-              Dream is the place. Scenario is what happens there.
-            </p>
-
-            <div
-              v-if="dreamStore.selectedDream?.Scenario"
-              class="mt-4 rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
-            >
-              <p
-                class="text-xs font-bold uppercase tracking-wide text-secondary"
-              >
-                Attached Scenario
-              </p>
-
-              <h3 class="mt-1 text-lg font-black text-base-content">
-                {{
-                  dreamStore.selectedDream.Scenario.title || 'Untitled Scenario'
-                }}
-              </h3>
-
-              <p class="mt-2 line-clamp-5 text-sm text-base-content/70">
-                {{
-                  dreamStore.selectedDream.Scenario.description ||
-                  'No scenario description yet.'
-                }}
-              </p>
-            </div>
-
-            <div
-              v-else
-              class="mt-4 rounded-2xl border border-dashed border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
-            >
-              No scenario attached yet.
-            </div>
-          </div>
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <art-gallery :show-header="false" />
         </div>
-
-        <div class="min-h-0 xl:col-span-8">
-          <scenario-gallery variant="dashboard" :show-header="false" />
-        </div>
-      </section>
-
-      <dream-interact v-else-if="currentTab === 'interact'" />
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-      >
-        Unknown Dream tab: {{ currentTab }}
       </div>
-    </template>
-  </dashboard-shell>
+
+      <aside class="flex min-h-0 flex-col gap-4 xl:col-span-4">
+        <collection-gallery
+          variant="dropdown"
+          :show-header="true"
+          :show-controls="false"
+          :allow-add="true"
+          :allow-edit="false"
+          :allow-delete="false"
+          :allow-merge="false"
+          :allow-refresh="false"
+        />
+
+        <dream-list list-type="art" />
+      </aside>
+    </section>
+
+    <section
+      v-else-if="activeTab === 'builder'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <dream-builder />
+    </section>
+
+    <section
+      v-else-if="activeTab === 'collections'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-12"
+    >
+      <div class="min-h-0 xl:col-span-8">
+        <div
+          class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
+        >
+          <p class="text-xs font-bold uppercase tracking-wide text-primary">
+            Collections
+          </p>
+
+          <h2 class="text-2xl font-black text-base-content">
+            Dream Collections
+          </h2>
+
+          <p class="mt-2 text-sm text-base-content/70">
+            Manage shared art collections connected to the dream.
+          </p>
+        </div>
+
+        <collection-gallery :show-header="false" />
+      </div>
+
+      <aside class="min-h-0 xl:col-span-4">
+        <dream-list list-type="art" />
+      </aside>
+    </section>
+
+    <section
+      v-else-if="activeTab === 'scenarios'"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-12"
+    >
+      <div class="xl:col-span-4">
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow">
+          <p class="text-xs font-bold uppercase tracking-wide text-primary">
+            Scenario Link
+          </p>
+
+          <h2 class="text-2xl font-black text-base-content">
+            Scenario in Dream
+          </h2>
+
+          <p class="mt-2 text-sm leading-relaxed text-base-content/70">
+            Dream is the place. Scenario is what happens there.
+          </p>
+
+          <div
+            v-if="dreamStore.selectedDream?.Scenario"
+            class="mt-4 rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
+          >
+            <p class="text-xs font-bold uppercase tracking-wide text-secondary">
+              Attached Scenario
+            </p>
+
+            <h3 class="mt-1 text-lg font-black text-base-content">
+              {{
+                dreamStore.selectedDream.Scenario.title || 'Untitled Scenario'
+              }}
+            </h3>
+
+            <p class="mt-2 line-clamp-5 text-sm text-base-content/70">
+              {{
+                dreamStore.selectedDream.Scenario.description ||
+                'No scenario description yet.'
+              }}
+            </p>
+          </div>
+
+          <div
+            v-else
+            class="mt-4 rounded-2xl border border-dashed border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
+          >
+            No scenario attached yet.
+          </div>
+        </div>
+      </div>
+
+      <div class="min-h-0 xl:col-span-8">
+        <scenario-gallery variant="dashboard" :show-header="false" />
+      </div>
+    </section>
+
+    <section
+      v-else-if="activeTab === 'interact'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <dream-interact />
+    </section>
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown Dream tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useNavStore } from '@/stores/navStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
+type DreamTab =
+  | 'overview'
+  | 'dreams'
+  | 'add'
+  | 'prompts'
+  | 'art'
+  | 'builder'
+  | 'collections'
+  | 'scenarios'
+  | 'interact'
+
 const dreamStore = useDreamStore()
+const navStore = useNavStore()
 const promptStore = usePromptStore()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
 const uploadStore = useUploadStore()
 const collectionStore = useCollectionStore()
 
+const defaultDashboardKey = 'dream'
+const defaultTab: DreamTab = 'overview'
+const validTabs: DreamTab[] = [
+  'overview',
+  'dreams',
+  'add',
+  'prompts',
+  'art',
+  'builder',
+  'collections',
+  'scenarios',
+  'interact',
+]
+
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const readonlyServerGalleryProps = {
-  showHeader: false,
-  showControls: false,
-  showCardActions: false,
-  showDescriptions: true,
-  showMeta: true,
-  showCapabilities: false,
-  showUseButtons: false,
-  showWorkflow: false,
-  showDefaults: false,
-  showStatus: false,
-  allowAdd: false,
-  allowEdit: false,
-  allowDelete: false,
-  allowTest: false,
-} as const
+const dashboardKey = computed(() => {
+  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
+})
+
+const activeTab = computed<DreamTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
+
+  if (validTabs.includes(selectedTab as DreamTab)) {
+    return selectedTab as DreamTab
+  }
+
+  return defaultTab
+})
 
 const selectedTitle = computed(() => {
   return dreamStore.selectedDream?.title || 'No Dream selected'
@@ -275,15 +329,15 @@ function setupUploadTarget() {
   })
 }
 
-async function onDreamSaved(setShellTab?: (tab: string) => void) {
+async function onDreamSaved() {
   await refreshManagerData()
 
   if (dreamStore.selectedDream?.id) {
-    setShellTab?.('interact')
+    navStore.setDashboardTab?.(dashboardKey.value, 'interact')
     return
   }
 
-  setShellTab?.('dreams')
+  navStore.setDashboardTab?.(dashboardKey.value, 'dreams')
 }
 
 async function loadManagerData(force = false) {

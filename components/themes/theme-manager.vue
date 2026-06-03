@@ -1,16 +1,7 @@
 <!-- /components/content/themes/theme-manager.vue -->
 <template>
-  <dashboard-shell
-    dashboard-key="theme"
-    title="Theme Manager"
-    :summary="managerSummary"
-    :loading="isLoadingManager"
-    :error="managerError"
-    loading-message="Loading themes..."
-    nav-grid-class="xl:grid-cols-3"
-    @refresh="refreshManagerData"
-  >
-    <template #actions>
+  <section class="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+    <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
       <span
         v-if="themeStore.currentTheme"
         class="flex items-center gap-1.5 rounded-full border border-amber-500 px-2.5 py-1 font-mono text-xs text-amber-500"
@@ -20,87 +11,129 @@
       </span>
 
       <span class="badge badge-neutral">{{ allThemeCount }} themes</span>
-    </template>
 
-    <template #default="{ activeTab: currentTab, setTab: setShellTab }">
-      <theme-gallery
-        v-if="currentTab === 'gallery'"
-        @edit="setShellTab('custom')"
-      />
-
-      <section
-        v-else-if="currentTab === 'custom'"
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      <button
+        class="btn btn-ghost btn-sm rounded-xl"
+        type="button"
+        :disabled="isLoadingManager"
+        @click="refreshManagerData"
       >
-        <div
-          class="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-base-300 bg-base-200 px-5 py-3"
-        >
-          <div class="flex items-center gap-2.5">
-            <span
-              class="font-mono text-xs uppercase tracking-widest opacity-50"
-            >
-              {{ themeStore.themeForm.id ? 'Editing' : 'Creating new theme' }}
-            </span>
+        <span
+          v-if="isLoadingManager"
+          class="loading loading-spinner loading-xs"
+        />
+        <Icon v-else name="kind-icon:refresh" class="size-4" />
+        Refresh
+      </button>
+    </div>
 
-            <span
-              v-if="themeStore.themeForm.id && themeStore.themeForm.name"
-              class="text-sm font-bold text-amber-500"
-            >
-              {{ themeStore.themeForm.name }}
-            </span>
-          </div>
+    <div
+      v-if="managerError"
+      class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+    >
+      {{ managerError }}
+    </div>
 
-          <div class="flex items-center gap-2">
-            <button
-              v-if="themeStore.themeForm.id"
-              class="btn btn-ghost btn-xs rounded-xl"
-              type="button"
-              @click="newTheme"
-            >
-              New theme instead
-            </button>
+    <div
+      v-if="isLoadingManager"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-4"
+    >
+      <span class="loading loading-spinner loading-sm" />
+      <span class="ml-2">Loading themes...</span>
+    </div>
 
-            <select
-              class="select select-bordered select-sm rounded-xl bg-base-100 focus:border-amber-500"
-              @change="onForgeSelect"
-            >
-              <option value="">Edit existing theme</option>
+    <theme-gallery
+      v-if="activeTab === 'gallery'"
+      class="min-h-0 flex-1"
+      @edit="setTab('custom')"
+    />
 
-              <option
-                v-for="theme in themeStore.sharedThemes"
-                :key="theme.id"
-                :value="theme.id"
-              >
-                {{ theme.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="min-h-0 flex-1 overflow-y-auto">
-          <add-theme :key="forgeKey" />
-        </div>
-      </section>
-
+    <section
+      v-else-if="activeTab === 'custom'"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+    >
       <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+        class="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-base-300 bg-base-200 px-5 py-3"
       >
-        Unknown theme tab: {{ currentTab }}
+        <div class="flex items-center gap-2.5">
+          <span class="font-mono text-xs uppercase tracking-widest opacity-50">
+            {{ themeStore.themeForm.id ? 'Editing' : 'Creating new theme' }}
+          </span>
+
+          <span
+            v-if="themeStore.themeForm.id && themeStore.themeForm.name"
+            class="text-sm font-bold text-amber-500"
+          >
+            {{ themeStore.themeForm.name }}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            v-if="themeStore.themeForm.id"
+            class="btn btn-ghost btn-xs rounded-xl"
+            type="button"
+            @click="newTheme"
+          >
+            New theme instead
+          </button>
+
+          <select
+            class="select select-bordered select-sm rounded-xl bg-base-100 focus:border-amber-500"
+            @change="onForgeSelect"
+          >
+            <option value="">Edit existing theme</option>
+
+            <option
+              v-for="theme in themeStore.sharedThemes"
+              :key="theme.id"
+              :value="theme.id"
+            >
+              {{ theme.name }}
+            </option>
+          </select>
+        </div>
       </div>
-    </template>
-  </dashboard-shell>
+
+      <div class="min-h-0 flex-1 overflow-y-auto">
+        <add-theme :key="forgeKey" />
+      </div>
+    </section>
+
+    <div
+      v-else
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Unknown theme tab: {{ activeTab }}
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useNavStore } from '@/stores/navStore'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
+type ThemeTab = 'gallery' | 'custom'
+
+const dashboardKey = 'theme' as const
+const fallbackTab: ThemeTab = 'gallery'
+const validTabs: ThemeTab[] = ['gallery', 'custom']
+
+const navStore = useNavStore()
 const themeStore = useThemeStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 const forgeKey = ref(0)
+
+const activeTab = computed<ThemeTab>(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey)
+
+  return validTabs.includes(selectedTab as ThemeTab)
+    ? (selectedTab as ThemeTab)
+    : fallbackTab
+})
 
 const allThemeCount = computed(() => {
   return (
@@ -109,13 +142,9 @@ const allThemeCount = computed(() => {
   )
 })
 
-const managerSummary = computed(() => {
-  const currentTheme = themeStore.currentTheme || 'no active theme'
-  const daisyCount = themeStore.daisyuiThemes?.length ?? 0
-  const sharedCount = themeStore.sharedThemes?.length ?? 0
-
-  return `${daisyCount} DaisyUI themes and ${sharedCount} shared themes loaded. Active theme: ${currentTheme}.`
-})
+function setTab(tab: ThemeTab) {
+  navStore.setDashboardTab(dashboardKey, tab)
+}
 
 function safeThemeValues(value: unknown): Record<string, string> {
   if (typeof value === 'string') {
@@ -187,6 +216,6 @@ function onForgeSelect(event: Event) {
 }
 
 onMounted(async () => {
-  await refreshManagerData()
+  await Promise.all([navStore.initialize(), refreshManagerData()])
 })
 </script>

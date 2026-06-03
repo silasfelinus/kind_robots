@@ -180,7 +180,13 @@ const title = computed(() =>
   ),
 )
 const narrative = computed(() =>
-  String(store.sheet.narrative || store.sheet.description || ''),
+  String(
+    store.sheet.narrative ||
+      store.sheet.description ||
+      store.activeCard?.narrative ||
+      store.activeConfig.splash?.description ||
+      '',
+  ),
 )
 const imagePath = computed(() =>
   typeof store.sheet.imagePath === 'string' ? store.sheet.imagePath : '',

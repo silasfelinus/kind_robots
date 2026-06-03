@@ -215,9 +215,9 @@ const narrative = computed(() => {
 
 const imagePath = computed(() => {
   if (isBuilder.value) {
-    return typeof store.sheet.imagePath === 'string'
-      ? store.sheet.imagePath
-      : ''
+    const sheetImage =
+      typeof store.sheet.imagePath === 'string' ? store.sheet.imagePath : ''
+    return sheetImage || store.activeConfig.splash?.imagePath || ''
   }
   return navCard.value?.heroImage || ''
 })

@@ -1,30 +1,77 @@
 // /stores/pageStore.ts
-
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { ContentType } from '~/content.config'
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
+export type WorkspaceCardsInput = string | BuilderCard[]
+
+type WorkspacePage = ContentType & {
+  cards?: WorkspaceCardsInput
+  dashboardKey?: string
+  dashboardTab?: string
+  loadingMessage?: string
+  refreshLabel?: string
+}
+
+function normalizeImagePath(path: string): string {
+  if (!path) return ''
+  if (path.startsWith('/') || path.startsWith('http')) return path
+  return `/images/${path}`
+}
+
+function isBuilderCardArray(value: unknown): value is BuilderCard[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (entry) =>
+        entry &&
+        typeof entry === 'object' &&
+        'key' in entry &&
+        'label' in entry,
+    )
+  )
+}
 
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentType | null>(null)
   const ready = ref(false)
   const initialized = ref(false)
+  const workspaceCardKey = ref('')
+
+  const currentPage = computed(() => page.value as WorkspacePage | null)
 
   const layout = computed<PageLayoutKey>(() => 'default')
 
+  const cardsKey = computed(() => {
+    const value = currentPage.value?.cards
+    return typeof value === 'string' ? value : ''
+  })
+
+  const cards = computed<BuilderCard[]>(() => {
+    const value = currentPage.value?.cards
+    return isBuilderCardArray(value) ? value : []
+  })
+
   const meta = computed(() => ({
-    title: page.value?.title ?? 'Robots',
-    room: page.value?.room ?? 'Kind Robots',
-    subtitle: page.value?.subtitle ?? 'Welcome to Kind Robots',
-    description: page.value?.description ?? '',
-    icon: page.value?.icon ?? 'mdi:robot-happy',
-    image: page.value?.image ?? '/images/botcafe.webp',
-    tooltip: page.value?.tooltip ?? '',
-    dottitip: page.value?.dottitip ?? '',
-    amitip: page.value?.amitip ?? '',
-    artPrompt: page.value?.artPrompt ?? '',
-    sort: page.value?.sort ?? '',
+    title: currentPage.value?.title ?? 'Robots',
+    room: currentPage.value?.room ?? 'Kind Robots',
+    subtitle: currentPage.value?.subtitle ?? 'Welcome to Kind Robots',
+    description: currentPage.value?.description ?? '',
+    icon: currentPage.value?.icon ?? 'mdi:robot-happy',
+    image: normalizeImagePath(
+      currentPage.value?.image ?? '/images/botcafe.webp',
+    ),
+    tooltip: currentPage.value?.tooltip ?? '',
+    dottitip: currentPage.value?.dottitip ?? '',
+    amitip: currentPage.value?.amitip ?? '',
+    artPrompt: currentPage.value?.artPrompt ?? '',
+    sort: currentPage.value?.sort ?? '',
+    dashboardKey: currentPage.value?.dashboardKey ?? '',
+    dashboardTab: currentPage.value?.dashboardTab ?? '',
+    loadingMessage: currentPage.value?.loadingMessage ?? '',
+    refreshLabel: currentPage.value?.refreshLabel ?? '',
   }))
 
   function initialize(): void {
@@ -36,7 +83,12 @@ export const usePageStore = defineStore('pageStore', () => {
 
   function setPage(newPage: ContentType): void {
     page.value = newPage
+    workspaceCardKey.value = ''
     ready.value = true
+  }
+
+  function setWorkspaceCardKey(cardKey: string): void {
+    workspaceCardKey.value = cardKey
   }
 
   return {
@@ -45,8 +97,12 @@ export const usePageStore = defineStore('pageStore', () => {
     meta,
     ready,
     initialized,
+    cards,
+    cardsKey,
+    workspaceCardKey,
     setPage,
     initialize,
+    setWorkspaceCardKey,
 
     title: computed(() => meta.value.title),
     room: computed(() => meta.value.room),
@@ -59,5 +115,9 @@ export const usePageStore = defineStore('pageStore', () => {
     amitip: computed(() => meta.value.amitip),
     artPrompt: computed(() => meta.value.artPrompt),
     sort: computed(() => meta.value.sort),
+    dashboardKey: computed(() => meta.value.dashboardKey),
+    dashboardTab: computed(() => meta.value.dashboardTab),
+    loadingMessage: computed(() => meta.value.loadingMessage),
+    refreshLabel: computed(() => meta.value.refreshLabel),
   }
 })

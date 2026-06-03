@@ -333,6 +333,18 @@ export const dashboardConfigs = {
     ],
   },
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // REPLACE the `footer:` block in dashboardConfigs (dashboardHelper.ts) with
+  // this. Same tab keys/order; each now carries the card-deck copy (flourish /
+  // tagline / narrative) lifted from the old navCards so NAV_CARDS derives with
+  // no lost flavor. `image` omitted → deriver falls back to /images/nav/<key>.webp.
+  //
+  // Note: nav cards route by footerRouteMap[key] / footerDashboardMap[key], so
+  // the card's `key` stays the footer key (fx, bot, …). The image fallback is
+  // therefore /images/nav/fx.webp etc. If your art lives at /images/nav/<route>
+  // instead, set `image` explicitly per tab.
+  // ─────────────────────────────────────────────────────────────────────────
+
   footer: {
     key: 'footer',
     label: 'Footer',
@@ -342,73 +354,120 @@ export const dashboardConfigs = {
         key: 'fx',
         label: 'FX',
         icon: 'kind-icon:butterfly',
-        title: 'Effects',
+        title: 'Butterfly Sanctuary',
+        flourish: '✿',
+        tagline: 'The swarm that absolutely does not run this website.',
+        narrative:
+          'Summon, inspect, and interact with the butterflies, and tune the screen effects they pretend not to control.',
       },
       {
         key: 'bot',
         label: 'Bot',
-        icon: 'kind-icon:robot',
-        title: 'Kind Robots',
+        icon: 'kind-icon:robot-color',
+        title: 'Bots',
+        flourish: '◈',
+        tagline: 'Build personalities, assistants, and accomplices.',
+        narrative:
+          'Build bots with the builder cards, chat with them, forge new ones, or compose your own endpoint.',
       },
       {
         key: 'art',
         label: 'Art',
-        icon: 'kind-icon:art',
+        icon: 'kind-icon:palette',
         title: 'Art',
+        flourish: '◐',
+        tagline: 'Generate and browse AI artwork.',
+        narrative:
+          'Build prompts, generate images, browse the gallery, and remix styles through the active art server.',
       },
       {
         key: 'scenario',
         label: 'Scenario',
-        icon: 'kind-icon:book',
-        title: 'Story',
+        icon: 'kind-icon:story',
+        title: 'Stories',
+        flourish: '§',
+        tagline: 'Bring everything into one narrative space.',
+        narrative:
+          'Combine characters, places, treasures, and art into a single unfolding story.',
       },
       {
         key: 'theme',
         label: 'Theme',
-        icon: 'kind-icon:palette',
-        title: 'Theme',
+        icon: 'kind-icon:paintbrush',
+        title: 'Themes',
+        flourish: '✦',
+        tagline: 'Change the look and the vibe.',
+        narrative: 'Browse and activate themes, or build a custom palette.',
       },
       {
         key: 'user',
         label: 'User',
         icon: 'kind-icon:person',
-        title: 'User',
+        title: 'User Dashboard',
+        flourish: '☉',
+        tagline: 'Account, profile, and settings.',
+        narrative:
+          'Manage your account, subscription, milestones, themes, and chat history.',
       },
       {
         key: 'lab',
         label: 'Lab',
-        icon: 'kind-icon:flask',
-        title: 'Lab',
+        icon: 'kind-icon:foundry',
+        title: 'WonderLab',
+        flourish: '⚗',
+        tagline: 'Let the robots touch the shiny buttons.',
+        narrative:
+          'Experiment, test reactions, and play with the toys that are not quite ready for the front page.',
       },
       {
         key: 'brainstorm',
         label: 'Brainstorm',
         icon: 'kind-icon:brain',
         title: 'Brainstorm',
+        flourish: '✺',
+        tagline: 'Catch loose ideas before they escape into the walls.',
+        narrative:
+          'Work with pitches, prompts, and generated ideas. Build a pitch or let the brainstorm run.',
       },
       {
         key: 'giftshop',
         label: 'Giftshop',
         icon: 'kind-icon:gift',
-        title: 'Giftshop',
+        title: 'Butterfly Giftshop',
+        flourish: '❦',
+        tagline: 'Merch, prints, tokens, and swarm-approved artifacts.',
+        narrative:
+          'Browse the shop, manage your mana purse, and sponsor the anti-malaria mission behind AMI.',
       },
       {
         key: 'dream',
         label: 'Dream',
-        icon: 'kind-icon:sparkles',
-        title: 'Dream',
+        icon: 'kind-icon:moon',
+        title: 'Locations',
+        flourish: '☾',
+        tagline: 'Explore imagined places and dreamscapes.',
+        narrative:
+          'Coordinate collaborative dreams — prompts, art, collections, and the places your stories happen.',
       },
       {
         key: 'character',
         label: 'Character',
-        icon: 'kind-icon:person',
-        title: 'Character',
+        icon: 'kind-icon:mask',
+        title: 'Characters',
+        flourish: '⚜',
+        tagline: 'Design and meet the cast of your world.',
+        narrative:
+          'Create characters with the adventure builder, pair them with scenarios and rewards, and bring them to the stage.',
       },
       {
         key: 'reward',
         label: 'Reward',
-        icon: 'kind-icon:gift',
-        title: 'Reward',
+        icon: 'kind-icon:trophy',
+        title: 'Rewards',
+        flourish: '♛',
+        tagline: 'Earn and collect rewards for your creations.',
+        narrative:
+          'Browse powers, items, and plot grenades. Build new rewards or turn one into a story encounter.',
       },
     ],
   },
@@ -710,6 +769,10 @@ export const dashboardConfigs = {
         icon: 'kind-icon:castle',
         title: 'Memory Dungeon',
         summary: 'Explore the gamified memory adventure.',
+        flourish: '⚔',
+        tagline: 'A card-matching crawl with teeth.',
+        narrative:
+          'Explore the gamified memory adventure — match the cards, survive the dungeon, see how deep it goes.',
       },
       {
         key: 'wonder-lab',
@@ -717,6 +780,10 @@ export const dashboardConfigs = {
         icon: 'kind-icon:flask',
         title: 'WonderLab',
         summary: 'Experimental toys, tests, and delightful nonsense.',
+        flourish: '⚗',
+        tagline: 'Experimental toys and delightful nonsense.',
+        narrative:
+          'The open sandbox — experimental components, half-finished toys, and the things that exist purely because they were fun to make.',
       },
       {
         key: 'screen-fx',
@@ -724,6 +791,10 @@ export const dashboardConfigs = {
         icon: 'kind-icon:sparkles',
         title: 'Screen Effects',
         summary: 'Control overlays, butterflies, and visual effects.',
+        flourish: '✦',
+        tagline: 'Overlays, butterflies, and visual chaos.',
+        narrative:
+          'Control the screen-effect layer — matrix rain, firefly drift, butterflies, and the rest of the ambient theater.',
       },
       {
         key: 'chat-test',
@@ -731,6 +802,10 @@ export const dashboardConfigs = {
         icon: 'kind-icon:chat',
         title: 'Chat Test',
         summary: 'Test different chat streams.',
+        flourish: '◈',
+        tagline: 'Poke the text engines and watch them stream.',
+        narrative:
+          'Test different chat streams and text backends — Claude, OpenAI, Ollama — and watch the tokens arrive.',
       },
       {
         key: 'art-test',
@@ -738,6 +813,10 @@ export const dashboardConfigs = {
         icon: 'kind-icon:image',
         title: 'Art Test',
         summary: 'Test our image generators.',
+        flourish: '◐',
+        tagline: 'Throw prompts at the image generators.',
+        narrative:
+          'Test the image generators directly — quick prompts, fast iteration, no ceremony.',
       },
     ],
   },

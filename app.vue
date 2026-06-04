@@ -52,7 +52,7 @@
           </div>
         </section>
 
-        <worspace-hand />
+        <workspace-hand />
       </template>
     </dashboard-shell>
   </div>

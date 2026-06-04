@@ -298,6 +298,14 @@ const builderChannel: ChannelRoute = {
   summary: 'Build easily with our step by step builder.',
 }
 
+const labChannel: ChannelRoute = {
+  key: 'wonder',
+  label: 'Lab',
+  path: '/wonder',
+  icon: 'kind-icon:foundry',
+  summary: 'Peak behind the curtain at our wonderlab',
+}
+
 const storiesChannel: ChannelRoute = {
   key: 'stories',
   label: 'Stories',
@@ -358,6 +366,7 @@ const allChannels = computed<ChannelRoute[]>(() => [
   ...utilityChannels,
   artChannel,
   builderChannel,
+  labChannel,
   storiesChannel,
   ...bottomProjectChannels,
 ])

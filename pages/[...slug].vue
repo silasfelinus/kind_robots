@@ -31,15 +31,15 @@
 
   <error-popup />
 </template>
-
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useRoute, useRouter } from '#app'
+import { useRoute } from '#app'
 import { usePageStore } from '@/stores/pageStore'
+import { useNavStore } from '@/stores/navStore'
 
 const route = useRoute()
-const router = useRouter()
 const pageStore = usePageStore()
+const navStore = useNavStore()
 
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
 
@@ -52,11 +52,17 @@ const { data: page, status: contentStatus } = await useAsyncData(
   },
 )
 
-// Keep the store in sync with whatever useAsyncData resolves.
+// One-directional sync: useAsyncData → stores. Never the reverse.
 watch(
   page,
   (val) => {
-    if (val) pageStore.setPage(val)
+    if (val) {
+      pageStore.setPage(val)
+      navStore.setDashboardShellFromContent(val)
+    } else {
+      pageStore.clearPage()
+      navStore.clearDashboardShell()
+    }
   },
   { immediate: true },
 )

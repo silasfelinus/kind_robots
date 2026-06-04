@@ -7,7 +7,9 @@
       <milestone-popup />
     </ClientOnly>
 
-    <kind-loader />
+    <ClientOnly>
+      <kind-loader v-if="showLoader" @pageReady="handlePageReady" />
+    </ClientOnly>
 
     <ClientOnly>
       <div
@@ -23,7 +25,9 @@
         class="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
         <ClientOnly>
-          <NuxtPage />
+          <dashboard-shell>
+            <NuxtPage />
+          </dashboard-shell>
 
           <template #fallback>
             <div class="h-full min-h-0 w-full overflow-y-auto p-3 sm:p-4">

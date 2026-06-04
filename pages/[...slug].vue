@@ -10,13 +10,16 @@
   >
     <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
     <p class="text-base font-bold text-warning">Page not found</p>
+    <p class="max-w-xl text-sm text-base-content/60">
+      No Nuxt Content page was found for {{ contentPath }}.
+    </p>
   </div>
 
   <error-popup />
 </template>
 
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute } from '#app'
 import { useUserStore } from '@/stores/userStore'
 import { useBotStore } from '@/stores/botStore'
@@ -45,11 +48,36 @@ const chatStore = useChatStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
-const contentPath = computed(() => route.path)
+const contentPath = computed(() => {
+  if (route.path === '/') return '/'
+  return route.path.replace(/\/$/, '')
+})
 
-const { data: page } = await useAsyncData(
-  () => `content-page-${contentPath.value}`,
-  () => queryCollection('content').path(contentPath.value).first(),
+const contentKey = computed(() => {
+  return `content-page:${contentPath.value}`
+})
+
+const { data: page, error: pageError } = await useAsyncData(
+  contentKey,
+  async () => {
+    console.groupCollapsed('[slug-page] querying Nuxt Content')
+    console.log('route.path:', route.path)
+    console.log('route.fullPath:', route.fullPath)
+    console.log('contentPath:', contentPath.value)
+    console.groupEnd()
+
+    const result = await queryCollection('content')
+      .path(contentPath.value)
+      .first()
+
+    console.groupCollapsed('[slug-page] Nuxt Content result')
+    console.log('contentPath:', contentPath.value)
+    console.log('found:', Boolean(result))
+    console.log('result:', result)
+    console.groupEnd()
+
+    return result
+  },
   {
     watch: [contentPath],
   },
@@ -62,58 +90,84 @@ useSeoMeta({
     'A friendly AI playground for humans and robots.',
 })
 
-watchEffect(() => {
-  if (!page.value) return
+watch(
+  page,
+  (currentPage) => {
+    console.groupCollapsed('[slug-page] page changed')
+    console.log('contentPath:', contentPath.value)
+    console.log('has page:', Boolean(currentPage))
+    console.log('page title:', currentPage?.title)
+    console.log('page dashboardKey:', currentPage?.dashboardKey)
+    console.log('page dashboardTab:', currentPage?.dashboardTab)
+    console.log('page error:', pageError.value)
+    console.groupEnd()
 
-  pageStore.setPage({
-    ...page.value,
-    seo: page.value.seo ?? {},
-    navigation: page.value.navigation ?? false,
-  } as ContentType)
-})
+    if (!currentPage) {
+      pageStore.clearPage()
+      return
+    }
 
-watchEffect(() => {
-  const displayMode = route.query.displayMode
-  const displayAction = route.query.displayAction
-  const botId = route.query.botId
-  const characterId = route.query.characterId
-  const scenarioId = route.query.scenarioId
-  const chatId = route.query.chatId
-  const pitchId = route.query.pitchId
-  const promptId = route.query.promptId
+    pageStore.setPage({
+      ...currentPage,
+      seo: currentPage.seo ?? {},
+      navigation: currentPage.navigation ?? false,
+    } as ContentType)
+  },
+  { immediate: true },
+)
 
-  if (typeof displayMode === 'string') {
-    displayStore.displayMode = displayMode as displayModeState
-  }
+watch(
+  () => route.query,
+  (query) => {
+    const displayMode = query.displayMode
+    const displayAction = query.displayAction
+    const botId = query.botId
+    const characterId = query.characterId
+    const scenarioId = query.scenarioId
+    const chatId = query.chatId
+    const pitchId = query.pitchId
+    const promptId = query.promptId
 
-  if (typeof displayAction === 'string') {
-    displayStore.displayAction = displayAction as displayActionState
-  }
+    if (typeof displayMode === 'string') {
+      displayStore.displayMode = displayMode as displayModeState
+    }
 
-  if (typeof botId === 'string') {
-    botStore.selectBot(Number(botId))
-  }
+    if (typeof displayAction === 'string') {
+      displayStore.displayAction = displayAction as displayActionState
+    }
 
-  if (typeof characterId === 'string') {
-    characterStore.selectCharacter(Number(characterId))
-  }
+    if (typeof botId === 'string') {
+      const id = Number(botId)
+      if (Number.isFinite(id)) botStore.selectBot(id)
+    }
 
-  if (typeof scenarioId === 'string') {
-    scenarioStore.selectScenario(Number(scenarioId))
-  }
+    if (typeof characterId === 'string') {
+      const id = Number(characterId)
+      if (Number.isFinite(id)) characterStore.selectCharacter(id)
+    }
 
-  if (typeof chatId === 'string') {
-    chatStore.selectChat(Number(chatId))
-  }
+    if (typeof scenarioId === 'string') {
+      const id = Number(scenarioId)
+      if (Number.isFinite(id)) scenarioStore.selectScenario(id)
+    }
 
-  if (typeof pitchId === 'string') {
-    pitchStore.selectPitch(Number(pitchId))
-  }
+    if (typeof chatId === 'string') {
+      const id = Number(chatId)
+      if (Number.isFinite(id)) chatStore.selectChat(id)
+    }
 
-  if (typeof promptId === 'string') {
-    promptStore.selectPrompt(Number(promptId))
-  }
-})
+    if (typeof pitchId === 'string') {
+      const id = Number(pitchId)
+      if (Number.isFinite(id)) pitchStore.selectPitch(id)
+    }
+
+    if (typeof promptId === 'string') {
+      const id = Number(promptId)
+      if (Number.isFinite(id)) promptStore.selectPrompt(id)
+    }
+  },
+  { immediate: true },
+)
 
 const queryToken = computed(() => route.query.token)
 

@@ -79,16 +79,49 @@ export const usePageStore = defineStore('pageStore', () => {
 
     initialized.value = true
     ready.value = true
+
+    if (import.meta.client) {
+      console.log('[pageStore] initialized')
+    }
   }
 
   function setPage(newPage: ContentType): void {
     page.value = newPage
     workspaceCardKey.value = ''
     ready.value = true
+
+    if (import.meta.client) {
+      console.groupCollapsed('[pageStore] setPage')
+      console.log('title:', meta.value.title)
+      console.log('room:', meta.value.room)
+      console.log('dashboardKey:', meta.value.dashboardKey)
+      console.log('dashboardTab:', meta.value.dashboardTab)
+      console.log('path:', currentPage.value?.path)
+      console.log('page:', newPage)
+      console.groupEnd()
+    }
+  }
+
+  function clearPage(): void {
+    page.value = null
+    workspaceCardKey.value = ''
+    ready.value = true
+
+    if (import.meta.client) {
+      console.groupCollapsed('[pageStore] clearPage')
+      console.log('Page cleared because Nuxt Content returned no match.')
+      console.groupEnd()
+    }
   }
 
   function setWorkspaceCardKey(cardKey: string): void {
     workspaceCardKey.value = cardKey
+
+    if (import.meta.client) {
+      console.log('[pageStore] setWorkspaceCardKey', {
+        cardKey,
+      })
+    }
   }
 
   return {
@@ -101,6 +134,7 @@ export const usePageStore = defineStore('pageStore', () => {
     cardsKey,
     workspaceCardKey,
     setPage,
+    clearPage,
     initialize,
     setWorkspaceCardKey,
 

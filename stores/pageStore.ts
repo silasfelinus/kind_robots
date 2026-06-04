@@ -7,7 +7,7 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 export type WorkspaceCardsInput = string | BuilderCard[]
 
-type WorkspacePage = ContentType & {
+export type WorkspacePage = ContentType & {
   cards?: WorkspaceCardsInput
   dashboardKey?: string
   dashboardTab?: string

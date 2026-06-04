@@ -226,11 +226,11 @@ const shellRefreshLabel = computed(() => {
 })
 
 const shellDashboardKey = computed(() => {
-  return pageStore.dashboardKey || ''
+  return pageStore.page?.dashboardKey || ''
 })
 
 const shellActiveTab = computed(() => {
-  return props.activeTab || pageStore.dashboardTab || ''
+  return props.activeTab || pageStore.page?.dashboardTab || ''
 })
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
@@ -517,12 +517,12 @@ function syncFrontMatterTab() {
   if (!import.meta.client) return
 
   const key = resolvedDashboardKey.value
-  const tab = pageStore.dashboardTab
-  const syncKey = `${key || 'none'}:${tab || 'none'}`
+  const fallbackTab = pageStore.page?.dashboardTab || ''
+  const syncKey = `${key || 'none'}:${fallbackTab || 'none'}`
 
   console.log(`${logPrefix} syncFrontMatterTab requested`, {
     key,
-    tab,
+    fallbackTab,
     syncKey,
     lastFrontMatterTabSync: lastFrontMatterTabSync.value,
   })
@@ -532,12 +532,27 @@ function syncFrontMatterTab() {
     return
   }
 
-  if (!key || !tab) {
+  if (!key || !fallbackTab) {
     console.log(
-      `${logPrefix} syncFrontMatterTab skipped, missing page key or tab`,
+      `${logPrefix} syncFrontMatterTab skipped, missing page key or default tab`,
       {
-        pageDashboardKey: pageStore.dashboardKey,
-        pageDashboardTab: pageStore.dashboardTab,
+        pageDashboardKey: pageStore.page?.dashboardKey || '',
+        pageDashboardTab: pageStore.page?.dashboardTab || '',
+      },
+    )
+
+    return
+  }
+
+  const currentTab = navStore.getDashboardTab(key)
+
+  if (currentTab) {
+    console.log(
+      `${logPrefix} syncFrontMatterTab skipped, saved tab already exists`,
+      {
+        key,
+        currentTab,
+        fallbackTab,
       },
     )
 
@@ -553,7 +568,7 @@ function syncFrontMatterTab() {
   }
 
   lastFrontMatterTabSync.value = syncKey
-  setTab(tab, 'page front matter dashboardTab')
+  setTab(fallbackTab, 'page front matter default dashboardTab')
 }
 
 watch(showHeader, (value) => {

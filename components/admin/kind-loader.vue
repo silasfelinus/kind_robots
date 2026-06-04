@@ -82,6 +82,33 @@ function handleOverlayHidden() {
   emitReadyOnce()
 }
 
+// Run a batch of store inits in parallel. allSettled (not all) so one
+// rejecting store never aborts its siblings or the rest of the boot.
+async function runWave(
+  label: string,
+  tasks: Array<Promise<unknown> | void | undefined>,
+): Promise<void> {
+  const promises = tasks.filter(
+    (task): task is Promise<unknown> =>
+      task != null && typeof (task as Promise<unknown>).then === 'function',
+  )
+
+  const results = await Promise.allSettled(promises)
+
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      errorStore.setError(
+        ErrorType.STORE_ERROR,
+        `Store init failed during ${label}: ${
+          result.reason instanceof Error
+            ? result.reason.message
+            : String(result.reason)
+        }`,
+      )
+    }
+  }
+}
+
 async function initializeServerAndCheckpoints() {
   // Servers must fully load before checkpoints can resolve their active server.
   // This is the single place both are initialized — galleries must not re-fetch.
@@ -111,6 +138,10 @@ async function initializeServerAndCheckpoints() {
 
 async function initializeStores() {
   try {
+    // Synchronous, order-independent: only touches the module-level builder
+    // registry. Done first so any builder UI in the first paint has configs.
+    ensureBuildersRegistered()
+
     if (!displayStore.isInitialized) {
       await errorStore.handleError(
         async () => displayStore.initialize(),
@@ -119,32 +150,30 @@ async function initializeStores() {
       )
     }
 
-    // First wave: user identity and UI chrome — everything else depends on these
-    await Promise.all([
+    // First wave: user identity (session-restore from stored token) and UI
+    // chrome. Everything downstream depends on these.
+    await runWave('identity + chrome', [
       userStore.initialize?.(),
       pageStore.initialize?.(),
       navStore.initialize?.(),
       smartbarStore.initialize?.(),
       consoleStore.initialize?.(),
       milestoneStore.initialize?.(),
-      themeStore.initialize({
-        fetchShared: true,
-      }),
-      ensureBuildersRegistered(),
+      themeStore.initialize({ fetchShared: true }),
     ])
 
-    // Servers + checkpoints are sequential: checkpoints need a loaded server array
+    // Servers + checkpoints are sequential: checkpoints need a loaded server array.
     await initializeServerAndCheckpoints()
 
-    // Second wave: content stores that may reference servers but don't block server init
-    await Promise.all([
+    // Second wave: content stores that may reference servers but don't block server init.
+    await runWave('content stores', [
       artStore.initialize?.(),
       botStore.initialize?.(),
       chatStore.initialize?.(),
     ])
 
-    // Third wave: everything else
-    await Promise.all([
+    // Third wave: everything else.
+    await runWave('remaining stores', [
       characterStore.initialize?.(),
       pitchStore.initialize?.(),
       promptStore.initialize?.(),

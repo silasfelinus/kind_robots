@@ -36,12 +36,21 @@ import { computed, watch } from 'vue'
 import { useRoute } from '#app'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
+import { useUserStore } from '@/stores/userStore'
 
 const route = useRoute()
 const pageStore = usePageStore()
 const navStore = useNavStore()
+const userStore = useUserStore()
 
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
+
+// Magic-link / shared-token login from ?token=. Client-only to match the
+// localStorage session-restore model; force overrides the guest init that
+// kind-loader already ran.
+if (import.meta.client && route.query.token && !userStore.user) {
+  await userStore.initialize({ token: String(route.query.token), force: true })
+}
 
 const { data: page, status: contentStatus } = await useAsyncData(
   () => `content-page:${contentPath.value}`,

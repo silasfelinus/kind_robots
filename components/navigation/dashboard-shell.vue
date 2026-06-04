@@ -69,29 +69,14 @@
                 :active-tab="normalizedActiveTab"
                 :active-tab-config="activeTabConfig"
               />
-
-              <ClientOnly>
-                <template #fallback>
-                  <div class="flex items-center gap-1.5">
-                    <div
-                      class="h-8 w-8 rounded-xl border border-base-300 bg-base-200"
-                    />
-                    <div
-                      class="h-8 w-8 rounded-xl border border-base-300 bg-base-200"
-                    />
-                    <div
-                      class="h-8 w-16 rounded-xl border border-base-300 bg-base-200"
-                    />
-                  </div>
-                </template>
-              </ClientOnly>
-
+              <!-- <channel-select /> <server-selector /> <mana-widget /> -->
               <button
                 v-if="showRefresh"
                 class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
                 type="button"
                 :disabled="loading"
                 :title="shellRefreshLabel"
+                @click="emit('refresh')"
               >
                 <Icon
                   name="kind-icon:refresh"
@@ -177,6 +162,7 @@ import { usePageStore } from '@/stores/pageStore'
 
 const fallbackIcon = 'kind-icon:sparkles'
 const storageKey = 'kind-dashboard-shell-show-header'
+const logPrefix = '[dashboard-shell]'
 
 const props = withDefaults(
   defineProps<{
@@ -207,10 +193,17 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  refresh: []
+}>()
+
 const navStore = useNavStore()
 const pageStore = usePageStore()
 
 const showHeader = ref(true)
+const mounted = ref(false)
+const dashboardTabsHydrated = ref(false)
+const lastFrontMatterTabSync = ref('')
 
 const shellTitle = computed(() => {
   return props.title || pageStore.room || pageStore.title || 'Kind Robots'
@@ -238,7 +231,19 @@ const shellActiveTab = computed(() => {
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = shellDashboardKey.value.trim()
-  if (!key || !isDashboardKey(key)) return null
+
+  if (!key) return null
+
+  if (!isDashboardKey(key)) {
+    console.warn(`${logPrefix} Invalid dashboard key`, {
+      key,
+      pageDashboardKey: pageStore.dashboardKey,
+      navDashboardKey: navStore.dashboardShell?.dashboardKey,
+    })
+
+    return null
+  }
+
   return key
 })
 
@@ -250,9 +255,20 @@ const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   }
 
   try {
-    return navStore.getDashboardTabs(key)
+    const tabs = navStore.getDashboardTabs(key)
+
+    if (!Array.isArray(tabs)) {
+      console.warn(`${logPrefix} getDashboardTabs did not return an array`, {
+        key,
+        tabs,
+      })
+
+      return props.tabs
+    }
+
+    return tabs
   } catch (error) {
-    console.error('[dashboard-shell] Failed to resolve dashboard tabs:', error)
+    console.error(`${logPrefix} Failed to resolve dashboard tabs`, error)
     return props.tabs
   }
 })
@@ -267,7 +283,7 @@ const requestedActiveTab = computed(() => {
   try {
     return navStore.getDashboardTab(key) || shellActiveTab.value
   } catch (error) {
-    console.error('[dashboard-shell] Failed to resolve active tab:', error)
+    console.error(`${logPrefix} Failed to resolve active tab`, error)
     return shellActiveTab.value
   }
 })
@@ -328,76 +344,216 @@ const activeSummary = computed(() => {
   return activeTabConfig.value.summary || shellSummary.value
 })
 
-function setTab(tabKey: string) {
+function logState(label: string) {
+  if (!import.meta.client) return
+
+  console.groupCollapsed(`${logPrefix} ${label}`)
+  console.log('mounted:', mounted.value)
+  console.log('dashboardTabsHydrated:', dashboardTabsHydrated.value)
+  console.log('pageStore.dashboardKey:', pageStore.dashboardKey)
+  console.log('pageStore.dashboardTab:', pageStore.dashboardTab)
+  console.log('navStore.dashboardShell:', navStore.dashboardShell)
+  console.log('shellDashboardKey:', shellDashboardKey.value)
+  console.log('resolvedDashboardKey:', resolvedDashboardKey.value)
+  console.log('requestedActiveTab:', requestedActiveTab.value)
+  console.log('normalizedActiveTab:', normalizedActiveTab.value)
+  console.log('resolvedTabs:', resolvedTabs.value)
+  console.groupEnd()
+}
+
+function setTab(tabKey: string, source = 'dashboard-shell tab button') {
   const key = resolvedDashboardKey.value
 
-  if (key) {
-    try {
-      const saved = navStore.setDashboardTab(
+  console.log(`${logPrefix} setTab requested`, {
+    key,
+    tabKey,
+    source,
+    currentTab: key ? navStore.getDashboardTab(key) : '',
+  })
+
+  if (!key) {
+    console.warn(
+      `${logPrefix} setTab skipped because dashboard key is missing`,
+      {
+        tabKey,
+        source,
+      },
+    )
+
+    return
+  }
+
+  try {
+    const currentTab = navStore.getDashboardTab(key)
+
+    if (currentTab === tabKey) {
+      console.log(`${logPrefix} setTab skipped because tab is already active`, {
         key,
         tabKey,
-        'dashboard-shell tab button',
-      )
+        source,
+      })
 
       return
-    } catch (error) {
-      console.error('[dashboard-shell] Failed to set tab:', error)
     }
+
+    navStore.setDashboardTab(key, tabKey, source)
+
+    console.log(`${logPrefix} setTab complete`, {
+      key,
+      tabKey,
+      source,
+      nextTab: navStore.getDashboardTab(key),
+    })
+  } catch (error) {
+    console.error(`${logPrefix} Failed to set tab`, error)
   }
 }
 
 function toggleHeader() {
   showHeader.value = !showHeader.value
+
+  console.log(`${logPrefix} toggleHeader`, {
+    showHeader: showHeader.value,
+  })
 }
 
 function loadHeaderPreference() {
   if (!import.meta.client) return
 
-  const saved = localStorage.getItem(storageKey)
+  console.log(`${logPrefix} loading header preference`)
 
-  if (saved === 'true') {
-    showHeader.value = true
-    return
-  }
+  try {
+    const saved = localStorage.getItem(storageKey)
 
-  if (saved === 'false') {
-    showHeader.value = false
+    console.log(`${logPrefix} header preference value`, {
+      storageKey,
+      saved,
+    })
+
+    if (saved === 'true') {
+      showHeader.value = true
+      return
+    }
+
+    if (saved === 'false') {
+      showHeader.value = false
+    }
+  } catch (error) {
+    console.error(`${logPrefix} Failed to load header preference`, error)
+  } finally {
+    console.log(`${logPrefix} loaded header preference`, {
+      showHeader: showHeader.value,
+    })
   }
 }
 
-watch(showHeader, (value) => {
+function saveHeaderPreference(value: boolean) {
   if (!import.meta.client) return
-  localStorage.setItem(storageKey, String(value))
+
+  try {
+    localStorage.setItem(storageKey, String(value))
+
+    console.log(`${logPrefix} saved header preference`, {
+      storageKey,
+      value,
+    })
+  } catch (error) {
+    console.error(`${logPrefix} Failed to save header preference`, error)
+  }
+}
+
+function hydrateDashboardTabsOnce() {
+  if (!import.meta.client) return
+
+  if (dashboardTabsHydrated.value) {
+    console.log(`${logPrefix} hydrateDashboardTabs skipped, already hydrated`)
+    return
+  }
+
+  console.log(`${logPrefix} hydrating dashboard tabs`)
+
+  try {
+    navStore.hydrateDashboardTabs(true)
+    dashboardTabsHydrated.value = true
+
+    console.log(`${logPrefix} hydrated dashboard tabs`, {
+      dashboardShell: navStore.dashboardShell,
+    })
+  } catch (error) {
+    console.error(`${logPrefix} Failed to hydrate dashboard tabs`, error)
+  }
+}
+
+function syncFrontMatterTab() {
+  if (!import.meta.client) return
+
+  const key = resolvedDashboardKey.value
+  const tab = pageStore.dashboardTab
+  const syncKey = `${key || 'none'}:${tab || 'none'}`
+
+  console.log(`${logPrefix} syncFrontMatterTab requested`, {
+    key,
+    tab,
+    syncKey,
+    lastFrontMatterTabSync: lastFrontMatterTabSync.value,
+  })
+
+  if (!mounted.value) {
+    console.log(`${logPrefix} syncFrontMatterTab skipped before mount`)
+    return
+  }
+
+  if (!key || !tab) {
+    console.log(`${logPrefix} syncFrontMatterTab skipped, missing key or tab`)
+    return
+  }
+
+  if (lastFrontMatterTabSync.value === syncKey) {
+    console.log(`${logPrefix} syncFrontMatterTab skipped, already synced`, {
+      syncKey,
+    })
+
+    return
+  }
+
+  lastFrontMatterTabSync.value = syncKey
+  setTab(tab, 'page front matter dashboardTab')
+}
+
+watch(showHeader, (value) => {
+  saveHeaderPreference(value)
 })
 
 watch(
-  resolvedDashboardKey,
-  (dashboardKey) => {
-    if (!import.meta.client) return
-    if (!dashboardKey) return
-
-    try {
-      navStore.hydrateDashboardTabs(true)
-
-      if (pageStore.dashboardTab) {
-        navStore.setDashboardTab(
-          dashboardKey,
-          pageStore.dashboardTab,
-          'page front matter dashboardTab',
-        )
-      }
-    } catch (error) {
-      console.error(
-        '[dashboard-shell] Failed to hydrate dashboard tabs:',
-        error,
-      )
-    }
+  () => [resolvedDashboardKey.value, pageStore.dashboardTab] as const,
+  () => {
+    syncFrontMatterTab()
   },
-  { immediate: true },
+  { flush: 'post' },
 )
 
 onMounted(() => {
+  mounted.value = true
+
+  console.groupCollapsed(`${logPrefix} mounted`)
+  console.log('props:', props)
+  console.log('pageStore snapshot:', {
+    title: pageStore.title,
+    room: pageStore.room,
+    subtitle: pageStore.subtitle,
+    description: pageStore.description,
+    dashboardKey: pageStore.dashboardKey,
+    dashboardTab: pageStore.dashboardTab,
+    loadingMessage: pageStore.loadingMessage,
+    refreshLabel: pageStore.refreshLabel,
+  })
+  console.log('navStore dashboardShell:', navStore.dashboardShell)
+  console.groupEnd()
+
   loadHeaderPreference()
+  hydrateDashboardTabsOnce()
+  syncFrontMatterTab()
+  logState('mounted state')
 })
 </script>
 

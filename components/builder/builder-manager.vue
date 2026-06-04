@@ -260,12 +260,12 @@ const fallbackSubtitle = computed(() => {
 async function syncBuilder(): Promise<void> {
   await nextTick()
 
-  if (store.registry[activeTab.value]) {
+  if (store.getRegisteredConfig(activeTab.value)) {
     store.setBuilder(activeTab.value)
     return
   }
 
-  if (store.registry[defaultBuilderTab.value]) {
+  if (store.getRegisteredConfig(defaultBuilderTab.value)) {
     store.setBuilder(defaultBuilderTab.value)
   }
 }

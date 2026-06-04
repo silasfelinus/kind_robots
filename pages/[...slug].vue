@@ -6,6 +6,7 @@
     data-slug-page-rendered
   >
     <ContentRenderer :value="page" />
+    page {{ page }}
   </div>
 
   <div

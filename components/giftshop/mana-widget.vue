@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/mana/mana-widget.vue
+// /components/giftshop/mana-widget.vue
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useManaStore } from '@/stores/manaStore'
 import { useUserStore } from '@/stores/userStore'

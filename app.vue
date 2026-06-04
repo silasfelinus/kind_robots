@@ -7,6 +7,8 @@
       <milestone-popup />
     </ClientOnly>
 
+    <kind-loader />
+
     <ClientOnly>
       <div
         v-if="isNavigating"

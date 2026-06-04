@@ -69,9 +69,11 @@
                 :active-tab="normalizedActiveTab"
                 :active-tab-config="activeTabConfig"
               />
+
               <channel-select />
               <server-selector />
               <mana-widget />
+
               <button
                 v-if="showRefresh"
                 class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
@@ -224,7 +226,7 @@ const shellRefreshLabel = computed(() => {
 })
 
 const shellDashboardKey = computed(() => {
-  return pageStore.dashboardKey || navStore.dashboardShell?.dashboardKey || ''
+  return pageStore.dashboardKey || ''
 })
 
 const shellActiveTab = computed(() => {
@@ -237,10 +239,10 @@ const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   if (!key) return null
 
   if (!isDashboardKey(key)) {
-    console.warn(`${logPrefix} Invalid dashboard key`, {
+    console.warn(`${logPrefix} Invalid dashboard key from pageStore`, {
       key,
       pageDashboardKey: pageStore.dashboardKey,
-      navDashboardKey: navStore.dashboardShell?.dashboardKey,
+      pageDashboardTab: pageStore.dashboardTab,
     })
 
     return null
@@ -346,16 +348,20 @@ const activeSummary = computed(() => {
   return activeTabConfig.value.summary || shellSummary.value
 })
 
-function logState(label: string) {
+function logPageDashboardState(label: string) {
   if (!import.meta.client) return
 
   console.groupCollapsed(`${logPrefix} ${label}`)
   console.log('mounted:', mounted.value)
   console.log('dashboardTabsHydrated:', dashboardTabsHydrated.value)
+  console.log('pageStore.title:', pageStore.title)
+  console.log('pageStore.room:', pageStore.room)
+  console.log('pageStore.subtitle:', pageStore.subtitle)
+  console.log('pageStore.description:', pageStore.description)
   console.log('pageStore.dashboardKey:', pageStore.dashboardKey)
   console.log('pageStore.dashboardTab:', pageStore.dashboardTab)
-  console.log('navStore.dashboardShell:', navStore.dashboardShell)
   console.log('shellDashboardKey:', shellDashboardKey.value)
+  console.log('shellActiveTab:', shellActiveTab.value)
   console.log('resolvedDashboardKey:', resolvedDashboardKey.value)
   console.log('requestedActiveTab:', requestedActiveTab.value)
   console.log('normalizedActiveTab:', normalizedActiveTab.value)
@@ -379,6 +385,8 @@ function setTab(tabKey: string, source = 'dashboard-shell tab button') {
       {
         tabKey,
         source,
+        pageDashboardKey: pageStore.dashboardKey,
+        pageDashboardTab: pageStore.dashboardTab,
       },
     )
 
@@ -472,14 +480,33 @@ function hydrateDashboardTabsOnce() {
     return
   }
 
-  console.log(`${logPrefix} hydrating dashboard tabs`)
+  const key = resolvedDashboardKey.value
+
+  if (!key) {
+    console.log(
+      `${logPrefix} hydrateDashboardTabs skipped, no page dashboard key`,
+      {
+        pageDashboardKey: pageStore.dashboardKey,
+        pageDashboardTab: pageStore.dashboardTab,
+      },
+    )
+
+    return
+  }
+
+  console.log(`${logPrefix} hydrating dashboard tabs`, {
+    key,
+    pageDashboardTab: pageStore.dashboardTab,
+  })
 
   try {
     navStore.hydrateDashboardTabs(true)
     dashboardTabsHydrated.value = true
 
     console.log(`${logPrefix} hydrated dashboard tabs`, {
-      dashboardShell: navStore.dashboardShell,
+      key,
+      currentTab: navStore.getDashboardTab(key),
+      pageDashboardTab: pageStore.dashboardTab,
     })
   } catch (error) {
     console.error(`${logPrefix} Failed to hydrate dashboard tabs`, error)
@@ -506,7 +533,14 @@ function syncFrontMatterTab() {
   }
 
   if (!key || !tab) {
-    console.log(`${logPrefix} syncFrontMatterTab skipped, missing key or tab`)
+    console.log(
+      `${logPrefix} syncFrontMatterTab skipped, missing page key or tab`,
+      {
+        pageDashboardKey: pageStore.dashboardKey,
+        pageDashboardTab: pageStore.dashboardTab,
+      },
+    )
+
     return
   }
 
@@ -527,8 +561,10 @@ watch(showHeader, (value) => {
 })
 
 watch(
-  () => [resolvedDashboardKey.value, pageStore.dashboardTab] as const,
+  () => [pageStore.dashboardKey, pageStore.dashboardTab] as const,
   () => {
+    logPageDashboardState('page dashboard changed')
+    hydrateDashboardTabsOnce()
     syncFrontMatterTab()
   },
   { flush: 'post' },
@@ -549,13 +585,12 @@ onMounted(() => {
     loadingMessage: pageStore.loadingMessage,
     refreshLabel: pageStore.refreshLabel,
   })
-  console.log('navStore dashboardShell:', navStore.dashboardShell)
   console.groupEnd()
 
   loadHeaderPreference()
   hydrateDashboardTabsOnce()
   syncFrontMatterTab()
-  logState('mounted state')
+  logPageDashboardState('mounted state')
 })
 </script>
 

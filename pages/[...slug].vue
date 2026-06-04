@@ -40,12 +40,11 @@ import { useChatStore } from '@/stores/chatStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usePageStore } from '@/stores/pageStore'
+import { usePageStore, type WorkspacePage } from '@/stores/pageStore'
 import type {
   displayModeState,
   displayActionState,
 } from '@/stores/displayStore'
-import type { ContentType } from '~/content.config'
 
 const route = useRoute()
 
@@ -60,25 +59,20 @@ const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
 const contentPath = computed(() => {
-  const cleanPath = route.path.replace(/\/$/, '')
-  return cleanPath || '/'
-})
-
-const asyncDataKey = computed(() => {
-  return `content-page:${contentPath.value}`
+  const path = route.path.replace(/\/$/, '')
+  return path || '/'
 })
 
 const {
   data: page,
-  pending: contentPending,
+  status: contentStatus,
   error: contentError,
-  refresh,
 } = await useAsyncData(
-  asyncDataKey.value,
+  () => `content-page:${contentPath.value}`,
   async () => {
     const path = contentPath.value
 
-    console.groupCollapsed('[slug-page] queryCollection')
+    console.groupCollapsed('[slug-page] querying Nuxt Content')
     console.log('route.path:', route.path)
     console.log('route.fullPath:', route.fullPath)
     console.log('contentPath:', path)
@@ -86,9 +80,13 @@ const {
 
     const result = await queryCollection('content').path(path).first()
 
-    console.groupCollapsed('[slug-page] queryCollection result')
+    console.groupCollapsed('[slug-page] Nuxt Content result')
     console.log('contentPath:', path)
     console.log('found:', Boolean(result))
+    console.log('title:', result?.title)
+    console.log('path:', result?.path)
+    console.log('dashboardKey:', result?.dashboardKey)
+    console.log('dashboardTab:', result?.dashboardTab)
     console.log('result:', result)
     console.groupEnd()
 
@@ -100,6 +98,10 @@ const {
   },
 )
 
+const contentPending = computed(() => {
+  return contentStatus.value === 'pending' || contentStatus.value === 'idle'
+})
+
 useSeoMeta({
   title: () => page.value?.title || 'Kind Robots',
   description: () =>
@@ -108,11 +110,12 @@ useSeoMeta({
 })
 
 watch(
-  [page, contentPending, contentError],
-  ([currentPage, pending, error]) => {
-    console.groupCollapsed('[slug-page] page state changed')
+  [page, contentStatus, contentError],
+  ([currentPage, status, error]) => {
+    console.groupCollapsed('[slug-page] page changed')
     console.log('contentPath:', contentPath.value)
-    console.log('pending:', pending)
+    console.log('status:', status)
+    console.log('pending:', contentPending.value)
     console.log('has page:', Boolean(currentPage))
     console.log('page title:', currentPage?.title)
     console.log('page path:', currentPage?.path)
@@ -121,9 +124,9 @@ watch(
     console.log('contentError:', error)
     console.groupEnd()
 
-    if (pending) {
+    if (contentPending.value) {
       console.log(
-        '[slug-page] pageStore update skipped while content is pending',
+        '[slug-page] skipped pageStore update while content is pending',
       )
       return
     }
@@ -137,18 +140,10 @@ watch(
       ...currentPage,
       seo: currentPage.seo ?? {},
       navigation: currentPage.navigation ?? false,
-    } as ContentType)
+    } as WorkspacePage)
   },
   { immediate: true },
 )
-
-watch(contentPath, async () => {
-  console.log('[slug-page] contentPath changed', {
-    contentPath: contentPath.value,
-  })
-
-  await refresh()
-})
 
 watch(
   () => route.query,

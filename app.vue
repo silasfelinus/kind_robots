@@ -16,21 +16,25 @@
       <div
         class="flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-5 text-center shadow-xl"
       >
-        <Icon name="kind-icon:portal" class="h-10 w-10 animate-pulse text-primary" />
+        <Icon
+          name="kind-icon:portal"
+          class="h-10 w-10 animate-pulse text-primary"
+        />
 
         <p class="text-sm font-black uppercase tracking-widest text-primary">
           Loading
         </p>
 
         <p class="text-sm leading-relaxed text-base-content/60">
-          Reality is recompiling. Try not to make eye contact with the stack trace.
+          Reality is recompiling. Try not to make eye contact with the stack
+          trace.
         </p>
       </div>
     </div>
 
-    <safe-shell>
-      <NuxtPage />
-    </safe-shell>
+    <dashboard-shell>
+      <nuxt-page />
+    </dashboard-shell>
   </div>
 </template>
 

@@ -96,7 +96,6 @@
                 type="button"
                 :disabled="loading"
                 :title="shellRefreshLabel"
-                @click="emit('refresh')"
               >
                 <Icon
                   name="kind-icon:refresh"
@@ -211,11 +210,6 @@ const props = withDefaults(
     navGridClass: '',
   },
 )
-
-const emit = defineEmits<{
-  'set-tab': [tab: string]
-  refresh: []
-}>()
 
 const navStore = useNavStore()
 const pageStore = usePageStore()
@@ -348,14 +342,12 @@ function setTab(tabKey: string) {
         tabKey,
         'dashboard-shell tab button',
       )
-      emit('set-tab', saved)
+
       return
     } catch (error) {
       console.error('[dashboard-shell] Failed to set tab:', error)
     }
   }
-
-  emit('set-tab', tabKey)
 }
 
 function toggleHeader() {
@@ -399,7 +391,10 @@ watch(
         )
       }
     } catch (error) {
-      console.error('[dashboard-shell] Failed to hydrate dashboard tabs:', error)
+      console.error(
+        '[dashboard-shell] Failed to hydrate dashboard tabs:',
+        error,
+      )
     }
   },
   { immediate: true },

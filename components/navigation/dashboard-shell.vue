@@ -71,10 +71,6 @@
               />
 
               <ClientOnly>
-                <channel-select />
-                <server-selector />
-                <mana-widget />
-
                 <template #fallback>
                   <div class="flex items-center gap-1.5">
                     <div

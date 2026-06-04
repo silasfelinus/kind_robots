@@ -50,21 +50,6 @@ const contentPath = computed(() => {
   return path || '/'
 })
 
-;async () => {
-  const result = await queryCollection('content')
-    .path(contentPath.value)
-    .first()
-  if (import.meta.server) {
-    console.log(
-      '[SSR] querying',
-      contentPath.value,
-      '→ found:',
-      Boolean(result),
-    )
-  }
-  return result
-}
-
 const { data: page, status: contentStatus } = await useAsyncData(
   () => `content-page:${contentPath.value}`,
   () => queryCollection('content').path(contentPath.value).first(),

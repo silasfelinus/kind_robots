@@ -38,6 +38,7 @@
           class="flex h-full min-h-0 w-full flex-col overflow-hidden"
           data-dashboard-page-slot
         >
+          <workspace-sheet />
           <div
             v-if="showPageSlotDebug"
             class="mb-3 shrink-0 rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-xs font-bold text-info"
@@ -50,6 +51,8 @@
             <NuxtPage />
           </div>
         </section>
+
+        <workspace-hand />
       </template>
     </dashboard-shell>
   </div>

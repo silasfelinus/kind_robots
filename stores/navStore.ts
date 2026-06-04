@@ -230,6 +230,8 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function hydrateDashboardTabsFromLocalStorage(force = false): void {
+    if (dashboardTabsHydrated.value && !force) return
+
     const raw = safeGetLocalStorage(dashboardTabsStorageKey)
     const parsed = safeParseRecord(raw)
     const normalized = normalizeDashboardTabs(parsed)
@@ -239,8 +241,6 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function getDashboardTab(dashboardKey: DashboardKey): string {
-    hydrateDashboardTabsFromLocalStorage()
-
     const config = dashboardConfigs[dashboardKey]
     const current = dashboardTabs.value[dashboardKey]
     const resolved =
@@ -256,8 +256,6 @@ export const useNavStore = defineStore('navStore', () => {
     tabKey: string,
     reason = 'unknown',
   ): string {
-    hydrateDashboardTabsFromLocalStorage()
-
     const previous = dashboardTabs.value[dashboardKey]
     const nextTab = isDashboardTabKey(dashboardKey, tabKey)
       ? tabKey

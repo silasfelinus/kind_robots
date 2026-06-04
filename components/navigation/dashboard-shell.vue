@@ -69,7 +69,9 @@
                 :active-tab="normalizedActiveTab"
                 :active-tab-config="activeTabConfig"
               />
-              <!-- <channel-select /> <server-selector /> <mana-widget /> -->
+              <channel-select />
+              <server-selector />
+              <mana-widget />
               <button
                 v-if="showRefresh"
                 class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"

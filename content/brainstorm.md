@@ -10,7 +10,7 @@ amitip: Hey, Brainstorm's my cousin! Sure his humor is a little dark, but I'm a 
 sort: highlight
 dottitip: Brainstorm is my first robot, even before AMI! He's a little, well, let's just say we love him a lot.
 dashboardKey: brainstorm
-dashboardTab: gallery
+dashboardTab: overview
 cards: pitchCards
 loadingMessage: Loading brainstorm
 refreshLabel: Refresh Brainstorms

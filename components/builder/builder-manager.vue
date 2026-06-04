@@ -137,29 +137,55 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useNavStore } from '@/stores/navStore'
-import { type DashboardKey } from '@/stores/helpers/dashboardHelper'
 import {
-  defaultBuilderStage,
-  isBuilderStageKey,
-  type BuilderStageKey,
-} from '@/stores/seeds/builderSchema'
+  dashboardConfigs,
+  getDashboardTabConfig,
+  isDashboardTabKey,
+  type DashboardTabConfig,
+} from '@/stores/helpers/dashboardHelper'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
+
+type BuilderTabConfig = DashboardTabConfig & {
+  modelType?: string
+  route?: string
+  requiredBeforeNext?: string[]
+}
 
 const store = useBuilderStore()
 const navStore = useNavStore()
 
+const dashboardKey = 'builder'
 const showResetConfirm = ref(false)
 
-const dashboardKey = computed(() => {
-  return navStore.dashboardShell.dashboardKey || 'builder'
+const builderConfig = computed(() => {
+  return dashboardConfigs.builder
 })
 
-const activeTab = computed<BuilderStageKey>(() => {
-  const selectedTab = navStore.getDashboardTab(
-    dashboardKey.value as DashboardKey,
-  )
+const defaultBuilderTab = computed(() => {
+  return builderConfig.value.defaultTab
+})
 
-  return isBuilderStageKey(selectedTab) ? selectedTab : defaultBuilderStage
+const activeTab = computed(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey)
+
+  if (isDashboardTabKey(dashboardKey, selectedTab)) {
+    return selectedTab
+  }
+
+  return defaultBuilderTab.value
+})
+
+const activeTabConfig = computed<BuilderTabConfig>(() => {
+  const tabConfig = getDashboardTabConfig(dashboardKey, activeTab.value)
+
+  return (
+    (tabConfig as BuilderTabConfig | null) ||
+    (getDashboardTabConfig(
+      dashboardKey,
+      defaultBuilderTab.value,
+    ) as BuilderTabConfig | null) ||
+    (builderConfig.value.tabs[0] as BuilderTabConfig)
+  )
 })
 
 const isBuilderActive = computed(() => {
@@ -179,7 +205,7 @@ const showBuilderControls = computed(() => {
 })
 
 const headerIcon = computed(() => {
-  return fallbackIcon.value
+  return activeTabConfig.value.icon || fallbackIcon.value
 })
 
 const fallbackIcon = computed(() => {
@@ -195,6 +221,7 @@ const title = computed(() => {
     sheetTitle ||
     store.activeConfig.title ||
     store.splash.title ||
+    activeTabConfig.value.title ||
     fallbackTitle.value
   )
 })
@@ -210,7 +237,11 @@ const subtitle = computed(() => {
   if (store.allComplete) return 'Ready for final review and interaction.'
 
   return (
-    store.splash.tagline || store.activeConfig.label || fallbackSubtitle.value
+    store.splash.tagline ||
+    store.activeConfig.label ||
+    activeTabConfig.value.summary ||
+    activeTabConfig.value.label ||
+    fallbackSubtitle.value
   )
 })
 
@@ -231,6 +262,11 @@ async function syncBuilder(): Promise<void> {
 
   if (store.registry[activeTab.value]) {
     store.setBuilder(activeTab.value)
+    return
+  }
+
+  if (store.registry[defaultBuilderTab.value]) {
+    store.setBuilder(defaultBuilderTab.value)
   }
 }
 

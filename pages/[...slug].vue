@@ -1,6 +1,10 @@
 <!-- /pages/[...slug].vue -->
 <template>
-  <div v-if="page" class="h-full min-h-0 w-full">
+  <div
+    v-if="page"
+    class="h-full min-h-0 w-full overflow-hidden rounded-2xl border border-success/30 bg-success/5"
+    data-slug-page-rendered
+  >
     <ContentRenderer :value="page" />
   </div>
 

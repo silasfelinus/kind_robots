@@ -33,7 +33,24 @@
     </div>
 
     <dashboard-shell>
-      <nuxt-page />
+      <template #default="{ activeTab, activeTabConfig }">
+        <section
+          class="flex h-full min-h-0 w-full flex-col overflow-hidden"
+          data-dashboard-page-slot
+        >
+          <div
+            v-if="showPageSlotDebug"
+            class="mb-3 shrink-0 rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-xs font-bold text-info"
+          >
+            Page slot mounted · active tab: {{ activeTab || 'none' }} · title:
+            {{ activeTabConfig?.title || activeTabConfig?.label || 'none' }}
+          </div>
+
+          <div class="min-h-0 flex-1 overflow-hidden">
+            <NuxtPage />
+          </div>
+        </section>
+      </template>
     </dashboard-shell>
   </div>
 </template>
@@ -54,6 +71,7 @@ const userStore = useUserStore()
 
 const showLoader = ref(true)
 const isNavigating = ref(false)
+const showPageSlotDebug = ref(true)
 
 function handlePageReady(): void {
   showLoader.value = false

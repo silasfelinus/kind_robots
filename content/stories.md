@@ -9,8 +9,8 @@ tooltip: Share in a multiverse of possibilties.
 sort: highlight
 dottitip: AMI, is the simulation room ready? We've handed visitors a box of story props, but we forgot to tell them what they're for.
 amitip: Perfect! Nothing fuels creativity like vague instructions and existential confusion. Let's see what they do with it!
-dashboardKey: stories
-dashboardTab: stories
+dashboardKey: scenario
+dashboardTab: scenarios
 cards: scenarioCards
 ---
 

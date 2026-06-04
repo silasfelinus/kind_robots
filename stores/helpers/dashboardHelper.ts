@@ -1,25 +1,25 @@
 // /stores/helpers/dashboardHelper.ts
 
-import {
-  builderDashboardTabs,
-  defaultBuilderStage,
-} from '@/stores/seeds/builderSchema'
-import type { DashboardTabConfig } from '@/stores/helpers/builderCards'
+export type DashboardTabConfig = {
+  key: string
+  label: string
+  icon?: string
+  title?: string
+  summary?: string
+  image?: string
+  flourish?: string
+  tagline?: string
+  narrative?: string
+  modelType?: string
+  route?: string
+  requiredBeforeNext?: string[]
+}
 
 export type DashboardConfig = {
   key: string
   label: string
   defaultTab: string
   tabs: DashboardTabConfig[]
-}
-
-const serverStatusTab: DashboardTabConfig = {
-  key: 'status',
-  label: 'Status',
-  icon: 'kind-icon:activity',
-  title: 'Server Status',
-  summary:
-    'Inspect runtime health, refresh server capabilities, change active model settings, and import server resources.',
 }
 
 export const dashboardConfigs = {
@@ -41,7 +41,7 @@ export const dashboardConfigs = {
         label: 'Upload',
         icon: 'kind-icon:save',
         title: 'Upload Art',
-        summary: 'Add an image to our gallery',
+        summary: 'Add an image to our gallery.',
       },
       {
         key: 'gallery',
@@ -63,14 +63,14 @@ export const dashboardConfigs = {
         label: 'Styler',
         icon: 'kind-icon:paintbrush',
         title: 'Art Styler',
-        summary: 'Remix an image into a fresh style',
+        summary: 'Remix an image into a fresh style.',
       },
       {
         key: 'workbench',
         label: 'Workbench',
         icon: 'kind-icon:foundry',
         title: 'Workbench',
-        summary: 'create modular server requests with our special code cards.',
+        summary: 'Create modular server requests with special code cards.',
       },
       {
         key: 'memory-dungeon',
@@ -106,7 +106,7 @@ export const dashboardConfigs = {
         label: 'Bot Builder',
         icon: 'kind-icon:wrench',
         title: 'Bot Builder',
-        summary: 'Build a robot with our easy builder cards!',
+        summary: 'Build a robot with easy builder cards.',
       },
       {
         key: 'interact',
@@ -127,7 +127,7 @@ export const dashboardConfigs = {
         label: 'Composition',
         icon: 'kind-icon:rubik',
         title: 'Composition',
-        summary: 'Compose your own bot endpoint',
+        summary: 'Compose your own bot endpoint.',
       },
     ],
   },
@@ -156,7 +156,7 @@ export const dashboardConfigs = {
         label: 'Builder',
         icon: 'kind-icon:plan',
         title: 'Pitch Builder',
-        summary: 'Build a Pitch using our easy builder cards.',
+        summary: 'Build a pitch using easy builder cards.',
       },
       {
         key: 'prompts',
@@ -179,8 +179,97 @@ export const dashboardConfigs = {
   builder: {
     key: 'builder',
     label: 'Builder',
-    defaultTab: defaultBuilderStage,
-    tabs: builderDashboardTabs,
+    defaultTab: 'user',
+    tabs: [
+      {
+        key: 'user',
+        label: 'User',
+        icon: 'kind-icon:person',
+        title: 'User Builder',
+        summary:
+          'Login or register, pick a designer name, choose an avatar, configure privacy, maturity, and servers.',
+        modelType: 'user',
+        route: '/dashboard',
+        requiredBeforeNext: ['designerName'],
+      },
+      {
+        key: 'pitch',
+        label: 'Pitch',
+        icon: 'kind-icon:idea',
+        title: 'Pitch Builder',
+        summary:
+          'Start with the big-picture idea. A pitch is the seed, not the whole haunted botanical garden.',
+        modelType: 'pitch',
+        route: '/brainstorm',
+        requiredBeforeNext: ['title', 'pitch'],
+      },
+      {
+        key: 'dream',
+        label: 'Dream',
+        icon: 'kind-icon:moon',
+        title: 'Dream Builder',
+        summary:
+          'Evolve the pitch into a richer world with setting, vibe, conflicts, locations, and reusable story fuel.',
+        modelType: 'dream',
+        route: '/dreams',
+        requiredBeforeNext: ['title'],
+      },
+      {
+        key: 'character',
+        label: 'Character',
+        icon: 'kind-icon:mask',
+        title: 'Character Builder',
+        summary:
+          'Create people, creatures, guides, rivals, disasters, and chattable weirdos who can live inside dreams.',
+        modelType: 'character',
+        route: '/characters',
+        requiredBeforeNext: ['name'],
+      },
+      {
+        key: 'bot',
+        label: 'Bots',
+        icon: 'kind-icon:robot-color',
+        title: 'Bot Builder',
+        summary:
+          'Create bot assistants with particular skills, personalities, and mildly suspicious charm.',
+        modelType: 'bot',
+        route: '/bots',
+        requiredBeforeNext: ['name'],
+      },
+      {
+        key: 'reward',
+        label: 'Reward',
+        icon: 'kind-icon:gift',
+        title: 'Reward Builder',
+        summary:
+          'Design loot, powers, skills, secrets, permissions, curses, keys, and other narrative accelerants.',
+        modelType: 'reward',
+        route: '/rewards',
+        requiredBeforeNext: ['title'],
+      },
+      {
+        key: 'scenario',
+        label: 'Scenario',
+        icon: 'kind-icon:map',
+        title: 'Scenario Builder',
+        summary:
+          'Build multiple-choice experiences where users can also invent solutions and let the LLM narrate outcomes.',
+        modelType: 'scenario',
+        route: '/stories',
+        requiredBeforeNext: ['title', 'intro'],
+      },
+      {
+        key: 'art',
+        label: 'Art',
+        icon: 'kind-icon:palette',
+        title: 'Art Builder',
+        summary:
+          'Assemble an image one card at a time: subject, figures, style, the punk mix, setting, mood, and resources.',
+        modelType: 'art',
+        route: '/art',
+        requiredBeforeNext: ['style'],
+      },
+    ],
   },
 
   character: {
@@ -207,14 +296,14 @@ export const dashboardConfigs = {
         label: 'Adventure',
         icon: 'kind-icon:mask',
         title: 'Adventure Creator',
-        summary: 'Create a character with our interactive adventurer',
+        summary: 'Create a character with the interactive adventurer.',
       },
       {
         key: 'stage',
         label: 'Stage',
         icon: 'kind-icon:mask',
         title: 'Stage Performance',
-        summary: 'Create a scene with one or more Performers',
+        summary: 'Create a scene with one or more performers.',
       },
       {
         key: 'scenarios',
@@ -247,15 +336,36 @@ export const dashboardConfigs = {
       },
     ],
   },
+
   composition: {
     key: 'composition',
     label: 'Composition Manager',
     defaultTab: 'overview',
     tabs: [
-      { key: 'overview', label: 'Overview', icon: 'kind-icon:home' },
-      { key: 'gallery', label: 'Gallery', icon: 'kind-icon:grid' },
-      { key: 'add', label: 'New', icon: 'kind-icon:plus' },
-      { key: 'synthesize', label: 'Synthesize', icon: 'kind-icon:wand' },
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:home',
+        title: 'Composition Overview',
+      },
+      {
+        key: 'gallery',
+        label: 'Gallery',
+        icon: 'kind-icon:grid',
+        title: 'Composition Gallery',
+      },
+      {
+        key: 'add',
+        label: 'New',
+        icon: 'kind-icon:plus',
+        title: 'New Composition',
+      },
+      {
+        key: 'synthesize',
+        label: 'Synthesize',
+        icon: 'kind-icon:wand',
+        title: 'Synthesize',
+      },
     ],
   },
 
@@ -284,7 +394,7 @@ export const dashboardConfigs = {
         label: 'Location Builder',
         icon: 'kind-icon:wrench',
         title: 'Location Builder',
-        summary: 'Build a location with our easy builder cards!',
+        summary: 'Build a location with easy builder cards.',
       },
       {
         key: 'prompts',
@@ -315,13 +425,12 @@ export const dashboardConfigs = {
         title: 'Scenario Link',
         summary: 'Optionally ground the dream in a storytelling scenario.',
       },
-
       {
         key: 'add',
         label: 'Add/Edit',
         icon: 'kind-icon:plus',
         title: 'Add/Edit Dreams',
-        summary: 'Add/Edit a dream experience',
+        summary: 'Add or edit a dream experience.',
       },
       {
         key: 'interact',
@@ -332,18 +441,6 @@ export const dashboardConfigs = {
       },
     ],
   },
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // REPLACE the `footer:` block in dashboardConfigs (dashboardHelper.ts) with
-  // this. Same tab keys/order; each now carries the card-deck copy (flourish /
-  // tagline / narrative) lifted from the old navCards so NAV_CARDS derives with
-  // no lost flavor. `image` omitted → deriver falls back to /images/nav/<key>.webp.
-  //
-  // Note: nav cards route by footerRouteMap[key] / footerDashboardMap[key], so
-  // the card's `key` stays the footer key (fx, bot, …). The image fallback is
-  // therefore /images/nav/fx.webp etc. If your art lives at /images/nav/<route>
-  // instead, set `image` explicitly per tab.
-  // ─────────────────────────────────────────────────────────────────────────
 
   footer: {
     key: 'footer',
@@ -447,7 +544,7 @@ export const dashboardConfigs = {
         flourish: '☾',
         tagline: 'Explore imagined places and dreamscapes.',
         narrative:
-          'Coordinate collaborative dreams — prompts, art, collections, and the places your stories happen.',
+          'Coordinate collaborative dreams, prompts, art, collections, and the places your stories happen.',
       },
       {
         key: 'character',
@@ -530,7 +627,7 @@ export const dashboardConfigs = {
         label: 'Mana Purse',
         icon: 'kind-icon:bag',
         title: 'Mana Purse',
-        summary: 'Manage your mana wallet',
+        summary: 'Manage your mana wallet.',
       },
       {
         key: 'sponsor',
@@ -538,7 +635,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:hand-heart',
         title: 'Sponsor the Mission',
         summary:
-          'Support the anti-malaria mission and help AMI turn tiny digital wings into very real-world mosquito-net energy.',
+          'Support the anti-malaria mission and help AMI turn tiny digital wings into real-world mosquito-net energy.',
       },
     ],
   },
@@ -568,7 +665,7 @@ export const dashboardConfigs = {
         label: 'Reward Builder',
         icon: 'kind-icon:gift',
         title: 'Reward Builder',
-        summary: 'Build a reward with our easy builder cards!',
+        summary: 'Build a reward with easy builder cards.',
       },
       {
         key: 'collections',
@@ -578,7 +675,6 @@ export const dashboardConfigs = {
         summary:
           'Organize rewards by story type, item family, or chaos flavor.',
       },
-
       {
         key: 'interact',
         label: 'Generate',
@@ -613,7 +709,7 @@ export const dashboardConfigs = {
         label: 'Scenario Builder',
         icon: 'kind-icon:wrench',
         title: 'Scenario Builder',
-        summary: 'Build a scenario with our easy builder cards!',
+        summary: 'Build a scenario with easy builder cards.',
       },
       {
         key: 'characters',
@@ -629,7 +725,6 @@ export const dashboardConfigs = {
         title: 'Reward Gallery',
         summary: 'Select, add, or edit story powers and plot grenades.',
       },
-
       {
         key: 'interact',
         label: 'Interact',
@@ -772,7 +867,7 @@ export const dashboardConfigs = {
         flourish: '⚔',
         tagline: 'A card-matching crawl with teeth.',
         narrative:
-          'Explore the gamified memory adventure — match the cards, survive the dungeon, see how deep it goes.',
+          'Explore the gamified memory adventure. Match the cards, survive the dungeon, see how deep it goes.',
       },
       {
         key: 'wonder-lab',
@@ -783,7 +878,7 @@ export const dashboardConfigs = {
         flourish: '⚗',
         tagline: 'Experimental toys and delightful nonsense.',
         narrative:
-          'The open sandbox — experimental components, half-finished toys, and the things that exist purely because they were fun to make.',
+          'The open sandbox. Experimental components, half-finished toys, and things that exist purely because they were fun to make.',
       },
       {
         key: 'screen-fx',
@@ -794,7 +889,7 @@ export const dashboardConfigs = {
         flourish: '✦',
         tagline: 'Overlays, butterflies, and visual chaos.',
         narrative:
-          'Control the screen-effect layer — matrix rain, firefly drift, butterflies, and the rest of the ambient theater.',
+          'Control the screen-effect layer, including matrix rain, firefly drift, butterflies, and ambient theater.',
       },
       {
         key: 'chat-test',
@@ -805,7 +900,7 @@ export const dashboardConfigs = {
         flourish: '◈',
         tagline: 'Poke the text engines and watch them stream.',
         narrative:
-          'Test different chat streams and text backends — Claude, OpenAI, Ollama — and watch the tokens arrive.',
+          'Test different chat streams and text backends, then watch the tokens arrive.',
       },
       {
         key: 'art-test',
@@ -816,30 +911,17 @@ export const dashboardConfigs = {
         flourish: '◐',
         tagline: 'Throw prompts at the image generators.',
         narrative:
-          'Test the image generators directly — quick prompts, fast iteration, no ceremony.',
+          'Test image generators directly with quick prompts and fast iteration.',
       },
     ],
   },
 } as const satisfies Record<string, DashboardConfig>
 
-export type DashboardKey =
-  | 'art'
-  | 'bot'
-  | 'brainstorm'
-  | 'builder'
-  | 'user'
-  | 'dream'
-  | 'character'
-  | 'reward'
-  | 'scenario'
-  | 'footer'
-  | 'theme'
-  | 'giftshop'
-  | 'server'
-  | 'wonder'
-  | 'composition'
+export type DashboardKey = keyof typeof dashboardConfigs
 
 export type FooterKey = (typeof dashboardConfigs.footer.tabs)[number]['key']
+
+export const dashboardKeys = Object.keys(dashboardConfigs) as DashboardKey[]
 
 export const footerKeys = dashboardConfigs.footer.tabs.map((tab) => {
   return tab.key
@@ -848,7 +930,7 @@ export const footerKeys = dashboardConfigs.footer.tabs.map((tab) => {
 export const fallbackFooterKey: FooterKey = dashboardConfigs.footer.defaultTab
 
 export const footerRouteMap = {
-  fx: '/butterflies',
+  fx: '/sanctuary',
   bot: '/bots',
   art: '/art',
   scenario: '/stories',
@@ -881,13 +963,31 @@ export function isDashboardKey(value: string): value is DashboardKey {
   return value in dashboardConfigs
 }
 
+export function getDashboardConfig(key: DashboardKey): DashboardConfig {
+  return dashboardConfigs[key]
+}
+
+export function getDashboardTabs(key: DashboardKey): DashboardTabConfig[] {
+  return dashboardConfigs[key].tabs
+}
+
+export function getDashboardDefaultTab(key: DashboardKey): string {
+  return dashboardConfigs[key].defaultTab
+}
+
 export function getDashboardDefaultTabs(): Record<DashboardKey, string> {
   return Object.fromEntries(
-    Object.entries(dashboardConfigs).map(([key, config]) => [
-      key,
-      config.defaultTab,
-    ]),
+    dashboardKeys.map((key) => [key, dashboardConfigs[key].defaultTab]),
   ) as Record<DashboardKey, string>
+}
+
+export function getDashboardTabMap(): Record<DashboardKey, string[]> {
+  return Object.fromEntries(
+    dashboardKeys.map((key) => [
+      key,
+      dashboardConfigs[key].tabs.map((tab) => tab.key),
+    ]),
+  ) as Record<DashboardKey, string[]>
 }
 
 export function isDashboardTabKey(
@@ -895,6 +995,16 @@ export function isDashboardTabKey(
   tabKey: string,
 ): boolean {
   return dashboardConfigs[dashboardKey].tabs.some((tab) => tab.key === tabKey)
+}
+
+export function getDashboardTabConfig(
+  dashboardKey: DashboardKey,
+  tabKey: string,
+): DashboardTabConfig | null {
+  return (
+    dashboardConfigs[dashboardKey].tabs.find((tab) => tab.key === tabKey) ??
+    null
+  )
 }
 
 export function normalizeDashboardTabs(
@@ -913,4 +1023,41 @@ export function normalizeDashboardTabs(
   return normalized
 }
 
-export type { DashboardTabConfig }
+export function validateDashboardPair(
+  dashboardKey: string,
+  dashboardTab: string,
+): {
+  success: boolean
+  message: string
+  dashboardKey: DashboardKey | null
+  dashboardTab: string
+} {
+  if (!isDashboardKey(dashboardKey)) {
+    return {
+      success: false,
+      message: `Invalid dashboardKey "${dashboardKey}". Expected one of: ${dashboardKeys.join(', ')}`,
+      dashboardKey: null,
+      dashboardTab,
+    }
+  }
+
+  if (!isDashboardTabKey(dashboardKey, dashboardTab)) {
+    return {
+      success: false,
+      message: `Invalid dashboardTab "${dashboardTab}" for dashboardKey "${dashboardKey}". Expected one of: ${dashboardConfigs[
+        dashboardKey
+      ].tabs
+        .map((tab) => tab.key)
+        .join(', ')}`,
+      dashboardKey,
+      dashboardTab,
+    }
+  }
+
+  return {
+    success: true,
+    message: 'Dashboard front matter is valid.',
+    dashboardKey,
+    dashboardTab,
+  }
+}

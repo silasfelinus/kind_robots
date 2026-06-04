@@ -34,19 +34,14 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useRoute } from '#app'
+import { useRoute, useRouter } from '#app'
 import { usePageStore } from '@/stores/pageStore'
-import type { ContentType } from '~/content.config'
 
 const route = useRoute()
 const router = useRouter()
-
 const pageStore = usePageStore()
 
-const contentPath = computed(() => {
-  const path = route.path.replace(/\/$/, '')
-  return path || '/'
-})
+const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
 
 const { data: page, status: contentStatus } = await useAsyncData(
   () => `content-page:${contentPath.value}`,
@@ -55,6 +50,15 @@ const { data: page, status: contentStatus } = await useAsyncData(
     default: () => null,
     watch: [contentPath],
   },
+)
+
+// Keep the store in sync with whatever useAsyncData resolves.
+watch(
+  page,
+  (val) => {
+    if (val) pageStore.setPage(val)
+  },
+  { immediate: true },
 )
 
 const contentPending = computed(
@@ -67,22 +71,4 @@ useSeoMeta({
     page.value?.description ||
     'A friendly AI playground for humans and robots.',
 })
-
-const { token: queryToken } = route.query
-
-watch(
-  () => route.fullPath,
-  async (newPath) => {
-    const { data }: { data: Ref<ContentType | null> } = await useAsyncData(
-      newPath,
-      () => queryCollection('content').path(newPath).first(),
-    )
-    if (!data.value) {
-      await router.push('/error')
-    } else {
-      pageStore.setPage(data.value)
-    }
-  },
-  { immediate: true },
-)
 </script>

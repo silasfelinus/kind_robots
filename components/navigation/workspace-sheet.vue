@@ -44,7 +44,7 @@
       <div
         class="overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <div class="relative aspect-3/2 bg-base-300">
+        <div class="relative aspect-[3/2] bg-base-300">
           <img
             v-if="imagePath"
             :src="imagePath"
@@ -79,6 +79,13 @@
             class="mt-1 text-sm leading-relaxed text-base-content/65"
           >
             {{ narrative }}
+          </p>
+
+          <p
+            v-if="showDebugPath"
+            class="mt-2 break-all rounded-xl bg-base-200 px-2 py-1 text-[0.65rem] text-base-content/45"
+          >
+            {{ imagePath || 'No image path resolved' }}
           </p>
         </div>
       </div>
@@ -180,11 +187,19 @@ import { usePageStore } from '@/stores/pageStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
+type ImageCard = BuilderCard & {
+  image?: string
+  imagePath?: string
+  splashImage?: string
+  payload?: Record<string, unknown>
+}
+
 const route = useRoute()
 const builderStore = useBuilderStore()
 const pageStore = usePageStore()
 
 const view = ref<'info' | 'sheet'>('info')
+const showDebugPath = ref(false)
 
 const isBuilder = computed(() => {
   return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0
@@ -272,24 +287,45 @@ const narrative = computed(() => {
 })
 
 const imagePath = computed(() => {
+  const card = activeCard.value as ImageCard | null
+
   if (isBuilder.value) {
     const sheetImage = builderStore.sheet.imagePath
+
     if (typeof sheetImage === 'string' && sheetImage) {
       return normalizeImagePath(sheetImage)
     }
 
     return normalizeImagePath(
-      activeCard.value?.heroImage ||
-        activeCard.value?.deckImage ||
-        builderStore.activeConfig.splash?.imagePath ||
+      firstString([
+        card?.heroImage,
+        card?.deckImage,
+        card?.image,
+        card?.imagePath,
+        card?.splashImage,
+        card?.payload?.heroImage,
+        card?.payload?.deckImage,
+        card?.payload?.image,
+        card?.payload?.imagePath,
+        builderStore.activeConfig.splash?.imagePath,
         pageStore.image,
+      ]),
     )
   }
 
   return normalizeImagePath(
-    activeCard.value?.heroImage ||
-      activeCard.value?.deckImage ||
+    firstString([
+      card?.heroImage,
+      card?.deckImage,
+      card?.image,
+      card?.imagePath,
+      card?.splashImage,
+      card?.payload?.heroImage,
+      card?.payload?.deckImage,
+      card?.payload?.image,
+      card?.payload?.imagePath,
       pageStore.image,
+    ]),
   )
 })
 
@@ -345,9 +381,21 @@ function stringifyValue(value: unknown): string {
   return String(value)
 }
 
+function firstString(values: unknown[]): string {
+  const found = values.find((value) => {
+    return typeof value === 'string' && value.trim().length > 0
+  })
+
+  return typeof found === 'string' ? found : ''
+}
+
 function normalizeImagePath(path: string): string {
-  if (!path) return ''
-  if (path.startsWith('/') || path.startsWith('http')) return path
-  return `/images/${path}`
+  const cleanPath = path.trim()
+
+  if (!cleanPath) return ''
+  if (cleanPath.startsWith('/') || cleanPath.startsWith('http')) return cleanPath
+  if (cleanPath.startsWith('images/')) return `/${cleanPath}`
+
+  return `/images/${cleanPath}`
 }
 </script>

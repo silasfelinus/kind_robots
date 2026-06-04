@@ -13,6 +13,7 @@ const contentSchema = z.object({
   dottitip: z.string().optional(),
   amitip: z.string().optional(),
   artPrompt: z.string().optional(),
+  summary: z.string().optional(),
   sort: z.string().optional(),
   dashboardKey: z.string().optional(),
   dashboardTab: z.string().optional(),
@@ -76,6 +77,7 @@ export type PageBrief = {
   amitip: string
   artPrompt: string
   dashboardKey?: string
+  summary?: string
   dashboardTab?: string
   cards?: string
   loadingMessage?: string

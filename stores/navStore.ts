@@ -19,7 +19,6 @@ import { getModelCards } from '@/stores/helpers/modelCards'
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
 export interface ContentDashboardInput {
-  layout?: string | null
   title?: string | null
   subtitle?: string | null
   description?: string | null
@@ -293,19 +292,18 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function setDashboardShellFromContent(input: ContentDashboardInput): void {
-    const layout = (input.layout ?? '').trim()
-    const enabled = layout === 'workspace'
+    const dashboardKey = inferDashboardKeyFromContent(input)
+    const enabled = dashboardKey !== null
 
     if (!enabled) {
       clearDashboardShell()
       return
     }
 
-    const dashboardKey = inferDashboardKeyFromContent(input)
     const activeTabHint = (input.dashboardTab ?? '').trim() || null
     const cards = (input.cards ?? '').trim() || null
 
-    if (dashboardKey && activeTabHint) {
+    if (activeTabHint) {
       setDashboardTab(dashboardKey, activeTabHint, 'content frontmatter')
     }
 

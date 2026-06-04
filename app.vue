@@ -79,5 +79,10 @@ router.beforeEach((to, from) => {
 
 router.afterEach((to) => {
   navStore.recordVisit(to.fullPath)
+  isNavigating.value = false
+})
+
+router.onError(() => {
+  isNavigating.value = false
 })
 </script>

@@ -59,6 +59,8 @@ const navIconsStorageKey = 'navIcons'
 const navFavoritesStorageKey = 'navFavorites'
 const dashboardTabsStorageKey = 'dashboardTabs'
 const wonderLabFolderStorageKey = 'wonderLabFolder'
+const workspaceSheetOpenStorageKey = 'workspaceSheetOpen'
+const workspaceSheetViewStorageKey = 'workspaceSheetView'
 
 const isClient = typeof window !== 'undefined'
 
@@ -124,11 +126,16 @@ function seededIcons(): SmartIcon[] {
   return normalizeIcons(smartIconSeeds as SmartIcon[])
 }
 
+export type WorkspaceSheetView = 'info' | 'sheet'
+
 export const useNavStore = defineStore('navStore', () => {
   const items = ref<SmartIcon[]>([])
   const favorites = ref<string[]>([])
   const activeTab = ref<NavTab>('navigation')
   const activeModelType = ref<string | null>(null)
+const workspaceSheetOpen = ref(true)
+const workspaceSheetView = ref<WorkspaceSheetView>('info')
+
 
   const isInitialized = ref(false)
   const isInitializing = ref(false)
@@ -334,10 +341,11 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function syncToLocalStorage(): void {
-    syncIconsToLocalStorage()
-    syncFavoritesToLocalStorage()
-    syncWonderLabFolderToLocalStorage()
-  }
+  syncIconsToLocalStorage()
+  syncFavoritesToLocalStorage()
+  syncWonderLabFolderToLocalStorage()
+  syncWorkspaceSheetToLocalStorage()
+}
 
   function hydrateIconsFromLocalStorage(): void {
     const storedIcons = safeParseArray<SmartIcon>(
@@ -360,12 +368,46 @@ export const useNavStore = defineStore('navStore', () => {
       safeGetLocalStorage(wonderLabFolderStorageKey) || null
   }
 
+function hydrateWorkspaceSheetFromLocalStorage(): void {
+  const storedOpen = safeGetLocalStorage(workspaceSheetOpenStorageKey)
+  const storedView = safeGetLocalStorage(workspaceSheetViewStorageKey)
+
+  workspaceSheetOpen.value = storedOpen === null ? true : storedOpen === 'true'
+
+  workspaceSheetView.value =
+    storedView === 'sheet' || storedView === 'info' ? storedView : 'info'
+}
+
+function syncWorkspaceSheetToLocalStorage(): void {
+  safeSetLocalStorage(
+    workspaceSheetOpenStorageKey,
+    String(workspaceSheetOpen.value),
+  )
+
+  safeSetLocalStorage(workspaceSheetViewStorageKey, workspaceSheetView.value)
+}
+
+function setWorkspaceSheetOpen(value: boolean): void {
+  workspaceSheetOpen.value = value
+  syncWorkspaceSheetToLocalStorage()
+}
+
+function toggleWorkspaceSheet(): void {
+  setWorkspaceSheetOpen(!workspaceSheetOpen.value)
+}
+
+function setWorkspaceSheetView(value: WorkspaceSheetView): void {
+  workspaceSheetView.value = value
+  syncWorkspaceSheetToLocalStorage()
+}
+
   function hydrateFromLocalStorage(force = false): void {
-    hydrateIconsFromLocalStorage()
-    hydrateFavoritesFromLocalStorage()
-    hydrateDashboardTabsFromLocalStorage(force)
-    hydrateWonderLabFolderFromLocalStorage()
-  }
+  hydrateIconsFromLocalStorage()
+  hydrateFavoritesFromLocalStorage()
+  hydrateDashboardTabsFromLocalStorage(force)
+  hydrateWonderLabFolderFromLocalStorage()
+  hydrateWorkspaceSheetFromLocalStorage()
+}
 
   function applyIconsFromSmartbar(): void {
     if (smartbarStore.icons.length) {
@@ -670,5 +712,11 @@ export const useNavStore = defineStore('navStore', () => {
     dashboardSummary,
     dashboardCards,
     hasDashboardCards,
+workspaceSheetOpen,
+workspaceSheetView,
+
+setWorkspaceSheetOpen,
+toggleWorkspaceSheet,
+setWorkspaceSheetView,
   }
 })

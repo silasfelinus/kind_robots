@@ -21,94 +21,109 @@
     </ClientOnly>
 
     <main class="h-full min-h-0 w-full overflow-hidden bg-base-200 p-2 sm:p-3">
-  <section
-  class="relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
->
-  <div class="relative flex min-h-0 flex-1 overflow-hidden">
-    <button
-      v-if="!sheetVisible"
-      type="button"
-      class="absolute left-3 top-3 z-40 flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-black uppercase tracking-widest text-primary shadow-md transition-all hover:border-primary hover:bg-primary/10 active:scale-95"
-      title="Show workspace sheet"
-      @click="showSheet"
-    >
-      <Icon name="kind-icon:sidebar-left" class="h-4 w-4" />
-      <span class="hidden sm:inline">Sheet</span>
-    </button>
-
-    <Transition name="workspace-sheet-slide">
-      <aside
-        v-if="sheetVisible"
-        class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-80 shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:relative lg:z-auto lg:shadow-none"
+      <section
+        class="relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <div
-          class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
-        >
-          <div class="flex min-w-0 items-center gap-2">
-            <Icon
-              name="kind-icon:sidebar-left"
-              class="h-4 w-4 text-primary"
-            />
-            <span class="truncate text-sm font-black text-base-content">
-              Workspace Sheet
-            </span>
-          </div>
-
+        <div class="relative flex min-h-0 flex-1 overflow-hidden">
           <button
+            v-if="!sheetVisible"
             type="button"
-            class="btn btn-xs btn-ghost rounded-xl"
-            title="Hide workspace sheet"
-            @click="hideSheet"
+            class="absolute left-3 top-3 z-40 flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-black uppercase tracking-widest text-primary shadow-md transition-all hover:border-primary hover:bg-primary/10 active:scale-95"
+            title="Show workspace sheet"
+            @click="showSheet"
           >
-            <Icon name="kind-icon:close" class="h-4 w-4" />
+            <Icon name="kind-icon:sidebar-left" class="h-4 w-4" />
+            <span class="hidden sm:inline">Sheet</span>
           </button>
-        </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <ClientOnly>
-            <workspace-sheet />
-
-            <template #fallback>
+          <Transition name="workspace-sheet-slide">
+            <aside
+              v-if="sheetVisible"
+              class="absolute inset-y-0 left-0 z-30 flex min-h-0 w-80 shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 shadow-xl lg:relative lg:z-auto lg:shadow-none"
+            >
               <div
-                class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 text-center"
+                class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
               >
-                <Icon name="kind-icon:loading" class="h-8 w-8 text-info" />
-                <p class="text-sm font-bold text-info">Loading sheet...</p>
+                <div class="flex min-w-0 items-center gap-2">
+                  <Icon
+                    name="kind-icon:sidebar-left"
+                    class="h-4 w-4 text-primary"
+                  />
+                  <span class="truncate text-sm font-black text-base-content">
+                    Workspace Sheet
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-xs btn-ghost rounded-xl"
+                  title="Hide workspace sheet"
+                  @click="hideSheet"
+                >
+                  <Icon name="kind-icon:close" class="h-4 w-4" />
+                </button>
               </div>
-            </template>
-          </ClientOnly>
-        </div>
-      </aside>
-    </Transition>
 
-    <section
-      class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
-      :class="!sheetVisible ? 'pt-14 sm:pt-4' : ''"
-    >
-      <NuxtPage />
-    </section>
-  </div>
+              <div
+                class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
+              >
+                <ClientOnly>
+                  <workspace-sheet />
 
-  <section
-    class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
-  >
-    <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
-      <ClientOnly>
-        <workspace-hand />
+                  <template #fallback>
+                    <div
+                      class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 text-center"
+                    >
+                      <Icon
+                        name="kind-icon:loading"
+                        class="h-8 w-8 text-info"
+                      />
+                      <p class="text-sm font-bold text-info">
+                        Loading sheet...
+                      </p>
+                    </div>
+                  </template>
+                </ClientOnly>
+              </div>
+            </aside>
+          </Transition>
 
-        <template #fallback>
-          <div
-            class="flex h-full items-center justify-center rounded-xl border border-base-300 bg-base-200 text-sm font-bold text-base-content/60"
+          <section
+            class="min-h-0 flex-1 overflow-hidden p-3 sm:p-4"
+            :class="!sheetVisible ? 'pt-14 sm:pt-4' : ''"
           >
-            Loading hand...
+            <ClientOnly>
+              <safe-shell>
+                <NuxtPage />
+              </safe-shell>
+
+              <template #fallback>
+                <div class="h-full min-h-0 w-full overflow-y-auto">
+                  <NuxtPage />
+                </div>
+              </template>
+            </ClientOnly>
+          </section>
+        </div>
+
+        <section
+          class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
+        >
+          <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
+            <ClientOnly>
+              <workspace-hand />
+
+              <template #fallback>
+                <div
+                  class="flex h-full items-center justify-center rounded-xl border border-base-300 bg-base-200 text-sm font-bold text-base-content/60"
+                >
+                  Loading hand...
+                </div>
+              </template>
+            </ClientOnly>
           </div>
-        </template>
-      </ClientOnly>
-    </div>
-  </section>
-</section>
-
-
+        </section>
+      </section>
     </main>
   </div>
 </template>

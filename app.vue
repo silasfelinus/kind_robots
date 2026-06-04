@@ -24,24 +24,60 @@
       <section
         class="relative flex h-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <ClientOnly>
-          <dashboard-shell>
-            <NuxtPage />
-          </dashboard-shell>
+        <Transition name="workspace-sheet-slide">
+          <aside
+            v-show="sheetVisible"
+            class="hidden min-h-0 w-80 shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 lg:flex"
+          >
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+              <ClientOnly>
+                <workspace-sheet />
 
-          <template #fallback>
-            <div class="h-full min-h-0 w-full overflow-y-auto p-3 sm:p-4">
-              <NuxtPage />
+                <template #fallback>
+                  <div
+                    class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 text-center"
+                  >
+                    <Icon name="kind-icon:loading" class="h-8 w-8 text-info" />
+                    <p class="text-sm font-bold text-info">Loading sheet...</p>
+                  </div>
+                </template>
+              </ClientOnly>
             </div>
-          </template>
-        </ClientOnly>
+          </aside>
+        </Transition>
+
+        <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <section
+            class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+          >
+            <NuxtPage />
+          </section>
+
+          <section
+            class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
+          >
+            <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
+              <ClientOnly>
+                <workspace-hand />
+
+                <template #fallback>
+                  <div
+                    class="flex h-full items-center justify-center rounded-xl border border-base-300 bg-base-200 text-sm font-bold text-base-content/60"
+                  >
+                    Loading hand...
+                  </div>
+                </template>
+              </ClientOnly>
+            </div>
+          </section>
+        </div>
       </section>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { usePageStore } from '@/stores/pageStore'
@@ -59,6 +95,10 @@ const navStore = useNavStore()
 
 const isNavigating = ref(false)
 const showLoader = ref(true)
+
+const sheetVisible = computed(() => {
+  return ['open', 'compact'].includes(displayStore.sidebarLeftState)
+})
 
 let removeAfter: (() => void) | null = null
 let removeBefore: (() => void) | null = null
@@ -149,3 +189,16 @@ useHead({
   link: [{ rel: 'icon', type: 'image/png', href: '/favicon.ico' }],
 })
 </script>
+
+<style scoped>
+.workspace-sheet-slide-enter-active,
+.workspace-sheet-slide-leave-active {
+  transition: all 180ms ease;
+}
+
+.workspace-sheet-slide-enter-from,
+.workspace-sheet-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-1rem);
+}
+</style>

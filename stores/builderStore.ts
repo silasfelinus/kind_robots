@@ -36,8 +36,6 @@ import {
   selectBuilderChoiceValue,
 } from '@/stores/helpers/builderHelper'
 
-const DEFAULT_BUILDER_KEY = 'default'
-
 function defaultBuilderSheet(): BuilderSheet {
   return {
     name: '',
@@ -53,6 +51,8 @@ function defaultBuilderSheet(): BuilderSheet {
     stats: [],
   }
 }
+
+const DEFAULT_BUILDER_KEY = 'default'
 
 const defaultBuilderConfig: BuilderProjectConfig = {
   key: DEFAULT_BUILDER_KEY,
@@ -85,11 +85,15 @@ const defaultBuilderConfig: BuilderProjectConfig = {
   allowCompletedCardsInDeck: false,
 }
 
-export const useBuilderStore = defineStore('builderStore', () => {
-  const registry = reactive<Record<string, BuilderProjectConfig>>({
-    [DEFAULT_BUILDER_KEY]: defaultBuilderConfig,
-  })
+// Module-level registry. Holds config objects that carry functions
+// (defaultSheet, save, reset), so it must NEVER enter Pinia state —
+// devalue cannot serialize functions for the SSR payload. Server and
+// client each populate this independently via ensureBuildersRegistered().
+const builderRegistry = reactive<Record<string, BuilderProjectConfig>>({
+  [DEFAULT_BUILDER_KEY]: defaultBuilderConfig,
+})
 
+export const useBuilderStore = defineStore('builderStore', () => {
   const activeBuilderKey = ref(DEFAULT_BUILDER_KEY)
   const activeCardKey = ref<string | null>(null)
   const activeStepIndex = ref(0)
@@ -111,7 +115,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
   const statusMessage = ref('')
 
   const activeConfig = computed<BuilderProjectConfig>(() => {
-    return registry[activeBuilderKey.value] ?? defaultBuilderConfig
+    return builderRegistry[activeBuilderKey.value] ?? defaultBuilderConfig
   })
 
   const activeArtConfig = computed(() => {
@@ -270,7 +274,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
   }
 
   function registerBuilder(config: BuilderProjectConfig): void {
-    registry[config.key] = config
+    builderRegistry[config.key] = config
   }
 
   function registerWorkspaceBuilder(input: {
@@ -290,9 +294,9 @@ export const useBuilderStore = defineStore('builderStore', () => {
   }): void {
     if (!input.key || !input.cards.length) return
 
-    const existing = registry[input.key]
+    const existing = builderRegistry[input.key]
 
-    registry[input.key] = {
+    builderRegistry[input.key] = {
       ...defaultBuilderConfig,
       ...existing,
       key: input.key,
@@ -339,8 +343,12 @@ export const useBuilderStore = defineStore('builderStore', () => {
     }
   }
 
+  function getRegisteredConfig(key: string): BuilderProjectConfig | undefined {
+    return builderRegistry[key]
+  }
+
   function setBuilder(builderKey: string, hydrateState = true): void {
-    const nextConfig = registry[builderKey]
+    const nextConfig = builderRegistry[builderKey]
 
     if (!nextConfig) {
       lastError.value = `Builder "${builderKey}" is not registered.`
@@ -782,7 +790,6 @@ export const useBuilderStore = defineStore('builderStore', () => {
   }
 
   return {
-    registry,
     activeBuilderKey,
     activeCardKey,
     activeStepIndex,
@@ -854,5 +861,6 @@ export const useBuilderStore = defineStore('builderStore', () => {
     getUtilityImagePath,
     activeArtConfig,
     registerWorkspaceBuilder,
+    getRegisteredConfig,
   }
 })

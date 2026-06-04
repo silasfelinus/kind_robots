@@ -183,9 +183,11 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
+import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import type { WorkspaceSheetView } from '@/stores/navStore'
 
 type ImageCard = BuilderCard & {
   image?: string
@@ -196,10 +198,15 @@ type ImageCard = BuilderCard & {
 
 const route = useRoute()
 const builderStore = useBuilderStore()
+const navStore = useNavStore()
 const pageStore = usePageStore()
 
-const view = ref<'info' | 'sheet'>('info')
 const showDebugPath = ref(false)
+
+const view = computed<WorkspaceSheetView>({
+  get: () => navStore.workspaceSheetView,
+  set: (value) => navStore.setWorkspaceSheetView(value),
+})
 
 const isBuilder = computed(() => {
   return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0
@@ -355,6 +362,7 @@ const progressPct = computed(() => {
 
 function getCardPath(card: BuilderCard): string {
   const path = card.payload?.path ?? card.payload?.to ?? card.payload?.href
+
   return typeof path === 'string' ? path : ''
 }
 
@@ -393,8 +401,13 @@ function normalizeImagePath(path: string): string {
   const cleanPath = path.trim()
 
   if (!cleanPath) return ''
-  if (cleanPath.startsWith('/') || cleanPath.startsWith('http')) return cleanPath
-  if (cleanPath.startsWith('images/')) return `/${cleanPath}`
+  if (cleanPath.startsWith('/') || cleanPath.startsWith('http')) {
+    return cleanPath
+  }
+
+  if (cleanPath.startsWith('images/')) {
+    return `/${cleanPath}`
+  }
 
   return `/images/${cleanPath}`
 }

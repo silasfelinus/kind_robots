@@ -1,13 +1,13 @@
 // /stores/pageStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { ContentType } from '~/content.config'
+import type { ContentCollectionItem } from '@nuxt/content'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 export type WorkspaceCardsInput = string | BuilderCard[]
 
-export type WorkspacePage = ContentType & {
+export type WorkspacePage = ContentCollectionItem & {
   cards?: WorkspaceCardsInput
   dashboardKey?: string
   dashboardTab?: string
@@ -35,7 +35,7 @@ function isBuilderCardArray(value: unknown): value is BuilderCard[] {
 }
 
 export const usePageStore = defineStore('pageStore', () => {
-  const page = ref<ContentType | null>(null)
+  const page = ref<ContentCollectionItem | null>(null)
   const ready = ref(false)
   const initialized = ref(false)
   const workspaceCardKey = ref('')
@@ -85,7 +85,7 @@ export const usePageStore = defineStore('pageStore', () => {
     }
   }
 
-  function setPage(newPage: ContentType): void {
+  function setPage(newPage: ContentCollectionItem): void {
     page.value = newPage
     workspaceCardKey.value = ''
     ready.value = true

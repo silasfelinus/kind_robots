@@ -1,12 +1,10 @@
 <!-- /pages/[...slug].vue -->
 <template>
   <div
-    v-if="page"
+    v-if="pageStore.page && pageStore.page.body"
     class="h-full min-h-0 w-full overflow-hidden rounded-2xl border border-success/30 bg-success/5"
-    data-slug-page-rendered
   >
-    <ContentRenderer :value="page" />
-    page debug: {{ page }}
+    <ContentRenderer :value="pageStore.page" />
   </div>
 
   <div
@@ -37,13 +35,13 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useRoute } from '#app'
-import { useDisplayStore } from '@/stores/displayStore'
-import { usePageStore, type WorkspacePage } from '@/stores/pageStore'
-import { applyQuerySelections } from '@/stores/helpers/applyQuerySelections'
+import { usePageStore } from '@/stores/pageStore'
+import type { ContentType } from '~/content.config'
 
 const route = useRoute()
+const router = useRouter()
+
 const pageStore = usePageStore()
-const displayStore = useDisplayStore()
 
 const contentPath = computed(() => {
   const path = route.path.replace(/\/$/, '')
@@ -70,28 +68,21 @@ useSeoMeta({
     'A friendly AI playground for humans and robots.',
 })
 
-watch(
-  [page, contentPending],
-  ([currentPage, pending]) => {
-    if (pending) return
+const { token: queryToken } = route.query
 
-    if (!currentPage) {
-      pageStore.clearPage()
-      return
+watch(
+  () => route.fullPath,
+  async (newPath) => {
+    const { data }: { data: Ref<ContentType | null> } = await useAsyncData(
+      newPath,
+      () => queryCollection('content').path(newPath).first(),
+    )
+    if (!data.value) {
+      await router.push('/error')
+    } else {
+      pageStore.setPage(data.value)
     }
-
-    pageStore.setPage({
-      ...currentPage,
-      seo: currentPage.seo ?? {},
-      navigation: currentPage.navigation ?? false,
-    } as WorkspacePage)
   },
-  { immediate: true },
-)
-
-watch(
-  () => route.query,
-  (query) => applyQuerySelections(query, displayStore),
   { immediate: true },
 )
 </script>

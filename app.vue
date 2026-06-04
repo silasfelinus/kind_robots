@@ -79,9 +79,5 @@ router.beforeEach((to, from) => {
 
 router.afterEach((to) => {
   navStore.recordVisit(to.fullPath)
-
-  window.setTimeout(() => {
-    isNavigating.value = false
-  }, 250)
 })
 </script>

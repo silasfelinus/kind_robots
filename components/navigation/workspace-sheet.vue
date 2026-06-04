@@ -1,97 +1,53 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-3 overflow-y-auto">
-    <div
-      v-if="isBuilder"
-      class="grid grid-cols-2 gap-1 rounded-2xl border border-base-300 bg-base-200 p-1"
-    >
-      <button
-        type="button"
-        class="flex items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors"
-        :class="
-          view === 'info'
-            ? 'bg-base-100 text-primary shadow-sm'
-            : 'text-base-content/45 hover:text-base-content/70'
-        "
-        @click="view = 'info'"
-      >
-        <Icon name="kind-icon:info" class="h-3.5 w-3.5" />
-        Info
-      </button>
+    <div class="overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+      <div class="relative aspect-3/2 bg-base-300">
+        <img
+          v-if="imagePath"
+          :src="imagePath"
+          :alt="title"
+          class="h-full w-full object-cover"
+        />
 
-      <button
-        type="button"
-        class="flex items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors"
-        :class="
-          view === 'sheet'
-            ? 'bg-base-100 text-primary shadow-sm'
-            : 'text-base-content/45 hover:text-base-content/70'
-        "
-        @click="view = 'sheet'"
-      >
-        <Icon name="kind-icon:cards" class="h-3.5 w-3.5" />
-        Sheet
-        <span
-          v-if="completedCount"
-          class="rounded-full bg-primary/15 px-1.5 text-[0.6rem] tabular-nums text-primary"
+        <div
+          v-else
+          class="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center"
         >
-          {{ completedCount }}
-        </span>
-      </button>
-    </div>
+          <Icon :name="placeholderIcon" class="h-10 w-10 text-primary/25" />
 
-    <template v-if="!isBuilder || view === 'info'">
-      <div
-        class="overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <div class="relative aspect-[3/2] bg-base-300">
-          <img
-            v-if="imagePath"
-            :src="imagePath"
-            :alt="title"
-            class="h-full w-full object-cover"
-          />
-
-          <div
-            v-else
-            class="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center"
-          >
-            <Icon :name="placeholderIcon" class="h-10 w-10 text-primary/25" />
-            <p class="text-xs italic text-base-content/35">
-              Sheet waiting for its portrait era.
-            </p>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-1 p-4">
-          <p class="font-black leading-tight text-base-content">
-            {{ title }}
-          </p>
-
-          <p
-            class="text-xs font-black uppercase tracking-widest text-primary/70"
-          >
-            {{ label }}
-          </p>
-
-          <p
-            v-if="narrative"
-            class="mt-1 text-sm leading-relaxed text-base-content/65"
-          >
-            {{ narrative }}
-          </p>
-
-          <p
-            v-if="showDebugPath"
-            class="mt-2 break-all rounded-xl bg-base-200 px-2 py-1 text-[0.65rem] text-base-content/45"
-          >
-            {{ imagePath || 'No image path resolved' }}
+          <p class="text-xs italic text-base-content/35">
+            Sheet waiting for its portrait era.
           </p>
         </div>
       </div>
-    </template>
 
-    <template v-else>
+      <div class="flex flex-col gap-1 p-4">
+        <p class="font-black leading-tight text-base-content">
+          {{ title }}
+        </p>
+
+        <p class="text-xs font-black uppercase tracking-widest text-primary/70">
+          {{ label }}
+        </p>
+
+        <p
+          v-if="narrative"
+          class="mt-1 text-sm leading-relaxed text-base-content/65"
+        >
+          {{ narrative }}
+        </p>
+
+        <p
+          v-if="showDebugPath"
+          class="mt-2 break-all rounded-xl bg-base-200 px-2 py-1 text-[0.65rem] text-base-content/45"
+        >
+          {{ imagePath || 'No image path resolved' }}
+        </p>
+      </div>
+    </div>
+
+    <template v-if="isBuilder">
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
         <div class="mb-2 flex items-center justify-between">
           <p
@@ -183,11 +139,9 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
-import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import type { WorkspaceSheetView } from '@/stores/navStore'
 
 type ImageCard = BuilderCard & {
   image?: string
@@ -198,15 +152,9 @@ type ImageCard = BuilderCard & {
 
 const route = useRoute()
 const builderStore = useBuilderStore()
-const navStore = useNavStore()
 const pageStore = usePageStore()
 
 const showDebugPath = ref(false)
-
-const view = computed<WorkspaceSheetView>({
-  get: () => navStore.workspaceSheetView,
-  set: (value) => navStore.setWorkspaceSheetView(value),
-})
 
 const isBuilder = computed(() => {
   return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0

@@ -33,6 +33,7 @@
               <page-image
                 class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-60"
               />
+
               <span
                 class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-content/0 opacity-0 transition-all group-hover:bg-base-content/15 group-hover:opacity-100"
               >
@@ -44,14 +45,16 @@
             </button>
 
             <div class="min-w-0 flex-1 pt-0.5">
-              <p v-if="shellTitle">
+              <p v-if="shellTitle" class="text-sm font-bold text-primary/70">
                 {{ shellTitle }}
               </p>
+
               <h1
                 class="truncate text-xl font-black leading-tight text-base-content sm:text-2xl"
               >
                 {{ activeTitle }}
               </h1>
+
               <p
                 v-if="activeSummary"
                 class="mt-0.5 line-clamp-2 text-sm text-base-content/55"
@@ -153,44 +156,20 @@
       <main
         class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <Transition name="workspace-sheet-slide">
-          <aside
-            v-show="sheetVisible"
-            class="hidden min-h-0 w-80 shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 lg:flex"
-          >
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-              <ClientOnly>
-                <workspace-sheet />
-              </ClientOnly>
-            </div>
-          </aside>
-        </Transition>
-
-        <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <section
-            class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
-          >
-            <slot
-              :active-tab="normalizedActiveTab"
-              :active-tab-config="activeTabConfig"
-              :set-tab="setTab"
-            />
-          </section>
-
-          <section
-            class="shrink-0 overflow-hidden border-t border-base-300 bg-base-100/95 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.06)] backdrop-blur"
-          >
-            <div class="h-28 min-h-28 sm:h-[22dvh] sm:max-h-52">
-              <ClientOnly>
-                <workspace-hand />
-              </ClientOnly>
-            </div>
-          </section>
-        </div>
+        <section
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+        >
+          <slot
+            :active-tab="normalizedActiveTab"
+            :active-tab-config="activeTabConfig"
+            :set-tab="setTab"
+          />
+        </section>
       </main>
     </section>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import {
@@ -198,7 +177,6 @@ import {
   type DashboardKey,
   type DashboardTabConfig,
 } from '@/stores/helpers/dashboardHelper'
-import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
@@ -240,7 +218,6 @@ const emit = defineEmits<{
 }>()
 
 const navStore = useNavStore()
-const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
 const showHeader = ref(true)
@@ -269,10 +246,6 @@ const shellActiveTab = computed(() => {
   return props.activeTab || pageStore.dashboardTab || ''
 })
 
-const sheetVisible = computed(() => {
-  return ['open', 'compact'].includes(displayStore.sidebarLeftState)
-})
-
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = shellDashboardKey.value.trim()
   if (!key || !isDashboardKey(key)) return null
@@ -281,16 +254,32 @@ const resolvedDashboardKey = computed<DashboardKey | null>(() => {
 
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   const key = resolvedDashboardKey.value
-  if (key) return navStore.getDashboardTabs(key)
-  return props.tabs
+
+  if (!key) {
+    return props.tabs
+  }
+
+  try {
+    return navStore.getDashboardTabs(key)
+  } catch (error) {
+    console.error('[dashboard-shell] Failed to resolve dashboard tabs:', error)
+    return props.tabs
+  }
 })
 
 const requestedActiveTab = computed(() => {
   const key = resolvedDashboardKey.value
-  if (key) {
-    return navStore.getDashboardTab(key) || shellActiveTab.value
+
+  if (!key) {
+    return shellActiveTab.value
   }
-  return shellActiveTab.value
+
+  try {
+    return navStore.getDashboardTab(key) || shellActiveTab.value
+  } catch (error) {
+    console.error('[dashboard-shell] Failed to resolve active tab:', error)
+    return shellActiveTab.value
+  }
 })
 
 const resolvedNavGridClass = computed(() => {
@@ -316,7 +305,10 @@ const activeTabConfig = computed<DashboardTabConfig>(() => {
 
   if (requested) {
     const matched = resolvedTabs.value.find((tab) => tab.key === requested)
-    if (matched) return matched
+
+    if (matched) {
+      return matched
+    }
 
     return {
       key: requested,
@@ -350,13 +342,17 @@ function setTab(tabKey: string) {
   const key = resolvedDashboardKey.value
 
   if (key) {
-    const saved = navStore.setDashboardTab(
-      key,
-      tabKey,
-      'dashboard-shell tab button',
-    )
-    emit('set-tab', saved)
-    return
+    try {
+      const saved = navStore.setDashboardTab(
+        key,
+        tabKey,
+        'dashboard-shell tab button',
+      )
+      emit('set-tab', saved)
+      return
+    } catch (error) {
+      console.error('[dashboard-shell] Failed to set tab:', error)
+    }
   }
 
   emit('set-tab', tabKey)
@@ -385,20 +381,25 @@ watch(showHeader, (value) => {
   if (!import.meta.client) return
   localStorage.setItem(storageKey, String(value))
 })
+
 watch(
   resolvedDashboardKey,
   (dashboardKey) => {
     if (!import.meta.client) return
     if (!dashboardKey) return
 
-    navStore.hydrateDashboardTabs(true)
+    try {
+      navStore.hydrateDashboardTabs(true)
 
-    if (pageStore.dashboardTab) {
-      navStore.setDashboardTab(
-        dashboardKey,
-        pageStore.dashboardTab,
-        'page front matter dashboardTab',
-      )
+      if (pageStore.dashboardTab) {
+        navStore.setDashboardTab(
+          dashboardKey,
+          pageStore.dashboardTab,
+          'page front matter dashboardTab',
+        )
+      }
+    } catch (error) {
+      console.error('[dashboard-shell] Failed to hydrate dashboard tabs:', error)
     }
   },
   { immediate: true },
@@ -410,14 +411,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.workspace-sheet-slide-enter-active,
-.workspace-sheet-slide-leave-active {
-  transition: all 180ms ease;
+.fade-up-enter-active,
+.fade-up-leave-active {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
-.workspace-sheet-slide-enter-from,
-.workspace-sheet-slide-leave-to {
+.fade-up-enter-from,
+.fade-up-leave-to {
   opacity: 0;
-  transform: translateX(-1rem);
+  transform: translateY(-0.25rem);
 }
 </style>

@@ -56,18 +56,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDisplayStore } from '@/stores/displayStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useNavStore } from '@/stores/navStore'
-import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
-const displayStore = useDisplayStore()
-const milestoneStore = useMilestoneStore()
 const navStore = useNavStore()
-const userStore = useUserStore()
 
 const showLoader = ref(true)
 const isNavigating = ref(false)
@@ -89,23 +83,5 @@ router.afterEach((to) => {
   window.setTimeout(() => {
     isNavigating.value = false
   }, 250)
-})
-
-onMounted(async () => {
-  try {
-    displayStore.initialize?.()
-    await userStore.initialize?.()
-    await navStore.initialize?.()
-
-    if (userStore.user?.id && userStore.user.id !== 10) {
-      await milestoneStore.initialize?.()
-    }
-  } catch (error) {
-    console.error('App initialization failed:', error)
-  } finally {
-    window.setTimeout(() => {
-      showLoader.value = false
-    }, 1200)
-  }
 })
 </script>

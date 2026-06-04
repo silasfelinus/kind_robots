@@ -25,7 +25,7 @@
     <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
     <p class="text-base font-bold text-warning">Page not found</p>
     <p class="max-w-xl text-sm text-base-content/60">
-      No Nuxt Content page was found for {{ contentPath }}.
+      No Nuxt Content page was found for {{ contentPath }} - {{ page }}.
     </p>
   </div>
 

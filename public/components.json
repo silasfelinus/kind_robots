@@ -206,8 +206,9 @@
       "dashboard-shell",
       "navigation-trimmed",
       "page-image",
-      "workshpace-sheet",
-      "workspace-hand"
+      "safe-shell",
+      "workspace-hand",
+      "workspace-sheet"
     ]
   },
   {

@@ -162,12 +162,22 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!canReadArtImage(data, access)) {
+      const reason =
+        !access.showMature && data.isMature
+          ? 'it is marked mature and your request did not opt in to mature content'
+          : !data.isPublic && !access.isAuthenticated
+            ? 'it is private and the request is unauthenticated'
+            : !data.isPublic
+              ? 'it is private and belongs to another user'
+              : 'access was denied'
+
       throw createError({
         statusCode: 403,
-        message: 'You are not allowed to view this art image.',
+        message: `You are not allowed to view ArtImage #${id} (requestedBy userId: ${
+          access.userId ?? 'anonymous'
+        }, isAdmin: ${access.isAdmin}, showMature: ${access.showMature}). Reason: ${reason}.`,
       })
     }
-
     event.node.res.statusCode = 200
 
     return {

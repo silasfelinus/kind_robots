@@ -66,7 +66,7 @@
         <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <div class="flex flex-wrap items-center justify-center gap-3">
             <jellybean-icon />
-            <theme-toggle class="flex flex-row" />
+            <theme-icon class="flex flex-row" />
           </div>
         </div>
 

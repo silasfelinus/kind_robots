@@ -22,7 +22,7 @@ export default defineNuxtConfig({
       chunkSizeWarningLimit: 500,
     },
     optimizeDeps: {
-      include: ['vue', 'vue-router'],
+      include: ['vue', 'vue-router', 'canvas-confetti', 'open-simplex-noise'],
     },
   },
 

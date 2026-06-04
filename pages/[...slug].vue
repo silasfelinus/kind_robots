@@ -5,6 +5,17 @@
   </div>
 
   <div
+    v-else-if="contentPending"
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+  >
+    <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
+    <p class="text-base font-bold text-info">Loading page…</p>
+    <p class="max-w-xl text-sm text-base-content/60">
+      Looking for {{ contentPath }}
+    </p>
+  </div>
+
+  <div
     v-else
     class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
   >
@@ -49,29 +60,34 @@ const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 
 const contentPath = computed(() => {
-  if (route.path === '/') return '/'
-  return route.path.replace(/\/$/, '')
+  const cleanPath = route.path.replace(/\/$/, '')
+  return cleanPath || '/'
 })
 
-const contentKey = computed(() => {
+const asyncDataKey = computed(() => {
   return `content-page:${contentPath.value}`
 })
 
-const { data: page, error: pageError } = await useAsyncData(
-  contentKey,
+const {
+  data: page,
+  pending: contentPending,
+  error: contentError,
+  refresh,
+} = await useAsyncData(
+  asyncDataKey.value,
   async () => {
-    console.groupCollapsed('[slug-page] querying Nuxt Content')
+    const path = contentPath.value
+
+    console.groupCollapsed('[slug-page] queryCollection')
     console.log('route.path:', route.path)
     console.log('route.fullPath:', route.fullPath)
-    console.log('contentPath:', contentPath.value)
+    console.log('contentPath:', path)
     console.groupEnd()
 
-    const result = await queryCollection('content')
-      .path(contentPath.value)
-      .first()
+    const result = await queryCollection('content').path(path).first()
 
-    console.groupCollapsed('[slug-page] Nuxt Content result')
-    console.log('contentPath:', contentPath.value)
+    console.groupCollapsed('[slug-page] queryCollection result')
+    console.log('contentPath:', path)
     console.log('found:', Boolean(result))
     console.log('result:', result)
     console.groupEnd()
@@ -79,6 +95,7 @@ const { data: page, error: pageError } = await useAsyncData(
     return result
   },
   {
+    default: () => null,
     watch: [contentPath],
   },
 )
@@ -91,16 +108,25 @@ useSeoMeta({
 })
 
 watch(
-  page,
-  (currentPage) => {
-    console.groupCollapsed('[slug-page] page changed')
+  [page, contentPending, contentError],
+  ([currentPage, pending, error]) => {
+    console.groupCollapsed('[slug-page] page state changed')
     console.log('contentPath:', contentPath.value)
+    console.log('pending:', pending)
     console.log('has page:', Boolean(currentPage))
     console.log('page title:', currentPage?.title)
+    console.log('page path:', currentPage?.path)
     console.log('page dashboardKey:', currentPage?.dashboardKey)
     console.log('page dashboardTab:', currentPage?.dashboardTab)
-    console.log('page error:', pageError.value)
+    console.log('contentError:', error)
     console.groupEnd()
+
+    if (pending) {
+      console.log(
+        '[slug-page] pageStore update skipped while content is pending',
+      )
+      return
+    }
 
     if (!currentPage) {
       pageStore.clearPage()
@@ -115,6 +141,14 @@ watch(
   },
   { immediate: true },
 )
+
+watch(contentPath, async () => {
+  console.log('[slug-page] contentPath changed', {
+    contentPath: contentPath.value,
+  })
+
+  await refresh()
+})
 
 watch(
   () => route.query,

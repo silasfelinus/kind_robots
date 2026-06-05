@@ -12,18 +12,6 @@
     <animation-layer />
     <milestone-popup />
 
-    <button
-      v-if="!showWorkspaceSheet"
-      type="button"
-      class="btn btn-primary btn-sm fixed left-3 top-3 z-45 shadow-xl md:top-[calc(var(--header-h,3.5rem)+0.75rem)]"
-      aria-label="Open workspace"
-      :aria-expanded="showWorkspaceSheet"
-      @click="navStore.openWorkspaceSheet()"
-    >
-      <Icon name="kind-icon:panel-left" class="h-4 w-4" />
-      <span class="hidden sm:inline">Workspace</span>
-    </button>
-
     <div
       v-if="isNavigating"
       class="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-base-100/70 backdrop-blur-sm"
@@ -50,9 +38,20 @@
     <dashboard-shell>
       <template #default>
         <section
-          class="flex h-full min-h-0 w-full flex-col overflow-hidden"
+          class="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
           data-dashboard-page-slot
         >
+          <button
+            v-if="!showWorkspaceSheet"
+            type="button"
+            class="btn btn-primary btn-xs btn-square absolute left-3 top-2 z-40 shadow-lg"
+            aria-label="Open workspace"
+            :aria-expanded="showWorkspaceSheet"
+            @click="navStore.openWorkspaceSheet()"
+          >
+            <Icon name="kind-icon:panel-left" class="h-4 w-4" />
+          </button>
+
           <div
             class="flex min-h-0 flex-1 overflow-hidden pb-(--hand-h,11.5rem) md:flex-row md:gap-3"
           >

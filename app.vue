@@ -39,38 +39,54 @@
           data-dashboard-page-slot
         >
           <div
-            v-if="showPageSlotDebug"
-            class="mb-3 shrink-0 rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-xs font-bold text-info"
-          >
-            Page slot mounted · active tab: {{ activeTab || 'none' }} · title:
-            {{ activeTabConfig?.title || activeTabConfig?.label || 'none' }}
-            Page title: {{ pageStore.page?.title || 'none' }}
-            Path: {{ contentPath }}
-            Loading: {{ pageStore.isLoading ? 'yes' : 'no' }}
-          </div>
-
-          <div
-            class="flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
+            class="flex min-h-0 flex-1 overflow-hidden pb-(--hand-h,4rem) md:flex-row md:gap-3"
           >
             <aside
               v-show="showWorkspaceSheet"
-              class="h-full min-h-0 w-full shrink-0 overflow-hidden md:block md:max-w-[50%] md:basis-1/2 lg:max-w-[33.333333%] lg:basis-1/3 xl:max-w-[25%] xl:basis-1/4"
+              class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
             >
-              <workspace-sheet />
+              <div
+                class="flex shrink-0 items-center justify-between border-b border-base-300 px-3 py-2"
+              >
+                <span
+                  class="text-xs font-black uppercase tracking-widest text-primary"
+                  >Workspace</span
+                >
+                <button
+                  class="btn btn-ghost btn-xs"
+                  aria-label="Close workspace"
+                  @click="navStore.closeWorkspaceSheet()"
+                >
+                  <Icon name="kind-icon:close" class="h-4 w-4" />
+                  <span class="md:hidden">Back to page</span>
+                </button>
+              </div>
+              <div class="min-h-0 flex-1 overflow-y-auto">
+                <workspace-sheet />
+              </div>
             </aside>
 
             <main
               v-show="showWorkspacePage"
-              class="h-full min-h-0 w-full flex-1 overflow-hidden md:block"
+              class="relative h-full min-h-0 flex-1 overflow-y-auto"
+              :class="showWorkspaceSheet ? 'hidden md:block' : 'block'"
             >
+              <button
+                v-show="!showWorkspaceSheet"
+                class="btn btn-primary btn-sm fixed left-3 top-[calc(var(--header-h,3.5rem)+0.5rem)] z-20"
+                aria-label="Open workspace"
+                @click="navStore.toggleWorkspaceSheet()"
+              >
+                <Icon name="kind-icon:panel-left" class="h-4 w-4" />
+              </button>
               <NuxtPage />
             </main>
           </div>
         </section>
-
-        <workspace-hand />
       </template>
     </dashboard-shell>
+
+    <workspace-hand class="fixed inset-x-0 bottom-0 z-30 h-(--hand-h,4rem)" />
   </div>
 </template>
 
@@ -100,27 +116,27 @@ const userStore = useUserStore()
 
 const showLoader = ref(true)
 const isNavigating = ref(false)
-const showPageSlotDebug = ref(true)
 
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
 
-const navState = computed(() => navStore as unknown as NavStoreWithWorkspaceSheet)
+const navState = computed(
+  () => navStore as unknown as NavStoreWithWorkspaceSheet,
+)
 
 const mobileSheetOpen = computed(() => {
   return Boolean(
     navState.value.workspaceSheetOpen ??
-      navState.value.sheetVisible ??
-      navState.value.showWorkspaceSheet ??
-      navState.value.dashboardShell?.workspaceSheetOpen ??
-      navState.value.dashboardShell?.sheetVisible ??
-      navState.value.dashboardShell?.showWorkspaceSheet ??
-      false,
+    navState.value.sheetVisible ??
+    navState.value.showWorkspaceSheet ??
+    navState.value.dashboardShell?.workspaceSheetOpen ??
+    navState.value.dashboardShell?.sheetVisible ??
+    navState.value.dashboardShell?.showWorkspaceSheet ??
+    false,
   )
 })
 
 const showWorkspaceSheet = computed(() => navStore.workspaceSheetOpen)
 const showWorkspacePage = computed(() => !navStore.workspaceSheetOpen)
-
 
 if (import.meta.client && route.query.token && !userStore.user) {
   await userStore.initialize({ token: String(route.query.token), force: true })

@@ -302,7 +302,10 @@ export const useNavStore = defineStore('navStore', () => {
     const parsed = safeParseRecord(raw)
     const normalized = normalizeDashboardTabs(parsed)
     const fallbackKey = getFallbackDashboardKey()
-    const fallbackTab = resolveDashboardTab(fallbackKey, normalized[fallbackKey])
+    const fallbackTab = resolveDashboardTab(
+      fallbackKey,
+      normalized[fallbackKey],
+    )
 
     dashboardTabs.value = {
       ...getDashboardDefaultTabs(),
@@ -685,8 +688,11 @@ export const useNavStore = defineStore('navStore', () => {
     syncWorkspaceSheetOpenToLocalStorage()
   }
 
-  function toggleWorkspaceSheet(): void {
-    setWorkspaceSheetOpen(!workspaceSheetOpen.value)
+  function closeWorkspaceSheet() {
+    workspaceSheetOpen.value = false
+  }
+  function toggleWorkspaceSheet() {
+    workspaceSheetOpen.value = !workspaceSheetOpen.value
   }
 
   function showWorkspaceSheet(): void {
@@ -772,5 +778,6 @@ export const useNavStore = defineStore('navStore', () => {
     dashboardSummary,
     dashboardCards,
     hasDashboardCards,
+    closeWorkspaceSheet,
   }
 })

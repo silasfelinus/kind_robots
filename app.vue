@@ -118,13 +118,9 @@ const mobileSheetOpen = computed(() => {
   )
 })
 
-const showWorkspaceSheet = computed(() => {
-  return mobileSheetOpen.value
-})
+const showWorkspaceSheet = computed(() => navStore.workspaceSheetOpen)
+const showWorkspacePage = computed(() => !navStore.workspaceSheetOpen)
 
-const showWorkspacePage = computed(() => {
-  return !mobileSheetOpen.value
-})
 
 if (import.meta.client && route.query.token && !userStore.user) {
   await userStore.initialize({ token: String(route.query.token), force: true })

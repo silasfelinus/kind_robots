@@ -7,7 +7,7 @@
   </div>
 
   <div
-    v-else-if="contentPending"
+    v-else-if="pageStore.isLoading"
     class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
   >
     <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
@@ -36,29 +36,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from '#app'
 import { usePageStore } from '@/stores/pageStore'
 
 const route = useRoute()
 const pageStore = usePageStore()
 
-const hasMountedRoute = ref(false)
-
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
-
-watch(
-  contentPath,
-  () => {
-    hasMountedRoute.value = false
-    requestAnimationFrame(() => {
-      hasMountedRoute.value = true
-    })
-  },
-  { immediate: true },
-)
-
-const contentPending = computed(() => {
-  return !hasMountedRoute.value && !pageStore.page
-})
 </script>

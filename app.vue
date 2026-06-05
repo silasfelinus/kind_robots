@@ -1,4 +1,3 @@
-<!-- /app.vue -->
 <template>
   <div class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100">
     <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
@@ -39,13 +38,15 @@
           data-dashboard-page-slot
         >
           <workspace-sheet />
+
           <div
             v-if="showPageSlotDebug"
             class="mb-3 shrink-0 rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-xs font-bold text-info"
           >
             Page slot mounted · active tab: {{ activeTab || 'none' }} · title:
             {{ activeTabConfig?.title || activeTabConfig?.label || 'none' }}
-            Page: {{ page }}
+            Page title: {{ pageStore.page?.title || 'none' }}
+            Path: {{ contentPath }}
           </div>
 
           <div class="min-h-0 flex-1 overflow-hidden">
@@ -60,26 +61,60 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from '#app'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
-const pageStore = usePageStore()
-
-const router = useRouter()
-const navStore = useNavStore()
+import { useUserStore } from '@/stores/userStore'
 
 const route = useRoute()
-
-const { data: page } = await useAsyncData(
-  () => `app-content:${route.path}`,
-  () => queryCollection('content').path(route.path).first(),
-  { watch: [() => route.path] },
-)
+const router = useRouter()
+const navStore = useNavStore()
+const pageStore = usePageStore()
+const userStore = useUserStore()
 
 const showLoader = ref(true)
 const isNavigating = ref(false)
 const showPageSlotDebug = ref(true)
+
+const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
+
+if (import.meta.client && route.query.token && !userStore.user) {
+  await userStore.initialize({ token: String(route.query.token), force: true })
+}
+
+const { data: page } = await useAsyncData(
+  'current-content-page',
+  () => queryCollection('content').path(contentPath.value).first(),
+  {
+    default: () => null,
+    watch: [contentPath],
+  },
+)
+
+watch(
+  contentPath,
+  () => {
+    pageStore.clearPage()
+    navStore.clearDashboardShell()
+  },
+  { flush: 'sync' },
+)
+
+watch(
+  page,
+  (val) => {
+    if (val) {
+      pageStore.setPage(val)
+      navStore.setDashboardShellFromContent(val)
+      return
+    }
+
+    pageStore.clearPage()
+    navStore.clearDashboardShell()
+  },
+  { immediate: true },
+)
 
 function handlePageReady(): void {
   showLoader.value = false
@@ -88,6 +123,8 @@ function handlePageReady(): void {
 router.beforeEach((to, from) => {
   if (to.fullPath !== from.fullPath) {
     isNavigating.value = true
+    pageStore.clearPage()
+    navStore.clearDashboardShell()
   }
 })
 
@@ -98,5 +135,12 @@ router.afterEach((to) => {
 
 router.onError(() => {
   isNavigating.value = false
+})
+
+useSeoMeta({
+  title: () => page.value?.title || 'Kind Robots',
+  description: () =>
+    page.value?.description ||
+    'A friendly AI playground for humans and robots.',
 })
 </script>

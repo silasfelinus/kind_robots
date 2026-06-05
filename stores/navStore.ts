@@ -32,8 +32,8 @@ export interface ContentDashboardInput {
 
 export interface DashboardShellState {
   enabled: boolean
-  dashboardKey: DashboardKey | null
-  activeTabHint: string | null
+  dashboardKey: DashboardKey
+  activeTabHint: string
   cards: string | null
   title: string
   summary: string
@@ -41,11 +41,58 @@ export interface DashboardShellState {
   refreshLabel: string
 }
 
+const fallbackDashboardKey = 'user'
+const fallbackDashboardTab = 'dashboard'
+
+function getFallbackDashboardKey(): DashboardKey {
+  if (fallbackDashboardKey in dashboardConfigs) {
+    return fallbackDashboardKey as DashboardKey
+  }
+
+  const firstKey = Object.keys(dashboardConfigs)[0]
+
+  return firstKey as DashboardKey
+}
+
+function getFallbackDashboardTab(dashboardKey: DashboardKey): string {
+  if (isDashboardTabKey(dashboardKey, fallbackDashboardTab)) {
+    return fallbackDashboardTab
+  }
+
+  return dashboardConfigs[dashboardKey].defaultTab
+}
+
+function resolveDashboardKey(value?: string | null): DashboardKey {
+  const normalized = (value ?? '').trim()
+
+  if (normalized && normalized in dashboardConfigs) {
+    return normalized as DashboardKey
+  }
+
+  return getFallbackDashboardKey()
+}
+
+function resolveDashboardTab(
+  dashboardKey: DashboardKey,
+  value?: string | null,
+): string {
+  const normalized = (value ?? '').trim()
+
+  if (normalized && isDashboardTabKey(dashboardKey, normalized)) {
+    return normalized
+  }
+
+  return getFallbackDashboardTab(dashboardKey)
+}
+
 function defaultDashboardShellState(): DashboardShellState {
+  const dashboardKey = getFallbackDashboardKey()
+  const activeTabHint = getFallbackDashboardTab(dashboardKey)
+
   return {
-    enabled: false,
-    dashboardKey: null,
-    activeTabHint: null,
+    enabled: true,
+    dashboardKey,
+    activeTabHint,
     cards: null,
     title: 'Dashboard',
     summary: '',
@@ -58,6 +105,7 @@ const navIconsStorageKey = 'navIcons'
 const navFavoritesStorageKey = 'navFavorites'
 const dashboardTabsStorageKey = 'dashboardTabs'
 const wonderLabFolderStorageKey = 'wonderLabFolder'
+const workspaceSheetOpenStorageKey = 'workspaceSheetOpen'
 
 const isClient = typeof window !== 'undefined'
 
@@ -108,6 +156,13 @@ function safeParseRecord(raw: string | null): Record<string, string> {
   }
 }
 
+function safeParseBoolean(raw: string | null, fallback = false): boolean {
+  if (raw === 'true') return true
+  if (raw === 'false') return false
+
+  return fallback
+}
+
 function normalizeIcon(icon: SmartIcon): SmartIcon {
   return {
     ...icon,
@@ -136,13 +191,17 @@ export const useNavStore = defineStore('navStore', () => {
   const initializePromise = ref<Promise<void> | null>(null)
 
   const dashboardShell = ref<DashboardShellState>(defaultDashboardShellState())
+  const workspaceSheetOpen = ref(false)
 
   const routeHistory = ref<string[]>([])
   const currentIndex = ref(-1)
 
-  const dashboardTabs = ref<Record<DashboardKey, string>>(
-    getDashboardDefaultTabs(),
-  )
+  const dashboardTabs = ref<Record<DashboardKey, string>>({
+    ...getDashboardDefaultTabs(),
+    [getFallbackDashboardKey()]: getFallbackDashboardTab(
+      getFallbackDashboardKey(),
+    ),
+  })
 
   const dashboardTabsHydrated = ref(false)
 
@@ -229,15 +288,36 @@ export const useNavStore = defineStore('navStore', () => {
     syncDashboardTabsToLocalStorage(reason)
   }
 
+  function syncWorkspaceSheetOpenToLocalStorage(): void {
+    safeSetLocalStorage(
+      workspaceSheetOpenStorageKey,
+      String(workspaceSheetOpen.value),
+    )
+  }
+
   function hydrateDashboardTabsFromLocalStorage(force = false): void {
     if (dashboardTabsHydrated.value && !force) return
 
     const raw = safeGetLocalStorage(dashboardTabsStorageKey)
     const parsed = safeParseRecord(raw)
     const normalized = normalizeDashboardTabs(parsed)
+    const fallbackKey = getFallbackDashboardKey()
+    const fallbackTab = resolveDashboardTab(fallbackKey, normalized[fallbackKey])
 
-    dashboardTabs.value = normalized
+    dashboardTabs.value = {
+      ...getDashboardDefaultTabs(),
+      ...normalized,
+      [fallbackKey]: fallbackTab,
+    }
+
     dashboardTabsHydrated.value = true
+  }
+
+  function hydrateWorkspaceSheetOpenFromLocalStorage(): void {
+    workspaceSheetOpen.value = safeParseBoolean(
+      safeGetLocalStorage(workspaceSheetOpenStorageKey),
+      false,
+    )
   }
 
   function getDashboardTab(dashboardKey: DashboardKey): string {
@@ -257,9 +337,7 @@ export const useNavStore = defineStore('navStore', () => {
     reason = 'unknown',
   ): string {
     const previous = dashboardTabs.value[dashboardKey]
-    const nextTab = isDashboardTabKey(dashboardKey, tabKey)
-      ? tabKey
-      : dashboardConfigs[dashboardKey].defaultTab
+    const nextTab = resolveDashboardTab(dashboardKey, tabKey)
 
     if (previous === nextTab) {
       return nextTab
@@ -279,36 +357,24 @@ export const useNavStore = defineStore('navStore', () => {
 
   function inferDashboardKeyFromContent(
     input: ContentDashboardInput,
-  ): DashboardKey | null {
-    const explicitKey = (input.dashboardKey ?? '').trim()
-
-    if (explicitKey && explicitKey in dashboardConfigs) {
-      return explicitKey as DashboardKey
-    }
-
-    return null
+  ): DashboardKey {
+    return resolveDashboardKey(input.dashboardKey)
   }
 
   function setDashboardShellFromContent(input: ContentDashboardInput): void {
     const dashboardKey = inferDashboardKeyFromContent(input)
-    const enabled = dashboardKey !== null
-
-    if (!enabled) {
-      clearDashboardShell()
-      return
-    }
-
-    const activeTabHint = (input.dashboardTab ?? '').trim() || null
+    const activeTabHint = resolveDashboardTab(dashboardKey, input.dashboardTab)
+    const resolvedTab = setDashboardTab(
+      dashboardKey,
+      activeTabHint,
+      'content frontmatter',
+    )
     const cards = (input.cards ?? '').trim() || null
-
-    if (activeTabHint) {
-      setDashboardTab(dashboardKey, activeTabHint, 'content frontmatter')
-    }
 
     dashboardShell.value = {
       enabled: true,
       dashboardKey,
-      activeTabHint,
+      activeTabHint: resolvedTab,
       cards,
       title: input.title?.trim() || input.subtitle?.trim() || 'Dashboard',
       summary: input.summary?.trim() || input.description?.trim() || '',
@@ -319,6 +385,11 @@ export const useNavStore = defineStore('navStore', () => {
 
   function clearDashboardShell(): void {
     dashboardShell.value = defaultDashboardShellState()
+
+    const dashboardKey = dashboardShell.value.dashboardKey
+    const activeTabHint = dashboardShell.value.activeTabHint
+
+    setDashboardTab(dashboardKey, activeTabHint, 'clearDashboardShell fallback')
   }
 
   async function refreshDashboardShell(): Promise<void> {
@@ -333,6 +404,7 @@ export const useNavStore = defineStore('navStore', () => {
     syncIconsToLocalStorage()
     syncFavoritesToLocalStorage()
     syncWonderLabFolderToLocalStorage()
+    syncWorkspaceSheetOpenToLocalStorage()
   }
 
   function hydrateIconsFromLocalStorage(): void {
@@ -361,6 +433,7 @@ export const useNavStore = defineStore('navStore', () => {
     hydrateFavoritesFromLocalStorage()
     hydrateDashboardTabsFromLocalStorage(force)
     hydrateWonderLabFolderFromLocalStorage()
+    hydrateWorkspaceSheetOpenFromLocalStorage()
   }
 
   function applyIconsFromSmartbar(): void {
@@ -406,6 +479,7 @@ export const useNavStore = defineStore('navStore', () => {
     if (isInitialized.value && !force) {
       hydrateDashboardTabsFromLocalStorage()
       hydrateWonderLabFolderFromLocalStorage()
+      hydrateWorkspaceSheetOpenFromLocalStorage()
       return
     }
 
@@ -437,6 +511,7 @@ export const useNavStore = defineStore('navStore', () => {
 
         hydrateDashboardTabsFromLocalStorage(force)
         hydrateWonderLabFolderFromLocalStorage()
+        hydrateWorkspaceSheetOpenFromLocalStorage()
 
         isInitialized.value = false
       } finally {
@@ -509,7 +584,14 @@ export const useNavStore = defineStore('navStore', () => {
       }
     }
 
-    return null
+    const fallbackKey = getFallbackDashboardKey()
+    const fallbackTab = getFallbackDashboardTab(fallbackKey)
+
+    return setDashboardTab(
+      fallbackKey,
+      fallbackTab,
+      `setDashboardTabFromContent fallback for "${normalizedTabKey}"`,
+    )
   }
 
   function isFavorite(link?: string | null): boolean {
@@ -598,6 +680,23 @@ export const useNavStore = defineStore('navStore', () => {
     hydrateDashboardTabsFromLocalStorage(force)
   }
 
+  function setWorkspaceSheetOpen(value: boolean): void {
+    workspaceSheetOpen.value = value
+    syncWorkspaceSheetOpenToLocalStorage()
+  }
+
+  function toggleWorkspaceSheet(): void {
+    setWorkspaceSheetOpen(!workspaceSheetOpen.value)
+  }
+
+  function showWorkspaceSheet(): void {
+    setWorkspaceSheetOpen(true)
+  }
+
+  function hideWorkspaceSheet(): void {
+    setWorkspaceSheetOpen(false)
+  }
+
   return {
     items,
     favorites,
@@ -611,6 +710,7 @@ export const useNavStore = defineStore('navStore', () => {
     initializePromise,
 
     dashboardShell,
+    workspaceSheetOpen,
 
     routeHistory,
     currentIndex,
@@ -662,6 +762,12 @@ export const useNavStore = defineStore('navStore', () => {
 
     setWonderLabFolder,
     setDashboardTabFromContent,
+
+    setWorkspaceSheetOpen,
+    toggleWorkspaceSheet,
+    showWorkspaceSheet,
+    hideWorkspaceSheet,
+
     dashboardTitle,
     dashboardSummary,
     dashboardCards,

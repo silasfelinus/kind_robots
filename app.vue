@@ -45,6 +45,7 @@
           >
             Page slot mounted · active tab: {{ activeTab || 'none' }} · title:
             {{ activeTabConfig?.title || activeTabConfig?.label || 'none' }}
+            Page: {{ pageStore.page }}
           </div>
 
           <div class="min-h-0 flex-1 overflow-hidden">
@@ -62,9 +63,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const router = useRouter()
 const navStore = useNavStore()
+const pageStore = usePageStore()
 
 const showLoader = ref(true)
 const isNavigating = ref(false)

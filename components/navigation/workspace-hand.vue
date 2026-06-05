@@ -2,7 +2,7 @@
 <template>
   <div
     ref="handEl"
-    class="absolute inset-x-0 bottom-0 z-30 flex items-end gap-2 overflow-x-auto px-1 py-1"
+    class="absolute inset-x-0 bottom-0 z-30 flex items-end gap-2 overflow-x-auto overscroll-x-contain px-1 py-1"
   >
     <button
       v-for="card in handCards"
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -167,17 +167,55 @@ function normalizeImagePath(path: string): string {
   return `/images/${path}`
 }
 
+function handleWheel(event: WheelEvent): void {
+  const el = handEl.value
+  if (!el) return
+
+  const horizontalOverflow = el.scrollWidth > el.clientWidth
+  if (!horizontalOverflow) return
+
+  const primaryDelta =
+    Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+      ? event.deltaY
+      : event.deltaX
+
+  if (!primaryDelta) return
+
+  const maxScrollLeft = el.scrollWidth - el.clientWidth
+  const nextScrollLeft = Math.min(
+    maxScrollLeft,
+    Math.max(0, el.scrollLeft + primaryDelta),
+  )
+
+  const canMove = nextScrollLeft !== el.scrollLeft
+  if (!canMove) return
+
+  event.preventDefault()
+  el.scrollLeft = nextScrollLeft
+}
+
 onMounted(() => {
   if (!import.meta.client) return
+
   publishHeight()
+
   observer = new ResizeObserver(() => publishHeight())
-  if (handEl.value) observer.observe(handEl.value)
+
+  if (handEl.value) {
+    observer.observe(handEl.value)
+    handEl.value.addEventListener('wheel', handleWheel, { passive: false })
+  }
 })
 
 watch(handCards, () => nextTick(publishHeight))
 
 onBeforeUnmount(() => {
   observer?.disconnect()
+
+  if (handEl.value) {
+    handEl.value.removeEventListener('wheel', handleWheel)
+  }
+
   document.documentElement.style.removeProperty('--hand-h')
 })
 </script>

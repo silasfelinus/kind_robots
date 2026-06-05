@@ -148,39 +148,6 @@
               </NuxtLink>
 
               <NuxtLink
-                :to="labChannel.path"
-                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-info hover:bg-info hover:text-info-content hover:shadow-md"
-                :class="
-                  isChannelActive(labChannel)
-                    ? 'border-info bg-info text-info-content shadow-sm'
-                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
-                "
-                @click="closeMenu"
-              >
-                <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
-                  :class="
-                    isChannelActive(labChannel)
-                      ? 'border-info-content/30 bg-info-content/20 text-info-content'
-                      : 'border-base-300 bg-base-100 text-base-content'
-                  "
-                >
-                  <Icon :name="labChannel.icon" class="h-5 w-5" />
-                </span>
-
-                <span class="text-sm font-black">
-                  {{ labChannel.label }}
-                </span>
-
-                <span
-                  v-if="labChannel.summary"
-                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
-                >
-                  {{ labChannel.summary }}
-                </span>
-              </NuxtLink>
-
-              <NuxtLink
                 :to="storiesChannel.path"
                 class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md"
                 :class="
@@ -331,14 +298,6 @@ const builderChannel: ChannelRoute = {
   summary: 'Build easily with our step by step builder.',
 }
 
-const labChannel: ChannelRoute = {
-  key: 'lab',
-  label: 'Lab',
-  path: '/wonderlab',
-  icon: 'kind-icon:foundry',
-  summary: 'Peek behind the curtain at our WonderLab.',
-}
-
 const storiesChannel: ChannelRoute = {
   key: 'stories',
   label: 'Stories',
@@ -386,12 +345,11 @@ const bottomProjectChannels: ChannelRoute[] = [
     summary: 'Catch loose ideas before they escape into the walls.',
   },
   {
-    key: 'memory',
-    label: 'Memory',
+    key: 'wonderlab',
+    label: 'Lab',
     path: '/memory',
     icon: 'kind-icon:dungeon',
-    summary:
-      'Flip cards, match glyphs, and test your suspiciously shiny robot brain.',
+    summary: 'Explore behind the scenes, and play our match game',
   },
 ]
 
@@ -399,7 +357,6 @@ const allChannels = computed<ChannelRoute[]>(() => [
   ...utilityChannels,
   artChannel,
   builderChannel,
-  labChannel,
   storiesChannel,
   ...bottomProjectChannels,
 ])

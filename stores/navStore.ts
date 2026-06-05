@@ -704,6 +704,10 @@ export const useNavStore = defineStore('navStore', () => {
     setWorkspaceSheetOpen(false)
   }
 
+  function openWorkspaceSheet(): void {
+    setWorkspaceSheetOpen(true)
+  }
+
   return {
     items,
     favorites,
@@ -780,5 +784,6 @@ export const useNavStore = defineStore('navStore', () => {
     dashboardCards,
     hasDashboardCards,
     closeWorkspaceSheet,
+    openWorkspaceSheet,
   }
 })

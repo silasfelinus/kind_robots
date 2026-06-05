@@ -63,14 +63,19 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
+import { usePageStore } from '@/stores/pageStore'
+const pageStore = usePageStore()
 
 const router = useRouter()
 const navStore = useNavStore()
 
 const route = useRoute()
-const { data: page } = await useAsyncData(route.path, () => {
-  return queryCollection('content').path(route.path).first()
-})
+
+const { data: page } = await useAsyncData(
+  () => `app-content:${route.path}`,
+  () => queryCollection('content').path(route.path).first(),
+  { watch: [() => route.path] },
+)
 
 const showLoader = ref(true)
 const isNavigating = ref(false)

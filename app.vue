@@ -69,7 +69,7 @@ const navStore = useNavStore()
 
 const route = useRoute()
 const { data: page } = await useAsyncData(route.path, () => {
-  return queryCollection('collections').path(route.path).first()
+  return queryCollection('content').path(route.path).first()
 })
 
 const showLoader = ref(true)

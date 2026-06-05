@@ -15,4 +15,4 @@ loadingMessage: Loading user dashboard
 refreshLabel: Refresh dashboard
 ---
 
-dashboard page content test instead of user-manager
+:user-manager

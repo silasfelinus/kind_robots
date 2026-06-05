@@ -1,6 +1,8 @@
 <!-- /components/navigation/workspace-hand.vue -->
 <template>
-  <div class="flex h-full min-h-0 items-center gap-2 overflow-x-auto px-1 py-1">
+  <div
+    class="absolute inset-x-0 bottom-0 z-30 flex h-(--hand-h,4rem) items-end gap-2 overflow-x-auto px-1 py-1"
+  >
     <button
       v-for="card in handCards"
       :key="card.key"

@@ -1,5 +1,5 @@
 ---
-title: 'Robots'
+title: 'Kind Robots'
 room: 'Dashboard Room'
 subtitle: 'Craft your universe'
 description: Welcome to the Kind Robots, a consortium of AI-assisted tools to generate and share your creations with others.

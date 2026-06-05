@@ -1,610 +1,362 @@
-<!-- /components/content/navigation/dashboard-shell.vue -->
+<!-- /components/navigation/workspace-sheet.vue -->
 <template>
-  <div
-    class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
-  >
-    <transition name="fade-up">
-      <button
-        v-if="!showHeader"
-        class="absolute left-1 top-1 z-30 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
-        type="button"
-        title="Show header"
-        @click="toggleHeader"
-      >
-        <Icon name="kind-icon:expand" class="h-3.5 w-3.5" />
-        <span>Show</span>
-      </button>
-    </transition>
+  <aside class="flex min-h-0 flex-col gap-3 overflow-y-auto">
+    <div class="overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+      <div class="relative aspect-3/2 bg-base-300">
+        <img
+          v-if="imagePath"
+          :src="imagePath"
+          :alt="title"
+          class="h-full w-full object-cover"
+        />
 
-    <transition name="fade-up">
-      <header
-        v-if="showHeader"
-        class="relative mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
-        :class="navZClass"
-      >
-        <div class="flex flex-col gap-3 p-3 lg:p-4">
-          <div class="flex items-start gap-3">
-            <button
-              type="button"
-              title="Hide header"
-              class="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-20 sm:w-20"
-              @click="toggleHeader"
-            >
-              <page-image
-                class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-60"
-              />
+        <div
+          v-else
+          class="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center"
+        >
+          <Icon :name="placeholderIcon" class="h-10 w-10 text-primary/25" />
 
-              <span
-                class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-content/0 opacity-0 transition-all group-hover:bg-base-content/15 group-hover:opacity-100"
-              >
-                <Icon
-                  name="kind-icon:collapse"
-                  class="h-5 w-5 text-base-content drop-shadow"
-                />
-              </span>
-            </button>
-
-            <div class="min-w-0 flex-1 pt-0.5">
-              <p v-if="shellTitle" class="text-sm font-bold text-primary/70">
-                {{ shellTitle }}
-              </p>
-
-              <h1
-                class="truncate text-xl font-black leading-tight text-base-content sm:text-2xl"
-              >
-                {{ activeTitle }}
-              </h1>
-
-              <p
-                v-if="activeSummary"
-                class="mt-0.5 line-clamp-2 text-sm text-base-content/55"
-              >
-                {{ activeSummary }}
-              </p>
-            </div>
-
-            <div class="flex shrink-0 items-center gap-1.5 pt-0.5">
-              <slot
-                name="actions"
-                :active-tab="normalizedActiveTab"
-                :active-tab-config="activeTabConfig"
-              />
-
-              <channel-select />
-              <server-selector />
-              <mana-widget />
-
-              <button
-                v-if="showRefresh"
-                class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
-                type="button"
-                :disabled="loading"
-                :title="shellRefreshLabel"
-                @click="emit('refresh')"
-              >
-                <Icon
-                  name="kind-icon:refresh"
-                  class="h-4 w-4"
-                  :class="loading ? 'animate-spin' : ''"
-                />
-              </button>
-            </div>
-          </div>
-
-          <nav
-            v-if="resolvedTabs.length"
-            class="grid min-w-0 gap-1.5"
-            :class="resolvedNavGridClass"
-          >
-            <button
-              v-for="tab in resolvedTabs"
-              :key="tab.key"
-              class="btn btn-sm min-h-9 justify-start rounded-xl transition-all"
-              type="button"
-              :class="
-                normalizedActiveTab === tab.key
-                  ? 'btn-primary shadow-sm'
-                  : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
-              "
-              @click="setTab(tab.key)"
-            >
-              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span class="min-w-0 truncate">{{ tab.label }}</span>
-            </button>
-          </nav>
+          <p class="text-xs italic text-base-content/35">
+            Sheet waiting for its portrait era.
+          </p>
         </div>
-      </header>
-    </transition>
-
-    <transition name="fade-up">
-      <div
-        v-if="loading"
-        class="relative z-30 mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-info/30 bg-info/10 px-4 py-2.5 text-sm font-medium text-info"
-      >
-        <Icon name="kind-icon:spinner" class="h-4 w-4 animate-spin" />
-        {{ shellLoadingMessage }}
       </div>
-    </transition>
 
-    <transition name="fade-up">
-      <div
-        v-if="error"
-        class="relative z-30 mb-3 flex shrink-0 items-center gap-2 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm font-medium text-error"
-      >
-        <Icon name="kind-icon:alert" class="h-4 w-4 shrink-0" />
-        {{ error }}
+      <div class="flex flex-col gap-1 p-4">
+        <p class="font-black leading-tight text-base-content">
+          {{ title }}
+        </p>
+
+        <p class="text-xs font-black uppercase tracking-widest text-primary/70">
+          {{ label }}
+        </p>
+
+        <p
+          v-if="narrative"
+          class="mt-1 text-sm leading-relaxed text-base-content/65"
+        >
+          {{ narrative }}
+        </p>
+
+        <p
+          v-if="showDebugPath"
+          class="mt-2 break-all rounded-xl bg-base-200 px-2 py-1 text-[0.65rem] text-base-content/45"
+        >
+          {{ imagePath || 'No image path resolved' }}
+        </p>
       </div>
-    </transition>
+    </div>
 
-    <section class="relative z-0 min-h-0 flex-1 overflow-hidden">
-      <main
-        class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+    <template v-if="isBuilder">
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="mb-2 flex items-center justify-between">
+          <p
+            class="text-xs font-black uppercase tracking-widest text-base-content/40"
+          >
+            Progress
+          </p>
+
+          <p class="text-xs font-black tabular-nums text-primary">
+            {{ completedCount }}/{{ requiredCount }}
+          </p>
+        </div>
+
+        <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
+          <div
+            class="h-full rounded-full bg-primary transition-all duration-500"
+            :style="{ width: `${progressPct}%` }"
+          />
+        </div>
+      </div>
+
+      <div
+        v-if="builderStore.completedCardList.length"
+        class="flex flex-col gap-2"
       >
         <section
-          class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+          v-for="card in builderStore.completedCardList"
+          :key="card.key"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <slot
-            :active-tab="normalizedActiveTab"
-            :active-tab-config="activeTabConfig"
-            :set-tab="setTab"
-          />
+          <div class="mb-2 flex items-center justify-between gap-2">
+            <div class="flex min-w-0 items-center gap-2">
+              <Icon :name="card.icon" class="h-4 w-4 shrink-0 text-primary" />
+
+              <p class="truncate text-sm font-black text-base-content">
+                {{ card.label }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-xs btn-ghost rounded-xl text-error"
+              @click="builderStore.removeSection(card.key)"
+            >
+              Clear
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <div
+              v-for="field in visibleFields(card.restoresFields)"
+              :key="field.key"
+              class="rounded-xl bg-base-200 px-3 py-2"
+            >
+              <p
+                class="text-[0.6rem] font-black uppercase tracking-widest text-base-content/35"
+              >
+                {{ field.key }}
+              </p>
+
+              <p
+                class="mt-0.5 line-clamp-3 text-xs font-semibold leading-relaxed text-base-content/70"
+              >
+                {{ field.value }}
+              </p>
+            </div>
+          </div>
         </section>
-      </main>
-    </section>
-  </div>
+      </div>
+
+      <div
+        v-else
+        class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-4 text-center"
+      >
+        <Icon
+          name="kind-icon:cards"
+          class="mx-auto h-8 w-8 text-base-content/25"
+        />
+
+        <p class="mt-2 text-sm font-bold text-base-content/60">
+          No completed cards yet.
+        </p>
+      </div>
+    </template>
+  </aside>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import {
-  isDashboardKey,
-  type DashboardKey,
-  type DashboardTabConfig,
-} from '@/stores/helpers/dashboardHelper'
-import { useNavStore } from '@/stores/navStore'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useBuilderStore } from '@/stores/builderStore'
 import { usePageStore } from '@/stores/pageStore'
+import { NAV_CARDS } from '@/stores/helpers/navCards'
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
-const fallbackIcon = 'kind-icon:sparkles'
-const storageKey = 'kind-dashboard-shell-show-header'
-const logPrefix = '[dashboard-shell]'
+type ImageCard = BuilderCard & {
+  image?: string
+  imagePath?: string
+  splashImage?: string
+  payload?: Record<string, unknown>
+}
 
-const props = withDefaults(
-  defineProps<{
-    title?: string
-    summary?: string
-    tabs?: DashboardTabConfig[]
-    activeTab?: string
-    loading?: boolean
-    loadingMessage?: string
-    error?: string | null
-    showRefresh?: boolean
-    refreshLabel?: string
-    navZClass?: string
-    navGridClass?: string
-  }>(),
-  {
-    title: '',
-    summary: '',
-    tabs: () => [],
-    activeTab: '',
-    loading: false,
-    loadingMessage: '',
-    error: null,
-    showRefresh: true,
-    refreshLabel: '',
-    navZClass: 'z-30',
-    navGridClass: '',
-  },
-)
-
-const emit = defineEmits<{
-  refresh: []
-}>()
-
-const navStore = useNavStore()
+const route = useRoute()
+const builderStore = useBuilderStore()
 const pageStore = usePageStore()
 
-const showHeader = ref(true)
-const mounted = ref(false)
-const dashboardTabsHydrated = ref(false)
-const lastFrontMatterTabSync = ref('')
+const showDebugPath = ref(false)
 
-const shellTitle = computed(() => {
-  return props.title || pageStore.room || pageStore.title || 'Kind Robots'
+const isBuilder = computed(() => {
+  return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0
 })
 
-const shellSummary = computed(() => {
-  return props.summary || pageStore.subtitle || pageStore.description || ''
+const builderCards = computed<BuilderCard[]>(() => {
+  return builderStore.visibleCards.length
+    ? builderStore.visibleCards
+    : builderStore.cards
 })
 
-const shellLoadingMessage = computed(() => {
-  return props.loadingMessage || pageStore.loadingMessage || 'Loading…'
-})
-
-const shellRefreshLabel = computed(() => {
-  return props.refreshLabel || pageStore.refreshLabel || 'Refresh'
-})
-
-const shellDashboardKey = computed(() => {
-  return pageStore.dashboardKey || ''
-})
-
-const shellActiveTab = computed(() => {
-  return props.activeTab || pageStore.dashboardTab || ''
-})
-
-const resolvedDashboardKey = computed<DashboardKey | null>(() => {
-  const key = shellDashboardKey.value.trim()
-
-  if (!key) return null
-
-  if (!isDashboardKey(key)) {
-    console.warn(`${logPrefix} Invalid dashboard key from pageStore`, {
-      key,
-      pageDashboardKey: pageStore.dashboardKey,
-      pageDashboardTab: pageStore.dashboardTab,
-    })
-
-    return null
+const sourceCards = computed<BuilderCard[]>(() => {
+  if (isBuilder.value && builderCards.value.length) {
+    return builderCards.value
   }
 
-  return key
-})
-
-const resolvedTabs = computed<DashboardTabConfig[]>(() => {
-  const key = resolvedDashboardKey.value
-
-  if (!key) {
-    return props.tabs
+  if (pageStore.cards.length) {
+    return pageStore.cards
   }
 
-  try {
-    const tabs = navStore.getDashboardTabs(key)
-
-    if (!Array.isArray(tabs)) {
-      console.warn(`${logPrefix} getDashboardTabs did not return an array`, {
-        key,
-        tabs,
-      })
-
-      return props.tabs
-    }
-
-    return tabs
-  } catch (error) {
-    console.error(`${logPrefix} Failed to resolve dashboard tabs`, error)
-    return props.tabs
-  }
+  return NAV_CARDS
 })
 
-const requestedActiveTab = computed(() => {
-  const key = resolvedDashboardKey.value
-
-  if (!key) {
-    return shellActiveTab.value
-  }
-
-  try {
-    return navStore.getDashboardTab(key) || shellActiveTab.value
-  } catch (error) {
-    console.error(`${logPrefix} Failed to resolve active tab`, error)
-    return shellActiveTab.value
-  }
-})
-
-const resolvedNavGridClass = computed(() => {
-  if (props.navGridClass.trim()) return props.navGridClass
-  return 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
-})
-
-const fallbackTab = computed<DashboardTabConfig>(() => {
-  const firstTab = resolvedTabs.value[0]
-  const requested = requestedActiveTab.value
-
-  return {
-    key: requested || firstTab?.key || 'overview',
-    label: firstTab?.label || requested || 'Overview',
-    icon: firstTab?.icon || fallbackIcon,
-    title: firstTab?.title || firstTab?.label || requested || pageStore.title,
-    summary: firstTab?.summary || shellSummary.value,
-  }
-})
-
-const activeTabConfig = computed<DashboardTabConfig>(() => {
-  const requested = requestedActiveTab.value.trim()
-
-  if (requested) {
-    const matched = resolvedTabs.value.find((tab) => tab.key === requested)
-
-    if (matched) {
-      return matched
-    }
-
-    return {
-      key: requested,
-      label: requested,
-      icon: fallbackIcon,
-      title: requested,
-      summary: shellSummary.value,
-    }
-  }
-
-  return resolvedTabs.value[0] ?? fallbackTab.value
-})
-
-const normalizedActiveTab = computed(() => {
-  return requestedActiveTab.value || activeTabConfig.value.key
-})
-
-const activeTitle = computed(() => {
+const routeCardKey = computed(() => {
   return (
-    activeTabConfig.value.title ||
-    activeTabConfig.value.label ||
-    pageStore.title
+    sourceCards.value.find((card) => getCardPath(card) === route.path)?.key ??
+    sourceCards.value[0]?.key ??
+    ''
   )
 })
 
-const activeSummary = computed(() => {
-  return activeTabConfig.value.summary || shellSummary.value
+const activeCardKey = computed(() => {
+  if (isBuilder.value) {
+    return builderStore.activeCardKey || sourceCards.value[0]?.key || ''
+  }
+
+  return pageStore.workspaceCardKey || routeCardKey.value
 })
 
-function logPageDashboardState(label: string) {
-  if (!import.meta.client) return
-
-  console.groupCollapsed(`${logPrefix} ${label}`)
-  console.log('mounted:', mounted.value)
-  console.log('dashboardTabsHydrated:', dashboardTabsHydrated.value)
-  console.log('pageStore.title:', pageStore.title)
-  console.log('pageStore.room:', pageStore.room)
-  console.log('pageStore.subtitle:', pageStore.subtitle)
-  console.log('pageStore.description:', pageStore.description)
-  console.log('pageStore.dashboardKey:', pageStore.dashboardKey)
-  console.log('pageStore.dashboardTab:', pageStore.dashboardTab)
-  console.log('shellDashboardKey:', shellDashboardKey.value)
-  console.log('shellActiveTab:', shellActiveTab.value)
-  console.log('resolvedDashboardKey:', resolvedDashboardKey.value)
-  console.log('requestedActiveTab:', requestedActiveTab.value)
-  console.log('normalizedActiveTab:', normalizedActiveTab.value)
-  console.log('resolvedTabs:', resolvedTabs.value)
-  console.groupEnd()
-}
-
-function setTab(tabKey: string, source = 'dashboard-shell tab button') {
-  const key = resolvedDashboardKey.value
-
-  console.log(`${logPrefix} setTab requested`, {
-    key,
-    tabKey,
-    source,
-    currentTab: key ? navStore.getDashboardTab(key) : '',
-  })
-
-  if (!key) {
-    console.warn(
-      `${logPrefix} setTab skipped because dashboard key is missing`,
-      {
-        tabKey,
-        source,
-        pageDashboardKey: pageStore.dashboardKey,
-        pageDashboardTab: pageStore.dashboardTab,
-      },
-    )
-
-    return
-  }
-
-  try {
-    const currentTab = navStore.getDashboardTab(key)
-
-    if (currentTab === tabKey) {
-      console.log(`${logPrefix} setTab skipped because tab is already active`, {
-        key,
-        tabKey,
-        source,
-      })
-
-      return
-    }
-
-    navStore.setDashboardTab(key, tabKey, source)
-
-    console.log(`${logPrefix} setTab complete`, {
-      key,
-      tabKey,
-      source,
-      nextTab: navStore.getDashboardTab(key),
-    })
-  } catch (error) {
-    console.error(`${logPrefix} Failed to set tab`, error)
-  }
-}
-
-function toggleHeader() {
-  showHeader.value = !showHeader.value
-
-  console.log(`${logPrefix} toggleHeader`, {
-    showHeader: showHeader.value,
-  })
-}
-
-function loadHeaderPreference() {
-  if (!import.meta.client) return
-
-  console.log(`${logPrefix} loading header preference`)
-
-  try {
-    const saved = localStorage.getItem(storageKey)
-
-    console.log(`${logPrefix} header preference value`, {
-      storageKey,
-      saved,
-    })
-
-    if (saved === 'true') {
-      showHeader.value = true
-      return
-    }
-
-    if (saved === 'false') {
-      showHeader.value = false
-    }
-  } catch (error) {
-    console.error(`${logPrefix} Failed to load header preference`, error)
-  } finally {
-    console.log(`${logPrefix} loaded header preference`, {
-      showHeader: showHeader.value,
-    })
-  }
-}
-
-function saveHeaderPreference(value: boolean) {
-  if (!import.meta.client) return
-
-  try {
-    localStorage.setItem(storageKey, String(value))
-
-    console.log(`${logPrefix} saved header preference`, {
-      storageKey,
-      value,
-    })
-  } catch (error) {
-    console.error(`${logPrefix} Failed to save header preference`, error)
-  }
-}
-
-function hydrateDashboardTabsOnce() {
-  if (!import.meta.client) return
-
-  if (dashboardTabsHydrated.value) {
-    console.log(`${logPrefix} hydrateDashboardTabs skipped, already hydrated`)
-    return
-  }
-
-  const key = resolvedDashboardKey.value
-
-  if (!key) {
-    console.log(
-      `${logPrefix} hydrateDashboardTabs skipped, no page dashboard key`,
-      {
-        pageDashboardKey: pageStore.dashboardKey,
-        pageDashboardTab: pageStore.dashboardTab,
-      },
-    )
-
-    return
-  }
-
-  console.log(`${logPrefix} hydrating dashboard tabs`, {
-    key,
-    pageDashboardTab: pageStore.dashboardTab,
-  })
-
-  try {
-    navStore.hydrateDashboardTabs(true)
-    dashboardTabsHydrated.value = true
-
-    console.log(`${logPrefix} hydrated dashboard tabs`, {
-      key,
-      currentTab: navStore.getDashboardTab(key),
-      pageDashboardTab: pageStore.dashboardTab,
-    })
-  } catch (error) {
-    console.error(`${logPrefix} Failed to hydrate dashboard tabs`, error)
-  }
-}
-
-function syncFrontMatterTab() {
-  if (!import.meta.client) return
-
-  const key = resolvedDashboardKey.value
-  const tab = pageStore.dashboardTab
-  const syncKey = `${key || 'none'}:${tab || 'none'}`
-
-  console.log(`${logPrefix} syncFrontMatterTab requested`, {
-    key,
-    tab,
-    syncKey,
-    lastFrontMatterTabSync: lastFrontMatterTabSync.value,
-  })
-
-  if (!mounted.value) {
-    console.log(`${logPrefix} syncFrontMatterTab skipped before mount`)
-    return
-  }
-
-  if (!key || !tab) {
-    console.log(
-      `${logPrefix} syncFrontMatterTab skipped, missing page key or tab`,
-      {
-        pageDashboardKey: pageStore.dashboardKey,
-        pageDashboardTab: pageStore.dashboardTab,
-      },
-    )
-
-    return
-  }
-
-  if (lastFrontMatterTabSync.value === syncKey) {
-    console.log(`${logPrefix} syncFrontMatterTab skipped, already synced`, {
-      syncKey,
-    })
-
-    return
-  }
-
-  lastFrontMatterTabSync.value = syncKey
-  setTab(tab, 'page front matter dashboardTab')
-}
-
-watch(showHeader, (value) => {
-  saveHeaderPreference(value)
+const activeCard = computed(() => {
+  return (
+    sourceCards.value.find((card) => card.key === activeCardKey.value) ?? null
+  )
 })
 
-watch(
-  () => [pageStore.dashboardKey, pageStore.dashboardTab] as const,
-  () => {
-    logPageDashboardState('page dashboard changed')
-    hydrateDashboardTabsOnce()
-    syncFrontMatterTab()
-  },
-  { flush: 'post' },
-)
+const title = computed(() => {
+  if (isBuilder.value) {
+    return String(
+      builderStore.sheet.name ||
+        builderStore.sheet.title ||
+        activeCard.value?.title ||
+        builderStore.activeConfig.title ||
+        pageStore.title,
+    )
+  }
 
-onMounted(() => {
-  mounted.value = true
-
-  console.groupCollapsed(`${logPrefix} mounted`)
-  console.log('props:', props)
-  console.log('pageStore snapshot:', {
-    title: pageStore.title,
-    room: pageStore.room,
-    subtitle: pageStore.subtitle,
-    description: pageStore.description,
-    dashboardKey: pageStore.dashboardKey,
-    dashboardTab: pageStore.dashboardTab,
-    loadingMessage: pageStore.loadingMessage,
-    refreshLabel: pageStore.refreshLabel,
-  })
-  console.groupEnd()
-
-  loadHeaderPreference()
-  hydrateDashboardTabsOnce()
-  syncFrontMatterTab()
-  logPageDashboardState('mounted state')
+  return activeCard.value?.title || pageStore.title
 })
+
+const label = computed(() => {
+  if (isBuilder.value) {
+    return activeCard.value?.label || builderStore.activeConfig.label
+  }
+
+  return activeCard.value?.label || pageStore.room
+})
+
+const narrative = computed(() => {
+  if (isBuilder.value) {
+    return String(
+      builderStore.sheet.narrative ||
+        builderStore.sheet.description ||
+        activeCard.value?.narrative ||
+        builderStore.activeConfig.splash?.description ||
+        pageStore.description,
+    )
+  }
+
+  return (
+    activeCard.value?.narrative ||
+    activeCard.value?.tagline ||
+    pageStore.description ||
+    pageStore.subtitle
+  )
+})
+
+const imagePath = computed(() => {
+  const card = activeCard.value as ImageCard | null
+
+  if (isBuilder.value) {
+    const sheetImage = builderStore.sheet.imagePath
+
+    if (typeof sheetImage === 'string' && sheetImage) {
+      return normalizeImagePath(sheetImage)
+    }
+
+    return normalizeImagePath(
+      firstString([
+        card?.heroImage,
+        card?.deckImage,
+        card?.image,
+        card?.imagePath,
+        card?.splashImage,
+        card?.payload?.heroImage,
+        card?.payload?.deckImage,
+        card?.payload?.image,
+        card?.payload?.imagePath,
+        builderStore.activeConfig.splash?.imagePath,
+        pageStore.image,
+      ]),
+    )
+  }
+
+  return normalizeImagePath(
+    firstString([
+      card?.heroImage,
+      card?.deckImage,
+      card?.image,
+      card?.imagePath,
+      card?.splashImage,
+      card?.payload?.heroImage,
+      card?.payload?.deckImage,
+      card?.payload?.image,
+      card?.payload?.imagePath,
+      pageStore.image,
+    ]),
+  )
+})
+
+const placeholderIcon = computed(() => {
+  return activeCard.value?.icon || pageStore.icon || 'kind-icon:blueprint'
+})
+
+const requiredCount = computed(() => {
+  return (
+    builderStore.activeConfig.requiredCardKeys?.length ||
+    builderStore.cards.length ||
+    1
+  )
+})
+
+const completedCount = computed(() => {
+  const required =
+    builderStore.activeConfig.requiredCardKeys ??
+    builderStore.cards.map((card) => card.key)
+
+  return required.filter((key) => builderStore.completedCards[key]).length
+})
+
+const progressPct = computed(() => {
+  return Math.round((completedCount.value / requiredCount.value) * 100)
+})
+
+function getCardPath(card: BuilderCard): string {
+  const path = card.payload?.path ?? card.payload?.to ?? card.payload?.href
+
+  return typeof path === 'string' ? path : ''
+}
+
+function visibleFields(
+  fields: string[],
+): Array<{ key: string; value: string }> {
+  return fields
+    .map((key) => ({ key, value: stringifyValue(builderStore.sheet[key]) }))
+    .filter((entry) => entry.value.trim().length > 0)
+}
+
+function stringifyValue(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) =>
+        typeof entry === 'object' ? JSON.stringify(entry) : String(entry),
+      )
+      .join(', ')
+  }
+
+  if (value && typeof value === 'object') return JSON.stringify(value)
+  if (value == null) return ''
+
+  return String(value)
+}
+
+function firstString(values: unknown[]): string {
+  const found = values.find((value) => {
+    return typeof value === 'string' && value.trim().length > 0
+  })
+
+  return typeof found === 'string' ? found : ''
+}
+
+function normalizeImagePath(path: string): string {
+  const cleanPath = path.trim()
+
+  if (!cleanPath) return ''
+  if (cleanPath.startsWith('/') || cleanPath.startsWith('http')) {
+    return cleanPath
+  }
+
+  if (cleanPath.startsWith('images/')) {
+    return `/${cleanPath}`
+  }
+
+  return `/images/${cleanPath}`
+}
 </script>
-
-<style scoped>
-.fade-up-enter-active,
-.fade-up-leave-active {
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease;
-}
-
-.fade-up-enter-from,
-.fade-up-leave-to {
-  opacity: 0;
-  transform: translateY(-0.25rem);
-}
-</style>

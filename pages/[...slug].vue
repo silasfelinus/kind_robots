@@ -1,4 +1,3 @@
-<!-- /pages/[...slug].vue -->
 <template>
   <div
     v-if="pageStore.page && pageStore.page.body"
@@ -12,7 +11,9 @@
     class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
   >
     <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
+
     <p class="text-base font-bold text-info">Loading page…</p>
+
     <p class="max-w-xl text-sm text-base-content/60">
       Looking for {{ contentPath }}
     </p>
@@ -23,67 +24,41 @@
     class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
   >
     <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
+
     <p class="text-base font-bold text-warning">Page not found</p>
+
     <p class="max-w-xl text-sm text-base-content/60">
-      No Nuxt Content page was found for {{ contentPath }} - {{ page }}.
+      No Nuxt Content page was found for {{ contentPath }}.
     </p>
   </div>
 
   <error-popup />
 </template>
+
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from '#app'
 import { usePageStore } from '@/stores/pageStore'
-import { useNavStore } from '@/stores/navStore'
-import { useUserStore } from '@/stores/userStore'
 
 const route = useRoute()
 const pageStore = usePageStore()
-const navStore = useNavStore()
-const userStore = useUserStore()
+
+const hasMountedRoute = ref(false)
 
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
 
-// Magic-link / shared-token login from ?token=. Client-only to match the
-// localStorage session-restore model; force overrides the guest init that
-// kind-loader already ran.
-if (import.meta.client && route.query.token && !userStore.user) {
-  await userStore.initialize({ token: String(route.query.token), force: true })
-}
-
-const { data: page, status: contentStatus } = await useAsyncData(
-  () => `content-page:${contentPath.value}`,
-  () => queryCollection('content').path(contentPath.value).first(),
-  {
-    default: () => null,
-    watch: [contentPath],
-  },
-)
-
-// One-directional sync: useAsyncData → stores. Never the reverse.
 watch(
-  page,
-  (val) => {
-    if (val) {
-      pageStore.setPage(val)
-      navStore.setDashboardShellFromContent(val)
-    } else {
-      pageStore.clearPage()
-      navStore.clearDashboardShell()
-    }
+  contentPath,
+  () => {
+    hasMountedRoute.value = false
+    requestAnimationFrame(() => {
+      hasMountedRoute.value = true
+    })
   },
   { immediate: true },
 )
 
-const contentPending = computed(
-  () => contentStatus.value === 'pending' || contentStatus.value === 'idle',
-)
-
-useSeoMeta({
-  title: () => page.value?.title || 'Kind Robots',
-  description: () =>
-    page.value?.description ||
-    'A friendly AI playground for humans and robots.',
+const contentPending = computed(() => {
+  return !hasMountedRoute.value && !pageStore.page
 })
 </script>

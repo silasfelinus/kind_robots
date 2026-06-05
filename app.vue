@@ -12,6 +12,18 @@
     <animation-layer />
     <milestone-popup />
 
+    <button
+      v-if="!showWorkspaceSheet"
+      type="button"
+      class="btn btn-primary btn-sm fixed left-3 top-3 z-45 shadow-xl md:top-[calc(var(--header-h,3.5rem)+0.75rem)]"
+      aria-label="Open workspace"
+      :aria-expanded="showWorkspaceSheet"
+      @click="navStore.openWorkspaceSheet()"
+    >
+      <Icon name="kind-icon:panel-left" class="h-4 w-4" />
+      <span class="hidden sm:inline">Workspace</span>
+    </button>
+
     <div
       v-if="isNavigating"
       class="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-base-100/70 backdrop-blur-sm"
@@ -36,7 +48,7 @@
     </div>
 
     <dashboard-shell>
-      <template #default="{ activeTab, activeTabConfig }">
+      <template #default>
         <section
           class="flex h-full min-h-0 w-full flex-col overflow-hidden"
           data-dashboard-page-slot
@@ -44,44 +56,43 @@
           <div
             class="flex min-h-0 flex-1 overflow-hidden pb-(--hand-h,11.5rem) md:flex-row md:gap-3"
           >
-            <aside
-              v-show="showWorkspaceSheet"
-              class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
-            >
-              <div
-                class="flex shrink-0 items-center justify-between border-b border-base-300 px-3 py-2"
+            <Transition name="workspace-sheet-slide">
+              <aside
+                v-if="showWorkspaceSheet"
+                class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
               >
-                <span
-                  class="text-xs font-black uppercase tracking-widest text-primary"
-                  >Workspace</span
+                <div
+                  class="flex shrink-0 items-center justify-between border-b border-base-300 px-3 py-2"
                 >
-                <button
-                  class="btn btn-ghost btn-xs"
-                  aria-label="Close workspace"
-                  @click="navStore.closeWorkspaceSheet()"
+                  <span
+                    class="text-xs font-black uppercase tracking-widest text-primary"
+                  >
+                    Workspace
+                  </span>
+
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs"
+                    aria-label="Close workspace"
+                    @click="navStore.closeWorkspaceSheet()"
+                  >
+                    <Icon name="kind-icon:close" class="h-4 w-4" />
+                    <span class="md:hidden">Back to page</span>
+                  </button>
+                </div>
+
+                <div
+                  class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
                 >
-                  <Icon name="kind-icon:close" class="h-4 w-4" />
-                  <span class="md:hidden">Back to page</span>
-                </button>
-              </div>
-              <div class="min-h-0 flex-1 overflow-y-auto">
-                <workspace-sheet />
-              </div>
-            </aside>
+                  <workspace-sheet />
+                </div>
+              </aside>
+            </Transition>
 
             <main
-              v-show="showWorkspacePage"
               class="relative h-full min-h-0 flex-1 overflow-y-auto"
               :class="showWorkspaceSheet ? 'hidden md:block' : 'block'"
             >
-              <button
-                v-show="!showWorkspaceSheet"
-                class="btn btn-primary btn-sm fixed left-3 top-[calc(var(--header-h,3.5rem)+0.5rem)] z-20"
-                aria-label="Open workspace"
-                @click="navStore.toggleWorkspaceSheet()"
-              >
-                <Icon name="kind-icon:panel-left" class="h-4 w-4" />
-              </button>
               <NuxtPage />
             </main>
           </div>
@@ -110,9 +121,7 @@ const showLoader = ref(true)
 const isNavigating = ref(false)
 
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
-
 const showWorkspaceSheet = computed(() => navStore.workspaceSheetOpen)
-const showWorkspacePage = computed(() => true)
 
 if (import.meta.client && route.query.token && !userStore.user) {
   await userStore.initialize({ token: String(route.query.token), force: true })
@@ -201,3 +210,24 @@ onMounted(() => {
   navStore.initialize()
 })
 </script>
+
+<style scoped>
+.workspace-sheet-slide-enter-active,
+.workspace-sheet-slide-leave-active {
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.workspace-sheet-slide-enter-from,
+.workspace-sheet-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-1rem);
+}
+
+.workspace-sheet-slide-enter-to,
+.workspace-sheet-slide-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+</style>

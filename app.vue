@@ -1,6 +1,9 @@
 <!-- /app.vue -->
 <template>
-  <div class="min-h-dvh bg-base-200 text-base-content">
+  <div
+    class="min-h-dvh bg-base-200 text-base-content"
+    style="--hand-h: 11.5rem"
+  >
     <div
       class="pointer-events-none fixed inset-0 overflow-hidden opacity-40"
       aria-hidden="true"
@@ -17,7 +20,7 @@
     </div>
 
     <main
-      class="relative mx-auto flex min-h-dvh w-full max-w-7xl flex-col gap-4 p-3 sm:p-4 lg:p-6"
+      class="relative mx-auto flex min-h-dvh w-full max-w-7xl flex-col gap-4 p-3 pb-[calc(var(--hand-h)+1rem)] sm:p-4 sm:pb-[calc(var(--hand-h)+1rem)] lg:p-6 lg:pb-[calc(var(--hand-h)+1.5rem)]"
     >
       <header
         class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl"
@@ -29,7 +32,7 @@
             <p
               class="text-xs font-black uppercase tracking-[0.3em] text-primary"
             >
-              Kind Robots Content + PageStore Probe
+              Kind Robots Content + PageStore + Workspace Probe
             </p>
 
             <h1
@@ -81,9 +84,48 @@
                 loading: {{ pageStore.isLoading ? 'true' : 'false' }}
               </span>
 
+              <span
+                class="badge badge-lg"
+                :class="
+                  workspaceSheetOpen ? 'badge-secondary' : 'badge-neutral'
+                "
+              >
+                sheet: {{ workspaceSheetOpen ? 'open' : 'closed' }}
+              </span>
+
               <span v-if="errorMessage" class="badge badge-error badge-lg">
                 error detected
               </span>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm rounded-2xl"
+                @click="workspaceSheetOpen = !workspaceSheetOpen"
+              >
+                {{
+                  workspaceSheetOpen
+                    ? 'Close workspace sheet'
+                    : 'Open workspace sheet'
+                }}
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-outline btn-sm rounded-2xl"
+                @click="forceRefresh"
+              >
+                Refresh content + store
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-outline btn-sm rounded-2xl"
+                @click="logStoreReport"
+              >
+                Log pageStore report
+              </button>
             </div>
           </section>
 
@@ -106,16 +148,14 @@
               <p
                 class="max-w-56 text-sm font-bold leading-relaxed text-base-content/60"
               >
-                PageStore is now in the test tube. Goggles on.
+                Workspace parts are now in the tube. Nobody sneeze.
               </p>
             </div>
           </section>
         </div>
       </header>
 
-      <section
-        class="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(18rem,24rem)_1fr]"
-      >
+      <section class="grid flex-1 gap-4 xl:grid-cols-[minmax(18rem,24rem)_1fr]">
         <aside class="flex min-h-0 flex-col gap-4">
           <section
             class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg"
@@ -183,6 +223,32 @@
                 </p>
               </div>
 
+              <div class="rounded-2xl bg-base-200 p-3">
+                <p
+                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
+                >
+                  workspace-sheet
+                </p>
+
+                <p class="mt-1 font-black">
+                  {{
+                    workspaceSheetOpen
+                      ? 'mounted through ClientOnly'
+                      : 'not mounted'
+                  }}
+                </p>
+              </div>
+
+              <div class="rounded-2xl bg-base-200 p-3">
+                <p
+                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
+                >
+                  workspace-hand
+                </p>
+
+                <p class="mt-1 font-black">requested through ClientOnly</p>
+              </div>
+
               <div
                 v-if="errorMessage"
                 class="rounded-2xl border border-error/30 bg-error/10 p-3 text-error"
@@ -195,22 +261,6 @@
                   {{ errorMessage }}
                 </p>
               </div>
-
-              <button
-                type="button"
-                class="btn btn-primary btn-sm w-full rounded-2xl"
-                @click="forceRefresh"
-              >
-                Refresh content + store
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-outline btn-sm w-full rounded-2xl"
-                @click="logStoreReport"
-              >
-                Log pageStore report
-              </button>
             </div>
           </section>
 
@@ -220,7 +270,7 @@
             <div class="flex items-center justify-between gap-3">
               <h2 class="text-xl font-black">PageStore Meta</h2>
 
-              <span class="badge badge-primary"> live </span>
+              <span class="badge badge-primary">live</span>
             </div>
 
             <dl class="mt-4 flex flex-col gap-2">
@@ -279,146 +329,215 @@
           </section>
         </aside>
 
-        <section class="flex min-h-0 flex-col gap-4">
-          <article
-            class="min-h-[50dvh] rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
-          >
-            <div
-              class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-base-300 pb-4"
+        <section class="grid min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <section class="flex min-h-0 flex-col gap-4">
+            <article
+              class="min-h-[50dvh] rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
             >
-              <div>
-                <p
-                  class="text-xs font-black uppercase tracking-[0.25em] text-primary"
-                >
-                  Rendered Markdown
-                </p>
-
-                <h2 class="text-2xl font-black">ContentRenderer Output</h2>
-              </div>
-
-              <div class="text-3xl">🤖</div>
-            </div>
-
-            <ContentRenderer
-              v-if="page"
-              :value="page"
-              class="prose max-w-none text-base-content prose-headings:text-base-content prose-a:text-primary prose-strong:text-base-content"
-            />
-
-            <div
-              v-else-if="status === 'pending'"
-              class="grid min-h-72 place-items-center rounded-2xl bg-base-200 p-6 text-center"
-            >
-              <div class="flex max-w-md flex-col items-center gap-3">
-                <div class="loading loading-spinner loading-lg text-primary" />
-
-                <h3 class="text-xl font-black">Querying Nuxt Content</h3>
-
-                <p class="text-sm leading-relaxed text-base-content/60">
-                  The content goblin is checking under the Markdown couch.
-                </p>
-              </div>
-            </div>
-
-            <div
-              v-else
-              class="grid min-h-72 place-items-center rounded-2xl border border-dashed border-warning/50 bg-warning/10 p-6 text-center"
-            >
-              <div class="max-w-lg">
-                <div class="text-6xl">🕳️</div>
-
-                <h3 class="mt-3 text-2xl font-black">
-                  Page not found in content collection
-                </h3>
-
-                <p class="mt-2 text-sm leading-relaxed text-base-content/65">
-                  The route loaded, but the content query returned nothing.
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <section
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
-          >
-            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p
-                  class="text-xs font-black uppercase tracking-[0.25em] text-secondary"
-                >
-                  Store Report
-                </p>
-
-                <h2 class="text-2xl font-black">What pageStore Has</h2>
-              </div>
-
-              <span
-                class="badge"
-                :class="storeMatchesContent ? 'badge-success' : 'badge-warning'"
-              >
-                {{
-                  storeMatchesContent
-                    ? 'store matches content path'
-                    : 'store mismatch'
-                }}
-              </span>
-            </div>
-
-            <dl class="grid gap-3 md:grid-cols-2">
               <div
-                v-for="field in storeReportFields"
-                :key="field.label"
-                class="rounded-2xl bg-base-200 p-3"
+                class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-base-300 pb-4"
               >
-                <dt
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  {{ field.label }}
-                </dt>
+                <div>
+                  <p
+                    class="text-xs font-black uppercase tracking-[0.25em] text-primary"
+                  >
+                    Rendered Markdown
+                  </p>
 
-                <dd class="mt-1 wrap-break-word text-sm font-bold">
-                  {{ field.value }}
-                </dd>
+                  <h2 class="text-2xl font-black">ContentRenderer Output</h2>
+                </div>
+
+                <div class="text-3xl">🤖</div>
               </div>
-            </dl>
 
-            <details
-              class="mt-4 rounded-2xl border border-base-300 bg-base-200"
+              <ContentRenderer
+                v-if="page"
+                :value="page"
+                class="prose max-w-none text-base-content prose-headings:text-base-content prose-a:text-primary prose-strong:text-base-content"
+              />
+
+              <div
+                v-else-if="status === 'pending'"
+                class="grid min-h-72 place-items-center rounded-2xl bg-base-200 p-6 text-center"
+              >
+                <div class="flex max-w-md flex-col items-center gap-3">
+                  <div
+                    class="loading loading-spinner loading-lg text-primary"
+                  />
+
+                  <h3 class="text-xl font-black">Querying Nuxt Content</h3>
+
+                  <p class="text-sm leading-relaxed text-base-content/60">
+                    The content goblin is checking under the Markdown couch.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                v-else
+                class="grid min-h-72 place-items-center rounded-2xl border border-dashed border-warning/50 bg-warning/10 p-6 text-center"
+              >
+                <div class="max-w-lg">
+                  <div class="text-6xl">🕳️</div>
+
+                  <h3 class="mt-3 text-2xl font-black">
+                    Page not found in content collection
+                  </h3>
+
+                  <p class="mt-2 text-sm leading-relaxed text-base-content/65">
+                    The route loaded, but the content query returned nothing.
+                  </p>
+                </div>
+              </div>
+            </article>
+
+            <section
+              class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
             >
-              <summary class="cursor-pointer p-4 font-black">
-                Open pageStore.page JSON
-              </summary>
+              <div
+                class="mb-4 flex flex-wrap items-center justify-between gap-3"
+              >
+                <div>
+                  <p
+                    class="text-xs font-black uppercase tracking-[0.25em] text-secondary"
+                  >
+                    Store Report
+                  </p>
 
-              <pre
-                class="max-h-128 overflow-auto border-t border-base-300 p-4 text-xs"
-              ><code>{{ rawStorePageJson }}</code></pre>
-            </details>
+                  <h2 class="text-2xl font-black">What pageStore Has</h2>
+                </div>
 
-            <details
-              class="mt-4 rounded-2xl border border-base-300 bg-base-200"
-            >
-              <summary class="cursor-pointer p-4 font-black">
-                Open raw Nuxt Content page JSON
-              </summary>
+                <span
+                  class="badge"
+                  :class="
+                    storeMatchesContent ? 'badge-success' : 'badge-warning'
+                  "
+                >
+                  {{
+                    storeMatchesContent
+                      ? 'store matches content path'
+                      : 'store mismatch'
+                  }}
+                </span>
+              </div>
 
-              <pre
-                class="max-h-128 overflow-auto border-t border-base-300 p-4 text-xs"
-              ><code>{{ rawContentPageJson }}</code></pre>
-            </details>
+              <dl class="grid gap-3 md:grid-cols-2">
+                <div
+                  v-for="field in storeReportFields"
+                  :key="field.label"
+                  class="rounded-2xl bg-base-200 p-3"
+                >
+                  <dt
+                    class="text-xs font-black uppercase tracking-widest text-base-content/45"
+                  >
+                    {{ field.label }}
+                  </dt>
+
+                  <dd class="mt-1 wrap-break-word text-sm font-bold">
+                    {{ field.value }}
+                  </dd>
+                </div>
+              </dl>
+
+              <details
+                class="mt-4 rounded-2xl border border-base-300 bg-base-200"
+              >
+                <summary class="cursor-pointer p-4 font-black">
+                  Open pageStore.page JSON
+                </summary>
+
+                <pre
+                  class="max-h-128 overflow-auto border-t border-base-300 p-4 text-xs"
+                ><code>{{ rawStorePageJson }}</code></pre>
+              </details>
+
+              <details
+                class="mt-4 rounded-2xl border border-base-300 bg-base-200"
+              >
+                <summary class="cursor-pointer p-4 font-black">
+                  Open raw Nuxt Content page JSON
+                </summary>
+
+                <pre
+                  class="max-h-128 overflow-auto border-t border-base-300 p-4 text-xs"
+                ><code>{{ rawContentPageJson }}</code></pre>
+              </details>
+            </section>
           </section>
+
+          <Transition name="workspace-sheet-slide">
+            <aside
+              v-if="workspaceSheetOpen"
+              class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl"
+            >
+              <div
+                class="flex items-center justify-between gap-3 border-b border-base-300 bg-base-200 px-3 py-2"
+              >
+                <div class="min-w-0">
+                  <p
+                    class="text-xs font-black uppercase tracking-[0.25em] text-primary"
+                  >
+                    Workspace Sheet
+                  </p>
+
+                  <p class="truncate text-xs text-base-content/50">
+                    ClientOnly test mount
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-xl"
+                  @click="workspaceSheetOpen = false"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div
+                class="max-h-[calc(100dvh-var(--hand-h)-8rem)] overflow-y-auto p-3"
+              >
+                <ClientOnly>
+                  <workspace-sheet />
+
+                  <template #fallback>
+                    <div
+                      class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
+                    >
+                      Loading workspace-sheet on the client...
+                    </div>
+                  </template>
+                </ClientOnly>
+              </div>
+            </aside>
+          </Transition>
         </section>
       </section>
 
       <footer
         class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center text-sm text-base-content/55 shadow-lg"
       >
-        Test stage 2 active: Nuxt Content loads, then pushes into pageStore. If
-        this works on first refresh, pageStore is innocent. Mostly. Nobody is
-        fully innocent in hydration court.
+        Test stage 3 active: Nuxt Content loads, pushes into pageStore, then
+        mounts workspace-sheet and workspace-hand through ClientOnly. If this
+        breaks on first refresh, the workspace components are looking extremely
+        sus.
       </footer>
     </main>
+
+    <ClientOnly>
+      <workspace-hand />
+
+      <template #fallback>
+        <div
+          class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+        >
+          Loading workspace-hand...
+        </div>
+      </template>
+    </ClientOnly>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { ContentCollectionItem } from '@nuxt/content'
@@ -453,6 +572,7 @@ const pageStore = usePageStore()
 
 const hydrated = ref(false)
 const friendlyImageFailed = ref(false)
+const workspaceSheetOpen = ref(true)
 
 const contentPath = computed(() => {
   const path = route.path.replace(/\/+$/, '')
@@ -474,6 +594,7 @@ const {
     const result = await queryCollection('content')
       .path(contentPath.value)
       .first()
+
     return result as ContentProbePage | null
   },
   {
@@ -693,6 +814,7 @@ function logStoreReport(): void {
   console.log('pageStore.page:', pageStore.page)
   console.log('pageStore.currentPage:', pageStore.currentPage)
   console.log('pageStore.meta:', pageStore.meta)
+  console.log('workspaceSheetOpen:', workspaceSheetOpen.value)
   console.log('storeMatchesContent:', storeMatchesContent.value)
   console.groupEnd()
 }
@@ -722,6 +844,15 @@ watch(
   { flush: 'sync' },
 )
 
+watch(workspaceSheetOpen, (value) => {
+  if (!import.meta.client) return
+
+  window.localStorage.setItem(
+    'kindrobots:workspace-sheet-probe-open',
+    value ? 'true' : 'false',
+  )
+})
+
 useSeoMeta({
   title: () => pageStore.title || 'Kind Robots',
   description: () =>
@@ -732,6 +863,15 @@ useSeoMeta({
 
 onMounted(async () => {
   hydrated.value = true
+
+  const storedSheetOpen = window.localStorage.getItem(
+    'kindrobots:workspace-sheet-probe-open',
+  )
+
+  if (storedSheetOpen) {
+    workspaceSheetOpen.value = storedSheetOpen === 'true'
+  }
+
   await nextTick()
   syncPageStore()
 
@@ -742,3 +882,24 @@ onMounted(async () => {
   logStoreReport()
 })
 </script>
+
+<style scoped>
+.workspace-sheet-slide-enter-active,
+.workspace-sheet-slide-leave-active {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.workspace-sheet-slide-enter-from,
+.workspace-sheet-slide-leave-to {
+  opacity: 0;
+  transform: translateX(0.75rem);
+}
+
+.workspace-sheet-slide-enter-to,
+.workspace-sheet-slide-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+</style>

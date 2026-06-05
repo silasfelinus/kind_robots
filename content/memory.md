@@ -9,7 +9,7 @@ tooltip: 'A memory game with lives, levels, powerups, surprise loot, and weird d
 dottitip: 'AMI, I upgraded the memory game into a dungeon crawler. There are lives, levels, rewards, and probably goblins.'
 amitip: 'Excellent. Nothing improves cognitive training like treasure chests and suspiciously judgmental rectangles.'
 dashboardKey: wonder
-dashboardTab: dungeon
+dashboardTab: memory-dungeon
 cards: labCards
 loadingMessage: Loading memory
 refreshLabel: Refresh memory

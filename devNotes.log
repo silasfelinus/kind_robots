@@ -155,3 +155,7 @@ This has been a productive set of days but a lot of it was spent reducing backen
 been working for days after guttig out the old front end, removing Layout, and trying to rebuild the content system. Currently it's mostly working again, minus failing to load the initial page until navigating to a second link. At least it's better than the 500 errors that were preventing launch entirely.
 
 Once the front end is back up, we'll have most of a consistent front end with everything following the builder framework design. I somewhat regretably killed splash-tutorial and ami-chat, two of my more personal additions to the design, but the current layout is much more consistent and *hopefully* I'm moving in the right direction. It's nice to have a single front end focus though.
+
+
+6/5/26 5:19am 
+minor progress. The workspace hand and workspace sheet are more or less in the right place. It makes the front end feel more solid. Still working on the initial bug where the first page isn't loading.

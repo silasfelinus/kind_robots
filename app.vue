@@ -1,501 +1,55 @@
 <!-- /app.vue -->
 <template>
   <div
-    class="min-h-dvh bg-base-200 text-base-content"
+    class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100 text-base-content"
     style="--hand-h: 11.5rem"
   >
-    <div
-      class="pointer-events-none fixed inset-0 overflow-hidden opacity-40"
-      aria-hidden="true"
-    >
-      <div
-        class="absolute -left-24 top-10 h-72 w-72 rounded-full bg-primary/30 blur-3xl"
-      />
-      <div
-        class="absolute right-0 top-1/3 h-96 w-96 rounded-full bg-secondary/20 blur-3xl"
-      />
-      <div
-        class="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-accent/20 blur-3xl"
-      />
-    </div>
-
-    <main
-      class="relative mx-auto flex min-h-dvh w-full max-w-7xl flex-col gap-4 p-3 pb-[calc(var(--hand-h)+1rem)] sm:p-4 sm:pb-[calc(var(--hand-h)+1rem)] lg:p-6 lg:pb-[calc(var(--hand-h)+1.5rem)]"
-    >
-      <header
-        class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl"
+    <dashboard-shell>
+      <section
+        class="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
       >
-        <div
-          class="grid gap-4 bg-linear-to-br from-primary/15 via-base-100 to-secondary/15 p-4 sm:grid-cols-[1fr_auto] sm:p-6"
+        <button
+          v-if="!workspaceSheetOpen"
+          type="button"
+          class="btn btn-primary btn-xs btn-square absolute left-3 top-2 z-40 shadow-lg"
+          aria-label="Open workspace"
+          :aria-expanded="workspaceSheetOpen"
+          @click="workspaceSheetOpen = true"
         >
-          <section class="min-w-0">
-            <p
-              class="text-xs font-black uppercase tracking-[0.3em] text-primary"
-            >
-              Kind Robots Content + PageStore + Workspace Probe
-            </p>
+          <Icon name="kind-icon:panel-left" class="h-4 w-4" />
+        </button>
 
-            <h1
-              class="mt-2 wrap-break-word text-3xl font-black leading-tight sm:text-5xl"
-            >
-              {{ pageStore.title }}
-            </h1>
-
-            <p
-              class="mt-3 max-w-3xl text-sm leading-relaxed text-base-content/65 sm:text-base"
-            >
-              {{ pageStore.description || pageStore.subtitle }}
-            </p>
-
-            <div class="mt-4 flex flex-wrap gap-2">
-              <span class="badge badge-primary badge-lg">
-                route: {{ route.fullPath }}
-              </span>
-
-              <span
-                class="badge badge-lg"
-                :class="page ? 'badge-success' : 'badge-warning'"
-              >
-                {{ page ? 'content found' : 'content missing' }}
-              </span>
-
-              <span
-                class="badge badge-lg"
-                :class="pageStore.page ? 'badge-success' : 'badge-warning'"
-              >
-                {{ pageStore.page ? 'store has page' : 'store empty' }}
-              </span>
-
-              <span class="badge badge-outline badge-lg">
-                status: {{ status }}
-              </span>
-
-              <span
-                class="badge badge-lg"
-                :class="pageStore.ready ? 'badge-info' : 'badge-neutral'"
-              >
-                ready: {{ pageStore.ready ? 'true' : 'false' }}
-              </span>
-
-              <span
-                class="badge badge-lg"
-                :class="pageStore.isLoading ? 'badge-warning' : 'badge-success'"
-              >
-                loading: {{ pageStore.isLoading ? 'true' : 'false' }}
-              </span>
-
-              <span
-                class="badge badge-lg"
-                :class="
-                  workspaceSheetOpen ? 'badge-secondary' : 'badge-neutral'
-                "
-              >
-                sheet: {{ workspaceSheetOpen ? 'open' : 'closed' }}
-              </span>
-
-              <span v-if="errorMessage" class="badge badge-error badge-lg">
-                error detected
-              </span>
-            </div>
-
-            <div class="mt-4 flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="btn btn-primary btn-sm rounded-2xl"
-                @click="workspaceSheetOpen = !workspaceSheetOpen"
-              >
-                {{
-                  workspaceSheetOpen
-                    ? 'Close workspace sheet'
-                    : 'Open workspace sheet'
-                }}
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-outline btn-sm rounded-2xl"
-                @click="forceRefresh"
-              >
-                Refresh content + store
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-outline btn-sm rounded-2xl"
-                @click="logStoreReport"
-              >
-                Log pageStore report
-              </button>
-            </div>
-          </section>
-
-          <section
-            class="grid min-h-48 place-items-center rounded-2xl border border-base-300 bg-base-100/70 p-4 text-center shadow-inner sm:w-72"
-          >
-            <img
-              v-if="friendlyImage"
-              :src="friendlyImage"
-              :alt="pageStore.title"
-              class="h-40 w-full rounded-2xl object-cover shadow-lg"
-              @error="friendlyImageFailed = true"
-            />
-
-            <div v-else class="flex flex-col items-center gap-3">
-              <div class="text-7xl">
-                {{ friendlyEmoji }}
-              </div>
-
-              <p
-                class="max-w-56 text-sm font-bold leading-relaxed text-base-content/60"
-              >
-                Workspace parts are now in the tube. Nobody sneeze.
-              </p>
-            </div>
-          </section>
-        </div>
-      </header>
-
-      <section class="grid flex-1 gap-4 xl:grid-cols-[minmax(18rem,24rem)_1fr]">
-        <aside class="flex min-h-0 flex-col gap-4">
-          <section
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p
-                  class="text-xs font-black uppercase tracking-[0.25em] text-primary"
-                >
-                  Slit
-                </p>
-
-                <h2 class="text-xl font-black">Store Scanner</h2>
-              </div>
-
-              <div class="text-4xl">🧪</div>
-            </div>
-
-            <div class="mt-4 space-y-3 text-sm">
-              <div class="rounded-2xl bg-base-200 p-3">
-                <p
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  Normalized path
-                </p>
-
-                <p class="mt-1 break-all font-mono text-xs">
-                  {{ contentPath }}
-                </p>
-              </div>
-
-              <div class="rounded-2xl bg-base-200 p-3">
-                <p
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  Hydrated
-                </p>
-
-                <p class="mt-1 font-black">
-                  {{ hydrated ? 'yes, browser goblin awake' : 'not yet' }}
-                </p>
-              </div>
-
-              <div class="rounded-2xl bg-base-200 p-3">
-                <p
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  pageStore.initialized
-                </p>
-
-                <p class="mt-1 font-black">
-                  {{ pageStore.initialized ? 'true' : 'false' }}
-                </p>
-              </div>
-
-              <div class="rounded-2xl bg-base-200 p-3">
-                <p
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  pageStore.page?.path
-                </p>
-
-                <p class="mt-1 break-all font-mono text-xs">
-                  {{ pageStore.currentPage?.path || '—' }}
-                </p>
-              </div>
-
-              <div class="rounded-2xl bg-base-200 p-3">
-                <p
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  workspace-sheet
-                </p>
-
-                <p class="mt-1 font-black">
-                  {{
-                    workspaceSheetOpen
-                      ? 'mounted through ClientOnly'
-                      : 'not mounted'
-                  }}
-                </p>
-              </div>
-
-              <div class="rounded-2xl bg-base-200 p-3">
-                <p
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  workspace-hand
-                </p>
-
-                <p class="mt-1 font-black">requested through ClientOnly</p>
-              </div>
-
-              <div
-                v-if="errorMessage"
-                class="rounded-2xl border border-error/30 bg-error/10 p-3 text-error"
-              >
-                <p class="text-xs font-black uppercase tracking-widest">
-                  Error
-                </p>
-
-                <p class="mt-1 wrap-break-word text-sm">
-                  {{ errorMessage }}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <h2 class="text-xl font-black">PageStore Meta</h2>
-
-              <span class="badge badge-primary">live</span>
-            </div>
-
-            <dl class="mt-4 flex flex-col gap-2">
-              <div
-                v-for="field in storeMetaFields"
-                :key="field.label"
-                class="rounded-2xl bg-base-200 p-3"
-              >
-                <dt
-                  class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                >
-                  {{ field.label }}
-                </dt>
-
-                <dd class="mt-1 wrap-break-word text-sm font-bold">
-                  {{ field.value }}
-                </dd>
-              </div>
-            </dl>
-          </section>
-
-          <section
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <h2 class="text-xl font-black">Nearby Portals</h2>
-
-              <span class="badge badge-outline">
-                {{ visiblePages.length }}
-              </span>
-            </div>
-
-            <div v-if="visiblePages.length" class="mt-4 flex flex-col gap-2">
-              <NuxtLink
-                v-for="item in visiblePages"
-                :key="item.path"
-                :to="item.path"
-                class="group rounded-2xl border border-base-300 bg-base-200 p-3 transition hover:border-primary hover:bg-primary/10"
-              >
-                <p class="truncate font-black group-hover:text-primary">
-                  {{ item.title || item.path }}
-                </p>
-
-                <p class="mt-1 truncate text-xs text-base-content/50">
-                  {{ item.path }}
-                </p>
-              </NuxtLink>
-            </div>
-
-            <div
-              v-else
-              class="mt-4 rounded-2xl border border-dashed border-base-300 p-4 text-sm text-base-content/50"
-            >
-              No other content pages returned.
-            </div>
-          </section>
-        </aside>
-
-        <section class="grid min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
-          <section class="flex min-h-0 flex-col gap-4">
-            <article
-              class="min-h-[50dvh] rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
-            >
-              <div
-                class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-base-300 pb-4"
-              >
-                <div>
-                  <p
-                    class="text-xs font-black uppercase tracking-[0.25em] text-primary"
-                  >
-                    Rendered Markdown
-                  </p>
-
-                  <h2 class="text-2xl font-black">ContentRenderer Output</h2>
-                </div>
-
-                <div class="text-3xl">🤖</div>
-              </div>
-
-              <ContentRenderer
-                v-if="page"
-                :value="page"
-                class="prose max-w-none text-base-content prose-headings:text-base-content prose-a:text-primary prose-strong:text-base-content"
-              />
-
-              <div
-                v-else-if="status === 'pending'"
-                class="grid min-h-72 place-items-center rounded-2xl bg-base-200 p-6 text-center"
-              >
-                <div class="flex max-w-md flex-col items-center gap-3">
-                  <div
-                    class="loading loading-spinner loading-lg text-primary"
-                  />
-
-                  <h3 class="text-xl font-black">Querying Nuxt Content</h3>
-
-                  <p class="text-sm leading-relaxed text-base-content/60">
-                    The content goblin is checking under the Markdown couch.
-                  </p>
-                </div>
-              </div>
-
-              <div
-                v-else
-                class="grid min-h-72 place-items-center rounded-2xl border border-dashed border-warning/50 bg-warning/10 p-6 text-center"
-              >
-                <div class="max-w-lg">
-                  <div class="text-6xl">🕳️</div>
-
-                  <h3 class="mt-3 text-2xl font-black">
-                    Page not found in content collection
-                  </h3>
-
-                  <p class="mt-2 text-sm leading-relaxed text-base-content/65">
-                    The route loaded, but the content query returned nothing.
-                  </p>
-                </div>
-              </div>
-            </article>
-
-            <section
-              class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
-            >
-              <div
-                class="mb-4 flex flex-wrap items-center justify-between gap-3"
-              >
-                <div>
-                  <p
-                    class="text-xs font-black uppercase tracking-[0.25em] text-secondary"
-                  >
-                    Store Report
-                  </p>
-
-                  <h2 class="text-2xl font-black">What pageStore Has</h2>
-                </div>
-
-                <span
-                  class="badge"
-                  :class="
-                    storeMatchesContent ? 'badge-success' : 'badge-warning'
-                  "
-                >
-                  {{
-                    storeMatchesContent
-                      ? 'store matches content path'
-                      : 'store mismatch'
-                  }}
-                </span>
-              </div>
-
-              <dl class="grid gap-3 md:grid-cols-2">
-                <div
-                  v-for="field in storeReportFields"
-                  :key="field.label"
-                  class="rounded-2xl bg-base-200 p-3"
-                >
-                  <dt
-                    class="text-xs font-black uppercase tracking-widest text-base-content/45"
-                  >
-                    {{ field.label }}
-                  </dt>
-
-                  <dd class="mt-1 wrap-break-word text-sm font-bold">
-                    {{ field.value }}
-                  </dd>
-                </div>
-              </dl>
-
-              <details
-                class="mt-4 rounded-2xl border border-base-300 bg-base-200"
-              >
-                <summary class="cursor-pointer p-4 font-black">
-                  Open pageStore.page JSON
-                </summary>
-
-                <pre
-                  class="max-h-128 overflow-auto border-t border-base-300 p-4 text-xs"
-                ><code>{{ rawStorePageJson }}</code></pre>
-              </details>
-
-              <details
-                class="mt-4 rounded-2xl border border-base-300 bg-base-200"
-              >
-                <summary class="cursor-pointer p-4 font-black">
-                  Open raw Nuxt Content page JSON
-                </summary>
-
-                <pre
-                  class="max-h-128 overflow-auto border-t border-base-300 p-4 text-xs"
-                ><code>{{ rawContentPageJson }}</code></pre>
-              </details>
-            </section>
-          </section>
-
+        <div
+          class="flex min-h-0 flex-1 overflow-hidden pb-(--hand-h) md:flex-row md:gap-3"
+        >
           <Transition name="workspace-sheet-slide">
             <aside
               v-if="workspaceSheetOpen"
-              class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl"
+              class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
             >
               <div
-                class="flex items-center justify-between gap-3 border-b border-base-300 bg-base-200 px-3 py-2"
+                class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
               >
                 <div class="min-w-0">
                   <p
-                    class="text-xs font-black uppercase tracking-[0.25em] text-primary"
+                    class="truncate text-xs font-black uppercase tracking-widest text-primary"
                   >
-                    Workspace Sheet
-                  </p>
-
-                  <p class="truncate text-xs text-base-content/50">
-                    ClientOnly test mount
+                    Workspace
                   </p>
                 </div>
 
                 <button
                   type="button"
-                  class="btn btn-ghost btn-xs rounded-xl"
+                  class="btn btn-ghost btn-xs btn-square"
+                  aria-label="Close workspace"
                   @click="workspaceSheetOpen = false"
                 >
-                  Close
+                  <Icon name="kind-icon:close" class="h-4 w-4" />
                 </button>
               </div>
 
               <div
-                class="max-h-[calc(100dvh-var(--hand-h)-8rem)] overflow-y-auto p-3"
+                class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
               >
                 <ClientOnly>
                   <workspace-sheet />
@@ -504,25 +58,155 @@
                     <div
                       class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
                     >
-                      Loading workspace-sheet on the client...
+                      Loading workspace...
                     </div>
                   </template>
                 </ClientOnly>
               </div>
             </aside>
           </Transition>
-        </section>
-      </section>
 
-      <footer
-        class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center text-sm text-base-content/55 shadow-lg"
-      >
-        Test stage 3 active: Nuxt Content loads, pushes into pageStore, then
-        mounts workspace-sheet and workspace-hand through ClientOnly. If this
-        breaks on first refresh, the workspace components are looking extremely
-        sus.
-      </footer>
-    </main>
+          <main
+            class="relative h-full min-h-0 flex-1 overflow-y-auto"
+            :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
+          >
+            <section
+              class="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 p-3 sm:p-4 lg:p-6"
+            >
+              <header
+                class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl"
+              >
+                <div
+                  class="grid gap-4 bg-linear-to-br from-primary/15 via-base-100 to-secondary/15 p-4 sm:grid-cols-[1fr_auto] sm:p-6"
+                >
+                  <section class="min-w-0">
+                    <p
+                      class="text-xs font-black uppercase tracking-[0.3em] text-primary"
+                    >
+                      {{ pageStore.room }}
+                    </p>
+
+                    <h1
+                      class="mt-2 wrap-break-word text-3xl font-black leading-tight sm:text-5xl"
+                    >
+                      {{ pageStore.title }}
+                    </h1>
+
+                    <p
+                      class="mt-3 max-w-3xl text-sm leading-relaxed text-base-content/65 sm:text-base"
+                    >
+                      {{ pageStore.description || pageStore.subtitle }}
+                    </p>
+
+                    <div
+                      v-if="
+                        pageStore.tooltip ||
+                        pageStore.dottitip ||
+                        pageStore.amitip
+                      "
+                      class="mt-4 grid gap-2 text-sm md:grid-cols-3"
+                    >
+                      <div
+                        v-if="pageStore.tooltip"
+                        class="rounded-2xl border border-base-300 bg-base-200/70 p-3"
+                      >
+                        {{ pageStore.tooltip }}
+                      </div>
+
+                      <div
+                        v-if="pageStore.dottitip"
+                        class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
+                      >
+                        {{ pageStore.dottitip }}
+                      </div>
+
+                      <div
+                        v-if="pageStore.amitip"
+                        class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
+                      >
+                        {{ pageStore.amitip }}
+                      </div>
+                    </div>
+                  </section>
+
+                  <section
+                    class="grid min-h-48 place-items-center rounded-2xl border border-base-300 bg-base-100/70 p-4 text-center shadow-inner sm:w-72"
+                  >
+                    <img
+                      v-if="friendlyImage"
+                      :src="friendlyImage"
+                      :alt="pageStore.title"
+                      class="h-40 w-full rounded-2xl object-cover shadow-lg"
+                      @error="friendlyImageFailed = true"
+                    />
+
+                    <div v-else class="flex flex-col items-center gap-3">
+                      <div class="text-7xl">
+                        {{ friendlyEmoji }}
+                      </div>
+
+                      <p
+                        class="max-w-56 text-sm font-bold leading-relaxed text-base-content/60"
+                      >
+                        This room is loading without drama. Suspicious, but
+                        welcome.
+                      </p>
+                    </div>
+                  </section>
+                </div>
+              </header>
+
+              <article
+                class="min-h-[50dvh] rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
+              >
+                <ContentRenderer
+                  v-if="page"
+                  :value="page"
+                  class="prose max-w-none text-base-content prose-headings:text-base-content prose-a:text-primary prose-strong:text-base-content"
+                />
+
+                <div
+                  v-else-if="status === 'pending'"
+                  class="grid min-h-72 place-items-center rounded-2xl bg-base-200 p-6 text-center"
+                >
+                  <div class="flex max-w-md flex-col items-center gap-3">
+                    <div
+                      class="loading loading-spinner loading-lg text-primary"
+                    />
+
+                    <h2 class="text-xl font-black">
+                      Loading {{ contentPath }}
+                    </h2>
+
+                    <p class="text-sm leading-relaxed text-base-content/60">
+                      Reality is compiling. The robots are pretending this is
+                      normal.
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  v-else
+                  class="grid min-h-72 place-items-center rounded-2xl border border-dashed border-warning/50 bg-warning/10 p-6 text-center"
+                >
+                  <div class="max-w-lg">
+                    <div class="text-6xl">🕳️</div>
+
+                    <h2 class="mt-3 text-2xl font-black">Page not found</h2>
+
+                    <p
+                      class="mt-2 text-sm leading-relaxed text-base-content/65"
+                    >
+                      No content entry was found for {{ contentPath }}.
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </main>
+        </div>
+      </section>
+    </dashboard-shell>
 
     <ClientOnly>
       <workspace-hand />
@@ -531,7 +215,7 @@
         <div
           class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
         >
-          Loading workspace-hand...
+          Loading workspace hand...
         </div>
       </template>
     </ClientOnly>
@@ -561,12 +245,6 @@ type ContentProbePage = ContentCollectionItem & {
   body?: unknown
 }
 
-type ContentProbeListItem = ContentCollectionItem & {
-  title?: string
-  description?: string
-  image?: string
-}
-
 const route = useRoute()
 const pageStore = usePageStore()
 
@@ -579,7 +257,9 @@ const contentPath = computed(() => {
   return path || '/'
 })
 
-const asyncKey = computed(() => `content-page-store-probe:${contentPath.value}`)
+const asyncKey = computed(
+  () => `content-dashboard-shell-probe:${contentPath.value}`,
+)
 
 pageStore.initialize()
 
@@ -607,25 +287,7 @@ const {
   },
 )
 
-const { data: allPagesData } = await useAsyncData(
-  'content-page-store-probe:all-pages',
-  async () => {
-    const result = await queryCollection('content').all()
-    return result as ContentProbeListItem[]
-  },
-  {
-    default: () => [],
-    server: true,
-    lazy: false,
-    immediate: true,
-  },
-)
-
 const page = computed(() => pageData.value)
-
-const allPages = computed(() => {
-  return allPagesData.value ?? []
-})
 
 const friendlyEmoji = computed(() => {
   const path = contentPath.value.toLowerCase()
@@ -665,128 +327,6 @@ const errorMessage = computed(() => {
   return String(error.value)
 })
 
-const visiblePages = computed(() => {
-  return allPages.value
-    .filter((item): item is ContentProbeListItem & { path: string } => {
-      return typeof item.path === 'string' && item.path.length > 0
-    })
-    .filter((item) => item.path !== contentPath.value)
-    .slice(0, 12)
-})
-
-const storeMatchesContent = computed(() => {
-  return pageStore.currentPage?.path === page.value?.path
-})
-
-const storeMetaFields = computed(() => [
-  {
-    label: 'title',
-    value: stringifyField(pageStore.meta.title),
-  },
-  {
-    label: 'room',
-    value: stringifyField(pageStore.meta.room),
-  },
-  {
-    label: 'subtitle',
-    value: stringifyField(pageStore.meta.subtitle),
-  },
-  {
-    label: 'description',
-    value: stringifyField(pageStore.meta.description),
-  },
-  {
-    label: 'icon',
-    value: stringifyField(pageStore.meta.icon),
-  },
-  {
-    label: 'image',
-    value: stringifyField(pageStore.meta.image),
-  },
-  {
-    label: 'dashboardKey',
-    value: stringifyField(pageStore.meta.dashboardKey),
-  },
-  {
-    label: 'dashboardTab',
-    value: stringifyField(pageStore.meta.dashboardTab),
-  },
-  {
-    label: 'loadingMessage',
-    value: stringifyField(pageStore.meta.loadingMessage),
-  },
-  {
-    label: 'refreshLabel',
-    value: stringifyField(pageStore.meta.refreshLabel),
-  },
-])
-
-const storeReportFields = computed(() => [
-  {
-    label: 'content path',
-    value: contentPath.value,
-  },
-  {
-    label: 'raw content page path',
-    value: stringifyField(page.value?.path),
-  },
-  {
-    label: 'store currentPage path',
-    value: stringifyField(pageStore.currentPage?.path),
-  },
-  {
-    label: 'store has page',
-    value: pageStore.page ? 'yes' : 'no',
-  },
-  {
-    label: 'store ready',
-    value: String(pageStore.ready),
-  },
-  {
-    label: 'store initialized',
-    value: String(pageStore.initialized),
-  },
-  {
-    label: 'store isLoading',
-    value: String(pageStore.isLoading),
-  },
-  {
-    label: 'store cardsKey',
-    value: stringifyField(pageStore.cardsKey),
-  },
-  {
-    label: 'store cards count',
-    value: String(pageStore.cards.length),
-  },
-  {
-    label: 'store workspaceCardKey',
-    value: stringifyField(pageStore.workspaceCardKey),
-  },
-])
-
-const rawStorePageJson = computed(() => {
-  return JSON.stringify(pageStore.page, null, 2)
-})
-
-const rawContentPageJson = computed(() => {
-  return JSON.stringify(page.value, null, 2)
-})
-
-function stringifyField(value: unknown): string {
-  if (value === null || value === undefined || value === '') return '—'
-
-  if (typeof value === 'string') return value
-
-  return JSON.stringify(value)
-}
-
-async function forceRefresh(): Promise<void> {
-  pageStore.setLoading(true)
-  friendlyImageFailed.value = false
-  await refresh()
-  syncPageStore()
-}
-
 function syncPageStore(): void {
   if (status.value === 'pending' || status.value === 'idle') {
     pageStore.setLoading(true)
@@ -804,18 +344,25 @@ function syncPageStore(): void {
   }
 }
 
-function logStoreReport(): void {
+async function forceRefresh(): Promise<void> {
+  pageStore.setLoading(true)
+  friendlyImageFailed.value = false
+  await refresh()
+  syncPageStore()
+}
+
+function logPageReport(): void {
   if (!import.meta.client) return
 
-  console.groupCollapsed('[app.vue probe] pageStore report')
+  console.groupCollapsed('[app.vue] dashboard-shell page report')
   console.log('contentPath:', contentPath.value)
-  console.log('contentStatus:', status.value)
-  console.log('raw content page:', page.value)
+  console.log('status:', status.value)
+  console.log('error:', errorMessage.value)
+  console.log('page:', page.value)
   console.log('pageStore.page:', pageStore.page)
   console.log('pageStore.currentPage:', pageStore.currentPage)
   console.log('pageStore.meta:', pageStore.meta)
   console.log('workspaceSheetOpen:', workspaceSheetOpen.value)
-  console.log('storeMatchesContent:', storeMatchesContent.value)
   console.groupEnd()
 }
 
@@ -848,7 +395,7 @@ watch(workspaceSheetOpen, (value) => {
   if (!import.meta.client) return
 
   window.localStorage.setItem(
-    'kindrobots:workspace-sheet-probe-open',
+    'kindrobots:workspace-sheet-open',
     value ? 'true' : 'false',
   )
 })
@@ -865,7 +412,7 @@ onMounted(async () => {
   hydrated.value = true
 
   const storedSheetOpen = window.localStorage.getItem(
-    'kindrobots:workspace-sheet-probe-open',
+    'kindrobots:workspace-sheet-open',
   )
 
   if (storedSheetOpen) {
@@ -879,7 +426,7 @@ onMounted(async () => {
     await forceRefresh()
   }
 
-  logStoreReport()
+  logPageReport()
 })
 </script>
 
@@ -887,14 +434,14 @@ onMounted(async () => {
 .workspace-sheet-slide-enter-active,
 .workspace-sheet-slide-leave-active {
   transition:
-    opacity 180ms ease,
-    transform 180ms ease;
+    transform 180ms ease,
+    opacity 180ms ease;
 }
 
 .workspace-sheet-slide-enter-from,
 .workspace-sheet-slide-leave-to {
   opacity: 0;
-  transform: translateX(0.75rem);
+  transform: translateX(-1rem);
 }
 
 .workspace-sheet-slide-enter-to,

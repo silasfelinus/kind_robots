@@ -14,7 +14,7 @@
           class="btn btn-primary btn-xs btn-square absolute left-3 top-2 z-40 shadow-lg"
           aria-label="Open workspace"
           :aria-expanded="workspaceSheetOpen"
-          @click="workspaceSheetOpen = true"
+          @click="setWorkspaceSheetOpen(true)"
         >
           <Icon name="kind-icon:panel-left" class="h-4 w-4" />
         </button>
@@ -30,19 +30,17 @@
               <div
                 class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
               >
-                <div class="min-w-0">
-                  <p
-                    class="truncate text-xs font-black uppercase tracking-widest text-primary"
-                  >
-                    Workspace
-                  </p>
-                </div>
+                <p
+                  class="truncate text-xs font-black uppercase tracking-widest text-primary"
+                >
+                  Workspace
+                </p>
 
                 <button
                   type="button"
                   class="btn btn-ghost btn-xs btn-square"
                   aria-label="Close workspace"
-                  @click="workspaceSheetOpen = false"
+                  @click="setWorkspaceSheetOpen(false)"
                 >
                   <Icon name="kind-icon:close" class="h-4 w-4" />
                 </button>
@@ -70,139 +68,7 @@
             class="relative h-full min-h-0 flex-1 overflow-y-auto"
             :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
           >
-            <section
-              class="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 p-3 sm:p-4 lg:p-6"
-            >
-              <header
-                class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl"
-              >
-                <div
-                  class="grid gap-4 bg-linear-to-br from-primary/15 via-base-100 to-secondary/15 p-4 sm:grid-cols-[1fr_auto] sm:p-6"
-                >
-                  <section class="min-w-0">
-                    <p
-                      class="text-xs font-black uppercase tracking-[0.3em] text-primary"
-                    >
-                      {{ pageStore.room }}
-                    </p>
-
-                    <h1
-                      class="mt-2 wrap-break-word text-3xl font-black leading-tight sm:text-5xl"
-                    >
-                      {{ pageStore.title }}
-                    </h1>
-
-                    <p
-                      class="mt-3 max-w-3xl text-sm leading-relaxed text-base-content/65 sm:text-base"
-                    >
-                      {{ pageStore.description || pageStore.subtitle }}
-                    </p>
-
-                    <div
-                      v-if="
-                        pageStore.tooltip ||
-                        pageStore.dottitip ||
-                        pageStore.amitip
-                      "
-                      class="mt-4 grid gap-2 text-sm md:grid-cols-3"
-                    >
-                      <div
-                        v-if="pageStore.tooltip"
-                        class="rounded-2xl border border-base-300 bg-base-200/70 p-3"
-                      >
-                        {{ pageStore.tooltip }}
-                      </div>
-
-                      <div
-                        v-if="pageStore.dottitip"
-                        class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
-                      >
-                        {{ pageStore.dottitip }}
-                      </div>
-
-                      <div
-                        v-if="pageStore.amitip"
-                        class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
-                      >
-                        {{ pageStore.amitip }}
-                      </div>
-                    </div>
-                  </section>
-
-                  <section
-                    class="grid min-h-48 place-items-center rounded-2xl border border-base-300 bg-base-100/70 p-4 text-center shadow-inner sm:w-72"
-                  >
-                    <img
-                      v-if="friendlyImage"
-                      :src="friendlyImage"
-                      :alt="pageStore.title"
-                      class="h-40 w-full rounded-2xl object-cover shadow-lg"
-                      @error="friendlyImageFailed = true"
-                    />
-
-                    <div v-else class="flex flex-col items-center gap-3">
-                      <div class="text-7xl">
-                        {{ friendlyEmoji }}
-                      </div>
-
-                      <p
-                        class="max-w-56 text-sm font-bold leading-relaxed text-base-content/60"
-                      >
-                        This room is loading without drama. Suspicious, but
-                        welcome.
-                      </p>
-                    </div>
-                  </section>
-                </div>
-              </header>
-
-              <article
-                class="min-h-[50dvh] rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
-              >
-                <ContentRenderer
-                  v-if="page"
-                  :value="page"
-                  class="prose max-w-none text-base-content prose-headings:text-base-content prose-a:text-primary prose-strong:text-base-content"
-                />
-
-                <div
-                  v-else-if="status === 'pending'"
-                  class="grid min-h-72 place-items-center rounded-2xl bg-base-200 p-6 text-center"
-                >
-                  <div class="flex max-w-md flex-col items-center gap-3">
-                    <div
-                      class="loading loading-spinner loading-lg text-primary"
-                    />
-
-                    <h2 class="text-xl font-black">
-                      Loading {{ contentPath }}
-                    </h2>
-
-                    <p class="text-sm leading-relaxed text-base-content/60">
-                      Reality is compiling. The robots are pretending this is
-                      normal.
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  v-else
-                  class="grid min-h-72 place-items-center rounded-2xl border border-dashed border-warning/50 bg-warning/10 p-6 text-center"
-                >
-                  <div class="max-w-lg">
-                    <div class="text-6xl">🕳️</div>
-
-                    <h2 class="mt-3 text-2xl font-black">Page not found</h2>
-
-                    <p
-                      class="mt-2 text-sm leading-relaxed text-base-content/65"
-                    >
-                      No content entry was found for {{ contentPath }}.
-                    </p>
-                  </div>
-                </div>
-              </article>
-            </section>
+            <NuxtPage />
           </main>
         </div>
       </section>
@@ -227,7 +93,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { ContentCollectionItem } from '@nuxt/content'
 import { usePageStore } from '@/stores/pageStore'
 
-type ContentProbePage = ContentCollectionItem & {
+type WorkspaceContentPage = ContentCollectionItem & {
   title?: string
   description?: string
   subtitle?: string
@@ -248,8 +114,6 @@ type ContentProbePage = ContentCollectionItem & {
 const route = useRoute()
 const pageStore = usePageStore()
 
-const hydrated = ref(false)
-const friendlyImageFailed = ref(false)
 const workspaceSheetOpen = ref(true)
 
 const contentPath = computed(() => {
@@ -257,16 +121,13 @@ const contentPath = computed(() => {
   return path || '/'
 })
 
-const asyncKey = computed(
-  () => `content-dashboard-shell-probe:${contentPath.value}`,
-)
+const asyncKey = computed(() => `app-content:${contentPath.value}`)
 
 pageStore.initialize()
 
 const {
   data: pageData,
   status,
-  error,
   refresh,
 } = await useAsyncData(
   asyncKey.value,
@@ -275,7 +136,7 @@ const {
       .path(contentPath.value)
       .first()
 
-    return result as ContentProbePage | null
+    return result as WorkspaceContentPage | null
   },
   {
     default: () => null,
@@ -289,43 +150,16 @@ const {
 
 const page = computed(() => pageData.value)
 
-const friendlyEmoji = computed(() => {
-  const path = contentPath.value.toLowerCase()
+function setWorkspaceSheetOpen(value: boolean): void {
+  workspaceSheetOpen.value = value
 
-  if (path.includes('builder')) return '🛠️'
-  if (path.includes('art')) return '🎨'
-  if (path.includes('bot')) return '🤖'
-  if (path.includes('memory')) return '🧠'
-  if (path.includes('wonder')) return '🧪'
-  if (path.includes('story')) return '📚'
-  if (path.includes('dashboard')) return '📡'
-
-  return '🐈‍⬛'
-})
-
-const friendlyImage = computed(() => {
-  if (friendlyImageFailed.value) return ''
-
-  const image = pageStore.image || page.value?.image
-
-  if (typeof image !== 'string' || !image.trim()) return ''
-
-  if (image.startsWith('http://') || image.startsWith('https://')) {
-    return image
+  if (import.meta.client) {
+    window.localStorage.setItem(
+      'kindrobots:workspace-sheet-open',
+      value ? 'true' : 'false',
+    )
   }
-
-  return image.startsWith('/') ? image : `/${image}`
-})
-
-const errorMessage = computed(() => {
-  if (!error.value) return ''
-
-  if (error.value instanceof Error) {
-    return error.value.message
-  }
-
-  return String(error.value)
-})
+}
 
 function syncPageStore(): void {
   if (status.value === 'pending' || status.value === 'idle') {
@@ -342,28 +176,6 @@ function syncPageStore(): void {
     pageStore.clearPage()
     pageStore.setLoading(false)
   }
-}
-
-async function forceRefresh(): Promise<void> {
-  pageStore.setLoading(true)
-  friendlyImageFailed.value = false
-  await refresh()
-  syncPageStore()
-}
-
-function logPageReport(): void {
-  if (!import.meta.client) return
-
-  console.groupCollapsed('[app.vue] dashboard-shell page report')
-  console.log('contentPath:', contentPath.value)
-  console.log('status:', status.value)
-  console.log('error:', errorMessage.value)
-  console.log('page:', page.value)
-  console.log('pageStore.page:', pageStore.page)
-  console.log('pageStore.currentPage:', pageStore.currentPage)
-  console.log('pageStore.meta:', pageStore.meta)
-  console.log('workspaceSheetOpen:', workspaceSheetOpen.value)
-  console.groupEnd()
 }
 
 watch(
@@ -385,20 +197,10 @@ watch(
 watch(
   contentPath,
   () => {
-    friendlyImageFailed.value = false
     pageStore.setLoading(true)
   },
   { flush: 'sync' },
 )
-
-watch(workspaceSheetOpen, (value) => {
-  if (!import.meta.client) return
-
-  window.localStorage.setItem(
-    'kindrobots:workspace-sheet-open',
-    value ? 'true' : 'false',
-  )
-})
 
 useSeoMeta({
   title: () => pageStore.title || 'Kind Robots',
@@ -409,8 +211,6 @@ useSeoMeta({
 })
 
 onMounted(async () => {
-  hydrated.value = true
-
   const storedSheetOpen = window.localStorage.getItem(
     'kindrobots:workspace-sheet-open',
   )
@@ -423,10 +223,9 @@ onMounted(async () => {
   syncPageStore()
 
   if (!page.value && status.value !== 'pending') {
-    await forceRefresh()
+    await refresh()
+    syncPageStore()
   }
-
-  logPageReport()
 })
 </script>
 

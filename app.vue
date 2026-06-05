@@ -86,7 +86,9 @@
       </template>
     </dashboard-shell>
 
-    <workspace-hand class="fixed inset-x-0 bottom-0 z-30 h-(--hand-h,4rem)" />
+    <workspace-hand
+      class="absolute inset-x-0 bottom-0 z-30 h-(--hand-h,4rem)"
+    />
   </div>
 </template>
 

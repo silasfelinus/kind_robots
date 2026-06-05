@@ -94,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -112,7 +112,7 @@ const isNavigating = ref(false)
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
 
 const showWorkspaceSheet = computed(() => navStore.workspaceSheetOpen)
-const showWorkspacePage = computed(() => !navStore.workspaceSheetOpen)
+const showWorkspacePage = computed(() => true)
 
 if (import.meta.client && route.query.token && !userStore.user) {
   await userStore.initialize({ token: String(route.query.token), force: true })
@@ -195,5 +195,9 @@ useSeoMeta({
   description: () =>
     page.value?.description ||
     'A friendly AI playground for humans and robots.',
+})
+
+onMounted(() => {
+  navStore.initialize()
 })
 </script>

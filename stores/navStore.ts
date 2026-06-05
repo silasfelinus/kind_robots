@@ -688,11 +688,12 @@ export const useNavStore = defineStore('navStore', () => {
     syncWorkspaceSheetOpenToLocalStorage()
   }
 
-  function closeWorkspaceSheet() {
-    workspaceSheetOpen.value = false
+  function closeWorkspaceSheet(): void {
+    setWorkspaceSheetOpen(false)
   }
-  function toggleWorkspaceSheet() {
-    workspaceSheetOpen.value = !workspaceSheetOpen.value
+
+  function toggleWorkspaceSheet(): void {
+    setWorkspaceSheetOpen(!workspaceSheetOpen.value)
   }
 
   function showWorkspaceSheet(): void {

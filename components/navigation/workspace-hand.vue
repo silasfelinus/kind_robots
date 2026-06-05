@@ -1,7 +1,8 @@
 <!-- /components/navigation/workspace-hand.vue -->
 <template>
   <div
-    class="absolute inset-x-0 bottom-0 z-30 flex h-(--hand-h,4rem) items-end gap-2 overflow-x-auto px-1 py-1"
+    ref="handEl"
+    class="absolute inset-x-0 bottom-0 z-30 flex items-end gap-2 overflow-x-auto px-1 py-1"
   >
     <button
       v-for="card in handCards"
@@ -47,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -57,6 +58,9 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 const route = useRoute()
 const builderStore = useBuilderStore()
 const pageStore = usePageStore()
+
+const handEl = ref<HTMLElement | null>(null)
+let observer: ResizeObserver | null = null
 
 const isBuilderDeck = computed(() => pageStore.cardsKey === 'builderCards')
 
@@ -113,6 +117,12 @@ const handCards = computed(() => {
   )
 })
 
+function publishHeight(): void {
+  if (!handEl.value) return
+  const h = handEl.value.scrollHeight
+  document.documentElement.style.setProperty('--hand-h', `${h}px`)
+}
+
 function getCardPath(card: BuilderCard): string {
   const path = card.payload?.path ?? card.payload?.to ?? card.payload?.href
   return typeof path === 'string' ? path : ''
@@ -156,4 +166,18 @@ function normalizeImagePath(path: string): string {
   if (path.startsWith('/') || path.startsWith('http')) return path
   return `/images/${path}`
 }
+
+onMounted(() => {
+  if (!import.meta.client) return
+  publishHeight()
+  observer = new ResizeObserver(() => publishHeight())
+  if (handEl.value) observer.observe(handEl.value)
+})
+
+watch(handCards, () => nextTick(publishHeight))
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  document.documentElement.style.removeProperty('--hand-h')
+})
 </script>

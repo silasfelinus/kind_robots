@@ -1,6 +1,9 @@
 <!-- /app.vue -->
 <template>
-  <div class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100">
+  <div
+    class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100"
+    style="--hand-h: 11.5rem"
+  >
     <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
       <kind-loader @pageReady="handlePageReady" />
     </div>
@@ -39,7 +42,7 @@
           data-dashboard-page-slot
         >
           <div
-            class="flex min-h-0 flex-1 overflow-hidden pb-(--hand-h,4rem) md:flex-row md:gap-3"
+            class="flex min-h-0 flex-1 overflow-hidden pb-(--hand-h,11.5rem) md:flex-row md:gap-3"
           >
             <aside
               v-show="showWorkspaceSheet"
@@ -97,17 +100,6 @@ import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 
-type NavStoreWithWorkspaceSheet = {
-  workspaceSheetOpen?: boolean
-  sheetVisible?: boolean
-  showWorkspaceSheet?: boolean
-  dashboardShell?: {
-    workspaceSheetOpen?: boolean
-    sheetVisible?: boolean
-    showWorkspaceSheet?: boolean
-  }
-}
-
 const route = useRoute()
 const router = useRouter()
 const navStore = useNavStore()
@@ -118,22 +110,6 @@ const showLoader = ref(true)
 const isNavigating = ref(false)
 
 const contentPath = computed(() => route.path.replace(/\/$/, '') || '/')
-
-const navState = computed(
-  () => navStore as unknown as NavStoreWithWorkspaceSheet,
-)
-
-const mobileSheetOpen = computed(() => {
-  return Boolean(
-    navState.value.workspaceSheetOpen ??
-    navState.value.sheetVisible ??
-    navState.value.showWorkspaceSheet ??
-    navState.value.dashboardShell?.workspaceSheetOpen ??
-    navState.value.dashboardShell?.sheetVisible ??
-    navState.value.dashboardShell?.showWorkspaceSheet ??
-    false,
-  )
-})
 
 const showWorkspaceSheet = computed(() => navStore.workspaceSheetOpen)
 const showWorkspacePage = computed(() => !navStore.workspaceSheetOpen)

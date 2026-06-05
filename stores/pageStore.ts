@@ -13,6 +13,16 @@ export type WorkspacePage = ContentCollectionItem & {
   dashboardTab?: string
   loadingMessage?: string
   refreshLabel?: string
+  room?: string
+  subtitle?: string
+  tooltip?: string
+  dottitip?: string
+  amitip?: string
+  artPrompt?: string
+  sort?: string | number
+  icon?: string
+  image?: string
+  description?: string
 }
 
 function normalizeImagePath(path: string): string {
@@ -38,6 +48,7 @@ export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentCollectionItem | null>(null)
   const ready = ref(false)
   const initialized = ref(false)
+  const isLoading = ref(false)
   const workspaceCardKey = ref('')
 
   const currentPage = computed(() => page.value as WorkspacePage | null)
@@ -85,10 +96,19 @@ export const usePageStore = defineStore('pageStore', () => {
     }
   }
 
+  function setLoading(value: boolean): void {
+    isLoading.value = value
+
+    if (import.meta.client) {
+      console.log('[pageStore] setLoading', value)
+    }
+  }
+
   function setPage(newPage: ContentCollectionItem): void {
     page.value = newPage
     workspaceCardKey.value = ''
     ready.value = true
+    isLoading.value = false
 
     if (import.meta.client) {
       console.groupCollapsed('[pageStore] setPage')
@@ -109,7 +129,20 @@ export const usePageStore = defineStore('pageStore', () => {
 
     if (import.meta.client) {
       console.groupCollapsed('[pageStore] clearPage')
-      console.log('Page cleared because Nuxt Content returned no match.')
+      console.log('Page cleared.')
+      console.groupEnd()
+    }
+  }
+
+  function resetPage(): void {
+    page.value = null
+    workspaceCardKey.value = ''
+    ready.value = false
+    isLoading.value = false
+
+    if (import.meta.client) {
+      console.groupCollapsed('[pageStore] resetPage')
+      console.log('Page state reset.')
       console.groupEnd()
     }
   }
@@ -126,15 +159,20 @@ export const usePageStore = defineStore('pageStore', () => {
 
   return {
     page,
+    currentPage,
     layout,
     meta,
     ready,
     initialized,
+    isLoading,
     cards,
     cardsKey,
     workspaceCardKey,
+
     setPage,
     clearPage,
+    resetPage,
+    setLoading,
     initialize,
     setWorkspaceCardKey,
 

@@ -15,4 +15,4 @@ loadingMessage: Loading sanctuary...
 refreshLabel: Refresh Adventure
 ---
 
-Sanctuary page content test replacing giftshop-manager
+:giftshop-manager

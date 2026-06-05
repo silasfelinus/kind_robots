@@ -1,3 +1,4 @@
+<!-- /app.vue -->
 <template>
   <div class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100">
     <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-40">
@@ -47,6 +48,7 @@
             {{ activeTabConfig?.title || activeTabConfig?.label || 'none' }}
             Page title: {{ pageStore.page?.title || 'none' }}
             Path: {{ contentPath }}
+            Loading: {{ pageStore.isLoading ? 'yes' : 'no' }}
           </div>
 
           <div class="min-h-0 flex-1 overflow-hidden">
@@ -83,7 +85,7 @@ if (import.meta.client && route.query.token && !userStore.user) {
   await userStore.initialize({ token: String(route.query.token), force: true })
 }
 
-const { data: page } = await useAsyncData(
+const { data: page, status: contentStatus } = await useAsyncData(
   'current-content-page',
   () => queryCollection('content').path(contentPath.value).first(),
   {
@@ -95,10 +97,22 @@ const { data: page } = await useAsyncData(
 watch(
   contentPath,
   () => {
+    pageStore.setLoading(true)
     pageStore.clearPage()
     navStore.clearDashboardShell()
   },
-  { flush: 'sync' },
+  {
+    immediate: true,
+    flush: 'sync',
+  },
+)
+
+watch(
+  contentStatus,
+  (status) => {
+    pageStore.setLoading(status === 'pending' || status === 'idle')
+  },
+  { immediate: true },
 )
 
 watch(
@@ -110,8 +124,11 @@ watch(
       return
     }
 
-    pageStore.clearPage()
-    navStore.clearDashboardShell()
+    if (contentStatus.value === 'success') {
+      pageStore.clearPage()
+      navStore.clearDashboardShell()
+      pageStore.setLoading(false)
+    }
   },
   { immediate: true },
 )
@@ -123,6 +140,7 @@ function handlePageReady(): void {
 router.beforeEach((to, from) => {
   if (to.fullPath !== from.fullPath) {
     isNavigating.value = true
+    pageStore.setLoading(true)
     pageStore.clearPage()
     navStore.clearDashboardShell()
   }
@@ -135,6 +153,7 @@ router.afterEach((to) => {
 
 router.onError(() => {
   isNavigating.value = false
+  pageStore.setLoading(false)
 })
 
 useSeoMeta({

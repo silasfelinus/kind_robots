@@ -80,7 +80,7 @@
           </div>
 
           <div class="space-y-3 p-3">
-            <div class="grid grid-cols-3 gap-1.5">
+            <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
               <NuxtLink
                 :to="artChannel.path"
                 class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md"
@@ -144,6 +144,39 @@
                   class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
                 >
                   {{ builderChannel.summary }}
+                </span>
+              </NuxtLink>
+
+              <NuxtLink
+                :to="labChannel.path"
+                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-info hover:bg-info hover:text-info-content hover:shadow-md"
+                :class="
+                  isChannelActive(labChannel)
+                    ? 'border-info bg-info text-info-content shadow-sm'
+                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
+                "
+                @click="closeMenu"
+              >
+                <span
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
+                  :class="
+                    isChannelActive(labChannel)
+                      ? 'border-info-content/30 bg-info-content/20 text-info-content'
+                      : 'border-base-300 bg-base-100 text-base-content'
+                  "
+                >
+                  <Icon :name="labChannel.icon" class="h-5 w-5" />
+                </span>
+
+                <span class="text-sm font-black">
+                  {{ labChannel.label }}
+                </span>
+
+                <span
+                  v-if="labChannel.summary"
+                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
+                >
+                  {{ labChannel.summary }}
                 </span>
               </NuxtLink>
 
@@ -277,7 +310,7 @@ const sanctuaryChannel: ChannelRoute = {
   label: 'Sanctuary',
   path: '/sanctuary',
   icon: 'kind-icon:butterfly',
-  summary: 'help us reach our goal to make the world a better place.',
+  summary: 'Help us reach our goal to make the world a better place.',
 }
 
 const utilityChannels: ChannelRoute[] = [homeChannel, sanctuaryChannel]
@@ -299,11 +332,11 @@ const builderChannel: ChannelRoute = {
 }
 
 const labChannel: ChannelRoute = {
-  key: 'wonder',
+  key: 'lab',
   label: 'Lab',
-  path: '/wonder',
+  path: '/wonderlab',
   icon: 'kind-icon:foundry',
-  summary: 'Peak behind the curtain at our wonderlab',
+  summary: 'Peek behind the curtain at our WonderLab.',
 }
 
 const storiesChannel: ChannelRoute = {
@@ -355,10 +388,10 @@ const bottomProjectChannels: ChannelRoute[] = [
   {
     key: 'memory',
     label: 'Memory',
-    path: '/wonderlab',
+    path: '/memory',
     icon: 'kind-icon:dungeon',
     summary:
-      'Experiment, test reactions, and let the robots touch the shiny buttons.',
+      'Flip cards, match glyphs, and test your suspiciously shiny robot brain.',
   },
 ]
 

@@ -2,15 +2,15 @@
 <template>
   <div
     ref="handEl"
-    class="absolute inset-x-0 bottom-0 z-30 pointer-events-none px-1"
+    class="absolute inset-x-0 bottom-0 z-[100] pointer-events-none overflow-visible px-1"
     :style="handFrameStyle"
   >
     <div
       ref="scrollEl"
-      class="pointer-events-auto flex h-full items-end overflow-x-auto overscroll-x-contain [overflow-y:visible]"
+      class="pointer-events-auto flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-hidden"
     >
       <div
-        class="flex min-w-full items-end gap-2 pt-[calc(var(--workspace-card-expanded-h)-var(--workspace-card-rest-h))]"
+        class="flex min-w-full items-end gap-2"
         :class="handJustifyClass"
         :style="handStyle"
       >
@@ -18,12 +18,14 @@
           v-for="(card, index) in handCards"
           :key="card.key"
           type="button"
-          class="group relative flex shrink-0 origin-bottom flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-1 hover:scale-[3]"
+          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-[120] hover:-translate-y-2 hover:scale-[3] active:z-[120] active:-translate-y-2 active:scale-[3]"
           :class="[thumbClass(card.key), originClass(index)]"
           :style="{ width: 'var(--workspace-card-rest-w)' }"
           @click="handleCardClick(card)"
         >
-          <div class="overflow-hidden rounded-t-2xl">
+          <div
+            class="relative flex w-full flex-col overflow-hidden rounded-2xl bg-base-100 shadow-lg"
+          >
             <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
               <img
                 v-if="card.deckImage"
@@ -52,16 +54,14 @@
                 />
               </div>
             </div>
-          </div>
 
-          <div
-            class="w-full overflow-hidden rounded-b-2xl bg-base-100 px-2 py-1.5"
-          >
-            <p
-              class="truncate text-center text-xs font-black text-base-content/70"
-            >
-              {{ card.label }}
-            </p>
+            <div class="w-full bg-base-100 px-2 py-1.5">
+              <p
+                class="truncate text-center text-xs font-black text-base-content/70"
+              >
+                {{ card.label }}
+              </p>
+            </div>
           </div>
         </button>
       </div>
@@ -95,6 +95,7 @@ const minCardWidthPx = 96
 const expandedScale = 3
 const footerHeightPx = 30
 const verticalPaddingPx = 8
+const expansionSafetyPx = 42
 
 const isBuilderDeck = computed(() => pageStore.cardsKey === 'builderCards')
 
@@ -145,19 +146,7 @@ const activeCardKey = computed(() => {
 })
 
 const handCards = computed(() => {
-  const active = sourceCards.value.filter(
-    (card) => card.key === activeCardKey.value,
-  )
-
-  const completed = sourceCards.value.filter(
-    (card) => isCardComplete(card.key) && card.key !== activeCardKey.value,
-  )
-
-  const available = sourceCards.value.filter(
-    (card) => !isCardComplete(card.key) && card.key !== activeCardKey.value,
-  )
-
-  return [...active, ...completed, ...available].filter(
+  return sourceCards.value.filter(
     (card, index, list) =>
       list.findIndex((entry) => entry.key === card.key) === index,
   )
@@ -201,7 +190,12 @@ const restingHandHeightPx = computed(() => {
 })
 
 const expandedHandHeightPx = computed(() => {
-  return Math.ceil(cardWidthPx.value * 1.5 + footerHeightPx + verticalPaddingPx)
+  return Math.ceil(
+    cardWidthPx.value * 1.5 +
+      footerHeightPx +
+      verticalPaddingPx +
+      expansionSafetyPx,
+  )
 })
 
 const handContentWidth = computed(() => {
@@ -273,7 +267,7 @@ function isCardComplete(cardKey: string): boolean {
 
 function thumbClass(cardKey: string): string {
   if (activeCardKey.value === cardKey) {
-    return 'z-30 -translate-y-1 scale-[3] border-primary bg-primary/10 shadow-xl shadow-primary/20'
+    return 'z-30 border-primary bg-primary/10 shadow shadow-primary/20'
   }
 
   if (isCardComplete(cardKey)) {

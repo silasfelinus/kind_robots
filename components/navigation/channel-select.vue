@@ -26,12 +26,12 @@
         <div
           v-if="showMenu"
           ref="panelRef"
-          class="fixed z-90 max-h-[min(34rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-104 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+          class="fixed z-90 max-h-[min(36rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
           :style="menuStyle"
           @click.stop
         >
           <div
-            class="flex items-center gap-2 border-b border-base-300 bg-base-200/60 px-3 py-2"
+            class="flex items-center gap-2 border-b border-base-300 bg-base-200/70 px-3 py-2"
           >
             <NuxtLink
               :to="homeChannel.path"
@@ -52,11 +52,11 @@
 
             <div class="flex min-w-0 flex-1 flex-col items-center">
               <p
-                class="text-[0.55rem] font-black uppercase tracking-[0.22em] text-base-content/40"
+                class="text-[0.55rem] font-black uppercase tracking-[0.24em] text-base-content/40"
               >
                 Explore
               </p>
-              <p class="truncate text-sm font-bold text-base-content">
+              <p class="truncate text-sm font-black text-base-content">
                 {{ activeChannel.label }}
               </p>
             </div>
@@ -79,106 +79,131 @@
             </NuxtLink>
           </div>
 
-          <div class="space-y-3 p-3">
-            <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-              <NuxtLink
-                :to="artChannel.path"
-                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md"
-                :class="
-                  isChannelActive(artChannel)
-                    ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
-                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
-                "
-                @click="closeMenu"
+          <div class="space-y-4 p-3">
+            <div class="rounded-2xl border border-base-300 bg-base-200/40 p-2">
+              <div
+                class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:items-stretch"
               >
-                <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
+                <NuxtLink
+                  :to="artChannel.path"
+                  class="group relative flex min-h-28 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border p-3 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md sm:min-h-36"
                   :class="
                     isChannelActive(artChannel)
-                      ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
-                      : 'border-base-300 bg-base-100 text-base-content'
+                      ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
+                      : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/70 text-base-content'
                   "
+                  @click="closeMenu"
                 >
-                  <Icon :name="artChannel.icon" class="h-5 w-5" />
-                </span>
+                  <span
+                    class="absolute inset-x-4 top-0 h-px bg-secondary/30 opacity-0 transition-opacity group-hover:opacity-100"
+                  />
 
-                <span class="text-sm font-black">
-                  {{ artChannel.label }}
-                </span>
+                  <span
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-14 sm:w-14"
+                    :class="
+                      isChannelActive(artChannel)
+                        ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
+                        : 'border-base-300 bg-base-100 text-secondary'
+                    "
+                  >
+                    <Icon
+                      :name="artChannel.icon"
+                      class="h-5 w-5 sm:h-6 sm:w-6"
+                    />
+                  </span>
 
-                <span
-                  v-if="artChannel.summary"
-                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
-                >
-                  {{ artChannel.summary }}
-                </span>
-              </NuxtLink>
+                  <span class="text-base font-black leading-tight">
+                    {{ artChannel.label }}
+                  </span>
 
-              <NuxtLink
-                :to="builderChannel.path"
-                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md"
-                :class="
-                  isChannelActive(builderChannel)
-                    ? 'border-primary bg-primary text-primary-content shadow-sm'
-                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
-                "
-                @click="closeMenu"
-              >
-                <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
+                  <span
+                    v-if="artChannel.summary"
+                    class="max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100"
+                  >
+                    {{ artChannel.summary }}
+                  </span>
+                </NuxtLink>
+
+                <NuxtLink
+                  :to="builderChannel.path"
+                  class="group relative flex min-h-28 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border p-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md sm:min-h-36 sm:scale-[1.03]"
                   :class="
                     isChannelActive(builderChannel)
-                      ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
-                      : 'border-base-300 bg-base-100 text-base-content'
+                      ? 'border-primary bg-primary text-primary-content shadow-sm'
+                      : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/70 text-base-content'
                   "
+                  @click="closeMenu"
                 >
-                  <Icon :name="builderChannel.icon" class="h-5 w-5" />
-                </span>
+                  <span
+                    class="absolute inset-x-4 top-0 h-px bg-primary/30 opacity-0 transition-opacity group-hover:opacity-100"
+                  />
 
-                <span class="text-sm font-black">
-                  {{ builderChannel.label }}
-                </span>
+                  <span
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-14 sm:w-14"
+                    :class="
+                      isChannelActive(builderChannel)
+                        ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
+                        : 'border-base-300 bg-base-100 text-primary'
+                    "
+                  >
+                    <Icon
+                      :name="builderChannel.icon"
+                      class="h-5 w-5 sm:h-6 sm:w-6"
+                    />
+                  </span>
 
-                <span
-                  v-if="builderChannel.summary"
-                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
-                >
-                  {{ builderChannel.summary }}
-                </span>
-              </NuxtLink>
+                  <span class="text-base font-black leading-tight">
+                    {{ builderChannel.label }}
+                  </span>
 
-              <NuxtLink
-                :to="storiesChannel.path"
-                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md"
-                :class="
-                  isChannelActive(storiesChannel)
-                    ? 'border-accent bg-accent text-accent-content shadow-sm'
-                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
-                "
-                @click="closeMenu"
-              >
-                <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
+                  <span
+                    v-if="builderChannel.summary"
+                    class="max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100"
+                  >
+                    {{ builderChannel.summary }}
+                  </span>
+                </NuxtLink>
+
+                <NuxtLink
+                  :to="storiesChannel.path"
+                  class="group relative flex min-h-28 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border p-3 text-center transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md sm:min-h-36"
                   :class="
                     isChannelActive(storiesChannel)
-                      ? 'border-accent-content/30 bg-accent-content/20 text-accent-content'
-                      : 'border-base-300 bg-base-100 text-base-content'
+                      ? 'border-accent bg-accent text-accent-content shadow-sm'
+                      : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/70 text-base-content'
                   "
+                  @click="closeMenu"
                 >
-                  <Icon :name="storiesChannel.icon" class="h-5 w-5" />
-                </span>
+                  <span
+                    class="absolute inset-x-4 top-0 h-px bg-accent/30 opacity-0 transition-opacity group-hover:opacity-100"
+                  />
 
-                <span class="text-sm font-black">
-                  {{ storiesChannel.label }}
-                </span>
+                  <span
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-14 sm:w-14"
+                    :class="
+                      isChannelActive(storiesChannel)
+                        ? 'border-accent-content/30 bg-accent-content/20 text-accent-content'
+                        : 'border-base-300 bg-base-100 text-accent'
+                    "
+                  >
+                    <Icon
+                      :name="storiesChannel.icon"
+                      class="h-5 w-5 sm:h-6 sm:w-6"
+                    />
+                  </span>
 
-                <span
-                  v-if="storiesChannel.summary"
-                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
-                >
-                  {{ storiesChannel.summary }}
-                </span>
-              </NuxtLink>
+                  <span class="text-base font-black leading-tight">
+                    {{ storiesChannel.label }}
+                  </span>
+
+                  <span
+                    v-if="storiesChannel.summary"
+                    class="max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100"
+                  >
+                    {{ storiesChannel.summary }}
+                  </span>
+                </NuxtLink>
+              </div>
             </div>
 
             <div>
@@ -188,12 +213,12 @@
                 Projects
               </p>
 
-              <div class="grid grid-cols-3 gap-1.5">
+              <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
                 <NuxtLink
                   v-for="channel in bottomProjectChannels"
                   :key="channel.key"
                   :to="channel.path"
-                  class="group relative flex flex-col items-center gap-1.5 overflow-hidden rounded-xl border p-2.5 transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm"
+                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-xl border p-2.5 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm"
                   :class="
                     isChannelActive(channel)
                       ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
@@ -392,8 +417,8 @@ function updateMenuPosition() {
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
   const margin = 8
-  const menuWidth = Math.min(416, viewportWidth - margin * 2)
-  const estimatedMenuHeight = Math.min(544, viewportHeight - margin * 2)
+  const menuWidth = Math.min(480, viewportWidth - margin * 2)
+  const estimatedMenuHeight = Math.min(576, viewportHeight - margin * 2)
 
   const left = clamp(
     rect.right - menuWidth,

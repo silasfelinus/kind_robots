@@ -92,6 +92,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { ContentCollectionItem } from '@nuxt/content'
 import { usePageStore } from '@/stores/pageStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 type WorkspaceContentPage = ContentCollectionItem & {
   title?: string
@@ -113,6 +114,7 @@ type WorkspaceContentPage = ContentCollectionItem & {
 
 const route = useRoute()
 const pageStore = usePageStore()
+const themeStore = useThemeStore()
 
 const workspaceSheetOpen = ref(true)
 
@@ -211,6 +213,8 @@ useSeoMeta({
 })
 
 onMounted(async () => {
+  themeStore.initialize()
+
   const storedSheetOpen = window.localStorage.getItem(
     'kindrobots:workspace-sheet-open',
   )

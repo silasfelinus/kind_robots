@@ -1,7 +1,7 @@
 <!-- /components/builder/builder-manager.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    class="flex h-full min-h-0 max-h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
     <user-builder
       v-if="activeTab === 'user'"
@@ -60,29 +60,38 @@
       </div>
     </Transition>
 
-    <main class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4">
-      <section class="flex min-h-0 flex-col gap-3">
-        <template v-if="isBuilderActive">
-          <builder-splash v-if="showSplash" />
-          <builder-step-panel v-else-if="store.activeCard" />
-          <builder-summary v-else-if="store.allComplete" />
-          <builder-card-grid v-else />
-        </template>
+    <main class="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <section
+        class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+      >
+        <div class="flex min-h-full flex-col gap-3">
+          <template v-if="isBuilderActive">
+            <builder-splash v-if="showSplash" />
+            <builder-step-panel v-else-if="store.activeCard" />
+            <builder-summary v-else-if="store.allComplete" />
+            <builder-card-grid v-else />
+          </template>
 
-        <div
-          v-else
-          class="flex min-h-96 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
-        >
-          <Icon name="kind-icon:blueprint" class="h-12 w-12 text-primary/70" />
+          <div
+            v-else
+            class="flex min-h-96 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
+          >
+            <Icon
+              name="kind-icon:blueprint"
+              class="h-12 w-12 text-primary/70"
+            />
 
-          <h3 class="mt-4 text-lg font-black text-base-content">
-            Builder is warming up
-          </h3>
+            <h3 class="mt-4 text-lg font-black text-base-content">
+              Builder is warming up
+            </h3>
 
-          <p class="mt-2 max-w-md text-sm leading-relaxed text-base-content/60">
-            Pick a builder tab to start shaping a user, character, bot, reward,
-            scenario, dream, pitch, or art project.
-          </p>
+            <p
+              class="mt-2 max-w-md text-sm leading-relaxed text-base-content/60"
+            >
+              Pick a builder tab to start shaping a user, character, bot,
+              reward, scenario, dream, pitch, or art project.
+            </p>
+          </div>
         </div>
       </section>
     </main>
@@ -204,14 +213,20 @@ const showBuilderControls = computed(() => {
   return isBuilderActive.value
 })
 
-const headerIcon = computed(() => {
-  return activeTabConfig.value.icon || fallbackIcon.value
-})
-
 const fallbackIcon = computed(() => {
   if (activeTab.value === 'user') return 'kind-icon:user'
   if (activeTab.value === 'art') return 'kind-icon:palette'
   return 'kind-icon:blueprint'
+})
+
+const headerIcon = computed(() => {
+  return activeTabConfig.value.icon || fallbackIcon.value
+})
+
+const fallbackTitle = computed(() => {
+  if (activeTab.value === 'user') return 'User Builder'
+  if (activeTab.value === 'art') return 'Art Builder'
+  return 'Builder'
 })
 
 const title = computed(() => {
@@ -226,10 +241,16 @@ const title = computed(() => {
   )
 })
 
-const fallbackTitle = computed(() => {
-  if (activeTab.value === 'user') return 'User Builder'
-  if (activeTab.value === 'art') return 'Art Builder'
-  return 'Builder'
+const fallbackSubtitle = computed(() => {
+  if (activeTab.value === 'user') {
+    return 'Shape the human side of the Kind Robots universe.'
+  }
+
+  if (activeTab.value === 'art') {
+    return 'Generate and refine artwork for the builder flow.'
+  }
+
+  return 'Choose a builder card and start shaping the project.'
 })
 
 const subtitle = computed(() => {
@@ -243,18 +264,6 @@ const subtitle = computed(() => {
     activeTabConfig.value.label ||
     fallbackSubtitle.value
   )
-})
-
-const fallbackSubtitle = computed(() => {
-  if (activeTab.value === 'user') {
-    return 'Shape the human side of the Kind Robots universe.'
-  }
-
-  if (activeTab.value === 'art') {
-    return 'Generate and refine artwork for the builder flow.'
-  }
-
-  return 'Choose a builder card and start shaping the project.'
 })
 
 async function syncBuilder(): Promise<void> {

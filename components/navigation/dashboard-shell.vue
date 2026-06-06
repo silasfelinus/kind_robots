@@ -21,49 +21,49 @@
         v-if="showHeader"
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <div class="flex flex-col gap-3 p-3 lg:p-4">
-          <section class="flex items-start gap-3">
-            <button
-              type="button"
-              title="Hide header"
-              class="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-20 sm:w-20"
-              @click="toggleHeader"
+        <div
+          class="grid min-w-0 grid-cols-[auto_minmax(0,18rem)_minmax(12rem,1fr)_auto] items-center gap-3 p-3 lg:p-4"
+        >
+          <button
+            type="button"
+            title="Hide header"
+            class="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-20 sm:w-20"
+            @click="toggleHeader"
+          >
+            <page-image
+              class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-60"
+            />
+
+            <span
+              class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-content/0 opacity-0 transition-all group-hover:bg-base-content/15 group-hover:opacity-100"
             >
-              <page-image
-                class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-60"
+              <Icon
+                name="kind-icon:collapse"
+                class="h-5 w-5 text-base-content drop-shadow"
               />
+            </span>
+          </button>
 
-              <span
-                class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-content/0 opacity-0 transition-all group-hover:bg-base-content/15 group-hover:opacity-100"
-              >
-                <Icon
-                  name="kind-icon:collapse"
-                  class="h-5 w-5 text-base-content drop-shadow"
-                />
-              </span>
-            </button>
+          <section class="min-w-0">
+            <p
+              v-if="shellTitle"
+              class="truncate text-sm font-bold text-primary/70"
+            >
+              {{ shellTitle }}
+            </p>
 
-            <div class="min-w-0 flex-1 pt-0.5">
-              <p
-                v-if="shellTitle"
-                class="truncate text-sm font-bold text-primary/70"
-              >
-                {{ shellTitle }}
-              </p>
+            <h1
+              class="truncate text-xl font-black leading-tight text-base-content sm:text-2xl"
+            >
+              {{ activeTitle }}
+            </h1>
 
-              <h1
-                class="truncate text-xl font-black leading-tight text-base-content sm:text-2xl"
-              >
-                {{ activeTitle }}
-              </h1>
-
-              <p
-                v-if="activeSummary"
-                class="mt-0.5 line-clamp-2 text-sm text-base-content/55"
-              >
-                {{ activeSummary }}
-              </p>
-            </div>
+            <p
+              v-if="activeSummary"
+              class="mt-0.5 line-clamp-2 text-sm text-base-content/55"
+            >
+              {{ activeSummary }}
+            </p>
           </section>
 
           <nav
@@ -89,9 +89,9 @@
             </button>
           </nav>
 
-          <section
-            class="flex flex-wrap items-center justify-end gap-1.5 border-t border-base-300/70 pt-2"
-          >
+          <div v-else class="min-w-0" />
+
+          <section class="flex shrink-0 items-center justify-end gap-1.5">
             <slot
               name="actions"
               :active-tab="activeTabKey"

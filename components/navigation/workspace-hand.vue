@@ -2,7 +2,7 @@
 <template>
   <div
     ref="handEl"
-    class="absolute inset-x-0 bottom-0 z-[100] pointer-events-none overflow-visible px-1"
+    class="absolute inset-x-0 bottom-0 z-40 pointer-events-none overflow-visible px-1"
     :style="handFrameStyle"
   >
     <div
@@ -18,7 +18,7 @@
           v-for="(card, index) in handCards"
           :key="card.key"
           type="button"
-          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-[120] hover:-translate-y-2 hover:scale-[3] active:z-[120] active:-translate-y-2 active:scale-[3]"
+          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-120 hover:-translate-y-2 hover:scale-[3] active:z-120 active:-translate-y-2 active:scale-[3]"
           :class="[thumbClass(card.key), originClass(index)]"
           :style="{ width: 'var(--workspace-card-rest-w)' }"
           @click="handleCardClick(card)"

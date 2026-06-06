@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { ContentCollectionItem } from '@nuxt/content'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import { useNavStore } from '@/stores/navStore'
 
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 export type WorkspaceCardsInput = string | BuilderCard[]
@@ -23,6 +24,7 @@ export type WorkspacePage = ContentCollectionItem & {
   icon?: string
   image?: string
   description?: string
+  summary?: string
 }
 
 function normalizeImagePath(path: string): string {
@@ -44,6 +46,14 @@ function isBuilderCardArray(value: unknown): value is BuilderCard[] {
   )
 }
 
+function getString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function getCardsKey(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
 export const usePageStore = defineStore('pageStore', () => {
   const page = ref<ContentCollectionItem | null>(null)
   const ready = ref(false)
@@ -57,7 +67,7 @@ export const usePageStore = defineStore('pageStore', () => {
 
   const cardsKey = computed(() => {
     const value = currentPage.value?.cards
-    return typeof value === 'string' ? value : ''
+    return getCardsKey(value)
   })
 
   const cards = computed<BuilderCard[]>(() => {
@@ -66,24 +76,42 @@ export const usePageStore = defineStore('pageStore', () => {
   })
 
   const meta = computed(() => ({
-    title: currentPage.value?.title ?? 'Robots',
-    room: currentPage.value?.room ?? 'Kind Robots',
-    subtitle: currentPage.value?.subtitle ?? 'Welcome to Kind Robots',
-    description: currentPage.value?.description ?? '',
-    icon: currentPage.value?.icon ?? 'mdi:robot-happy',
+    title: getString(currentPage.value?.title) || 'Robots',
+    room: getString(currentPage.value?.room) || 'Kind Robots',
+    subtitle:
+      getString(currentPage.value?.subtitle) || 'Welcome to Kind Robots',
+    description: getString(currentPage.value?.description),
+    summary: getString(currentPage.value?.summary),
+    icon: getString(currentPage.value?.icon) || 'mdi:robot-happy',
     image: normalizeImagePath(
-      currentPage.value?.image ?? '/images/botcafe.webp',
+      getString(currentPage.value?.image) || '/images/botcafe.webp',
     ),
-    tooltip: currentPage.value?.tooltip ?? '',
-    dottitip: currentPage.value?.dottitip ?? '',
-    amitip: currentPage.value?.amitip ?? '',
-    artPrompt: currentPage.value?.artPrompt ?? '',
+    tooltip: getString(currentPage.value?.tooltip),
+    dottitip: getString(currentPage.value?.dottitip),
+    amitip: getString(currentPage.value?.amitip),
+    artPrompt: getString(currentPage.value?.artPrompt),
     sort: currentPage.value?.sort ?? '',
-    dashboardKey: currentPage.value?.dashboardKey ?? '',
-    dashboardTab: currentPage.value?.dashboardTab ?? '',
-    loadingMessage: currentPage.value?.loadingMessage ?? '',
-    refreshLabel: currentPage.value?.refreshLabel ?? '',
+    dashboardKey: getString(currentPage.value?.dashboardKey),
+    dashboardTab: getString(currentPage.value?.dashboardTab),
+    loadingMessage: getString(currentPage.value?.loadingMessage),
+    refreshLabel: getString(currentPage.value?.refreshLabel),
   }))
+
+  function syncDashboardShellFromPage(): void {
+    const navStore = useNavStore()
+
+    navStore.setDashboardShellFromContent({
+      title: meta.value.title,
+      subtitle: meta.value.subtitle,
+      description: meta.value.description,
+      summary: meta.value.summary,
+      dashboardKey: meta.value.dashboardKey,
+      dashboardTab: meta.value.dashboardTab,
+      cards: cardsKey.value,
+      loadingMessage: meta.value.loadingMessage,
+      refreshLabel: meta.value.refreshLabel,
+    })
+  }
 
   function initialize(): void {
     if (initialized.value) return
@@ -110,12 +138,15 @@ export const usePageStore = defineStore('pageStore', () => {
     ready.value = true
     isLoading.value = false
 
+    syncDashboardShellFromPage()
+
     if (import.meta.client) {
       console.groupCollapsed('[pageStore] setPage')
       console.log('title:', meta.value.title)
       console.log('room:', meta.value.room)
       console.log('dashboardKey:', meta.value.dashboardKey)
       console.log('dashboardTab:', meta.value.dashboardTab)
+      console.log('cardsKey:', cardsKey.value)
       console.log('path:', currentPage.value?.path)
       console.log('page:', newPage)
       console.groupEnd()
@@ -123,9 +154,13 @@ export const usePageStore = defineStore('pageStore', () => {
   }
 
   function clearPage(): void {
+    const navStore = useNavStore()
+
     page.value = null
     workspaceCardKey.value = ''
     ready.value = true
+
+    navStore.clearDashboardShell()
 
     if (import.meta.client) {
       console.groupCollapsed('[pageStore] clearPage')
@@ -135,10 +170,14 @@ export const usePageStore = defineStore('pageStore', () => {
   }
 
   function resetPage(): void {
+    const navStore = useNavStore()
+
     page.value = null
     workspaceCardKey.value = ''
     ready.value = false
     isLoading.value = false
+
+    navStore.clearDashboardShell()
 
     if (import.meta.client) {
       console.groupCollapsed('[pageStore] resetPage')
@@ -180,6 +219,7 @@ export const usePageStore = defineStore('pageStore', () => {
     room: computed(() => meta.value.room),
     subtitle: computed(() => meta.value.subtitle),
     description: computed(() => meta.value.description),
+    summary: computed(() => meta.value.summary),
     icon: computed(() => meta.value.icon),
     image: computed(() => meta.value.image),
     tooltip: computed(() => meta.value.tooltip),

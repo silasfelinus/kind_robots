@@ -2707,9 +2707,11 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
         key: 'quirks',
         title: 'Quirks',
         narrative:
-          'Every entity has a defining trait that colours how they move through the world. Not a flaw, not a virtue — just something specific and irreducible about how they are. Pick one that fits. Or one that surprises you. The surprise is usually more interesting.',
+          'Every entity has a defining trait that colours how they move through the world. The sheet draws twenty options from the pile. Choose one, or redraw once. After that, the universe starts charging administrative fees.',
         inputType: 'preset',
         field: 'quirks',
+        randomPoolSize: 20,
+        randomRounds: 2,
         choices: [
           {
             value: 'double-jointed',
@@ -2894,6 +2896,32 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     ],
   },
 
+  {
+    key: 'starting-item',
+    label: 'Starting Item',
+    title: 'The suspiciously useful object',
+    icon: 'kind-icon:treasure',
+    flourish: '✦',
+    deckImage: '/images/adventure/thumb/reward-common.webp',
+    heroImage: '/images/adventure/hero/reward-common.webp',
+    tagline: 'One object. Six possibilities. At least one consequence.',
+    narrative:
+      'Every entity begins with something in hand, pocket, inventory, aura, or legally contested possession. It is probably common. Probably. The universe occasionally misfiles powerful artifacts under “starter kit,” because the universe is a disorganized raccoon.',
+    required: true,
+    rewardSlotKey: 'starting-item',
+    restoresFields: ['starting-item'],
+    unlockCondition: 'coreComplete',
+    steps: [
+      {
+        key: 'starting-item',
+        title: 'Choose One Starting Item',
+        narrative:
+          'Six items have been drawn. Most are modest. Some are suspicious. Choose the object this character begins with, and try not to read too much into why it chose them back.',
+        inputType: 'reward',
+      },
+    ],
+  },
+
   // ── Starting Skill ───────────────────────────────────────────────────────
   {
     key: 'starting-skill',
@@ -2903,9 +2931,10 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     flourish: '❋',
     deckImage: '/images/adventure/thumb/skill-rare.webp',
     heroImage: '/images/adventure/hero/skill-rare.webp',
-    tagline: 'One trick. One card. Possibly illegal in three kingdoms.',
+    tagline:
+      'One trick. Six possibilities. Possibly illegal in three kingdoms.',
     narrative:
-      'Every entity carries one starting skill. Sometimes it is practical. Sometimes it is rare enough to make the table pause. Sometimes it is mythic and the paperwork quietly catches fire. Four options have been drawn. One belongs to this character.',
+      'Every entity carries one starting skill. It is probably common. Sometimes it is rare enough to make the table pause. Sometimes it is mythic and the paperwork quietly catches fire. Six options have been drawn. One belongs to this character.',
     required: true,
     rewardSlotKey: 'starting-skill',
     restoresFields: ['starting-skill'],

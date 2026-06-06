@@ -1,46 +1,59 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
-  <aside class="flex min-h-0 flex-col gap-3 overflow-y-auto">
-    <div class="overflow-hidden rounded-2xl border border-base-300 bg-base-100">
-      <div class="relative aspect-3/2 bg-base-300">
+  <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
+    <div
+      class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
+    >
+      <div class="relative aspect-4/3 overflow-hidden bg-base-300">
         <img
           v-if="imagePath"
           :src="imagePath"
           :alt="title"
-          class="h-full w-full object-cover"
+          class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
         />
 
         <div
           v-else
-          class="flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center"
+          class="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center"
         >
-          <Icon :name="placeholderIcon" class="h-10 w-10 text-primary/25" />
+          <Icon :name="placeholderIcon" class="h-16 w-16 text-primary/25" />
 
-          <p class="text-xs italic text-base-content/35">
+          <p class="text-base font-bold italic text-base-content/40">
             Sheet waiting for its portrait era.
+          </p>
+        </div>
+
+        <div
+          class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-base-100 via-base-100/50 to-transparent"
+        />
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+          <p
+            class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-base-100/85 px-3 py-1 text-sm font-black uppercase tracking-widest text-primary shadow-sm backdrop-blur"
+          >
+            <Icon :name="placeholderIcon" class="h-4 w-4 shrink-0" />
+            <span class="truncate">{{ label }}</span>
           </p>
         </div>
       </div>
 
-      <div class="flex flex-col gap-1 p-4">
-        <p class="font-black leading-tight text-base-content">
+      <div class="flex flex-col gap-3 p-4 sm:p-5">
+        <h2
+          class="text-3xl font-black leading-none tracking-tight text-base-content sm:text-4xl"
+        >
           {{ title }}
-        </p>
-
-        <p class="text-xs font-black uppercase tracking-widest text-primary/70">
-          {{ label }}
-        </p>
+        </h2>
 
         <p
           v-if="narrative"
-          class="mt-1 text-sm leading-relaxed text-base-content/65"
+          class="text-base font-semibold leading-relaxed text-base-content/70 sm:text-lg"
         >
           {{ narrative }}
         </p>
 
         <p
           v-if="showDebugPath"
-          class="mt-2 break-all rounded-xl bg-base-200 px-2 py-1 text-[0.65rem] text-base-content/45"
+          class="break-all rounded-xl bg-base-200 px-3 py-2 text-xs font-semibold text-base-content/45"
         >
           {{ imagePath || 'No image path resolved' }}
         </p>
@@ -48,20 +61,21 @@
     </div>
 
     <template v-if="isBuilder">
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="mb-2 flex items-center justify-between">
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+        <div class="mb-3 flex items-center justify-between gap-3">
           <p
-            class="text-xs font-black uppercase tracking-widest text-base-content/40"
+            class="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-base-content/45"
           >
+            <Icon name="kind-icon:sparkles" class="h-4 w-4 text-primary/70" />
             Progress
           </p>
 
-          <p class="text-xs font-black tabular-nums text-primary">
+          <p class="text-sm font-black tabular-nums text-primary">
             {{ completedCount }}/{{ requiredCount }}
           </p>
         </div>
 
-        <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
+        <div class="h-2.5 overflow-hidden rounded-full bg-base-300">
           <div
             class="h-full rounded-full bg-primary transition-all duration-500"
             :style="{ width: `${progressPct}%` }"
@@ -71,48 +85,111 @@
 
       <div
         v-if="builderStore.completedCardList.length"
-        class="flex flex-col gap-2"
+        class="flex flex-col gap-3"
       >
         <section
           v-for="card in builderStore.completedCardList"
           :key="card.key"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+          class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
         >
-          <div class="mb-2 flex items-center justify-between gap-2">
-            <div class="flex min-w-0 items-center gap-2">
-              <Icon :name="card.icon" class="h-4 w-4 shrink-0 text-primary" />
+          <img
+            v-if="cardImagePath(card)"
+            :src="cardImagePath(card)"
+            :alt="card.label"
+            class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0 blur-sm transition-all duration-500 group-hover:scale-105 group-hover:opacity-20"
+          />
 
-              <p class="truncate text-sm font-black text-base-content">
-                {{ card.label }}
-              </p>
+          <div
+            class="pointer-events-none absolute inset-0 bg-linear-to-br from-base-100 via-base-100/95 to-base-100/75"
+          />
+
+          <div class="relative flex flex-col gap-3 p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex min-w-0 items-center gap-3">
+                <div
+                  class="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-sm"
+                >
+                  <img
+                    v-if="cardImagePath(card)"
+                    :src="cardImagePath(card)"
+                    :alt="card.label"
+                    class="h-full w-full object-cover"
+                  />
+
+                  <div
+                    v-else
+                    class="flex h-full w-full items-center justify-center"
+                  >
+                    <Icon :name="card.icon" class="h-7 w-7 text-primary/45" />
+                  </div>
+                </div>
+
+                <div class="min-w-0">
+                  <p
+                    class="truncate text-lg font-black leading-tight text-base-content"
+                  >
+                    {{ card.label }}
+                  </p>
+
+                  <p
+                    class="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-base-content/55"
+                  >
+                    {{ completedCardSummary(card) }}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-sm btn-ghost shrink-0 rounded-xl text-error"
+                @click="builderStore.removeSection(card.key)"
+              >
+                Clear
+              </button>
             </div>
 
-            <button
-              type="button"
-              class="btn btn-xs btn-ghost rounded-xl text-error"
-              @click="builderStore.removeSection(card.key)"
-            >
-              Clear
-            </button>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <div
-              v-for="field in visibleFields(card.restoresFields)"
-              :key="field.key"
-              class="rounded-xl bg-base-200 px-3 py-2"
-            >
-              <p
-                class="text-[0.6rem] font-black uppercase tracking-widest text-base-content/35"
+            <div class="grid grid-cols-1 gap-2">
+              <div
+                v-for="field in visibleFields(card.restoresFields)"
+                :key="field.key"
+                class="group/field overflow-hidden rounded-2xl border border-base-300/60 bg-base-200/80"
               >
-                {{ field.key }}
-              </p>
+                <div
+                  v-if="field.imagePath"
+                  class="relative aspect-5/2 overflow-hidden bg-base-300"
+                >
+                  <img
+                    :src="field.imagePath"
+                    :alt="field.key"
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover/field:scale-105"
+                  />
 
-              <p
-                class="mt-0.5 line-clamp-3 text-xs font-semibold leading-relaxed text-base-content/70"
-              >
-                {{ field.value }}
-              </p>
+                  <div
+                    class="absolute inset-0 bg-linear-to-t from-base-200 via-base-200/30 to-transparent"
+                  />
+
+                  <p
+                    class="absolute bottom-2 left-3 right-3 truncate text-xs font-black uppercase tracking-widest text-base-content/70"
+                  >
+                    {{ formatFieldKey(field.key) }}
+                  </p>
+                </div>
+
+                <div class="px-3 py-2.5">
+                  <p
+                    v-if="!field.imagePath"
+                    class="text-xs font-black uppercase tracking-widest text-base-content/35"
+                  >
+                    {{ formatFieldKey(field.key) }}
+                  </p>
+
+                  <p
+                    class="mt-1 line-clamp-4 text-sm font-semibold leading-relaxed text-base-content/75"
+                  >
+                    {{ field.value }}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -120,15 +197,19 @@
 
       <div
         v-else
-        class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-4 text-center"
+        class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center shadow-sm"
       >
         <Icon
           name="kind-icon:cards"
-          class="mx-auto h-8 w-8 text-base-content/25"
+          class="mx-auto h-12 w-12 text-base-content/25"
         />
 
-        <p class="mt-2 text-sm font-bold text-base-content/60">
+        <p class="mt-3 text-base font-black text-base-content/65">
           No completed cards yet.
+        </p>
+
+        <p class="mt-1 text-sm font-semibold text-base-content/40">
+          The character sheet goblin is waiting patiently.
         </p>
       </div>
     </template>
@@ -147,7 +228,17 @@ type ImageCard = BuilderCard & {
   image?: string
   imagePath?: string
   splashImage?: string
+  heroImage?: string
+  deckImage?: string
+  narrative?: string
+  tagline?: string
   payload?: Record<string, unknown>
+}
+
+type VisibleField = {
+  key: string
+  value: string
+  imagePath: string
 }
 
 const route = useRoute()
@@ -227,23 +318,25 @@ const narrative = computed(() => {
     return String(
       builderStore.sheet.narrative ||
         builderStore.sheet.description ||
-        activeCard.value?.narrative ||
+        activeImageCard.value?.narrative ||
         builderStore.activeConfig.splash?.description ||
         pageStore.description,
     )
   }
 
   return (
-    activeCard.value?.narrative ||
-    activeCard.value?.tagline ||
+    activeImageCard.value?.narrative ||
+    activeImageCard.value?.tagline ||
     pageStore.description ||
     pageStore.subtitle
   )
 })
 
-const imagePath = computed(() => {
-  const card = activeCard.value as ImageCard | null
+const activeImageCard = computed(() => {
+  return activeCard.value as ImageCard | null
+})
 
+const imagePath = computed(() => {
   if (isBuilder.value) {
     const sheetImage = builderStore.sheet.imagePath
 
@@ -253,15 +346,7 @@ const imagePath = computed(() => {
 
     return normalizeImagePath(
       firstString([
-        card?.heroImage,
-        card?.deckImage,
-        card?.image,
-        card?.imagePath,
-        card?.splashImage,
-        card?.payload?.heroImage,
-        card?.payload?.deckImage,
-        card?.payload?.image,
-        card?.payload?.imagePath,
+        cardImagePath(activeImageCard.value),
         builderStore.activeConfig.splash?.imagePath,
         pageStore.image,
       ]),
@@ -269,18 +354,7 @@ const imagePath = computed(() => {
   }
 
   return normalizeImagePath(
-    firstString([
-      card?.heroImage,
-      card?.deckImage,
-      card?.image,
-      card?.imagePath,
-      card?.splashImage,
-      card?.payload?.heroImage,
-      card?.payload?.deckImage,
-      card?.payload?.image,
-      card?.payload?.imagePath,
-      pageStore.image,
-    ]),
+    firstString([cardImagePath(activeImageCard.value), pageStore.image]),
   )
 })
 
@@ -314,12 +388,96 @@ function getCardPath(card: BuilderCard): string {
   return typeof path === 'string' ? path : ''
 }
 
-function visibleFields(
-  fields: string[],
-): Array<{ key: string; value: string }> {
+function visibleFields(fields: string[]): VisibleField[] {
   return fields
-    .map((key) => ({ key, value: stringifyValue(builderStore.sheet[key]) }))
+    .map((key) => {
+      const value = stringifyValue(builderStore.sheet[key])
+      const imagePath = imagePathFromValue(builderStore.sheet[key])
+
+      return {
+        key,
+        value,
+        imagePath,
+      }
+    })
     .filter((entry) => entry.value.trim().length > 0)
+}
+
+function completedCardSummary(card: BuilderCard): string {
+  const fields = visibleFields(card.restoresFields)
+  const firstTextField = fields.find((field) => !field.imagePath)
+
+  if (firstTextField?.value) return firstTextField.value
+
+  return 'A completed piece of the sheet is ready.'
+}
+
+function cardImagePath(card: ImageCard | BuilderCard | null): string {
+  const imageCard = card as ImageCard | null
+
+  if (!imageCard) return ''
+
+  return normalizeImagePath(
+    firstString([
+      imageCard.heroImage,
+      imageCard.deckImage,
+      imageCard.image,
+      imageCard.imagePath,
+      imageCard.splashImage,
+      imageCard.payload?.heroImage,
+      imageCard.payload?.deckImage,
+      imageCard.payload?.image,
+      imageCard.payload?.imagePath,
+      imageCard.payload?.splashImage,
+    ]),
+  )
+}
+
+function imagePathFromValue(value: unknown): string {
+  if (typeof value === 'string') {
+    return looksLikeImagePath(value) ? normalizeImagePath(value) : ''
+  }
+
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const record = value as Record<string, unknown>
+
+    return normalizeImagePath(
+      firstString([
+        record.heroImage,
+        record.deckImage,
+        record.image,
+        record.imagePath,
+        record.splashImage,
+        record.url,
+        record.src,
+      ]),
+    )
+  }
+
+  return ''
+}
+
+function looksLikeImagePath(value: string): boolean {
+  const cleanValue = value.trim().toLowerCase()
+
+  return (
+    cleanValue.startsWith('/images/') ||
+    cleanValue.startsWith('images/') ||
+    cleanValue.startsWith('http') ||
+    cleanValue.endsWith('.png') ||
+    cleanValue.endsWith('.jpg') ||
+    cleanValue.endsWith('.jpeg') ||
+    cleanValue.endsWith('.webp') ||
+    cleanValue.endsWith('.gif') ||
+    cleanValue.endsWith('.svg')
+  )
+}
+
+function formatFieldKey(key: string): string {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/[-_]/g, ' ')
+    .trim()
 }
 
 function stringifyValue(value: unknown): string {
@@ -331,7 +489,19 @@ function stringifyValue(value: unknown): string {
       .join(', ')
   }
 
-  if (value && typeof value === 'object') return JSON.stringify(value)
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+
+    return String(
+      record.label ||
+        record.title ||
+        record.name ||
+        record.description ||
+        record.narrative ||
+        JSON.stringify(value),
+    )
+  }
+
   if (value == null) return ''
 
   return String(value)

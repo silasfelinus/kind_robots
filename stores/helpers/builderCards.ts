@@ -73,6 +73,8 @@ export type BuilderStep = {
   payload?: Record<string, unknown>
   maxLength?: number
   optional?: boolean
+  randomPoolSize?: number
+  randomRounds?: number
 }
 
 export type BuilderArtPurpose =

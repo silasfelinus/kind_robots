@@ -930,7 +930,7 @@ export const footerKeys = dashboardConfigs.footer.tabs.map((tab) => {
 export const fallbackFooterKey: FooterKey = dashboardConfigs.footer.defaultTab
 
 export const footerRouteMap = {
-  fx: '/sanctuary',
+  fx: '/screenfx',
   bot: '/bots',
   art: '/art',
   scenario: '/stories',

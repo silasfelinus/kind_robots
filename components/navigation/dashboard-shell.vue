@@ -19,10 +19,10 @@
     <transition name="fade-up">
       <header
         v-if="showHeader"
-        class="relative mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm z-30"
+        class="relative z-30 mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div class="flex flex-col gap-3 p-3 lg:p-4">
-          <div class="flex items-start gap-3">
+          <section class="flex items-start gap-3">
             <button
               type="button"
               title="Hide header"
@@ -44,7 +44,10 @@
             </button>
 
             <div class="min-w-0 flex-1 pt-0.5">
-              <p v-if="shellTitle" class="text-sm font-bold text-primary/70">
+              <p
+                v-if="shellTitle"
+                class="truncate text-sm font-bold text-primary/70"
+              >
                 {{ shellTitle }}
               </p>
 
@@ -61,28 +64,16 @@
                 {{ activeSummary }}
               </p>
             </div>
-
-            <div class="flex shrink-0 items-center gap-1.5 pt-0.5">
-              <slot
-                name="actions"
-                :active-tab="activeTabKey"
-                :active-tab-config="activeTabConfig"
-              />
-
-              <channel-select />
-              <server-selector />
-              <mana-widget />
-            </div>
-          </div>
+          </section>
 
           <nav
             v-if="resolvedTabs.length"
-            class="grid min-w-0 gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))] gap-1.5"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn btn-sm min-h-9 justify-start rounded-xl transition-all"
+              class="btn btn-sm min-h-9 min-w-0 justify-start rounded-xl px-2 transition-all"
               type="button"
               :class="
                 activeTabKey === tab.key
@@ -92,9 +83,25 @@
               @click="setTab(tab.key)"
             >
               <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span class="min-w-0 truncate">{{ tab.label }}</span>
+              <span class="min-w-0 truncate text-xs font-black sm:text-sm">
+                {{ tab.label }}
+              </span>
             </button>
           </nav>
+
+          <section
+            class="flex flex-wrap items-center justify-end gap-1.5 border-t border-base-300/70 pt-2"
+          >
+            <slot
+              name="actions"
+              :active-tab="activeTabKey"
+              :active-tab-config="activeTabConfig"
+            />
+
+            <channel-select />
+            <server-selector />
+            <mana-widget />
+          </section>
         </div>
       </header>
     </transition>
@@ -185,13 +192,13 @@ const activeSummary = computed(
   () => activeTabConfig.value.summary || shellSummary.value,
 )
 
-function setTab(tabKey: string) {
+function setTab(tabKey: string): void {
   const key = resolvedDashboardKey.value
   if (!key) return
   navStore.setDashboardTab(key, tabKey, 'dashboard-shell tab button')
 }
 
-function toggleHeader() {
+function toggleHeader(): void {
   showHeader.value = !showHeader.value
 }
 </script>

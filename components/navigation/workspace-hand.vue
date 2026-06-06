@@ -5,12 +5,30 @@
     class="absolute inset-x-0 bottom-0 z-40 pointer-events-none overflow-visible px-1"
     :style="handFrameStyle"
   >
+    <button
+      type="button"
+      class="btn btn-ghost btn-xs btn-circle absolute bottom-2 left-1 z-40 sm:hidden"
+      aria-label="Previous expanded workspace card"
+      @click.stop="cycleExpandedCard(-1)"
+    >
+      <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-ghost btn-xs btn-circle absolute bottom-2 right-1 z-40 sm:hidden"
+      aria-label="Next expanded workspace card"
+      @click.stop="cycleExpandedCard(1)"
+    >
+      <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+    </button>
+
     <div
       ref="scrollEl"
       class="pointer-events-auto flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
     >
       <div
-        class="flex min-w-full items-end gap-2"
+        class="flex min-w-full items-end gap-2 px-8 sm:px-0"
         :class="handJustifyClass"
         :style="handStyle"
       >
@@ -18,8 +36,12 @@
           v-for="(card, index) in handCards"
           :key="card.key"
           type="button"
-          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-2 hover:scale-[2.35] active:z-40 active:-translate-y-2 active:scale-[2.35]"
-          :class="[thumbClass(card.key), originClass(index)]"
+          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-2 hover:scale-[2.1] active:z-40 active:-translate-y-2 active:scale-[2.1]"
+          :class="[
+            thumbClass(card.key),
+            expandedClass(card.key),
+            originClass(index),
+          ]"
           :style="{ width: 'var(--workspace-card-rest-w)' }"
           @click="handleCardClick(card)"
         >
@@ -57,7 +79,7 @@
 
             <div class="w-full bg-base-100 px-1.5 py-1.5">
               <p
-                class="truncate text-center text-[0.65rem] font-black leading-none text-base-content/75"
+                class="truncate text-center text-[0.65rem] font-black leading-none text-base-content/75 sm:text-xs"
                 :title="card.label"
               >
                 {{ card.label }}
@@ -87,17 +109,19 @@ const handEl = ref<HTMLElement | null>(null)
 const scrollEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
 const selectedCardKey = ref('')
+const expandedCardKey = ref('')
 
 let observer: ResizeObserver | null = null
 
 const gapPx = 8
-const horizontalPaddingPx = 8
-const minCardWidthPx = 108
-const expandedScale = 2.35
-const minRestingCardWidthPx = 64
-const footerHeightPx = 34
+const horizontalPaddingPx = 16
+const mobileChevronPaddingPx = 64
+const minRestingCardWidthPx = 72
+const fallbackRestingCardWidthPx = 88
+const expandedScale = 2.1
+const footerHeightPx = 36
 const verticalPaddingPx = 8
-const expansionSafetyPx = 112
+const expansionSafetyPx = 128
 
 const isBuilderDeck = computed(() => pageStore.cardsKey === 'builderCards')
 
@@ -154,37 +178,37 @@ const handCards = computed(() => {
   )
 })
 
-const maxCardWidthPx = computed(() => {
+const maxRestingCardWidthPx = computed(() => {
   const count = handCards.value.length
 
-  if (count <= 2) return 176
-  if (count <= 4) return 208
+  if (count <= 3) return 144
+  if (count <= 5) return 132
+  if (count <= 7) return 120
 
-  return 240
+  return 112
 })
 
-const cardWidthPx = computed(() => {
+const restingCardWidthPx = computed(() => {
   const count = handCards.value.length
 
   if (!count || !handWidth.value) {
-    return minCardWidthPx
+    return fallbackRestingCardWidthPx
   }
 
   const totalGap = gapPx * Math.max(0, count - 1)
+  const reservedPadding =
+    horizontalPaddingPx + (handWidth.value < 640 ? mobileChevronPaddingPx : 0)
+
   const availableWidth = Math.max(
-    minCardWidthPx,
-    handWidth.value - horizontalPaddingPx - totalGap,
+    minRestingCardWidthPx,
+    handWidth.value - reservedPadding - totalGap,
   )
 
   const idealWidth = Math.floor(availableWidth / count)
 
-  return Math.min(maxCardWidthPx.value, Math.max(minCardWidthPx, idealWidth))
-})
-
-const restingCardWidthPx = computed(() => {
-  return Math.max(
-    minRestingCardWidthPx,
-    Math.floor(cardWidthPx.value / expandedScale),
+  return Math.min(
+    maxRestingCardWidthPx.value,
+    Math.max(minRestingCardWidthPx, idealWidth),
   )
 })
 
@@ -196,10 +220,7 @@ const restingHandHeightPx = computed(() => {
 
 const expandedHandHeightPx = computed(() => {
   return Math.ceil(
-    cardWidthPx.value * 1.5 +
-      footerHeightPx +
-      verticalPaddingPx +
-      expansionSafetyPx,
+    restingHandHeightPx.value * expandedScale + expansionSafetyPx,
   )
 })
 
@@ -219,7 +240,6 @@ const handJustifyClass = computed(() => {
 
 const handStyle = computed<CSSProperties>(() => {
   return {
-    '--workspace-card-w': `${cardWidthPx.value}px`,
     '--workspace-card-rest-w': `${restingCardWidthPx.value}px`,
     '--workspace-card-rest-h': `${restingHandHeightPx.value}px`,
     '--workspace-card-expanded-h': `${expandedHandHeightPx.value}px`,
@@ -264,6 +284,47 @@ function handleCardClick(card: BuilderCard): void {
   }
 }
 
+function cycleExpandedCard(direction: 1 | -1): void {
+  const cards = handCards.value
+  const count = cards.length
+
+  if (!count) {
+    expandedCardKey.value = ''
+    return
+  }
+
+  const currentIndex = cards.findIndex(
+    (card) => card.key === expandedCardKey.value,
+  )
+
+  if (direction > 0) {
+    if (currentIndex < 0) {
+      expandedCardKey.value = cards[0]?.key ?? ''
+      return
+    }
+
+    if (currentIndex >= count - 1) {
+      expandedCardKey.value = ''
+      return
+    }
+
+    expandedCardKey.value = cards[currentIndex + 1]?.key ?? ''
+    return
+  }
+
+  if (currentIndex < 0) {
+    expandedCardKey.value = cards[count - 1]?.key ?? ''
+    return
+  }
+
+  if (currentIndex <= 0) {
+    expandedCardKey.value = ''
+    return
+  }
+
+  expandedCardKey.value = cards[currentIndex - 1]?.key ?? ''
+}
+
 function isCardComplete(cardKey: string): boolean {
   return isBuilderDeck.value
     ? Boolean(builderStore.completedCards[cardKey])
@@ -280,6 +341,12 @@ function thumbClass(cardKey: string): string {
   }
 
   return 'z-10 border-base-300 bg-base-200 hover:border-primary/60'
+}
+
+function expandedClass(cardKey: string): string {
+  if (expandedCardKey.value !== cardKey) return ''
+
+  return 'z-40 -translate-y-2 scale-[2.1] sm:z-30 sm:translate-y-0 sm:scale-100'
 }
 
 function originClass(index: number): string {
@@ -339,8 +406,16 @@ watch(
       (card) => card.key === selectedCardKey.value,
     )
 
+    const expandedExists = sourceCards.value.some(
+      (card) => card.key === expandedCardKey.value,
+    )
+
     if (!selectedExists) {
       selectedCardKey.value = storedActiveCardKey.value
+    }
+
+    if (!expandedExists) {
+      expandedCardKey.value = ''
     }
   },
   { deep: true },
@@ -364,7 +439,7 @@ onMounted(() => {
 })
 
 watch(
-  [handCards, cardWidthPx, restingCardWidthPx],
+  [handCards, restingCardWidthPx],
   () => {
     void nextTick(publishHeight)
   },

@@ -2,56 +2,62 @@
 <template>
   <div
     ref="handEl"
-    class="absolute inset-x-0 bottom-0 z-30 overflow-x-auto overscroll-x-contain px-1 py-1"
+    class="absolute inset-x-0 bottom-0 z-30 pointer-events-none px-1 py-1"
+    :style="handFrameStyle"
   >
     <div
-      class="flex min-w-full items-end gap-2"
-      :class="handJustifyClass"
-      :style="handStyle"
+      ref="scrollEl"
+      class="pointer-events-auto h-full overflow-x-auto overscroll-x-contain overflow-y-hidden"
     >
-      <button
-        v-for="card in handCards"
-        :key="card.key"
-        type="button"
-        class="group relative flex shrink-0 flex-col overflow-hidden rounded-2xl border transition-all duration-200 hover:-translate-y-0.5"
-        :class="thumbClass(card.key)"
-        :style="{ width: 'var(--workspace-card-w)' }"
-        @click="handleCardClick(card)"
+      <div
+        class="flex min-w-full items-end gap-2"
+        :class="handJustifyClass"
+        :style="handStyle"
       >
-        <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
-          <img
-            v-if="card.deckImage"
-            :src="normalizeImagePath(card.deckImage)"
-            :alt="card.label"
-            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-
-          <div v-else class="flex h-full w-full items-center justify-center">
-            <Icon
-              :name="card.icon || 'kind-icon:cards'"
-              class="h-8 w-8 text-base-content/25"
+        <button
+          v-for="(card, index) in handCards"
+          :key="card.key"
+          type="button"
+          class="group relative flex shrink-0 flex-col overflow-hidden rounded-2xl border transition-all duration-200 hover:z-40 hover:scale-[3] hover:-translate-y-1"
+          :class="[thumbClass(card.key), originClass(index)]"
+          :style="{ width: 'var(--workspace-card-rest-w)' }"
+          @click="handleCardClick(card)"
+        >
+          <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
+            <img
+              v-if="card.deckImage"
+              :src="normalizeImagePath(card.deckImage)"
+              :alt="card.label"
+              class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
+
+            <div v-else class="flex h-full w-full items-center justify-center">
+              <Icon
+                :name="card.icon || 'kind-icon:cards'"
+                class="h-8 w-8 text-base-content/25"
+              />
+            </div>
+
+            <div
+              v-if="isCardComplete(card.key)"
+              class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]"
+            >
+              <Icon
+                name="kind-icon:check"
+                class="h-6 w-6 rounded-full bg-success p-1 text-success-content"
+              />
+            </div>
           </div>
 
-          <div
-            v-if="isCardComplete(card.key)"
-            class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]"
-          >
-            <Icon
-              name="kind-icon:check"
-              class="h-6 w-6 rounded-full bg-success p-1 text-success-content"
-            />
+          <div class="w-full bg-base-100 px-2 py-1.5">
+            <p
+              class="truncate text-center text-xs font-black text-base-content/70"
+            >
+              {{ card.label }}
+            </p>
           </div>
-        </div>
-
-        <div class="w-full bg-base-100 px-2 py-1.5">
-          <p
-            class="truncate text-center text-xs font-black text-base-content/70"
-          >
-            {{ card.label }}
-          </p>
-        </div>
-      </button>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -70,6 +76,7 @@ const builderStore = useBuilderStore()
 const pageStore = usePageStore()
 
 const handEl = ref<HTMLElement | null>(null)
+const scrollEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
 
 let observer: ResizeObserver | null = null
@@ -77,6 +84,9 @@ let observer: ResizeObserver | null = null
 const gapPx = 8
 const horizontalPaddingPx = 8
 const minCardWidthPx = 96
+const expandedScale = 3
+const footerHeightPx = 30
+const verticalPaddingPx = 8
 
 const isBuilderDeck = computed(() => pageStore.cardsKey === 'builderCards')
 
@@ -160,12 +170,26 @@ const cardWidthPx = computed(() => {
   return Math.min(maxCardWidthPx.value, Math.max(minCardWidthPx, idealWidth))
 })
 
+const restingCardWidthPx = computed(() => {
+  return Math.max(42, Math.floor(cardWidthPx.value / expandedScale))
+})
+
+const restingHandHeightPx = computed(() => {
+  return Math.ceil(
+    restingCardWidthPx.value * 1.5 + footerHeightPx + verticalPaddingPx,
+  )
+})
+
+const expandedHandHeightPx = computed(() => {
+  return Math.ceil(cardWidthPx.value * 1.5 + footerHeightPx + verticalPaddingPx)
+})
+
 const handContentWidth = computed(() => {
   const count = handCards.value.length
 
   if (!count) return 0
 
-  return cardWidthPx.value * count + gapPx * Math.max(0, count - 1)
+  return restingCardWidthPx.value * count + gapPx * Math.max(0, count - 1)
 })
 
 const handJustifyClass = computed(() => {
@@ -177,16 +201,26 @@ const handJustifyClass = computed(() => {
 const handStyle = computed<CSSProperties>(() => {
   return {
     '--workspace-card-w': `${cardWidthPx.value}px`,
+    '--workspace-card-rest-w': `${restingCardWidthPx.value}px`,
   } as CSSProperties
 })
 
+const handFrameStyle = computed<CSSProperties>(() => {
+  return {
+    height: `${expandedHandHeightPx.value}px`,
+  }
+})
+
 function publishHeight(): void {
-  if (!handEl.value) return
+  if (!import.meta.client) return
 
-  handWidth.value = handEl.value.clientWidth
+  handWidth.value =
+    scrollEl.value?.clientWidth ?? handEl.value?.clientWidth ?? 0
 
-  const h = handEl.value.scrollHeight
-  document.documentElement.style.setProperty('--hand-h', `${h}px`)
+  document.documentElement.style.setProperty(
+    '--hand-h',
+    `${restingHandHeightPx.value}px`,
+  )
 }
 
 function getCardPath(card: BuilderCard): string {
@@ -217,14 +251,21 @@ function isCardComplete(cardKey: string): boolean {
 
 function thumbClass(cardKey: string): string {
   if (activeCardKey.value === cardKey) {
-    return 'border-primary bg-primary/10 shadow shadow-primary/20'
+    return 'z-30 scale-[3] -translate-y-1 border-primary bg-primary/10 shadow-xl shadow-primary/20'
   }
 
   if (isCardComplete(cardKey)) {
-    return 'border-success/60 bg-success/5'
+    return 'z-10 border-success/60 bg-success/5'
   }
 
-  return 'border-base-300 bg-base-200 hover:border-primary/60'
+  return 'z-10 border-base-300 bg-base-200 hover:border-primary/60'
+}
+
+function originClass(index: number): string {
+  if (index === 0) return 'origin-bottom-left'
+  if (index === handCards.value.length - 1) return 'origin-bottom-right'
+
+  return 'origin-bottom'
 }
 
 function normalizeImagePath(path: string): string {
@@ -234,7 +275,7 @@ function normalizeImagePath(path: string): string {
 }
 
 function handleWheel(event: WheelEvent): void {
-  const el = handEl.value
+  const el = scrollEl.value
   if (!el) return
 
   const horizontalOverflow = el.scrollWidth > el.clientWidth
@@ -269,12 +310,16 @@ onMounted(() => {
 
   if (handEl.value) {
     observer.observe(handEl.value)
-    handEl.value.addEventListener('wheel', handleWheel, { passive: false })
+  }
+
+  if (scrollEl.value) {
+    observer.observe(scrollEl.value)
+    scrollEl.value.addEventListener('wheel', handleWheel, { passive: false })
   }
 })
 
 watch(
-  [handCards, cardWidthPx],
+  [handCards, cardWidthPx, restingCardWidthPx],
   () => {
     void nextTick(publishHeight)
   },
@@ -284,8 +329,8 @@ watch(
 onBeforeUnmount(() => {
   observer?.disconnect()
 
-  if (handEl.value) {
-    handEl.value.removeEventListener('wheel', handleWheel)
+  if (scrollEl.value) {
+    scrollEl.value.removeEventListener('wheel', handleWheel)
   }
 
   document.documentElement.style.removeProperty('--hand-h')

@@ -71,15 +71,23 @@ const CORE_CARD_KEYS = [
 
 const ALL_REQUIRED_KEYS = [
   ...CORE_CARD_KEYS,
-  'common-skill',
-  'uncommon-skill',
-  'rare-skill',
+  'starting-item',
+  'starting-skill',
 ] as const
 
 const SLOT_BASE_RARITY: Record<string, Rarity> = {
-  'common-skill': 'COMMON',
-  'uncommon-skill': 'UNCOMMON',
-  'rare-skill': 'RARE',
+  'starting-item': 'COMMON',
+  'starting-skill': 'COMMON',
+}
+
+const SLOT_OPTION_COUNT: Record<string, number> = {
+  'starting-item': 6,
+  'starting-skill': 6,
+}
+
+const SLOT_KIND: Record<string, 'item' | 'skill'> = {
+  'starting-item': 'item',
+  'starting-skill': 'skill',
 }
 
 // ── Defaults ───────────────────────────────────────────────────────────────
@@ -171,6 +179,8 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   const rewardOptions = reactive<Record<string, RolledReward[]>>({})
   const selectedRewardId = reactive<Record<string, string>>({})
+  const choicePools = reactive<Record<string, string[]>>({})
+  const choiceRoundsUsed = reactive<Record<string, number>>({})
 
   const sheet = reactive<AdventureSheet>(defaultSheet())
 
@@ -202,15 +212,100 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     }),
   )
 
+  function shuffleValues<T>(items: T[]): T[] {
+    return [...items].sort(() => Math.random() - 0.5)
+  }
+
+  function getChoicePoolKey(step: AdventureStep): string {
+    return `${activeCardKey.value ?? 'card'}:${step.key}`
+  }
+
+  function getRealChoiceValues(step: AdventureStep): string[] {
+    return (
+      step.choices
+        ?.filter(
+          (choice) => choice.value && !choice.opensCustom && !choice.opensList,
+        )
+        .map((choice) => choice.value) ?? []
+    )
+  }
+
+  function buildChoicePool(step: AdventureStep): string[] {
+    const size = step.randomPoolSize ?? 0
+    const values = getRealChoiceValues(step)
+    if (!size || values.length <= size) return values
+    return shuffleValues(values).slice(0, size)
+  }
+
+  function getChoicePool(step: AdventureStep): string[] {
+    const key = getChoicePoolKey(step)
+    if (!choicePools[key]?.length) {
+      choicePools[key] = buildChoicePool(step)
+      choiceRoundsUsed[key] = 1
+    }
+    return choicePools[key]
+  }
+
+  function rerollChoicePool(stepKey?: string): void {
+    const step = rawActiveStep.value
+    if (!step?.randomPoolSize) return
+    if (stepKey && step.key !== stepKey) return
+
+    const key = getChoicePoolKey(step)
+    const maxRounds = step.randomRounds ?? 1
+    const used = choiceRoundsUsed[key] ?? 0
+
+    if (used >= maxRounds) {
+      saveError.value =
+        'The sheet has already redrawn this set. Choose your goblin.'
+      return
+    }
+
+    choicePools[key] = buildChoicePool(step)
+    choiceRoundsUsed[key] = used + 1
+    saveError.value = ''
+    persistState()
+  }
+
+  const activeChoiceRound = computed(() => {
+    const step = rawActiveStep.value
+    return step ? (choiceRoundsUsed[getChoicePoolKey(step)] ?? 0) : 0
+  })
+
+  const activeChoiceRoundLimit = computed(() => {
+    return rawActiveStep.value?.randomRounds ?? 1
+  })
+
+  const canRerollActiveChoices = computed(() => {
+    const step = rawActiveStep.value
+    if (!step?.randomPoolSize) return false
+    return activeChoiceRound.value < activeChoiceRoundLimit.value
+  })
+
   const activeCard = computed<AdventureCard | null>(() =>
     activeCardKey.value
       ? (ADVENTURE_CARDS.find((c) => c.key === activeCardKey.value) ?? null)
       : null,
   )
 
-  const activeStep = computed<AdventureStep | null>(
+  const rawActiveStep = computed<AdventureStep | null>(
     () => activeCard.value?.steps[activeStepIndex.value] ?? null,
   )
+
+  const activeStep = computed<AdventureStep | null>(() => {
+    const step = rawActiveStep.value
+    if (!step?.choices?.length || !step.randomPoolSize) return step
+
+    const pool = getChoicePool(step)
+
+    return {
+      ...step,
+      choices: step.choices.filter((choice) => {
+        if (!choice.value) return true
+        return pool.includes(choice.value)
+      }),
+    }
+  })
 
   const isLastStep = computed(
     () =>
@@ -269,6 +364,12 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       if (step.field) {
         const existing = (sheet as Record<string, unknown>)[step.field]
         stagedValues[step.key] = typeof existing === 'string' ? existing : ''
+      }
+    }
+
+    for (const step of card.steps) {
+      if (step.randomPoolSize) {
+        getChoicePool(step)
       }
     }
 
@@ -500,9 +601,68 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   // ── Reward rolling ─────────────────────────────────────────────────────
 
+  function rollWeightedBaseRarity(): Rarity {
+    const roll = Math.random()
+
+    if (roll < 0.68) return 'COMMON'
+    if (roll < 0.86) return 'UNCOMMON'
+    if (roll < 0.96) return 'RARE'
+    if (roll < 0.99) return 'EPIC'
+    return 'LEGENDARY'
+  }
+
+  function rewardMatchesSlot(reward: RolledReward, slotKey: string): boolean {
+    const kind = SLOT_KIND[slotKey]
+    if (!kind) return true
+
+    const payload = (reward as unknown as { payload?: Record<string, unknown> })
+      .payload
+    const category = String(
+      payload?.category ??
+        payload?.type ??
+        payload?.kind ??
+        (reward as unknown as { category?: string }).category ??
+        (reward as unknown as { type?: string }).type ??
+        '',
+    ).toLowerCase()
+
+    if (!category) return true
+
+    if (kind === 'skill') {
+      return category.includes('skill') || category.includes('ability')
+    }
+
+    return (
+      category.includes('item') ||
+      category.includes('treasure') ||
+      category.includes('gear') ||
+      category.includes('equipment')
+    )
+  }
+
   function rollRewardOptions(cardKey: string) {
-    const base = SLOT_BASE_RARITY[cardKey] ?? 'COMMON'
-    rewardOptions[cardKey] = generator.rollRewardOptions(base, 4)
+    const count = SLOT_OPTION_COUNT[cardKey] ?? 6
+    const fallbackBase = SLOT_BASE_RARITY[cardKey] ?? 'COMMON'
+    const options: RolledReward[] = []
+
+    for (let attempt = 0; attempt < 8 && options.length < count; attempt++) {
+      const base = attempt === 0 ? fallbackBase : rollWeightedBaseRarity()
+      const rolled = generator.rollRewardOptions(base, count * 2)
+
+      for (const reward of rolled) {
+        if (options.some((option) => option.id === reward.id)) continue
+        if (!rewardMatchesSlot(reward, cardKey)) continue
+        options.push(reward)
+        if (options.length >= count) break
+      }
+    }
+
+    if (!options.length) {
+      rewardOptions[cardKey] = generator.rollRewardOptions(fallbackBase, count)
+    } else {
+      rewardOptions[cardKey] = options.slice(0, count)
+    }
+
     selectedRewardId[cardKey] = ''
   }
 
@@ -701,6 +861,8 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       selectedRewardId: { ...selectedRewardId },
       activeCardKey: activeCardKey.value,
       activeStepIndex: activeStepIndex.value,
+      choicePools: { ...choicePools },
+      choiceRoundsUsed: { ...choiceRoundsUsed },
     })
   }
 
@@ -741,6 +903,13 @@ export const useAdventureStore = defineStore('adventureStore', () => {
             savedSheet[key] ?? (sheet as Record<string, unknown>)[key]
         }
       }
+
+      if (s.choicePools && typeof s.choicePools === 'object')
+        Object.assign(choicePools, s.choicePools)
+
+      if (s.choiceRoundsUsed && typeof s.choiceRoundsUsed === 'object')
+        Object.assign(choiceRoundsUsed, s.choiceRoundsUsed)
+
       if (Array.isArray(savedSheet.stats)) {
         for (const sv of savedSheet.stats) {
           const target = sheet.stats.find((s) => s.key === sv.key)
@@ -878,15 +1047,17 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     completedCards['background'] = true
 
     // ── Skills: random reward for each slot ────────────────────────────────
-    for (const slotKey of ['common-skill', 'uncommon-skill', 'rare-skill']) {
-      const base = SLOT_BASE_RARITY[slotKey] ?? 'COMMON'
-      const options = generator.rollRewardOptions(base, 4)
+    for (const slotKey of ['starting-item', 'starting-skill']) {
+      rollRewardOptions(slotKey)
+
+      const options = rewardOptions[slotKey] ?? []
       const pick = options[Math.floor(Math.random() * options.length)]
+
       if (pick) {
         sheet.rewards[slotKey] = pick
-        rewardOptions[slotKey] = options
         selectedRewardId[slotKey] = pick.id
       }
+
       completedCards[slotKey] = true
     }
 
@@ -922,6 +1093,8 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     for (const k of Object.keys(completedCards)) delete completedCards[k]
     for (const k of Object.keys(rewardOptions)) delete rewardOptions[k]
     for (const k of Object.keys(selectedRewardId)) delete selectedRewardId[k]
+    for (const k of Object.keys(choicePools)) delete choicePools[k]
+    for (const k of Object.keys(choiceRoundsUsed)) delete choiceRoundsUsed[k]
 
     Object.assign(sheet, defaultSheet(userId))
     draftStats.splice(0, draftStats.length, ...defaultStats())

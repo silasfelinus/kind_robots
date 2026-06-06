@@ -2,15 +2,15 @@
 <template>
   <div
     ref="handEl"
-    class="absolute inset-x-0 bottom-0 z-30 pointer-events-none px-1 py-1"
+    class="absolute inset-x-0 bottom-0 z-30 pointer-events-none px-1"
     :style="handFrameStyle"
   >
     <div
       ref="scrollEl"
-      class="pointer-events-auto h-full overflow-x-auto overscroll-x-contain overflow-y-hidden"
+      class="pointer-events-auto flex h-full items-end overflow-x-auto overscroll-x-contain [overflow-y:visible]"
     >
       <div
-        class="flex min-w-full items-end gap-2"
+        class="flex min-w-full items-end gap-2 pt-[calc(var(--workspace-card-expanded-h)-var(--workspace-card-rest-h))]"
         :class="handJustifyClass"
         :style="handStyle"
       >
@@ -18,38 +18,45 @@
           v-for="(card, index) in handCards"
           :key="card.key"
           type="button"
-          class="group relative flex shrink-0 flex-col overflow-hidden rounded-2xl border transition-all duration-200 hover:z-40 hover:scale-[3] hover:-translate-y-1"
+          class="group relative flex shrink-0 origin-bottom flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-1 hover:scale-[3]"
           :class="[thumbClass(card.key), originClass(index)]"
           :style="{ width: 'var(--workspace-card-rest-w)' }"
           @click="handleCardClick(card)"
         >
-          <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
-            <img
-              v-if="card.deckImage"
-              :src="normalizeImagePath(card.deckImage)"
-              :alt="card.label"
-              class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-
-            <div v-else class="flex h-full w-full items-center justify-center">
-              <Icon
-                :name="card.icon || 'kind-icon:cards'"
-                class="h-8 w-8 text-base-content/25"
+          <div class="overflow-hidden rounded-t-2xl">
+            <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
+              <img
+                v-if="card.deckImage"
+                :src="normalizeImagePath(card.deckImage)"
+                :alt="card.label"
+                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-            </div>
 
-            <div
-              v-if="isCardComplete(card.key)"
-              class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]"
-            >
-              <Icon
-                name="kind-icon:check"
-                class="h-6 w-6 rounded-full bg-success p-1 text-success-content"
-              />
+              <div
+                v-else
+                class="flex h-full w-full items-center justify-center"
+              >
+                <Icon
+                  :name="card.icon || 'kind-icon:cards'"
+                  class="h-8 w-8 text-base-content/25"
+                />
+              </div>
+
+              <div
+                v-if="isCardComplete(card.key)"
+                class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]"
+              >
+                <Icon
+                  name="kind-icon:check"
+                  class="h-6 w-6 rounded-full bg-success p-1 text-success-content"
+                />
+              </div>
             </div>
           </div>
 
-          <div class="w-full bg-base-100 px-2 py-1.5">
+          <div
+            class="w-full overflow-hidden rounded-b-2xl bg-base-100 px-2 py-1.5"
+          >
             <p
               class="truncate text-center text-xs font-black text-base-content/70"
             >
@@ -78,6 +85,7 @@ const pageStore = usePageStore()
 const handEl = ref<HTMLElement | null>(null)
 const scrollEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
+const selectedCardKey = ref('')
 
 let observer: ResizeObserver | null = null
 
@@ -116,12 +124,24 @@ const routeCardKey = computed(() => {
   )
 })
 
-const activeCardKey = computed(() => {
+const storedActiveCardKey = computed(() => {
   if (isBuilderDeck.value) {
     return builderStore.activeCardKey || sourceCards.value[0]?.key || ''
   }
 
   return pageStore.workspaceCardKey || routeCardKey.value
+})
+
+const activeCardKey = computed(() => {
+  const selectedExists = sourceCards.value.some(
+    (card) => card.key === selectedCardKey.value,
+  )
+
+  if (selectedExists) {
+    return selectedCardKey.value
+  }
+
+  return storedActiveCardKey.value
 })
 
 const handCards = computed(() => {
@@ -202,6 +222,8 @@ const handStyle = computed<CSSProperties>(() => {
   return {
     '--workspace-card-w': `${cardWidthPx.value}px`,
     '--workspace-card-rest-w': `${restingCardWidthPx.value}px`,
+    '--workspace-card-rest-h': `${restingHandHeightPx.value}px`,
+    '--workspace-card-expanded-h': `${expandedHandHeightPx.value}px`,
   } as CSSProperties
 })
 
@@ -229,17 +251,17 @@ function getCardPath(card: BuilderCard): string {
 }
 
 function handleCardClick(card: BuilderCard): void {
+  selectedCardKey.value = card.key
   pageStore.setWorkspaceCardKey(card.key)
-
-  const path = getCardPath(card)
-
-  if (path) {
-    void navigateTo(path)
-    return
-  }
 
   if (isBuilderDeck.value) {
     builderStore.selectCard(card.key)
+  }
+
+  const path = getCardPath(card)
+
+  if (path && path !== route.path) {
+    void navigateTo(path)
   }
 }
 
@@ -251,7 +273,7 @@ function isCardComplete(cardKey: string): boolean {
 
 function thumbClass(cardKey: string): string {
   if (activeCardKey.value === cardKey) {
-    return 'z-30 scale-[3] -translate-y-1 border-primary bg-primary/10 shadow-xl shadow-primary/20'
+    return 'z-30 -translate-y-1 scale-[3] border-primary bg-primary/10 shadow-xl shadow-primary/20'
   }
 
   if (isCardComplete(cardKey)) {
@@ -300,6 +322,30 @@ function handleWheel(event: WheelEvent): void {
   event.preventDefault()
   el.scrollLeft = nextScrollLeft
 }
+
+watch(
+  storedActiveCardKey,
+  (cardKey) => {
+    if (!selectedCardKey.value && cardKey) {
+      selectedCardKey.value = cardKey
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  sourceCards,
+  () => {
+    const selectedExists = sourceCards.value.some(
+      (card) => card.key === selectedCardKey.value,
+    )
+
+    if (!selectedExists) {
+      selectedCardKey.value = storedActiveCardKey.value
+    }
+  },
+  { deep: true },
+)
 
 onMounted(() => {
   if (!import.meta.client) return

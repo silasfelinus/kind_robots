@@ -79,7 +79,7 @@
 
       <template #fallback>
         <div
-          class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+          class="fixed inset-x-0 bottom-0 z-[100] border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
         >
           Loading workspace hand...
         </div>

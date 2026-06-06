@@ -7,7 +7,7 @@
   >
     <div
       ref="scrollEl"
-      class="pointer-events-auto flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-hidden"
+      class="pointer-events-auto flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
     >
       <div
         class="flex min-w-full items-end gap-2"
@@ -18,7 +18,7 @@
           v-for="(card, index) in handCards"
           :key="card.key"
           type="button"
-          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-120 hover:-translate-y-2 hover:scale-[3] active:z-120 active:-translate-y-2 active:scale-[3]"
+          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-2 hover:scale-[2.35] active:z-40 active:-translate-y-2 active:scale-[2.35]"
           :class="[thumbClass(card.key), originClass(index)]"
           :style="{ width: 'var(--workspace-card-rest-w)' }"
           @click="handleCardClick(card)"
@@ -55,9 +55,10 @@
               </div>
             </div>
 
-            <div class="w-full bg-base-100 px-2 py-1.5">
+            <div class="w-full bg-base-100 px-1.5 py-1.5">
               <p
-                class="truncate text-center text-xs font-black text-base-content/70"
+                class="truncate text-center text-[0.65rem] font-black leading-none text-base-content/75"
+                :title="card.label"
               >
                 {{ card.label }}
               </p>
@@ -91,11 +92,12 @@ let observer: ResizeObserver | null = null
 
 const gapPx = 8
 const horizontalPaddingPx = 8
-const minCardWidthPx = 96
-const expandedScale = 3
-const footerHeightPx = 30
+const minCardWidthPx = 108
+const expandedScale = 2.35
+const minRestingCardWidthPx = 64
+const footerHeightPx = 34
 const verticalPaddingPx = 8
-const expansionSafetyPx = 42
+const expansionSafetyPx = 112
 
 const isBuilderDeck = computed(() => pageStore.cardsKey === 'builderCards')
 
@@ -180,7 +182,10 @@ const cardWidthPx = computed(() => {
 })
 
 const restingCardWidthPx = computed(() => {
-  return Math.max(42, Math.floor(cardWidthPx.value / expandedScale))
+  return Math.max(
+    minRestingCardWidthPx,
+    Math.floor(cardWidthPx.value / expandedScale),
+  )
 })
 
 const restingHandHeightPx = computed(() => {

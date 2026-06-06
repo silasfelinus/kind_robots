@@ -125,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   isDashboardKey,
   type DashboardKey,
@@ -150,8 +150,15 @@ const shellSummary = computed(
 )
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
-  const key = (pageStore.dashboardKey || '').trim()
-  return key && isDashboardKey(key) ? key : null
+  const shellKey = navStore.dashboardShell.dashboardKey
+
+  if (shellKey && isDashboardKey(shellKey)) {
+    return shellKey
+  }
+
+  const pageKey = (pageStore.dashboardKey || '').trim()
+
+  return pageKey && isDashboardKey(pageKey) ? pageKey : null
 })
 
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
@@ -159,9 +166,29 @@ const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   return key ? navStore.getDashboardTabs(key) : []
 })
 
+const routeRequestedTabKey = computed(() => {
+  const tabKey = (pageStore.dashboardTab || '').trim()
+  if (!tabKey) return ''
+
+  const tabExists = resolvedTabs.value.some((tab) => tab.key === tabKey)
+  return tabExists ? tabKey : ''
+})
+
 const activeTabKey = computed(() => {
   const key = resolvedDashboardKey.value
-  return key ? navStore.getDashboardTab(key) : ''
+  if (!key) return ''
+
+  const contentTab = navStore.dashboardShell.activeTabHint
+
+  const contentTabExists = resolvedTabs.value.some(
+    (tab) => tab.key === contentTab,
+  )
+
+  if (contentTabExists) {
+    return contentTab
+  }
+
+  return navStore.getDashboardTab(key)
 })
 
 const activeTabConfig = computed<DashboardTabConfig>(() => {
@@ -192,9 +219,30 @@ const activeSummary = computed(
   () => activeTabConfig.value.summary || shellSummary.value,
 )
 
+watch(
+  () => ({
+    dashboardKey: resolvedDashboardKey.value,
+    dashboardTab: routeRequestedTabKey.value,
+  }),
+  ({ dashboardKey, dashboardTab }) => {
+    if (!dashboardKey || !dashboardTab) return
+
+    const currentTab = navStore.getDashboardTab(dashboardKey)
+    if (currentTab === dashboardTab) return
+
+    navStore.setDashboardTab(
+      dashboardKey,
+      dashboardTab,
+      'dashboard-shell route-enforced tab',
+    )
+  },
+  { immediate: true },
+)
+
 function setTab(tabKey: string): void {
   const key = resolvedDashboardKey.value
   if (!key) return
+
   navStore.setDashboardTab(key, tabKey, 'dashboard-shell tab button')
 }
 

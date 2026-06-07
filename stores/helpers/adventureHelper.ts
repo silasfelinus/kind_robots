@@ -30,6 +30,18 @@ export const ADVENTURE_SKILL_RARITY: Record<string, Rarity> = {
   'rare-skill': 'RARE',
 }
 
+function numericRewardIdFromOptionId(id: string): number {
+  const numericId = Number(id)
+
+  if (Number.isFinite(numericId) && numericId > 0) {
+    return numericId
+  }
+
+  return Array.from(id).reduce((total, char) => {
+    return total + char.charCodeAt(0)
+  }, 0)
+}
+
 export function adventureRewardToBuilderOption(
   reward: RolledReward,
 ): BuilderRewardOption {
@@ -38,7 +50,7 @@ export function adventureRewardToBuilderOption(
     label: reward.label || reward.text || 'Unnamed Skill',
     description: reward.power || reward.text || '',
     rarity: reward.rarity,
-    icon: reward.icon,
+    icon: reward.icon ?? undefined,
     payload: {
       reward,
     },
@@ -56,6 +68,8 @@ export function builderOptionToAdventureReward(
 
   return {
     id: option.id,
+    rewardId: numericRewardIdFromOptionId(option.id),
+    rewardType: 'SKILL',
     label: option.label,
     text: option.label,
     power: option.description ?? '',
@@ -113,6 +127,7 @@ export function buildAdventureArtPrompt(sheet: BuilderSheet): string {
   add(sheet.alignment)
 
   const rewards = sheet.rewards
+
   if (rewards && typeof rewards === 'object' && !Array.isArray(rewards)) {
     const skillText = Object.values(
       rewards as Record<string, BuilderRewardOption>,

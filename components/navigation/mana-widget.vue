@@ -7,7 +7,7 @@
       title="Mana"
       @click="toggle"
     >
-      <span class="text-lg leading-none">⚡</span>
+      <span class="mana-icon text-lg leading-none">⚡</span>
       <span class="hidden font-semibold tabular-nums sm:inline">
         {{ manaStore.isFamily ? '∞' : manaStore.balance }}
       </span>

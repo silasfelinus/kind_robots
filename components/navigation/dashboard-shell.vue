@@ -21,7 +21,7 @@
         v-if="showHeader"
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
-           <div class="flex min-w-0 items-stretch gap-3 p-3 lg:gap-4 lg:p-4">
+        <div class="flex min-w-0 items-stretch gap-3 p-3 lg:gap-4 lg:p-4">
           <button
             type="button"
             title="Hide header"
@@ -66,14 +66,14 @@
             </p>
           </section>
 
-                <nav
+          <nav
             v-if="resolvedTabs.length"
-            class="flex min-w-0 flex-1 flex-wrap content-center items-center gap-2 self-stretch"
+            class="grid min-w-0 flex-1 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] gap-2 self-stretch"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn btn-sm min-w-0 shrink justify-start rounded-xl px-2.5 py-1.5 text-left transition-all"
+              class="btn h-full min-h-0 min-w-0 justify-start rounded-xl px-2.5 py-1.5 text-left transition-all"
               type="button"
               :class="
                 activeTabKey === tab.key
@@ -83,7 +83,7 @@
               @click="setTab(tab.key)"
             >
               <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span class="min-w-0 truncate text-sm font-bold md:text-md lg:text-lg xl:text-xl">
+              <span class="min-w-0 truncate text-sm font-bold lg:text-base">
                 {{ tab.label }}
               </span>
             </button>
@@ -112,7 +112,6 @@
             </div>
           </section>
         </div>
-
       </header>
     </transition>
 

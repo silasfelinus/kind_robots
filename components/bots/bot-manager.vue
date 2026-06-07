@@ -69,11 +69,6 @@
       class="min-h-0 flex-1 overflow-hidden"
     />
 
-    <bot-builder
-      v-else-if="activeTab === 'builder'"
-      class="min-h-0 flex-1 overflow-hidden"
-    />
-
     <section
       v-else-if="activeTab === 'forge'"
       class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"

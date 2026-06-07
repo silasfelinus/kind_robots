@@ -62,11 +62,6 @@
       :show-images="true"
     />
 
-    <reward-builder
-      v-else-if="activeTab === 'builder'"
-      class="min-h-0 flex-1 overflow-hidden"
-    />
-
     <reward-interact
       v-else-if="activeTab === 'interact'"
       class="min-h-0 flex-1 overflow-y-auto"

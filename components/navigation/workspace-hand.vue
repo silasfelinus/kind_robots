@@ -25,7 +25,7 @@
 
     <div
       ref="scrollEl"
-      class="flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="mt-auto flex h-(--workspace-card-rest-h) items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
       :class="hasCards ? 'pointer-events-auto' : 'pointer-events-none'"
     >
       <div

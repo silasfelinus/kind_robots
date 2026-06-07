@@ -46,6 +46,7 @@
             :show-stats="true"
             :show-meta="true"
           />
+          <dream-list list-type="art" />
         </div>
       </section>
 
@@ -92,170 +93,6 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'art'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
-      @vue:mounted="setupUploadTarget"
-    >
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-8"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
-          >
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Dream Art
-            </p>
-
-            <h2 class="text-2xl font-black text-base-content">
-              Visuals for {{ selectedTitle }}
-            </h2>
-
-            <p class="mt-2 text-sm text-base-content/70">
-              Upload images, browse the gallery, or generate art for this dream.
-            </p>
-          </div>
-
-          <div class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3">
-            <image-upload />
-          </div>
-
-          <div class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3">
-            <art-gallery :show-header="false" />
-          </div>
-        </div>
-      </section>
-
-      <aside
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-4"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <collection-gallery
-            variant="dropdown"
-            :show-header="true"
-            :show-controls="false"
-            :allow-add="true"
-            :allow-edit="false"
-            :allow-delete="false"
-            :allow-merge="false"
-            :allow-refresh="false"
-          />
-
-          <div class="mt-4">
-            <dream-list list-type="art" />
-          </div>
-        </div>
-      </aside>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'collections'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
-    >
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-8"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
-          >
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Collections
-            </p>
-
-            <h2 class="text-2xl font-black text-base-content">
-              Dream Collections
-            </h2>
-
-            <p class="mt-2 text-sm text-base-content/70">
-              Manage shared art collections connected to the dream.
-            </p>
-          </div>
-
-          <div class="mt-4">
-            <collection-gallery :show-header="false" />
-          </div>
-        </div>
-      </section>
-
-      <aside
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-4"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <dream-list list-type="art" />
-        </div>
-      </aside>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'scenarios'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
-    >
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-4"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
-          >
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Scenario Link
-            </p>
-
-            <h2 class="text-2xl font-black text-base-content">
-              Scenario in Dream
-            </h2>
-
-            <p class="mt-2 text-sm leading-relaxed text-base-content/70">
-              Dream is the place. Scenario is what happens there.
-            </p>
-
-            <div
-              v-if="dreamStore.selectedDream?.Scenario"
-              class="mt-4 rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
-            >
-              <p
-                class="text-xs font-bold uppercase tracking-wide text-secondary"
-              >
-                Attached Scenario
-              </p>
-
-              <h3 class="mt-1 text-lg font-black text-base-content">
-                {{
-                  dreamStore.selectedDream.Scenario.title || 'Untitled Scenario'
-                }}
-              </h3>
-
-              <p class="mt-2 line-clamp-5 text-sm text-base-content/70">
-                {{
-                  dreamStore.selectedDream.Scenario.description ||
-                  'No scenario description yet.'
-                }}
-              </p>
-            </div>
-
-            <div
-              v-else
-              class="mt-4 rounded-2xl border border-dashed border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
-            >
-              No scenario attached yet.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-8"
-      >
-        <scenario-gallery
-          class="h-full min-h-0 flex-1 overflow-hidden"
-          variant="dashboard"
-          :show-header="false"
-        />
-      </section>
-    </section>
-
-    <section
       v-else-if="activeTab === 'interact'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
@@ -281,16 +118,7 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
-type DreamTab =
-  | 'overview'
-  | 'dreams'
-  | 'add'
-  | 'prompts'
-  | 'art'
-  | 'builder'
-  | 'collections'
-  | 'scenarios'
-  | 'interact'
+type DreamTab = 'overview' | 'dreams' | 'add' | 'interact' | 'prompts'
 
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
@@ -307,12 +135,8 @@ const validTabs: DreamTab[] = [
   'overview',
   'dreams',
   'add',
-  'prompts',
-  'art',
-  'builder',
-  'collections',
-  'scenarios',
   'interact',
+  'prompts',
 ]
 
 const isLoadingManager = ref(false)

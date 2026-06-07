@@ -597,7 +597,7 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     narrative:
       'A name is a surprisingly durable thing. It outlasts the entity who carries it, haunts records, appears on maps, gets shouted across crowded rooms at the worst possible moment. The entity may not use language. They may not have a mouth. These are not obstacles — they are interesting constraints. The ledger has seen stranger.',
     required: true,
-    restoresFields: ['name', 'honorific'],
+    restoresFields: ['name'],
     steps: [
       {
         key: 'name',
@@ -609,17 +609,6 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
         generatorKey: 'givenName',
         placeholder: 'Mira Voss, Buttonwick, Unit 7, The Clicking Sound...',
         inputLabel: 'Name',
-      },
-      {
-        key: 'honorific',
-        title: 'Honorific',
-        narrative:
-          'How does the world address this entity? Not who they are — who they are in the context of a sentence about them. The social costume. Some entities have earned theirs. Others simply decided to keep it.',
-        inputType: 'list',
-        field: 'honorific',
-        generatorKey: 'honorific',
-        placeholder: 'the esteemed, formerly known as, technically still a...',
-        inputLabel: 'Honorific',
       },
     ],
   },

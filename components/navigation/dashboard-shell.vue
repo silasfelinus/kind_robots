@@ -95,23 +95,27 @@
           <div v-else class="min-w-0 flex-1" />
 
           <section
-            class="flex w-24 shrink-0 flex-col gap-2 self-stretch sm:w-32 lg:w-40 xl:w-44"
+            class="flex w-36 shrink-0 flex-col gap-2 self-stretch sm:w-44 lg:w-56 xl:w-64"
           >
             <div
-              class="flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2"
+              class="flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-200/50 p-2"
             >
-              <slot
-                name="actions"
-                :active-tab="activeTabKey"
-                :active-tab-config="activeTabConfig"
-              />
+              <div
+                class="flex min-w-0 flex-1 items-center justify-end gap-2 overflow-hidden"
+              >
+                <slot
+                  name="actions"
+                  :active-tab="activeTabKey"
+                  :active-tab-config="activeTabConfig"
+                />
 
-              <channel-select />
-              <server-selector />
+                <channel-select class="shrink-0" />
+                <server-selector class="shrink-0" />
+              </div>
             </div>
 
             <div
-              class="flex min-w-0 items-center justify-end rounded-2xl border border-base-300 bg-base-200/50 p-2"
+              class="flex min-w-0 items-center justify-end overflow-hidden rounded-2xl border border-base-300 bg-base-200/50 p-2"
             >
               <mana-widget />
             </div>

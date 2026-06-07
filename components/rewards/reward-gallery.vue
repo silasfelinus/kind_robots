@@ -1,7 +1,7 @@
 <!-- /components/content/rewards/reward-gallery.vue -->
 <template>
   <section
-    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
     <header
       v-if="showHeader"

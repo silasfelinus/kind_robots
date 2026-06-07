@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="pageStore.page?.body"
-    class="h-full min-h-0 w-full overflow-hidden rounded-2xl border border-success/30 bg-success/5"
+    class="h-full min-h-0 w-full overflow-y-auto rounded-2xl border border-success/30 bg-success/5"
   >
     <ContentRenderer :value="pageStore.page" />
   </div>

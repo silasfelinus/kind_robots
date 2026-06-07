@@ -66,19 +66,6 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'collections'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <reward-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-        :show-controls="true"
-        :show-images="true"
-      />
-    </section>
-
-    <section
       v-else-if="activeTab === 'interact'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >

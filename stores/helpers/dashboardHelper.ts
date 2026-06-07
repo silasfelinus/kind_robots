@@ -385,27 +385,6 @@ export const dashboardConfigs = {
           'Use pitches, prompt text, and inspiration to steer the dream.',
       },
       {
-        key: 'art',
-        label: 'Art',
-        icon: 'kind-icon:palette',
-        title: 'Dream Art',
-        summary: 'Choose or generate the current image for the dream.',
-      },
-      {
-        key: 'collections',
-        label: 'Collections',
-        icon: 'kind-icon:folder',
-        title: 'Dream Collections',
-        summary: 'Manage shared art collections connected to the dream.',
-      },
-      {
-        key: 'scenarios',
-        label: 'Scenarios',
-        icon: 'kind-icon:map',
-        title: 'Scenario Link',
-        summary: 'Optionally ground the dream in a storytelling scenario.',
-      },
-      {
         key: 'add',
         label: 'Add/Edit',
         icon: 'kind-icon:plus',
@@ -639,14 +618,6 @@ export const dashboardConfigs = {
         icon: 'kind-icon:gift',
         title: 'Reward Gallery',
         summary: 'Select, add, edit, or delete story rewards and artifacts.',
-      },
-      {
-        key: 'collections',
-        label: 'Collections',
-        icon: 'kind-icon:folder',
-        title: 'Reward Collections',
-        summary:
-          'Organize rewards by story type, item family, or chaos flavor.',
       },
       {
         key: 'interact',

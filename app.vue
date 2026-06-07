@@ -19,12 +19,12 @@
         <button
           v-if="!workspaceSheetOpen"
           type="button"
-          class="btn btn-primary btn-xs btn-square absolute left-3 top-2 z-40 shadow-lg"
+          class="btn btn-primary btn-xs btn-square absolute left-3 -top-2 z-40 shadow-lg"
           aria-label="Open workspace"
           :aria-expanded="workspaceSheetOpen"
           @click="setWorkspaceSheetOpen(true)"
         >
-          <Icon name="kind-icon:panel-left" class="h-4 w-4" />
+          <Icon name="kind-icon:question" class="h-4 w-4" />
         </button>
 
         <div

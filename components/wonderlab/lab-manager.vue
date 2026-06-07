@@ -30,20 +30,20 @@
     </div>
 
     <section
-      v-if="activeTab === 'wonder-lab'"
+      v-if="activeTab === 'memory-dungeon'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <lab-interact
+      <memory-dungeon
         class="h-full min-h-0 flex-1 overflow-hidden"
         :show-header="false"
       />
     </section>
 
     <section
-      v-else-if="activeTab === 'memory-dungeon'"
+      v-else-if="activeTab === 'wonder-lab'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <memory-dungeon
+      <lab-interact
         class="h-full min-h-0 flex-1 overflow-hidden"
         :show-header="false"
       />
@@ -98,18 +98,18 @@ import MemoryDungeon from '@/components/pages/memory-dungeon.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
 
 type LabTab =
-  | 'wonder-lab'
   | 'memory-dungeon'
+  | 'wonder-lab'
   | 'screen-fx'
   | 'chat-test'
   | 'art-test'
 
 const dashboardKey = 'wonder' as const
-const fallbackTab: LabTab = 'wonder-lab'
+const fallbackTab: LabTab = 'memory-dungeon'
 
 const validTabs: LabTab[] = [
-  'wonder-lab',
   'memory-dungeon',
+  'wonder-lab',
   'screen-fx',
   'chat-test',
   'art-test',
@@ -124,9 +124,11 @@ const managerError = ref<string | null>(null)
 const activeTab = computed<LabTab>(() => {
   const selectedTab = navStore.getDashboardTab(dashboardKey)
 
-  return validTabs.includes(selectedTab as LabTab)
-    ? (selectedTab as LabTab)
-    : fallbackTab
+  if (validTabs.includes(selectedTab as LabTab)) {
+    return selectedTab as LabTab
+  }
+
+  return fallbackTab
 })
 
 async function refreshLab() {
@@ -134,7 +136,7 @@ async function refreshLab() {
   managerError.value = null
 
   try {
-    await Promise.all([navStore.initialize(), componentStore.initialize()])
+    await componentStore.initialize()
   } catch (error) {
     managerError.value =
       error instanceof Error ? error.message : 'Failed to refresh WonderLab.'

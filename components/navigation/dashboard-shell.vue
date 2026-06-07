@@ -21,11 +21,13 @@
         v-if="showHeader"
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <div class="flex min-w-0 items-stretch gap-3 p-3 lg:gap-4 lg:p-4">
+        <div
+          class="flex min-h-28 min-w-0 items-stretch gap-3 p-3 sm:min-h-32 lg:min-h-36 lg:gap-4 lg:p-4"
+        >
           <button
             type="button"
             title="Hide header"
-            class="group relative h-20 w-20 shrink-0 self-stretch overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-24 sm:w-24 lg:min-h-24 lg:w-28"
+            class="group relative w-20 shrink-0 self-stretch overflow-hidden rounded-2xl ring-1 ring-base-300 sm:w-24 lg:w-32 xl:w-36"
             @click="toggleHeader"
           >
             <page-image
@@ -43,11 +45,11 @@
           </button>
 
           <section
-            class="flex w-48 min-w-0 shrink-0 flex-col justify-center self-stretch sm:w-56 lg:w-72"
+            class="flex w-44 min-w-0 shrink-0 flex-col justify-center self-stretch sm:w-52 lg:w-64 xl:w-72"
           >
             <p
               v-if="shellTitle"
-              class="truncate text-sm font-black uppercase tracking-wide text-primary/70 sm:text-base"
+              class="truncate text-xs font-black uppercase tracking-wide text-primary/70 sm:text-sm"
             >
               {{ shellTitle }}
             </p>
@@ -60,7 +62,7 @@
 
             <p
               v-if="activeSummary"
-              class="mt-1 line-clamp-3 text-sm font-medium leading-snug text-base-content/60 sm:text-base"
+              class="mt-1 line-clamp-2 text-xs font-medium leading-snug text-base-content/60 sm:text-sm lg:text-[0.95rem]"
             >
               {{ activeSummary }}
             </p>
@@ -68,12 +70,13 @@
 
           <nav
             v-if="resolvedTabs.length"
-            class="grid min-w-0 flex-1 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] gap-2 self-stretch"
+            class="grid min-w-0 flex-1 auto-rows-fr grid-cols-1 gap-2 self-stretch sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(var(--tab-count),minmax(0,1fr))]"
+            :style="tabGridStyle"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn h-full min-h-0 min-w-0 justify-start rounded-xl px-2.5 py-1.5 text-left transition-all"
+              class="btn h-full min-h-11 min-w-0 justify-start rounded-xl px-2.5 py-1.5 text-left transition-all sm:min-h-12 lg:px-3"
               type="button"
               :class="
                 activeTabKey === tab.key
@@ -91,7 +94,9 @@
 
           <div v-else class="min-w-0 flex-1" />
 
-          <section class="flex shrink-0 flex-col gap-2 self-stretch lg:min-w-44">
+          <section
+            class="flex w-24 shrink-0 flex-col gap-2 self-stretch sm:w-32 lg:w-40 xl:w-44"
+          >
             <div
               class="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2"
             >
@@ -119,7 +124,9 @@
       <main
         class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <section class="min-h-0 flex-1 overflow-hidden p-3 sm:p-4">
+        <section
+          class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4"
+        >
           <slot
             :active-tab="activeTabKey"
             :active-tab-config="activeTabConfig"
@@ -173,6 +180,10 @@ const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   return key ? navStore.getDashboardTabs(key) : []
 })
 
+const tabGridStyle = computed(() => ({
+  '--tab-count': String(Math.max(resolvedTabs.value.length, 1)),
+}))
+
 const routeRequestedTabKey = computed(() => {
   const tabKey = (pageStore.dashboardTab || '').trim()
   if (!tabKey) return ''
@@ -185,6 +196,16 @@ const activeTabKey = computed(() => {
   const key = resolvedDashboardKey.value
   if (!key) return ''
 
+  const storedTab = navStore.getDashboardTab(key)
+
+  const storedTabExists = resolvedTabs.value.some(
+    (tab) => tab.key === storedTab,
+  )
+
+  if (storedTabExists) {
+    return storedTab
+  }
+
   const contentTab = navStore.dashboardShell.activeTabHint
 
   const contentTabExists = resolvedTabs.value.some(
@@ -195,7 +216,7 @@ const activeTabKey = computed(() => {
     return contentTab
   }
 
-  return navStore.getDashboardTab(key)
+  return resolvedTabs.value[0]?.key || ''
 })
 
 const activeTabConfig = computed<DashboardTabConfig>(() => {

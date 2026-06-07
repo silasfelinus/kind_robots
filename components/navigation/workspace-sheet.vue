@@ -92,105 +92,143 @@
           :key="card.key"
           class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
         >
-          <img
-            v-if="cardImagePath(card)"
-            :src="cardImagePath(card)"
-            :alt="card.label"
-            class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0 blur-sm transition-all duration-500 group-hover:scale-105 group-hover:opacity-20"
-          />
-
+          <!-- Hero image: full-bleed, leads the card -->
           <div
-            class="pointer-events-none absolute inset-0 bg-linear-to-br from-base-100 via-base-100/95 to-base-100/75"
-          />
+            v-if="cardImagePath(card)"
+            class="relative aspect-video overflow-hidden bg-base-300"
+          >
+            <img
+              :src="cardImagePath(card)"
+              :alt="card.label"
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
 
-          <div class="relative flex flex-col gap-3 p-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex min-w-0 items-center gap-3">
-                <div
-                  class="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-sm"
-                >
-                  <img
-                    v-if="cardImagePath(card)"
-                    :src="cardImagePath(card)"
-                    :alt="card.label"
-                    class="h-full w-full object-cover"
-                  />
+            <div
+              class="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t from-base-100 via-base-100/45 to-transparent"
+            />
 
-                  <div
-                    v-else
-                    class="flex h-full w-full items-center justify-center"
-                  >
-                    <Icon :name="card.icon" class="h-7 w-7 text-primary/45" />
-                  </div>
-                </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-circle absolute right-3 top-3 border-none bg-base-100/80 text-error shadow-sm backdrop-blur hover:bg-base-100"
+              @click="builderStore.removeSection(card.key)"
+            >
+              <Icon name="kind-icon:trash" class="h-4 w-4" />
+            </button>
 
-                <div class="min-w-0">
-                  <p
-                    class="truncate text-lg font-black leading-tight text-base-content"
-                  >
-                    {{ card.label }}
-                  </p>
-
-                  <p
-                    class="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-base-content/55"
-                  >
-                    {{ completedCardSummary(card) }}
-                  </p>
-                </div>
+            <div class="absolute inset-x-0 bottom-0 flex items-end gap-3 p-4">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-base-100/85 shadow-sm backdrop-blur"
+              >
+                <Icon :name="card.icon" class="h-6 w-6 text-primary" />
               </div>
 
-              <button
-                type="button"
-                class="btn btn-sm btn-ghost shrink-0 rounded-xl text-error"
-                @click="builderStore.removeSection(card.key)"
+              <div class="min-w-0 flex-1">
+                <p
+                  class="truncate text-2xl font-black leading-none tracking-tight text-base-content drop-shadow-sm"
+                >
+                  {{ card.label }}
+                </p>
+
+                <p
+                  class="mt-1 line-clamp-1 text-sm font-semibold leading-snug text-base-content/65"
+                >
+                  {{ completedCardSummary(card) }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Text-only header fallback (no card image) -->
+          <div
+            v-else
+            class="flex items-center justify-between gap-3 border-b border-base-300/60 p-4"
+          >
+            <div class="flex min-w-0 items-center gap-3">
+              <div
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 shadow-sm"
               >
-                Clear
-              </button>
+                <Icon :name="card.icon" class="h-7 w-7 text-primary/60" />
+              </div>
+
+              <div class="min-w-0">
+                <p
+                  class="truncate text-xl font-black leading-tight text-base-content"
+                >
+                  {{ card.label }}
+                </p>
+
+                <p
+                  class="mt-0.5 line-clamp-1 text-sm font-semibold leading-snug text-base-content/55"
+                >
+                  {{ completedCardSummary(card) }}
+                </p>
+              </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost shrink-0 rounded-xl text-error"
+              @click="builderStore.removeSection(card.key)"
+            >
+              Clear
+            </button>
+          </div>
+
+          <!-- Fields -->
+          <div class="flex flex-col gap-2 p-3">
+            <template
+              v-for="field in visibleFields(card.restoresFields)"
+              :key="field.key"
+            >
+              <!-- Image field: full-bleed tile, image-first with overlaid label -->
               <div
-                v-for="field in visibleFields(card.restoresFields)"
-                :key="field.key"
-                class="group/field overflow-hidden rounded-2xl border border-base-300/60 bg-base-200/80"
+                v-if="field.imagePath"
+                class="group/field relative aspect-video overflow-hidden rounded-2xl border border-base-300/60 bg-base-300"
               >
+                <img
+                  :src="field.imagePath"
+                  :alt="field.key"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover/field:scale-105"
+                />
+
                 <div
-                  v-if="field.imagePath"
-                  class="relative aspect-5/2 overflow-hidden bg-base-300"
-                >
-                  <img
-                    :src="field.imagePath"
-                    :alt="field.key"
-                    class="h-full w-full object-cover transition-transform duration-500 group-hover/field:scale-105"
-                  />
+                  class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-base-100/95 via-base-100/40 to-transparent"
+                />
 
-                  <div
-                    class="absolute inset-0 bg-linear-to-t from-base-200 via-base-200/30 to-transparent"
-                  />
-
+                <div class="absolute inset-x-0 bottom-0 p-3">
                   <p
-                    class="absolute bottom-2 left-3 right-3 truncate text-xs font-black uppercase tracking-widest text-base-content/70"
-                  >
-                    {{ formatFieldKey(field.key) }}
-                  </p>
-                </div>
-
-                <div class="px-3 py-2.5">
-                  <p
-                    v-if="!field.imagePath"
-                    class="text-xs font-black uppercase tracking-widest text-base-content/35"
+                    class="text-xs font-black uppercase tracking-widest text-primary drop-shadow-sm"
                   >
                     {{ formatFieldKey(field.key) }}
                   </p>
 
                   <p
-                    class="mt-1 line-clamp-4 text-sm font-semibold leading-relaxed text-base-content/75"
+                    v-if="field.value.trim()"
+                    class="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-base-content/85 drop-shadow-sm"
                   >
                     {{ field.value }}
                   </p>
                 </div>
               </div>
-            </div>
+
+              <!-- Text field: compact -->
+              <div
+                v-else
+                class="rounded-2xl border border-base-300/60 bg-base-200/80 px-3 py-2.5"
+              >
+                <p
+                  class="text-xs font-black uppercase tracking-widest text-base-content/35"
+                >
+                  {{ formatFieldKey(field.key) }}
+                </p>
+
+                <p
+                  class="mt-1 text-sm font-semibold leading-relaxed text-base-content/75"
+                >
+                  {{ field.value }}
+                </p>
+              </div>
+            </template>
           </div>
         </section>
       </div>
@@ -400,7 +438,7 @@ function visibleFields(fields: string[]): VisibleField[] {
         imagePath,
       }
     })
-    .filter((entry) => entry.value.trim().length > 0)
+    .filter((entry) => entry.value.trim().length > 0 || entry.imagePath)
 }
 
 function completedCardSummary(card: BuilderCard): string {

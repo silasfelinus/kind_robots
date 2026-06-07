@@ -1,3 +1,4 @@
+<!-- /components/content/navigation/dashboard-shell.vue -->
 <template>
   <div
     class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
@@ -21,7 +22,7 @@
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div
-          class="flex min-h-20 min-w-0 items-stretch gap-2 p-2 sm:min-h-28 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4"
+          class="flex min-h-20 min-w-0 items-stretch gap-2 p-2 sm:min-h-28 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4 xl:min-h-40"
         >
           <button
             type="button"
@@ -44,7 +45,7 @@
           </button>
 
           <section
-            class="hidden min-w-0 shrink-0 flex-col justify-center self-stretch lg:flex lg:w-60 xl:w-72"
+            class="hidden min-w-0 shrink-0 flex-col justify-center self-stretch lg:flex lg:w-52 xl:w-64 2xl:w-72"
           >
             <p
               v-if="shellTitle"
@@ -61,7 +62,7 @@
 
             <p
               v-if="activeSummary"
-              class="mt-1 line-clamp-2 text-xs font-medium leading-snug text-base-content/60 sm:text-sm lg:text-[0.95rem]"
+              class="mt-1 line-clamp-3 text-xs font-medium leading-snug text-base-content/60 sm:text-sm lg:text-[0.95rem]"
             >
               {{ activeSummary }}
             </p>
@@ -81,6 +82,7 @@
                   :name="activeTabConfig.icon || fallbackIcon"
                   class="h-5 w-5 shrink-0"
                 />
+
                 <span class="flex min-w-0 flex-col items-start leading-tight">
                   <span
                     v-if="shellTitle"
@@ -88,11 +90,13 @@
                   >
                     {{ shellTitle }}
                   </span>
+
                   <span class="min-w-0 truncate text-sm font-bold">
                     {{ activeTitle }}
                   </span>
                 </span>
               </span>
+
               <Icon
                 name="kind-icon:chevron-down"
                 class="h-4 w-4 shrink-0 opacity-80"
@@ -118,6 +122,7 @@
                     :name="tab.icon || fallbackIcon"
                     class="h-4 w-4 shrink-0"
                   />
+
                   <span class="min-w-0 truncate text-sm font-bold">
                     {{ tab.title || tab.label }}
                   </span>
@@ -136,6 +141,7 @@
             >
               {{ shellTitle }}
             </p>
+
             <h1
               class="truncate text-lg font-black leading-tight text-base-content sm:text-2xl"
             >
@@ -145,31 +151,44 @@
 
           <nav
             v-if="resolvedTabs.length"
-            class="hidden min-w-0 flex-1 flex-wrap content-stretch items-stretch gap-2 self-stretch lg:flex"
+            class="hidden min-w-0 flex-1 items-stretch overflow-hidden rounded-2xl border border-base-300 bg-base-200/70 p-1.5 lg:flex"
+            aria-label="Dashboard tabs"
           >
-            <button
-              v-for="tab in resolvedTabs"
-              :key="tab.key"
-              class="btn min-h-12 min-w-0 flex-1 basis-[calc(33.333%-0.5rem)] justify-start rounded-xl px-3 py-1.5 text-left transition-all xl:basis-0"
-              type="button"
-              :class="
-                activeTabKey === tab.key
-                  ? 'btn-primary shadow-sm'
-                  : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
-              "
-              @click="setTab(tab.key)"
+            <div
+              class="grid min-h-0 w-full min-w-0 grid-cols-2 gap-1.5 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none"
             >
-              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span class="min-w-0 truncate text-sm font-bold lg:text-base">
-                {{ tab.label }}
-              </span>
-            </button>
+              <button
+                v-for="tab in resolvedTabs"
+                :key="tab.key"
+                class="btn h-full min-h-0 w-full min-w-0 justify-center rounded-xl border border-transparent px-2 py-2 text-center text-sm font-black normal-case leading-tight transition-all xl:px-3 xl:text-base 2xl:text-lg"
+                type="button"
+                :class="
+                  activeTabKey === tab.key
+                    ? 'btn-primary shadow-sm'
+                    : 'btn-ghost bg-base-100/70 hover:border-primary/30 hover:bg-base-100'
+                "
+                @click="setTab(tab.key)"
+              >
+                <span
+                  class="flex min-w-0 flex-col items-center justify-center gap-1 xl:gap-1.5"
+                >
+                  <Icon
+                    :name="tab.icon || fallbackIcon"
+                    class="h-5 w-5 shrink-0 xl:h-6 xl:w-6 2xl:h-7 2xl:w-7"
+                  />
+
+                  <span class="max-w-full truncate">
+                    {{ tab.label }}
+                  </span>
+                </span>
+              </button>
+            </div>
           </nav>
 
           <div v-else class="hidden min-w-0 flex-1 lg:block" />
 
           <section
-            class="header-control-rail flex w-auto shrink-0 flex-col gap-1 self-stretch sm:w-44 sm:gap-2 lg:w-52 xl:w-60"
+            class="header-control-rail flex w-auto shrink-0 flex-col gap-1 self-stretch sm:w-44 sm:gap-2 lg:w-44 xl:w-48 2xl:w-52"
           >
             <div
               class="header-icon-strip flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:gap-2 sm:overflow-hidden sm:p-2"

@@ -47,15 +47,7 @@
       v-if="activeTab === 'dashboard'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div class="flex flex-col gap-4">
-          <user-dashboard />
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <cache-clear />
-          </div>
-        </div>
-      </div>
+      <user-dashboard class="min-h-0 flex-1" />
     </section>
 
     <section

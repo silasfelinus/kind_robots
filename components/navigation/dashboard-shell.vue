@@ -3,7 +3,7 @@
   <div
     class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
-    <transition name="fade-up">
+    <transition name="header-toggle">
       <button
         v-if="!showHeader"
         class="absolute left-1 top-1 z-30 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
@@ -16,7 +16,7 @@
       </button>
     </transition>
 
-    <transition name="fade-up">
+    <transition name="header-slide">
       <header
         v-if="showHeader"
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
@@ -278,18 +278,50 @@ function toggleHeader(): void {
   showHeader.value = !showHeader.value
 }
 </script>
-
 <style scoped>
-.fade-up-enter-active,
-.fade-up-leave-active {
+.header-slide-enter-active,
+.header-slide-leave-active {
+  transform-origin: top center;
   transition:
-    opacity 180ms ease,
-    transform 180ms ease;
+    opacity 220ms ease,
+    transform 220ms ease,
+    max-height 220ms ease,
+    margin-bottom 220ms ease;
+  will-change: opacity, transform, max-height, margin-bottom;
 }
 
-.fade-up-enter-from,
-.fade-up-leave-to {
+.header-slide-enter-from,
+.header-slide-leave-to {
+  max-height: 0;
+  margin-bottom: 0;
   opacity: 0;
-  transform: translateY(-0.25rem);
+  transform: translateY(-1rem) scaleY(0.96);
+}
+
+.header-slide-enter-to,
+.header-slide-leave-from {
+  max-height: 14rem;
+  margin-bottom: 0.75rem;
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+}
+
+.header-toggle-enter-active,
+.header-toggle-leave-active {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.header-toggle-enter-from,
+.header-toggle-leave-to {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+
+.header-toggle-enter-to,
+.header-toggle-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>

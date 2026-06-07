@@ -41,50 +41,93 @@
             thumbClass(card.key),
             expandedClass(card.key),
             originClass(index),
+            flippingCardKey === card.key ? 'is-flipping' : '',
           ]"
           :style="{ width: 'var(--workspace-card-rest-w)' }"
           @click="handleCardClick(card)"
         >
+          <!-- 3D flip wrapper -->
+          <div class="card-flip relative w-full">
+            <!-- FRONT -->
+            <div
+              class="card-face card-front relative flex w-full flex-col overflow-hidden rounded-2xl bg-base-100 shadow-lg"
+            >
+              <div
+                class="relative aspect-2/3 w-full overflow-hidden bg-base-300"
+              >
+                <img
+                  v-if="card.deckImage"
+                  :src="normalizeImagePath(card.deckImage)"
+                  :alt="card.label"
+                  class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+
+                <div
+                  v-else
+                  class="flex h-full w-full items-center justify-center"
+                >
+                  <Icon
+                    :name="card.icon || 'kind-icon:cards'"
+                    class="h-8 w-8 text-base-content/25"
+                  />
+                </div>
+
+                <div
+                  v-if="isCardComplete(card.key)"
+                  class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]"
+                >
+                  <Icon
+                    name="kind-icon:check"
+                    class="h-6 w-6 rounded-full bg-success p-1 text-success-content"
+                  />
+                </div>
+              </div>
+
+              <div class="w-full bg-base-100 px-1.5 py-1.5">
+                <p
+                  class="truncate text-center text-[0.65rem] font-black leading-none text-base-content/75 sm:text-xs"
+                  :title="card.label"
+                >
+                  {{ card.label }}
+                </p>
+              </div>
+            </div>
+
+            <!-- BACK -->
+            <div
+              class="card-face card-back absolute inset-0 flex w-full flex-col overflow-hidden rounded-2xl bg-base-100 shadow-lg"
+            >
+              <div
+                class="relative aspect-2/3 w-full overflow-hidden bg-base-300"
+              >
+                <img
+                  :src="cardBackSrc(cardBack)"
+                  :alt="`Card back ${cardBack}`"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div class="w-full bg-base-100 px-1.5 py-1.5">
+                <p class="text-center text-[0.65rem] leading-none sm:text-xs">
+                  &nbsp;
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Magic sparkle overlay during flip -->
           <div
-            class="relative flex w-full flex-col overflow-hidden rounded-2xl bg-base-100 shadow-lg"
+            v-if="flippingCardKey === card.key"
+            class="sparkle-layer pointer-events-none absolute inset-0 z-50"
+            aria-hidden="true"
           >
-            <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
-              <img
-                v-if="card.deckImage"
-                :src="normalizeImagePath(card.deckImage)"
-                :alt="card.label"
-                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-
-              <div
-                v-else
-                class="flex h-full w-full items-center justify-center"
-              >
-                <Icon
-                  :name="card.icon || 'kind-icon:cards'"
-                  class="h-8 w-8 text-base-content/25"
-                />
-              </div>
-
-              <div
-                v-if="isCardComplete(card.key)"
-                class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]"
-              >
-                <Icon
-                  name="kind-icon:check"
-                  class="h-6 w-6 rounded-full bg-success p-1 text-success-content"
-                />
-              </div>
-            </div>
-
-            <div class="w-full bg-base-100 px-1.5 py-1.5">
-              <p
-                class="truncate text-center text-[0.65rem] font-black leading-none text-base-content/75 sm:text-xs"
-                :title="card.label"
-              >
-                {{ card.label }}
-              </p>
-            </div>
+            <span
+              v-for="n in 10"
+              :key="n"
+              class="sparkle"
+              :style="sparkleStyle(n)"
+            />
+            <span class="swirl swirl-a" />
+            <span class="swirl swirl-b" />
           </div>
         </button>
       </div>
@@ -110,6 +153,45 @@ const scrollEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
 const selectedCardKey = ref('')
 const expandedCardKey = ref('')
+
+// --- Card back selection -------------------------------------------------
+// The preferred card back is chosen elsewhere (user dashboard) and persisted
+// to localStorage. Here we only read it to render the flip's reverse face.
+const CARD_BACKS = [1, 2, 3, 4, 5] as const
+type CardBack = (typeof CARD_BACKS)[number]
+
+const CARD_BACK_STORAGE_KEY = 'kr.workspaceCardBack'
+const cardBack = ref<CardBack>(1)
+
+function cardBackSrc(back: CardBack): string {
+  return `/images/adventure/card/card-back${back}.webp`
+}
+
+// --- Flip animation state ------------------------------------------------
+const flippingCardKey = ref('')
+const FLIP_DURATION_MS = 650
+let flipTimer: ReturnType<typeof setTimeout> | null = null
+
+function triggerFlip(cardKey: string): void {
+  if (flipTimer) clearTimeout(flipTimer)
+  flippingCardKey.value = cardKey
+  flipTimer = setTimeout(() => {
+    flippingCardKey.value = ''
+    flipTimer = null
+  }, FLIP_DURATION_MS)
+}
+
+function sparkleStyle(n: number): CSSProperties {
+  const angle = (n / 10) * Math.PI * 2
+  const radius = 28 + (n % 3) * 8
+  const x = 50 + Math.cos(angle) * radius
+  const y = 50 + Math.sin(angle) * radius
+  return {
+    left: `${x}%`,
+    top: `${y}%`,
+    animationDelay: `${(n % 5) * 40}ms`,
+  } as CSSProperties
+}
 
 let observer: ResizeObserver | null = null
 
@@ -273,6 +355,8 @@ function handleCardClick(card: BuilderCard): void {
   selectedCardKey.value = card.key
   pageStore.setWorkspaceCardKey(card.key)
 
+  triggerFlip(card.key)
+
   if (isBuilderDeck.value) {
     builderStore.selectCard(card.key)
   }
@@ -424,6 +508,17 @@ watch(
 onMounted(() => {
   if (!import.meta.client) return
 
+  // Restore preferred card back
+  try {
+    const stored = window.localStorage.getItem(CARD_BACK_STORAGE_KEY)
+    const parsed = stored ? Number(stored) : NaN
+    if (CARD_BACKS.includes(parsed as CardBack)) {
+      cardBack.value = parsed as CardBack
+    }
+  } catch {
+    /* ignore storage failures */
+  }
+
   publishHeight()
 
   observer = new ResizeObserver(() => publishHeight())
@@ -453,6 +548,140 @@ onBeforeUnmount(() => {
     scrollEl.value.removeEventListener('wheel', handleWheel)
   }
 
+  if (flipTimer) clearTimeout(flipTimer)
+
   document.documentElement.style.removeProperty('--hand-h')
 })
 </script>
+
+<style scoped>
+/* 3D flip rig ----------------------------------------------------------- */
+.card-flip {
+  transform-style: preserve-3d;
+  transition: transform 0s;
+}
+
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Back is pre-rotated so it faces away until the flip passes 180deg */
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* When flipping, spin the whole rig a full 360deg (front -> back -> front) */
+.is-flipping .card-flip {
+  animation: card-spin 650ms cubic-bezier(0.4, 0.1, 0.2, 1);
+}
+
+@keyframes card-spin {
+  0% {
+    transform: rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: rotateY(180deg) scale(1.08);
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+  }
+}
+
+/* Sparkles -------------------------------------------------------------- */
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    hsl(var(--p, 280 90% 70%)) 0%,
+    transparent 70%
+  );
+  box-shadow:
+    0 0 6px 2px hsl(var(--p, 280 90% 70%) / 0.8),
+    0 0 12px 4px hsl(var(--s, 200 90% 70%) / 0.5);
+  opacity: 0;
+  animation: sparkle-pop 650ms ease-out forwards;
+}
+
+@keyframes sparkle-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(0deg);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.4) rotate(90deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(180deg);
+  }
+}
+
+/* Magic swirls ---------------------------------------------------------- */
+.swirl {
+  position: absolute;
+  inset: 8%;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  opacity: 0;
+}
+
+.swirl-a {
+  border-top-color: hsl(var(--p, 280 90% 70%) / 0.9);
+  border-right-color: hsl(var(--s, 200 90% 70%) / 0.6);
+  animation: swirl-spin 650ms ease-out forwards;
+}
+
+.swirl-b {
+  inset: 20%;
+  border-bottom-color: hsl(var(--a, 320 90% 70%) / 0.9);
+  border-left-color: hsl(var(--p, 280 90% 70%) / 0.6);
+  animation: swirl-spin-rev 650ms ease-out forwards;
+}
+
+@keyframes swirl-spin {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.6);
+  }
+  40% {
+    opacity: 1;
+    transform: rotate(220deg) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(420deg) scale(1.3);
+  }
+}
+
+@keyframes swirl-spin-rev {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.6);
+  }
+  40% {
+    opacity: 1;
+    transform: rotate(-220deg) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-420deg) scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-flipping .card-flip {
+    animation: none;
+  }
+  .sparkle,
+  .swirl {
+    animation: none;
+    opacity: 0;
+  }
+}
+</style>

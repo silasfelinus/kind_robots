@@ -21,13 +21,11 @@
         v-if="showHeader"
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <div
-          class="grid min-w-0 grid-cols-[auto_minmax(0,20rem)] gap-3 p-3 sm:grid-cols-[auto_minmax(0,22rem)_minmax(16rem,1fr)] lg:grid-cols-[auto_minmax(0,24rem)_minmax(18rem,1fr)_minmax(11rem,auto)] lg:gap-4 lg:p-4"
-        >
+           <div class="flex min-w-0 items-stretch gap-3 p-3 lg:gap-4 lg:p-4">
           <button
             type="button"
             title="Hide header"
-            class="group relative h-20 w-20 shrink-0 self-stretch overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-24 sm:w-24 lg:h-full lg:min-h-24 lg:w-28"
+            class="group relative h-20 w-20 shrink-0 self-stretch overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-24 sm:w-24 lg:min-h-24 lg:w-28"
             @click="toggleHeader"
           >
             <page-image
@@ -44,7 +42,9 @@
             </span>
           </button>
 
-          <section class="flex min-w-0 flex-col justify-center self-stretch">
+          <section
+            class="flex w-48 min-w-0 shrink-0 flex-col justify-center self-stretch sm:w-56 lg:w-72"
+          >
             <p
               v-if="shellTitle"
               class="truncate text-sm font-black uppercase tracking-wide text-primary/70 sm:text-base"
@@ -68,12 +68,12 @@
 
           <nav
             v-if="resolvedTabs.length"
-            class="col-span-2 grid min-h-24 min-w-0 auto-rows-fr grid-cols-2 gap-2 self-stretch sm:col-span-3 sm:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] lg:col-span-1"
+            class="flex min-w-0 flex-1 flex-wrap content-center items-center gap-2 self-stretch"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn min-h-12 min-w-0 justify-start rounded-2xl px-3 py-2 text-left transition-all sm:min-h-14 lg:min-h-full"
+              class="btn min-h-12 min-w-0 justify-start rounded-2xl px-3 py-2 text-left transition-all"
               type="button"
               :class="
                 activeTabKey === tab.key
@@ -89,13 +89,11 @@
             </button>
           </nav>
 
-          <div v-else class="col-span-2 min-w-0 sm:col-span-3 lg:col-span-1" />
+          <div v-else class="min-w-0 flex-1" />
 
-          <section
-            class="col-span-2 grid min-w-0 grid-cols-1 gap-2 self-stretch sm:col-span-3 sm:grid-cols-[1fr_auto] lg:col-span-1 lg:min-w-44 lg:grid-cols-1"
-          >
+          <section class="flex shrink-0 flex-col gap-2 self-stretch lg:min-w-44">
             <div
-              class="flex min-w-0 flex-wrap items-center justify-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2"
+              class="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2"
             >
               <slot
                 name="actions"
@@ -114,6 +112,7 @@
             </div>
           </section>
         </div>
+
       </header>
     </transition>
 

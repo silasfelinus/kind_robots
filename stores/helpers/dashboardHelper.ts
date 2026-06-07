@@ -102,13 +102,6 @@ export const dashboardConfigs = {
         summary: 'Select, add, edit, clone, delete, or launch bots.',
       },
       {
-        key: 'builder',
-        label: 'Bot Builder',
-        icon: 'kind-icon:wrench',
-        title: 'Bot Builder',
-        summary: 'Build a robot with easy builder cards.',
-      },
-      {
         key: 'interact',
         label: 'Interact',
         icon: 'kind-icon:chat',
@@ -151,13 +144,7 @@ export const dashboardConfigs = {
         title: 'Pitch Gallery',
         summary: 'Browse, select, add, edit, and delete big-picture ideas.',
       },
-      {
-        key: 'builder',
-        label: 'Builder',
-        icon: 'kind-icon:plan',
-        title: 'Pitch Builder',
-        summary: 'Build a pitch using easy builder cards.',
-      },
+
       {
         key: 'prompts',
         label: 'Prompts',
@@ -388,13 +375,6 @@ export const dashboardConfigs = {
         icon: 'kind-icon:moon',
         title: 'Dream Gallery',
         summary: 'Select, add, edit, clone, or delete collaborative dreams.',
-      },
-      {
-        key: 'builder',
-        label: 'Location Builder',
-        icon: 'kind-icon:wrench',
-        title: 'Location Builder',
-        summary: 'Build a location with easy builder cards.',
       },
       {
         key: 'prompts',
@@ -661,13 +641,6 @@ export const dashboardConfigs = {
         summary: 'Select, add, edit, or delete story rewards and artifacts.',
       },
       {
-        key: 'builder',
-        label: 'Reward Builder',
-        icon: 'kind-icon:gift',
-        title: 'Reward Builder',
-        summary: 'Build a reward with easy builder cards.',
-      },
-      {
         key: 'collections',
         label: 'Collections',
         icon: 'kind-icon:folder',
@@ -704,13 +677,7 @@ export const dashboardConfigs = {
         title: 'Scenario Gallery',
         summary: 'Select, add, clone, or edit the playground.',
       },
-      {
-        key: 'builder',
-        label: 'Scenario Builder',
-        icon: 'kind-icon:wrench',
-        title: 'Scenario Builder',
-        summary: 'Build a scenario with easy builder cards.',
-      },
+
       {
         key: 'characters',
         label: 'Characters',

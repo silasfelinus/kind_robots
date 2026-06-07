@@ -61,7 +61,7 @@
 
       <section
         v-if="activeTab === 'overview' || activeTab === 'interact'"
-        class="grid min-h-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]"
+        class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(0,1fr)_340px]"
       >
         <main
           class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
@@ -575,19 +575,17 @@
 
       <section
         v-else-if="activeTab === 'pitches'"
-        class="min-h-0 rounded-2xl border border-base-300 bg-base-200 p-3"
+        class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
       >
         <pitch-gallery :show-header="false" />
       </section>
 
       <section
         v-else-if="activeTab === 'prompts'"
-        class="min-h-0 rounded-2xl border border-base-300 bg-base-200 p-3"
+        class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
       >
         <prompt-gallery :show-header="false" />
       </section>
-
-      <pitch-builder v-else-if="activeTab === 'builder'" />
 
       <div
         v-else

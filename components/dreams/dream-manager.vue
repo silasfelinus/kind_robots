@@ -126,13 +126,6 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'builder'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-builder />
-    </section>
-
-    <section
       v-else-if="activeTab === 'collections'"
       class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-12"
     >

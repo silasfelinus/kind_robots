@@ -589,13 +589,14 @@
 
       <div
         v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+        class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
         Unknown brainstorm tab: {{ activeTab }}
       </div>
     </template>
   </section>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { Pitch, Prompt } from '~/prisma/generated/prisma/client'

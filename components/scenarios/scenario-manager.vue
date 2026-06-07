@@ -74,11 +74,6 @@
       :show-header="false"
     />
 
-    <scenario-builder
-      v-else-if="activeTab === 'builder'"
-      class="min-h-0 flex-1 overflow-hidden"
-    />
-
     <character-gallery
       v-else-if="activeTab === 'characters'"
       class="min-h-0 flex-1 overflow-y-auto"

@@ -1,7 +1,7 @@
 <!-- /components/content/navigation/dashboard-shell.vue -->
 <template>
   <div
-    class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
+    class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
     <transition name="fade-up">
       <button
@@ -19,19 +19,19 @@
     <transition name="fade-up">
       <header
         v-if="showHeader"
-        class="relative z-30 mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
+        class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div
-          class="grid min-w-0 grid-cols-[auto_minmax(0,18rem)_minmax(12rem,1fr)_auto] items-center gap-3 p-3 lg:p-4"
+          class="grid min-w-0 grid-cols-[auto_minmax(0,20rem)] gap-3 p-3 sm:grid-cols-[auto_minmax(0,22rem)_minmax(16rem,1fr)] lg:grid-cols-[auto_minmax(0,24rem)_minmax(18rem,1fr)_minmax(11rem,auto)] lg:gap-4 lg:p-4"
         >
           <button
             type="button"
             title="Hide header"
-            class="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-20 sm:w-20"
+            class="group relative h-20 w-20 shrink-0 self-stretch overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-24 sm:w-24 lg:h-full lg:min-h-24 lg:w-28"
             @click="toggleHeader"
           >
             <page-image
-              class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-60"
+              class="h-full w-full rounded-2xl object-cover transition-opacity group-hover:opacity-60"
             />
 
             <span
@@ -39,28 +39,28 @@
             >
               <Icon
                 name="kind-icon:collapse"
-                class="h-5 w-5 text-base-content drop-shadow"
+                class="h-6 w-6 text-base-content drop-shadow"
               />
             </span>
           </button>
 
-          <section class="min-w-0">
+          <section class="flex min-w-0 flex-col justify-center self-stretch">
             <p
               v-if="shellTitle"
-              class="truncate text-sm font-bold text-primary/70"
+              class="truncate text-sm font-black uppercase tracking-wide text-primary/70 sm:text-base"
             >
               {{ shellTitle }}
             </p>
 
             <h1
-              class="truncate text-xl font-black leading-tight text-base-content sm:text-2xl"
+              class="truncate text-2xl font-black leading-tight text-base-content sm:text-3xl lg:text-4xl"
             >
               {{ activeTitle }}
             </h1>
 
             <p
               v-if="activeSummary"
-              class="mt-0.5 line-clamp-2 text-sm text-base-content/55"
+              class="mt-1 line-clamp-3 text-sm font-medium leading-snug text-base-content/60 sm:text-base"
             >
               {{ activeSummary }}
             </p>
@@ -68,12 +68,12 @@
 
           <nav
             v-if="resolvedTabs.length"
-            class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))] gap-1.5"
+            class="col-span-2 grid min-h-24 min-w-0 auto-rows-fr grid-cols-2 gap-2 self-stretch sm:col-span-3 sm:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] lg:col-span-1"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn btn-sm min-h-9 min-w-0 justify-start rounded-xl px-2 transition-all"
+              class="btn min-h-12 min-w-0 justify-start rounded-2xl px-3 py-2 text-left transition-all sm:min-h-14 lg:min-h-full"
               type="button"
               :class="
                 activeTabKey === tab.key
@@ -82,25 +82,36 @@
               "
               @click="setTab(tab.key)"
             >
-              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span class="min-w-0 truncate text-xs font-black sm:text-sm">
+              <Icon :name="tab.icon || fallbackIcon" class="h-5 w-5 shrink-0" />
+              <span class="min-w-0 truncate text-sm font-black sm:text-base">
                 {{ tab.label }}
               </span>
             </button>
           </nav>
 
-          <div v-else class="min-w-0" />
+          <div v-else class="col-span-2 min-w-0 sm:col-span-3 lg:col-span-1" />
 
-          <section class="flex shrink-0 items-center justify-end gap-1.5">
-            <slot
-              name="actions"
-              :active-tab="activeTabKey"
-              :active-tab-config="activeTabConfig"
-            />
+          <section
+            class="col-span-2 grid min-w-0 grid-cols-1 gap-2 self-stretch sm:col-span-3 sm:grid-cols-[1fr_auto] lg:col-span-1 lg:min-w-44 lg:grid-cols-1"
+          >
+            <div
+              class="flex min-w-0 flex-wrap items-center justify-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2"
+            >
+              <slot
+                name="actions"
+                :active-tab="activeTabKey"
+                :active-tab-config="activeTabConfig"
+              />
 
-            <channel-select />
-            <server-selector />
-            <mana-widget />
+              <channel-select />
+              <server-selector />
+            </div>
+
+            <div
+              class="flex min-w-0 items-center justify-end rounded-2xl border border-base-300 bg-base-200/50 p-2"
+            >
+              <mana-widget />
+            </div>
           </section>
         </div>
       </header>

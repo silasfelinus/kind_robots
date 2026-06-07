@@ -1,8 +1,8 @@
 <!-- /components/servers/server-selector.vue -->
 <template>
-  <div class="relative">
+  <div class="relative inline-flex shrink-0">
     <button
-      class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
+      class="btn btn-sm btn-ghost btn-square rounded-xl border border-base-300 bg-base-100"
       type="button"
       title="Server settings"
       @click="openSelector"

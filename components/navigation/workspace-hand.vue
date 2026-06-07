@@ -7,7 +7,7 @@
   >
     <button
       type="button"
-      class="btn btn-ghost btn-xs btn-circle absolute bottom-2 left-1 z-40 sm:hidden"
+      class="btn btn-ghost btn-xs btn-circle pointer-events-auto absolute bottom-2 left-1 z-40 sm:hidden"
       aria-label="Previous expanded workspace card"
       @click.stop="cycleExpandedCard(-1)"
     >
@@ -16,7 +16,7 @@
 
     <button
       type="button"
-      class="btn btn-ghost btn-xs btn-circle absolute bottom-2 right-1 z-40 sm:hidden"
+      class="btn btn-ghost btn-xs btn-circle pointer-events-auto absolute bottom-2 right-1 z-40 sm:hidden"
       aria-label="Next expanded workspace card"
       @click.stop="cycleExpandedCard(1)"
     >
@@ -25,12 +25,15 @@
 
     <div
       ref="scrollEl"
-      class="flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
-      :class="hasCards ? 'pointer-events-auto' : 'pointer-events-none'"
+      class="pointer-events-none flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
     >
       <div
-        class="pointer-events-none flex min-w-full items-end gap-2 px-8 sm:px-0"
-        :class="handJustifyClass"
+        ref="stripEl"
+        class="flex min-w-full items-end gap-2 px-8 sm:px-0"
+        :class="[
+          handJustifyClass,
+          hasCards ? 'pointer-events-auto' : 'pointer-events-none',
+        ]"
         :style="handStyle"
       >
         <button

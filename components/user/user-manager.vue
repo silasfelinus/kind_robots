@@ -1,6 +1,6 @@
 <!-- /components/content/user/user-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+  <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
     <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
       <button
         class="btn btn-ghost btn-sm rounded-xl"
@@ -45,51 +45,67 @@
 
     <section
       v-if="activeTab === 'dashboard'"
-      class="min-h-0 flex-1 overflow-y-auto"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <div class="flex flex-col gap-4">
-        <user-dashboard />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div class="flex flex-col gap-4">
+          <user-dashboard />
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <cache-clear />
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+            <cache-clear />
+          </div>
         </div>
       </div>
     </section>
 
     <section
       v-else-if="activeTab === 'subscription'"
-      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-4"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
     >
-      <subscription-manager />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+        <subscription-manager />
+      </div>
     </section>
 
     <section
       v-else-if="activeTab === 'milestones'"
-      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-4"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
     >
-      <milestone-gallery />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+        <milestone-gallery />
+      </div>
     </section>
 
-    <theme-gallery
+    <section
       v-else-if="activeTab === 'themes'"
-      class="min-h-0 flex-1"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <theme-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
 
-    <chat-gallery
+    <section
       v-else-if="activeTab === 'chats'"
-      class="min-h-0 flex-1"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <chat-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
 
-    <server-manager
+    <section
       v-else-if="activeTab === 'servers'"
-      class="min-h-0 flex-1"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <server-manager class="h-full min-h-0 flex-1 overflow-hidden" />
+    </section>
 
     <div
       v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
       Unknown user tab: {{ activeTab }}
     </div>
@@ -112,6 +128,7 @@ type UserTab =
 
 const dashboardKey = 'user' as const
 const fallbackTab: UserTab = 'dashboard'
+
 const validTabs: UserTab[] = [
   'dashboard',
   'subscription',

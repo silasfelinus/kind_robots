@@ -1,6 +1,6 @@
 <!-- /components/content/giftshop/giftshop-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager || managerError"
       class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
@@ -69,55 +69,88 @@
         </div>
       </div>
 
-      <section class="min-h-0 flex-1 overflow-y-auto">
+      <section
+        v-if="activeTab === 'sanctuary'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+      >
         <butterfly-sanctuary
-          v-if="activeTab === 'sanctuary'"
-          class="min-h-128 rounded-2xl border border-base-300 bg-base-100"
+          class="h-full min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
         />
+      </section>
 
-        <about-page
-          v-else-if="activeTab === 'about'"
-          class="rounded-2xl border border-base-300 bg-base-100 p-4"
-        />
-
-        <div
-          v-else-if="activeTab === 'butterfly-lab'"
-          class="grid grid-cols-1 gap-4 2xl:grid-cols-2"
-        >
-          <butterfly-lab
-            class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
-          />
-
-          <butterfly-grid
-            class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
-          />
-        </div>
-
-        <giftshop-interact v-else-if="activeTab === 'giftshop'" />
-
-        <cart-interact v-else-if="activeTab === 'cart'" class="rounded-2xl" />
-
-        <mana-wallet v-else-if="activeTab === 'wallet'" class="rounded-2xl" />
-
-        <subscription-manager
-          v-else-if="activeTab === 'subscriptions'"
-          class="rounded-2xl border border-base-300 bg-base-100 p-4"
-        />
-
-        <sponsor-page
-          v-else-if="activeTab === 'sponsor'"
-          class="rounded-2xl border border-base-300 bg-base-100 p-4"
-        />
-
-        <div
-          v-else
-          class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-        >
-          The butterflies misplaced tab
-          <span class="font-bold">{{ activeTab }}</span>
-          >. This is why we do not let them near the router unsupervised.
+      <section
+        v-else-if="activeTab === 'about'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+          <about-page />
         </div>
       </section>
+
+      <section
+        v-else-if="activeTab === 'butterfly-lab'"
+        class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden 2xl:grid-cols-2"
+      >
+        <section
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <butterfly-lab class="h-full min-h-0 flex-1 overflow-hidden" />
+        </section>
+
+        <section
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <butterfly-grid class="h-full min-h-0 flex-1 overflow-hidden" />
+        </section>
+      </section>
+
+      <section
+        v-else-if="activeTab === 'giftshop'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+      >
+        <giftshop-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      </section>
+
+      <section
+        v-else-if="activeTab === 'cart'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <cart-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      </section>
+
+      <section
+        v-else-if="activeTab === 'wallet'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <mana-wallet class="h-full min-h-0 flex-1 overflow-hidden" />
+      </section>
+
+      <section
+        v-else-if="activeTab === 'subscriptions'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+          <subscription-manager />
+        </div>
+      </section>
+
+      <section
+        v-else-if="activeTab === 'sponsor'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+          <sponsor-page />
+        </div>
+      </section>
+
+      <div
+        v-else
+        class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      >
+        The butterflies misplaced tab
+        <span class="mx-1 font-bold">{{ activeTab }}</span>
+        . This is why we do not let them near the router unsupervised.
+      </div>
     </section>
   </section>
 </template>

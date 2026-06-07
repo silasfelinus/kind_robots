@@ -1,9 +1,9 @@
 <!-- /components/content/bots/bot-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager"
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6"
+      class="flex h-full min-h-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6"
     >
       <div class="flex flex-col items-center gap-3 text-center">
         <span class="loading loading-spinner loading-lg text-primary" />
@@ -15,7 +15,7 @@
 
     <div
       v-else-if="managerError"
-      class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
     >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span>{{ managerError }}</span>
@@ -31,57 +31,75 @@
 
     <section
       v-else-if="activeTab === 'overview'"
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
     >
-      <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-        <bot-gallery
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-images="true"
-          :show-card-actions="false"
-          :show-launch-button="false"
-          :show-meta="true"
-          :show-personality="true"
-          :compact="true"
-        />
-      </div>
+      <section
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+          <bot-gallery
+            variant="dropdown"
+            :show-header="false"
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-launch-button="false"
+            :show-meta="true"
+            :show-personality="true"
+            :compact="true"
+          />
+        </div>
+      </section>
 
-      <div class="min-h-0 xl:col-span-7">
-        <bot-interact />
-      </div>
+      <section
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
+      >
+        <div class="min-h-0 flex-1 overflow-hidden">
+          <bot-interact class="h-full min-h-0 overflow-hidden" />
+        </div>
+      </section>
     </section>
 
-    <bot-gallery
+    <section
       v-else-if="activeTab === 'bots'"
-      class="min-h-0 flex-1 overflow-hidden"
-      variant="dashboard"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <bot-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+      />
+    </section>
 
-    <bot-interact
+    <section
       v-else-if="activeTab === 'interact'"
-      class="min-h-0 flex-1 overflow-hidden"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <bot-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+    </section>
 
-    <composition-manager
+    <section
       v-else-if="activeTab === 'composition'"
-      class="min-h-0 flex-1 overflow-hidden"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <composition-manager class="h-full min-h-0 flex-1 overflow-hidden" />
+    </section>
 
     <section
       v-else-if="activeTab === 'forge'"
-      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
     >
-      <add-bot
-        :mode="botStore.currentBot ? 'edit' : 'add'"
-        @saved="handleBotSaved"
-      />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <add-bot
+          :mode="botStore.currentBot ? 'edit' : 'add'"
+          @saved="handleBotSaved"
+        />
+      </div>
     </section>
 
     <div
       v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
       Unknown bot tab: {{ activeTab }}
     </div>

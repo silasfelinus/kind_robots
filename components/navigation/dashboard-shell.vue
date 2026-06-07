@@ -66,14 +66,14 @@
             </p>
           </section>
 
-          <nav
+                <nav
             v-if="resolvedTabs.length"
             class="flex min-w-0 flex-1 flex-wrap content-center items-center gap-2 self-stretch"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn min-h-12 min-w-0 justify-start rounded-2xl px-3 py-2 text-left transition-all"
+              class="btn btn-sm min-w-0 shrink justify-start rounded-xl px-2.5 py-1.5 text-left transition-all"
               type="button"
               :class="
                 activeTabKey === tab.key
@@ -82,8 +82,8 @@
               "
               @click="setTab(tab.key)"
             >
-              <Icon :name="tab.icon || fallbackIcon" class="h-5 w-5 shrink-0" />
-              <span class="min-w-0 truncate text-sm font-black sm:text-base">
+              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
+              <span class="min-w-0 truncate text-sm font-bold md:text-md lg:text-lg xl:text-xl">
                 {{ tab.label }}
               </span>
             </button>

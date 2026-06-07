@@ -262,7 +262,7 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
             label: 'Science Fiction',
             subtext:
               'Technology, possibility, consequences, and one blinking panel nobody should touch.',
-            image: '/images/adventure/genre/science-fiction.webp',
+            image: '/images/adventure/genre/scifi.webp',
           },
           {
             value: 'Mystery',

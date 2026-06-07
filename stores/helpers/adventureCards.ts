@@ -2902,8 +2902,8 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     title: 'The suspiciously useful object',
     icon: 'kind-icon:treasure',
     flourish: '✦',
-    deckImage: '/images/adventure/thumb/reward-common.webp',
-    heroImage: '/images/adventure/hero/reward-common.webp',
+    deckImage: '/images/adventure/thumb/skill-common.webp',
+    heroImage: '/images/adventure/hero/skill-common.webp',
     tagline: 'One object. Six possibilities. At least one consequence.',
     narrative:
       'Every entity begins with something in hand, pocket, inventory, aura, or legally contested possession. It is probably common. Probably. The universe occasionally misfiles powerful artifacts under “starter kit,” because the universe is a disorganized raccoon.',
@@ -2929,8 +2929,8 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     title: 'The signature trick',
     icon: 'kind-icon:sparkles',
     flourish: '❋',
-    deckImage: '/images/adventure/thumb/skill-rare.webp',
-    heroImage: '/images/adventure/hero/skill-rare.webp',
+    deckImage: '/images/adventure/thumb/skill-uncommon.webp',
+    heroImage: '/images/adventure/hero/skill-uncommon.webp',
     tagline:
       'One trick. Six possibilities. Possibly illegal in three kingdoms.',
     narrative:

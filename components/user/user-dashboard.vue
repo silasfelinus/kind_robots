@@ -109,6 +109,7 @@
         >
           <user-panel class="min-w-0" />
           <user-galleries class="min-w-0" />
+          <card-picker />
         </div>
 
         <!-- Guest empty state -->

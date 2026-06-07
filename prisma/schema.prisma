@@ -914,6 +914,7 @@ enum RewardType {
   TITLE
   POWER
   STORY
+  PET
 }
 
 enum Rarity {

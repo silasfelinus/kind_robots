@@ -25,11 +25,11 @@
 
     <div
       ref="scrollEl"
-      class="mt-auto flex h-(--workspace-card-rest-h) items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
       :class="hasCards ? 'pointer-events-auto' : 'pointer-events-none'"
     >
       <div
-        class="flex min-w-full items-end gap-2 px-8 sm:px-0"
+        class="pointer-events-none flex min-w-full items-end gap-2 px-8 sm:px-0"
         :class="handJustifyClass"
         :style="handStyle"
       >
@@ -37,7 +37,7 @@
           v-for="(card, index) in handCards"
           :key="card.key"
           type="button"
-          class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-2 hover:scale-[2.1] active:z-40 active:-translate-y-2 active:scale-[2.1]"
+          class="group pointer-events-auto relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-2 hover:scale-[2.1] active:z-40 active:-translate-y-2 active:scale-[2.1]"
           :class="[
             thumbClass(card.key),
             expandedClass(card.key),

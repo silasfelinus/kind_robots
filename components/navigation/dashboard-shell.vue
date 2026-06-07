@@ -21,12 +21,12 @@
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div
-          class="flex min-h-28 min-w-0 items-stretch gap-2 p-2 sm:min-h-32 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4"
+          class="flex min-h-20 min-w-0 items-stretch gap-2 p-2 sm:min-h-28 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4"
         >
           <button
             type="button"
             title="Hide header"
-            class="group relative size-20 shrink-0 self-center overflow-hidden rounded-2xl ring-1 ring-base-300 sm:size-28 lg:size-32 xl:size-36"
+            class="group relative size-14 shrink-0 self-center overflow-hidden rounded-2xl ring-1 ring-base-300 sm:size-20 lg:size-32 xl:size-36"
             @click="toggleHeader"
           >
             <page-image
@@ -43,8 +43,9 @@
             </span>
           </button>
 
+          <!-- Full title block: lg+ only -->
           <section
-            class="flex w-32 min-w-0 shrink-0 flex-col justify-center self-stretch sm:w-52 lg:w-64 xl:w-72"
+            class="hidden min-w-0 shrink-0 flex-col justify-center self-stretch lg:flex lg:w-64 xl:w-72"
           >
             <p
               v-if="shellTitle"
@@ -54,7 +55,7 @@
             </p>
 
             <h1
-              class="truncate text-xl font-black leading-tight text-base-content sm:text-3xl lg:text-4xl"
+              class="truncate text-3xl font-black leading-tight text-base-content lg:text-4xl"
             >
               {{ activeTitle }}
             </h1>
@@ -68,20 +69,28 @@
           </section>
 
           <template v-if="resolvedTabs.length">
-            <!-- Dropdown tab selector: mobile + sm/md -->
+            <!-- Title + tab selector merged into one dropdown: < lg -->
             <div class="dropdown min-w-0 flex-1 self-center lg:hidden">
               <div
                 tabindex="0"
                 role="button"
-                class="btn btn-primary h-11 min-h-11 w-full min-w-0 justify-between rounded-xl px-3 shadow-sm"
+                class="btn btn-primary h-12 min-h-12 w-full min-w-0 justify-between rounded-xl px-3 shadow-sm"
               >
                 <span class="flex min-w-0 items-center gap-2">
                   <Icon
                     :name="activeTabConfig.icon || fallbackIcon"
-                    class="h-4 w-4 shrink-0"
+                    class="h-5 w-5 shrink-0"
                   />
-                  <span class="min-w-0 truncate text-sm font-bold">
-                    {{ activeTabConfig.label }}
+                  <span class="flex min-w-0 flex-col items-start leading-tight">
+                    <span
+                      v-if="shellTitle"
+                      class="truncate text-[0.6rem] font-bold uppercase tracking-wide text-primary-content/70"
+                    >
+                      {{ shellTitle }}
+                    </span>
+                    <span class="min-w-0 truncate text-sm font-bold">
+                      {{ activeTitle }}
+                    </span>
                   </span>
                 </span>
                 <Icon
@@ -92,7 +101,7 @@
 
               <ul
                 tabindex="0"
-                class="menu dropdown-content z-50 mt-2 max-h-72 w-64 flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+                class="menu dropdown-content z-50 mt-2 max-h-72 w-72 flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
               >
                 <li v-for="tab in resolvedTabs" :key="tab.key">
                   <button
@@ -110,7 +119,7 @@
                       class="h-4 w-4 shrink-0"
                     />
                     <span class="min-w-0 truncate text-sm font-bold">
-                      {{ tab.label }}
+                      {{ tab.title || tab.label }}
                     </span>
                   </button>
                 </li>
@@ -145,7 +154,23 @@
             </nav>
           </template>
 
-          <div v-else class="min-w-0 flex-1" />
+          <!-- No tabs: show title on small screens too -->
+          <section
+            v-else
+            class="flex min-w-0 flex-1 flex-col justify-center self-center lg:hidden"
+          >
+            <p
+              v-if="shellTitle"
+              class="truncate text-[0.6rem] font-black uppercase tracking-wide text-primary/70"
+            >
+              {{ shellTitle }}
+            </p>
+            <h1
+              class="truncate text-lg font-black leading-tight text-base-content sm:text-2xl"
+            >
+              {{ activeTitle }}
+            </h1>
+          </section>
 
           <section
             class="header-control-rail flex w-auto shrink-0 flex-col gap-1 self-stretch sm:w-44 sm:gap-2 lg:w-56 xl:w-64"

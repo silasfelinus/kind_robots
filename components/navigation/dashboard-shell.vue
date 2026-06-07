@@ -98,7 +98,7 @@
             class="flex w-24 shrink-0 flex-col gap-2 self-stretch sm:w-32 lg:w-40 xl:w-44"
           >
             <div
-              class="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2"
+              class="flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2"
             >
               <slot
                 name="actions"
@@ -125,7 +125,7 @@
         class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
         <section
-          class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4"
+          class="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden p-3 sm:p-4"
         >
           <slot
             :active-tab="activeTabKey"

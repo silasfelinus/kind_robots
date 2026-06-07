@@ -15,4 +15,4 @@ loadingMessage: Loading rewards...
 refreshLabel: Refresh Rewards
 ---
 
-:scroll-test
+:reward-manager

@@ -1,6 +1,6 @@
 <!-- /components/characters/character-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager || managerError"
       class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
@@ -30,112 +30,140 @@
 
     <section
       v-if="activeTab === 'overview'"
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-12"
+      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
     >
-      <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-        <character-gallery
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-images="true"
-          :show-card-actions="false"
-          :show-mode-buttons="false"
-          :show-meta="true"
-          :compact="true"
-        />
+      <section
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+          <div class="flex flex-col gap-4">
+            <character-gallery
+              variant="dropdown"
+              :show-header="false"
+              :show-controls="false"
+              :show-images="true"
+              :show-card-actions="false"
+              :show-mode-buttons="false"
+              :show-meta="true"
+              :compact="true"
+            />
 
-        <scenario-gallery
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-images="true"
-          :show-card-actions="false"
-          :show-inspirations="false"
-          :show-choices="false"
-          :show-meta="false"
-          :compact="true"
-        />
+            <scenario-gallery
+              variant="dropdown"
+              :show-header="false"
+              :show-controls="false"
+              :show-images="true"
+              :show-card-actions="false"
+              :show-inspirations="false"
+              :show-choices="false"
+              :show-meta="false"
+              :compact="true"
+            />
 
-        <reward-gallery
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-images="true"
-          :show-card-actions="false"
-          :show-meta="false"
-          :compact="true"
-        />
+            <reward-gallery
+              variant="dropdown"
+              :show-header="false"
+              :show-controls="false"
+              :show-images="true"
+              :show-card-actions="false"
+              :show-meta="false"
+              :compact="true"
+            />
 
-        <dream-gallery
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-images="true"
-          :show-card-actions="false"
-          :show-open-button="false"
-          :show-stats="false"
-          :show-meta="false"
-          :compact="true"
-        />
-      </div>
+            <dream-gallery
+              variant="dropdown"
+              :show-header="false"
+              :show-controls="false"
+              :show-images="true"
+              :show-card-actions="false"
+              :show-open-button="false"
+              :show-stats="false"
+              :show-meta="false"
+              :compact="true"
+            />
+          </div>
+        </div>
+      </section>
 
-      <div class="min-h-0 xl:col-span-7">
-        <character-interact />
-      </div>
+      <section
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
+      >
+        <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      </section>
     </section>
 
     <section
       v-else-if="activeTab === 'adventure'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <adventure-builder variant="dashboard" :show-header="false" />
+      <adventure-builder
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+      />
     </section>
 
     <section
       v-else-if="activeTab === 'stage'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <stage-manager />
+      <stage-manager class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <section
       v-else-if="activeTab === 'characters'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <character-gallery variant="dashboard" :show-header="false" />
+      <character-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+      />
     </section>
 
     <section
       v-else-if="activeTab === 'scenarios'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <scenario-gallery variant="dashboard" :show-header="false" />
+      <scenario-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+      />
     </section>
 
     <section
       v-else-if="activeTab === 'rewards'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <reward-gallery variant="dashboard" :show-header="false" />
+      <reward-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+      />
     </section>
 
     <section
       v-else-if="activeTab === 'dreams'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <dream-gallery variant="dashboard" :show-header="false" />
+      <dream-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+      />
     </section>
 
     <section
       v-else-if="activeTab === 'interact'"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <character-interact />
+      <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <div
       v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
       Unknown character tab: {{ activeTab }}
     </div>
@@ -170,6 +198,7 @@ const serverStore = useServerStore()
 
 const defaultDashboardKey = 'character'
 const defaultTab: CharacterTab = 'overview'
+
 const validTabs: CharacterTab[] = [
   'overview',
   'adventure',

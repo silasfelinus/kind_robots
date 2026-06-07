@@ -121,9 +121,7 @@
       <main
         class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <section
-          class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
-        >
+        <section class="min-h-0 flex-1 overflow-hidden p-3 sm:p-4">
           <slot
             :active-tab="activeTabKey"
             :active-tab-config="activeTabConfig"

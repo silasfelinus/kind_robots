@@ -1,6 +1,6 @@
 <!-- /components/content/wonderlab/lab-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+  <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
     <div class="flex shrink-0 justify-end">
       <button
         class="btn btn-ghost btn-sm rounded-xl"
@@ -29,39 +29,59 @@
       <span class="ml-2">Warming up the lab goblins...</span>
     </div>
 
-    <lab-interact
+    <section
       v-if="activeTab === 'wonder-lab'"
-      class="min-h-0 flex-1"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <lab-interact
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
 
-    <memory-dungeon
+    <section
       v-else-if="activeTab === 'memory-dungeon'"
-      class="min-h-0 flex-1"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <memory-dungeon
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
 
-    <screen-fx
+    <section
       v-else-if="activeTab === 'screen-fx'"
-      class="min-h-0 flex-1"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <screen-fx
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
 
-    <chat-test
+    <section
       v-else-if="activeTab === 'chat-test'"
-      class="min-h-0 flex-1"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <chat-test
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
 
-    <art-test
+    <section
       v-else-if="activeTab === 'art-test'"
-      class="min-h-0 flex-1"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <art-test
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
 
     <div
       v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
       Unknown WonderLab tab: {{ activeTab }}
     </div>
@@ -86,6 +106,7 @@ type LabTab =
 
 const dashboardKey = 'wonder' as const
 const fallbackTab: LabTab = 'wonder-lab'
+
 const validTabs: LabTab[] = [
   'wonder-lab',
   'memory-dungeon',

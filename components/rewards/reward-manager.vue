@@ -1,6 +1,6 @@
 <!-- /components/content/rewards/reward-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 flex-col overflow-hidden">
+  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager || managerError"
       class="mb-4 shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -26,50 +26,68 @@
 
     <section
       v-if="activeTab === 'overview'"
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
     >
-      <div class="flex min-h-0 flex-col gap-4 overflow-y-auto xl:col-span-5">
-        <reward-gallery
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-images="true"
-          :show-card-actions="false"
-          :show-descriptions="true"
-          :show-meta="true"
-          :compact="true"
-        />
-      </div>
+      <section
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
+      >
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+          <reward-gallery
+            variant="dropdown"
+            :show-header="false"
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :compact="true"
+          />
+        </div>
+      </section>
 
-      <div class="min-h-0 overflow-y-auto xl:col-span-7">
-        <reward-interact />
-      </div>
+      <section
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
+      >
+        <div class="min-h-0 flex-1 overflow-hidden">
+          <reward-interact class="h-full min-h-0 overflow-hidden" />
+        </div>
+      </section>
     </section>
 
-    <reward-gallery
+    <section
       v-else-if="activeTab === 'rewards'"
-      class="min-h-0 flex-1 overflow-y-auto"
-      variant="dashboard"
-      :show-header="false"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <reward-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+      />
+    </section>
 
-    <reward-gallery
+    <section
       v-else-if="activeTab === 'collections'"
-      class="min-h-0 flex-1 overflow-y-auto"
-      variant="dashboard"
-      :show-header="false"
-      :show-controls="true"
-      :show-images="true"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <reward-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+        :show-controls="true"
+        :show-images="true"
+      />
+    </section>
 
-    <reward-interact
+    <section
       v-else-if="activeTab === 'interact'"
-      class="min-h-0 flex-1 overflow-y-auto"
-    />
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <reward-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+    </section>
 
     <div
       v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
       Unknown reward tab: {{ activeTab }}
     </div>

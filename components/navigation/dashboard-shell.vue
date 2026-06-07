@@ -67,31 +67,83 @@
             </p>
           </section>
 
-          <nav
-            v-if="resolvedTabs.length"
-            class="grid min-w-0 flex-1 auto-rows-fr grid-cols-1 gap-1.5 self-stretch sm:grid-cols-2 sm:gap-2 lg:grid-cols-3 xl:grid-cols-[repeat(var(--tab-count),minmax(0,1fr))]"
-            :style="tabGridStyle"
-          >
-            <button
-              v-for="tab in resolvedTabs"
-              :key="tab.key"
-              class="btn h-full min-h-10 min-w-0 justify-start rounded-xl px-2 py-1 text-left transition-all sm:min-h-12 sm:px-2.5 sm:py-1.5 lg:px-3"
-              type="button"
-              :class="
-                activeTabKey === tab.key
-                  ? 'btn-primary shadow-sm'
-                  : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
-              "
-              @click="setTab(tab.key)"
-            >
-              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span
-                class="min-w-0 truncate text-xs font-bold sm:text-sm lg:text-base"
+          <template v-if="resolvedTabs.length">
+            <!-- Dropdown tab selector: mobile + sm/md -->
+            <div class="dropdown min-w-0 flex-1 self-center lg:hidden">
+              <div
+                tabindex="0"
+                role="button"
+                class="btn btn-primary h-11 min-h-11 w-full min-w-0 justify-between rounded-xl px-3 shadow-sm"
               >
-                {{ tab.label }}
-              </span>
-            </button>
-          </nav>
+                <span class="flex min-w-0 items-center gap-2">
+                  <Icon
+                    :name="activeTabConfig.icon || fallbackIcon"
+                    class="h-4 w-4 shrink-0"
+                  />
+                  <span class="min-w-0 truncate text-sm font-bold">
+                    {{ activeTabConfig.label }}
+                  </span>
+                </span>
+                <Icon
+                  name="kind-icon:chevron-down"
+                  class="h-4 w-4 shrink-0 opacity-80"
+                />
+              </div>
+
+              <ul
+                tabindex="0"
+                class="menu dropdown-content z-50 mt-2 max-h-72 w-64 flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+              >
+                <li v-for="tab in resolvedTabs" :key="tab.key">
+                  <button
+                    type="button"
+                    class="flex items-center gap-2 rounded-xl"
+                    :class="
+                      activeTabKey === tab.key
+                        ? 'active bg-primary text-primary-content'
+                        : ''
+                    "
+                    @click="selectTabFromDropdown(tab.key)"
+                  >
+                    <Icon
+                      :name="tab.icon || fallbackIcon"
+                      class="h-4 w-4 shrink-0"
+                    />
+                    <span class="min-w-0 truncate text-sm font-bold">
+                      {{ tab.label }}
+                    </span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Grid tab buttons: lg+ -->
+            <nav
+              class="hidden min-w-0 flex-1 auto-rows-fr gap-1.5 self-stretch lg:grid lg:grid-cols-3 lg:gap-2 xl:grid-cols-[repeat(var(--tab-count),minmax(0,1fr))]"
+              :style="tabGridStyle"
+            >
+              <button
+                v-for="tab in resolvedTabs"
+                :key="tab.key"
+                class="btn h-full min-h-12 min-w-0 justify-start rounded-xl px-2.5 py-1.5 text-left transition-all lg:px-3"
+                type="button"
+                :class="
+                  activeTabKey === tab.key
+                    ? 'btn-primary shadow-sm'
+                    : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
+                "
+                @click="setTab(tab.key)"
+              >
+                <Icon
+                  :name="tab.icon || fallbackIcon"
+                  class="h-4 w-4 shrink-0"
+                />
+                <span class="min-w-0 truncate text-sm font-bold lg:text-base">
+                  {{ tab.label }}
+                </span>
+              </button>
+            </nav>
+          </template>
 
           <div v-else class="min-w-0 flex-1" />
 
@@ -109,10 +161,11 @@
 
               <channel-select class="shrink-0" />
               <server-selector class="shrink-0" />
+              <mana-widget class="shrink-0 lg:hidden" />
             </div>
 
             <div
-              class="flex min-w-0 items-center justify-end overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:overflow-hidden sm:p-2"
+              class="hidden min-w-0 items-center justify-end overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:overflow-hidden sm:p-2 lg:flex"
             >
               <mana-widget />
             </div>
@@ -175,6 +228,15 @@ const resolvedDashboardKey = computed<DashboardKey | null>(() => {
 
   return pageKey && isDashboardKey(pageKey) ? pageKey : null
 })
+
+function selectTabFromDropdown(tabKey: string): void {
+  setTab(tabKey)
+  // close the dropdown after selection
+  if (typeof document !== 'undefined') {
+    const el = document.activeElement as HTMLElement | null
+    el?.blur()
+  }
+}
 
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   const key = resolvedDashboardKey.value

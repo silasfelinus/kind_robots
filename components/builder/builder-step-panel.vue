@@ -2,10 +2,10 @@
 <template>
   <article
     v-if="store.activeCard && store.activeStep"
-    class="flex min-h-full flex-col gap-4"
+    class="flex h-full min-h-0 flex-col gap-4 overflow-y-auto"
   >
     <section
-      class="flex min-w-0 flex-1 flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
+      class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
     >
       <!-- Step header -->
       <div class="flex items-start justify-between gap-3">

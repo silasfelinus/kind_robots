@@ -4,6 +4,14 @@
     class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100 text-base-content"
     style="--hand-h: 11.5rem"
   >
+    <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
+      <kind-loader @pageReady="handlePageReady" />
+    </div>
+
+    <butterfly-layer />
+    <animation-layer />
+    <milestone-popup />
+
     <dashboard-shell>
       <section
         class="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
@@ -116,6 +124,7 @@ const route = useRoute()
 const pageStore = usePageStore()
 const themeStore = useThemeStore()
 
+const showLoader = ref(true)
 const workspaceSheetOpen = ref(true)
 
 const contentPath = computed(() => {
@@ -132,7 +141,7 @@ const {
   status,
   refresh,
 } = await useAsyncData(
-  asyncKey.value,
+  asyncKey,
   async () => {
     const result = await queryCollection('content')
       .path(contentPath.value)
@@ -151,6 +160,10 @@ const {
 )
 
 const page = computed(() => pageData.value)
+
+function handlePageReady(): void {
+  showLoader.value = false
+}
 
 function setWorkspaceSheetOpen(value: boolean): void {
   workspaceSheetOpen.value = value

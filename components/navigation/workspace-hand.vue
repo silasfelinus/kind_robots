@@ -25,7 +25,8 @@
 
     <div
       ref="scrollEl"
-      class="pointer-events-auto flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="flex h-full items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      :class="hasCards ? 'pointer-events-auto' : 'pointer-events-none'"
     >
       <div
         class="flex min-w-full items-end gap-2 px-8 sm:px-0"
@@ -439,6 +440,8 @@ function originClass(index: number): string {
 
   return 'origin-bottom'
 }
+
+const hasCards = computed(() => handCards.value.length > 0)
 
 function normalizeImagePath(path: string): string {
   if (!path) return ''

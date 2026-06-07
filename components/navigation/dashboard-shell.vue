@@ -27,7 +27,7 @@
           <button
             type="button"
             title="Hide header"
-            class="group relative aspect-square h-full max-h-28 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:max-h-32 lg:max-h-36"
+            class="group relative size-24 shrink-0 self-center overflow-hidden rounded-2xl ring-1 ring-base-300 sm:size-28 lg:size-32 xl:size-36"
             @click="toggleHeader"
           >
             <page-image
@@ -125,7 +125,7 @@
         class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
         <section
-          class="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden p-3 sm:p-4"
+          class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4"
         >
           <slot
             :active-tab="activeTabKey"

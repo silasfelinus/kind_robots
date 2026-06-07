@@ -26,10 +26,10 @@
 
     <section
       v-if="activeTab === 'overview'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+      class="grid h-full min-h-0 flex-1 grid-cols-1 grid-rows-2 gap-4 overflow-hidden xl:grid-cols-12 xl:grid-rows-1"
     >
       <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
+        class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
       >
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
           <reward-gallery
@@ -46,7 +46,7 @@
       </section>
 
       <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
+        class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
       >
         <div class="min-h-0 flex-1 overflow-hidden">
           <reward-interact class="h-full min-h-0 overflow-hidden" />

@@ -27,7 +27,7 @@
           <button
             type="button"
             title="Hide header"
-            class="group relative w-20 shrink-0 self-stretch overflow-hidden rounded-2xl ring-1 ring-base-300 sm:w-24 lg:w-32 xl:w-36"
+            class="group relative aspect-square h-full max-h-28 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:max-h-32 lg:max-h-36"
             @click="toggleHeader"
           >
             <page-image

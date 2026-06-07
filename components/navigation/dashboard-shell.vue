@@ -1,4 +1,3 @@
-<!-- /components/content/navigation/dashboard-shell.vue -->
 <template>
   <div
     class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
@@ -22,12 +21,12 @@
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div
-          class="flex min-h-28 min-w-0 items-stretch gap-3 p-3 sm:min-h-32 lg:min-h-36 lg:gap-4 lg:p-4"
+          class="flex min-h-28 min-w-0 items-stretch gap-2 p-2 sm:min-h-32 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4"
         >
           <button
             type="button"
             title="Hide header"
-            class="group relative size-24 shrink-0 self-center overflow-hidden rounded-2xl ring-1 ring-base-300 sm:size-28 lg:size-32 xl:size-36"
+            class="group relative size-20 shrink-0 self-center overflow-hidden rounded-2xl ring-1 ring-base-300 sm:size-28 lg:size-32 xl:size-36"
             @click="toggleHeader"
           >
             <page-image
@@ -45,7 +44,7 @@
           </button>
 
           <section
-            class="flex w-44 min-w-0 shrink-0 flex-col justify-center self-stretch sm:w-52 lg:w-64 xl:w-72"
+            class="flex w-32 min-w-0 shrink-0 flex-col justify-center self-stretch sm:w-52 lg:w-64 xl:w-72"
           >
             <p
               v-if="shellTitle"
@@ -55,7 +54,7 @@
             </p>
 
             <h1
-              class="truncate text-2xl font-black leading-tight text-base-content sm:text-3xl lg:text-4xl"
+              class="truncate text-xl font-black leading-tight text-base-content sm:text-3xl lg:text-4xl"
             >
               {{ activeTitle }}
             </h1>
@@ -70,13 +69,13 @@
 
           <nav
             v-if="resolvedTabs.length"
-            class="grid min-w-0 flex-1 auto-rows-fr grid-cols-1 gap-2 self-stretch sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(var(--tab-count),minmax(0,1fr))]"
+            class="grid min-w-0 flex-1 auto-rows-fr grid-cols-1 gap-1.5 self-stretch sm:grid-cols-2 sm:gap-2 lg:grid-cols-3 xl:grid-cols-[repeat(var(--tab-count),minmax(0,1fr))]"
             :style="tabGridStyle"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn h-full min-h-11 min-w-0 justify-start rounded-xl px-2.5 py-1.5 text-left transition-all sm:min-h-12 lg:px-3"
+              class="btn h-full min-h-10 min-w-0 justify-start rounded-xl px-2 py-1 text-left transition-all sm:min-h-12 sm:px-2.5 sm:py-1.5 lg:px-3"
               type="button"
               :class="
                 activeTabKey === tab.key
@@ -86,7 +85,9 @@
               @click="setTab(tab.key)"
             >
               <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-              <span class="min-w-0 truncate text-sm font-bold lg:text-base">
+              <span
+                class="min-w-0 truncate text-xs font-bold sm:text-sm lg:text-base"
+              >
                 {{ tab.label }}
               </span>
             </button>
@@ -95,27 +96,23 @@
           <div v-else class="min-w-0 flex-1" />
 
           <section
-            class="flex w-36 shrink-0 flex-col gap-2 self-stretch sm:w-44 lg:w-56 xl:w-64"
+            class="header-control-rail flex w-auto shrink-0 flex-col gap-1 self-stretch sm:w-44 sm:gap-2 lg:w-56 xl:w-64"
           >
             <div
-              class="flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-200/50 p-2"
+              class="header-icon-strip flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:gap-2 sm:overflow-hidden sm:p-2"
             >
-              <div
-                class="flex min-w-0 flex-1 items-center justify-end gap-2 overflow-hidden"
-              >
-                <slot
-                  name="actions"
-                  :active-tab="activeTabKey"
-                  :active-tab-config="activeTabConfig"
-                />
+              <slot
+                name="actions"
+                :active-tab="activeTabKey"
+                :active-tab-config="activeTabConfig"
+              />
 
-                <channel-select class="shrink-0" />
-                <server-selector class="shrink-0" />
-              </div>
+              <channel-select class="shrink-0" />
+              <server-selector class="shrink-0" />
             </div>
 
             <div
-              class="flex min-w-0 items-center justify-end overflow-hidden rounded-2xl border border-base-300 bg-base-200/50 p-2"
+              class="flex min-w-0 items-center justify-end overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:overflow-hidden sm:p-2"
             >
               <mana-widget />
             </div>
@@ -282,6 +279,7 @@ function toggleHeader(): void {
   showHeader.value = !showHeader.value
 }
 </script>
+
 <style scoped>
 .header-slide-enter-active,
 .header-slide-leave-active {
@@ -327,5 +325,28 @@ function toggleHeader(): void {
 .header-toggle-leave-from {
   opacity: 1;
   transform: translateY(0);
+}
+
+.header-icon-strip :deep(.btn) {
+  min-height: 2.25rem;
+  height: 2.25rem;
+}
+
+@media (max-width: 639px) {
+  .header-icon-strip :deep(.btn) {
+    width: 2.25rem;
+    min-width: 2.25rem;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+  }
+
+  .header-icon-strip :deep(.btn > span:not(.loading)) {
+    display: none;
+  }
+
+  .header-icon-strip :deep(.btn > .badge) {
+    display: none;
+  }
 }
 </style>

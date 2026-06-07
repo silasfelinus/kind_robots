@@ -1,33 +1,32 @@
 <template>
   <div ref="root" class="relative">
-    <!-- Trigger: compact balance pill -->
     <button
-      class="btn btn-sm btn-ghost gap-2 rounded-full"
+      class="btn btn-sm btn-ghost btn-square rounded-full sm:btn-auto sm:w-auto sm:gap-2 sm:px-3"
       :class="{ 'animate-pulse': manaStore.refillReady && !manaStore.isFamily }"
+      type="button"
+      title="Mana"
       @click="toggle"
     >
       <span class="text-lg leading-none">⚡</span>
-      <span class="font-semibold tabular-nums">
+      <span class="hidden font-semibold tabular-nums sm:inline">
         {{ manaStore.isFamily ? '∞' : manaStore.balance }}
       </span>
     </button>
 
-    <!-- Dropdown menu -->
     <Transition name="fade">
       <div
         v-if="open"
-        class="absolute right-0 mt-2 w-72 rounded-2xl border border-base-content/10 bg-base-100 shadow-xl p-4 z-50 space-y-3"
+        class="absolute right-0 z-50 mt-2 w-72 space-y-3 rounded-2xl border border-base-content/10 bg-base-100 p-4 shadow-xl"
       >
         <div class="flex items-baseline justify-between">
           <span class="text-sm font-medium text-base-content/70">
             {{ userStore.username }}'s Mana
           </span>
-          <span class="text-2xl font-extrabold text-primary tabular-nums">
+          <span class="text-2xl font-extrabold tabular-nums text-primary">
             {{ manaStore.isFamily ? '∞' : manaStore.balance }}
           </span>
         </div>
 
-        <!-- Balance bar -->
         <div v-if="!manaStore.isFamily" class="space-y-1">
           <progress
             class="progress progress-primary w-full"
@@ -36,7 +35,7 @@
           />
           <div class="flex justify-between text-xs text-base-content/60">
             <span>{{ manaStore.balance }} / {{ manaStore.cap }}</span>
-            <span v-if="manaStore.refillReady" class="text-success font-medium">
+            <span v-if="manaStore.refillReady" class="font-medium text-success">
               Refill ready ✨
             </span>
             <span v-else>Refills in {{ manaStore.refillCountdown }}</span>
@@ -47,7 +46,7 @@
           Family plan — unlimited generations on house tokens. 🏡
         </p>
 
-        <div class="pt-1 flex flex-col gap-2">
+        <div class="flex flex-col gap-2 pt-1">
           <NuxtLink
             to="/wallet"
             class="btn btn-sm btn-outline btn-primary rounded-xl"
@@ -69,8 +68,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/giftshop/mana-widget.vue
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useManaStore } from '@/stores/manaStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -80,19 +78,22 @@ const userStore = useUserStore()
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
 
-function toggle() {
+function toggle(): void {
   open.value = !open.value
 }
 
-function onDocumentClick(event: MouseEvent) {
+function onDocumentClick(event: MouseEvent): void {
   if (!open.value) return
+
   if (root.value && !root.value.contains(event.target as Node)) {
     open.value = false
   }
 }
 
-function onKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') open.value = false
+function onKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    open.value = false
+  }
 }
 
 onMounted(() => {
@@ -114,6 +115,7 @@ onBeforeUnmount(() => {
     opacity 0.15s ease,
     transform 0.15s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

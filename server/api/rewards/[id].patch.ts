@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
     const existingReward = await prisma.reward.findUnique({
       where: { id: rewardId },
       select: {
+        id: true,
         userId: true,
       },
     })
@@ -48,14 +49,23 @@ export default defineEventHandler(async (event) => {
 
     const rewardData = await readBody<RewardMutationInput>(event)
 
-    if (!rewardData || Object.keys(rewardData).length === 0) {
+    if (
+      !rewardData ||
+      typeof rewardData !== 'object' ||
+      Array.isArray(rewardData) ||
+      Object.keys(rewardData).length === 0
+    ) {
       throw createError({
         statusCode: 400,
-        message: 'No data provided for update.',
+        message: 'No valid data provided for update.',
       })
     }
 
-    if (rewardData.userId && rewardData.userId !== existingReward.userId) {
+    if (
+      rewardData.userId !== undefined &&
+      rewardData.userId !== null &&
+      rewardData.userId !== existingReward.userId
+    ) {
       throw createError({
         statusCode: 403,
         message: 'Reward ownership cannot be changed here.',
@@ -68,11 +78,14 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
+      message: 'Reward updated successfully.',
       data,
+      reward: data,
       statusCode: 200,
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
+
     event.node.res.statusCode = statusCode || 500
 
     return {

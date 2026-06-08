@@ -101,11 +101,12 @@ function chunkItems(items, size) {
   return chunks
 }
 
-async function postReward({ reward, url, index, total }) {
+async function postReward({ reward, url, index, total, adminToken }) {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
     },
     body: JSON.stringify(reward),
   })
@@ -134,6 +135,8 @@ async function main() {
   const text = await readFile(args.file, 'utf8')
   const rewards = extractJsonObjects(text)
   const baseUrl = args.baseUrl || getBaseUrl(text)
+
+  const adminToken = process.env.ADMIN_TOKEN
 
   if (!rewards.length) {
     console.error(`No JSON reward objects found in ${args.file}`)
@@ -185,6 +188,7 @@ async function main() {
           url,
           index: posted + offset + 1,
           total: rewards.length,
+          adminToken,
         }),
       ),
     )

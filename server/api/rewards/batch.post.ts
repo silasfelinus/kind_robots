@@ -1,7 +1,26 @@
+// /server/api/rewards/batch.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { createRewardsBatch, type RewardMutationInput } from './'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+
+type RewardBatchBody =
+  | RewardMutationInput[]
+  | {
+      rewards?: RewardMutationInput[]
+    }
+
+function getRewardsFromBody(body: RewardBatchBody): RewardMutationInput[] {
+  if (Array.isArray(body)) {
+    return body
+  }
+
+  if (body && typeof body === 'object' && Array.isArray(body.rewards)) {
+    return body.rewards
+  }
+
+  return []
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -14,7 +33,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const rewardsData = await readBody<RewardMutationInput[]>(event)
+    const body = await readBody<RewardBatchBody>(event)
+    const rewardsData = getRewardsFromBody(body)
 
     if (!Array.isArray(rewardsData)) {
       throw createError({
@@ -31,7 +51,11 @@ export default defineEventHandler(async (event) => {
     }
 
     for (const [index, rewardData] of rewardsData.entries()) {
-      if (!rewardData || typeof rewardData !== 'object') {
+      if (
+        !rewardData ||
+        typeof rewardData !== 'object' ||
+        Array.isArray(rewardData)
+      ) {
         throw createError({
           statusCode: 400,
           message: `Invalid reward at index ${index}. Expected an object.`,
@@ -84,6 +108,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
+
     event.node.res.statusCode = statusCode || 500
 
     return {

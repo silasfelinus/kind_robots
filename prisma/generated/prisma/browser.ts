@@ -118,7 +118,10 @@ export type Reaction = Prisma.ReactionModel
 export type Resource = Prisma.ResourceModel
 /**
  * Model Reward
- * 
+ * Rewards are skills, items, pets, and other collectibles used in storytelling
+ * adventure modules. name/description/flavorText describe what it is; effect is
+ * the LLM-facing narrative hook that tells the storytelling engine how the reward
+ * behaves when played into a scene.
  */
 export type Reward = Prisma.RewardModel
 /**

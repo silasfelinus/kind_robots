@@ -1,4 +1,5 @@
 // /server/api/rewards/index.ts
+import { createError } from 'h3'
 import {
   Prisma,
   Rarity,
@@ -10,38 +11,51 @@ import prisma from '../../utils/prisma'
 export type RewardRelationInput = {
   characterIds?: number[]
   dreamIds?: number[]
+  compositionIds?: number[]
   setCharacterIds?: number[]
   setDreamIds?: number[]
+  setCompositionIds?: number[]
   removeCharacterIds?: number[]
   removeDreamIds?: number[]
+  removeCompositionIds?: number[]
 }
 
-export type RewardMutationInput = Partial<
-  Pick<
-    Reward,
-    | 'id'
-    | 'icon'
-    | 'text'
-    | 'power'
-    | 'collection'
-    | 'rarity'
-    | 'label'
-    | 'rewardType'
-    | 'userId'
-    | 'artImageId'
-    | 'imagePath'
-    | 'artPrompt'
-    | 'isPublic'
-    | 'isMature'
-    | 'isActive'
-  >
-> &
-  RewardRelationInput
+export type RewardMutationInput = {
+  id?: number
+  name?: string
+  label?: string
+  slug?: string | null
+  description?: string | null
+  text?: string | null
+  flavorText?: string | null
+  effect?: string | null
+  power?: string | null
+  icon?: string | null
+  collection?: string | null
+  rarity?: Rarity | string
+  rewardType?: RewardType | string
+  type?: RewardType | string
+  userId?: number | null
+  artImageId?: number | null
+  imagePath?: string | null
+  artPrompt?: string | null
+  isMature?: boolean
+  isPublic?: boolean
+  isActive?: boolean
+} & RewardRelationInput
+
+export type RewardBatchError = {
+  index: number
+  name?: string
+  slug?: string | null
+  message: string
+}
 
 export const rewardInclude = {
   ArtImage: true,
   Characters: true,
   Dreams: true,
+  Compositions: true,
   Reactions: true,
   User: {
     select: {
@@ -58,16 +72,32 @@ export type RewardWithRelations = Prisma.RewardGetPayload<{
 const validRarities = Object.values(Rarity)
 const validRewardTypes = Object.values(RewardType)
 
-function toTrimmedText(value: unknown): string | undefined {
-  return typeof value === 'string' ? value.trim() : undefined
-}
-
-function toNullableText(value: unknown): string | null | undefined {
-  if (value === null) return null
-  if (typeof value !== 'string') return undefined
+function toTrimmedString(
+  value: unknown,
+  maxLength?: number,
+): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
 
   const trimmed = value.trim()
-  return trimmed.length ? trimmed : null
+
+  if (!trimmed) {
+    return undefined
+  }
+
+  return maxLength ? trimmed.slice(0, maxLength) : trimmed
+}
+
+function toNullableString(
+  value: unknown,
+  maxLength?: number,
+): string | null | undefined {
+  if (value === null) {
+    return null
+  }
+
+  return toTrimmedString(value, maxLength)
 }
 
 function toBoolean(value: unknown): boolean | undefined {
@@ -76,11 +106,22 @@ function toBoolean(value: unknown): boolean | undefined {
 
 function toPositiveInt(value: unknown): number | undefined {
   const parsed = Number(value)
+
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
+function toNullablePositiveInt(value: unknown): number | null | undefined {
+  if (value === null) {
+    return null
+  }
+
+  return toPositiveInt(value)
+}
+
 function toPositiveIntArray(value: unknown): number[] {
-  if (!Array.isArray(value)) return []
+  if (!Array.isArray(value)) {
+    return []
+  }
 
   return Array.from(
     new Set(
@@ -91,62 +132,96 @@ function toPositiveIntArray(value: unknown): number[] {
   )
 }
 
-function normalizeRarity(value: unknown): Rarity | undefined {
-  if (typeof value !== 'string') return undefined
+function connectMany(ids: number[]) {
+  return ids.map((id) => ({ id }))
+}
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 256)
+}
+
+export function normalizeRarity(value: unknown): Rarity | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
 
   const normalized = value.toUpperCase() as Rarity
+
   return validRarities.includes(normalized) ? normalized : undefined
 }
 
-function normalizeRewardType(value: unknown): RewardType | undefined {
-  if (typeof value !== 'string') return undefined
+export function normalizeRewardType(value: unknown): RewardType | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
 
   const normalized = value.toUpperCase() as RewardType
+
   return validRewardTypes.includes(normalized) ? normalized : undefined
 }
 
-function connectMany(ids: number[]) {
-  return ids.length ? ids.map((id) => ({ id })) : undefined
-}
-
-function buildCreateData(
+export function buildCreateData(
   input: RewardMutationInput,
   authenticatedUserId: number,
 ): Prisma.RewardCreateInput {
-  const text = toTrimmedText(input.text)
-  const power = toTrimmedText(input.power)
+  const name =
+    toTrimmedString(input.name, 256) || toTrimmedString(input.label, 256)
 
-  if (!text) {
-    throw new Error('Reward text is required.')
+  if (!name) {
+    throw createError({
+      statusCode: 400,
+      message: 'Reward name is required.',
+    })
   }
 
-  if (!power) {
-    throw new Error('Reward power is required.')
-  }
+  const rewardType =
+    normalizeRewardType(input.rewardType) ||
+    normalizeRewardType(input.type) ||
+    RewardType.ITEM
 
-  const icon = toNullableText(input.icon)
-  const collection = toNullableText(input.collection)
-  const label = toNullableText(input.label)
-  const imagePath = toNullableText(input.imagePath)
-  const artPrompt = toNullableText(input.artPrompt)
-  const rarity = normalizeRarity(input.rarity) ?? Rarity.COMMON
-  const rewardType = normalizeRewardType(input.rewardType) ?? RewardType.ITEM
+  const rarity = normalizeRarity(input.rarity) || Rarity.COMMON
+
+  const slug =
+    toNullableString(input.slug, 256) ?? slugify(`${rewardType}-${name}`)
+
+  const description =
+    toNullableString(input.description) ?? toNullableString(input.text) ?? null
+
+  const effect =
+    toNullableString(input.effect) ?? toNullableString(input.power) ?? null
+
+  const flavorText = toNullableString(input.flavorText, 512)
+  const icon = toNullableString(input.icon, 256)
+  const collection = toNullableString(input.collection, 764)
+  const imagePath = toNullableString(input.imagePath, 764)
+  const artPrompt = toNullableString(input.artPrompt)
   const artImageId = toPositiveInt(input.artImageId)
+
   const characterIds = toPositiveIntArray(input.characterIds)
   const dreamIds = toPositiveIntArray(input.dreamIds)
+  const compositionIds = toPositiveIntArray(input.compositionIds)
 
   return {
-    text,
-    power,
+    name,
+    slug,
+    description,
+    flavorText,
+    effect,
     icon,
-    collection: collection ?? 'general',
-    label,
-    imagePath,
-    artPrompt,
+    collection,
     rarity,
     rewardType,
-    isPublic: toBoolean(input.isPublic) ?? true,
+    imagePath,
+    artPrompt,
     isMature: toBoolean(input.isMature) ?? false,
+    isPublic: toBoolean(input.isPublic) ?? true,
     isActive: toBoolean(input.isActive) ?? true,
     User: {
       connect: {
@@ -170,40 +245,102 @@ function buildCreateData(
         connect: connectMany(dreamIds),
       },
     }),
+    ...(compositionIds.length && {
+      Compositions: {
+        connect: connectMany(compositionIds),
+      },
+    }),
   }
 }
 
-function buildUpdateData(input: RewardMutationInput): Prisma.RewardUpdateInput {
+export function buildUpdateData(
+  input: RewardMutationInput,
+): Prisma.RewardUpdateInput {
   const data: Prisma.RewardUpdateInput = {}
 
-  const icon = toNullableText(input.icon)
-  const text = toTrimmedText(input.text)
-  const power = toTrimmedText(input.power)
-  const collection = toNullableText(input.collection)
-  const label = toNullableText(input.label)
-  const imagePath = toNullableText(input.imagePath)
-  const artPrompt = toNullableText(input.artPrompt)
+  const name =
+    toTrimmedString(input.name, 256) || toTrimmedString(input.label, 256)
+  const slug = toNullableString(input.slug, 256)
+  const description =
+    toNullableString(input.description) ?? toNullableString(input.text)
+  const flavorText = toNullableString(input.flavorText, 512)
+  const effect = toNullableString(input.effect) ?? toNullableString(input.power)
+  const icon = toNullableString(input.icon, 256)
+  const collection = toNullableString(input.collection, 764)
+  const imagePath = toNullableString(input.imagePath, 764)
+  const artPrompt = toNullableString(input.artPrompt)
   const rarity = normalizeRarity(input.rarity)
-  const rewardType = normalizeRewardType(input.rewardType)
-  const isPublic = toBoolean(input.isPublic)
+  const rewardType =
+    normalizeRewardType(input.rewardType) || normalizeRewardType(input.type)
   const isMature = toBoolean(input.isMature)
+  const isPublic = toBoolean(input.isPublic)
   const isActive = toBoolean(input.isActive)
 
-  if (input.icon !== undefined) data.icon = icon
-  if (text !== undefined) data.text = text
-  if (power !== undefined) data.power = power
-  if (input.collection !== undefined) data.collection = collection ?? 'general'
-  if (input.label !== undefined) data.label = label
-  if (input.imagePath !== undefined) data.imagePath = imagePath
-  if (input.artPrompt !== undefined) data.artPrompt = artPrompt
-  if (rarity) data.rarity = rarity
-  if (rewardType) data.rewardType = rewardType
-  if (isPublic !== undefined) data.isPublic = isPublic
-  if (isMature !== undefined) data.isMature = isMature
-  if (isActive !== undefined) data.isActive = isActive
+  if (input.name !== undefined || input.label !== undefined) {
+    if (!name) {
+      throw createError({
+        statusCode: 400,
+        message: 'Reward name cannot be empty.',
+      })
+    }
+
+    data.name = name
+  }
+
+  if (input.slug !== undefined) {
+    data.slug = slug
+  }
+
+  if (input.description !== undefined || input.text !== undefined) {
+    data.description = description ?? null
+  }
+
+  if (input.flavorText !== undefined) {
+    data.flavorText = flavorText
+  }
+
+  if (input.effect !== undefined || input.power !== undefined) {
+    data.effect = effect ?? null
+  }
+
+  if (input.icon !== undefined) {
+    data.icon = icon
+  }
+
+  if (input.collection !== undefined) {
+    data.collection = collection
+  }
+
+  if (input.imagePath !== undefined) {
+    data.imagePath = imagePath
+  }
+
+  if (input.artPrompt !== undefined) {
+    data.artPrompt = artPrompt
+  }
+
+  if (rarity) {
+    data.rarity = rarity
+  }
+
+  if (rewardType) {
+    data.rewardType = rewardType
+  }
+
+  if (isMature !== undefined) {
+    data.isMature = isMature
+  }
+
+  if (isPublic !== undefined) {
+    data.isPublic = isPublic
+  }
+
+  if (isActive !== undefined) {
+    data.isActive = isActive
+  }
 
   if (input.artImageId !== undefined) {
-    const artImageId = toPositiveInt(input.artImageId)
+    const artImageId = toNullablePositiveInt(input.artImageId)
 
     data.ArtImage = artImageId
       ? {
@@ -218,10 +355,15 @@ function buildUpdateData(input: RewardMutationInput): Prisma.RewardUpdateInput {
 
   const characterIds = toPositiveIntArray(input.characterIds)
   const dreamIds = toPositiveIntArray(input.dreamIds)
+  const compositionIds = toPositiveIntArray(input.compositionIds)
+
   const setCharacterIds = toPositiveIntArray(input.setCharacterIds)
   const setDreamIds = toPositiveIntArray(input.setDreamIds)
+  const setCompositionIds = toPositiveIntArray(input.setCompositionIds)
+
   const removeCharacterIds = toPositiveIntArray(input.removeCharacterIds)
   const removeDreamIds = toPositiveIntArray(input.removeDreamIds)
+  const removeCompositionIds = toPositiveIntArray(input.removeCompositionIds)
 
   if (
     characterIds.length ||
@@ -255,17 +397,71 @@ function buildUpdateData(input: RewardMutationInput): Prisma.RewardUpdateInput {
     }
   }
 
+  if (
+    compositionIds.length ||
+    setCompositionIds.length ||
+    removeCompositionIds.length
+  ) {
+    data.Compositions = {
+      ...(setCompositionIds.length && {
+        set: connectMany(setCompositionIds),
+      }),
+      ...(compositionIds.length && {
+        connect: connectMany(compositionIds),
+      }),
+      ...(removeCompositionIds.length && {
+        disconnect: connectMany(removeCompositionIds),
+      }),
+    }
+  }
+
   return data
 }
 
 export async function createReward(
-  reward: RewardMutationInput,
+  input: RewardMutationInput,
   authenticatedUserId: number,
 ): Promise<RewardWithRelations> {
   return await prisma.reward.create({
-    data: buildCreateData(reward, authenticatedUserId),
+    data: buildCreateData(input, authenticatedUserId),
     include: rewardInclude,
   })
+}
+
+export async function createRewardsBatch(
+  inputs: RewardMutationInput[],
+  authenticatedUserId: number,
+): Promise<{
+  count: number
+  rewards: RewardWithRelations[]
+  errors: RewardBatchError[]
+}> {
+  const rewards: RewardWithRelations[] = []
+  const errors: RewardBatchError[] = []
+
+  for (const [index, input] of inputs.entries()) {
+    try {
+      const reward = await createReward(input, authenticatedUserId)
+
+      rewards.push(reward)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unknown reward create error.'
+
+      errors.push({
+        index,
+        name: input?.name || input?.label,
+        slug: input?.slug,
+        message,
+      })
+    }
+  }
+
+  return {
+    count: rewards.length,
+    rewards,
+    errors,
+  }
 }
 
 export async function fetchRewardById(
@@ -273,6 +469,15 @@ export async function fetchRewardById(
 ): Promise<RewardWithRelations | null> {
   return await prisma.reward.findUnique({
     where: { id },
+    include: rewardInclude,
+  })
+}
+
+export async function fetchRewardBySlug(
+  slug: string,
+): Promise<RewardWithRelations | null> {
+  return await prisma.reward.findUnique({
+    where: { slug },
     include: rewardInclude,
   })
 }
@@ -305,48 +510,12 @@ export async function updateRewardById(
   })
 }
 
-export async function createRewardsBatch(
-  rewardsData: RewardMutationInput[],
-  authenticatedUserId: number,
-): Promise<{
-  count: number
-  rewards: RewardWithRelations[]
-  errors: string[]
-}> {
-  const errors: string[] = []
-  const rewards: RewardWithRelations[] = []
-
-  for (const [index, rewardData] of rewardsData.entries()) {
-    try {
-      const reward = await prisma.reward.create({
-        data: buildCreateData(rewardData, authenticatedUserId),
-        include: rewardInclude,
-      })
-
-      rewards.push(reward)
-    } catch (error) {
-      errors.push(
-        `Reward ${index + 1} failed: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-      )
-    }
-  }
-
-  return {
-    count: rewards.length,
-    rewards,
-    errors,
-  }
+export async function deleteRewardById(id: number): Promise<Reward> {
+  return await prisma.reward.delete({
+    where: { id },
+  })
 }
 
-export {
-  Rarity,
-  RewardType,
-  buildCreateData,
-  buildUpdateData,
-  normalizeRarity,
-  normalizeRewardType,
-}
+export { Rarity, RewardType }
 
 export type { Reward }

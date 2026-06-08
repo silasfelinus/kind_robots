@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
+
     event.node.res.statusCode = statusCode || 500
 
     return {

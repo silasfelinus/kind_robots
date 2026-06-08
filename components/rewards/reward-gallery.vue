@@ -341,7 +341,7 @@ const props = withDefaults(
   {
     variant: 'dashboard',
     title: 'Rewards',
-    subtitle: 'Pick a story item, boon, curse, artifact, or plot grenade.',
+    subtitle: 'Pick a story reward, boon, curse, artifact, or plot grenade.',
     showHeader: true,
     showImages: true,
     showControls: true,
@@ -414,7 +414,7 @@ const selectedRewardSubtitle = computed(() => {
 
   if (!reward) return 'Choose a reward or add a new one.'
 
-  return reward.collection || reward.power || reward.text || 'Reward selected.'
+  return reward.collection || reward.rewardType || reward.effect || reward.name || 'Reward selected.'
 })
 
 const selectedRewardDescription = computed(() => {
@@ -423,8 +423,9 @@ const selectedRewardDescription = computed(() => {
   if (!reward) return 'No reward selected.'
 
   return (
-    reward.power ||
-    reward.text ||
+    reward.description ||
+    reward.effect ||
+    reward.name ||
     reward.collection ||
     'No reward description yet.'
   )
@@ -441,7 +442,7 @@ const formTitle = computed(() => {
 const formSubtitle = computed(() => {
   return formMode.value === 'edit'
     ? 'Tune this reward before it detonates the narrative.'
-    : 'Create a new story item, boon, curse, artifact, or plot grenade.'
+    : 'Create a new story reward, boon, curse, artifact, or plot grenade.'
 })
 
 const canEditSelected = computed(() => {
@@ -521,10 +522,12 @@ const filteredRewards = computed<Reward[]>(() => {
   if (query) {
     rewards = rewards.filter((reward) => {
       return (
-        (reward.text || '').toLowerCase().includes(query) ||
-        (reward.power || '').toLowerCase().includes(query) ||
+        (reward.name || '').toLowerCase().includes(query) ||
+        (reward.description || '').toLowerCase().includes(query) ||
+        (reward.flavorText || '').toLowerCase().includes(query) ||
+        (reward.effect || '').toLowerCase().includes(query) ||
+        (reward.rewardType || '').toLowerCase().includes(query) ||
         (reward.collection || '').toLowerCase().includes(query) ||
-        (reward.label || '').toLowerCase().includes(query) ||
         (reward.artPrompt || '').toLowerCase().includes(query)
       )
     })
@@ -540,7 +543,7 @@ onMounted(async () => {
 })
 
 function getRewardTitle(reward: Reward) {
-  return reward.label || reward.text || reward.power || `Reward #${reward.id}`
+  return reward.name || `Reward #${reward.id}`
 }
 
 async function refreshRewards(force = false) {

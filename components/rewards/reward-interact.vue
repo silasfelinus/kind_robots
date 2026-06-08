@@ -38,18 +38,18 @@
       >
         <div class="shrink-0 border-b border-base-300 p-4">
           <article>
-            <h2 class="mb-2 text-lg font-bold text-base-content">The Item</h2>
+            <h2 class="mb-2 text-lg font-bold text-base-content">The Reward</h2>
 
             <div
               v-if="rewardStore.selectedReward"
               class="rounded-2xl border border-primary/30 bg-primary/10 p-4"
             >
               <p class="text-xl font-bold text-primary">
-                {{ rewardStore.selectedReward.text }}
+                {{ selectedRewardName }}
               </p>
 
               <p class="mt-2 text-sm text-base-content/70">
-                {{ rewardStore.selectedReward.power }}
+                {{ selectedRewardEffect }}
               </p>
 
               <p class="mt-2 text-xs text-base-content/50">
@@ -463,7 +463,7 @@ const selectedCharacterSummary = computed(() => {
   const character = characterStore.selectedCharacter
 
   if (!character) {
-    return 'No character attached. The item may menace a generic silhouette.'
+    return 'No character attached. The reward may menace a generic silhouette.'
   }
 
   const species = character.species || 'unknown species'
@@ -504,6 +504,18 @@ const activeServerName = computed(() => {
     'No text server selected'
   )
 })
+const selectedRewardName = computed(() => {
+  return rewardStore.selectedReward?.name || 'the reward'
+})
+
+const selectedRewardEffect = computed(() => {
+  const reward = rewardStore.selectedReward
+
+  if (!reward) return 'No effect described yet.'
+
+  return reward.effect || reward.description || 'No effect described yet.'
+})
+
 
 const sessionChats = computed<Chat[]>(() => {
   return chatStore.chats.filter((chat) =>
@@ -639,9 +651,8 @@ function getStoryScene(text: string | null | undefined) {
 }
 
 function getPlayerDisplayText(chat: Chat, index: number) {
-  if (index === 0 && chat.content.includes('Item:')) {
-    const rewardName = rewardStore.selectedReward?.text ?? 'the reward'
-    return `Begin the story with ${rewardName}.`
+  if (index === 0 && chat.content.includes('Reward:')) {
+    return `Begin the story with ${selectedRewardName.value}.`
   }
 
   if (chat.content.startsWith('Selected path:')) {
@@ -675,17 +686,19 @@ function buildRewardPrompt() {
     : null
 
   const lines = [
-    `Item: ${reward.text}`,
-    `Item power: ${reward.power}`,
-    `Collection: ${reward.collection} · Rarity: ${reward.rarity}`,
+    `Reward: ${reward.name}`,
+    reward.description ? `Description: ${reward.description}` : null,
+    reward.flavorText ? `Flavor text: ${reward.flavorText}` : null,
+    `Effect: ${reward.effect || 'No effect described.'}`,
+    `Type: ${reward.rewardType} · Collection: ${reward.collection || 'general'} · Rarity: ${reward.rarity}`,
     background ? `Finder background: ${background}` : null,
     characterLine,
     `Encounter mode: ${encounterMode.value}`,
     `Tone: ${tone.value}`,
     direction ? `Player direction: ${direction}` : null,
     '',
-    'Write a scene where this item is discovered or used.',
-    'Focus on what it feels like to hold it, what it does, and the immediate consequences.',
+    'Write a scene where this reward is discovered, earned, bonded with, invoked, or used.',
+    'Focus on what it feels like to encounter it, what it changes, and the immediate consequences.',
     'End with exactly 3 numbered choices.',
     '1. A cautious path.',
     '2. A bold path.',

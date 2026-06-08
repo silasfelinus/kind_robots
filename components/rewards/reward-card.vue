@@ -86,7 +86,7 @@
         </span>
 
         <span class="badge badge-ghost badge-sm">
-          Rarity {{ reward.rarity ?? 0 }}
+          {{ reward.rarity || "COMMON" }}
         </span>
       </div>
 
@@ -125,7 +125,7 @@
           compact ? 'line-clamp-2 text-sm' : 'text-sm',
         ]"
       >
-        {{ reward.power || 'No power described yet.' }}
+        {{ reward.effect || reward.description || 'No effect described yet.' }}
       </p>
 
       <div v-if="showMeta" class="flex flex-wrap gap-2">
@@ -134,11 +134,11 @@
         </span>
 
         <span class="badge badge-ghost badge-sm">
-          Rarity {{ reward.rarity ?? 0 }}
+          {{ reward.rarity || "COMMON" }}
         </span>
 
-        <span v-if="reward.label" class="badge badge-primary badge-sm">
-          {{ reward.label }}
+        <span v-if="reward.rewardType" class="badge badge-primary badge-sm">
+          {{ reward.rewardType }}
         </span>
 
         <span v-if="reward.userId" class="badge badge-accent badge-sm">
@@ -158,7 +158,7 @@
         <div>
           <p class="font-bold uppercase text-base-content/45">Rarity</p>
           <p class="truncate text-base-content/75">
-            {{ reward.rarity ?? 0 }}
+            {{ reward.rarity || 'COMMON' }}
           </p>
         </div>
 
@@ -262,7 +262,7 @@ const activeSelected = computed(() => {
 })
 
 const rewardTitle = computed(() => {
-  return props.reward.text || props.reward.label || `Reward #${props.reward.id}`
+  return props.reward.name || `Reward #${props.reward.id}`
 })
 
 async function selectReward() {

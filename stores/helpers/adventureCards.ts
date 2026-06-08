@@ -1431,7 +1431,7 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
             label: 'Public Notary',
             subtext:
               'Has witnessed many things and is not permitted to comment on any of them. The stamp is raised. The document is for something enormous.',
-            image: '/images/adventure/role/public-notary.webp',
+            image: '/images/adventure/role/notary.webp',
           },
           {
             value: 'Politician',

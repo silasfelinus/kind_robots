@@ -910,11 +910,10 @@ enum ResourceType {
 enum RewardType {
   SKILL
   ITEM
-  TREASURE
-  TITLE
   POWER
-  STORY
   PET
+  MAGIC
+  FAVOR
 }
 
 enum Rarity {

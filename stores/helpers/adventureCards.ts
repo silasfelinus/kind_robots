@@ -333,20 +333,6 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
             image: '/images/adventure/genre/historical-fiction.webp',
           },
           {
-            value: 'Literary Fiction',
-            label: 'Literary Fiction',
-            subtext:
-              'The plot is internal. The teacup is symbolic. The silence is doing push-ups.',
-            image: '/images/adventure/genre/literary-fiction.webp',
-          },
-          {
-            value: 'Contemporary Fiction',
-            label: 'Contemporary Fiction',
-            subtext:
-              'Modern problems, intimate stakes, recognizable rooms, and at least one bad text message.',
-            image: '/images/adventure/genre/contemporary-fiction.webp',
-          },
-          {
             value: 'Young Adult',
             label: 'Young Adult',
             subtext:

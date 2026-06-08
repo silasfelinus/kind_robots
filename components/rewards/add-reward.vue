@@ -24,11 +24,11 @@
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Reward Text</span>
+            <span class="label-text font-bold">Reward Name</span>
           </span>
 
           <input
-            v-model="rewardStore.rewardForm.text"
+            v-model="rewardStore.rewardForm.name"
             type="text"
             placeholder="The Coin of Questionable Wisdom"
             class="input input-bordered w-full bg-base-100"
@@ -50,12 +50,39 @@
 
         <label class="form-control lg:col-span-2">
           <span class="label">
-            <span class="label-text font-bold">Power</span>
+            <span class="label-text font-bold">Description</span>
+            <span class="label-text-alt text-base-content/50">Optional</span>
           </span>
 
           <textarea
-            v-model="rewardStore.rewardForm.power"
-            placeholder="Describe what this reward does in the story..."
+            v-model="rewardStore.rewardForm.description"
+            placeholder="Describe what this reward is..."
+            class="textarea textarea-bordered min-h-24 w-full bg-base-100"
+          />
+        </label>
+
+        <label class="form-control lg:col-span-2">
+          <span class="label">
+            <span class="label-text font-bold">Flavor Text</span>
+            <span class="label-text-alt text-base-content/50">Optional</span>
+          </span>
+
+          <input
+            v-model="rewardStore.rewardForm.flavorText"
+            type="text"
+            placeholder="It says please. It still works."
+            class="input input-bordered w-full bg-base-100"
+          />
+        </label>
+
+        <label class="form-control lg:col-span-2">
+          <span class="label">
+            <span class="label-text font-bold">Effect</span>
+          </span>
+
+          <textarea
+            v-model="rewardStore.rewardForm.effect"
+            placeholder="Describe what this reward does when played into a scene..."
             class="textarea textarea-bordered min-h-28 w-full bg-base-100"
           />
         </label>
@@ -77,16 +104,21 @@
 
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Label</span>
-            <span class="label-text-alt text-base-content/50">Optional</span>
+            <span class="label-text font-bold">Type</span>
           </span>
 
-          <input
-            v-model="rewardStore.rewardForm.label"
-            type="text"
-            placeholder="Cursed, Helpful, Legendary..."
-            class="input input-bordered w-full bg-base-100"
-          />
+          <select
+            v-model="rewardStore.rewardForm.rewardType"
+            class="select select-bordered w-full bg-base-100"
+          >
+            <option
+              v-for="rewardType in rewardTypeOptions"
+              :key="rewardType"
+              :value="rewardType"
+            >
+              {{ rewardType }}
+            </option>
+          </select>
         </label>
 
         <label class="form-control">
@@ -139,7 +171,7 @@
             <h2 class="text-xl font-bold text-base-content">Reward Art</h2>
 
             <p class="text-sm text-base-content/70">
-              Upload, generate, or attach an image for the item.
+              Upload, generate, or attach an image for the reward.
             </p>
           </div>
 
@@ -246,9 +278,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
-import { useRewardStore, type Rarity } from '@/stores/rewardStore'
+import { useRewardStore, type Rarity, type RewardType } from '@/stores/rewardStore'
 import { useUploadStore } from '@/stores/uploadStore'
-import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
   defineProps<{
@@ -258,6 +289,15 @@ const props = withDefaults(
     mode: 'add',
   },
 )
+
+const rewardTypeOptions: RewardType[] = [
+  'SKILL',
+  'ITEM',
+  'POWER',
+  'PET',
+  'MAGIC',
+  'FAVOR',
+]
 
 const rarityOptions: Rarity[] = [
   'COMMON',
@@ -276,7 +316,6 @@ const artStore = useArtStore()
 const choiceStore = useChoiceStore()
 const rewardStore = useRewardStore()
 const uploadStore = useUploadStore()
-const userStore = useUserStore()
 
 const isGeneratingArt = ref(false)
 const statusMessage = ref('')
@@ -293,7 +332,7 @@ const heading = computed(() =>
 const subtitle = computed(() =>
   mode.value === 'edit'
     ? 'Tune the artifact, curse, boon, or narrative goblin bait.'
-    : 'Create a story item that can change what happens next.',
+    : 'Create a story reward that can change what happens next.',
 )
 
 const saveLabel = computed(() =>
@@ -345,7 +384,7 @@ function configureRewardImageUpload() {
     collectionLabel: 'rewards',
     promptString:
       rewardStore.rewardForm.artPrompt ||
-      rewardStore.rewardForm.text ||
+      rewardStore.rewardForm.name ||
       '[RewardImage]',
     path: '[RewardImage]',
     buttonLabel: 'Upload reward art',
@@ -385,13 +424,14 @@ function resetForAdd() {
 
   if (!Object.keys(rewardStore.rewardForm || {}).length) {
     rewardStore.rewardForm = {
-      text: '',
-      power: '',
+      name: '',
+      description: '',
+      flavorText: '',
+      effect: '',
       collection: 'general',
       icon: 'kind-icon:gift',
-      label: '',
+      rewardType: 'ITEM',
       rarity: 'COMMON',
-      userId: userStore.userId || 10,
       artImageId: null,
       imagePath: null,
       artPrompt: '',
@@ -425,7 +465,7 @@ async function generateArtImage() {
   try {
     const response = await artStore.generateArt({
       promptString: artPrompt,
-      title: rewardStore.rewardForm.text || 'Untitled Reward',
+      title: rewardStore.rewardForm.name || 'Untitled Reward',
       collection: 'rewards',
     })
 
@@ -460,15 +500,15 @@ async function saveReward() {
     return
   }
 
-  if (!rewardStore.rewardForm.text?.trim()) {
+  if (!rewardStore.rewardForm.name?.trim()) {
     statusTone.value = 'error'
-    statusMessage.value = 'Please provide reward text.'
+    statusMessage.value = 'Please provide reward name.'
     return
   }
 
-  if (!rewardStore.rewardForm.power?.trim()) {
+  if (!rewardStore.rewardForm.effect?.trim()) {
     statusTone.value = 'error'
-    statusMessage.value = 'Please provide reward power.'
+    statusMessage.value = 'Please provide reward effect.'
     return
   }
 
@@ -479,7 +519,6 @@ async function saveReward() {
       ...rewardStore.rewardForm,
       collection: rewardStore.rewardForm.collection || 'general',
       icon: rewardStore.rewardForm.icon || 'kind-icon:gift',
-      userId: rewardStore.rewardForm.userId || userStore.userId || 10,
     }
 
     const saved = await rewardStore.saveReward()

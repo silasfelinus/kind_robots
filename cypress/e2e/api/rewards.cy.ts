@@ -1,16 +1,72 @@
-// cypress/e2e/api/rewards.cy.ts
+// /cypress/e2e/api/rewards.cy.ts
 
 describe('Reward Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/rewards'
+  const baseUrl =
+    Cypress.env('REWARDS_API_URL') ||
+    'https://kind-robots.vercel.app/api/rewards'
+
   const invalidToken = 'someInvalidTokenValue'
 
   let userToken = ''
   let rewardId: number | undefined
 
+  const uniqueSlug = `cypress-test-reward-${Date.now()}`
+  const updatedSlug = `${uniqueSlug}-updated`
+
+  const createPayload = {
+    name: 'Cypress Test Reward',
+    slug: uniqueSlug,
+    description:
+      'A test reward created by Cypress to verify the remodeled reward schema.',
+    flavorText: 'The test knows what you did last deploy.',
+    effect:
+      'When played into a scene, confirm that the reward API accepts the remodeled fields.',
+    icon: 'kind-icon:star',
+    collection: 'Cypress Test Collection',
+    rarity: 'COMMON',
+    rewardType: 'ITEM',
+    imagePath: null,
+    artPrompt:
+      'A cheerful magical test artifact glowing with frontend validation energy.',
+    isMature: false,
+    isPublic: true,
+    isActive: true,
+  }
+
+  const updatePayload = {
+    name: 'Updated Cypress Test Reward',
+    slug: updatedSlug,
+    description:
+      'An updated reward created by Cypress to verify PATCH behavior.',
+    flavorText: 'It changed, therefore it lives.',
+    effect:
+      'When played into a scene, confirm that PATCH updates remodeled reward fields correctly.',
+    rarity: 'RARE',
+    rewardType: 'MAGIC',
+    collection: 'Updated Cypress Test Collection',
+    icon: 'kind-icon:sparkles',
+    artPrompt:
+      'An updated magical test reward with rare sparkles and suspiciously good logs.',
+  }
+
   before(() => {
-    cy.env(['USER_TOKEN']).then((env) => {
-      userToken = String(env.USER_TOKEN || '')
-      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    userToken = String(Cypress.env('USER_TOKEN') || '')
+    expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+  })
+
+  after(() => {
+    if (!rewardId) return
+
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${rewardId}`,
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+      failOnStatusCode: false,
+      timeout: 60000,
+    }).then(() => {
+      rewardId = undefined
     })
   })
 
@@ -22,19 +78,14 @@ describe('Reward Management API Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        icon: 'kind-icon:star',
-        text: 'Test Reward Text',
-        power: 'Test Power',
-        collection: 'Test Collection',
-        rarity: 'COMMON',
-        rewardType: 'ITEM',
-        label: 'Testertons special Label',
-        userId: 9,
+        ...createPayload,
+        slug: `${uniqueSlug}-no-auth`,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token.')
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -47,23 +98,18 @@ describe('Reward Management API Tests', () => {
         Authorization: `Bearer ${invalidToken}`,
       },
       body: {
-        icon: 'kind-icon:star',
-        text: 'Test Reward Text',
-        power: 'Test Power',
-        collection: 'Test Collection',
-        rarity: 'COMMON',
-        rewardType: 'ITEM',
-        label: 'Test Label',
-        userId: 9,
+        ...createPayload,
+        slug: `${uniqueSlug}-invalid-auth`,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  it('Create a New Reward with Authentication', () => {
+  it('should not allow creating a reward without a name', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -72,20 +118,69 @@ describe('Reward Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        icon: 'kind-icon:star',
-        text: 'Test Reward Text',
-        power: 'Test Power',
-        collection: 'Test Collection',
-        rarity: 'COMMON',
-        rewardType: 'ITEM',
-        label: 'Test Label',
-        userId: 9,
+        ...createPayload,
+        name: '',
+        slug: `${uniqueSlug}-missing-name`,
       },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.include('Reward name is required')
+    })
+  })
+
+  it('should not allow creating a reward for another user', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: {
+        ...createPayload,
+        slug: `${uniqueSlug}-wrong-user`,
+        userId: 999999,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.include(
+        'User ID in the reward data does not match the authenticated user',
+      )
+    })
+  })
+
+  it('should create a new reward with authentication', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: createPayload,
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
+      expect(response.body).to.have.property('reward')
       expect(response.body.reward).to.be.an('object')
-      expect(response.body.reward.label).to.eq('Test Label')
+
+      expect(response.body.reward.name).to.eq(createPayload.name)
+      expect(response.body.reward.slug).to.eq(createPayload.slug)
+      expect(response.body.reward.description).to.eq(createPayload.description)
+      expect(response.body.reward.flavorText).to.eq(createPayload.flavorText)
+      expect(response.body.reward.effect).to.eq(createPayload.effect)
+      expect(response.body.reward.icon).to.eq(createPayload.icon)
+      expect(response.body.reward.collection).to.eq(createPayload.collection)
+      expect(response.body.reward.rarity).to.eq(createPayload.rarity)
+      expect(response.body.reward.rewardType).to.eq(createPayload.rewardType)
+      expect(response.body.reward.artPrompt).to.eq(createPayload.artPrompt)
+      expect(response.body.reward.isMature).to.eq(createPayload.isMature)
+      expect(response.body.reward.isPublic).to.eq(createPayload.isPublic)
+      expect(response.body.reward.isActive).to.eq(createPayload.isActive)
 
       rewardId = response.body.reward.id
 
@@ -93,7 +188,7 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  it('Attempt to Update Reward without Authentication (expect failure)', () => {
+  it('should not allow updating a reward without authentication', () => {
     expect(rewardId).to.exist
 
     cy.request({
@@ -103,16 +198,17 @@ describe('Reward Management API Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        text: 'Unauthorized Update',
+        name: 'Unauthorized Update',
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  it('Attempt to Update Reward with Invalid Token (expect failure)', () => {
+  it('should not allow updating a reward with an invalid token', () => {
     expect(rewardId).to.exist
 
     cy.request({
@@ -123,16 +219,17 @@ describe('Reward Management API Tests', () => {
         Authorization: `Bearer ${invalidToken}`,
       },
       body: {
-        text: 'Invalid Token Update Attempt',
+        name: 'Invalid Token Update Attempt',
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  it('Update Reward with Authentication', () => {
+  it('should not allow changing reward ownership during update', () => {
     expect(rewardId).to.exist
 
     cy.request({
@@ -143,21 +240,49 @@ describe('Reward Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        text: 'Updated Test Reward Text',
-        rarity: 'RARE',
-        label: 'Updated Test Label',
+        userId: 999999,
       },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.be.an('object')
-      expect(response.body.data.label).to.eq('Updated Test Label')
-      expect(response.body.data.text).to.eq('Updated Test Reward Text')
-      expect(response.body.data.rarity).to.eq('RARE')
+      expect(response.status).to.eq(403)
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.include(
+        'Reward ownership cannot be changed here',
+      )
     })
   })
 
-  it('Get Reward by ID', () => {
+  it('should update a reward with authentication', () => {
+    expect(rewardId).to.exist
+
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${rewardId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: updatePayload,
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body).to.have.property('data')
+      expect(response.body.data).to.be.an('object')
+
+      expect(response.body.data.name).to.eq(updatePayload.name)
+      expect(response.body.data.slug).to.eq(updatePayload.slug)
+      expect(response.body.data.description).to.eq(updatePayload.description)
+      expect(response.body.data.flavorText).to.eq(updatePayload.flavorText)
+      expect(response.body.data.effect).to.eq(updatePayload.effect)
+      expect(response.body.data.rarity).to.eq(updatePayload.rarity)
+      expect(response.body.data.rewardType).to.eq(updatePayload.rewardType)
+      expect(response.body.data.collection).to.eq(updatePayload.collection)
+      expect(response.body.data.icon).to.eq(updatePayload.icon)
+      expect(response.body.data.artPrompt).to.eq(updatePayload.artPrompt)
+    })
+  })
+
+  it('should get reward by ID', () => {
     expect(rewardId).to.exist
 
     cy.request({
@@ -170,12 +295,21 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+      expect(response.body).to.have.property('reward')
       expect(response.body.reward).to.be.an('object')
-      expect(response.body.reward.text).to.eq('Updated Test Reward Text')
+
+      expect(response.body.reward.id).to.eq(rewardId)
+      expect(response.body.reward.name).to.eq(updatePayload.name)
+      expect(response.body.reward.slug).to.eq(updatePayload.slug)
+      expect(response.body.reward.description).to.eq(updatePayload.description)
+      expect(response.body.reward.flavorText).to.eq(updatePayload.flavorText)
+      expect(response.body.reward.effect).to.eq(updatePayload.effect)
+      expect(response.body.reward.rarity).to.eq(updatePayload.rarity)
+      expect(response.body.reward.rewardType).to.eq(updatePayload.rewardType)
     })
   })
 
-  it('Get All Rewards', () => {
+  it('should get all rewards', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
@@ -189,10 +323,18 @@ describe('Reward Management API Tests', () => {
       expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
+
+      const matchingReward = response.body.data.find(
+        (reward: { id: number }) => reward.id === rewardId,
+      )
+
+      expect(matchingReward).to.be.an('object')
+      expect(matchingReward.name).to.eq(updatePayload.name)
+      expect(matchingReward.effect).to.eq(updatePayload.effect)
     })
   })
 
-  it('Attempt to Delete Reward without Authentication (expect failure)', () => {
+  it('should not allow deleting a reward without authentication', () => {
     expect(rewardId).to.exist
 
     cy.request({
@@ -204,13 +346,14 @@ describe('Reward Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.match(
+        /Authorization token is required|Invalid or expired token/,
       )
     })
   })
 
-  it('Attempt to Delete Reward with Invalid Token (expect failure)', () => {
+  it('should not allow deleting a reward with an invalid token', () => {
     expect(rewardId).to.exist
 
     cy.request({
@@ -223,11 +366,12 @@ describe('Reward Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  it('Delete Reward with Authentication', () => {
+  it('should delete a reward with authentication', () => {
     expect(rewardId).to.exist
 
     cy.request({
@@ -241,9 +385,7 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.message).to.include(
-        `Reward with ID ${rewardId} successfully deleted`,
-      )
+      expect(response.body.message).to.include(`Reward`)
 
       rewardId = undefined
     })

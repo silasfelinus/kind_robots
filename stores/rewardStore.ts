@@ -1,7 +1,11 @@
 // /stores/rewardStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Reward, Rarity } from '~/prisma/generated/prisma/client'
+import type {
+  Reward,
+  Rarity,
+  RewardType,
+} from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { useNavStore } from '@/stores/navStore'
 
@@ -12,7 +16,12 @@ type RewardInitializeOptions = {
   fetchRemote?: boolean
 }
 
-export interface RewardForm extends Partial<Reward> {}
+export type RewardForm = Partial<Reward> & {
+  label?: string | null
+  text?: string | null
+  power?: string | null
+  type?: RewardType | string | null
+}
 
 const rarityOrder: Record<Rarity, number> = {
   COMMON: 1,
@@ -23,7 +32,17 @@ const rarityOrder: Record<Rarity, number> = {
   MYTHIC: 6,
 }
 
+const rewardTypes: RewardType[] = [
+  'SKILL',
+  'ITEM',
+  'POWER',
+  'PET',
+  'MAGIC',
+  'FAVOR',
+]
+
 const fallbackRarity: Rarity = 'COMMON'
+const fallbackRewardType: RewardType = 'ITEM'
 
 function normalizeRarity(value: unknown): Rarity {
   if (
@@ -35,6 +54,21 @@ function normalizeRarity(value: unknown): Rarity {
     value === 'MYTHIC'
   ) {
     return value
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.toUpperCase()
+
+    if (
+      normalized === 'COMMON' ||
+      normalized === 'UNCOMMON' ||
+      normalized === 'RARE' ||
+      normalized === 'EPIC' ||
+      normalized === 'LEGENDARY' ||
+      normalized === 'MYTHIC'
+    ) {
+      return normalized
+    }
   }
 
   if (typeof value === 'number') {
@@ -51,6 +85,16 @@ function normalizeRarity(value: unknown): Rarity {
   }
 
   return fallbackRarity
+}
+
+function normalizeRewardType(value: unknown): RewardType {
+  if (typeof value !== 'string') {
+    return fallbackRewardType
+  }
+
+  const normalized = value.toUpperCase() as RewardType
+
+  return rewardTypes.includes(normalized) ? normalized : fallbackRewardType
 }
 
 const rewardsStorageKey = 'rewards'
@@ -111,8 +155,37 @@ function safeParseNumber(raw: string | null): number | null {
   }
 }
 
+function trimString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function trimNullableString(value: unknown): string | null {
+  if (value === null) return null
+
+  const trimmed = trimString(value)
+
+  return trimmed.length ? trimmed : null
+}
+
+function normalizeRewardLike<T extends RewardForm | Reward>(reward: T): T {
+  const legacyLabel = 'label' in reward ? reward.label : undefined
+  const legacyText = 'text' in reward ? reward.text : undefined
+  const legacyPower = 'power' in reward ? reward.power : undefined
+  const legacyType = 'type' in reward ? reward.type : undefined
+
+  return {
+    ...reward,
+    name:
+      reward.name || trimNullableString(legacyLabel) || trimString(legacyText),
+    description: reward.description ?? trimNullableString(legacyText),
+    effect: reward.effect ?? trimNullableString(legacyPower),
+    rewardType: normalizeRewardType(reward.rewardType || legacyType),
+    rarity: normalizeRarity(reward.rarity),
+  }
+}
+
 function isValidReward(reward: Reward): boolean {
-  return Boolean(reward.id && reward.text && reward.power)
+  return Boolean(reward.id && reward.name)
 }
 
 function sortRewards(a: Reward, b: Reward): number {
@@ -124,46 +197,60 @@ function sortRewards(a: Reward, b: Reward): number {
     return rarityDelta
   }
 
-  const aText = a.text || ''
-  const bText = b.text || ''
+  const aName = a.name || ''
+  const bName = b.name || ''
 
-  return aText.localeCompare(bText)
+  return aName.localeCompare(bName)
 }
 
 function toRewardForm(reward: Reward): RewardForm {
-  return {
+  return normalizeRewardLike({
     ...reward,
-  }
+  })
 }
 
 function toRewardPayload(form: RewardForm): Partial<Reward> {
+  const normalized = normalizeRewardLike(form)
+
   return {
-    ...form,
-    text: form.text?.trim() || '',
-    power: form.power?.trim() || '',
-    collection: form.collection?.trim() || 'general',
-    icon: form.icon?.trim() || 'kind-icon:gift',
-    label: form.label?.trim() || null,
-    rarity: normalizeRarity(form.rarity),
-    userId: form.userId ?? null,
-    artImageId: form.artImageId ?? null,
-    imagePath: form.imagePath ?? null,
-    artPrompt: form.artPrompt ?? null,
+    id: normalized.id,
+    name: trimString(normalized.name),
+    slug: trimNullableString(normalized.slug),
+    description: trimNullableString(normalized.description),
+    flavorText: trimNullableString(normalized.flavorText),
+    effect: trimNullableString(normalized.effect),
+    collection: trimNullableString(normalized.collection),
+    icon: trimNullableString(normalized.icon) || 'kind-icon:gift',
+    rarity: normalizeRarity(normalized.rarity),
+    rewardType: normalizeRewardType(normalized.rewardType),
+    userId: normalized.userId ?? null,
+    artImageId: normalized.artImageId ?? null,
+    imagePath: normalized.imagePath ?? null,
+    artPrompt: trimNullableString(normalized.artPrompt),
+    isMature: Boolean(normalized.isMature),
+    isPublic: normalized.isPublic ?? true,
+    isActive: normalized.isActive ?? true,
   }
 }
 
 function createDefaultRewardForm(): RewardForm {
   return {
-    text: '',
-    power: '',
-    collection: 'general',
+    name: '',
+    slug: '',
+    description: '',
+    flavorText: '',
+    effect: '',
+    collection: '',
     icon: 'kind-icon:gift',
-    label: '',
     rarity: fallbackRarity,
+    rewardType: fallbackRewardType,
     userId: null,
     artImageId: null,
     imagePath: null,
     artPrompt: '',
+    isMature: false,
+    isPublic: true,
+    isActive: true,
   }
 }
 
@@ -191,9 +278,15 @@ export const useRewardStore = defineStore('rewardStore', () => {
   const totalRewards = computed(() => rewards.value.length)
 
   const selectedRewardIcon = computed(() => selectedReward.value?.icon || null)
-  const selectedRewardText = computed(() => selectedReward.value?.text || null)
-  const selectedRewardPower = computed(
-    () => selectedReward.value?.power || null,
+  const selectedRewardName = computed(() => selectedReward.value?.name || null)
+  const selectedRewardDescription = computed(
+    () => selectedReward.value?.description || null,
+  )
+  const selectedRewardFlavorText = computed(
+    () => selectedReward.value?.flavorText || null,
+  )
+  const selectedRewardEffect = computed(
+    () => selectedReward.value?.effect || null,
   )
   const selectedRewardCollection = computed(
     () => selectedReward.value?.collection || null,
@@ -201,6 +294,12 @@ export const useRewardStore = defineStore('rewardStore', () => {
   const selectedRewardRarity = computed(
     () => selectedReward.value?.rarity || null,
   )
+  const selectedRewardType = computed(
+    () => selectedReward.value?.rewardType || null,
+  )
+
+  const selectedRewardText = selectedRewardName
+  const selectedRewardPower = selectedRewardEffect
 
   const hasUnsavedChanges = computed(() => {
     const selected = selectedReward.value
@@ -237,6 +336,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
     rewards.value = safeParseArray<Reward>(
       safeGetLocalStorage(rewardsStorageKey),
     )
+      .map((reward) => normalizeRewardLike(reward) as Reward)
       .filter(isValidReward)
       .sort(sortRewards)
 
@@ -244,9 +344,15 @@ export const useRewardStore = defineStore('rewardStore', () => {
       safeParseObject<RewardForm>(safeGetLocalStorage(rewardFormStorageKey)) ??
       {}
 
-    selectedReward.value = safeParseObject<Reward>(
+    rewardForm.value = normalizeRewardLike(rewardForm.value)
+
+    const storedSelectedReward = safeParseObject<Reward>(
       safeGetLocalStorage(selectedRewardStorageKey),
     )
+
+    selectedReward.value = storedSelectedReward
+      ? (normalizeRewardLike(storedSelectedReward) as Reward)
+      : null
 
     startingRewardId.value = safeParseNumber(
       safeGetLocalStorage(startingRewardIdStorageKey),
@@ -259,12 +365,14 @@ export const useRewardStore = defineStore('rewardStore', () => {
     const map = new Map<number, Reward>()
 
     for (const reward of rewards.value) {
-      map.set(reward.id, reward)
+      map.set(reward.id, normalizeRewardLike(reward) as Reward)
     }
 
     for (const reward of incoming) {
-      if (isValidReward(reward)) {
-        map.set(reward.id, reward)
+      const normalizedReward = normalizeRewardLike(reward) as Reward
+
+      if (isValidReward(normalizedReward)) {
+        map.set(normalizedReward.id, normalizedReward)
       }
     }
 
@@ -274,11 +382,13 @@ export const useRewardStore = defineStore('rewardStore', () => {
   }
 
   function upsertReward(reward: Reward) {
-    mergeRewards([reward])
+    const normalizedReward = normalizeRewardLike(reward) as Reward
 
-    if (selectedReward.value?.id === reward.id) {
-      selectedReward.value = reward
-      rewardForm.value = toRewardForm(reward)
+    mergeRewards([normalizedReward])
+
+    if (selectedReward.value?.id === normalizedReward.id) {
+      selectedReward.value = normalizedReward
+      rewardForm.value = toRewardForm(normalizedReward)
     }
 
     syncToLocalStorage()
@@ -500,12 +610,8 @@ export const useRewardStore = defineStore('rewardStore', () => {
 
       const data = toRewardPayload(rewardForm.value)
 
-      if (!data.text) {
-        throw new Error('Reward text is required.')
-      }
-
-      if (!data.power) {
-        throw new Error('Reward power is required.')
+      if (!data.name) {
+        throw new Error('Reward name is required.')
       }
 
       if (data.id && data.id > 0) {
@@ -564,7 +670,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
       }
 
       upsertReward(res.data)
-      selectedReward.value = res.data
+      selectedReward.value = normalizeRewardLike(res.data) as Reward
       rewardForm.value = toRewardForm(res.data)
       syncToLocalStorage()
 
@@ -603,7 +709,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
       }
 
       upsertReward(res.data)
-      selectedReward.value = res.data
+      selectedReward.value = normalizeRewardLike(res.data) as Reward
       rewardForm.value = toRewardForm(res.data)
       syncToLocalStorage()
 
@@ -733,10 +839,16 @@ export const useRewardStore = defineStore('rewardStore', () => {
     hasUnsavedChanges,
 
     selectedRewardIcon,
-    selectedRewardText,
-    selectedRewardPower,
+    selectedRewardName,
+    selectedRewardDescription,
+    selectedRewardFlavorText,
+    selectedRewardEffect,
     selectedRewardCollection,
     selectedRewardRarity,
+    selectedRewardType,
+
+    selectedRewardText,
+    selectedRewardPower,
 
     initialize,
     resetInitialization,
@@ -766,7 +878,9 @@ export const useRewardStore = defineStore('rewardStore', () => {
     toRewardForm,
     toRewardPayload,
     createDefaultRewardForm,
+    normalizeRarity,
+    normalizeRewardType,
   }
 })
 
-export type { Reward, Rarity }
+export type { Reward, Rarity, RewardType }

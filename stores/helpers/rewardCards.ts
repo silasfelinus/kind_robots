@@ -1,12 +1,5 @@
-// stores/helpers/rewardCards.ts
-//
-// Card definitions for the Reward Builder.
-// Rewards can be skills, items, treasures, titles, powers, or story beats.
-// Each has a name (text), an effect (power), a rarity, and optionally a collection.
-
+// /stores/helpers/rewardCards.ts
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-
-// ── Collection presets ─────────────────────────────────────────────────────
 
 export const COLLECTION_PRESETS: string[] = [
   "Adventurer's Standard Kit",
@@ -21,182 +14,330 @@ export const COLLECTION_PRESETS: string[] = [
   'Creature Comforts',
   'Forbidden Acquisitions',
   'Things Found in Pockets',
+  'Pocket Familiars',
+  'Minor Miracles',
+  'Owed Debts',
+  'Training Montage Results',
+  'Impossible Curriculum',
 ]
 
-// ── Example rewards by type (used for LLM context + UI inspiration) ────────
+export type RewardExample = {
+  name: string
+  description: string
+  flavorText?: string
+  effect: string
+}
 
-export const REWARD_EXAMPLES: Record<
-  string,
-  Array<{ text: string; power: string }>
-> = {
+export const REWARD_EXAMPLES: Record<string, RewardExample[]> = {
   SKILL: [
     {
-      text: 'Tactical Retreat',
-      power:
-        'Move up to twice your speed directly away from an enemy. This is called strategy, not running.',
+      name: 'Tactical Retreat',
+      description:
+        'A practiced maneuver for leaving danger with dignity mostly intact.',
+      flavorText: 'This is called strategy, not running.',
+      effect:
+        'When played into a scene, the character can reposition away from danger without losing narrative momentum.',
     },
     {
-      text: 'Read the Room',
-      power:
-        'Once per scene, know exactly the wrong thing to say before saying it anyway. You may then say something else.',
+      name: 'Read the Room',
+      description:
+        'A social survival instinct sharpened by many spectacular mistakes.',
+      flavorText:
+        'You know exactly the wrong thing to say before saying it anyway.',
+      effect:
+        'When played into a scene, reveal the emotional tension, hidden awkwardness, or social trap currently present.',
     },
     {
-      text: 'Practiced Eye',
-      power:
-        'Instantly identify any forgery, fake credential, or misrepresented object. The forgery does not have to know this.',
+      name: 'Practiced Eye',
+      description:
+        'A reliable knack for spotting forgery, false fronts, and badly disguised nonsense.',
+      flavorText: 'The forgery does not have to know it has been caught.',
+      effect:
+        'When played into a scene, identify one false, fake, copied, altered, or misrepresented thing.',
     },
     {
-      text: 'Weight Distribution',
-      power:
-        'Never fall off anything you chose to climb. Things you did not choose to climb are a separate matter.',
+      name: 'Weight Distribution',
+      description:
+        'A strangely graceful understanding of balance, leverage, and not falling off things.',
+      flavorText:
+        'Things you chose to climb respect your commitment to the bit.',
+      effect:
+        'When played into a scene, let the character climb, balance, perch, or cross unstable terrain with surprising competence.',
     },
     {
-      text: 'The Second Glance',
-      power:
-        'Once per day, re-examine a scene you already left. You notice one thing you missed. It is always the important thing.',
+      name: 'The Second Glance',
+      description:
+        'The useful habit of noticing the important detail five minutes late, but not too late.',
+      flavorText: 'The first look saw the room. The second saw the story.',
+      effect:
+        'When played into a scene, re-examine a previously visited situation and uncover one overlooked clue.',
     },
     {
-      text: 'Professionally Calm',
-      power:
-        'In any crisis, you act first and feel it later. The later has been accumulating interest.',
+      name: 'Professionally Calm',
+      description:
+        'A trained crisis response that keeps the panic politely waiting outside.',
+      flavorText:
+        'You act first and feel it later. Later has been accumulating interest.',
+      effect:
+        'When played into a scene, allow the character to act clearly during fear, pressure, noise, or chaos.',
     },
   ],
   ITEM: [
     {
-      text: 'Extremely Specific Map',
-      power:
-        'Accurate to within three inches, but only for a location the cartographer found deeply moving. The location is not labeled.',
+      name: 'Extremely Specific Map',
+      description:
+        'A map with flawless detail for one emotionally significant location and suspicious gaps everywhere else.',
+      flavorText: 'The cartographer cared deeply. About exactly one place.',
+      effect:
+        'When played into a scene, reveal a precise route, secret entrance, hidden landmark, or local oddity in one specific area.',
     },
     {
-      text: 'Bottomless Satchel',
-      power:
-        'Holds significantly more than it should. Returns items in the order they were least expected.',
+      name: 'Bottomless Satchel',
+      description:
+        'A bag that holds more than physics agreed to and returns objects with dramatic timing.',
+      flavorText: 'It gives things back in the order they are least expected.',
+      effect:
+        'When played into a scene, produce a plausible small object that could have been packed earlier.',
     },
     {
-      text: 'The Good Pen',
-      power:
-        'Writes in a hand you are proud of. Ink never runs. Documents signed with it are trusted more than they should be.',
+      name: 'The Good Pen',
+      description:
+        'A trustworthy writing instrument with excellent ink flow and suspicious bureaucratic authority.',
+      flavorText:
+        'Documents signed with it are trusted more than they should be.',
+      effect:
+        'When played into a scene, make a written note, signature, form, or message seem unusually official or persuasive.',
     },
     {
-      text: 'Sensible Boots',
-      power:
-        'Provide exactly the right amount of traction for whatever surface you are currently walking on. Have never once failed to do this.',
+      name: 'Sensible Boots',
+      description:
+        'Footwear that knows exactly what surface it is on and has prepared accordingly.',
+      flavorText: 'They have never once made a big deal about saving you.',
+      effect:
+        'When played into a scene, grant sure footing on mud, ice, rubble, decks, rooftops, or other unfriendly ground.',
     },
     {
-      text: "Yesterday's Newspaper",
-      power:
-        'Always exactly one day old. Contains one piece of information that is still relevant. You will not know which one until it matters.',
+      name: "Yesterday's Newspaper",
+      description:
+        'A newspaper that is always one day old and somehow still annoyingly relevant.',
+      flavorText: 'The important article is never the headline. Naturally.',
+      effect:
+        'When played into a scene, introduce a recent clue, public rumor, warning, or contradiction from the previous day.',
     },
     {
-      text: 'The Appropriate Tool',
-      power:
-        'Once per scene, reach into any container and find a tool that is, technically, correct for the current problem.',
-    },
-  ],
-  TREASURE: [
-    {
-      text: 'Coin from Somewhere Else',
-      power:
-        'Currency of uncertain origin. Accepted everywhere by merchants who do not look too closely. They never do.',
-    },
-    {
-      text: 'Portrait of Someone Important',
-      power:
-        'The subject is not labeled. Everyone who sees it has a strong opinion about who it is. No two opinions agree.',
-    },
-    {
-      text: 'The Last Bottle',
-      power:
-        'Widely agreed to be the final example of something that no longer exists. Extremely valuable. Slightly cursed to be the one who has it.',
-    },
-    {
-      text: 'Receipt for Something Enormous',
-      power:
-        'Proof of purchase. The purchase is paid. The item has not yet been claimed. The vendor has been waiting.',
-    },
-  ],
-  TITLE: [
-    {
-      text: 'Technically Still a Lord',
-      power:
-        'The paperwork exists. The estate does not. The title opens doors at approximately a 60% rate. Nobody checks.',
-    },
-    {
-      text: 'Renowned in Three Villages',
-      power:
-        'Small villages. Outsized reputation. It precedes you. It is mostly accurate. The inaccurate parts are more interesting.',
-    },
-    {
-      text: 'Former Champion',
-      power:
-        'The title is past tense. The skills are not. People treat you with a specific kind of respect that also contains a question.',
-    },
-    {
-      text: 'The One Who Came Back',
-      power:
-        'You left. Something tried to keep you there. You came back anyway. This is known. No one asks what it cost.',
+      name: 'The Appropriate Tool',
+      description:
+        'A tool that is technically correct for the current problem, which is sometimes the funniest kind of correct.',
+      flavorText: 'Nobody packed it. Everyone needed it.',
+      effect:
+        'When played into a scene, produce a mundane tool that helps solve the immediate practical obstacle.',
     },
   ],
   POWER: [
     {
-      text: 'Structural Awareness',
-      power:
-        'Can identify load-bearing elements in any building, argument, or relationship. Cannot always explain how.',
+      name: 'Structural Awareness',
+      description:
+        'An uncanny ability to identify load-bearing elements in buildings, arguments, and relationships.',
+      flavorText: 'Cannot always explain how. Still correct.',
+      effect:
+        'When played into a scene, reveal what is physically, socially, or narratively holding a situation together.',
     },
     {
-      text: 'Ambient Threat',
-      power:
-        'Creatures and NPCs within 30ft adjust their behavior based on an instinct they cannot name. This instinct is correct.',
+      name: 'Ambient Threat',
+      description:
+        'A quiet field of menace that makes nearby creatures reconsider their choices.',
+      flavorText: 'Nobody knows what they sensed. Their nervous system does.',
+      effect:
+        'When played into a scene, cause nearby opponents or NPCs to hesitate, posture, retreat, or reveal caution.',
     },
     {
-      text: 'Lucky Timing',
-      power:
-        'Once per session, arrive exactly when needed. The narrative does not question this. Neither should you.',
+      name: 'Lucky Timing',
+      description:
+        'The suspicious gift of arriving exactly when the scene needs someone like you.',
+      flavorText: 'The narrative does not question this. Neither should you.',
+      effect:
+        'When played into a scene, justify a perfectly timed entrance, interruption, discovery, or coincidence.',
     },
     {
-      text: 'Correct About Weather',
-      power:
-        'Always know what the weather will be. This has broader applications than expected.',
+      name: 'Correct About Weather',
+      description:
+        'A deeply specific instinct for atmospheric drama and incoming inconvenience.',
+      flavorText:
+        'It has broader applications than expected. Weather usually does.',
+      effect:
+        'When played into a scene, predict or use weather conditions to alter movement, visibility, mood, or danger.',
     },
     {
-      text: 'The Long Memory',
-      power:
-        'You do not forget. Anything. The storage requirements are significant but the recall is perfect.',
+      name: 'The Long Memory',
+      description:
+        'Perfect recall with emotional storage requirements that are frankly unreasonable.',
+      flavorText: 'You do not forget. Anything. Sorry.',
+      effect:
+        'When played into a scene, recall an exact detail, phrase, face, route, symbol, or promise from earlier.',
+    },
+    {
+      name: 'Gravity Negotiation',
+      description:
+        'A personal relationship with falling that includes several loopholes.',
+      flavorText: 'Gravity has rules. You have notes.',
+      effect:
+        'When played into a scene, soften a fall, make an impossible leap plausible, or bend vertical movement briefly.',
     },
   ],
-  STORY: [
+  PET: [
     {
-      text: 'A Favor Owed',
-      power:
-        'Someone significant owes you something significant. The terms were never clarified. This is intentional on both sides.',
+      name: 'Pocket Griffin',
+      description:
+        'A tiny feathered menace with the pride of an empire and the mass of a sandwich.',
+      flavorText: 'Technically majestic. Practically bitey.',
+      effect:
+        'When played into a scene, scout from above, intimidate something small, steal a shiny object, or create aristocratic chaos.',
     },
     {
-      text: 'The Incriminating Document',
-      power:
-        'You have it. They want it back. Neither party is sure what happens if this situation ever gets resolved.',
+      name: 'Lantern Toad',
+      description:
+        'A calm amphibian companion whose throat glows when secrets are nearby.',
+      flavorText: 'It croaks once for danger, twice for gossip.',
+      effect:
+        'When played into a scene, reveal hidden writing, concealed doors, magical residue, or suspicious vibes.',
     },
     {
-      text: 'The Right Enemy',
-      power:
-        'An opponent who makes you look better by comparison. They resent this professionally. The arrangement benefits everyone except them.',
+      name: 'Moss-Covered Cat',
+      description:
+        'A forest-soft cat that grows tiny flowers when pleased and mushrooms when annoyed.',
+      flavorText: 'Both are useful. One is a warning.',
+      effect:
+        'When played into a scene, calm a creature, find a natural path, or mark a safe resting place.',
     },
     {
-      text: 'Unfinished Business',
-      power:
-        'Something is waiting for you in a specific place. It has been waiting a while. It is not angry. It is patient.',
+      name: 'Clockwork Finch',
+      description:
+        'A brass bird with jeweled eyes, perfect rhythm, and absolutely no indoor voice.',
+      flavorText: 'Keeps time. Keeps secrets poorly.',
+      effect:
+        'When played into a scene, deliver a tiny message, distract guards, trigger a mechanism, or keep exact timing.',
     },
     {
-      text: 'The Promised Return',
-      power:
-        'You told someone you would come back. You meant it. The promise has weight. So does what happens when you keep it.',
+      name: 'Emotional Support Mimic',
+      description:
+        'A loyal little chest that holds snacks, secrets, and several opinions about your enemies.',
+      flavorText: 'The teeth are mostly for boundaries.',
+      effect:
+        'When played into a scene, hide a small object, surprise a nosy NPC, or provide morale at an awkward moment.',
+    },
+    {
+      name: 'Starlight Minnow',
+      description:
+        'A floating fish that swims through air and glows brighter near wonder.',
+      flavorText: 'Impossible to leash. Easy to follow.',
+      effect:
+        'When played into a scene, guide the party toward magic, dreams, lost memories, or beautiful trouble.',
+    },
+  ],
+  MAGIC: [
+    {
+      name: 'Borrowed Moonbeam',
+      description:
+        'A folded sliver of moonlight kept for emergencies, ceremonies, and dramatic reveals.',
+      flavorText: 'The moon wants it back eventually. Probably.',
+      effect:
+        'When played into a scene, illuminate the hidden, bless a threshold, reveal a disguise, or make something ordinary feel sacred.',
+    },
+    {
+      name: 'Cup of Almost Tea',
+      description:
+        'A warm cup that tastes like the drink someone needed, not necessarily the one they wanted.',
+      flavorText: 'Steeped in emotional accuracy.',
+      effect:
+        'When played into a scene, soothe panic, invite honesty, restore focus, or begin a necessary conversation.',
+    },
+    {
+      name: 'Door-Sized Maybe',
+      description:
+        'A portable uncertainty that can become an entrance if the story is feeling cooperative.',
+      flavorText: 'Not all doors are architectural.',
+      effect:
+        'When played into a scene, open a temporary passage, shortcut, escape route, or symbolic threshold.',
+    },
+    {
+      name: 'Tiny Weather Spell',
+      description:
+        'A pocket-sized meteorological opinion with limited scope and excellent timing.',
+      flavorText: 'Local forecast: narrative inconvenience.',
+      effect:
+        'When played into a scene, create a brief gust, drizzle, fog patch, sunbeam, static charge, or dramatic breeze.',
+    },
+    {
+      name: 'Polite Hex',
+      description:
+        'A mild curse with impeccable manners and a very specific complaint.',
+      flavorText: 'It says please. It still works.',
+      effect:
+        'When played into a scene, inconvenience a target in a flavorful but non-lethal way.',
+    },
+    {
+      name: 'Thread of Elsewhere',
+      description:
+        'A shimmering strand tied to a place, person, or possibility just outside the current world.',
+      flavorText: 'Pull gently. Reality is watching.',
+      effect:
+        'When played into a scene, connect the current moment to a distant location, memory, dream, or alternate path.',
+    },
+  ],
+  FAVOR: [
+    {
+      name: 'A Favor Owed',
+      description:
+        'Someone significant owes you something significant. The terms were never clarified.',
+      flavorText: 'This is intentional on both sides.',
+      effect:
+        'When played into a scene, introduce an NPC, institution, or old contact willing to help under complicated terms.',
+    },
+    {
+      name: 'The Incriminating Document',
+      description:
+        'A document someone badly wants back, though everyone disagrees about why.',
+      flavorText:
+        'Neither party is sure what happens if this ever gets resolved.',
+      effect:
+        'When played into a scene, pressure a powerful person, unlock leverage, or complicate negotiations.',
+    },
+    {
+      name: 'The Right Enemy',
+      description:
+        'An opponent who makes you look better by comparison and resents this professionally.',
+      flavorText: 'The arrangement benefits everyone except them. Delicious.',
+      effect:
+        'When played into a scene, bring in a rival whose presence clarifies stakes, motives, or public opinion.',
+    },
+    {
+      name: 'Unfinished Business',
+      description:
+        'Something is waiting for you in a specific place. It has been waiting a while.',
+      flavorText: 'It is not angry. It is patient.',
+      effect:
+        'When played into a scene, reveal a pending obligation, unresolved promise, or location that demands return.',
+    },
+    {
+      name: 'The Promised Return',
+      description:
+        'A promise to come back that has gathered weight while nobody was looking.',
+      flavorText: 'You meant it. That is the dangerous part.',
+      effect:
+        'When played into a scene, make a prior promise matter immediately and reshape what an NPC expects.',
+    },
+    {
+      name: 'Letter of Introduction',
+      description:
+        'A formal note connecting you to someone who has no idea what they are about to be dragged into.',
+      flavorText: 'The signature opens the door. You handle the rest.',
+      effect:
+        'When played into a scene, gain an audience, bypass suspicion, or enter a social space with borrowed credibility.',
     },
   ],
 }
 
-// ── Cards ──────────────────────────────────────────────────────────────────
-
 export const REWARD_CARDS: BuilderCard[] = [
-  // ── Type ─────────────────────────────────────────────────────────────────
   {
     key: 'type',
     label: 'Type',
@@ -205,9 +346,9 @@ export const REWARD_CARDS: BuilderCard[] = [
     flourish: '✦',
     deckImage: '/images/rewards/type.webp',
     heroImage: '/images/rewards/type.webp',
-    tagline: 'What does the entity get to keep.',
+    tagline: 'What does the character get to keep?',
     narrative:
-      'Rewards are the things that change an entity after the story. A skill changes what they can do. An item changes what they carry. A treasure changes what they have. A title changes how the world sees them. A power changes what they are. A story beat changes what happens next.',
+      'Rewards are the things that change a character after the story touches them. A skill changes what they can do. An item changes what they carry. A power changes what they are capable of. A pet changes who travels with them. Magic changes what reality allows. A favor changes who owes whom.',
     required: true,
     restoresFields: ['rewardType'],
     steps: [
@@ -215,7 +356,7 @@ export const REWARD_CARDS: BuilderCard[] = [
         key: 'rewardType',
         title: 'Reward Type',
         narrative:
-          'Choose the category. This shapes the name, the power, and the kind of difference it makes.',
+          'Choose the category. This shapes the name, the description, the effect, and the kind of difference it makes in a scene.',
         inputType: 'preset',
         field: 'rewardType',
         choices: [
@@ -223,7 +364,7 @@ export const REWARD_CARDS: BuilderCard[] = [
             value: 'SKILL',
             label: 'Skill',
             subtext:
-              'Something they can now do. Practiced, earned, or accidentally acquired through repeated near-disasters.',
+              'Something they can now do. Practiced, earned, stolen from experience, or learned through repeated near-disasters.',
             image: '/images/rewards/type/skill.webp',
           },
           {
@@ -234,39 +375,37 @@ export const REWARD_CARDS: BuilderCard[] = [
             image: '/images/rewards/type/item.webp',
           },
           {
-            value: 'TREASURE',
-            label: 'Treasure',
-            subtext:
-              'Something with value. Monetary, cultural, sentimental, or dangerously specific.',
-            image: '/images/rewards/type/treasure.webp',
-          },
-          {
-            value: 'TITLE',
-            label: 'Title',
-            subtext:
-              'Something the world calls them now. May or may not reflect reality. Often opens doors. Sometimes closes them.',
-            image: '/images/rewards/type/title.webp',
-          },
-          {
             value: 'POWER',
             label: 'Power',
             subtext:
-              "Something innate. A capacity that was always there, or wasn't, or became. The distinction is unclear.",
+              "Something innate, awakened, granted, or impossible. A capacity that changes what they're capable of.",
             image: '/images/rewards/type/power.webp',
           },
           {
-            value: 'STORY',
-            label: 'Story',
+            value: 'PET',
+            label: 'Pet',
             subtext:
-              'Something narrative. A debt, a connection, a complication. The kind of reward that keeps giving.',
-            image: '/images/rewards/type/story.webp',
+              'A companion, familiar, helper, menace, emotional support goblin, or tiny plot accelerator.',
+            image: '/images/rewards/type/pet.webp',
+          },
+          {
+            value: 'MAGIC',
+            label: 'Magic',
+            subtext:
+              'A spell, charm, blessing, hex, ritual, miracle, loophole, or beautifully irresponsible reality edit.',
+            image: '/images/rewards/type/magic.webp',
+          },
+          {
+            value: 'FAVOR',
+            label: 'Favor',
+            subtext:
+              'A debt, introduction, promise, obligation, alliance, social key, or narrative string waiting to be pulled.',
+            image: '/images/rewards/type/favor.webp',
           },
         ],
       },
     ],
   },
-
-  // ── Rarity ───────────────────────────────────────────────────────────────
   {
     key: 'rarity',
     label: 'Rarity',
@@ -285,7 +424,7 @@ export const REWARD_CARDS: BuilderCard[] = [
         key: 'rarity',
         title: 'Rarity',
         narrative:
-          'Choose the tier. This affects everything from how the power reads to how the world treats the entity who has it.',
+          'Choose the tier. This affects everything from how the effect reads to how the world treats the character who has it.',
         inputType: 'preset',
         field: 'rarity',
         choices: [
@@ -335,8 +474,6 @@ export const REWARD_CARDS: BuilderCard[] = [
       },
     ],
   },
-
-  // ── Name ─────────────────────────────────────────────────────────────────
   {
     key: 'name',
     label: 'Name',
@@ -349,55 +486,109 @@ export const REWARD_CARDS: BuilderCard[] = [
     narrative:
       "A good reward name does two things: it tells you what the thing is, and it implies a story. 'The Good Pen' tells you more than 'Enchanted Writing Implement'. Name it like something that already exists in the world. It does.",
     required: true,
-    restoresFields: ['text', 'label'],
+    restoresFields: ['name'],
     steps: [
       {
-        key: 'rewardText',
+        key: 'rewardName',
         title: 'Name',
         narrative:
-          'What is this reward called? The name goes on the card. It should be specific enough to be recognisable and vague enough to be mysterious. Both at once is the goal.',
+          'What is this reward called? The name goes on the card. It should be specific enough to be recognizable and vague enough to be mysterious. Both at once is the goal.',
         inputType: 'text',
-        field: 'text',
+        field: 'name',
         placeholder:
-          'The Good Pen, Tactical Retreat, Coin from Somewhere Else...',
+          'The Good Pen, Tactical Retreat, Pocket Griffin, Borrowed Moonbeam...',
         inputLabel: 'Reward Name',
         maxLength: 256,
         needsLLM: true,
       },
     ],
   },
-
-  // ── Power ─────────────────────────────────────────────────────────────────
   {
-    key: 'power',
-    label: 'Power',
-    title: 'What it does',
-    icon: 'kind-icon:bolt',
-    flourish: '⚡',
-    deckImage: '/images/rewards/power.webp',
-    heroImage: '/images/rewards/power.webp',
-    tagline: 'The actual thing that changes.',
+    key: 'description',
+    label: 'Description',
+    title: 'What it is',
+    icon: 'kind-icon:scroll',
+    flourish: '☰',
+    deckImage: '/images/rewards/description.webp',
+    heroImage: '/images/rewards/description.webp',
+    tagline: 'The readable front-facing description.',
     narrative:
-      "Power is the mechanical truth of a reward. It should be specific enough to use at the table and interesting enough to remember. The best powers have a rule and a personality. 'Add 2 to rolls' has a rule. 'You do not fall off things you chose to climb' has a personality.",
-    required: true,
-    restoresFields: ['power'],
+      'Description explains what the reward is in the world. It should be useful to players, readable on the front end, and flavorful without doing the job of the effect text.',
+    required: false,
+    restoresFields: ['description'],
     steps: [
       {
-        key: 'rewardPower',
-        title: 'Power',
+        key: 'rewardDescription',
+        title: 'Description',
         narrative:
-          "What does this reward actually do? Write it like you'd say it aloud at a table — clear enough to use, flavourful enough to remember. One or two sentences is usually right.",
+          'Describe what this reward is. Keep it concrete, flavorful, and easy to understand at a glance.',
         inputType: 'long',
-        field: 'power',
+        field: 'description',
         placeholder:
-          'Once per scene, you may... / Always know when... / Gain +1 whenever...',
-        inputLabel: 'Power',
+          'A brass bird with jeweled eyes, perfect rhythm, and absolutely no indoor voice.',
+        inputLabel: 'Description',
+        optional: true,
         needsLLM: true,
       },
     ],
   },
-
-  // ── Collection ────────────────────────────────────────────────────────────
+  {
+    key: 'flavor',
+    label: 'Flavor',
+    title: 'What it whispers',
+    icon: 'kind-icon:sparkles',
+    flourish: '❧',
+    deckImage: '/images/rewards/flavor.webp',
+    heroImage: '/images/rewards/flavor.webp',
+    tagline: 'A short memorable line.',
+    narrative:
+      'Flavor text is the little quote, wink, omen, joke, or poetic sting that makes the card memorable. It should be short enough to sit comfortably on a card.',
+    required: false,
+    restoresFields: ['flavorText'],
+    steps: [
+      {
+        key: 'rewardFlavorText',
+        title: 'Flavor Text',
+        narrative:
+          'Write the card’s short mood line. This can be funny, ominous, poetic, or weirdly specific.',
+        inputType: 'text',
+        field: 'flavorText',
+        placeholder: 'It says please. It still works.',
+        inputLabel: 'Flavor Text',
+        maxLength: 512,
+        optional: true,
+        needsLLM: true,
+      },
+    ],
+  },
+  {
+    key: 'effect',
+    label: 'Effect',
+    title: 'How it changes the scene',
+    icon: 'kind-icon:bolt',
+    flourish: '⚡',
+    deckImage: '/images/rewards/effect.webp',
+    heroImage: '/images/rewards/effect.webp',
+    tagline: 'The LLM-facing narrative hook.',
+    narrative:
+      'Effect is the storytelling-engine instruction. It tells the LLM how this reward behaves when played into a scene. Keep it actionable. The effect should help the story move.',
+    required: true,
+    restoresFields: ['effect'],
+    steps: [
+      {
+        key: 'rewardEffect',
+        title: 'Effect',
+        narrative:
+          "What does this reward do when it enters a scene? Write it as a narrative hook the storytelling engine can use. Clear, flavorful, and actionable. That's the whole spell.",
+        inputType: 'long',
+        field: 'effect',
+        placeholder:
+          'When played into a scene, reveal... / allow... / introduce... / change...',
+        inputLabel: 'Effect',
+        needsLLM: true,
+      },
+    ],
+  },
   {
     key: 'collection',
     label: 'Collection',
@@ -423,15 +614,13 @@ export const REWARD_CARDS: BuilderCard[] = [
         placeholder:
           "Adventurer's Standard Kit, Field Expedients, Things Found in Pockets...",
         inputLabel: 'Collection',
-        choices: COLLECTION_PRESETS.map((c) => ({
-          value: c,
-          label: c,
+        choices: COLLECTION_PRESETS.map((collection) => ({
+          value: collection,
+          label: collection,
         })),
       },
     ],
   },
-
-  // ── Icon ─────────────────────────────────────────────────────────────────
   {
     key: 'icon',
     label: 'Icon',
@@ -450,15 +639,13 @@ export const REWARD_CARDS: BuilderCard[] = [
         key: 'rewardIcon',
         title: 'Choose an Icon',
         narrative:
-          'Pick a symbol. It can be literal (a sword icon for a sword skill) or atmospheric (a moon icon for something nocturnal). The icon is for navigation.',
+          'Pick a symbol. It can be literal, atmospheric, or absolutely unhinged as long as it helps the reward feel findable.',
         inputType: 'icon',
         field: 'icon',
         optional: true,
       },
     ],
   },
-
-  // ── Art ───────────────────────────────────────────────────────────────────
   {
     key: 'art',
     label: 'Art',
@@ -469,7 +656,7 @@ export const REWARD_CARDS: BuilderCard[] = [
     heroImage: '/images/rewards/art.webp',
     tagline: 'Optional. Give the reward a face.',
     narrative:
-      'A reward with an image is a reward someone remembers. Build the art prompt from the name, power, and type. Generate the image. The reward becomes a thing with a presence.',
+      'A reward with an image is a reward someone remembers. Build the art prompt from the name, description, effect, rarity, and type. Generate the image. The reward becomes a thing with a presence.',
     required: false,
     restoresFields: ['artPrompt', 'imagePath', 'artImageId'],
     unlockCondition: 'coreComplete',
@@ -478,7 +665,7 @@ export const REWARD_CARDS: BuilderCard[] = [
         key: 'rewardArt',
         title: 'Build the Image',
         narrative:
-          "Use the reward's name, type, and power to build an art prompt. Refine it, then generate. The image will represent this reward across the app.",
+          "Use the reward's name, type, rarity, description, and effect to build an art prompt. Refine it, then generate. The image will represent this reward across the app.",
         inputType: 'art',
         field: 'artPrompt',
         optional: true,

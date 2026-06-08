@@ -56,10 +56,10 @@ export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
 export const RewardType = {
   SKILL: 'SKILL',
   ITEM: 'ITEM',
-  TREASURE: 'TREASURE',
-  TITLE: 'TITLE',
   POWER: 'POWER',
-  STORY: 'STORY'
+  PET: 'PET',
+  MAGIC: 'MAGIC',
+  FAVOR: 'FAVOR'
 } as const
 
 export type RewardType = (typeof RewardType)[keyof typeof RewardType]

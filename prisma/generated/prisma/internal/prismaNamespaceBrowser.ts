@@ -543,20 +543,22 @@ export const RewardScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  effect: 'effect',
   icon: 'icon',
-  text: 'text',
-  power: 'power',
   collection: 'collection',
   rarity: 'rarity',
-  label: 'label',
+  rewardType: 'rewardType',
   userId: 'userId',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
+  artPrompt: 'artPrompt',
   isMature: 'isMature',
   isPublic: 'isPublic',
-  isActive: 'isActive',
-  artPrompt: 'artPrompt',
-  rewardType: 'rewardType'
+  isActive: 'isActive'
 } as const
 
 export type RewardScalarFieldEnum = (typeof RewardScalarFieldEnum)[keyof typeof RewardScalarFieldEnum]
@@ -1007,11 +1009,13 @@ export type ResourceOrderByRelevanceFieldEnum = (typeof ResourceOrderByRelevance
 
 
 export const RewardOrderByRelevanceFieldEnum = {
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  effect: 'effect',
   icon: 'icon',
-  text: 'text',
-  power: 'power',
   collection: 'collection',
-  label: 'label',
   imagePath: 'imagePath',
   artPrompt: 'artPrompt'
 } as const

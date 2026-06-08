@@ -1,4 +1,4 @@
-generator client {
+.generator client {
   provider = "prisma-client"
   output   = "./generated/prisma"
 }
@@ -639,24 +639,30 @@ model Resource {
   @@index([artImageId], map: "Resource_artImageId_fkey")
 }
 
+/// Rewards are skills, items, pets, and other collectibles used in storytelling
+/// adventure modules. name/description/flavorText describe what it is; effect is
+/// the LLM-facing narrative hook that tells the storytelling engine how the reward
+/// behaves when played into a scene.
 model Reward {
   id           Int           @id @default(autoincrement())
   createdAt    DateTime      @default(now())
   updatedAt    DateTime?     @default(now()) @updatedAt
+  name         String        @db.VarChar(256)
+  slug         String?       @unique @db.VarChar(256)
+  description  String?       @db.Text
+  flavorText   String?       @db.VarChar(512)
+  effect       String?       @db.Text
   icon         String?       @db.VarChar(256)
-  text         String        @db.Text
-  power        String        @db.Text
   collection   String?       @db.VarChar(764)
   rarity       Rarity        @default(COMMON)
-  label        String?       @db.VarChar(764)
+  rewardType   RewardType    @default(ITEM)
   userId       Int?          @default(1)
   artImageId   Int?
   imagePath    String?       @db.VarChar(764)
+  artPrompt    String?       @db.Text
   isMature     Boolean       @default(false)
   isPublic     Boolean       @default(true)
   isActive     Boolean       @default(true)
-  artPrompt    String?       @db.Text
-  rewardType   RewardType    @default(ITEM)
   Reactions    Reaction[]
   ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
   User         User?         @relation(fields: [userId], references: [id])
@@ -667,8 +673,10 @@ model Reward {
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])
   @@index([rarity])
+  @@index([slug])
   @@index([artImageId], map: "Reward_artImageId_fkey")
 }
+
 
 /// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, ArtImage, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
 model Scenario {

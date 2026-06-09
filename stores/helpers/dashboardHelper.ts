@@ -635,13 +635,6 @@ export const dashboardConfigs = {
     defaultTab: 'overview',
     tabs: [
       {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:sparkles',
-        title: 'Adventure Overview',
-        summary: 'Pick the ingredients for your weird little narrative soup.',
-      },
-      {
         key: 'scenarios',
         label: 'Scenarios',
         icon: 'kind-icon:map',
@@ -649,11 +642,11 @@ export const dashboardConfigs = {
         summary: 'Select, add, clone, or edit the playground.',
       },
       {
-        key: 'interact',
-        label: 'Interact',
-        icon: 'kind-icon:chat',
-        title: 'Scenario Interact',
-        summary: 'Start shaping the actual adventure flow.',
+        key: 'add',
+        label: 'Add',
+        icon: 'kind-icon:plus',
+        title: 'Add Scenario',
+        summary: 'Create new scenarios to jump start a one of a kind adventure',
       },
     ],
   },

@@ -353,13 +353,22 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     return fetchPromise.value
   }
 
+  function applySelection(scenario: Scenario) {
+    // Switching worlds invalidates any opening choice from the previous one
+    if (selectedScenario.value?.id !== scenario.id) {
+      currentChoice.value = ''
+    }
+
+    selectedScenario.value = scenario
+    scenarioForm.value = toScenarioForm(scenario)
+    syncToLocalStorage()
+  }
+
   async function selectScenario(id: number) {
     const scenario = scenarios.value.find((entry) => entry.id === id)
 
     if (scenario) {
-      selectedScenario.value = scenario
-      scenarioForm.value = toScenarioForm(scenario)
-      syncToLocalStorage()
+      applySelection(scenario)
       return scenario
     }
 
@@ -367,9 +376,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       const fetched = await fetchScenarioById(id)
 
       if (fetched) {
-        selectedScenario.value = fetched
-        scenarioForm.value = toScenarioForm(fetched)
-        syncToLocalStorage()
+        applySelection(fetched)
         return fetched
       }
     }

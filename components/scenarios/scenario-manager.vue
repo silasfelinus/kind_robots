@@ -1,4 +1,12 @@
 <!-- /components/scenarios/scenario-manager.vue -->
+<!--
+  Two tabs while we build out the rest of the suite:
+    scenarios — the full phased flow (browse → configure → story),
+                owned by scenario-interact + storyStore.phase
+    add       — the "+" tab, straight into add-scenario
+  Legacy tab keys (overview, interact, characters, rewards) funnel
+  into 'scenarios' so stale navStore state never strands the user.
+-->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
@@ -24,37 +32,26 @@
       </button>
     </div>
 
-    <!-- Overview + Interact share the same phased flow:
-         scenario-interact owns browse → configure → story. -->
+    <!-- Scenarios: gallery → select → configure → story, all in place -->
     <section
-      v-if="activeTab === 'overview' || activeTab === 'interact'"
+      v-if="activeTab === 'scenarios'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
       <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
+    <!-- Add: the "+" tab -->
     <section
-      v-else-if="activeTab === 'scenarios'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <scenario-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="grid"
-        :show-header="false"
-      />
-    </section>
-
-    <div
       v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
     >
-      Unknown scenario tab: {{ activeTab }}
-    </div>
+      <add-scenario mode="add" @saved="handleScenarioSaved" />
+    </section>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import { useNavStore } from '@/stores/navStore'
@@ -62,12 +59,10 @@ import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
-type ScenarioTab = 'overview' | 'scenarios' | 'builder' | 'interact'
-
-const scenarioTabs: ScenarioTab[] = ['overview', 'scenarios', 'interact']
+type ScenarioTab = 'scenarios' | 'add'
 
 const defaultDashboardKey = 'scenario'
-const defaultTab: ScenarioTab = 'overview'
+const defaultTab: ScenarioTab = 'scenarios'
 
 const characterStore = useCharacterStore()
 const choiceStore = useChoiceStore()
@@ -86,12 +81,48 @@ const dashboardKey = computed(() => {
 const activeTab = computed<ScenarioTab>(() => {
   const selectedTab = navStore.getDashboardTab(dashboardKey.value)
 
-  if (scenarioTabs.includes(selectedTab as ScenarioTab)) {
-    return selectedTab as ScenarioTab
-  }
-
-  return defaultTab
+  return selectedTab === 'add' ? 'add' : defaultTab
 })
+
+/** Blank form for a fresh scenario. */
+function blankScenarioForm() {
+  return {
+    title: '',
+    description: '',
+    locations: '',
+    genres: '',
+    inspirations: '',
+    intros: [],
+    artPrompt: '',
+    imagePath: null,
+    artImageId: null,
+    isPublic: true,
+    isMature: false,
+  }
+}
+
+/**
+ * Entering the "+" tab should mean a fresh scenario — but never clobber an
+ * unsaved draft. Only reset when the form holds an already-saved scenario.
+ */
+function prepareAddForm() {
+  const formId = scenarioStore.scenarioForm?.id
+
+  if (typeof formId === 'number' && formId > 0) {
+    scenarioStore.deselectScenario()
+    scenarioStore.scenarioForm = blankScenarioForm()
+  } else if (!scenarioStore.scenarioForm) {
+    scenarioStore.scenarioForm = blankScenarioForm()
+  }
+}
+
+/**
+ * createScenario already selects the new scenario in the store, so jumping
+ * to the scenarios tab lands directly in the configure phase for it.
+ */
+function handleScenarioSaved() {
+  navStore.setDashboardTab(dashboardKey.value, 'scenarios')
+}
 
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
@@ -134,5 +165,17 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
+
+  if (activeTab.value === 'add') {
+    prepareAddForm()
+  }
+})
+
+// Needed: entering the "+" tab is a navigation event that must prep
+// the form exactly once per entry, without clobbering unsaved drafts.
+watch(activeTab, (tab) => {
+  if (tab === 'add') {
+    prepareAddForm()
+  }
 })
 </script>

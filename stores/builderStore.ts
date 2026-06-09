@@ -56,6 +56,19 @@ function defaultBuilderSheet(): BuilderSheet {
   }
 }
 
+export type BuilderSelectionPreview = {
+  key: string
+  stepKey: string
+  label: string
+  value: string
+  field?: string
+  image?: string | null
+  icon?: string
+  description?: string
+  narrative?: string
+  tags?: string[]
+}
+
 const DEFAULT_BUILDER_KEY = 'default'
 
 const defaultBuilderConfig: BuilderProjectConfig = {
@@ -102,7 +115,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
   const activeCardKey = ref<string | null>(null)
   const activeStepIndex = ref(0)
 
-const generator = useGeneratorStore()
+  const generator = useGeneratorStore()
 
   const sheet = reactive<BuilderSheet>(defaultBuilderSheet())
   const stagedValues = reactive<Record<string, string>>({})
@@ -112,6 +125,7 @@ const generator = useGeneratorStore()
   const rewardOptions = reactive<Record<string, BuilderRewardOption[]>>({})
   const selectedRewardId = reactive<Record<string, string>>({})
   const draftStats = reactive<BuilderStatEntry[]>([])
+  const activeSelectionPreview = ref<BuilderSelectionPreview | null>(null)
 
   const selectedStatBlock = ref<number | null>(null)
   const isHydrated = ref(false)
@@ -123,6 +137,93 @@ const generator = useGeneratorStore()
   const activeConfig = computed<BuilderProjectConfig>(() => {
     return builderRegistry[activeBuilderKey.value] ?? defaultBuilderConfig
   })
+
+  type BuilderChoiceMeta = {
+    label?: string
+    value?: string
+    image?: string | null
+    imagePath?: string | null
+    icon?: string
+    description?: string
+    narrative?: string
+    tags?: string[]
+  }
+
+  function previewSelection(selection: BuilderSelectionPreview): void {
+    activeSelectionPreview.value = selection
+  }
+
+  function clearSelectionPreview(): void {
+    activeSelectionPreview.value = null
+  }
+
+  function previewPresetChoice(stepKey: string, value: string): void {
+    const step =
+      activeStep.value?.key === stepKey
+        ? activeStep.value
+        : cards.value
+            .flatMap((card) => card.steps)
+            .find((entry) => entry.key === stepKey)
+
+    if (!step) return
+
+    const choice = step.choices?.find((entry) => entry.value === value)
+    const meta = choice as BuilderChoiceMeta | undefined
+
+    previewSelection({
+      key: `${step.key}:${value}`,
+      stepKey: step.key,
+      field: step.field,
+      label: meta?.label ?? value,
+      value,
+      image: meta?.imagePath ?? meta?.image ?? null,
+      icon: meta?.icon,
+      description: meta?.description,
+      narrative: meta?.narrative,
+      tags: meta?.tags,
+    })
+  }
+
+  function confirmSelectionPreview(): void {
+    const selection = activeSelectionPreview.value
+
+    if (!selection) return
+
+    const step = cards.value
+      .flatMap((card) => card.steps)
+      .find((entry) => entry.key === selection.stepKey)
+
+    if (!step) {
+      stagedValues[selection.stepKey] = selection.value
+      activeSelectionPreview.value = null
+      persist()
+      return
+    }
+
+    const choice = step.choices?.find(
+      (entry) => entry.value === selection.value,
+    )
+
+    if (choice) {
+      selectBuilderChoiceValue({
+        step,
+        choice,
+        stagedValues,
+        selectedChoiceValues,
+      })
+    } else {
+      stagedValues[step.key] = selection.value
+    }
+
+    if (step.multiSelect) {
+      selectedChoiceValues[step.key] = builderArrayFromPiped(
+        stagedValues[step.key] ?? '',
+      )
+    }
+
+    activeSelectionPreview.value = null
+    persist()
+  }
 
   const activeArtConfig = computed(() => {
     const config = activeConfig.value
@@ -433,9 +534,9 @@ const generator = useGeneratorStore()
 
       draftStats.splice(0, draftStats.length, ...cloneBuilderValue(source))
     }
-if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
-  rollRewardOptionsForCard(card)
-}
+    if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
+      rollRewardOptionsForCard(card)
+    }
     persist()
   }
 
@@ -488,30 +589,28 @@ if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
 
   function selectPresetChoice(stepKey: string, value: string): void {
     const step = activeStep.value
-    const choice = step?.choices?.find((entry) => entry.value === value)
 
     if (!step) return
 
-    if (choice) {
-      selectBuilderChoiceValue({
-        step,
-        choice,
-        stagedValues,
-        selectedChoiceValues,
-      })
-    } else {
-      stagedValues[stepKey] = value
+    if (step.multiSelect) {
+      const choice = step.choices?.find((entry) => entry.value === value)
+
+      if (choice) {
+        selectBuilderChoiceValue({
+          step,
+          choice,
+          stagedValues,
+          selectedChoiceValues,
+        })
+      } else {
+        stagedValues[stepKey] = value
+      }
+
+      persist()
+      return
     }
 
-    persist()
-
-    if (step.multiSelect) return
-
-    if (isLastStep.value) {
-      finishCard()
-    } else {
-      nextStep()
-    }
+    previewPresetChoice(stepKey, value)
   }
 
   function selectListOption(stepKey: string, value: string): void {
@@ -526,41 +625,38 @@ if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
     persist()
   }
 
-function rolledRewardToBuilderOption(
-  reward: RolledReward,
-): BuilderRewardOption {
-  return reward as unknown as BuilderRewardOption
-}
+  function rolledRewardToBuilderOption(
+    reward: RolledReward,
+  ): BuilderRewardOption {
+    return reward as unknown as BuilderRewardOption
+  }
 
-function rollRewardOptionsForCard(card = activeCard.value): void {
-  if (!card?.rewardSlotKey) return
+  function rollRewardOptionsForCard(card = activeCard.value): void {
+    if (!card?.rewardSlotKey) return
 
-  const options = rollRewardOptionsForSlot({
-    slotKey: card.rewardSlotKey,
-    slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
-    rollFromGenerator: (baseRarity, count) =>
-      generator.rollRewardOptions(baseRarity, count),
-  }).map(rolledRewardToBuilderOption)
+    const options = rollRewardOptionsForSlot({
+      slotKey: card.rewardSlotKey,
+      slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
+      rollFromGenerator: (baseRarity, count) =>
+        generator.rollRewardOptions(baseRarity, count),
+    }).map(rolledRewardToBuilderOption)
 
-  rewardOptions[card.rewardSlotKey] = options
-  selectedRewardId[card.rewardSlotKey] = ''
-  persist()
-}
+    rewardOptions[card.rewardSlotKey] = options
+    selectedRewardId[card.rewardSlotKey] = ''
+    persist()
+  }
 
-
-function rerollRewardOptionsForCard(card = activeCard.value): void {
-  rollRewardOptionsForCard(card)
-}
-
+  function rerollRewardOptionsForCard(card = activeCard.value): void {
+    rollRewardOptionsForCard(card)
+  }
 
   function setRewardOptions(
-  slotKey: string,
-  options: BuilderRewardOption[],
-): void {
-  rewardOptions[slotKey] = options
-  persist()
-}
-
+    slotKey: string,
+    options: BuilderRewardOption[],
+  ): void {
+    rewardOptions[slotKey] = options
+    persist()
+  }
 
   function selectRewardOption(slotKey: string, optionId: string): void {
     selectedRewardId[slotKey] = optionId
@@ -897,5 +993,10 @@ function rerollRewardOptionsForCard(card = activeCard.value): void {
     getRegisteredConfig,
     rollRewardOptionsForCard,
     rerollRewardOptionsForCard,
+    activeSelectionPreview,
+    previewSelection,
+    previewPresetChoice,
+    clearSelectionPreview,
+    confirmSelectionPreview,
   }
 })

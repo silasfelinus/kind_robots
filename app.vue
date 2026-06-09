@@ -37,7 +37,7 @@
         >
           <div
             class="flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
-            :class="chromeMinimized ? 'pb-12' : 'pb-[var(--hand-h)]'"
+            :class="chromeMinimized ? 'pb-12' : 'pb-(--hand-h)'"
           >
             <Transition name="workspace-sheet-slide">
               <aside

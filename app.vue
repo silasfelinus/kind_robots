@@ -106,7 +106,7 @@
 
         <template #fallback>
           <div
-            class="fixed inset-x-0 bottom-0 z-30 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+            class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
           >
             Loading workspace hand...
           </div>
@@ -116,7 +116,7 @@
 
     <button
       type="button"
-      class="btn btn-sm btn-circle fixed left-1/2 z-40 -translate-x-1/2 shadow-xl transition-all duration-300"
+      class="btn btn-sm btn-circle fixed left-1/2 z-30 -translate-x-1/2 shadow-xl transition-all duration-300"
       :class="
         chromeMinimized ? 'bottom-3' : 'bottom-[calc(var(--hand-h)+0.75rem)]'
       "

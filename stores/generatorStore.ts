@@ -7,9 +7,10 @@ import { performFetch } from '@/stores/utils'
 export type RolledReward = {
   id: string
   rewardId: number
-  label: string
-  text: string
-  power?: string | null
+  name: string
+  description?: string | null
+  flavorText?: string | null
+  effect?: string | null
   icon?: string | null
   imagePath?: string | null
   rarity: Rarity
@@ -19,18 +20,24 @@ export type RolledReward = {
 
 type RewardRecord = {
   id: number
-  label?: string | null
   name?: string | null
-  title?: string | null
-  text?: string | null
+  slug?: string | null
   description?: string | null
-  power?: string | null
+  flavorText?: string | null
+  effect?: string | null
   icon?: string | null
+  collection?: string | null
   imagePath?: string | null
-  image?: string | null
+  artPrompt?: string | null
   rarity?: Rarity | null
   rewardType?: RewardType | null
   payload?: Record<string, unknown> | null
+
+  label?: string | null
+  title?: string | null
+  text?: string | null
+  power?: string | null
+  image?: string | null
 }
 
 type RollRewardOptionsInput = {
@@ -593,17 +600,23 @@ function weightedRoll<T extends { weight: number }>(options: T[]): T {
 }
 
 function normalizeReward(reward: RewardRecord): RolledReward | null {
-  const label = String(reward.label || reward.name || reward.title || '').trim()
-  const text = String(reward.text || reward.description || '').trim()
+  const name = String(reward.name || reward.title || reward.text || '').trim()
 
-  if (!reward.id || !label || !reward.rewardType) return null
+  const description = String(
+    reward.description || reward.text || reward.flavorText || '',
+  ).trim()
+
+  const effect = String(reward.effect || reward.power || '').trim()
+
+  if (!reward.id || !name || !reward.rewardType) return null
 
   return {
     id: String(reward.id),
     rewardId: reward.id,
-    label,
-    text,
-    power: reward.power ?? null,
+    name,
+    description,
+    flavorText: reward.flavorText ?? null,
+    effect: effect || null,
     icon: reward.icon ?? null,
     imagePath: reward.imagePath ?? reward.image ?? null,
     rarity: reward.rarity ?? 'COMMON',

@@ -13,6 +13,7 @@
         </p>
         <p class="font-black text-base-content">{{ slotKey }}</p>
       </div>
+
       <button
         type="button"
         class="btn btn-sm btn-ghost rounded-xl border border-base-300"
@@ -45,16 +46,24 @@
           >
             <Icon :name="reward.icon || 'kind-icon:reward'" class="h-5 w-5" />
           </div>
+
           <div class="min-w-0 flex-1">
-            <p class="font-black text-base-content">{{ reward.label }}</p>
+            <p class="font-black text-base-content">
+              {{ reward.name }}
+            </p>
+
             <p
               v-if="reward.rarity"
               class="mt-0.5 text-xs font-bold uppercase tracking-widest text-primary/70"
             >
               {{ reward.rarity }}
             </p>
-            <p class="mt-2 text-sm leading-relaxed text-base-content/60">
-              {{ reward.text }}
+
+            <p
+              v-if="reward.description"
+              class="mt-2 text-sm leading-relaxed text-base-content/60"
+            >
+              {{ reward.description }}
             </p>
           </div>
         </div>
@@ -69,7 +78,9 @@
         name="kind-icon:reward"
         class="mx-auto h-10 w-10 text-base-content/25"
       />
+
       <p class="mt-2 font-black text-base-content">No reward options yet</p>
+
       <p class="mt-1 text-sm text-base-content/50">
         Use Reroll options to draw a fresh set for this slot.
       </p>

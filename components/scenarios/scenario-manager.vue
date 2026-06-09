@@ -64,12 +64,7 @@ import { useServerStore } from '@/stores/serverStore'
 
 type ScenarioTab = 'overview' | 'scenarios' | 'builder' | 'interact'
 
-const scenarioTabs: ScenarioTab[] = [
-  'overview',
-  'scenarios',
-  'builder',
-  'interact',
-]
+const scenarioTabs: ScenarioTab[] = ['overview', 'scenarios', 'interact']
 
 const defaultDashboardKey = 'scenario'
 const defaultTab: ScenarioTab = 'overview'

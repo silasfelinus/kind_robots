@@ -206,7 +206,6 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  select: [id: number]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
@@ -255,8 +254,8 @@ const introCount = computed(() => {
 })
 
 function selectScenario() {
+  // Store is the single source of truth — storyStore.phase reacts to this.
   scenarioStore.selectScenario(props.scenario.id)
-  emit('select', props.scenario.id)
 }
 
 async function deleteScenario() {

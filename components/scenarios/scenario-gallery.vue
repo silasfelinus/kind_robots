@@ -214,7 +214,6 @@
           :allow-edit="allowEdit"
           :allow-delete="allowDelete"
           :allow-clone="allowClone"
-          @select="handleSelect"
           @edit="startEditingScenarioById"
           @clone="cloneScenarioById"
           @delete="handleScenarioDeleted"
@@ -272,10 +271,6 @@ const props = withDefaults(
     autoLoad: true,
   },
 )
-
-const emit = defineEmits<{
-  select: [id: number]
-}>()
 
 const scenarioStore = useScenarioStore()
 const userStore = useUserStore()
@@ -370,10 +365,6 @@ async function refreshScenarios(force = false) {
   }
 }
 
-function handleSelect(id: number) {
-  emit('select', id)
-}
-
 function selectScenarioFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
 
@@ -390,7 +381,6 @@ function selectScenarioFromEvent(event: Event) {
   }
 
   void scenarioStore.selectScenario(id)
-  emit('select', id)
 }
 
 function startAddingScenario() {

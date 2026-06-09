@@ -88,25 +88,11 @@ export const dashboardConfigs = {
     defaultTab: 'overview',
     tabs: [
       {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:dashboard',
-        title: 'Bot Overview',
-        summary: 'Browse bots, choose text engines, and start conversations.',
-      },
-      {
         key: 'bots',
         label: 'Bots',
         icon: 'kind-icon:robot',
         title: 'Bot Gallery',
         summary: 'Select, add, edit, clone, delete, or launch bots.',
-      },
-      {
-        key: 'interact',
-        label: 'Interact',
-        icon: 'kind-icon:chat',
-        title: 'Bot Interact',
-        summary: 'Chat with the selected bot.',
       },
       {
         key: 'forge',
@@ -131,13 +117,6 @@ export const dashboardConfigs = {
     defaultTab: 'overview',
     tabs: [
       {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:dashboard',
-        title: 'Brainstorm Overview',
-        summary: 'Work with pitches, prompts, and generated ideas.',
-      },
-      {
         key: 'pitches',
         label: 'Pitches',
         icon: 'kind-icon:idea',
@@ -151,14 +130,6 @@ export const dashboardConfigs = {
         icon: 'kind-icon:prompt',
         title: 'Prompt Gallery',
         summary: 'Browse reusable text prompts.',
-      },
-      {
-        key: 'interact',
-        label: 'Interact',
-        icon: 'kind-icon:brain',
-        title: 'Brainstorm Interact',
-        summary:
-          'Generate, accept, edit, reject, save, or overwrite brainstorms.',
       },
     ],
   },
@@ -265,13 +236,6 @@ export const dashboardConfigs = {
     defaultTab: 'overview',
     tabs: [
       {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:sparkles',
-        title: 'Character Overview',
-        summary: 'Pair a character with scenarios, rewards, dreams, and chat.',
-      },
-      {
         key: 'characters',
         label: 'Characters',
         icon: 'kind-icon:person',
@@ -292,35 +256,6 @@ export const dashboardConfigs = {
         title: 'Stage Performance',
         summary: 'Create a scene with one or more performers.',
       },
-      {
-        key: 'scenarios',
-        label: 'Scenarios',
-        icon: 'kind-icon:map',
-        title: 'Scenario Pairing',
-        summary: 'Choose a setting for character interactions.',
-      },
-      {
-        key: 'rewards',
-        label: 'Rewards',
-        icon: 'kind-icon:gift',
-        title: 'Reward Pairing',
-        summary: 'Choose powers, items, or plot grenades.',
-      },
-      {
-        key: 'dreams',
-        label: 'Dreams',
-        icon: 'kind-icon:moon',
-        title: 'Dream Pairing',
-        summary: 'Use characters inside collaborative dream sessions.',
-      },
-      {
-        key: 'interact',
-        label: 'Interact',
-        icon: 'kind-icon:chat',
-        title: 'Character Interact',
-        summary:
-          'Chat, adventure, or generate prompts with the selected character.',
-      },
     ],
   },
 
@@ -329,12 +264,6 @@ export const dashboardConfigs = {
     label: 'Composition Manager',
     defaultTab: 'overview',
     tabs: [
-      {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:home',
-        title: 'Composition Overview',
-      },
       {
         key: 'gallery',
         label: 'Gallery',
@@ -362,14 +291,6 @@ export const dashboardConfigs = {
     defaultTab: 'overview',
     tabs: [
       {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:sparkles',
-        title: 'Dream Overview',
-        summary:
-          'Coordinate the current dream, prompt, image, servers, and collaborators.',
-      },
-      {
         key: 'dreams',
         label: 'Dreams',
         icon: 'kind-icon:moon',
@@ -390,13 +311,6 @@ export const dashboardConfigs = {
         icon: 'kind-icon:plus',
         title: 'Add/Edit Dreams',
         summary: 'Add or edit a dream experience.',
-      },
-      {
-        key: 'interact',
-        label: 'Interact',
-        icon: 'kind-icon:chat',
-        title: 'Dream Interact',
-        summary: 'Collaboratively evolve the dream through text and images.',
       },
     ],
   },
@@ -550,14 +464,6 @@ export const dashboardConfigs = {
           'Meet the humans, robots, butterflies, and suspiciously organized tiny executives behind Kind Robots.',
       },
       {
-        key: 'butterfly-lab',
-        label: 'Butterfly Lab',
-        icon: 'kind-icon:flask',
-        title: 'Butterfly Lab',
-        summary:
-          'Tune behind-the-scenes animation controls, test wing chaos, and politely ask cursed perspectives to leave.',
-      },
-      {
         key: 'giftshop',
         label: 'Giftshop',
         icon: 'kind-icon:gift',
@@ -572,6 +478,13 @@ export const dashboardConfigs = {
         title: 'Cart Nest',
         summary:
           'Review your cart, update quantities, release unwanted butterflies, and proceed to checkout.',
+      },
+      {
+        key: 'forum',
+        label: 'Forum',
+        icon: 'kind-icon:chat',
+        title: 'Forum',
+        summary: 'Discuss with others in the Kind Robots community',
       },
       {
         key: 'subscriptions',
@@ -605,14 +518,6 @@ export const dashboardConfigs = {
     defaultTab: 'overview',
     tabs: [
       {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:sparkles',
-        title: 'Reward Overview',
-        summary:
-          'Pick a reward, choose a text engine, and generate a story encounter.',
-      },
-      {
         key: 'rewards',
         label: 'Rewards',
         icon: 'kind-icon:gift',
@@ -620,11 +525,11 @@ export const dashboardConfigs = {
         summary: 'Select, add, edit, or delete story rewards and artifacts.',
       },
       {
-        key: 'interact',
-        label: 'Generate',
-        icon: 'kind-icon:chat',
+        key: 'add',
+        label: 'Create Reward',
+        icon: 'kind-icon:plus',
         title: 'Reward Generator',
-        summary: 'Turn a selected reward into a story prompt.',
+        summary: 'Create fresh skills, items, powers, pets, and more',
       },
     ],
   },
@@ -686,20 +591,6 @@ export const dashboardConfigs = {
         title: 'Checkpoints',
         summary:
           'Choose checkpoints, samplers, and verify active backend models.',
-      },
-      {
-        key: 'all',
-        label: 'All',
-        icon: 'kind-icon:list',
-        title: 'All Servers',
-        summary: 'Browse every visible server.',
-      },
-      {
-        key: 'interact',
-        label: 'Interact',
-        icon: 'kind-icon:wrench',
-        title: 'Server Tools',
-        summary: 'Ping servers, inspect health, and manage active selections.',
       },
     ],
   },

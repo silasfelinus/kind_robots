@@ -13,6 +13,7 @@ import {
   type DashboardTabConfig,
 } from '@/stores/helpers/dashboardHelper'
 import { useSmartbarStore } from '@/stores/smartbarStore'
+import { useSheetStore } from '@/stores/sheetStore'
 import { handleError } from '@/stores/utils'
 import { getModelCards } from '@/stores/helpers/modelCards'
 
@@ -354,6 +355,17 @@ export const useNavStore = defineStore('navStore', () => {
     syncDashboardTabsToLocalStorage(
       `setDashboardTab(${dashboardKey}, ${nextTab}) from ${reason}`,
     )
+
+    // Traveling to a new subtab refreshes the workspace sheet with that
+    // tab's intro copy. Lazy import inside the function avoids a circular
+    // dependency (sheetStore proxies open/close back to navStore).
+    const tabConfig = dashboardConfigs[dashboardKey]?.tabs.find(
+      (tab) => tab.key === nextTab,
+    )
+
+    if (tabConfig) {
+      useSheetStore().setSheetFromTab(tabConfig)
+    }
 
     return nextTab
   }

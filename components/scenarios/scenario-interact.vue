@@ -42,99 +42,56 @@
       v-else-if="storyStore.phase === 'configure'"
       class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain"
     >
-      <!-- Back bar -->
-      <div class="flex shrink-0 items-center gap-2">
-        <button
-          class="btn btn-ghost btn-sm gap-1.5 rounded-xl"
-          type="button"
-          @click="storyStore.backToBrowse"
-        >
-          <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
-          All Scenarios
-        </button>
-      </div>
-
-      <!-- Hero: image-first scenario summary -->
-      <article
-        class="shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-md"
+      <!-- Slim header: the full intro (image + description) lives in the
+           workspace sheet, which auto-opened on selection -->
+      <div
+        class="flex shrink-0 items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 pl-1 shadow-sm"
       >
-        <figure class="relative aspect-video w-full bg-base-300 md:aspect-21/9">
-          <img
-            :src="selectedScenarioImage"
-            :alt="selectedScenarioTitle"
-            class="h-full w-full object-cover"
-          />
-
-          <div
-            class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/40 to-transparent px-4 pb-4 pt-16 md:px-6"
+        <div class="flex min-w-0 items-center gap-1">
+          <button
+            class="btn btn-ghost btn-sm gap-1.5 rounded-xl"
+            type="button"
+            @click="storyStore.backToBrowse"
           >
+            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            <span class="hidden sm:inline">All Scenarios</span>
+          </button>
+
+          <div class="min-w-0">
             <h1
-              class="text-2xl font-black leading-tight text-white drop-shadow md:text-3xl"
+              class="truncate text-lg font-black leading-tight text-base-content"
             >
               {{ selectedScenarioTitle }}
             </h1>
 
-            <div class="mt-2 flex flex-wrap gap-1.5">
-              <span
-                v-if="selectedScenario?.genres"
-                class="badge badge-primary badge-sm"
-              >
-                {{ selectedScenario.genres }}
-              </span>
-
-              <span
-                v-if="selectedScenario?.isMature"
-                class="badge badge-warning badge-sm"
-              >
-                Mature
-              </span>
-            </div>
-          </div>
-        </figure>
-
-        <div class="flex flex-col gap-4 p-4 md:p-6">
-          <p
-            class="max-w-prose text-sm leading-relaxed text-base-content/80 md:text-base"
-          >
-            {{
-              selectedScenario?.description ||
-              'No description yet. The plot goblin remains suspiciously quiet.'
-            }}
-          </p>
-
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div
-              v-if="selectedScenario?.locations"
-              class="rounded-xl border border-base-300 bg-base-200 p-3"
+            <p
+              v-if="selectedScenario?.genres"
+              class="truncate text-xs text-base-content/60"
             >
-              <p
-                class="text-xs font-bold uppercase tracking-wider text-base-content/50"
-              >
-                Locations
-              </p>
-
-              <p class="mt-1 text-sm leading-relaxed text-base-content/80">
-                {{ selectedScenario.locations }}
-              </p>
-            </div>
-
-            <div
-              v-if="selectedScenario?.inspirations"
-              class="rounded-xl border border-base-300 bg-base-200 p-3"
-            >
-              <p
-                class="text-xs font-bold uppercase tracking-wider text-base-content/50"
-              >
-                Inspirations
-              </p>
-
-              <p class="mt-1 text-sm leading-relaxed text-base-content/80">
-                {{ selectedScenario.inspirations }}
-              </p>
-            </div>
+              {{ selectedScenario.genres }}
+            </p>
           </div>
         </div>
-      </article>
+
+        <div class="flex shrink-0 items-center gap-1.5">
+          <span
+            v-if="selectedScenario?.isMature"
+            class="badge badge-warning badge-sm"
+          >
+            Mature
+          </span>
+
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            title="Show or hide scenario details"
+            @click="sheetStore.toggleSheet"
+          >
+            <Icon name="kind-icon:info" class="h-4 w-4" />
+            <span class="hidden sm:inline">Info</span>
+          </button>
+        </div>
+      </div>
 
       <!-- Starter choices -->
       <article
@@ -460,6 +417,7 @@ import { useCharacterStore } from '@/stores/characterStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
+import { useSheetStore } from '@/stores/sheetStore'
 import { useStoryStore } from '@/stores/storyStore'
 import {
   parseScenarioIntros,
@@ -470,6 +428,7 @@ const scenarioStore = useScenarioStore()
 const characterStore = useCharacterStore()
 const rewardStore = useRewardStore()
 const serverStore = useServerStore()
+const sheetStore = useSheetStore()
 const storyStore = useStoryStore()
 const artStore = useArtStore()
 

@@ -259,6 +259,7 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useSheetStore } from '@/stores/sheetStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
@@ -282,8 +283,13 @@ type VisibleField = {
 const route = useRoute()
 const builderStore = useBuilderStore()
 const pageStore = usePageStore()
+const sheetStore = useSheetStore()
 
 const showDebugPath = ref(false)
+
+// Override layer: when any store has pushed content into sheetStore
+// (selected scenario, subtab intro, etc.), it wins over the cascade below.
+const override = computed(() => sheetStore.override)
 
 const isBuilder = computed(() => {
   return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0
@@ -330,6 +336,10 @@ const activeCard = computed(() => {
 })
 
 const title = computed(() => {
+  if (override.value?.title) {
+    return override.value.title
+  }
+
   if (isBuilder.value) {
     return String(
       builderStore.sheet.name ||
@@ -344,6 +354,10 @@ const title = computed(() => {
 })
 
 const label = computed(() => {
+  if (override.value?.label) {
+    return override.value.label
+  }
+
   if (isBuilder.value) {
     return activeCard.value?.label || builderStore.activeConfig.label
   }
@@ -352,6 +366,10 @@ const label = computed(() => {
 })
 
 const narrative = computed(() => {
+  if (override.value?.narrative) {
+    return override.value.narrative
+  }
+
   if (isBuilder.value) {
     return String(
       builderStore.sheet.narrative ||
@@ -375,6 +393,15 @@ const activeImageCard = computed(() => {
 })
 
 const imagePath = computed(() => {
+  if (override.value?.imagePath) {
+    const overrideImage = override.value.imagePath
+
+    // Resolved art images arrive as data URIs — never normalize those
+    return overrideImage.startsWith('data:')
+      ? overrideImage
+      : normalizeImagePath(overrideImage)
+  }
+
   if (isBuilder.value) {
     const sheetImage = builderStore.sheet.imagePath
 
@@ -397,7 +424,12 @@ const imagePath = computed(() => {
 })
 
 const placeholderIcon = computed(() => {
-  return activeCard.value?.icon || pageStore.icon || 'kind-icon:blueprint'
+  return (
+    override.value?.icon ||
+    activeCard.value?.icon ||
+    pageStore.icon ||
+    'kind-icon:blueprint'
+  )
 })
 
 const requiredCount = computed(() => {

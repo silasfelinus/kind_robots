@@ -15,7 +15,7 @@
     <section
       class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
     >
-      <dashboard-header
+      <workspace-header
         :chrome-minimized="chromeMinimized"
         @toggle-chrome="toggleChrome"
       />

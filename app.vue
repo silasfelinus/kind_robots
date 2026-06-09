@@ -89,11 +89,7 @@
                 class="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-base-100"
               >
                 <main
-                  ref="mainScrollEl"
                   class="h-full min-h-0 w-full overflow-y-auto overscroll-contain"
-                  @scroll.passive="handleMainScroll"
-                  @wheel.passive="minimizeChrome"
-                  @touchmove.passive="minimizeChrome"
                 >
                   <NuxtPage />
                 </main>
@@ -140,167 +136,44 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import type { ContentCollectionItem } from '@nuxt/content'
+import { onMounted, ref } from 'vue'
 import { usePageStore } from '@/stores/pageStore'
-import { useThemeStore } from '@/stores/themeStore'
 
-type WorkspaceContentPage = ContentCollectionItem & {
-  title?: string
-  description?: string
-  subtitle?: string
-  room?: string
-  image?: string
-  icon?: string
-  tooltip?: string
-  dottitip?: string
-  amitip?: string
-  dashboardKey?: string
-  dashboardTab?: string
-  loadingMessage?: string
-  refreshLabel?: string
-  cards?: unknown
-  body?: unknown
-}
-
-const route = useRoute()
 const pageStore = usePageStore()
-const themeStore = useThemeStore()
 
 const showLoader = ref(true)
 const workspaceSheetOpen = ref(true)
 const chromeMinimized = ref(false)
-const mainScrollEl = ref<HTMLElement | null>(null)
-
-const contentPath = computed(() => {
-  const path = route.path.replace(/\/+$/, '')
-  return path || '/'
-})
-
-const asyncKey = computed(() => `app-content:${contentPath.value}`)
-
-pageStore.initialize()
-
-const {
-  data: pageData,
-  status,
-  refresh,
-} = await useAsyncData(
-  asyncKey,
-  async () => {
-    const result = await queryCollection('content')
-      .path(contentPath.value)
-      .first()
-
-    return result as WorkspaceContentPage | null
-  },
-  {
-    default: () => null,
-    watch: [contentPath],
-    server: true,
-    lazy: false,
-    immediate: true,
-    dedupe: 'defer',
-  },
-)
-
-const page = computed(() => pageData.value)
 
 function handlePageReady(): void {
   showLoader.value = false
 }
 
+function persist(key: string, value: boolean): void {
+  if (import.meta.client) {
+    window.localStorage.setItem(key, value ? 'true' : 'false')
+  }
+}
+
 function minimizeChrome(): void {
   chromeMinimized.value = true
-
-  if (import.meta.client) {
-    window.localStorage.setItem('kindrobots:chrome-minimized', 'true')
-  }
+  persist('kindrobots:chrome-minimized', true)
 }
 
 function restoreChrome(): void {
   chromeMinimized.value = false
-
-  if (import.meta.client) {
-    window.localStorage.setItem('kindrobots:chrome-minimized', 'false')
-  }
+  persist('kindrobots:chrome-minimized', false)
 }
 
 function toggleChrome(): void {
-  if (chromeMinimized.value) {
-    restoreChrome()
-    return
-  }
-
-  minimizeChrome()
-}
-
-function handleMainScroll(): void {
-  const scrollTop = mainScrollEl.value?.scrollTop ?? 0
-
-  if (scrollTop > 8) {
-    minimizeChrome()
-  }
+  if (chromeMinimized.value) restoreChrome()
+  else minimizeChrome()
 }
 
 function setWorkspaceSheetOpen(value: boolean): void {
   workspaceSheetOpen.value = value
-
-  if (import.meta.client) {
-    window.localStorage.setItem(
-      'kindrobots:workspace-sheet-open',
-      value ? 'true' : 'false',
-    )
-  }
+  persist('kindrobots:workspace-sheet-open', value)
 }
-
-function syncPageStore(): void {
-  if (status.value === 'pending' || status.value === 'idle') {
-    pageStore.setLoading(true)
-    return
-  }
-
-  if (page.value) {
-    pageStore.setPage(page.value)
-    return
-  }
-
-  if (status.value === 'success') {
-    pageStore.clearPage()
-    pageStore.setLoading(false)
-  }
-}
-
-watch(
-  status,
-  () => {
-    syncPageStore()
-  },
-  { immediate: true },
-)
-
-watch(
-  page,
-  () => {
-    syncPageStore()
-  },
-  { immediate: true },
-)
-
-watch(
-  contentPath,
-  async () => {
-    pageStore.setLoading(true)
-    minimizeChrome()
-
-    await nextTick()
-
-    if (mainScrollEl.value) {
-      mainScrollEl.value.scrollTop = 0
-    }
-  },
-  { flush: 'sync' },
-)
 
 useSeoMeta({
   title: () => pageStore.title || 'Kind Robots',
@@ -310,71 +183,16 @@ useSeoMeta({
     'A friendly AI playground for humans and robots.',
 })
 
-onMounted(async () => {
-  themeStore.initialize()
-
+onMounted(() => {
   const storedSheetOpen = window.localStorage.getItem(
     'kindrobots:workspace-sheet-open',
   )
-
-  if (storedSheetOpen) {
-    workspaceSheetOpen.value = storedSheetOpen === 'true'
-  }
+  if (storedSheetOpen) workspaceSheetOpen.value = storedSheetOpen === 'true'
 
   const storedChromeMinimized = window.localStorage.getItem(
     'kindrobots:chrome-minimized',
   )
-
-  if (storedChromeMinimized) {
+  if (storedChromeMinimized)
     chromeMinimized.value = storedChromeMinimized === 'true'
-  }
-
-  await nextTick()
-  syncPageStore()
-
-  if (!page.value && status.value !== 'pending') {
-    await refresh()
-    syncPageStore()
-  }
 })
 </script>
-
-<style scoped>
-.workspace-sheet-slide-enter-active,
-.workspace-sheet-slide-leave-active {
-  transition:
-    transform 180ms ease,
-    opacity 180ms ease;
-}
-
-.workspace-sheet-slide-enter-from,
-.workspace-sheet-slide-leave-to {
-  opacity: 0;
-  transform: translateX(-1rem);
-}
-
-.workspace-sheet-slide-enter-to,
-.workspace-sheet-slide-leave-from {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.workspace-hand-slide-enter-active,
-.workspace-hand-slide-leave-active {
-  transition:
-    transform 180ms ease,
-    opacity 180ms ease;
-}
-
-.workspace-hand-slide-enter-from,
-.workspace-hand-slide-leave-to {
-  opacity: 0;
-  transform: translateY(1rem);
-}
-
-.workspace-hand-slide-enter-to,
-.workspace-hand-slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>

@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="pageStore.page?.body"
-    class="h-full min-h-0 w-full overflow-y-auto rounded-2xl border border-success/30 bg-success/5"
+    class="content-host flex h-full min-h-0 w-full flex-col rounded-2xl border border-success/30 bg-success/5"
   >
     <ContentRenderer :value="pageStore.page" />
   </div>
@@ -32,9 +32,55 @@
 </template>
 
 <script setup lang="ts">
+import { computed, watch } from 'vue'
 import { useRoute } from '#app'
+import type { ContentCollectionItem } from '@nuxt/content'
 import { usePageStore } from '@/stores/pageStore'
 
 const route = useRoute()
 const pageStore = usePageStore()
+
+const contentPath = computed(() => {
+  const path = route.path.replace(/\/+$/, '')
+  return path || '/'
+})
+
+const { data: pageData, status } = await useAsyncData(
+  () => `content:${contentPath.value}`,
+  () => queryCollection('content').path(contentPath.value).first(),
+  {
+    default: () => null,
+    watch: [contentPath],
+    server: true,
+    lazy: false,
+    immediate: true,
+    dedupe: 'defer',
+  },
+)
+
+function syncPageStore(): void {
+  if (status.value === 'pending' || status.value === 'idle') {
+    pageStore.setLoading(true)
+    return
+  }
+
+  if (pageData.value) {
+    pageStore.setPage(pageData.value as ContentCollectionItem)
+    return
+  }
+
+  if (status.value === 'success') {
+    pageStore.clearPage()
+    pageStore.setLoading(false)
+  }
+}
+
+watch([status, pageData], syncPageStore, { immediate: true })
 </script>
+
+<style scoped>
+.content-host > :deep(*) {
+  flex: 1 1 0%;
+  min-height: 0;
+}
+</style>

@@ -5,11 +5,11 @@
   >
     <transition name="header-toggle">
       <button
-        v-if="!showHeader"
+        v-if="chromeMinimized"
         class="absolute left-1 top-1 z-30 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
         type="button"
-        title="Show header"
-        @click="toggleHeader"
+        title="Show header and footer"
+        @click="toggleChrome"
       >
         <Icon name="kind-icon:expand" class="h-3.5 w-3.5" />
         <span>Show</span>
@@ -18,7 +18,7 @@
 
     <transition name="header-slide">
       <header
-        v-if="showHeader"
+        v-if="!chromeMinimized"
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div
@@ -26,9 +26,9 @@
         >
           <button
             type="button"
-            title="Hide header"
+            title="Hide header and footer"
             class="group relative size-14 shrink-0 self-center overflow-hidden rounded-2xl ring-1 ring-base-300 sm:size-20 lg:size-32 xl:size-36"
-            @click="toggleHeader"
+            @click="toggleChrome"
           >
             <page-image
               class="h-full w-full rounded-2xl object-cover transition-opacity group-hover:opacity-60"
@@ -193,12 +193,6 @@
             <div
               class="header-icon-strip flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:gap-2 sm:overflow-hidden sm:p-2"
             >
-              <slot
-                name="actions"
-                :active-tab="activeTabKey"
-                :active-tab-config="activeTabConfig"
-              />
-
               <channel-select class="shrink-0" />
               <server-selector class="shrink-0" />
               <mana-widget class="shrink-0 lg:hidden" />
@@ -218,14 +212,12 @@
       <main
         class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
       >
-        <section
-          class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4"
-        >
-          <slot
-            :active-tab="activeTabKey"
-            :active-tab-config="activeTabConfig"
-            :set-tab="setTab"
-          />
+        <section class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4">
+          <div
+            class="flex h-full min-h-0 w-full items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-4 text-center text-xs font-black uppercase tracking-widest text-base-content/25"
+          >
+            Page content renders outside dashboard shell
+          </div>
         </section>
       </main>
     </section>
@@ -233,7 +225,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import {
   isDashboardKey,
   type DashboardKey,
@@ -242,12 +234,23 @@ import {
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
+const props = withDefaults(
+  defineProps<{
+    chromeMinimized?: boolean
+  }>(),
+  {
+    chromeMinimized: false,
+  },
+)
+
+const emit = defineEmits<{
+  toggleChrome: []
+}>()
+
 const fallbackIcon = 'kind-icon:sparkles'
 
 const navStore = useNavStore()
 const pageStore = usePageStore()
-
-const showHeader = ref(true)
 
 const shellTitle = computed(
   () => pageStore.room || pageStore.title || 'Kind Robots',
@@ -373,8 +376,8 @@ function setTab(tabKey: string): void {
   navStore.setDashboardTab(key, tabKey, 'dashboard-shell tab button')
 }
 
-function toggleHeader(): void {
-  showHeader.value = !showHeader.value
+function toggleChrome(): void {
+  emit('toggleChrome')
 }
 </script>
 

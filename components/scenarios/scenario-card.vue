@@ -12,8 +12,8 @@
   >
     <template #actions>
       <button
-        v-if="showActions && canEdit && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
+        v-if="showActions && canEdit"
+        class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Scenario"
         @click.stop="emit('edit', scenario.id)"
@@ -22,8 +22,8 @@
       </button>
 
       <button
-        v-if="showActions && allowClone && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
+        v-if="showActions && allowClone"
+        class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Clone Scenario"
         @click.stop="emit('clone', scenario.id)"
@@ -32,8 +32,8 @@
       </button>
 
       <button
-        v-if="showActions && canDelete && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
+        v-if="showActions && canDelete"
+        class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Scenario"
         @click.stop="deleteScenario"
@@ -42,124 +42,126 @@
       </button>
     </template>
 
-    <div
-      :class="[
-        'flex w-full gap-4',
-        compact ? 'flex-col' : 'flex-col md:flex-row',
-      ]"
-    >
-      <div
+    <div class="flex w-full flex-col">
+      <!-- Hero image: the art is the card -->
+      <figure
         v-if="showImage"
         :class="[
-          'relative shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-          compact ? 'h-32 w-full' : 'h-40 w-full md:h-48 md:w-48',
+          'relative w-full overflow-hidden rounded-xl bg-base-300',
+          compact ? 'aspect-video' : 'aspect-4/3',
         ]"
       >
         <img
           :src="computedScenarioImage"
           :alt="scenarioTitle"
-          class="h-full w-full object-cover transition-transform group-hover:scale-105"
+          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
         />
 
-        <div class="absolute left-2 top-2 flex flex-wrap gap-1">
+        <!-- Top badges -->
+        <div
+          class="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2"
+        >
           <span
             v-if="scenario.userId === userStore.userId"
-            class="badge badge-primary badge-sm"
+            class="badge badge-primary badge-sm shadow"
           >
             Yours
           </span>
+          <span v-else />
 
-          <span v-else class="badge badge-ghost badge-sm"> Scenario </span>
+          <span
+            v-if="scenario.isMature"
+            class="badge badge-warning badge-sm shadow"
+          >
+            Mature
+          </span>
         </div>
 
+        <!-- Title scrim -->
+        <figcaption
+          class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/45 to-transparent px-3 pb-3 pt-12"
+        >
+          <h2
+            :class="[
+              'font-black leading-tight text-white drop-shadow',
+              compact ? 'line-clamp-1 text-base' : 'line-clamp-2 text-lg',
+            ]"
+            :title="scenarioTitle"
+          >
+            {{ scenarioTitle }}
+          </h2>
+
+          <p
+            v-if="scenario.genres"
+            class="mt-0.5 line-clamp-1 text-xs font-medium text-white/75"
+          >
+            {{ scenario.genres }}
+          </p>
+        </figcaption>
+
+        <!-- Selected check -->
         <div
           v-if="activeSelected"
-          class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+          class="absolute right-2 top-9 rounded-full bg-primary p-1.5 text-primary-content shadow-lg"
         >
           <Icon name="kind-icon:check" class="h-4 w-4" />
         </div>
-      </div>
+      </figure>
 
-      <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <!-- Text-only fallback header when images are hidden -->
+      <div v-else class="flex items-start justify-between gap-2">
         <h2
-          :class="[
-            'font-black leading-tight text-base-content',
-            compact ? 'line-clamp-1 text-base' : 'text-xl',
-          ]"
-          :title="scenarioTitle"
+          class="line-clamp-2 text-base font-black leading-tight text-base-content"
         >
           {{ scenarioTitle }}
         </h2>
 
-        <p
-          v-if="showDescription"
-          :class="[
-            'text-base-content/70',
-            compact ? 'line-clamp-2 text-sm' : 'text-sm md:text-base',
-          ]"
+        <Icon
+          v-if="activeSelected"
+          name="kind-icon:check"
+          class="h-5 w-5 shrink-0 text-primary"
+        />
+      </div>
+
+      <div v-if="showDescription && !compact" class="px-0.5 pt-2.5">
+        <p class="line-clamp-3 text-sm leading-relaxed text-base-content/70">
+          {{ scenario.description || 'No description yet.' }}
+        </p>
+      </div>
+
+      <div v-if="showMeta" class="flex flex-wrap gap-1.5 px-0.5 pt-2">
+        <span
+          v-if="scenario.locations"
+          class="badge badge-ghost badge-sm max-w-full truncate"
+          :title="scenario.locations"
         >
-          {{ scenario.description || 'No description available.' }}
+          <Icon name="kind-icon:map" class="mr-1 h-3 w-3" />
+          {{ scenario.locations }}
+        </span>
+
+        <span v-if="introCount" class="badge badge-outline badge-sm">
+          {{ introCount }} {{ introCount === 1 ? 'opening' : 'openings' }}
+        </span>
+      </div>
+
+      <div
+        v-if="showInspirations && scenario.inspirations && !compact"
+        class="mx-0.5 mt-2.5 rounded-xl border border-base-300 bg-base-100 p-2.5"
+      >
+        <p
+          class="text-[0.65rem] font-bold uppercase tracking-wider text-base-content/50"
+        >
+          Inspirations
         </p>
 
-        <div v-if="showMeta" class="flex flex-wrap gap-2">
-          <span
-            v-if="scenario.genres"
-            class="badge badge-outline badge-sm max-w-full truncate"
-          >
-            {{ scenario.genres }}
-          </span>
-
-          <span v-if="scenario.userId" class="badge badge-ghost badge-sm">
-            User #{{ scenario.userId }}
-          </span>
-
-          <span v-if="scenario.artImageId" class="badge badge-primary badge-sm">
-            Art Image #{{ scenario.artImageId }}
-          </span>
-        </div>
-
-        <div
-          v-if="showInspirations && scenario.inspirations && !compact"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm text-base-content/70"
+        <p
+          class="mt-0.5 line-clamp-2 text-xs leading-relaxed text-base-content/70"
         >
-          <p class="mb-1 font-bold text-base-content">Inspirations</p>
-
-          <p class="whitespace-pre-wrap">
-            {{ scenario.inspirations }}
-          </p>
-        </div>
+          {{ scenario.inspirations }}
+        </p>
       </div>
     </div>
-
-    <div
-      v-if="showChoices && activeSelected && introChoices.length"
-      class="grid w-full grid-cols-1 gap-3 pt-2 md:grid-cols-2 xl:grid-cols-3"
-    >
-      <button
-        v-for="(intro, index) in introChoices"
-        :key="`${intro}-${index}`"
-        class="btn btn-secondary h-auto min-h-16 w-full whitespace-normal rounded-xl px-4 py-3 text-left leading-relaxed"
-        type="button"
-        @click.stop="setCurrentChoice(intro)"
-      >
-        {{ intro }}
-      </button>
-    </div>
-
-    <details
-      v-if="showDebug"
-      class="rounded-2xl border border-base-300 bg-base-100 p-2"
-      @click.stop
-    >
-      <summary class="cursor-pointer text-xs font-bold text-base-content/70">
-        Debug
-      </summary>
-
-      <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
-        JSON.stringify(scenario, null, 2)
-      }}</pre>
-    </details>
   </reactable-card>
 </template>
 
@@ -169,6 +171,7 @@ import type { Scenario } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
+import { parseScenarioIntros } from '@/stores/helpers/scenarioHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -180,9 +183,7 @@ const props = withDefaults(
     showDescription?: boolean
     showMeta?: boolean
     showInspirations?: boolean
-    showChoices?: boolean
     showReaction?: boolean
-    showDebug?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
     allowClone?: boolean
@@ -195,10 +196,8 @@ const props = withDefaults(
     showActions: true,
     showDescription: true,
     showMeta: true,
-    showInspirations: true,
-    showChoices: true,
+    showInspirations: false,
     showReaction: true,
-    showDebug: false,
     allowEdit: true,
     allowDelete: true,
     allowClone: true,
@@ -207,10 +206,10 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
+  select: [id: number]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
-  choice: [choice: string]
 }>()
 
 const scenarioStore = useScenarioStore()
@@ -251,35 +250,13 @@ const computedScenarioImage = computed(() => {
   return props.scenario.imagePath || props.fallbackImage
 })
 
-const introChoices = computed<string[]>(() => {
-  const raw = props.scenario.intros
-
-  if (!raw) return []
-
-  if (Array.isArray(raw)) {
-    return raw.filter((entry): entry is string => typeof entry === 'string')
-  }
-
-  try {
-    const parsed = JSON.parse(raw)
-
-    if (Array.isArray(parsed)) {
-      return parsed.filter((entry): entry is string => {
-        return typeof entry === 'string'
-      })
-    }
-
-    return []
-  } catch {
-    return raw
-      .split('\n')
-      .map((entry) => entry.trim())
-      .filter(Boolean)
-  }
+const introCount = computed(() => {
+  return parseScenarioIntros(props.scenario.intros).length
 })
 
 function selectScenario() {
   scenarioStore.selectScenario(props.scenario.id)
+  emit('select', props.scenario.id)
 }
 
 async function deleteScenario() {
@@ -288,11 +265,6 @@ async function deleteScenario() {
   if (deleted !== false) {
     emit('delete', props.scenario.id)
   }
-}
-
-function setCurrentChoice(choice: string) {
-  scenarioStore.setCurrentChoice(choice)
-  emit('choice', choice)
 }
 
 async function loadScenarioImage() {

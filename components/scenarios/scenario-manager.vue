@@ -24,55 +24,13 @@
       </button>
     </div>
 
+    <!-- Overview + Interact share the same phased flow:
+         scenario-interact owns browse → configure → story. -->
     <section
-      v-if="activeTab === 'overview'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+      v-if="activeTab === 'overview' || activeTab === 'interact'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <div class="flex flex-col gap-4">
-            <scenario-gallery
-              variant="dropdown"
-              :show-header="false"
-              :show-controls="false"
-              :show-images="true"
-              :show-inspirations="false"
-              :show-choices="false"
-              :show-card-actions="false"
-              :show-meta="false"
-              :compact="true"
-            />
-
-            <character-gallery
-              variant="dropdown"
-              :show-header="false"
-              :show-controls="false"
-              :show-images="true"
-              :show-card-actions="false"
-              :show-meta="false"
-              :compact="true"
-            />
-
-            <reward-gallery
-              variant="dropdown"
-              :show-header="false"
-              :show-controls="false"
-              :show-images="true"
-              :show-card-actions="false"
-              :show-meta="false"
-              :compact="true"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
-      >
-        <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
+      <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <section
@@ -81,38 +39,9 @@
     >
       <scenario-gallery
         class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
+        variant="grid"
         :show-header="false"
       />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'characters'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <character-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'rewards'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <reward-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'interact'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <div
@@ -133,20 +62,12 @@ import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
-type ScenarioTab =
-  | 'overview'
-  | 'scenarios'
-  | 'builder'
-  | 'characters'
-  | 'rewards'
-  | 'interact'
+type ScenarioTab = 'overview' | 'scenarios' | 'builder' | 'interact'
 
 const scenarioTabs: ScenarioTab[] = [
   'overview',
   'scenarios',
   'builder',
-  'characters',
-  'rewards',
   'interact',
 ]
 

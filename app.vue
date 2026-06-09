@@ -20,11 +20,11 @@
         @toggle-chrome="toggleChrome"
       />
 
-      <section class="relative z-30 min-h-0 flex-1 overflow-hidden">
+      <section class="relative z-40 min-h-0 flex-1 overflow-hidden">
         <button
           v-if="!workspaceSheetOpen"
           type="button"
-          class="btn btn-primary btn-xs btn-square absolute left-3 top-3 z-30 shadow-lg"
+          class="btn btn-xs btn-square absolute left-3 top-3 z-30 shadow-lg"
           aria-label="Open workspace"
           :aria-expanded="workspaceSheetOpen"
           @click="setWorkspaceSheetOpen(true)"
@@ -116,7 +116,7 @@
 
     <button
       type="button"
-      class="btn btn-primary btn-sm btn-circle fixed left-1/2 z-40 -translate-x-1/2 shadow-xl transition-all duration-300"
+      class="btn btn-sm btn-circle fixed left-1/2 z-40 -translate-x-1/2 shadow-xl transition-all duration-300"
       :class="
         chromeMinimized ? 'bottom-3' : 'bottom-[calc(var(--hand-h)+0.75rem)]'
       "

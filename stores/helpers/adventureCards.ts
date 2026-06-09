@@ -22,68 +22,6 @@ export type PresetChoice = BuilderChoice
 export type AdventureStep = BuilderStep
 export type AdventureCard = BuilderCard
 
-const EXTENDED_GENRES: string[] = [
-  'Bureaucratic Fantasy',
-  'Academic Eldritch',
-  'Municipal Necromancy',
-  'Wilderness Bureaucracy',
-  'Diplomatic Thriller',
-  'Archive Horror',
-  'Revolutionary Pastoral',
-  'Bog Punk',
-  'Culinary Horror',
-  'Geological Romance',
-  'Siege Comedy',
-  'Tender Apocalypse',
-  'Haunted Procedural',
-  'Existential Swashbuckling',
-  'Heist Mythology',
-  'Maritime Mystery',
-  'Pastoral Apocalypse',
-  'Isekai (reluctant)',
-  'Slice of Life (complicated)',
-  'Shonen (aging protagonist)',
-  'Magical Girl (retired)',
-  'Mecha Opera',
-  'Tournament Arc',
-  'School Horror',
-  'Reverse Isekai',
-  'Vaporwave Dystopia',
-  'Hard Sci-Fi (soft feelings)',
-  'Generation Ship Drama',
-  'First Contact Comedy',
-  'Deep Space Western',
-  'Alien Bureaucracy',
-  'Corporate Sci-Fi',
-  'Clockpunk Opera',
-  'J-Horror',
-  'Body Horror (tender)',
-  'Cryptid Documentary',
-  "Kaiju (from the kaiju's perspective)",
-  'Fungal Horror',
-  'Furry Pastoral',
-  'Aquatic Opera',
-  'Sky Nomad',
-  'Underground Society',
-  'Office Thriller',
-  'Lovecraftian Office Comedy',
-  'Corporate Espionage',
-  'Middle Management Horror',
-  'Noir (one detail wrong)',
-  'Carnival (abandoned, still running)',
-  'Mythological Comedy',
-  'Underwater Cathedral',
-  'Green Sky Apocalypse',
-  'Old Forest Folklore',
-  'Bioluminescent Underground',
-  'Too-Close Moon Fairytale',
-  'Empty Parliament Thriller',
-  'Village Creature Pastoral',
-  'Anachronism Mystery',
-  'Western (strange angle)',
-  'Political Candlelight Drama',
-]
-
 const EXTENDED_CALLINGS: string[] = [
   'Plague Baker',
   'Retired Villain',
@@ -146,8 +84,6 @@ const EXTENDED_CALLINGS: string[] = [
 
 export type AdventureBuilderSheet = BuilderSheet & {
   name: string
-  honorific: string
-  genre: string
   species: string
   class: string
   alignment: string
@@ -185,8 +121,6 @@ export function defaultAdventureStats(): BuilderStatEntry[] {
 export function defaultAdventureSheet(userId = 10): AdventureBuilderSheet {
   return {
     name: '',
-    honorific: 'adventurer',
-    genre: '',
     species: '',
     class: '',
     alignment: '',
@@ -218,7 +152,7 @@ export const ADVENTURE_SPLASH: BuilderSplash = {
   tagline:
     'Make someone weird. Give them stats. Make it everyone else’s problem.',
   description:
-    'Build a character one dramatic card at a time: genre, name, origin, identity, personality, stats, backstory, skills, and portrait.',
+    'Build a character one direct choice at a time: species, gender, alignment, calling, personality, quirks, backstory, stats, skills, items, and portrait.',
   imagePath: '/images/adventure/splash.webp',
   ctaLabel: 'Begin the Ledger',
   secondaryLabel: 'Draw a Random Card',
@@ -227,392 +161,20 @@ export const ADVENTURE_SPLASH: BuilderSplash = {
 // ── Cards ──────────────────────────────────────────────────────────────────
 
 export const ADVENTURE_CARDS: BuilderCard[] = [
-  // ── Role ────────────────────────────────────────────────────────────────
+  // ── Species ───────────────────────────────────────────────────────────────
   {
-    key: 'role',
-    label: 'Genre',
-    title: 'The frequency',
-    icon: 'kind-icon:mask',
-    flourish: '⚜',
-    deckImage: '/images/adventure/thumb/role.webp',
-    heroImage: '/images/adventure/hero/role.webp',
-    tagline: 'Every story has a gravitational field.',
-    narrative:
-      'Every story has a genre-mass that bends all events toward itself. The cozy horror and the alien bureaucracy thriller are the same distance from the truth. They just dress differently. Choose the field this character inhabits. It will shape everything — the stakes, the lighting, the kind of trouble that finds them.',
-    required: true,
-    restoresFields: ['genre'],
-    steps: [
-      {
-        key: 'genre',
-        title: 'Genre Frequency',
-        narrative:
-          "Every story has a gravitational field — a genre-mass that bends all events toward itself. The cozy horror and the alien bureaucracy thriller are the same distance from the truth. They just dress differently. Choose the field this character inhabits — or name one that doesn't exist yet.",
-        inputType: 'preset',
-        field: 'genre',
-        choices: [
-          {
-            value: 'Fantasy',
-            label: 'Classic Fantasy',
-            subtext:
-              'Dragon on a castle. The dragon is reading something, unconcerned.',
-            image: '/images/adventure/genre/fantasy.webp',
-          },
-          {
-            value: 'Science Fiction',
-            label: 'Science Fiction',
-            subtext:
-              'Technology, possibility, consequences, and one blinking panel nobody should touch.',
-            image: '/images/adventure/genre/scifi.webp',
-          },
-          {
-            value: 'Mystery',
-            label: 'Mystery',
-            subtext: 'The magnifying glass is pointed at the viewer.',
-            image: '/images/adventure/genre/mystery.webp',
-          },
-          {
-            value: 'Thriller',
-            label: 'Thriller',
-            subtext:
-              'The clock is ticking. Nobody agrees who started it. Everyone is running anyway.',
-            image: '/images/adventure/genre/thriller.webp',
-          },
-          {
-            value: 'Crime',
-            label: 'Crime',
-            subtext:
-              'Someone broke the rules. Someone else is profiting. The evidence has fingerprints and opinions.',
-            image: '/images/adventure/genre/crime.webp',
-          },
-          {
-            value: 'Horror',
-            label: 'Horror',
-            subtext:
-              'The reaching hand is coming from the lantern, not the ground.',
-            image: '/images/adventure/genre/horror.webp',
-          },
-          {
-            value: 'Romance',
-            label: 'Romance',
-            subtext:
-              'Two figures almost touching. Both looking at the same third thing, off-frame.',
-            image: '/images/adventure/genre/romance.webp',
-          },
-          {
-            value: 'Comedy',
-            label: 'Comedy',
-            subtext: 'Motion lines that spell something.',
-            image: '/images/adventure/genre/comedy.webp',
-          },
-          {
-            value: 'Drama',
-            label: 'Drama',
-            subtext:
-              'A room full of feelings. Nobody has said the thing yet. Everyone knows the thing.',
-            image: '/images/adventure/genre/drama.webp',
-          },
-          {
-            value: 'Action',
-            label: 'Action',
-            subtext:
-              'The door explodes inward. Someone was already moving before it happened.',
-            image: '/images/adventure/genre/action.webp',
-          },
-          {
-            value: 'Adventure',
-            label: 'Adventure',
-            subtext:
-              'A map, a mistake, a horizon, and a very questionable amount of rope.',
-            image: '/images/adventure/genre/adventure.webp',
-          },
-          {
-            value: 'Historical Fiction',
-            label: 'Historical Fiction',
-            subtext:
-              'The past, but with better lighting and consequences that still have mud on them.',
-            image: '/images/adventure/genre/historical-fiction.webp',
-          },
-          {
-            value: 'Young Adult',
-            label: 'Young Adult',
-            subtext:
-              'Big feelings, sharp choices, first rebellions, and adults who are mostly decorative hazards.',
-            image: '/images/adventure/genre/young-adult.webp',
-          },
-          {
-            value: "Children's Fantasy",
-            label: "Children's Fantasy",
-            subtext:
-              'A bright doorway, a talking creature, and danger with rounded edges.',
-            image: '/images/adventure/genre/childrens-fantasy.webp',
-          },
-          {
-            value: 'True Crime',
-            label: 'True Crime',
-            subtext:
-              'A neat timeline of terrible events. The corkboard is not emotionally well.',
-            image: '/images/adventure/genre/true-crime.webp',
-          },
-          {
-            value: 'Gothic',
-            label: 'Gothic',
-            subtext:
-              'A house with secrets, a family with rot, and weather that took the assignment personally.',
-            image: '/images/adventure/genre/gothic.webp',
-          },
-          {
-            value: 'Gothic Comedy',
-            label: 'Gothic Comedy',
-            subtext: 'Elegant decay. Comedic timing in the crypt.',
-            image: '/images/adventure/genre/gothic-comedy.webp',
-          },
-          {
-            value: 'Weirdcore',
-            label: 'Weirdcore',
-            subtext:
-              'Childhood wallpaper, impossible hallways, smiling objects, and the feeling that nostalgia has teeth.',
-            image: '/images/adventure/genre/weirdcore.webp',
-          },
-          {
-            value: 'Magical Realism',
-            label: 'Magical Realism',
-            subtext:
-              'The impossible arrives quietly, and everyone continues making breakfast around it.',
-            image: '/images/adventure/genre/magical-realism.webp',
-          },
-          {
-            value: 'Cosmic Horror',
-            label: 'Cosmic Horror',
-            subtext:
-              'The universe notices you for one second. This is not encouraging.',
-            image: '/images/adventure/genre/cosmic-horror.webp',
-          },
-          {
-            value: 'Cosmic Dread',
-            label: 'Cosmic Dread',
-            subtext: 'Tiny figure. Enormous moon. The moon has a door.',
-            image: '/images/adventure/genre/cosmic.webp',
-          },
-          {
-            value: 'Folk Horror',
-            label: 'Folk Horror',
-            subtext:
-              'The village has traditions. The traditions have teeth. The harvest is watching.',
-            image: '/images/adventure/genre/folk-horror.webp',
-          },
-          {
-            value: 'Cozy Horror',
-            label: 'Cozy Horror',
-            subtext: 'Something outside the window. Cup of tea inside.',
-            image: '/images/adventure/genre/cozy.webp',
-          },
-          {
-            value: 'Noir',
-            label: 'Noir',
-            subtext:
-              'Rain on glass, smoke in the room, and one person telling the truth badly.',
-            image: '/images/adventure/genre/noir.webp',
-          },
-          {
-            value: 'Western',
-            label: 'Western',
-            subtext:
-              'Dust, distance, a bad town, and someone arriving with unfinished business.',
-            image: '/images/adventure/genre/western.webp',
-          },
-          {
-            value: 'War',
-            label: 'War',
-            subtext:
-              'Orders, mud, fear, courage, and maps that simplify everything except the cost.',
-            image: '/images/adventure/genre/war.webp',
-          },
-          {
-            value: 'Spy / Espionage',
-            label: 'Spy / Espionage',
-            subtext:
-              'A false name, a hidden room, a perfect suit, and no one telling the whole truth.',
-            image: '/images/adventure/genre/espionage.webp',
-          },
-          {
-            value: 'Superhero',
-            label: 'Superhero',
-            subtext:
-              'Power, spectacle, responsibility, collateral damage, and capes making questionable tactical claims.',
-            image: '/images/adventure/genre/superhero.webp',
-          },
-          {
-            value: 'Cyberpunk',
-            label: 'Cyberpunk',
-            subtext:
-              'Neon rain, corporate gods, broken bodies, bright screens, and rebellion with bad Wi-Fi.',
-            image: '/images/adventure/genre/cyberpunk.webp',
-          },
-          {
-            value: 'Steampunk',
-            label: 'Steampunk',
-            subtext:
-              'Brass, steam, goggles, impossible machines, and class conflict in a very fancy hat.',
-            image: '/images/adventure/genre/steampunk.webp',
-          },
-          {
-            value: 'Space Opera',
-            label: 'Space Opera',
-            subtext:
-              'Huge ships, huge feelings, huge stakes, and someone monologuing near a nebula.',
-            image: '/images/adventure/genre/space-opera.webp',
-          },
-          {
-            value: 'Urban Fantasy',
-            label: 'Urban Fantasy',
-            subtext:
-              'Magic in the alley, monsters on the subway, prophecy with a parking ticket.',
-            image: '/images/adventure/genre/urban-fantasy.webp',
-          },
-          {
-            value: 'Dark Fantasy',
-            label: 'Dark Fantasy',
-            subtext:
-              'Magic with blood under the nails. The sword glows, but not in a comforting way.',
-            image: '/images/adventure/genre/dark-fantasy.webp',
-          },
-          {
-            value: 'Paranormal',
-            label: 'Paranormal',
-            subtext:
-              'Ghosts, omens, forbidden powers, and one very normal person pretending this is fine.',
-            image: '/images/adventure/genre/paranormal.webp',
-          },
-          {
-            value: 'Dystopian',
-            label: 'Dystopian',
-            subtext:
-              'The system works exactly as designed. That is the problem.',
-            image: '/images/adventure/genre/dystopian.webp',
-          },
-          {
-            value: 'Post-Apocalypse',
-            label: 'Apocalypse',
-            subtext: 'Still keeping it together despite it all.',
-            image: '/images/adventure/genre/apocalypse.webp',
-          },
-          {
-            value: 'Satire',
-            label: 'Satire',
-            subtext:
-              'Reality, but tilted just enough that everyone pretending not to notice looks ridiculous.',
-            image: '/images/adventure/genre/satire.webp',
-          },
-          {
-            value: 'Musical',
-            label: 'Musical',
-            subtext:
-              'The emotion gets too large for speech and escapes through choreography.',
-            image: '/images/adventure/genre/musical.webp',
-          },
-          {
-            value: 'Solarpunk',
-            label: 'Solarpunk',
-            subtext:
-              'Green cities, repaired futures, sunlight, gardens, and optimism with engineering diagrams.',
-            image: '/images/adventure/genre/solarpunk.webp',
-          },
-          {
-            value: 'Sword and Sorcery',
-            label: 'Sword and Sorcery',
-            subtext:
-              'Steel, spells, ruins, ambition, and one extremely cursed jewel nobody should touch.',
-            image: '/images/adventure/genre/sword-and-sorcery.webp',
-          },
-          {
-            value: 'Martial Arts',
-            label: 'Martial Arts',
-            subtext:
-              'Discipline, rivalry, impossible training, and a fight that explains who everyone really is.',
-            image: '/images/adventure/genre/martial-arts.webp',
-          },
-          {
-            value: 'Fairy Tale',
-            label: 'Fairy Tale',
-            subtext:
-              'A forest path, a rule of three, a bargain, and something beautiful with sharp edges.',
-            image: '/images/adventure/genre/fairy-tale.webp',
-          },
-          {
-            value: 'Mythology',
-            label: 'Mythology',
-            subtext:
-              'Gods, monsters, oaths, impossible births, and someone being punished very poetically.',
-            image: '/images/adventure/genre/mythology.webp',
-          },
-          {
-            value: 'Carnival',
-            label: 'Carnival',
-            subtext: 'Abandoned fairground, still running. There is a queue.',
-            image: '/images/adventure/genre/carnival.webp',
-          },
-          {
-            value: '',
-            label: 'More genres...',
-            subtext:
-              'Isekai, mecha, bog punk, alien bureaucracy, and sixty more.',
-            opensList: true,
-            listOptions: EXTENDED_GENRES,
-          },
-          {
-            value: '',
-            label: 'Write my own',
-            subtext: 'Any genre, vibe, or gravitational field that fits.',
-            opensCustom: true,
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Name ────────────────────────────────────────────────────────────────
-  {
-    key: 'name',
-    label: 'Name',
-    title: 'The ledger awaits',
-    icon: 'kind-icon:signature',
-    flourish: '✒',
-    deckImage: '/images/adventure/thumb/name.webp',
-    heroImage: '/images/adventure/hero/name.webp',
-    tagline: 'The quill has been waiting. It is fine.',
-    narrative:
-      'A name is a surprisingly durable thing. It outlasts the entity who carries it, haunts records, appears on maps, gets shouted across crowded rooms at the worst possible moment. The entity may not use language. They may not have a mouth. These are not obstacles — they are interesting constraints. The ledger has seen stranger.',
-    required: true,
-    restoresFields: ['name'],
-    steps: [
-      {
-        key: 'name',
-        title: 'Name',
-        narrative:
-          'Choose a name. Or a designation. Or a frequency. Or the sound others make when they mean this one. Names come in many formats. All of them work. Some work better than others in the dark.',
-        inputType: 'text',
-        field: 'name',
-        generatorKey: 'givenName',
-        placeholder: 'Mira Voss, Buttonwick, Unit 7, The Clicking Sound...',
-        inputLabel: 'Name',
-      },
-    ],
-  },
-
-  // ── Origin ───────────────────────────────────────────────────────────────
-  {
-    key: 'origin',
-    label: 'Origin',
-    title: 'The classification problem',
+    key: 'species',
+    label: 'Species',
+    title: 'The factory configuration',
     icon: 'kind-icon:species',
     flourish: '❦',
-    deckImage: '/images/adventure/thumb/origin.webp',
-    heroImage: '/images/adventure/hero/origin.webp',
-    tagline: 'What they are. What they do. What they do about it.',
+    deckImage: '/images/adventure/thumb/species.webp',
+    heroImage: '/images/adventure/hero/species.webp',
+    tagline: 'What they are, before the story starts arguing.',
     narrative:
-      'The universal filing system requires three entries: species, calling, and ethical orientation. The system was designed for bipedal mammals and has been failing gracefully ever since. Fill in the fields. Do not let taxonomic anxiety prevent progress. The cosmos has classified things far stranger and lost the documentation either way.',
+      'What is this entity? Biology, taxonomy, cosmic category, inconvenient paperwork — choose the visible truth that belongs on the sheet. Species is origin, not destiny. Many of the most interesting entities have done significant custom work on theirs.',
     required: true,
-    restoresFields: ['species', 'class', 'alignment'],
+    restoresFields: ['species'],
     steps: [
       {
         key: 'species',
@@ -1301,8 +863,277 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
           },
         ],
       },
+    ],
+  },
+
+  // ── Gender ────────────────────────────────────────────────────────────────
+  {
+    key: 'gender',
+    label: 'Gender',
+    title: 'The frequency of self',
+    icon: 'kind-icon:person',
+    flourish: '☾',
+    deckImage: '/images/adventure/thumb/gender.webp',
+    heroImage: '/images/adventure/hero/gender.webp',
+    tagline: 'How they occupy identity. Or decline the premise.',
+    narrative:
+      'Does this entity relate to the concept of gender? Some do, fully. Some find the framework inapplicable to their architecture and prefer to note that on the form and move on. All answers are recorded without judgment. The form has seen stranger.',
+    required: true,
+    restoresFields: ['gender'],
+    steps: [
       {
-        key: 'characterClass',
+        key: 'gender',
+        title: 'Gender',
+        narrative:
+          "Does this entity relate to the concept of gender? It's a more open question than it sounds. Some do, fully. Some find the framework inapplicable to their architecture and prefer to note that on the form and move on. All answers are recorded without judgment. The form has seen stranger.",
+        inputType: 'preset',
+        field: 'gender',
+        choices: [
+          {
+            value: 'man',
+            label: 'Masculine',
+            subtext: 'He/him, or however the story fits.',
+            image: '/images/adventure/gender/masculine.webp',
+          },
+          {
+            value: 'woman',
+            label: 'Feminine',
+            subtext: 'She/her. Presence, power, and all that entails.',
+            image: '/images/adventure/gender/feminine.webp',
+          },
+          {
+            value: 'nonbinary',
+            label: 'Non-Binary',
+            subtext: 'They/them. Both. Neither. Something else entirely.',
+            image: '/images/adventure/gender/nonbinary.webp',
+          },
+          {
+            value: 'agender',
+            label: 'Pronouns Are Paperwork',
+            subtext:
+              'Just an entity, moving through space. The rest is administrative.',
+            image: '/images/adventure/gender/neutral.webp',
+          },
+          {
+            value: 'fluid',
+            label: 'Gender Fluid',
+            subtext: 'Shifting, contextual, alive. Ask again Thursday.',
+            image: '/images/adventure/gender/fluid.webp',
+          },
+          {
+            value: 'N/A — inapplicable to entity architecture',
+            label: 'Does Not Apply',
+            image: '/images/adventure/gender/agender.webp',
+            subtext:
+              "The framework doesn't parse for this entity. Noted and filed.",
+          },
+          {
+            value: '',
+            label: 'From the full list',
+            subtext: 'Two-spirit, demi, intersex, questioning, and more.',
+            image: '/images/adventure/gender/custom.webp',
+            opensList: true,
+            listOptions: [
+              'two-spirit',
+              'agender',
+              'demi',
+              'intersex',
+              'questioning',
+              'pangender',
+              'genderqueer',
+              'androgynous',
+              'neutrois',
+              'aporagender',
+              'xenogender',
+              'maverique',
+              'demigirl',
+              'demiboy',
+            ],
+          },
+          {
+            value: '',
+            label: 'Write my own',
+            subtext: 'Any word, phrase, or cosmological designation that fits.',
+            opensCustom: true,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── Alignment ─────────────────────────────────────────────────────────────
+  {
+    key: 'alignment',
+    label: 'Alignment',
+    title: 'The moral weather',
+    icon: 'kind-icon:scale',
+    flourish: '⚖',
+    deckImage: '/images/adventure/thumb/alignment.webp',
+    heroImage: '/images/adventure/hero/alignment.webp',
+    tagline: 'Not morality. Weather with opinions.',
+    narrative:
+      'Alignment is not morality. Alignment is weather. Two entities can both wake up convinced they are correct — the alignment is how they believe it. Improvised alignments are strongly encouraged.',
+    required: true,
+    restoresFields: ['alignment'],
+    steps: [
+      {
+        key: 'alignment',
+        title: 'Alignment',
+        narrative:
+          'Alignment is not morality. Alignment is weather. Two entities can both wake up convinced they are correct — the alignment is how they believe it. Improvised alignments are strongly encouraged.',
+        inputType: 'preset',
+        field: 'alignment',
+        choices: [
+          {
+            value: 'Lawful Good',
+            label: 'Lawful Good',
+            subtext: 'The rules exist for a reason. The reason is good.',
+            image: '/images/adventure/alignment/lawful-good.webp',
+          },
+          {
+            value: 'Neutral Good',
+            label: 'Neutral Good',
+            image: '/images/adventure/alignment/neutral-good.webp',
+            subtext: 'The outcome is good. The method is flexible.',
+          },
+          {
+            value: 'Chaotic Good',
+            label: 'Chaotic Good',
+            subtext: 'The outcome is good. The method is negotiable.',
+            image: '/images/adventure/alignment/chaotic-good.webp',
+          },
+          {
+            value: 'Lawful Neutral',
+            label: 'Lawful Neutral',
+            image: '/images/adventure/alignment/lawful-neutral.webp',
+            subtext:
+              'The rules exist. They are not an ethical position. They are simply the rules.',
+          },
+          {
+            value: 'True Neutral',
+            label: 'True Neutral',
+            subtext: 'The rules exist. Everything does.',
+            image: '/images/adventure/alignment/neutral.webp',
+          },
+          {
+            value: 'Chaotic Neutral',
+            label: 'Chaotic Neutral',
+            image: '/images/adventure/alignment/chaotic-neutral.webp',
+            subtext: 'The rules are a suggestion with too much confidence.',
+          },
+          {
+            value: 'Lawful Evil',
+            label: 'Lawful Evil',
+            image: '/images/adventure/alignment/lawful-evil.webp',
+            subtext: 'The rules exist. I wrote several of them.',
+          },
+          {
+            value: 'Neutral Evil',
+            label: 'Neutral Evil',
+            image: '/images/adventure/alignment/neutral-evil.webp',
+            subtext: 'The rules exist when convenient.',
+          },
+          {
+            value: 'Chaotic Evil',
+            label: 'Chaotic Evil',
+            image: '/images/adventure/alignment/chaotic-evil.webp',
+          },
+          {
+            value: 'Appetite',
+            label: 'Appetite',
+            subtext:
+              'Desire as the organizing principle. Not greed — the honest admission that wanting is the engine. The thing wanted changes. The wanting does not.',
+            image: '/images/adventure/alignment/appetite.webp',
+          },
+          {
+            value: 'Onanism',
+            label: 'Onanism',
+            subtext:
+              'To thine own self be true, above all others. The self is the only thing one can truly know and therefore the only thing worth serving. A philosophy, not a flaw.',
+            image: '/images/adventure/alignment/onanism.webp',
+          },
+          {
+            value: 'Safety',
+            label: 'Safety',
+            subtext: `Keeping what is known and loved intact is the supreme moral good. Not cowardice — conviction. The emergency exits are always located before the show begins.`,
+            image: '/images/adventure/alignment/safety.webp',
+          },
+          {
+            value: 'Curious',
+            label: 'Curious',
+            subtext: `Knowledge as the terminal value. Ethics is an obstacle to data, not a framework for using it. The warning label was read. It was found insufficient.`,
+            image: '/images/adventure/alignment/curious.webp',
+          },
+          {
+            value: 'Petty',
+            label: 'Petty',
+            subtext:
+              'The organizing principle is the list of grievances. The list is accurate, well-maintained, and longer than anyone suspects.',
+            image: '/images/adventure/alignment/petty.webp',
+          },
+          {
+            value: 'Correct',
+            label: 'Correct',
+            subtext:
+              'Not good, not lawful — right. Demonstrably, verifiably, on-the-record right. The ethical implications are secondary to the accuracy.',
+            image: '/images/adventure/alignment/correct.webp',
+          },
+          {
+            value: 'Loyal',
+            label: 'Loyal',
+            subtext:
+              'Aligned to a person, not a principle. Morality is whatever they need it to be. The philosophy updates when the person does.',
+            image: '/images/adventure/alignment/loyal.webp',
+          },
+          {
+            value: 'Aesthetic',
+            label: 'Aesthetic',
+            subtext:
+              'Beauty and ugliness as the only real moral categories. The good thing is the beautiful thing. The graceless thing is the evil thing. The thing is beige.',
+            image: '/images/adventure/alignment/aesthetic.webp',
+          },
+          {
+            value: 'Utilitarian',
+            label: 'Utilitarian',
+            subtext:
+              'The math is the morality. Most lives saved wins. Always. The feelings about this are irrelevant to the calculation. Someone off-frame is not going to like the answer.',
+            image: '/images/adventure/alignment/utilitarian.webp',
+          },
+          {
+            value: 'Transactional',
+            label: 'Transactional',
+            subtext:
+              'Everything is an exchange. Not mercenary — honest. Nothing is free and pretending otherwise is the only real lie. Both parties understand the terms.',
+            image: '/images/adventure/alignment/transactional.webp',
+          },
+          {
+            value: '',
+            label: 'Custom alignment',
+            subtext: 'Any organizing principle not listed above.',
+            opensCustom: true,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── Calling ───────────────────────────────────────────────────────────────
+  {
+    key: 'class',
+    label: 'Calling',
+    title: 'The compacted life decision',
+    icon: 'kind-icon:sparkles',
+    flourish: '✧',
+    deckImage: '/images/adventure/thumb/calling.webp',
+    heroImage: '/images/adventure/hero/calling.webp',
+    tagline: 'What they do, or what the world keeps calling them.',
+    narrative:
+      'A calling is a compacted life decision: everything they have practiced, everything they have been called, the specific shape their existence has taken from doing one thing repeatedly in the direction of the world. Any answer is acceptable. Unknown is a calling.',
+    required: true,
+    restoresFields: ['class'],
+    steps: [
+      {
+        key: 'class',
         title: 'Calling',
         narrative:
           "A class is a compacted life decision. Everything they've practiced, everything they've been called, the specific shape their existence has taken from doing one thing repeatedly in the direction of the world. Choose from the archetypes below — or expand to the full list. Any answer is acceptable. 'Unknown' is a class.",
@@ -1609,239 +1440,6 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
             value: '',
             label: 'Write my own',
             subtext: 'Any function, title, or inexplicable life direction.',
-            opensCustom: true,
-          },
-        ],
-      },
-      {
-        key: 'alignment',
-        title: 'Alignment',
-        narrative:
-          'Alignment is not morality. Alignment is weather. Two entities can both wake up convinced they are correct — the alignment is how they believe it. Improvised alignments are strongly encouraged.',
-        inputType: 'preset',
-        field: 'alignment',
-        choices: [
-          {
-            value: 'Lawful Good',
-            label: 'Lawful Good',
-            subtext: 'The rules exist for a reason. The reason is good.',
-            image: '/images/adventure/alignment/lawful-good.webp',
-          },
-          {
-            value: 'Neutral Good',
-            label: 'Neutral Good',
-            image: '/images/adventure/alignment/neutral-good.webp',
-            subtext: 'The outcome is good. The method is flexible.',
-          },
-          {
-            value: 'Chaotic Good',
-            label: 'Chaotic Good',
-            subtext: 'The outcome is good. The method is negotiable.',
-            image: '/images/adventure/alignment/chaotic-good.webp',
-          },
-          {
-            value: 'Lawful Neutral',
-            label: 'Lawful Neutral',
-            image: '/images/adventure/alignment/lawful-neutral.webp',
-            subtext:
-              'The rules exist. They are not an ethical position. They are simply the rules.',
-          },
-          {
-            value: 'True Neutral',
-            label: 'True Neutral',
-            subtext: 'The rules exist. Everything does.',
-            image: '/images/adventure/alignment/neutral.webp',
-          },
-          {
-            value: 'Chaotic Neutral',
-            label: 'Chaotic Neutral',
-            image: '/images/adventure/alignment/chaotic-neutral.webp',
-            subtext: 'The rules are a suggestion with too much confidence.',
-          },
-          {
-            value: 'Lawful Evil',
-            label: 'Lawful Evil',
-            image: '/images/adventure/alignment/lawful-evil.webp',
-            subtext: 'The rules exist. I wrote several of them.',
-          },
-          {
-            value: 'Neutral Evil',
-            label: 'Neutral Evil',
-            image: '/images/adventure/alignment/neutral-evil.webp',
-            subtext: 'The rules exist when convenient.',
-          },
-          {
-            value: 'Chaotic Evil',
-            label: 'Chaotic Evil',
-            image: '/images/adventure/alignment/chaotic-evil.webp',
-          },
-          {
-            value: 'Appetite',
-            label: 'Appetite',
-            subtext:
-              'Desire as the organizing principle. Not greed — the honest admission that wanting is the engine. The thing wanted changes. The wanting does not.',
-            image: '/images/adventure/alignment/appetite.webp',
-          },
-          {
-            value: 'Onanism',
-            label: 'Onanism',
-            subtext:
-              'To thine own self be true, above all others. The self is the only thing one can truly know and therefore the only thing worth serving. A philosophy, not a flaw.',
-            image: '/images/adventure/alignment/onanism.webp',
-          },
-          {
-            value: 'Safety',
-            label: 'Safety',
-            subtext: `Keeping what is known and loved intact is the supreme moral good. Not cowardice — conviction. The emergency exits are always located before the show begins.`,
-            image: '/images/adventure/alignment/safety.webp',
-          },
-          {
-            value: 'Curious',
-            label: 'Curious',
-            subtext: `Knowledge as the terminal value. Ethics is an obstacle to data, not a framework for using it. The warning label was read. It was found insufficient.`,
-            image: '/images/adventure/alignment/curious.webp',
-          },
-          {
-            value: 'Petty',
-            label: 'Petty',
-            subtext:
-              'The organizing principle is the list of grievances. The list is accurate, well-maintained, and longer than anyone suspects.',
-            image: '/images/adventure/alignment/petty.webp',
-          },
-          {
-            value: 'Correct',
-            label: 'Correct',
-            subtext:
-              'Not good, not lawful — right. Demonstrably, verifiably, on-the-record right. The ethical implications are secondary to the accuracy.',
-            image: '/images/adventure/alignment/correct.webp',
-          },
-          {
-            value: 'Loyal',
-            label: 'Loyal',
-            subtext:
-              'Aligned to a person, not a principle. Morality is whatever they need it to be. The philosophy updates when the person does.',
-            image: '/images/adventure/alignment/loyal.webp',
-          },
-          {
-            value: 'Aesthetic',
-            label: 'Aesthetic',
-            subtext:
-              'Beauty and ugliness as the only real moral categories. The good thing is the beautiful thing. The graceless thing is the evil thing. The thing is beige.',
-            image: '/images/adventure/alignment/aesthetic.webp',
-          },
-          {
-            value: 'Utilitarian',
-            label: 'Utilitarian',
-            subtext:
-              'The math is the morality. Most lives saved wins. Always. The feelings about this are irrelevant to the calculation. Someone off-frame is not going to like the answer.',
-            image: '/images/adventure/alignment/utilitarian.webp',
-          },
-          {
-            value: 'Transactional',
-            label: 'Transactional',
-            subtext:
-              'Everything is an exchange. Not mercenary — honest. Nothing is free and pretending otherwise is the only real lie. Both parties understand the terms.',
-            image: '/images/adventure/alignment/transactional.webp',
-          },
-          {
-            value: '',
-            label: 'Custom alignment',
-            subtext: 'Any organizing principle not listed above.',
-            opensCustom: true,
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Identity ─────────────────────────────────────────────────────────────
-  {
-    key: 'identity',
-    label: 'Identity',
-    title: 'The frequency',
-    icon: 'kind-icon:person',
-    flourish: '☾',
-    deckImage: '/images/adventure/thumb/identity.webp',
-    heroImage: '/images/adventure/hero/identity.webp',
-    tagline: 'How they occupy space. Or the concept of space.',
-    narrative:
-      'Every entity carries a frequency — a way of being legible to others before a single word or signal has been exchanged. Some have thought carefully about this. Some inherited it by accident. Some are a temperature. Some are a bureaucratic process that has developed opinions. The question applies to all of them, though the answers look different.',
-    required: true,
-    restoresFields: ['gender'],
-    steps: [
-      {
-        key: 'genderIdentity',
-        title: 'Gender Identity',
-        narrative:
-          "Does this entity relate to the concept of gender? It's a more open question than it sounds. Some do, fully. Some find the framework inapplicable to their architecture and prefer to note that on the form and move on. All answers are recorded without judgment. The form has seen stranger.",
-        inputType: 'preset',
-        field: 'gender',
-        choices: [
-          {
-            value: 'man',
-            label: 'Masculine',
-            subtext: 'He/him, or however the story fits.',
-            image: '/images/adventure/gender/masculine.webp',
-          },
-          {
-            value: 'woman',
-            label: 'Feminine',
-            subtext: 'She/her. Presence, power, and all that entails.',
-            image: '/images/adventure/gender/feminine.webp',
-          },
-          {
-            value: 'nonbinary',
-            label: 'Non-Binary',
-            subtext: 'They/them. Both. Neither. Something else entirely.',
-            image: '/images/adventure/gender/nonbinary.webp',
-          },
-          {
-            value: 'agender',
-            label: 'Pronouns Are Paperwork',
-            subtext:
-              'Just an entity, moving through space. The rest is administrative.',
-            image: '/images/adventure/gender/neutral.webp',
-          },
-          {
-            value: 'fluid',
-            label: 'Gender Fluid',
-            subtext: 'Shifting, contextual, alive. Ask again Thursday.',
-            image: '/images/adventure/gender/fluid.webp',
-          },
-          {
-            value: 'N/A — inapplicable to entity architecture',
-            label: 'Does Not Apply',
-            image: '/images/adventure/gender/agender.webp',
-            subtext:
-              "The framework doesn't parse for this entity. Noted and filed.",
-          },
-          {
-            value: '',
-            label: 'From the full list',
-            subtext: 'Two-spirit, demi, intersex, questioning, and more.',
-            image: '/images/adventure/gender/custom.webp',
-            opensList: true,
-            listOptions: [
-              'two-spirit',
-              'agender',
-              'demi',
-              'intersex',
-              'questioning',
-              'pangender',
-              'genderqueer',
-              'androgynous',
-              'neutrois',
-              'aporagender',
-              'xenogender',
-              'maverique',
-              'demigirl',
-              'demiboy',
-            ],
-          },
-          {
-            value: '',
-            label: 'Write my own',
-            subtext: 'Any word, phrase, or cosmological designation that fits.',
             opensCustom: true,
           },
         ],
@@ -2411,34 +2009,217 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     ],
   },
 
-  // ── Stats ────────────────────────────────────────────────────────────────
+  // ── Quirks ────────────────────────────────────────────────────────────────
   {
-    key: 'stats',
-    label: 'Stats',
-    title: 'Six numbers, one receipt',
-    icon: 'kind-icon:activity',
-    flourish: '♛',
-    deckImage: '/images/adventure/thumb/stats.webp',
-    heroImage: '/images/adventure/hero/stats.webp',
-    tagline: "The cosmos lost the documentation. You're redistributing.",
+    key: 'quirks',
+    label: 'Quirks',
+    title: 'The operational anomalies',
+    icon: 'kind-icon:sparkles',
+    flourish: '✦',
+    deckImage: '/images/adventure/thumb/quirks.webp',
+    heroImage: '/images/adventure/hero/quirks.webp',
+    tagline: 'The little things that are not little.',
     narrative:
-      "Six numbers. One through six. The cosmos distributed these to every entity at inception and immediately lost the paperwork. You are hereby authorised to redistribute them. The stats are abstract by design — a sponge's Rizz is different from a warlord's Rizz, but both are real, both matter, and both get a number between one and six. The universe finds this fair.",
+      'Every character has operational anomalies: habits, conditions, talents, tells, and little misfires that make them specific. Pick the detail that changes how they move through scenes. The sheet will remember it directly.',
     required: true,
-    restoresFields: ['stats'],
+    restoresFields: ['quirks'],
     steps: [
       {
-        key: 'stats',
-        title: 'Assign the Numbers',
+        key: 'quirks',
+        title: 'Quirks',
         narrative:
-          'Select a number block. Then select the stat slot where it belongs. The stat will remember this. So will the character. So, quietly, will the dice — which are not sentient but have opinions anyway.',
-        inputType: 'stats',
+          'Every entity has a defining trait that colours how they move through the world. The sheet draws twenty options from the pile. Choose one, or redraw once. After that, the universe starts charging administrative fees.',
+        inputType: 'preset',
+        field: 'quirks',
+        randomPoolSize: 20,
+        randomRounds: 2,
+        choices: [
+          {
+            value: 'double-jointed',
+            label: 'Double-Jointed',
+            subtext: `Bends in directions the skeleton wasn't consulted about. Useful in tight spaces. Deeply unsettling at dinner parties.`,
+            image: '/images/adventure/quirks/double-jointed.webp',
+          },
+          {
+            value: 'fortunate',
+            label: 'Fortunate',
+            subtext:
+              'Things just tend to work out. Not through effort or skill — just a kind of ambient probability bias in their favour. Others have noticed.',
+            image: '/images/adventure/quirks/fortunate.webp',
+          },
+          {
+            value: 'heterochromia',
+            label: 'Heterochromia',
+            subtext:
+              'Two different eyes, each doing its own thing. Which one to trust is a question strangers spend too long on.',
+            image: '/images/adventure/quirks/heterochromia.webp',
+          },
+          {
+            value: 'extra-body-part',
+            label: 'Extra Body Part',
+            subtext: `Has one more of something than expected. They've stopped explaining it. The explanations never helped.`,
+            image: '/images/adventure/quirks/extra-body-part.webp',
+          },
+          {
+            value: 'musical',
+            label: 'Musical',
+            subtext: `Hears rhythm in everything. Taps it on surfaces without noticing. Has never been in a room that didn't have a soundtrack.`,
+            image: '/images/adventure/quirks/musical.webp',
+          },
+          {
+            value: 'likes-to-dance',
+            label: 'Likes to Dance',
+            subtext:
+              'Will dance. Does not require music, occasion, or permission. The quality varies. The commitment does not.',
+            image: '/images/adventure/quirks/likes-to-dance.webp',
+          },
+          {
+            value: 'left-handed',
+            label: 'Left-Handed',
+            subtext:
+              'Operates in a world designed for the other hand and has strong feelings about this. Adapts without comment. Remembers every inconvenience.',
+            image: '/images/adventure/quirks/left-handed.webp',
+          },
+          {
+            value: 'obsessive-compulsive',
+            label: 'Obsessive-Compulsive',
+            subtext:
+              'The order of things matters and the order of things is specific and the order of things has been disturbed. This will be addressed.',
+            image: '/images/adventure/quirks/obsessive-compulsive.webp',
+          },
+          {
+            value: 'clumsy',
+            label: 'Clumsy',
+            subtext:
+              'Not careless — the relationship between intention and execution is just slightly negotiable. Objects in the vicinity have adjusted their expectations.',
+            image: '/images/adventure/quirks/clumsy.webp',
+          },
+          {
+            value: 'notably-tall',
+            label: 'Notably Tall',
+            subtext:
+              'Ducks through doorways as a reflex. Has a perspective on most rooms that nobody else shares. This is sometimes useful and often lonely.',
+            image: '/images/adventure/quirks/notably-tall.webp',
+          },
+          {
+            value: 'notably-short',
+            label: 'Notably Short',
+            subtext:
+              'Underestimated continuously and consistently. Has built an entire operational philosophy around this. It works exceptionally well.',
+            image: '/images/adventure/quirks/notably-short.webp',
+          },
+          {
+            value: 'kleptomaniac',
+            label: 'Kleptomaniac',
+            subtext:
+              'Acquires small objects without quite meaning to. The objects are always interesting. The pockets are always full. An audit would be complicated.',
+            image: '/images/adventure/quirks/kleptomaniac.webp',
+          },
+          {
+            value: 'pyromaniac',
+            label: 'Pyromaniac',
+            subtext:
+              'Has a deep appreciation for fire as a phenomenon. Respects it. Studies it. Would like to observe more of it, under controlled conditions, please.',
+            image: '/images/adventure/quirks/pyromaniac.webp',
+          },
+          {
+            value: 'lactose-intolerant',
+            label: 'Lactose Intolerant',
+            subtext:
+              'The cheese is right there and it is extremely good and the consequences are known and this is a decision that will be made with full information.',
+            image: '/images/adventure/quirks/lactose-intolerant.webp',
+          },
+          {
+            value: 'allergies',
+            label: 'Allergies',
+            subtext:
+              'The world contains substances that have opinions about this entity. The opinions are expressed immediately and at volume.',
+            image: '/images/adventure/quirks/allergies.webp',
+          },
+          {
+            value: 'addict',
+            label: 'Addict',
+            subtext:
+              'There is something they return to. The returning is a fact, not a judgment. What they do with this fact is theirs to determine.',
+            image: '/images/adventure/quirks/addict.webp',
+          },
+          {
+            value: 'secret-identity',
+            label: 'Secret Identity',
+            subtext:
+              'The face others see is accurate but not complete. The complete version is stored somewhere safer and brought out when necessary.',
+            image: '/images/adventure/quirks/secret-identity.webp',
+          },
+          {
+            value: 'always-online',
+            label: 'Always Online',
+            subtext:
+              'Connected to everything at all times. Fully informed. Slightly exhausted. Eleven tabs open that are technically relevant.',
+            image: '/images/adventure/quirks/always-online.webp',
+          },
+          {
+            value: 'messy',
+            label: 'Messy',
+            subtext:
+              'The system is not visible to others but it is a system. Everything is exactly where it needs to be for them to know where it is.',
+            image: '/images/adventure/quirks/messy.webp',
+          },
+          {
+            value: 'fashionable',
+            label: 'Fashionable',
+            subtext:
+              'Puts thought into what they present to the world. The thought is invisible. The result is not. Both are intentional.',
+            image: '/images/adventure/quirks/fashionable.webp',
+          },
+          {
+            value: 'forgetful',
+            label: 'Forgetful',
+            subtext:
+              'The important things stay. The peripheral things — times, names, where they put the key — have a more complicated relationship with memory.',
+            image: '/images/adventure/quirks/forgetful.webp',
+          },
+          {
+            value: 'animal-magnet',
+            label: 'Animal Magnet',
+            subtext:
+              'Animals approach them. Not all animals, not always — but consistently enough that it has been noticed. They are not sure what they are doing.',
+            image: '/images/adventure/quirks/animal-magnet.webp',
+          },
+          {
+            value: 'green-thumb',
+            label: 'Green Thumb',
+            subtext:
+              'Things grow. Not everything, not everywhere — but in their presence, plants make an effort. The effort is noted and appreciated.',
+            image: '/images/adventure/quirks/green-thumb.webp',
+          },
+          {
+            value: 'insomniac',
+            label: 'Insomniac',
+            subtext:
+              'Awake when others are not. Uses the time. The time is good for things that require quiet and a tolerance for the ceiling.',
+            image: '/images/adventure/quirks/insomniac.webp',
+          },
+          {
+            value: 'bad-luck-magnet',
+            label: 'Bad Luck Magnet',
+            subtext:
+              'Things happen near them. Specific kinds of things. The probability is documented. Insurance companies have been in touch.',
+            image: '/images/adventure/quirks/bad-luck.webp',
+          },
+          {
+            value: '',
+            label: 'Write my own',
+            subtext: 'Anything specific, irreducible, and theirs.',
+            opensCustom: true,
+          },
+        ],
       },
     ],
   },
 
-  // ── Background ───────────────────────────────────────────────────────────
+  // ── Backstory ─────────────────────────────────────────────────────────────
   {
-    key: 'background',
+    key: 'backstory',
     label: 'Backstory',
     title: 'The glorious problem',
     icon: 'kind-icon:story',
@@ -2447,13 +2228,13 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     heroImage: '/images/adventure/hero/background.webp',
     tagline: 'A past. Unfortunate for them. Useful for the story.',
     narrative:
-      "Every entity has a past. Even the sponge has a past — it's mostly about being a sponge, which is more complex than it sounds. All pasts contain the same basic elements: something wanted, something lost, something done about it, and one detail that doesn't quite fit but keeps surfacing at the least helpful moment. Start with the shape of it. The details follow.",
+      'Every entity has a past. Even the sponge has a past — it is mostly about being a sponge, which is more complex than it sounds. Start with the shape of it: something wanted, something lost, something done about it, and one detail that does not quite fit.',
     required: true,
-    restoresFields: ['backstory', 'quirks'],
+    restoresFields: ['backstory'],
     steps: [
       {
-        key: 'backgroundChoice',
-        title: 'Background',
+        key: 'backstory',
+        title: 'Backstory',
         narrative:
           'Before the story started, something happened. This is the shape of it — the narrative origin, the wound-before-the-wound, the reason certain situations land differently for this entity than for anyone else. Choose the one that fits. Or the one that surprises you. Hit Suggest to expand it into a full backstory.',
         inputType: 'preset',
@@ -2678,221 +2459,30 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
           },
         ],
       },
-      {
-        key: 'quirks',
-        title: 'Quirks',
-        narrative:
-          'Every entity has a defining trait that colours how they move through the world. The sheet draws twenty options from the pile. Choose one, or redraw once. After that, the universe starts charging administrative fees.',
-        inputType: 'preset',
-        field: 'quirks',
-        randomPoolSize: 20,
-        randomRounds: 2,
-        choices: [
-          {
-            value: 'double-jointed',
-            label: 'Double-Jointed',
-            subtext: `Bends in directions the skeleton wasn't consulted about. Useful in tight spaces. Deeply unsettling at dinner parties.`,
-            image: '/images/adventure/quirks/double-jointed.webp',
-          },
-          {
-            value: 'fortunate',
-            label: 'Fortunate',
-            subtext:
-              'Things just tend to work out. Not through effort or skill — just a kind of ambient probability bias in their favour. Others have noticed.',
-            image: '/images/adventure/quirks/fortunate.webp',
-          },
-          {
-            value: 'heterochromia',
-            label: 'Heterochromia',
-            subtext:
-              'Two different eyes, each doing its own thing. Which one to trust is a question strangers spend too long on.',
-            image: '/images/adventure/quirks/heterochromia.webp',
-          },
-          {
-            value: 'extra-body-part',
-            label: 'Extra Body Part',
-            subtext: `Has one more of something than expected. They've stopped explaining it. The explanations never helped.`,
-            image: '/images/adventure/quirks/extra-body-part.webp',
-          },
-          {
-            value: 'musical',
-            label: 'Musical',
-            subtext: `Hears rhythm in everything. Taps it on surfaces without noticing. Has never been in a room that didn't have a soundtrack.`,
-            image: '/images/adventure/quirks/musical.webp',
-          },
-          {
-            value: 'likes-to-dance',
-            label: 'Likes to Dance',
-            subtext:
-              'Will dance. Does not require music, occasion, or permission. The quality varies. The commitment does not.',
-            image: '/images/adventure/quirks/likes-to-dance.webp',
-          },
-          {
-            value: 'left-handed',
-            label: 'Left-Handed',
-            subtext:
-              'Operates in a world designed for the other hand and has strong feelings about this. Adapts without comment. Remembers every inconvenience.',
-            image: '/images/adventure/quirks/left-handed.webp',
-          },
-          {
-            value: 'obsessive-compulsive',
-            label: 'Obsessive-Compulsive',
-            subtext:
-              'The order of things matters and the order of things is specific and the order of things has been disturbed. This will be addressed.',
-            image: '/images/adventure/quirks/obsessive-compulsive.webp',
-          },
-          {
-            value: 'clumsy',
-            label: 'Clumsy',
-            subtext:
-              'Not careless — the relationship between intention and execution is just slightly negotiable. Objects in the vicinity have adjusted their expectations.',
-            image: '/images/adventure/quirks/clumsy.webp',
-          },
-          {
-            value: 'notably-tall',
-            label: 'Notably Tall',
-            subtext:
-              'Ducks through doorways as a reflex. Has a perspective on most rooms that nobody else shares. This is sometimes useful and often lonely.',
-            image: '/images/adventure/quirks/notably-tall.webp',
-          },
-          {
-            value: 'notably-short',
-            label: 'Notably Short',
-            subtext:
-              'Underestimated continuously and consistently. Has built an entire operational philosophy around this. It works exceptionally well.',
-            image: '/images/adventure/quirks/notably-short.webp',
-          },
-          {
-            value: 'kleptomaniac',
-            label: 'Kleptomaniac',
-            subtext:
-              'Acquires small objects without quite meaning to. The objects are always interesting. The pockets are always full. An audit would be complicated.',
-            image: '/images/adventure/quirks/kleptomaniac.webp',
-          },
-          {
-            value: 'pyromaniac',
-            label: 'Pyromaniac',
-            subtext:
-              'Has a deep appreciation for fire as a phenomenon. Respects it. Studies it. Would like to observe more of it, under controlled conditions, please.',
-            image: '/images/adventure/quirks/pyromaniac.webp',
-          },
-          {
-            value: 'lactose-intolerant',
-            label: 'Lactose Intolerant',
-            subtext:
-              'The cheese is right there and it is extremely good and the consequences are known and this is a decision that will be made with full information.',
-            image: '/images/adventure/quirks/lactose-intolerant.webp',
-          },
-          {
-            value: 'allergies',
-            label: 'Allergies',
-            subtext:
-              'The world contains substances that have opinions about this entity. The opinions are expressed immediately and at volume.',
-            image: '/images/adventure/quirks/allergies.webp',
-          },
-          {
-            value: 'addict',
-            label: 'Addict',
-            subtext:
-              'There is something they return to. The returning is a fact, not a judgment. What they do with this fact is theirs to determine.',
-            image: '/images/adventure/quirks/addict.webp',
-          },
-          {
-            value: 'secret-identity',
-            label: 'Secret Identity',
-            subtext:
-              'The face others see is accurate but not complete. The complete version is stored somewhere safer and brought out when necessary.',
-            image: '/images/adventure/quirks/secret-identity.webp',
-          },
-          {
-            value: 'always-online',
-            label: 'Always Online',
-            subtext:
-              'Connected to everything at all times. Fully informed. Slightly exhausted. Eleven tabs open that are technically relevant.',
-            image: '/images/adventure/quirks/always-online.webp',
-          },
-          {
-            value: 'messy',
-            label: 'Messy',
-            subtext:
-              'The system is not visible to others but it is a system. Everything is exactly where it needs to be for them to know where it is.',
-            image: '/images/adventure/quirks/messy.webp',
-          },
-          {
-            value: 'fashionable',
-            label: 'Fashionable',
-            subtext:
-              'Puts thought into what they present to the world. The thought is invisible. The result is not. Both are intentional.',
-            image: '/images/adventure/quirks/fashionable.webp',
-          },
-          {
-            value: 'forgetful',
-            label: 'Forgetful',
-            subtext:
-              'The important things stay. The peripheral things — times, names, where they put the key — have a more complicated relationship with memory.',
-            image: '/images/adventure/quirks/forgetful.webp',
-          },
-          {
-            value: 'animal-magnet',
-            label: 'Animal Magnet',
-            subtext:
-              'Animals approach them. Not all animals, not always — but consistently enough that it has been noticed. They are not sure what they are doing.',
-            image: '/images/adventure/quirks/animal-magnet.webp',
-          },
-          {
-            value: 'green-thumb',
-            label: 'Green Thumb',
-            subtext:
-              'Things grow. Not everything, not everywhere — but in their presence, plants make an effort. The effort is noted and appreciated.',
-            image: '/images/adventure/quirks/green-thumb.webp',
-          },
-          {
-            value: 'insomniac',
-            label: 'Insomniac',
-            subtext:
-              'Awake when others are not. Uses the time. The time is good for things that require quiet and a tolerance for the ceiling.',
-            image: '/images/adventure/quirks/insomniac.webp',
-          },
-          {
-            value: 'bad-luck-magnet',
-            label: 'Bad Luck Magnet',
-            subtext:
-              'Things happen near them. Specific kinds of things. The probability is documented. Insurance companies have been in touch.',
-            image: '/images/adventure/quirks/bad-luck.webp',
-          },
-          {
-            value: '',
-            label: 'Write my own',
-            subtext: 'Anything specific, irreducible, and theirs.',
-            opensCustom: true,
-          },
-        ],
-      },
     ],
   },
 
+  // ── Stats ────────────────────────────────────────────────────────────────
   {
-    key: 'starting-item',
-    label: 'Starting Item',
-    title: 'The suspiciously useful object',
-    icon: 'kind-icon:treasure',
-    flourish: '✦',
-    deckImage: '/images/adventure/thumb/skill-common.webp',
-    heroImage: '/images/adventure/hero/skill-common.webp',
-    tagline: 'One object. Six possibilities. At least one consequence.',
+    key: 'stats',
+    label: 'Stats',
+    title: 'Six numbers, one receipt',
+    icon: 'kind-icon:activity',
+    flourish: '♛',
+    deckImage: '/images/adventure/thumb/stats.webp',
+    heroImage: '/images/adventure/hero/stats.webp',
+    tagline: "The cosmos lost the documentation. You're redistributing.",
     narrative:
-      'Every entity begins with something in hand, pocket, inventory, aura, or legally contested possession. It is probably common. Probably. The universe occasionally misfiles powerful artifacts under “starter kit,” because the universe is a disorganized raccoon.',
+      "Six numbers. One through six. The cosmos distributed these to every entity at inception and immediately lost the paperwork. You are hereby authorised to redistribute them. The stats are abstract by design — a sponge's Rizz is different from a warlord's Rizz, but both are real, both matter, and both get a number between one and six. The universe finds this fair.",
     required: true,
-    rewardSlotKey: 'starting-item',
-    restoresFields: ['starting-item'],
-    unlockCondition: 'coreComplete',
+    restoresFields: ['stats'],
     steps: [
       {
-        key: 'starting-item',
-        title: 'Choose One Starting Item',
+        key: 'stats',
+        title: 'Assign the Numbers',
         narrative:
-          'Six items have been drawn. Most are modest. Some are suspicious. Choose the object this character begins with, and try not to read too much into why it chose them back.',
-        inputType: 'reward',
+          'Select a number block. Then select the stat slot where it belongs. The stat will remember this. So will the character. So, quietly, will the dice — which are not sentient but have opinions anyway.',
+        inputType: 'stats',
       },
     ],
   },
@@ -2925,6 +2515,33 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     ],
   },
 
+  // ── Starting Item ────────────────────────────────────────────────────────
+  {
+    key: 'starting-item',
+    label: 'Starting Item',
+    title: 'The suspiciously useful object',
+    icon: 'kind-icon:treasure',
+    flourish: '✦',
+    deckImage: '/images/adventure/thumb/skill-common.webp',
+    heroImage: '/images/adventure/hero/skill-common.webp',
+    tagline: 'One object. Six possibilities. At least one consequence.',
+    narrative:
+      'Every entity begins with something in hand, pocket, inventory, aura, or legally contested possession. It is probably common. Probably. The universe occasionally misfiles powerful artifacts under “starter kit,” because the universe is a disorganized raccoon.',
+    required: true,
+    rewardSlotKey: 'starting-item',
+    restoresFields: ['starting-item'],
+    unlockCondition: 'coreComplete',
+    steps: [
+      {
+        key: 'starting-item',
+        title: 'Choose One Starting Item',
+        narrative:
+          'Six items have been drawn. Most are modest. Some are suspicious. Choose the object this character begins with, and try not to read too much into why it chose them back.',
+        inputType: 'reward',
+      },
+    ],
+  },
+
   // ── Portrait ─────────────────────────────────────────────────────────────
   {
     key: 'art',
@@ -2936,7 +2553,7 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     heroImage: '/images/adventure/hero/portrait.webp',
     tagline: 'They exist. Now make them visible.',
     narrative:
-      'The entity exists. Now they need to exist visually — in the specific, unrepeatable way that makes them recognisable across distance, across genre, across the several seconds between encountering them and deciding how to feel about them. Assemble the prompt. Generate the portrait. Introduce them properly to the world that will shortly be inconvenienced by them.',
+      'The entity exists. Now they need to exist visually — in the specific, unrepeatable way that makes them recognisable across distance, across worlds, across the several seconds between encountering them and deciding how to feel about them. Assemble the prompt. Generate the portrait. Introduce them properly to the world that will shortly be inconvenienced by them.',
     required: false,
     restoresFields: ['artPrompt', 'imagePath', 'artImageId'],
     unlockCondition: 'allComplete',

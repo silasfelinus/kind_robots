@@ -170,3 +170,14 @@ I definitely have more layout to work on, but I look forward to weeks ahead when
 
 6/7/26 5:07am
 Guess it's been a productive three hours because the scroll is fixed throughout, the layout is looking much nicer, and a number of small adjustments have been made.  I also added a really nice card back animation affect, which slotted in rather painlessly.  could keep making minor adjustments but at this point I'm going to put it to bed knowing I can start tomorrow working on whatever strikes my fancy.
+
+6/9/2026 2:09pm
+I'm starting to look forward to these dev notes as a way to break up my progress, take a breather from a task, and orient. As well as the benefits of trumpeting my successes. All the more useful since I may be the only person to ever read these. Only human anyway. 
+
+I've had a nicely productive but relaxing couple days generating art and content for the rewards system. I like what has been created, and now the character sheet has 100% image based choices, and a more direct construction chain that maps the choices to the final entries.
+
+My real hope is that with fully working character, reward, and art generators, we'll be able to hit expereinces that are actually worth exploring. I'm enjoying making starter entries, but none of this matters unless the tools can be used to do something with them. I guess I keep building by the seat of my pants, guided by a vision that is admittedly nebulous and evolving. I've had a lot of tool ideas in my head that are still being scaffolded out. With creators for Character, Locations, Rewards, and Scenarios, we should have the blueprints to create engaging experiences, at the very least as a brainstorm organizer, but I can see how these tools could be used to create and engage with worlds of ideas. Ultimately, the goal is to make tools that encourage people to be creative and to share that experience with others, whether it's by engaging socially with the creations or the creators. 
+
+Are we a future non-profit? A start-up? A floor wax? A dessert topping?
+
+Currently, I need to finish stitching in the new art, bug hunt missing art from the character builder and endpoints, get character builder working again, confirm art generation is working, fix bug with builder not appearing, fix or confirm fixed bug with scroll not working inside builder, fix tab layouts on large tabbed windows, and then add interactibles for rewards and characters before moving to the other models. It's not a bad list to get to a working set of features. Just gotta get to it.

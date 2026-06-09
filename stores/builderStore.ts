@@ -542,15 +542,16 @@ function rollRewardOptionsForCard(card = activeCard.value): void {
       generator.rollRewardOptions(baseRarity, count),
   }).map(rolledRewardToBuilderOption)
 
-  setRewardOptions(card.rewardSlotKey, options)
+  rewardOptions[card.rewardSlotKey] = options
+  selectedRewardId[card.rewardSlotKey] = ''
+  persist()
 }
+
 
 function rerollRewardOptionsForCard(card = activeCard.value): void {
-  if (!card?.rewardSlotKey) return
-
-  delete selectedRewardId[card.rewardSlotKey]
   rollRewardOptionsForCard(card)
 }
+
 
   function setRewardOptions(
   slotKey: string,

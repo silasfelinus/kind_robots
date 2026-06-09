@@ -105,7 +105,7 @@
     </section>
 
     <Transition name="workspace-hand-slide">
-      <ClientOnly v-if="!chromeMinimized">
+      <ClientOnly v-show="!chromeMinimized">
         <workspace-hand />
 
         <template #fallback>

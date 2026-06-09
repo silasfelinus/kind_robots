@@ -60,40 +60,29 @@
       </div>
     </Transition>
 
-    <main class="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <section
-        class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
+    <main class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4">
+      <template v-if="isBuilderActive">
+        <builder-splash v-if="showSplash" />
+        <builder-step-panel v-else-if="store.activeCard" />
+        <builder-summary v-else-if="store.allComplete" />
+        <builder-card-grid v-else />
+      </template>
+
+      <div
+        v-else
+        class="flex min-h-0 flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
       >
-        <div class="flex min-h-full flex-col gap-3">
-          <template v-if="isBuilderActive">
-            <builder-splash v-if="showSplash" />
-            <builder-step-panel v-else-if="store.activeCard" />
-            <builder-summary v-else-if="store.allComplete" />
-            <builder-card-grid v-else />
-          </template>
+        <Icon name="kind-icon:blueprint" class="h-12 w-12 text-primary/70" />
 
-          <div
-            v-else
-            class="flex min-h-96 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
-          >
-            <Icon
-              name="kind-icon:blueprint"
-              class="h-12 w-12 text-primary/70"
-            />
+        <h3 class="mt-4 text-lg font-black text-base-content">
+          Builder is warming up
+        </h3>
 
-            <h3 class="mt-4 text-lg font-black text-base-content">
-              Builder is warming up
-            </h3>
-
-            <p
-              class="mt-2 max-w-md text-sm leading-relaxed text-base-content/60"
-            >
-              Pick a builder tab to start shaping a user, character, bot,
-              reward, scenario, dream, pitch, or art project.
-            </p>
-          </div>
-        </div>
-      </section>
+        <p class="mt-2 max-w-md text-sm leading-relaxed text-base-content/60">
+          Pick a builder tab to start shaping a user, character, bot, reward,
+          scenario, dream, pitch, or art project.
+        </p>
+      </div>
     </main>
 
     <Teleport to="body">

@@ -12,87 +12,113 @@
     <animation-layer />
     <milestone-popup />
 
-    <dashboard-shell>
-      <section
-        class="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
+    <div
+      class="pointer-events-none fixed inset-x-0 top-0 z-40 transition-transform duration-200"
+      :class="chromeMinimized ? '-translate-y-full' : 'translate-y-0'"
+    >
+      <dashboard-shell />
+    </div>
+
+    <section
+      class="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
+      :class="chromeMinimized ? 'pt-0' : 'pt-[var(--app-header-h,4.5rem)]'"
+    >
+      <button
+        v-if="!workspaceSheetOpen"
+        type="button"
+        class="btn btn-primary btn-xs btn-square absolute left-3 top-3 z-40 shadow-lg"
+        aria-label="Open workspace"
+        :aria-expanded="workspaceSheetOpen"
+        @click="setWorkspaceSheetOpen(true)"
       >
-        <button
-          v-if="!workspaceSheetOpen"
-          type="button"
-          class="btn btn-primary btn-xs btn-square absolute left-3 -top-2 z-40 shadow-lg"
-          aria-label="Open workspace"
-          :aria-expanded="workspaceSheetOpen"
-          @click="setWorkspaceSheetOpen(true)"
-        >
-          <Icon name="kind-icon:question" class="h-4 w-4" />
-        </button>
+        <Icon name="kind-icon:question" class="h-4 w-4" />
+      </button>
 
-        <div
-          class="flex min-h-0 flex-1 overflow-hidden pb-(--hand-h) md:flex-row md:gap-3"
-        >
-          <Transition name="workspace-sheet-slide">
-            <aside
-              v-if="workspaceSheetOpen"
-              class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
-            >
-              <div
-                class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
-              >
-                <p
-                  class="truncate text-xs font-black uppercase tracking-widest text-primary"
-                >
-                  Workspace
-                </p>
-
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-xs btn-square"
-                  aria-label="Close workspace"
-                  @click="setWorkspaceSheetOpen(false)"
-                >
-                  <Icon name="kind-icon:close" class="h-4 w-4" />
-                </button>
-              </div>
-
-              <div
-                class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
-              >
-                <ClientOnly>
-                  <workspace-sheet />
-
-                  <template #fallback>
-                    <div
-                      class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
-                    >
-                      Loading workspace...
-                    </div>
-                  </template>
-                </ClientOnly>
-              </div>
-            </aside>
-          </Transition>
-
-          <main
-            class="relative h-full min-h-0 flex-1 overflow-y-auto"
-            :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
+      <div
+        class="flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
+        :class="chromeMinimized ? 'pb-12' : 'pb-(--hand-h)'"
+      >
+        <Transition name="workspace-sheet-slide">
+          <aside
+            v-if="workspaceSheetOpen"
+            class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
           >
-            <NuxtPage />
-          </main>
-        </div>
-      </section>
-    </dashboard-shell>
+            <div
+              class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
+            >
+              <p
+                class="truncate text-xs font-black uppercase tracking-widest text-primary"
+              >
+                Workspace
+              </p>
 
-    <ClientOnly>
-      <workspace-hand />
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs btn-square"
+                aria-label="Close workspace"
+                @click="setWorkspaceSheetOpen(false)"
+              >
+                <Icon name="kind-icon:close" class="h-4 w-4" />
+              </button>
+            </div>
 
-      <template #fallback>
-        <div
-          class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+              <ClientOnly>
+                <workspace-sheet />
+
+                <template #fallback>
+                  <div
+                    class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
+                  >
+                    Loading workspace...
+                  </div>
+                </template>
+              </ClientOnly>
+            </div>
+          </aside>
+        </Transition>
+
+        <main
+          ref="mainScrollEl"
+          class="relative h-full min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl bg-base-200"
+          :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
+          @scroll.passive="handleMainScroll"
+          @wheel.passive="minimizeChrome"
+          @touchmove.passive="minimizeChrome"
         >
-          Loading workspace hand...
-        </div>
-      </template>
-    </ClientOnly>
+          <div class="min-h-full p-3 sm:p-4">
+            <NuxtPage />
+          </div>
+        </main>
+      </div>
+    </section>
+
+    <Transition name="workspace-hand-slide">
+      <ClientOnly v-if="!chromeMinimized">
+        <workspace-hand />
+
+        <template #fallback>
+          <div
+            class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+          >
+            Loading workspace hand...
+          </div>
+        </template>
+      </ClientOnly>
+    </Transition>
+
+    <button
+      type="button"
+      class="btn btn-primary btn-sm btn-circle fixed bottom-3 left-1/2 z-50 -translate-x-1/2 shadow-xl"
+      :aria-label="chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'"
+      :title="chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'"
+      @click="toggleChrome"
+    >
+      <Icon
+        :name="chromeMinimized ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
+        class="h-5 w-5"
+      />
+    </button>
   </div>
 </template>
 
@@ -126,6 +152,8 @@ const themeStore = useThemeStore()
 
 const showLoader = ref(true)
 const workspaceSheetOpen = ref(true)
+const chromeMinimized = ref(false)
+const mainScrollEl = ref<HTMLElement | null>(null)
 
 const contentPath = computed(() => {
   const path = route.path.replace(/\/+$/, '')
@@ -163,6 +191,39 @@ const page = computed(() => pageData.value)
 
 function handlePageReady(): void {
   showLoader.value = false
+}
+
+function minimizeChrome(): void {
+  chromeMinimized.value = true
+
+  if (import.meta.client) {
+    window.localStorage.setItem('kindrobots:chrome-minimized', 'true')
+  }
+}
+
+function restoreChrome(): void {
+  chromeMinimized.value = false
+
+  if (import.meta.client) {
+    window.localStorage.setItem('kindrobots:chrome-minimized', 'false')
+  }
+}
+
+function toggleChrome(): void {
+  if (chromeMinimized.value) {
+    restoreChrome()
+    return
+  }
+
+  minimizeChrome()
+}
+
+function handleMainScroll(): void {
+  const scrollTop = mainScrollEl.value?.scrollTop ?? 0
+
+  if (scrollTop > 8) {
+    minimizeChrome()
+  }
 }
 
 function setWorkspaceSheetOpen(value: boolean): void {
@@ -211,8 +272,15 @@ watch(
 
 watch(
   contentPath,
-  () => {
+  async () => {
     pageStore.setLoading(true)
+    minimizeChrome()
+
+    await nextTick()
+
+    if (mainScrollEl.value) {
+      mainScrollEl.value.scrollTop = 0
+    }
   },
   { flush: 'sync' },
 )
@@ -234,6 +302,14 @@ onMounted(async () => {
 
   if (storedSheetOpen) {
     workspaceSheetOpen.value = storedSheetOpen === 'true'
+  }
+
+  const storedChromeMinimized = window.localStorage.getItem(
+    'kindrobots:chrome-minimized',
+  )
+
+  if (storedChromeMinimized) {
+    chromeMinimized.value = storedChromeMinimized === 'true'
   }
 
   await nextTick()
@@ -264,5 +340,24 @@ onMounted(async () => {
 .workspace-sheet-slide-leave-from {
   opacity: 1;
   transform: translateX(0);
+}
+
+.workspace-hand-slide-enter-active,
+.workspace-hand-slide-leave-active {
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.workspace-hand-slide-enter-from,
+.workspace-hand-slide-leave-to {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+.workspace-hand-slide-enter-to,
+.workspace-hand-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>

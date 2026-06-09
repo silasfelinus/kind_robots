@@ -596,7 +596,9 @@ export const useAdventureStore = defineStore('adventureStore', () => {
   
 
   
-  function rollRewardOptions(slotKey: string) {
+  // ── Reward rolling ─────────────────────────────────────────────────────
+
+function rollRewardOptions(slotKey: string) {
   rewardOptions[slotKey] = rollRewardOptionsForSlot({
     slotKey,
     slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
@@ -608,10 +610,10 @@ export const useAdventureStore = defineStore('adventureStore', () => {
   persistState()
 }
 
-  function selectRewardOption(slotKey: string, optionId: string) {
-    selectedRewardId[slotKey] = optionId
-  }
-
+function selectRewardOption(slotKey: string, optionId: string) {
+  selectedRewardId[slotKey] = optionId
+  persistState()
+}
   // ── Suggest (no LLM) ──────────────────────────────────────────────────
 
   function suggestCurrentStep() {

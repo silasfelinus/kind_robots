@@ -79,9 +79,6 @@ const ALL_REQUIRED_KEYS = [
   'starting-skill',
 ] as const
 
-
-
-
 // ── Defaults ───────────────────────────────────────────────────────────────
 
 function defaultStats(): StatEntry[] {
@@ -535,12 +532,12 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     )
       return
     if (field in DEFAULT_REWARD_SLOT_CONFIGS) {
-  delete sheet.rewards[field]
-  selectedRewardId[field] = ''
-  rewardOptions[field] = []
-  completedCards[field] = false
-  return
-}
+      delete sheet.rewards[field]
+      selectedRewardId[field] = ''
+      rewardOptions[field] = []
+      completedCards[field] = false
+      return
+    }
     const key = field as keyof AdventureSheet
     if (typeof sheet[key] === 'string') {
       ;(sheet as Record<string, unknown>)[field] =
@@ -593,27 +590,24 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   // ── Reward rolling ─────────────────────────────────────────────────────
 
-  
-
-  
   // ── Reward rolling ─────────────────────────────────────────────────────
 
-function rollRewardOptions(slotKey: string) {
-  rewardOptions[slotKey] = rollRewardOptionsForSlot({
-    slotKey,
-    slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
-    rollFromGenerator: (baseRarity, count) =>
-      generator.rollRewardOptions(baseRarity, count),
-  })
+  function rollRewardOptions(slotKey: string) {
+    rewardOptions[slotKey] = rollRewardOptionsForSlot({
+      slotKey,
+      slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
+      rollFromGenerator: (baseRarity, count) =>
+        generator.rollRewardOptions(baseRarity, count),
+    })
 
-  selectedRewardId[slotKey] = ''
-  persistState()
-}
+    selectedRewardId[slotKey] = ''
+    persistState()
+  }
 
-function selectRewardOption(slotKey: string, optionId: string) {
-  selectedRewardId[slotKey] = optionId
-  persistState()
-}
+  function selectRewardOption(slotKey: string, optionId: string) {
+    selectedRewardId[slotKey] = optionId
+    persistState()
+  }
   // ── Suggest (no LLM) ──────────────────────────────────────────────────
 
   function suggestCurrentStep() {
@@ -660,7 +654,7 @@ function selectRewardOption(slotKey: string, optionId: string) {
     inc('alignment', sheet.alignment)
 
     const skillText = Object.values(sheet.rewards)
-      .map((r) => `${r.rarity.toLowerCase()} skill: ${r.label}`)
+      .map((r) => `${r.rarity.toLowerCase()} skill: ${r.name}`)
       .join(', ')
     if (skillText) parts.push(`skills: ${skillText}`)
 

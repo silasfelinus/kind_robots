@@ -311,18 +311,17 @@ const entries = computed<ListEntry[]>(() => {
   if (props.listType === 'items') {
     return dreamStore.selectedDreamItems.map((reward) => ({
       key: `reward-${reward.id}`,
-      title: reward.label || reward.text || `Reward #${reward.id}`,
+      title: reward.name || `Reward #${reward.id}`,
       body:
-        reward.power ||
+        reward.effect ||
+        reward.description ||
+        reward.flavorText ||
         reward.collection ||
         'A linked Reward with suspicious potential.',
       icon: reward.icon || 'kind-icon:gift',
       image: reward.imagePath || undefined,
       meta: reward.collection || undefined,
-      badge:
-        typeof reward.rarity === 'number'
-          ? `Rarity ${reward.rarity}`
-          : undefined,
+      badge: typeof reward.rarity === 'string' ? reward.rarity : undefined,
     }))
   }
 

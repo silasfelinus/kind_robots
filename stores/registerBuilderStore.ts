@@ -730,11 +730,12 @@ function buildRewardConfig(): BuilderProjectConfig {
   const rewardTypeValues = [
     'SKILL',
     'ITEM',
-    'TREASURE',
-    'TITLE',
     'POWER',
-    'STORY',
+    'PET',
+    'MAGIC',
+    'FAVOR',
   ] as const
+
   const rarityValues = [
     'COMMON',
     'UNCOMMON',
@@ -748,7 +749,7 @@ function buildRewardConfig(): BuilderProjectConfig {
     const value = text(key)
     return rewardTypeValues.includes(value as RewardType)
       ? (value as RewardType)
-      : 'SKILL'
+      : 'ITEM'
   }
   const rarity = (key: string): Rarity => {
     const value = text(key)
@@ -762,13 +763,14 @@ function buildRewardConfig(): BuilderProjectConfig {
         typeof form.rewardType === 'string' ? form.rewardType : 'ITEM',
       rarity: typeof form.rarity === 'string' ? form.rarity : 'COMMON',
       icon: typeof form.icon === 'string' ? form.icon : 'kind-icon:gift',
-      text: typeof form.text === 'string' ? form.text : '',
-      power: typeof form.power === 'string' ? form.power : '',
+      name: typeof form.name === 'string' ? form.name : '',
+      description: typeof form.description === 'string' ? form.description : '',
+      flavorText: typeof form.flavorText === 'string' ? form.flavorText : '',
+      effect: typeof form.effect === 'string' ? form.effect : '',
       collection:
         typeof form.collection === 'string'
           ? form.collection
           : 'starting-character-reward',
-      label: typeof form.label === 'string' ? form.label : '',
       imagePath: typeof form.imagePath === 'string' ? form.imagePath : null,
       artPrompt: typeof form.artPrompt === 'string' ? form.artPrompt : '',
       artImageId: typeof form.artImageId === 'number' ? form.artImageId : null,
@@ -785,15 +787,17 @@ function buildRewardConfig(): BuilderProjectConfig {
   function syncSheetToRewardForm() {
     const resolvedUserId =
       num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
+
     rewardStore.rewardForm = {
       ...rewardStore.rewardForm,
       rewardType: rewardType('rewardType'),
       rarity: rarity('rarity'),
       icon: text('icon') || 'kind-icon:gift',
-      text: text('text'),
-      power: text('power'),
+      name: text('name'),
+      description: text('description'),
+      flavorText: text('flavorText'),
+      effect: text('effect'),
       collection: text('collection') || 'starting-character-reward',
-      label: text('label'),
       imagePath:
         typeof builder.sheet.imagePath === 'string'
           ? builder.sheet.imagePath
@@ -835,17 +839,18 @@ function buildRewardConfig(): BuilderProjectConfig {
     cards: REWARD_CARDS,
     splash: {
       title: 'Reward Builder',
-      subtitle: 'Create skills, items, titles, powers, and story trouble.',
+      subtitle:
+        'Create skills, items, pets, magic, favors, powers, and story trouble.',
       tagline: 'A prize, a problem, or both. Ideally both.',
       description:
-        'Build a reward one card at a time: type, rarity, name, power, collection, visibility, and optional art.',
+        'Build a reward one card at a time: type, rarity, name, effect, collection, visibility, and optional art.',
       imagePath: '/images/rewards/splash.webp',
       ctaLabel: 'Start Reward',
       secondaryLabel: 'Surprise Me',
     },
     defaultSheet: defaultRewardSheet,
-    coreCardKeys: ['type', 'rarity', 'name', 'power'],
-    requiredCardKeys: ['type', 'rarity', 'name', 'power'],
+    coreCardKeys: ['type', 'rarity', 'name', 'effect'],
+    requiredCardKeys: ['type', 'rarity', 'name', 'effect'],
     finalCardKey: 'art',
     artPurpose: 'reward',
     artImageRole: 'object',

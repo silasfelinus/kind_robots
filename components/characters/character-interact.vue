@@ -564,9 +564,13 @@ const selectedScenarioTitle = computed(
   () => scenarioStore.selectedScenario?.title || 'No scenario selected',
 )
 
-const selectedRewardTitle = computed(
-  () => rewardStore.selectedReward?.text || 'No reward selected',
-)
+const selectedRewardTitle = computed(() => {
+  const reward = rewardStore.selectedReward
+
+  if (!reward) return 'No reward selected'
+
+  return reward.name || reward.description || 'Unnamed reward'
+})
 
 const canSendChat = computed(() => {
   return (
@@ -822,8 +826,14 @@ function buildAdventurePrompt() {
     scenarioStore.currentChoice
       ? `Opening choice: ${scenarioStore.currentChoice}`
       : '',
-    reward ? `Reward: ${reward.text}` : '',
-    reward ? `Reward power: ${reward.power || 'Unknown'}` : '',
+    reward ? `Reward: ${reward.name}` : '',
+    reward
+      ? `Reward description: ${reward.description || 'No description provided.'}`
+      : '',
+    reward
+      ? `Reward flavor: ${reward.flavorText || 'No flavor text provided.'}`
+      : '',
+    reward ? `Reward effect: ${reward.effect || 'No effect provided.'}` : '',
     direction ? `Player direction: ${direction}` : '',
     '',
     'Generate the next scene as an interactive branching narrative. Include meaningful consequences and 3-5 follow-up options.',

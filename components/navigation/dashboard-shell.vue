@@ -208,19 +208,6 @@
       </header>
     </transition>
 
-    <section class="relative z-0 min-h-0 flex-1 overflow-hidden">
-      <main
-        class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
-      >
-        <section class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4">
-          <div
-            class="flex h-full min-h-0 w-full items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-4 text-center text-xs font-black uppercase tracking-widest text-base-content/25"
-          >
-            Page content renders outside dashboard shell
-          </div>
-        </section>
-      </main>
-    </section>
   </div>
 </template>
 

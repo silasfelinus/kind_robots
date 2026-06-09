@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
+import { useSheetStore } from '@/stores/sheetStore'
 import { scenarios as seedScenarios } from '@/utils/sceneChoices'
 
 const isClient = typeof window !== 'undefined'
@@ -362,6 +363,20 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     selectedScenario.value = scenario
     scenarioForm.value = toScenarioForm(scenario)
     syncToLocalStorage()
+
+    // The workspace sheet becomes the scenario's intro panel
+    useSheetStore().setSheet(
+      {
+        source: 'scenario',
+        label: 'Scenario',
+        title: scenario.title || `Scenario #${scenario.id}`,
+        narrative: scenario.description || '',
+        imagePath: scenario.imagePath || '',
+        artImageId: scenario.artImageId ?? null,
+        icon: 'kind-icon:map',
+      },
+      { open: true },
+    )
   }
 
   async function selectScenario(id: number) {
@@ -392,6 +407,9 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     selectedScenario.value = null
     scenarioForm.value = {}
     syncToLocalStorage()
+
+    // Only clears if the scenario still owns the sheet
+    useSheetStore().clearSheet('scenario')
   }
 
   async function saveScenario() {

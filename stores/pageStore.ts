@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import type { ContentCollectionItem } from '@nuxt/content'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import { useNavStore } from '@/stores/navStore'
+import { useSheetStore } from '@/stores/sheetStore'
 
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 export type WorkspaceCardsInput = string | BuilderCard[]
@@ -138,6 +139,11 @@ export const usePageStore = defineStore('pageStore', () => {
     ready.value = true
     isLoading.value = false
 
+    // New page: drop any model/tab override so the sheet shows this
+    // page's defaults. If the dashboard tab changes during shell sync
+    // below, navStore pushes that tab's intro right back in.
+    useSheetStore().clearSheet()
+
     syncDashboardShellFromPage()
 
     if (import.meta.client) {
@@ -160,6 +166,7 @@ export const usePageStore = defineStore('pageStore', () => {
     workspaceCardKey.value = ''
     ready.value = true
 
+    useSheetStore().clearSheet()
     navStore.clearDashboardShell()
 
     if (import.meta.client) {

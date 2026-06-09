@@ -14,8 +14,12 @@ import {
   type BuilderStatEntry,
   type BuilderStep,
   type BuilderUtilityCard,
-  type DashboardTabConfig,
 } from '@/stores/helpers/builderCards'
+import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
+import {
+  DEFAULT_REWARD_SLOT_CONFIGS,
+  rollRewardOptionsForSlot,
+} from '@/stores/helpers/rewardRoller'
 import {
   builderArrayFromPiped,
   builderStepCanFinish,
@@ -97,6 +101,8 @@ export const useBuilderStore = defineStore('builderStore', () => {
   const activeBuilderKey = ref(DEFAULT_BUILDER_KEY)
   const activeCardKey = ref<string | null>(null)
   const activeStepIndex = ref(0)
+
+const generator = useGeneratorStore()
 
   const sheet = reactive<BuilderSheet>(defaultBuilderSheet())
   const stagedValues = reactive<Record<string, string>>({})
@@ -427,7 +433,9 @@ export const useBuilderStore = defineStore('builderStore', () => {
 
       draftStats.splice(0, draftStats.length, ...cloneBuilderValue(source))
     }
-
+if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
+  rollRewardOptionsForCard(card)
+}
     persist()
   }
 
@@ -518,6 +526,32 @@ export const useBuilderStore = defineStore('builderStore', () => {
     persist()
   }
 
+function rolledRewardToBuilderOption(
+  reward: RolledReward,
+): BuilderRewardOption {
+  return reward as unknown as BuilderRewardOption
+}
+
+function rollRewardOptionsForCard(card = activeCard.value): void {
+  if (!card?.rewardSlotKey) return
+
+  const options = rollRewardOptionsForSlot({
+    slotKey: card.rewardSlotKey,
+    slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
+    rollFromGenerator: (baseRarity, count) =>
+      generator.rollRewardOptions(baseRarity, count),
+  }).map(rolledRewardToBuilderOption)
+
+  setRewardOptions(card.rewardSlotKey, options)
+}
+
+function rerollRewardOptionsForCard(card = activeCard.value): void {
+  if (!card?.rewardSlotKey) return
+
+  delete selectedRewardId[card.rewardSlotKey]
+  rollRewardOptionsForCard(card)
+}
+
   function setRewardOptions(
     slotKey: string,
     options: BuilderRewardOption[],
@@ -528,6 +562,8 @@ export const useBuilderStore = defineStore('builderStore', () => {
     }
     persist()
   }
+
+
 
   function selectRewardOption(slotKey: string, optionId: string): void {
     selectedRewardId[slotKey] = optionId
@@ -862,5 +898,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
     activeArtConfig,
     registerWorkspaceBuilder,
     getRegisteredConfig,
+    rollRewardOptionsForCard,
+    nrerollRewardOptionsForCard,
   }
 })

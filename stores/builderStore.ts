@@ -553,16 +553,12 @@ function rerollRewardOptionsForCard(card = activeCard.value): void {
 }
 
   function setRewardOptions(
-    slotKey: string,
-    options: BuilderRewardOption[],
-  ): void {
-    rewardOptions[slotKey] = options
-    if (!selectedRewardId[slotKey] && options[0]) {
-      selectedRewardId[slotKey] = options[0].id
-    }
-    persist()
-  }
-
+  slotKey: string,
+  options: BuilderRewardOption[],
+): void {
+  rewardOptions[slotKey] = options
+  persist()
+}
 
 
   function selectRewardOption(slotKey: string, optionId: string): void {
@@ -899,6 +895,6 @@ function rerollRewardOptionsForCard(card = activeCard.value): void {
     registerWorkspaceBuilder,
     getRegisteredConfig,
     rollRewardOptionsForCard,
-    nrerollRewardOptionsForCard,
+    rerollRewardOptionsForCard,
   }
 })

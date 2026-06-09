@@ -12,85 +12,96 @@
     <animation-layer />
     <milestone-popup />
 
-    <div
-      class="pointer-events-none fixed inset-x-0 top-0 z-40 transition-transform duration-200"
-      :class="chromeMinimized ? '-translate-y-full' : 'translate-y-0'"
-    >
-      <dashboard-shell />
-    </div>
-
     <section
-      class="relative flex h-full min-h-0 w-full flex-col overflow-hidden"
-      :class="chromeMinimized ? 'pt-0' : 'pt-[var(--app-header-h,4.5rem)]'"
+      class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
     >
-      <button
-        v-if="!workspaceSheetOpen"
-        type="button"
-        class="btn btn-primary btn-xs btn-square absolute left-3 top-3 z-40 shadow-lg"
-        aria-label="Open workspace"
-        :aria-expanded="workspaceSheetOpen"
-        @click="setWorkspaceSheetOpen(true)"
-      >
-        <Icon name="kind-icon:question" class="h-4 w-4" />
-      </button>
+      <dashboard-header
+        :chrome-minimized="chromeMinimized"
+        @toggle-chrome="toggleChrome"
+      />
 
-      <div
-        class="flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
-        :class="chromeMinimized ? 'pb-12' : 'pb-(--hand-h)'"
-      >
-        <Transition name="workspace-sheet-slide">
-          <aside
-            v-if="workspaceSheetOpen"
-            class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
-          >
-            <div
-              class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
-            >
-              <p
-                class="truncate text-xs font-black uppercase tracking-widest text-primary"
-              >
-                Workspace
-              </p>
-
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs btn-square"
-                aria-label="Close workspace"
-                @click="setWorkspaceSheetOpen(false)"
-              >
-                <Icon name="kind-icon:close" class="h-4 w-4" />
-              </button>
-            </div>
-
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-              <ClientOnly>
-                <workspace-sheet />
-
-                <template #fallback>
-                  <div
-                    class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
-                  >
-                    Loading workspace...
-                  </div>
-                </template>
-              </ClientOnly>
-            </div>
-          </aside>
-        </Transition>
+      <section class="relative z-0 min-h-0 flex-1 overflow-hidden">
+        <button
+          v-if="!workspaceSheetOpen"
+          type="button"
+          class="btn btn-primary btn-xs btn-square absolute left-3 top-3 z-40 shadow-lg"
+          aria-label="Open workspace"
+          :aria-expanded="workspaceSheetOpen"
+          @click="setWorkspaceSheetOpen(true)"
+        >
+          <Icon name="kind-icon:question" class="h-4 w-4" />
+        </button>
 
         <main
-          ref="mainScrollEl"
-          class="relative h-full min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl bg-base-200"
-          :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
-          @scroll.passive="handleMainScroll"
-          @wheel.passive="minimizeChrome"
-          @touchmove.passive="minimizeChrome"
+          class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
         >
-          <div class="min-h-full p-3 sm:p-4">
-            <NuxtPage />
+          <div
+            class="flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
+            :class="chromeMinimized ? 'pb-12' : 'pb-[var(--hand-h)]'"
+          >
+            <Transition name="workspace-sheet-slide">
+              <aside
+                v-if="workspaceSheetOpen"
+                class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
+              >
+                <div
+                  class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
+                >
+                  <p
+                    class="truncate text-xs font-black uppercase tracking-widest text-primary"
+                  >
+                    Workspace
+                  </p>
+
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs btn-square"
+                    aria-label="Close workspace"
+                    @click="setWorkspaceSheetOpen(false)"
+                  >
+                    <Icon name="kind-icon:close" class="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div
+                  class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3"
+                >
+                  <ClientOnly>
+                    <workspace-sheet />
+
+                    <template #fallback>
+                      <div
+                        class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
+                      >
+                        Loading workspace...
+                      </div>
+                    </template>
+                  </ClientOnly>
+                </div>
+              </aside>
+            </Transition>
+
+            <section
+              class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4"
+              :class="workspaceSheetOpen ? 'hidden md:flex' : 'flex'"
+            >
+              <div
+                class="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-base-100"
+              >
+                <main
+                  ref="mainScrollEl"
+                  class="h-full min-h-0 w-full overflow-y-auto overscroll-contain"
+                  @scroll.passive="handleMainScroll"
+                  @wheel.passive="minimizeChrome"
+                  @touchmove.passive="minimizeChrome"
+                >
+                  <NuxtPage />
+                </main>
+              </div>
+            </section>
           </div>
         </main>
-      </div>
+      </section>
     </section>
 
     <Transition name="workspace-hand-slide">
@@ -110,12 +121,18 @@
     <button
       type="button"
       class="btn btn-primary btn-sm btn-circle fixed bottom-3 left-1/2 z-50 -translate-x-1/2 shadow-xl"
-      :aria-label="chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'"
-      :title="chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'"
+      :aria-label="
+        chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'
+      "
+      :title="
+        chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'
+      "
       @click="toggleChrome"
     >
       <Icon
-        :name="chromeMinimized ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
+        :name="
+          chromeMinimized ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+        "
         class="h-5 w-5"
       />
     </button>

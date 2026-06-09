@@ -244,14 +244,18 @@ const selectedScenarioName = computed(() => {
 })
 
 const selectedRewardName = computed(() => {
+  const reward = rewardStore.selectedReward
+
+  if (!reward) return 'no reward'
+
   return (
-    rewardStore.selectedReward?.label ||
-    rewardStore.selectedReward?.text ||
-    rewardStore.selectedReward?.power ||
-    'no reward'
+    reward.name ||
+    reward.description ||
+    reward.flavorText ||
+    reward.effect ||
+    'unnamed reward'
   )
 })
-
 const selectedDreamName = computed(() => {
   return dreamStore.selectedDream?.title || 'no dream'
 })

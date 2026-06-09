@@ -195,9 +195,8 @@ export interface CodeTemplateNode {
   title?: string
   x: number
   y: number
-  values?: Record<string, unknown>   // ← add this
+  values?: Record<string, unknown> // ← add this
 }
-
 
 export interface CodeTemplateConnection {
   fromIndex: number
@@ -1047,7 +1046,8 @@ const templateSeeds: CodeTemplate[] = [
         x: 460,
         y: 80,
         values: {
-          system: 'You are a concise storyteller. Match the requested length exactly.',
+          system:
+            'You are a concise storyteller. Match the requested length exactly.',
         },
       },
       {
@@ -1056,7 +1056,8 @@ const templateSeeds: CodeTemplate[] = [
         x: 460,
         y: 320,
         values: {
-          system: 'You are a concise storyteller. Match the requested length exactly.',
+          system:
+            'You are a concise storyteller. Match the requested length exactly.',
         },
       },
     ],
@@ -1145,7 +1146,7 @@ const templateSeeds: CodeTemplate[] = [
         values: {
           system:
             'You are a Stable Diffusion prompt engineer for Kontext (image editing). ' +
-            'Convert the user\'s change notes into a concise edit instruction. Be ' +
+            "Convert the user's change notes into a concise edit instruction. Be " +
             'specific and visual. No preamble. Return only the edit prompt.',
         },
       },
@@ -1175,7 +1176,7 @@ const templateSeeds: CodeTemplate[] = [
         x: 80,
         y: 280,
         values: {
-          text: 'A retired casino dealer who keeps finding tarot cards that predict tomorrow\'s weather.',
+          text: "A retired casino dealer who keeps finding tarot cards that predict tomorrow's weather.",
         },
       },
       {
@@ -1282,7 +1283,7 @@ const templateSeeds: CodeTemplate[] = [
         x: 80,
         y: 160,
         values: {
-          text: 'a hummingbird made of stained glass, drinking from a butterfly\'s wing',
+          text: "a hummingbird made of stained glass, drinking from a butterfly's wing",
         },
       },
       {
@@ -1292,7 +1293,7 @@ const templateSeeds: CodeTemplate[] = [
         y: 120,
         values: {
           system:
-            'You are a Stable Diffusion prompt engineer. Convert the user\'s ' +
+            "You are a Stable Diffusion prompt engineer. Convert the user's " +
             'idea into a richly detailed image prompt. Include subject, style ' +
             '(e.g. art nouveau, oil painting, photoreal), lighting, mood, and ' +
             'composition. Single line. No preamble.',
@@ -1352,7 +1353,6 @@ const templateSeeds: CodeTemplate[] = [
     ],
   },
 ]
-
 
 export const useCodeStore = defineStore('codeStore', () => {
   const userStore = useUserStore()
@@ -1647,7 +1647,7 @@ export const useCodeStore = defineStore('codeStore', () => {
       .filter((reward) => reward?.id)
       .map((reward) => ({
         id: reward.id,
-        title: reward.label || `Reward ${reward.id}`,
+        title: reward.slug || `Reward ${reward.id}`,
         model: 'reward',
       }))
 
@@ -3063,13 +3063,13 @@ export const useCodeStore = defineStore('codeStore', () => {
         const point = normalizeNodePoint(templateNode.x, templateNode.y)
 
         const node: CodeNode = {
-  id: makeId('node'),
-  kind: templateNode.kind,
-  title: templateNode.title ?? definition.title,
-  x: point.x,
-  y: point.y,
-  values: { ...(templateNode.values ?? {}) },
-}
+          id: makeId('node'),
+          kind: templateNode.kind,
+          title: templateNode.title ?? definition.title,
+          x: point.x,
+          y: point.y,
+          values: { ...(templateNode.values ?? {}) },
+        }
 
         nodes.value.push(node)
         return node

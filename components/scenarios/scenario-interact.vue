@@ -97,7 +97,7 @@
                 v-if="rewardStore.selectedReward"
                 class="mt-2 text-sm text-base-content/70"
               >
-                Power: {{ rewardStore.selectedReward.power || 'Mysterious' }}
+                Effect: {{ rewardStore.selectedReward.effect || 'Mysterious' }}
               </p>
 
               <button
@@ -472,9 +472,13 @@ const selectedCharacterTitle = computed(() => {
     : 'Unnamed character'
 })
 
-const selectedRewardTitle = computed(
-  () => rewardStore.selectedReward?.text || 'No reward selected',
-)
+const selectedRewardTitle = computed(() => {
+  const reward = rewardStore.selectedReward
+
+  if (!reward) return 'No reward selected'
+
+  return reward.name || reward.description || 'Unnamed reward'
+})
 
 const selectedChoiceTitle = computed(
   () => scenarioStore.currentChoice || 'No opening choice selected',
@@ -601,8 +605,14 @@ function buildStoryPrompt() {
       character.class || 'Unknown class'
     }, ${character.personality || 'unknown personality'}`,
     `Opening choice: ${scenarioStore.currentChoice || 'None selected'}`,
-    reward ? `Reward at stake: ${reward.text}` : '',
-    reward ? `Reward power: ${reward.power || 'Unknown'}` : '',
+    reward ? `Reward at stake: ${reward.name}` : '',
+    reward
+      ? `Reward description: ${reward.description || 'No description provided'}`
+      : '',
+    reward
+      ? `Reward flavor: ${reward.flavorText || 'No flavor text provided'}`
+      : '',
+    reward ? `Reward effect: ${reward.effect || 'Unknown'}` : '',
     direction ? `Player direction: ${direction}` : '',
     '',
     'Generate the next scene as an interactive branching narrative. Include vivid sensory detail, meaningful consequences, and 3-5 clear follow-up options. Let the player continue with a skill check, inventory item, reward use, or custom prompt.',
@@ -625,8 +635,8 @@ function buildNextTurnPrompt() {
     `Character: ${character.name || 'Unnamed'} the ${
       character.honorific || 'Unremarkable'
     }`,
-    reward ? `Reward in play: ${reward.text}` : '',
-    reward ? `Reward power: ${reward.power || 'Unknown'}` : '',
+    reward ? `Reward in play: ${reward.name}` : '',
+    reward ? `Reward effect: ${reward.effect || 'Unknown'}` : '',
     scenarioStore.currentChoice
       ? `Selected choice or prompt: ${scenarioStore.currentChoice}`
       : '',

@@ -207,7 +207,6 @@
         </div>
       </header>
     </transition>
-
   </div>
 </template>
 
@@ -299,21 +298,23 @@ const activeTabKey = computed(() => {
   return resolvedTabs.value[0]?.key || ''
 })
 
+const fallbackTabConfig = computed<DashboardTabConfig>(() => ({
+  key: activeTabKey.value || 'home',
+  label: 'Home',
+  icon: fallbackIcon,
+  title: pageStore.title || 'Kind Robots',
+  summary: shellSummary.value,
+  narrative: pageStore.description || shellSummary.value,
+  image: pageStore.image || '/images/dashboard/dashboard-home.webp',
+  route: pageStore.currentPage?.path || '/',
+}))
+
 const activeTabConfig = computed<DashboardTabConfig>(() => {
   const matched = resolvedTabs.value.find(
     (tab) => tab.key === activeTabKey.value,
   )
 
-  return (
-    matched ??
-    resolvedTabs.value[0] ?? {
-      key: activeTabKey.value || 'overview',
-      label: 'Overview',
-      icon: fallbackIcon,
-      title: pageStore.title,
-      summary: shellSummary.value,
-    }
-  )
+  return matched ?? resolvedTabs.value[0] ?? fallbackTabConfig.value
 })
 
 const activeTitle = computed(

@@ -15,7 +15,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
-import type { DashboardTabConfig } from '@/stores/helpers/builderCards'
+import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
 
 export type SheetSource =
   | 'scenario'

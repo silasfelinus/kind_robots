@@ -140,7 +140,7 @@
       "composition-card",
       "composition-gallery",
       "composition-interact",
-      "composition-mananger"
+      "composition-manager"
     ]
   },
   {
@@ -163,7 +163,6 @@
       "giftshop-interact",
       "giftshop-manager",
       "mana-wallet",
-      "mana-widget",
       "print-swag",
       "shopping-cart",
       "subscription-manager"
@@ -202,11 +201,12 @@
   {
     "folderName": "navigation",
     "components": [
+      "card-picker",
       "channel-select",
       "dashboard-shell",
-      "navigation-trimmed",
+      "mana-widget",
       "page-image",
-      "safe-shell",
+      "server-selector",
       "workspace-hand",
       "workspace-sheet"
     ]
@@ -309,7 +309,6 @@
       "server-gallery",
       "server-interact",
       "server-manager",
-      "server-selector",
       "server-status"
     ]
   },

@@ -177,7 +177,18 @@ export default defineEventHandler(async (event) => {
         Rewards: {
           select: {
             id: true,
-            label: true,
+            name: true,
+            description: true,
+            flavorText: true,
+            effect: true,
+            icon: true,
+            collection: true,
+            rarity: true,
+            rewardType: true,
+            imagePath: true,
+            artPrompt: true,
+            isPublic: true,
+            isMature: true,
           },
         },
         Scenarios: {

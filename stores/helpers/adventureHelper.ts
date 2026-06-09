@@ -47,8 +47,8 @@ export function adventureRewardToBuilderOption(
 ): BuilderRewardOption {
   return {
     id: reward.id,
-    label: reward.label || reward.text || 'Unnamed Skill',
-    description: reward.power || reward.text || '',
+    label: reward.name || reward.description || 'Unnamed Skill',
+    description: reward.description || reward.flavorText || reward.effect || '',
     rarity: reward.rarity,
     icon: reward.icon ?? undefined,
     payload: {
@@ -70,11 +70,14 @@ export function builderOptionToAdventureReward(
     id: option.id,
     rewardId: numericRewardIdFromOptionId(option.id),
     rewardType: 'SKILL',
-    label: option.label,
-    text: option.label,
-    power: option.description ?? '',
+    name: option.label,
+    description: option.description ?? option.label,
+    flavorText: null,
+    effect: option.description ?? '',
     rarity: (option.rarity ?? 'COMMON') as Rarity,
     icon: option.icon ?? 'kind-icon:gift',
+    imagePath: null,
+    payload: {},
   }
 }
 

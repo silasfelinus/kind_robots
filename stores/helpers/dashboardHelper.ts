@@ -648,21 +648,6 @@ export const dashboardConfigs = {
         title: 'Scenario Gallery',
         summary: 'Select, add, clone, or edit the playground.',
       },
-
-      {
-        key: 'characters',
-        label: 'Characters',
-        icon: 'kind-icon:person',
-        title: 'Character Gallery',
-        summary: 'Select, add, or edit the cast.',
-      },
-      {
-        key: 'rewards',
-        label: 'Rewards',
-        icon: 'kind-icon:gift',
-        title: 'Reward Gallery',
-        summary: 'Select, add, or edit story powers and plot grenades.',
-      },
       {
         key: 'interact',
         label: 'Interact',

@@ -13,6 +13,10 @@ import {
   type AdventureCard,
   type AdventureStep,
 } from '@/stores/helpers/adventureCards'
+import {
+  DEFAULT_REWARD_SLOT_CONFIGS,
+  rollRewardOptionsForSlot,
+} from '@/stores/helpers/rewardRoller'
 import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
 import type { Rarity } from '@/stores/rewardStore'
 
@@ -75,20 +79,8 @@ const ALL_REQUIRED_KEYS = [
   'starting-skill',
 ] as const
 
-const SLOT_BASE_RARITY: Record<string, Rarity> = {
-  'starting-item': 'COMMON',
-  'starting-skill': 'COMMON',
-}
 
-const SLOT_OPTION_COUNT: Record<string, number> = {
-  'starting-item': 6,
-  'starting-skill': 6,
-}
 
-const SLOT_KIND: Record<string, 'item' | 'skill'> = {
-  'starting-item': 'item',
-  'starting-skill': 'skill',
-}
 
 // ── Defaults ───────────────────────────────────────────────────────────────
 
@@ -542,13 +534,13 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       ].includes(field)
     )
       return
-    if (field in SLOT_BASE_RARITY) {
-      delete sheet.rewards[field]
-      selectedRewardId[field] = ''
-      rewardOptions[field] = []
-      completedCards[field] = false
-      return
-    }
+    if (field in DEFAULT_REWARD_SLOT_CONFIGS) {
+  delete sheet.rewards[field]
+  selectedRewardId[field] = ''
+  rewardOptions[field] = []
+  completedCards[field] = false
+  return
+}
     const key = field as keyof AdventureSheet
     if (typeof sheet[key] === 'string') {
       ;(sheet as Record<string, unknown>)[field] =
@@ -601,70 +593,20 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   // ── Reward rolling ─────────────────────────────────────────────────────
 
-  function rollWeightedBaseRarity(): Rarity {
-    const roll = Math.random()
+  
 
-    if (roll < 0.68) return 'COMMON'
-    if (roll < 0.86) return 'UNCOMMON'
-    if (roll < 0.96) return 'RARE'
-    if (roll < 0.99) return 'EPIC'
-    return 'LEGENDARY'
-  }
+  
+  function rollRewardOptions(slotKey: string) {
+  rewardOptions[slotKey] = rollRewardOptionsForSlot({
+    slotKey,
+    slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
+    rollFromGenerator: (baseRarity, count) =>
+      generator.rollRewardOptions(baseRarity, count),
+  })
 
-  function rewardMatchesSlot(reward: RolledReward, slotKey: string): boolean {
-    const kind = SLOT_KIND[slotKey]
-    if (!kind) return true
-
-    const payload = (reward as unknown as { payload?: Record<string, unknown> })
-      .payload
-    const category = String(
-      payload?.category ??
-        payload?.type ??
-        payload?.kind ??
-        (reward as unknown as { category?: string }).category ??
-        (reward as unknown as { type?: string }).type ??
-        '',
-    ).toLowerCase()
-
-    if (!category) return true
-
-    if (kind === 'skill') {
-      return category.includes('skill') || category.includes('ability')
-    }
-
-    return (
-      category.includes('item') ||
-      category.includes('treasure') ||
-      category.includes('gear') ||
-      category.includes('equipment')
-    )
-  }
-
-  function rollRewardOptions(cardKey: string) {
-    const count = SLOT_OPTION_COUNT[cardKey] ?? 6
-    const fallbackBase = SLOT_BASE_RARITY[cardKey] ?? 'COMMON'
-    const options: RolledReward[] = []
-
-    for (let attempt = 0; attempt < 8 && options.length < count; attempt++) {
-      const base = attempt === 0 ? fallbackBase : rollWeightedBaseRarity()
-      const rolled = generator.rollRewardOptions(base, count * 2)
-
-      for (const reward of rolled) {
-        if (options.some((option) => option.id === reward.id)) continue
-        if (!rewardMatchesSlot(reward, cardKey)) continue
-        options.push(reward)
-        if (options.length >= count) break
-      }
-    }
-
-    if (!options.length) {
-      rewardOptions[cardKey] = generator.rollRewardOptions(fallbackBase, count)
-    } else {
-      rewardOptions[cardKey] = options.slice(0, count)
-    }
-
-    selectedRewardId[cardKey] = ''
-  }
+  selectedRewardId[slotKey] = ''
+  persistState()
+}
 
   function selectRewardOption(slotKey: string, optionId: string) {
     selectedRewardId[slotKey] = optionId

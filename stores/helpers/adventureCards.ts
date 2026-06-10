@@ -2496,8 +2496,7 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     flourish: '❋',
     deckImage: '/images/adventure/thumb/skill-uncommon.webp',
     heroImage: '/images/adventure/hero/skill-uncommon.webp',
-    tagline:
-      'One trick. Six possibilities. Possibly illegal in three kingdoms.',
+    tagline: 'Mostly a skill. Occasionally fate has other paperwork.',
     narrative:
       'Every entity carries one starting skill. It is probably common. Sometimes it is rare enough to make the table pause. Sometimes it is mythic and the paperwork quietly catches fire. Six options have been drawn. One belongs to this character.',
     required: true,
@@ -2524,7 +2523,7 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     flourish: '✦',
     deckImage: '/images/adventure/thumb/skill-common.webp',
     heroImage: '/images/adventure/hero/skill-common.webp',
-    tagline: 'One object. Six possibilities. At least one consequence.',
+    tagline: 'Usually an item. Sometimes the backpack contains a plot twist.',
     narrative:
       'Every entity begins with something in hand, pocket, inventory, aura, or legally contested possession. It is probably common. Probably. The universe occasionally misfiles powerful artifacts under “starter kit,” because the universe is a disorganized raccoon.',
     required: true,

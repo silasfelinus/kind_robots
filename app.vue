@@ -140,12 +140,16 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
+const navStore = useNavStore()
+
+const { workspaceSheetOpen } = storeToRefs(navStore)
 
 const showLoader = ref(true)
-const workspaceSheetOpen = ref(true)
 const chromeMinimized = ref(false)
 
 function handlePageReady(): void {
@@ -174,8 +178,7 @@ function toggleChrome(): void {
 }
 
 function setWorkspaceSheetOpen(value: boolean): void {
-  workspaceSheetOpen.value = value
-  persist('kindrobots:workspace-sheet-open', value)
+  navStore.setWorkspaceSheetOpen(value)
 }
 
 useSeoMeta({
@@ -186,16 +189,15 @@ useSeoMeta({
     'A friendly AI playground for humans and robots.',
 })
 
-onMounted(() => {
-  const storedSheetOpen = window.localStorage.getItem(
-    'kindrobots:workspace-sheet-open',
-  )
-  if (storedSheetOpen) workspaceSheetOpen.value = storedSheetOpen === 'true'
+onMounted(async () => {
+  await navStore.initialize()
 
   const storedChromeMinimized = window.localStorage.getItem(
     'kindrobots:chrome-minimized',
   )
-  if (storedChromeMinimized)
+
+  if (storedChromeMinimized) {
     chromeMinimized.value = storedChromeMinimized === 'true'
+  }
 })
 </script>

@@ -4,6 +4,10 @@ import {
   dashboardConfigs,
   footerRouteMap,
   footerDashboardMap,
+  getNavHeroImagePath,
+  getNavThumbImagePath,
+  NAV_IMAGE_BASE,
+  NAV_IMAGE_EXTENSION,
   type DashboardTabConfig,
   type FooterKey,
 } from '@/stores/helpers/dashboardHelper'
@@ -12,15 +16,12 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 export type NavCard = BuilderCard
 
-export const NAV_IMAGE_BASE = '/images/nav'
-export const NAV_IMAGE_EXTENSION = 'webp'
-
-export function getNavHeroImagePath(key: string): string {
-  return `${NAV_IMAGE_BASE}/heroes/${key}.${NAV_IMAGE_EXTENSION}`
-}
-
-export function getNavThumbImagePath(key: string): string {
-  return `${NAV_IMAGE_BASE}/thumbs/${key}.${NAV_IMAGE_EXTENSION}`
+// Re-exported for existing imports; dashboardHelper is the canonical home.
+export {
+  getNavHeroImagePath,
+  getNavThumbImagePath,
+  NAV_IMAGE_BASE,
+  NAV_IMAGE_EXTENSION,
 }
 
 const homeTab: DashboardTabConfig = {

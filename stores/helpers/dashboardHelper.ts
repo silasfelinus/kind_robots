@@ -3,6 +3,19 @@
 export const DASHBOARD_TAB_IMAGE_BASE = '/images/dashboard-tabs'
 export const DASHBOARD_TAB_IMAGE_EXTENSION = 'webp'
 
+// Nav deck art lives here too — dashboardHelper is the canonical config
+// home, and navCards imports from us (never the other way around).
+export const NAV_IMAGE_BASE = '/images/nav'
+export const NAV_IMAGE_EXTENSION = 'webp'
+
+export function getNavHeroImagePath(key: string): string {
+  return `${NAV_IMAGE_BASE}/heroes/${key}.${NAV_IMAGE_EXTENSION}`
+}
+
+export function getNavThumbImagePath(key: string): string {
+  return `${NAV_IMAGE_BASE}/thumbs/${key}.${NAV_IMAGE_EXTENSION}`
+}
+
 export type DashboardTabConfig = {
   key: string
   label: string
@@ -85,7 +98,7 @@ export const dashboardConfigs = {
         title: 'Checkpoints',
         summary:
           'Choose checkpoints, samplers, and verify active backend models.',
-        image: tabImage('art', 'checkpoints'),
+        image: tabImage('server', 'checkpoints'), // shared with server dashboard
         narrative:
           'Choose checkpoints, samplers, and backend model resources before the image forge starts confidently hallucinating with the wrong toolbox.',
         route: '/art',
@@ -118,7 +131,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:castle',
         title: 'Memory Dungeon',
         summary: 'Explore the gamified memory adventure.',
-        image: tabImage('art', 'memory-dungeon'),
+        image: tabImage('wonder', 'memory-dungeon'), // shared with wonder dashboard
         narrative:
           'Step into the gamified memory dungeon, match cards, survive the crawl, and let the art tools moonlight as fantasy cartographers.',
         route: '/wonderlab',
@@ -452,7 +465,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:butterfly',
         title: 'Butterfly Sanctuary',
         summary: 'Summon, inspect, and interact with screen effects.',
-        image: tabImage('footer', 'fx'),
+        image: getNavHeroImagePath('fx'),
         flourish: '✿',
         tagline: 'The swarm that absolutely does not run this website.',
         narrative:
@@ -465,7 +478,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:robot-color',
         title: 'Bots',
         summary: 'Build personalities, assistants, and accomplices.',
-        image: tabImage('footer', 'bot'),
+        image: getNavHeroImagePath('bot'),
         flourish: '◈',
         tagline: 'Build personalities, assistants, and accomplices.',
         narrative:
@@ -478,7 +491,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:palette',
         title: 'Art',
         summary: 'Generate and browse AI artwork.',
-        image: tabImage('footer', 'art'),
+        image: getNavHeroImagePath('art'),
         flourish: '◐',
         tagline: 'Generate and browse AI artwork.',
         narrative:
@@ -491,7 +504,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:story',
         title: 'Stories',
         summary: 'Bring everything into one narrative space.',
-        image: tabImage('footer', 'scenario'),
+        image: getNavHeroImagePath('scenario'),
         flourish: '§',
         tagline: 'Bring everything into one narrative space.',
         narrative:
@@ -504,7 +517,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:paintbrush',
         title: 'Themes',
         summary: 'Change the look and the vibe.',
-        image: tabImage('footer', 'theme'),
+        image: getNavHeroImagePath('theme'),
         flourish: '✦',
         tagline: 'Change the look and the vibe.',
         narrative: 'Browse and activate themes, or build a custom palette.',
@@ -516,7 +529,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:person',
         title: 'User Dashboard',
         summary: 'Account, profile, and settings.',
-        image: tabImage('footer', 'user'),
+        image: getNavHeroImagePath('user'),
         flourish: '☉',
         tagline: 'Account, profile, and settings.',
         narrative:
@@ -529,7 +542,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:foundry',
         title: 'WonderLab',
         summary: 'Let the robots touch the shiny buttons.',
-        image: tabImage('footer', 'lab'),
+        image: getNavHeroImagePath('lab'),
         flourish: '⚗',
         tagline: 'Let the robots touch the shiny buttons.',
         narrative:
@@ -542,7 +555,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:brain',
         title: 'Brainstorm',
         summary: 'Catch loose ideas before they escape into the walls.',
-        image: tabImage('footer', 'brainstorm'),
+        image: getNavHeroImagePath('brainstorm'),
         flourish: '✺',
         tagline: 'Catch loose ideas before they escape into the walls.',
         narrative:
@@ -555,7 +568,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:gift',
         title: 'Butterfly Giftshop',
         summary: 'Merch, prints, tokens, and swarm-approved artifacts.',
-        image: tabImage('footer', 'giftshop'),
+        image: getNavHeroImagePath('giftshop'),
         flourish: '❦',
         tagline: 'Merch, prints, tokens, and swarm-approved artifacts.',
         narrative:
@@ -568,7 +581,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:moon',
         title: 'Locations',
         summary: 'Explore imagined places and dreamscapes.',
-        image: tabImage('footer', 'dream'),
+        image: getNavHeroImagePath('dream'),
         flourish: '☾',
         tagline: 'Explore imagined places and dreamscapes.',
         narrative:
@@ -581,7 +594,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:mask',
         title: 'Characters',
         summary: 'Design and meet the cast of your world.',
-        image: tabImage('footer', 'character'),
+        image: getNavHeroImagePath('character'),
         flourish: '⚜',
         tagline: 'Design and meet the cast of your world.',
         narrative:
@@ -594,7 +607,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:trophy',
         title: 'Rewards',
         summary: 'Earn and collect rewards for your creations.',
-        image: tabImage('footer', 'reward'),
+        image: getNavHeroImagePath('reward'),
         flourish: '♛',
         tagline: 'Earn and collect rewards for your creations.',
         narrative:
@@ -896,7 +909,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:palette',
         title: 'Theme Gallery',
         summary: 'Customize the look and vibe of the app.',
-        image: tabImage('user', 'themes'),
+        image: tabImage('theme', 'gallery'), // shared with theme dashboard
         narrative:
           'Customize the look and vibe of the app from the user dashboard, because aesthetics are infrastructure with better shoes.',
         route: '/dashboard',

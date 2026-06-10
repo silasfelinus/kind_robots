@@ -182,4 +182,13 @@ Are we a future non-profit? A start-up? A floor wax? A dessert topping?
 
 Currently, I need to finish stitching in the new art, bug hunt missing art from the character builder and endpoints, get character builder working again, confirm art generation is working, fix bug with builder not appearing, fix or confirm fixed bug with scroll not working inside builder, fix tab layouts on large tabbed windows, and then add interactibles for rewards and characters before moving to the other models. It's not a bad list to get to a working set of features. Just gotta get to it.
 
-Afterward: successfully turned that list into what might be my first of many real paper lists. I've always functoned well with physical lists. Sadly this
+Afterward: successfully turned that list into what might be my first of many real paper lists. I've always functoned well with physical lists.
+
+
+6/10/2026 12:54am
+Finally got all the art generated for the new front end, integrated worksheet so we have a fresh display and output in every tab, and redesigned the cards so we didn't have a piss filter.
+It was quite lovely to see all the art appear once the new files loaded. The site continues to look fresher and more like what I'd hoped.
+
+I added a half dozen more todos, then started clearing them.  builder scroll was fixed on load, which also fixed the builder not appearing in the first place.
+
+Right now I'm going through all the nav and builder locations to root out missing images. The broken windows theory of development. Once all the rooms look functional, then I'll be able to work on actually having things to happen once you interact with them.

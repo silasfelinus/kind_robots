@@ -110,7 +110,7 @@
               <li v-for="tab in resolvedTabs" :key="tab.key">
                 <button
                   type="button"
-                  class="flex items-center gap-2 rounded-xl"
+                  class="flex items-center gap-2.5 rounded-xl"
                   :class="
                     activeTabKey === tab.key
                       ? 'active bg-primary text-primary-content'
@@ -118,13 +118,40 @@
                   "
                   @click="selectTabFromDropdown(tab.key)"
                 >
-                  <Icon
-                    :name="tab.icon || fallbackIcon"
-                    class="h-4 w-4 shrink-0"
-                  />
+                  <span
+                    class="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-base-300 bg-base-200"
+                  >
+                    <img
+                      v-if="tab.image && !failedTabImages[tab.key]"
+                      :src="tab.image"
+                      :alt="tab.label"
+                      class="h-full w-full object-cover"
+                      loading="lazy"
+                      @error="failedTabImages[tab.key] = true"
+                    />
 
-                  <span class="min-w-0 truncate text-sm font-bold">
-                    {{ tab.title || tab.label }}
+                    <span
+                      v-else
+                      class="flex h-full w-full items-center justify-center"
+                    >
+                      <Icon
+                        :name="tab.icon || fallbackIcon"
+                        class="h-4 w-4 opacity-70"
+                      />
+                    </span>
+                  </span>
+
+                  <span class="flex min-w-0 flex-col items-start">
+                    <span class="min-w-0 truncate text-sm font-bold">
+                      {{ tab.title || tab.label }}
+                    </span>
+
+                    <span
+                      v-if="tab.summary"
+                      class="min-w-0 truncate text-xs opacity-60"
+                    >
+                      {{ tab.summary }}
+                    </span>
                   </span>
                 </button>
               </li>
@@ -151,33 +178,68 @@
 
           <nav
             v-if="resolvedTabs.length"
-            class="hidden min-w-0 flex-1 items-stretch overflow-hidden rounded-2xl border border-base-300 bg-base-200/70 p-1.5 lg:flex"
+            class="hidden min-w-0 flex-1 self-stretch lg:block"
             aria-label="Dashboard tabs"
           >
             <div
-              class="grid min-h-0 w-full min-w-0 grid-cols-2 gap-1.5 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none"
+              class="tab-scroller flex h-full min-w-0 snap-x snap-proximity items-stretch gap-1.5 overflow-x-auto overscroll-x-contain rounded-2xl border border-base-300 bg-base-200/70 p-1.5"
             >
               <button
                 v-for="tab in resolvedTabs"
                 :key="tab.key"
-                class="btn h-full min-h-0 w-full min-w-0 justify-center rounded-xl border border-transparent px-2 py-2 text-center text-sm font-black normal-case leading-tight transition-all xl:px-3 xl:text-base 2xl:text-lg"
                 type="button"
+                class="group relative isolate h-full min-h-0 flex-1 snap-start overflow-hidden rounded-xl border transition-all"
                 :class="
                   activeTabKey === tab.key
-                    ? 'btn-primary shadow-sm'
-                    : 'btn-ghost bg-base-100/70 hover:border-primary/30 hover:bg-base-100'
+                    ? 'border-primary shadow-md ring-2 ring-primary'
+                    : 'border-base-300/60 hover:-translate-y-px hover:border-primary/40 hover:shadow-sm'
                 "
+                :title="tab.summary || tab.title"
                 @click="setTab(tab.key)"
               >
+                <!-- Tab art (icon panel until the generator catches up) -->
+                <img
+                  v-if="tab.image && !failedTabImages[tab.key]"
+                  :src="tab.image"
+                  :alt="tab.label"
+                  class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                  @error="failedTabImages[tab.key] = true"
+                />
+
+                <div v-else class="absolute inset-0 bg-base-100" />
+
+                <!-- Legibility scrim -->
+                <div
+                  class="absolute inset-0"
+                  :class="
+                    activeTabKey === tab.key
+                      ? 'bg-linear-to-t from-primary/90 via-primary/35 to-transparent'
+                      : 'bg-linear-to-t from-base-100/95 via-base-100/40 to-transparent'
+                  "
+                />
+
                 <span
-                  class="flex min-w-0 flex-col items-center justify-center gap-1 xl:gap-1.5"
+                  class="relative z-10 flex h-full min-w-0 flex-col items-center justify-end gap-0.5 px-1.5 pb-1.5 text-center"
                 >
                   <Icon
                     :name="tab.icon || fallbackIcon"
-                    class="h-5 w-5 shrink-0 xl:h-6 xl:w-6 2xl:h-7 2xl:w-7"
+                    class="h-5 w-5 shrink-0 drop-shadow xl:h-6 xl:w-6"
+                    :class="
+                      activeTabKey === tab.key
+                        ? 'text-primary-content'
+                        : 'text-primary'
+                    "
                   />
 
-                  <span class="max-w-full truncate">
+                  <span
+                    class="max-w-full truncate text-xs font-black normal-case leading-tight drop-shadow xl:text-sm"
+                    :class="
+                      activeTabKey === tab.key
+                        ? 'text-primary-content'
+                        : 'text-base-content'
+                    "
+                  >
                     {{ tab.label }}
                   </span>
                 </span>
@@ -211,7 +273,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   isDashboardKey,
   type DashboardKey,
@@ -237,6 +299,10 @@ const fallbackIcon = 'kind-icon:sparkles'
 
 const navStore = useNavStore()
 const pageStore = usePageStore()
+
+// Tabs whose art 404'd (generator hasn't caught up yet) fall back to
+// an icon panel instead of a broken image.
+const failedTabImages = ref<Record<string, boolean>>({})
 
 const shellTitle = computed(
   () => pageStore.room || pageStore.title || 'Kind Robots',
@@ -370,6 +436,36 @@ function toggleChrome(): void {
 </script>
 
 <style scoped>
+.tab-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: var(--fallback-bc, oklch(var(--bc) / 0.2)) transparent;
+}
+
+.tab-scroller::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tab-scroller::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: oklch(var(--bc) / 0.2);
+}
+
+.tab-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Stretch when few tabs, scroll when many: flex-1 grows to fill,
+   min-width stops the shrink and forces overflow into the scroller. */
+.tab-scroller > button {
+  min-width: 7.5rem;
+}
+
+@media (min-width: 1280px) {
+  .tab-scroller > button {
+    min-width: 8.5rem;
+  }
+}
+
 .header-slide-enter-active,
 .header-slide-leave-active {
   transform-origin: top center;

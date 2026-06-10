@@ -52,7 +52,7 @@
 
           <div class="min-w-0 flex-1">
             <p class="font-black text-base-content">
-              {{ reward.label }}
+              {{ rewardTitle(reward) }}
             </p>
 
             <p
@@ -63,10 +63,10 @@
             </p>
 
             <p
-              v-if="reward.description"
+              v-if="rewardDescription(reward)"
               class="mt-2 text-sm leading-relaxed text-base-content/60"
             >
-              {{ reward.description }}
+              {{ rewardDescription(reward) }}
             </p>
           </div>
         </div>
@@ -100,10 +100,10 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useAdventureStore } from '@/stores/adventureStore'
+import type { RolledReward } from '@/stores/generatorStore'
 
 const store = useAdventureStore()
 
@@ -124,6 +124,51 @@ const fallbackIcon = computed(() => {
   if (slotKey.value.includes('item')) return 'kind-icon:treasure'
   return 'kind-icon:reward'
 })
+
+function rewardPayload(reward: RolledReward): Record<string, unknown> {
+  return (reward as { payload?: Record<string, unknown> }).payload ?? {}
+}
+
+function rewardString(
+  reward: RolledReward,
+  keys: string[],
+  fallback = '',
+): string {
+  const payload = rewardPayload(reward)
+  const source = reward as unknown as Record<string, unknown>
+
+  for (const key of keys) {
+    const directValue = source[key]
+    if (typeof directValue === 'string' && directValue.trim()) {
+      return directValue
+    }
+
+    const payloadValue = payload[key]
+    if (typeof payloadValue === 'string' && payloadValue.trim()) {
+      return payloadValue
+    }
+  }
+
+  return fallback
+}
+
+function rewardTitle(reward: RolledReward): string {
+  return rewardString(
+    reward,
+    ['label', 'name', 'title', 'text', 'reward', 'power'],
+    'Unnamed reward',
+  )
+}
+
+function rewardDescription(reward: RolledReward): string {
+  return rewardString(reward, [
+    'description',
+    'summary',
+    'subtext',
+    'text',
+    'power',
+  ])
+}
 
 function selectReward(optionId: string): void {
   if (!slotKey.value) return

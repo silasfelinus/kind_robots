@@ -30,13 +30,23 @@ export function builderCardsToDashboardTabs(
   builderKey: string,
   cards: BuilderCard[],
 ): DashboardTabConfig[] {
-  return cards.map((card) => ({
-    key: prefixBuilderKey(builderKey, card.key),
-    label: card.label,
-    icon: card.icon,
-    title: card.title,
-    summary: card.tagline,
-  }))
+  return cards.map((card) => {
+    const key = prefixBuilderKey(builderKey, card.key)
+    const title = card.title || card.label
+    const summary = card.tagline || card.narrative || title
+    const image = card.deckImage || card.heroImage || ''
+
+    return {
+      key,
+      label: card.label,
+      icon: card.icon,
+      title,
+      summary,
+      narrative: card.narrative || summary,
+      image,
+      route: `/${builderKey}`,
+    }
+  })
 }
 
 export function makeBuilderId(prefix = 'builder'): string {

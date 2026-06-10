@@ -116,7 +116,7 @@
 
     <button
       type="button"
-      class="btn btn-sm btn-circle fixed left-1/2 z-30 -translate-x-1/2 shadow-xl transition-all duration-300"
+      class="btn btn-sm btn-circle fixed left-1/2 z-40 -translate-x-1/2 shadow-xl transition-all duration-300"
       :class="
         chromeMinimized ? 'bottom-3' : 'bottom-[calc(var(--hand-h)+0.75rem)]'
       "

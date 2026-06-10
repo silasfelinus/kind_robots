@@ -266,7 +266,7 @@
                   label="Class"
                   icon="kind-icon:sparkles"
                   :value="sheet.class"
-                  placeholder="Calling pending"
+                  placeholder="Class pending"
                   :is-builder-mode="isBuilderMode"
                   @clear="emit('remove-section', 'origin')"
                 />

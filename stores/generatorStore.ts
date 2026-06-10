@@ -391,7 +391,7 @@ const SPECIES = [
   'Rabbit',
 ]
 
-const CALLINGS = [
+const Classes = [
   'Rogue',
   'Warrior',
   'Wizard',
@@ -752,7 +752,7 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
   }
 
   function characterClass(): string {
-    return pickRandom(CALLINGS) ?? 'Rogue'
+    return pickRandom(Classes) ?? 'Rogue'
   }
 
   function alignment(): string {

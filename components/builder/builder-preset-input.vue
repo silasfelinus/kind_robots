@@ -1,45 +1,50 @@
 <!-- /components/builder/builder-preset-input.vue -->
 <template>
-  <div v-if="step" class="flex flex-col gap-4">
+  <div v-if="step" class="flex min-h-0 flex-col gap-4">
     <div
       v-if="step.choices?.length"
-      class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+      class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
     >
       <button
         v-for="choice in step.choices"
         :key="choiceKey(choice)"
         type="button"
-        class="group overflow-hidden rounded-2xl border-2 bg-base-200 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+        class="group relative overflow-hidden rounded-2xl border-2 bg-base-200 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
         :class="choiceClass(choice)"
         @click="handleChoice(choice)"
       >
-        <div
-          v-if="choice.image"
-          class="aspect-video overflow-hidden bg-base-300"
-        >
+        <div class="aspect-4/5 overflow-hidden bg-base-300">
           <img
+            v-if="choice.image"
             :src="choice.image"
             :alt="choice.label"
-            class="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
           />
-        </div>
-        <div class="flex gap-3 p-3">
+
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-base-100 text-primary"
+            v-else
+            class="flex h-full w-full items-center justify-center text-primary/60"
           >
-            <Icon :name="choice.icon || iconName" class="h-5 w-5" />
+            <Icon :name="choice.icon || iconName" class="h-14 w-14" />
           </div>
-          <div class="min-w-0 flex-1">
-            <p class="font-black leading-tight text-base-content">
-              {{ choice.label }}
-            </p>
-            <p
-              v-if="choice.subtext"
-              class="mt-1 line-clamp-3 text-xs leading-relaxed text-base-content/60"
-            >
-              {{ choice.subtext }}
-            </p>
-          </div>
+        </div>
+
+        <div
+          class="flex min-h-16 items-center justify-center bg-base-100/95 p-3 text-center"
+        >
+          <p
+            class="text-sm font-black leading-tight text-base-content sm:text-base"
+          >
+            {{ choice.label }}
+          </p>
+        </div>
+
+        <div
+          v-if="isSelected(choice)"
+          class="absolute right-2 top-2 rounded-full bg-primary p-1.5 text-primary-content shadow"
+        >
+          <Icon name="kind-icon:check" class="h-4 w-4" />
         </div>
       </button>
     </div>
@@ -53,6 +58,7 @@
       >
         More options
       </p>
+
       <div class="flex max-h-60 flex-wrap gap-2 overflow-y-auto pr-1">
         <button
           v-for="option in expandedListOptions"
@@ -75,6 +81,7 @@
       <div class="label pb-1">
         <span class="label-text font-bold">Custom value</span>
       </div>
+
       <input
         :value="store.stagedValues[step.key] ?? ''"
         type="text"
@@ -102,9 +109,11 @@ const expandedListOptions = ref<string[]>([])
 
 const step = computed(() => store.activeStep)
 const iconName = computed(() => store.activeCard?.icon || 'kind-icon:cards')
+
 const selectedValues = computed(() =>
   step.value ? (store.selectedChoiceValues[step.value.key] ?? []) : [],
 )
+
 const hasCustomChoice = computed(() =>
   Boolean(step.value?.choices?.some((choice) => choice.opensCustom)),
 )
@@ -120,23 +129,41 @@ function isSelected(choice: BuilderChoice): boolean {
 }
 
 function choiceClass(choice: BuilderChoice): string {
-  if (isSelected(choice))
+  if (isSelected(choice)) {
     return 'border-primary bg-primary/10 shadow shadow-primary/20'
+  }
+
   return 'border-base-300 hover:border-primary/60'
 }
 
 function handleChoice(choice: BuilderChoice): void {
   if (!step.value) return
+
   if (choice.opensCustom) {
     showCustom.value = true
     expandedListOptions.value = []
     return
   }
+
   if (choice.opensList) {
     expandedListOptions.value = choice.listOptions ?? []
     showCustom.value = false
     return
   }
+
   store.selectPresetChoice(step.value.key, choice.value)
+
+  store.activeSelectionPreview = {
+    key: choice.value || choice.label,
+    stepKey: step.value.key,
+    label: choice.label,
+    value: choice.value,
+    field: step.value.field,
+    image: choice.image ?? null,
+    icon: choice.icon || iconName.value,
+    description: choice.subtext ?? '',
+    narrative: step.value.narrative,
+    tags: [],
+  }
 }
 </script>

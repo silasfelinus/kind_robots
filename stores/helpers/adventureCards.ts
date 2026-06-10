@@ -2224,8 +2224,8 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     title: 'The glorious problem',
     icon: 'kind-icon:story',
     flourish: '§',
-    deckImage: '/images/adventure/thumb/background.webp',
-    heroImage: '/images/adventure/hero/background.webp',
+    deckImage: '/images/adventure/thumb/backstory.webp',
+    heroImage: '/images/adventure/hero/backstory.webp',
     tagline: 'A past. Unfortunate for them. Useful for the story.',
     narrative:
       'Every entity has a past. Even the sponge has a past — it is mostly about being a sponge, which is more complex than it sounds. Start with the shape of it: something wanted, something lost, something done about it, and one detail that does not quite fit.',

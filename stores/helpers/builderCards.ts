@@ -149,20 +149,7 @@ export type BuilderSuggestPayload = {
   extra?: Record<string, unknown>
 }
 
-export type DashboardTabConfig = {
-  key: string
-  label: string
-  icon: string
-  title?: string
-  summary?: string
-  flourish?: string
-  tagline?: string
-  narrative?: string
-  image?: string
-  path?: string
-  tab?: string
-  dashboardKey?: string
-}
+export type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
 
 export type BuilderSaveResult = {
   success: boolean

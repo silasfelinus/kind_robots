@@ -1,15 +1,13 @@
 // /stores/storyStore.ts
 // Single source of truth for the live Weirdlandia story session.
-// scenario-interact (and anything else) renders from this store;
-// no emits or prop-drilling required. Phase is derived:
+// scenario-interact and anything else render from this store.
+// Phase is derived:
 //   story     — a session is running or has chats
 //   configure — a scenario is selected, no session yet
 //   browse    — nothing selected
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useCharacterStore } from '@/stores/characterStore'
 import { useChatStore } from '@/stores/chatStore'
-import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
@@ -44,14 +42,10 @@ type PersistedSession = {
 
 export const useStoryStore = defineStore('storyStore', () => {
   const scenarioStore = useScenarioStore()
-  const characterStore = useCharacterStore()
-  const rewardStore = useRewardStore()
   const chatStore = useChatStore()
   const serverStore = useServerStore()
   const userStore = useUserStore()
   const weirdStore = useWeirdStore()
-
-  // ---------- State ----------
 
   const storyRunning = ref(false)
   const isStartingStory = ref(false)
@@ -60,8 +54,6 @@ export const useStoryStore = defineStore('storyStore', () => {
   const statusTone = ref<'success' | 'error'>('success')
   const sessionChatIds = ref<number[]>([])
   const isInitialized = ref(false)
-
-  // ---------- Persistence ----------
 
   function syncToLocalStorage() {
     if (!isClient) return
@@ -100,8 +92,6 @@ export const useStoryStore = defineStore('storyStore', () => {
     } catch {}
   }
 
-  // ---------- Getters ----------
-
   const sessionChats = computed<StorySessionChat[]>(() => {
     return chatStore.chats.filter((chat) =>
       sessionChatIds.value.includes(chat.id),
@@ -123,10 +113,14 @@ export const useStoryStore = defineStore('storyStore', () => {
     return 'browse'
   })
 
+  const hasLaunchDirection = computed(() => {
+    return Boolean(scenarioStore.currentChoice || customDirection.value.trim())
+  })
+
   const canStartStory = computed(() => {
     return Boolean(
       scenarioStore.selectedScenario &&
-      characterStore.selectedCharacter &&
+      hasLaunchDirection.value &&
       !isBusy.value,
     )
   })
@@ -136,8 +130,7 @@ export const useStoryStore = defineStore('storyStore', () => {
       storyRunning.value &&
       customDirection.value.trim() &&
       !isBusy.value &&
-      scenarioStore.selectedScenario &&
-      characterStore.selectedCharacter,
+      scenarioStore.selectedScenario,
     )
   })
 
@@ -149,15 +142,15 @@ export const useStoryStore = defineStore('storyStore', () => {
     return [
       'You are the Weirdlandia storyteller for Kind Robots.',
       'Write interactive branching fiction with sharp sensory detail, meaningful consequences, and playful weirdness.',
-      'Honor the selected scenario, character, reward, and opening choice.',
+      'Honor the selected scenario and opening choice.',
       'End every response with 3-5 clear follow-up options.',
-      'Each option should invite a different kind of action: cautious, bold, clever, strange, or character-driven.',
+      'Each option should invite a different kind of action: cautious, bold, clever, strange, or emotionally revealing.',
       'Do not explain the prompt. Write the story scene directly.',
     ].join('\n')
   })
 
   const storyPromptPreview = computed(() => {
-    if (!scenarioStore.selectedScenario || !characterStore.selectedCharacter) {
+    if (!scenarioStore.selectedScenario) {
       return ''
     }
 
@@ -184,8 +177,6 @@ export const useStoryStore = defineStore('storyStore', () => {
     })
   })
 
-  // ---------- Status ----------
-
   function setStatus(
     messageText: string,
     tone: 'success' | 'error' = 'success',
@@ -198,10 +189,7 @@ export const useStoryStore = defineStore('storyStore', () => {
     statusMessage.value = ''
   }
 
-  // ---------- Choice handling ----------
-
   function pickIntro(intro: string) {
-    // Toggle off if it's already the active choice
     if (scenarioStore.currentChoice === intro) {
       scenarioStore.setCurrentChoice('')
 
@@ -223,36 +211,20 @@ export const useStoryStore = defineStore('storyStore', () => {
     syncToLocalStorage()
   }
 
-  // ---------- Prompt building ----------
-
   function buildStoryPrompt() {
     const scenario = scenarioStore.selectedScenario
-    const character = characterStore.selectedCharacter
-    const reward = rewardStore.selectedReward
 
-    if (!scenario || !character) return ''
+    if (!scenario) return ''
 
     const direction = customDirection.value.trim()
 
     return [
       `Scenario: ${scenario.title}`,
       `Scenario description: ${scenario.description || 'No description provided'}`,
-      `Character: ${character.name || 'Unnamed'}`,
-      `Character details: ${character.species || 'Unknown species'}, ${
-        character.class || 'Unknown class'
-      }, ${character.personality || 'unknown personality'}`,
       `Opening choice: ${scenarioStore.currentChoice || 'None selected'}`,
-      reward ? `Reward at stake: ${reward.name}` : '',
-      reward
-        ? `Reward description: ${reward.description || 'No description provided'}`
-        : '',
-      reward
-        ? `Reward flavor: ${reward.flavorText || 'No flavor text provided'}`
-        : '',
-      reward ? `Reward effect: ${reward.effect || 'Unknown'}` : '',
       direction ? `Player direction: ${direction}` : '',
       '',
-      'Generate the next scene as an interactive branching narrative. Include vivid sensory detail, meaningful consequences, and 3-5 clear follow-up options. Let the player continue with a skill check, inventory item, reward use, or custom prompt.',
+      'Generate the opening scene as an interactive branching narrative. Include vivid sensory detail, meaningful consequences, and 3-5 clear follow-up options. Keep the focus on the scenario, the player’s chosen opening, and the immediate situation.',
     ]
       .filter(Boolean)
       .join('\n')
@@ -260,21 +232,16 @@ export const useStoryStore = defineStore('storyStore', () => {
 
   function buildNextTurnPrompt() {
     const scenario = scenarioStore.selectedScenario
-    const character = characterStore.selectedCharacter
-    const reward = rewardStore.selectedReward
     const direction = customDirection.value.trim()
 
-    if (!scenario || !character) return ''
+    if (!scenario) return ''
 
     return [
-      `Continue the current Weirdlandia story.`,
+      'Continue the current Weirdlandia story.',
       `Scenario: ${scenario.title}`,
-      `Character: ${character.name || 'Unnamed'}`,
-      reward ? `Reward in play: ${reward.name}` : '',
-      reward ? `Reward effect: ${reward.effect || 'Unknown'}` : '',
       `Player action: ${direction}`,
       '',
-      'Resolve this action in the ongoing story. Preserve continuity from the previous messages. Include consequences, character-specific reactions, and 3-5 new follow-up options.',
+      'Resolve this action in the ongoing story. Preserve continuity from the previous messages. Include consequences and 3-5 new follow-up options.',
     ]
       .filter(Boolean)
       .join('\n')
@@ -290,20 +257,12 @@ export const useStoryStore = defineStore('storyStore', () => {
     ]
   }
 
-  // ---------- Story lifecycle ----------
-
   async function createAndStreamStoryChat(content: string) {
-    const character = characterStore.selectedCharacter
-
-    if (!character) {
-      throw new Error('Select a character before launching the story goblin.')
-    }
-
     const payload: ChatRuntimeInput = {
       content,
-      userId: userStore.userId ?? userStore.user?.id ?? character.userId ?? 10,
+      userId: userStore.userId ?? userStore.user?.id ?? 10,
       type: 'Weirdlandia',
-      characterId: character.id,
+      characterId: null,
       recipientId: null,
       serverId: serverStore.activeTextServer?.id ?? null,
       isPublic: false,
@@ -341,7 +300,7 @@ export const useStoryStore = defineStore('storyStore', () => {
   async function startStory() {
     if (!canStartStory.value) {
       setStatus(
-        'Pick a scenario and character before launching the story goblin.',
+        'Pick a scenario opening or write a direction before launching the story goblin.',
         'error',
       )
       return
@@ -413,7 +372,6 @@ export const useStoryStore = defineStore('storyStore', () => {
     await startStory()
   }
 
-  /** Clear the session but keep the scenario selected → back to configure. */
   function newStory() {
     sessionChatIds.value = []
     storyRunning.value = false
@@ -428,14 +386,12 @@ export const useStoryStore = defineStore('storyStore', () => {
     syncToLocalStorage()
   }
 
-  /** End the session and deselect everything → back to browse. */
   function endSession() {
     newStory()
     scenarioStore.deselectScenario()
     scenarioStore.setCurrentChoice('')
   }
 
-  /** Deselect the scenario without touching a non-existent session → browse. */
   function backToBrowse() {
     scenarioStore.deselectScenario()
     scenarioStore.setCurrentChoice('')
@@ -443,8 +399,6 @@ export const useStoryStore = defineStore('storyStore', () => {
     clearStatus()
     syncToLocalStorage()
   }
-
-  // ---------- Initialization ----------
 
   async function initialize() {
     if (isInitialized.value) return
@@ -458,7 +412,6 @@ export const useStoryStore = defineStore('storyStore', () => {
         : [serverStore.initialize({ fetchRemote: true })]),
     ])
 
-    // Drop session chat ids that no longer exist after the chat fetch
     const knownIds = new Set(chatStore.chats.map((chat) => chat.id))
 
     sessionChatIds.value = sessionChatIds.value.filter((id) => knownIds.has(id))
@@ -472,7 +425,6 @@ export const useStoryStore = defineStore('storyStore', () => {
   }
 
   return {
-    // state
     storyRunning,
     isStartingStory,
     customDirection,
@@ -481,11 +433,11 @@ export const useStoryStore = defineStore('storyStore', () => {
     sessionChatIds,
     isInitialized,
 
-    // getters
     phase,
     sessionChats,
     isResponding,
     isBusy,
+    hasLaunchDirection,
     canStartStory,
     canContinueStory,
     canSubmitStory,
@@ -493,7 +445,6 @@ export const useStoryStore = defineStore('storyStore', () => {
     storyPromptPreview,
     fullSessionMessages,
 
-    // actions
     initialize,
     setStatus,
     clearStatus,

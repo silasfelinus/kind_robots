@@ -1,16 +1,6 @@
 <!-- /components/content/weird/scenario-interact.vue -->
-<!--
-  Pure view over storyStore + scenarioStore.
-  storyStore.phase drives everything:
-    browse    → gallery grid; tapping a card selects in the store
-    configure → full scenario summary, starter choices, configurables
-    story     → the running narrative
-  No emits, no cross-component watchers — selection in scenario-card
-  writes to scenarioStore, and this template reacts.
--->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-3">
-    <!-- Status toast -->
     <div
       v-if="storyStore.statusMessage"
       class="shrink-0 rounded-2xl border p-3 text-sm"
@@ -23,9 +13,6 @@
       {{ storyStore.statusMessage }}
     </div>
 
-    <!-- ==================================================== -->
-    <!-- PHASE 1: BROWSE                                      -->
-    <!-- ==================================================== -->
     <scenario-gallery
       v-if="storyStore.phase === 'browse'"
       class="min-h-0 flex-1"
@@ -35,15 +22,10 @@
       :show-inspirations="false"
     />
 
-    <!-- ==================================================== -->
-    <!-- PHASE 2: CONFIGURE                                   -->
-    <!-- ==================================================== -->
     <section
       v-else-if="storyStore.phase === 'configure'"
       class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain"
     >
-      <!-- Slim header: the full intro (image + description) lives in the
-           workspace sheet, which auto-opened on selection -->
       <div
         class="flex shrink-0 items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 pl-1 shadow-sm"
       >
@@ -93,7 +75,6 @@
         </div>
       </div>
 
-      <!-- Starter choices -->
       <article
         v-if="introChoices.length"
         class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
@@ -136,93 +117,42 @@
         </div>
       </article>
 
-      <!-- Configurables -->
       <article
         class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
       >
-        <h2 class="text-lg font-black text-base-content">Configure</h2>
+        <h2 class="text-lg font-black text-base-content">Direction</h2>
 
-        <div class="mt-3 flex flex-col gap-4">
-          <section>
-            <div class="mb-2 flex items-center justify-between gap-2">
-              <p
-                class="text-xs font-bold uppercase tracking-wider text-base-content/50"
-              >
-                Character <span class="text-error">*</span>
-              </p>
+        <p class="mt-0.5 text-sm text-base-content/60">
+          Add an optional tone, goal, complication, question, or narrative
+          twist.
+        </p>
 
-              <p class="truncate text-sm font-semibold text-base-content">
-                {{ selectedCharacterTitle }}
-              </p>
-            </div>
+        <label class="form-control mt-3">
+          <span class="label">
+            <span class="label-text font-bold">Custom direction</span>
 
-            <character-gallery
-              variant="row"
-              :show-header="false"
-              :show-controls="false"
-              :show-card-actions="false"
-              :compact="true"
-            />
-          </section>
+            <span class="label-text-alt text-base-content/50">Optional</span>
+          </span>
 
-          <section>
-            <div class="mb-2 flex items-center justify-between gap-2">
-              <p
-                class="text-xs font-bold uppercase tracking-wider text-base-content/50"
-              >
-                Reward (optional)
-              </p>
-
-              <button
-                v-if="rewardStore.selectedReward"
-                class="btn btn-ghost btn-xs rounded-xl"
-                type="button"
-                @click="rewardStore.deselectReward()"
-              >
-                <Icon name="kind-icon:x" class="h-3 w-3" />
-                {{ selectedRewardTitle }}
-              </button>
-
-              <p v-else class="text-sm text-base-content/50">None selected</p>
-            </div>
-
-            <reward-gallery
-              variant="row"
-              :show-header="false"
-              :show-controls="false"
-              :show-card-actions="false"
-              :compact="true"
-            />
-          </section>
-
-          <label class="form-control">
-            <span class="label">
-              <span class="label-text font-bold">Custom direction</span>
-
-              <span class="label-text-alt text-base-content/50">Optional</span>
-            </span>
-
-            <textarea
-              :value="storyStore.customDirection"
-              class="textarea textarea-bordered min-h-20 w-full resize-none rounded-2xl bg-base-200"
-              placeholder="Add a tone, goal, complication, skill check, inventory item, or narrative twist..."
-              :disabled="storyStore.isBusy"
-              @input="
-                storyStore.setCustomDirection(
-                  ($event.target as HTMLTextAreaElement).value,
-                )
-              "
-            />
-          </label>
-        </div>
+          <textarea
+            :value="storyStore.customDirection"
+            class="textarea textarea-bordered min-h-28 w-full resize-none rounded-2xl bg-base-200"
+            placeholder="Add a tone, goal, complication, question, or narrative twist..."
+            :disabled="storyStore.isBusy"
+            @input="
+              storyStore.setCustomDirection(
+                ($event.target as HTMLTextAreaElement).value,
+              )
+            "
+          />
+        </label>
       </article>
 
-      <!-- Launch -->
       <div class="shrink-0 pb-2">
         <button
           class="btn btn-success min-h-14 w-full rounded-2xl text-base"
           type="button"
-          :disabled="!storyStore.canStartStory"
+          :disabled="!canLaunchScenario"
           @click="storyStore.submitStoryTurn"
         >
           <span
@@ -234,10 +164,10 @@
         </button>
 
         <p
-          v-if="!characterStore.selectedCharacter"
+          v-if="!canLaunchScenario && !storyStore.isBusy"
           class="mt-2 text-center text-sm text-base-content/60"
         >
-          Pick a character above to launch.
+          Pick an opening or write a direction to launch.
         </p>
 
         <div class="mt-2 flex items-center justify-between gap-2 px-1">
@@ -257,14 +187,10 @@
       </div>
     </section>
 
-    <!-- ==================================================== -->
-    <!-- PHASE 3: STORY                                       -->
-    <!-- ==================================================== -->
     <section
       v-else
       class="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
     >
-      <!-- Context bar -->
       <header
         class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 p-3"
       >
@@ -285,10 +211,7 @@
             </h2>
 
             <p class="truncate text-xs text-base-content/60">
-              {{ selectedCharacterTitle }}
-              <template v-if="rewardStore.selectedReward">
-                · {{ selectedRewardTitle }}
-              </template>
+              Scenario session
             </p>
           </div>
         </div>
@@ -318,7 +241,6 @@
         </div>
       </header>
 
-      <!-- Story log -->
       <section
         ref="storyLogRef"
         class="min-h-0 overflow-y-auto overscroll-contain bg-base-200 p-4"
@@ -371,13 +293,12 @@
         </div>
       </section>
 
-      <!-- Composer -->
       <footer class="shrink-0 border-t border-base-300 bg-base-100 p-3">
         <div class="mx-auto flex max-w-3xl flex-col gap-2">
           <textarea
             :value="storyStore.customDirection"
             class="textarea textarea-bordered min-h-20 w-full resize-none rounded-2xl bg-base-200"
-            placeholder="Choose an option, use an item, ask a question, trigger a skill check, or do something deeply unwise..."
+            placeholder="Choose what happens next, ask a question, or do something deeply unwise..."
             :disabled="storyStore.isBusy"
             @input="
               storyStore.setCustomDirection(
@@ -413,8 +334,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { useCharacterStore } from '@/stores/characterStore'
-import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useSheetStore } from '@/stores/sheetStore'
@@ -425,14 +344,11 @@ import {
 } from '@/stores/helpers/scenarioHelper'
 
 const scenarioStore = useScenarioStore()
-const characterStore = useCharacterStore()
-const rewardStore = useRewardStore()
 const serverStore = useServerStore()
 const sheetStore = useSheetStore()
 const storyStore = useStoryStore()
 const artStore = useArtStore()
 
-// DOM-only concerns live here; everything else is store state.
 const storyLogRef = ref<HTMLElement | null>(null)
 const scenarioArtImage = ref<ArtImage | null>(null)
 
@@ -457,23 +373,20 @@ const introChoices = computed(() => {
   }))
 })
 
-const selectedCharacterTitle = computed(() => {
-  return characterStore.selectedCharacter?.name || 'No character selected'
-})
-
-const selectedRewardTitle = computed(() => {
-  const reward = rewardStore.selectedReward
-
-  if (!reward) return 'No reward selected'
-
-  return reward.name || reward.description || 'Unnamed reward'
-})
-
 const activeServerName = computed(() => {
   return (
     serverStore.activeTextServer?.label ||
     serverStore.activeTextServer?.title ||
     'No text server selected'
+  )
+})
+
+const canLaunchScenario = computed(() => {
+  if (storyStore.isBusy) return false
+  if (!selectedScenario.value) return false
+
+  return Boolean(
+    scenarioStore.currentChoice || storyStore.customDirection.trim(),
   )
 })
 
@@ -483,8 +396,6 @@ async function copyPrompt() {
   await navigator.clipboard.writeText(storyStore.storyPromptPreview)
   storyStore.setStatus('Story prompt copied.')
 }
-
-// ---------- DOM: scrolling + art loading ----------
 
 function scrollToBottom() {
   const el = storyLogRef.value
@@ -517,7 +428,6 @@ onMounted(async () => {
   scrollToBottom()
 })
 
-// Needed: art fetch is async I/O keyed off store state
 watch(
   () => selectedScenario.value?.id,
   async () => {
@@ -525,7 +435,6 @@ watch(
   },
 )
 
-// Needed: pinning scroll to streaming output is a DOM concern
 watch(
   () => storyStore.sessionChats.map((chat) => chat.botResponse).join(''),
   async () => {

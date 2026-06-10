@@ -274,20 +274,20 @@ export const useBuilderStore = defineStore('builderStore', () => {
     }
   })
 
-function chooseSelectionPreview(): void {
-  if (!activeSelectionPreview.value) return
+  function chooseSelectionPreview(): void {
+    if (!activeSelectionPreview.value) return
 
-  confirmSelectionPreview()
+    confirmSelectionPreview()
 
-  if (!activeCard.value) return
+    if (!activeCard.value) return
 
-  if (isLastStep.value) {
-    finishCard()
-    return
+    if (isLastStep.value) {
+      finishCard()
+      return
+    }
+
+    nextStep()
   }
-
-  nextStep()
-}
 
   const cards = computed<BuilderCard[]>(() => activeConfig.value.cards)
 
@@ -495,69 +495,69 @@ function chooseSelectionPreview(): void {
     }
   }
 
-function resetRuntimeState(config = activeConfig.value): void {
-  activeSelectionPreview.value = null
-  activeCardKey.value = null
-  activeStepIndex.value = 0
-  selectedStatBlock.value = null
-  isHydrated.value = false
-  isSuggesting.value = false
-  isSaving.value = false
-  lastError.value = null
-  statusMessage.value = ''
+  function resetRuntimeState(config = activeConfig.value): void {
+    activeSelectionPreview.value = null
+    activeCardKey.value = null
+    activeStepIndex.value = 0
+    selectedStatBlock.value = null
+    isHydrated.value = false
+    isSuggesting.value = false
+    isSaving.value = false
+    lastError.value = null
+    statusMessage.value = ''
 
-  resetBuilderObject(stagedValues)
-  resetBuilderObject(completedCards)
-  resetBuilderObject(selectedListOptions)
-  resetBuilderObject(selectedChoiceValues)
-  resetBuilderObject(rewardOptions)
-  resetBuilderObject(selectedRewardId)
-  draftStats.splice(0, draftStats.length)
+    resetBuilderObject(stagedValues)
+    resetBuilderObject(completedCards)
+    resetBuilderObject(selectedListOptions)
+    resetBuilderObject(selectedChoiceValues)
+    resetBuilderObject(rewardOptions)
+    resetBuilderObject(selectedRewardId)
+    draftStats.splice(0, draftStats.length)
 
-  resetBuilderObject(sheet)
-  Object.assign(sheet, cloneBuilderValue(config.defaultSheet()))
+    resetBuilderObject(sheet)
+    Object.assign(sheet, cloneBuilderValue(config.defaultSheet()))
 
-  const initialStats = Array.isArray(sheet.stats)
-    ? (sheet.stats as BuilderStatEntry[])
-    : []
-
-  draftStats.splice(0, draftStats.length, ...cloneBuilderValue(initialStats))
-}
-
-function selectCard(cardKey: string): void {
-  const card = cards.value.find((entry) => entry.key === cardKey)
-
-  if (!card) return
-
-  activeSelectionPreview.value = null
-  activeCardKey.value = card.key
-  activeStepIndex.value = 0
-  selectedStatBlock.value = null
-  clearError()
-
-  for (const step of card.steps) {
-    stagedValues[step.key] = getBuilderStepValue(sheet, step, stagedValues)
-    if (step.multiSelect) {
-      selectedChoiceValues[step.key] = builderArrayFromPiped(
-        stagedValues[step.key] ?? '',
-      )
-    }
-  }
-
-  if (card.steps.some((step) => step.inputType === 'stats')) {
-    const source = Array.isArray(sheet.stats)
+    const initialStats = Array.isArray(sheet.stats)
       ? (sheet.stats as BuilderStatEntry[])
       : []
 
-    draftStats.splice(0, draftStats.length, ...cloneBuilderValue(source))
+    draftStats.splice(0, draftStats.length, ...cloneBuilderValue(initialStats))
   }
 
-  if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
-    rollRewardOptionsForCard(card)
-  }
+  function selectCard(cardKey: string): void {
+    const card = cards.value.find((entry) => entry.key === cardKey)
 
-  persist()
-}
+    if (!card) return
+
+    activeSelectionPreview.value = null
+    activeCardKey.value = card.key
+    activeStepIndex.value = 0
+    selectedStatBlock.value = null
+    clearError()
+
+    for (const step of card.steps) {
+      stagedValues[step.key] = getBuilderStepValue(sheet, step, stagedValues)
+      if (step.multiSelect) {
+        selectedChoiceValues[step.key] = builderArrayFromPiped(
+          stagedValues[step.key] ?? '',
+        )
+      }
+    }
+
+    if (card.steps.some((step) => step.inputType === 'stats')) {
+      const source = Array.isArray(sheet.stats)
+        ? (sheet.stats as BuilderStatEntry[])
+        : []
+
+      draftStats.splice(0, draftStats.length, ...cloneBuilderValue(source))
+    }
+
+    if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
+      rollRewardOptionsForCard(card)
+    }
+
+    persist()
+  }
 
   function randomCard(): void {
     if (!visibleCards.value.length) return
@@ -569,33 +569,33 @@ function selectCard(cardKey: string): void {
   }
 
   function cancelCard(): void {
-  activeSelectionPreview.value = null
-  activeCardKey.value = null
-  activeStepIndex.value = 0
-  selectedStatBlock.value = null
-  clearError()
-  persist()
-}
+    activeSelectionPreview.value = null
+    activeCardKey.value = null
+    activeStepIndex.value = 0
+    selectedStatBlock.value = null
+    clearError()
+    persist()
+  }
 
   function nextStep(): void {
-  if (!activeCard.value) return
+    if (!activeCard.value) return
 
-  activeSelectionPreview.value = null
+    activeSelectionPreview.value = null
 
-  if (activeStepIndex.value < activeCard.value.steps.length - 1) {
-    activeStepIndex.value++
-    persist()
+    if (activeStepIndex.value < activeCard.value.steps.length - 1) {
+      activeStepIndex.value++
+      persist()
+    }
   }
-}
 
   function prevStep(): void {
-  activeSelectionPreview.value = null
+    activeSelectionPreview.value = null
 
-  if (activeStepIndex.value > 0) {
-    activeStepIndex.value--
-    persist()
+    if (activeStepIndex.value > 0) {
+      activeStepIndex.value--
+      persist()
+    }
   }
-}
   function setStagedValue(stepKey: string, value: string): void {
     stagedValues[stepKey] = value
 
@@ -651,7 +651,18 @@ function selectCard(cardKey: string): void {
   function rolledRewardToBuilderOption(
     reward: RolledReward,
   ): BuilderRewardOption {
-    return reward as unknown as BuilderRewardOption
+    return {
+      id: reward.id,
+      label: reward.name || reward.description || 'Unnamed Reward',
+      description:
+        reward.description || reward.flavorText || reward.effect || '',
+      rarity: reward.rarity,
+      icon: reward.icon ?? undefined,
+      imagePath: reward.imagePath ?? null,
+      payload: {
+        reward,
+      },
+    }
   }
 
   function rollRewardOptionsForCard(card = activeCard.value): void {
@@ -743,17 +754,17 @@ function selectCard(cardKey: string): void {
   }
 
   function advanceToNextCard(previousKey: string): void {
-  activeSelectionPreview.value = null
-  activeCardKey.value = null
-  activeStepIndex.value = 0
-  selectedStatBlock.value = null
+    activeSelectionPreview.value = null
+    activeCardKey.value = null
+    activeStepIndex.value = 0
+    selectedStatBlock.value = null
 
-  const next = visibleCards.value.find(
-    (card) => card.key !== previousKey && !completedCards[card.key],
-  )
+    const next = visibleCards.value.find(
+      (card) => card.key !== previousKey && !completedCards[card.key],
+    )
 
-  if (next) selectCard(next.key)
-}
+    if (next) selectCard(next.key)
+  }
 
   function removeSection(cardKey: string): void {
     const card = cards.value.find((entry) => entry.key === cardKey)
@@ -1018,10 +1029,10 @@ function selectCard(cardKey: string): void {
     rollRewardOptionsForCard,
     rerollRewardOptionsForCard,
     activeSelectionPreview,
-previewSelection,
-previewPresetChoice,
-clearSelectionPreview,
-confirmSelectionPreview,
-chooseSelectionPreview,
+    previewSelection,
+    previewPresetChoice,
+    clearSelectionPreview,
+    confirmSelectionPreview,
+    chooseSelectionPreview,
   }
 })

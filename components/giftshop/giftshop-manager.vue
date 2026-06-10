@@ -88,23 +88,6 @@
       </section>
 
       <section
-        v-else-if="activeTab === 'butterfly-lab'"
-        class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden 2xl:grid-cols-2"
-      >
-        <section
-          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-        >
-          <butterfly-lab class="h-full min-h-0 flex-1 overflow-hidden" />
-        </section>
-
-        <section
-          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-        >
-          <butterfly-grid class="h-full min-h-0 flex-1 overflow-hidden" />
-        </section>
-      </section>
-
-      <section
         v-else-if="activeTab === 'giftshop'"
         class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
       >
@@ -140,6 +123,29 @@
       >
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
           <sponsor-page />
+        </div>
+      </section>
+
+      <section
+        v-else-if="activeTab === 'forum'"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <div
+          class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-y-auto overscroll-contain p-6 text-center"
+        >
+          <Icon name="kind-icon:forum" class="h-12 w-12 text-primary" />
+
+          <div class="max-w-xl space-y-2">
+            <h2 class="text-2xl font-black text-base-content">
+              Giftshop Forum
+            </h2>
+
+            <p class="text-sm leading-relaxed text-base-content/70">
+              The butterflies are drafting community guidelines in glitter ink.
+              This tab is wired to the dashboard canon and ready for the real
+              forum component when it lands.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -198,24 +204,24 @@ const managerSummary = computed(() => {
     ? `${cartStore.totalItems} item(s), $${cartStore.formattedTotalPrice}`
     : 'cart currently empty, butterflies visibly disappointed'
 
-  return `The butterflies run the sanctuary, the lab, the shop, billing, sponsorship, cart review, and allegedly the website. Current cart: ${cartText}.`
+  return `The butterflies run the sanctuary, shop, forum, billing, sponsorship, cart review, wallet audits, about page, and allegedly the website. Current cart: ${cartText}.`
 })
 
 const swarmMemo = computed(() => {
   const messages: Record<GiftshopTabKey, string> = {
-    cart: 'Cart review initiated. The butterflies are counting jellybeans with terrifying precision.',
-    wallet:
-      'Wallet open. The butterflies audit every mana transaction with tiny green visors and zero chill.',
-    subscriptions:
-      'Subscriptions keep the servers awake and the butterflies in premium-grade imaginary nectar.',
     sanctuary:
       'Sanctuary first. Commerce second. Tiny winged governance always.',
     about:
       'The org chart is mostly humans, robots, and butterflies pretending not to understand payroll.',
-    'butterfly-lab':
-      'Lab access granted. Please do not feed experimental butterflies after midnight or before a CSS refactor.',
     giftshop:
       'Every artifact is inspected for whimsy, structural integrity, and whether AMI thinks it has main character energy.',
+    cart: 'Cart review initiated. The butterflies are counting jellybeans with terrifying precision.',
+    forum:
+      'Forum open. The butterflies are moderating discourse with tiny clipboards and unreasonable confidence.',
+    subscriptions:
+      'Subscriptions keep the servers awake and the butterflies in premium-grade imaginary nectar.',
+    wallet:
+      'Wallet open. The butterflies audit every mana transaction with tiny green visors and zero chill.',
     sponsor:
       'Sponsor energy goes toward the mission. The butterflies accept gratitude, impact, and tasteful confetti.',
   }
@@ -231,7 +237,7 @@ onMounted(async () => {
   }
 })
 
-function setTab(tab: string) {
+function setTab(tab: string): void {
   const nextTab = isDashboardTabKey(defaultDashboardKey, tab)
     ? tab
     : dashboardConfig.defaultTab
@@ -239,7 +245,7 @@ function setTab(tab: string) {
   navStore.setDashboardTab?.(dashboardKey.value, nextTab)
 }
 
-async function refreshManagerData() {
+async function refreshManagerData(): Promise<void> {
   isLoadingManager.value = true
   managerError.value = null
 

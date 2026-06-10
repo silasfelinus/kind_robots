@@ -301,16 +301,25 @@ const activeTabConfig = computed<DashboardTabConfig>(() => {
     (tab) => tab.key === activeTabKey.value,
   )
 
-  return (
-    matched ??
-    resolvedTabs.value[0] ?? {
-      key: activeTabKey.value || 'overview',
-      label: 'Overview',
-      icon: fallbackIcon,
-      title: pageStore.title,
-      summary: shellSummary.value,
-    }
-  )
+  if (matched) return matched
+
+  const firstTab = resolvedTabs.value[0]
+
+  if (firstTab) return firstTab
+
+  const title = pageStore.title || 'Overview'
+  const summary = shellSummary.value || ''
+
+  return {
+    key: activeTabKey.value || 'overview',
+    label: title,
+    icon: fallbackIcon,
+    title,
+    summary,
+    narrative: summary || title,
+    image: pageStore.image || '',
+    route: pageStore.currentPage?.path || '/',
+  }
 })
 
 const activeTitle = computed(

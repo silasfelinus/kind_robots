@@ -8,26 +8,25 @@ import type { RolledReward } from '@/stores/generatorStore'
 import type { Rarity } from '@/stores/rewardStore'
 
 export const ADVENTURE_CORE_CARD_KEYS = [
-  'role',
-  'name',
-  'origin',
-  'identity',
+  'species',
+  'gender',
+  'alignment',
+  'class',
   'personality',
+  'quirks',
+  'backstory',
   'stats',
-  'background',
 ]
 
 export const ADVENTURE_REQUIRED_CARD_KEYS = [
   ...ADVENTURE_CORE_CARD_KEYS,
-  'common-skill',
-  'uncommon-skill',
-  'rare-skill',
+  'starting-skill',
+  'starting-item',
 ]
 
-export const ADVENTURE_SKILL_RARITY: Record<string, Rarity> = {
-  'common-skill': 'COMMON',
-  'uncommon-skill': 'UNCOMMON',
-  'rare-skill': 'RARE',
+export const ADVENTURE_REWARD_SLOT_RARITY: Record<string, Rarity> = {
+  'starting-skill': 'COMMON',
+  'starting-item': 'COMMON',
 }
 
 function numericRewardIdFromOptionId(id: string): number {
@@ -59,6 +58,7 @@ export function adventureRewardToBuilderOption(
 
 export function builderOptionToAdventureReward(
   option: BuilderRewardOption,
+  rewardType: RolledReward['rewardType'] = 'SKILL',
 ): RolledReward {
   const raw = option.payload?.reward
 
@@ -69,14 +69,14 @@ export function builderOptionToAdventureReward(
   return {
     id: option.id,
     rewardId: numericRewardIdFromOptionId(option.id),
-    rewardType: 'SKILL',
+    rewardType,
     name: option.label,
     description: option.description ?? option.label,
     flavorText: null,
     effect: option.description ?? '',
     rarity: (option.rarity ?? 'COMMON') as Rarity,
     icon: option.icon ?? 'kind-icon:gift',
-    imagePath: null,
+    imagePath: option.imagePath ?? null,
     payload: {},
   }
 }
@@ -132,16 +132,19 @@ export function buildAdventureArtPrompt(sheet: BuilderSheet): string {
   const rewards = sheet.rewards
 
   if (rewards && typeof rewards === 'object' && !Array.isArray(rewards)) {
-    const skillText = Object.values(
+    const rewardText = Object.entries(
       rewards as Record<string, BuilderRewardOption>,
     )
-      .map((reward) => {
+      .map(([slotKey, reward]) => {
         const rarity = reward.rarity?.toLowerCase() ?? 'special'
-        return `${rarity} skill: ${reward.label}`
+        const label = reward.label || 'Unnamed Reward'
+        const type = slotKey.includes('item') ? 'item' : 'skill'
+
+        return `${rarity} ${type}: ${label}`
       })
       .join(', ')
 
-    if (skillText) parts.push(`skills: ${skillText}`)
+    if (rewardText) parts.push(`starting rewards: ${rewardText}`)
   }
 
   if (typeof sheet.backstory === 'string' && sheet.backstory.trim()) {

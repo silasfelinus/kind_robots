@@ -274,6 +274,18 @@ type ImageCard = BuilderCard & {
   payload?: Record<string, unknown>
 }
 
+const BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY = [
+  'species',
+  'gender',
+  'class',
+  'alignment',
+  'personality',
+  'backstory',
+  'quirks',
+  'imagePath',
+  'artPrompt',
+] as const
+
 type VisibleField = {
   key: string
   value: string
@@ -294,6 +306,34 @@ const override = computed(() => sheetStore.override)
 const isBuilder = computed(() => {
   return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0
 })
+
+function priorityForBuilderField(key: string): number {
+  const normalizedKey = key.trim().toLowerCase()
+
+  const index = BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY.findIndex((field) => {
+    return field.toLowerCase() === normalizedKey
+  })
+
+  return index === -1 ? BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY.length : index
+}
+
+function builderCompletedDefaultImagePath(): string {
+  if (!isBuilder.value) return ''
+
+  const candidates = builderStore.completedCardList
+    .flatMap((card) => {
+      return visibleFields(card.restoresFields)
+        .filter((field) => field.imagePath)
+        .map((field) => ({
+          key: field.key,
+          imagePath: field.imagePath,
+          priority: priorityForBuilderField(field.key),
+        }))
+    })
+    .sort((a, b) => a.priority - b.priority)
+
+  return candidates[0]?.imagePath ?? ''
+}
 
 const builderCards = computed<BuilderCard[]>(() => {
   return builderStore.visibleCards.length
@@ -396,7 +436,6 @@ const imagePath = computed(() => {
   if (override.value?.imagePath) {
     const overrideImage = override.value.imagePath
 
-    // Resolved art images arrive as data URIs — never normalize those
     return overrideImage.startsWith('data:')
       ? overrideImage
       : normalizeImagePath(overrideImage)
@@ -411,6 +450,8 @@ const imagePath = computed(() => {
 
     return normalizeImagePath(
       firstString([
+        builderStore.activeSelectionPreview?.image,
+        builderCompletedDefaultImagePath(),
         cardImagePath(activeImageCard.value),
         builderStore.activeConfig.splash?.imagePath,
         pageStore.image,

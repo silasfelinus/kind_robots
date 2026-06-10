@@ -563,17 +563,18 @@ export const dashboardConfigs = {
         route: '/brainstorm',
       },
       {
-        key: 'giftshop',
-        label: 'Giftshop',
-        icon: 'kind-icon:gift',
-        title: 'Butterfly Giftshop',
-        summary: 'Merch, prints, tokens, and swarm-approved artifacts.',
-        image: getNavHeroImagePath('giftshop'),
+        key: 'sanctuary',
+        label: 'Sanctuary',
+        icon: 'kind-icon:butterfly',
+        title: 'Butterfly Sanctuary',
+        summary: 'The butterfly sanctuary.',
+        image: getNavHeroImagePath('sanctuary'),
         flourish: '❦',
-        tagline: 'Merch, prints, tokens, and swarm-approved artifacts.',
+        tagline:
+          'Support the butterflies in their quest to make the world a better place',
         narrative:
           'Browse the shop, manage your mana purse, and sponsor the anti-malaria mission behind AMI.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'dream',
@@ -632,7 +633,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'sanctuary'),
         narrative:
           'Create, summon, inspect, and interact with the butterflies who absolutely, definitely do not run this entire website.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'about',
@@ -644,7 +645,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'about'),
         narrative:
           'Meet the humans, robots, butterflies, and suspiciously organized tiny executives behind Kind Robots.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'giftshop',
@@ -656,7 +657,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'giftshop'),
         narrative:
           'Browse merch, prints, tokens, and swarm-approved artifacts. Every purchase is reviewed by at least three butterflies in tiny clipboards.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'cart',
@@ -668,7 +669,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'cart'),
         narrative:
           'Review your cart, update quantities, release unwanted butterflies, and proceed to checkout without angering the tiny inventory moths.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'forum',
@@ -679,7 +680,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'forum'),
         narrative:
           'Discuss projects, stories, tools, and beautiful nonsense with the Kind Robots community.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'subscriptions',
@@ -691,7 +692,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'subscriptions'),
         narrative:
           'Manage support plans, credits, billing, and the ceremonial exchange of jellybeans for robot uptime.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'wallet',
@@ -702,7 +703,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'wallet'),
         narrative:
           'Manage your mana wallet, check balances, and keep the magical economy from rolling under the couch.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
       {
         key: 'sponsor',
@@ -714,7 +715,7 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'sponsor'),
         narrative:
           'Support the anti-malaria mission and help AMI turn tiny digital wings into real-world mosquito-net energy.',
-        route: '/giftshop',
+        route: '/sanctuary',
       },
     ],
   },
@@ -1027,7 +1028,7 @@ export const footerDashboardMap = {
   user: 'user',
   lab: 'wonder',
   brainstorm: 'brainstorm',
-  giftshop: 'giftshop',
+  sanctuary: 'giftshop',
   dream: 'dream',
   character: 'character',
   reward: 'reward',

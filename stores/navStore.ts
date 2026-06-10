@@ -396,8 +396,18 @@ export const useNavStore = defineStore('navStore', () => {
       loadingMessage: input.loadingMessage?.trim() || 'Loading dashboard…',
       refreshLabel: input.refreshLabel?.trim() || 'Refresh',
     }
-  }
 
+    // setDashboardTab early-returns when the tab didn't change, but
+    // pageStore.setPage just cleared the sheet — always re-push the
+    // resolved tab's intro so a same-tab page load isn't left empty.
+    const tabConfig = dashboardConfigs[dashboardKey].tabs.find(
+      (tab) => tab.key === resolvedTab,
+    )
+
+    if (tabConfig) {
+      useSheetStore().setSheetFromTab(tabConfig)
+    }
+  }
   function clearDashboardShell(): void {
     dashboardShell.value = defaultDashboardShellState()
 

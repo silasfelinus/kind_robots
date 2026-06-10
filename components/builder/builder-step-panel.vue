@@ -86,7 +86,7 @@
                 <button
                   type="button"
                   class="btn btn-ghost rounded-2xl border border-base-300"
-                  @click="store.clearActiveSelectionPreview"
+                  @click="store.activeSelectionPreview = null"
                 >
                   <Icon name="kind-icon:back" class="h-4 w-4" />
                   Back
@@ -95,8 +95,8 @@
                 <button
                   type="button"
                   class="btn btn-primary rounded-2xl sm:min-w-44"
-                  :disabled="!store.canFinishActiveStep"
-                  @click="store.finishActiveCard"
+                  :disabled="!store.canFinish"
+                  @click="store.confirmSelectionPreview()"
                 >
                   <Icon name="kind-icon:check" class="h-4 w-4" />
                   Confirm

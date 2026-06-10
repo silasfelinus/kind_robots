@@ -743,16 +743,17 @@ function selectCard(cardKey: string): void {
   }
 
   function advanceToNextCard(previousKey: string): void {
-    activeCardKey.value = null
-    activeStepIndex.value = 0
-    selectedStatBlock.value = null
+  activeSelectionPreview.value = null
+  activeCardKey.value = null
+  activeStepIndex.value = 0
+  selectedStatBlock.value = null
 
-    const next = visibleCards.value.find(
-      (card) => card.key !== previousKey && !completedCards[card.key],
-    )
+  const next = visibleCards.value.find(
+    (card) => card.key !== previousKey && !completedCards[card.key],
+  )
 
-    if (next) selectCard(next.key)
-  }
+  if (next) selectCard(next.key)
+}
 
   function removeSection(cardKey: string): void {
     const card = cards.value.find((entry) => entry.key === cardKey)

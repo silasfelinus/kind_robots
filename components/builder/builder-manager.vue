@@ -10,37 +10,45 @@
     />
 
     <header
-      class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-3"
+      class="flex h-10 shrink-0 items-center gap-2 border-b border-base-300 bg-base-100 px-2 sm:px-3"
     >
-      <div class="min-w-0 flex-1">
-        <h2
-          class="flex items-center gap-2 truncate text-lg font-black leading-tight text-base-content"
-        >
-          <Icon :name="headerIcon" class="h-5 w-5 shrink-0 text-primary" />
-          <span class="truncate">{{ title }}</span>
-        </h2>
+      <div class="flex min-w-0 flex-1 items-center gap-2">
+        <Icon :name="headerIcon" class="h-4 w-4 shrink-0 text-primary" />
 
-        <p class="truncate text-xs text-base-content/50">
-          {{ subtitle }}
-        </p>
+        <div class="min-w-0 flex-1">
+          <div class="flex min-w-0 items-center gap-2">
+            <h2
+              class="truncate text-sm font-black leading-none text-base-content sm:text-base"
+            >
+              {{ title }}
+            </h2>
+
+            <span
+              v-if="subtitle"
+              class="hidden min-w-0 flex-1 truncate text-xs font-semibold text-base-content/45 md:block"
+            >
+              {{ subtitle }}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div v-if="showBuilderControls" class="flex shrink-0 items-center gap-2">
+      <div v-if="showBuilderControls" class="flex shrink-0 items-center gap-1">
         <button
           type="button"
-          class="btn btn-sm btn-ghost rounded-xl text-base-content/50 hover:text-primary"
+          class="btn btn-xs btn-ghost h-7 min-h-7 rounded-xl px-2 text-base-content/60 hover:text-primary"
           @click="store.randomCard()"
         >
-          <Icon name="kind-icon:dice" class="h-4 w-4" />
+          <Icon name="kind-icon:dice" class="h-3.5 w-3.5" />
           <span class="hidden sm:inline">Random</span>
         </button>
 
         <button
           type="button"
-          class="btn btn-sm btn-ghost rounded-xl text-base-content/50 hover:text-error"
+          class="btn btn-xs btn-ghost h-7 min-h-7 rounded-xl px-2 text-base-content/60 hover:text-error"
           @click="showResetConfirm = true"
         >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
+          <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
           <span class="hidden sm:inline">Reset</span>
         </button>
       </div>
@@ -49,7 +57,7 @@
     <Transition name="builder-feedback">
       <div
         v-if="store.lastError || store.statusMessage"
-        class="shrink-0 border-b px-4 py-2 text-sm font-semibold"
+        class="shrink-0 border-b px-3 py-1 text-xs font-semibold"
         :class="
           store.lastError
             ? 'border-error/30 bg-error/10 text-error'
@@ -60,7 +68,7 @@
       </div>
     </Transition>
 
-    <main class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4">
+    <main class="flex min-h-0 flex-1 flex-col overflow-hidden p-2 sm:p-3">
       <template v-if="isBuilderActive">
         <builder-splash v-if="showSplash" />
         <builder-step-panel v-else-if="store.activeCard" />

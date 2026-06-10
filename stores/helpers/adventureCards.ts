@@ -22,7 +22,7 @@ export type PresetChoice = BuilderChoice
 export type AdventureStep = BuilderStep
 export type AdventureCard = BuilderCard
 
-const EXTENDED_CALLINGS: string[] = [
+const EXTENDED_CLASSES: string[] = [
   'Plague Baker',
   'Retired Villain',
   'Professional Disappearer',
@@ -152,7 +152,7 @@ export const ADVENTURE_SPLASH: BuilderSplash = {
   tagline:
     'Make someone weird. Give them stats. Make it everyone else’s problem.',
   description:
-    'Build a character one direct choice at a time: species, gender, alignment, calling, personality, quirks, backstory, stats, skills, items, and portrait.',
+    'Build a character one direct choice at a time: species, gender, alignment, class, personality, quirks, backstory, stats, skills, items, and portrait.',
   imagePath: '/images/adventure/splash.webp',
   ctaLabel: 'Begin the Ledger',
   secondaryLabel: 'Draw a Random Card',
@@ -1117,24 +1117,24 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
     ],
   },
 
-  // ── Calling ───────────────────────────────────────────────────────────────
+  // ── Class ───────────────────────────────────────────────────────────────
   {
     key: 'class',
-    label: 'Calling',
+    label: 'Class',
     title: 'The compacted life decision',
     icon: 'kind-icon:sparkles',
     flourish: '✧',
-    deckImage: '/images/adventure/thumb/calling.webp',
-    heroImage: '/images/adventure/hero/calling.webp',
+    deckImage: '/images/adventure/thumb/class.webp',
+    heroImage: '/images/adventure/hero/class.webp',
     tagline: 'What they do, or what the world keeps calling them.',
     narrative:
-      'A calling is a compacted life decision: everything they have practiced, everything they have been called, the specific shape their existence has taken from doing one thing repeatedly in the direction of the world. Any answer is acceptable. Unknown is a calling.',
+      'A class is a compacted life decision: everything they have practiced, everything they have been called, the specific shape their existence has taken from doing one thing repeatedly in the direction of the world. Any answer is acceptable. Unknown is a class.',
     required: true,
     restoresFields: ['class'],
     steps: [
       {
         key: 'class',
-        title: 'Calling',
+        title: 'Class',
         narrative:
           "A class is a compacted life decision. Everything they've practiced, everything they've been called, the specific shape their existence has taken from doing one thing repeatedly in the direction of the world. Choose from the archetypes below — or expand to the full list. Any answer is acceptable. 'Unknown' is a class.",
         inputType: 'preset',
@@ -1431,10 +1431,10 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
           },
           {
             value: '',
-            label: 'More callings...',
+            label: 'More classes...',
             subtext: 'Plague baker, chaos consultant, apex predator...',
             opensList: true,
-            listOptions: EXTENDED_CALLINGS,
+            listOptions: EXTENDED_CLASSES,
           },
           {
             value: '',

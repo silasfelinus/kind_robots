@@ -258,36 +258,33 @@ watch(
 )
 
 watch(
-  [activePage, status, contentPath, pagePayload],
-  async () => {
-    logSlug('watch:evaluate')
+  [activePage, status, error, contentPath],
+  () => {
+    console.groupCollapsed('[slug-page] state')
+    console.log('contentPath:', contentPath.value)
+    console.log('status:', status.value)
+    console.log('error:', error.value)
+    console.log('payload:', pagePayload.value)
+    console.log('activePage:', activePage.value)
+    console.log('pageStore:', pageStore.debugState)
+    console.groupEnd()
 
-    if (isPageLoading.value) {
-      pageStore.setLoading(true, 'slug watcher loading')
+    if (status.value === 'pending' || status.value === 'idle') {
+      pageStore.setLoading(true, 'slug pending')
+      return
+    }
+
+    if (error.value) {
+      pageStore.setLoading(false, 'slug error')
       return
     }
 
     if (activePage.value) {
-      clearRetryTimer()
-      isRetryingInitialPage.value = false
-      pageStore.setPage(activePage.value, 'slug watcher activePage')
+      pageStore.setPage(activePage.value, 'slug activePage')
       return
     }
 
-    if (canRetryEmptyPage.value) {
-      pageStore.setLoading(true, 'slug watcher empty success retry')
-      await retryEmptyPage('empty success payload')
-      return
-    }
-
-    if (hasExhaustedPageRetries.value) {
-      clearRetryTimer()
-      isRetryingInitialPage.value = false
-      pageStore.clearPage('slug watcher exhausted retries')
-      return
-    }
-
-    pageStore.setLoading(false, 'slug watcher no matching branch')
+    pageStore.setLoading(false, 'slug success empty')
   },
   { immediate: true },
 )

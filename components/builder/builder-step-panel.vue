@@ -48,7 +48,7 @@
                   <span
                     class="rounded-full bg-primary/15 px-3 py-1 text-xs font-black uppercase tracking-widest text-primary"
                   >
-                    Confirm choice
+                    Choose option
                   </span>
 
                   <span
@@ -95,11 +95,10 @@
                 <button
                   type="button"
                   class="btn btn-primary rounded-2xl sm:min-w-44"
-                  :disabled="!store.canFinish"
-                  @click="store.confirmSelectionPreview()"
+                  @click="chooseSelectionPreview"
                 >
                   <Icon name="kind-icon:check" class="h-4 w-4" />
-                  Confirm
+                  Choose
                 </button>
               </div>
             </section>
@@ -219,7 +218,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
 
 const store = useBuilderStore()
@@ -228,4 +227,17 @@ const canSuggest = computed(() => {
   const step = store.activeStep
   return Boolean(step?.needsLLM || step?.suggestField || step?.field)
 })
+
+const chooseSelectionPreview = async () => {
+  store.confirmSelectionPreview()
+
+  await nextTick()
+
+  if (store.isLastStep) {
+    store.finishCard()
+    return
+  }
+
+  store.nextStep()
+}
 </script>

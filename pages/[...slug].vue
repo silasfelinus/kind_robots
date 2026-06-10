@@ -1,3 +1,4 @@
+<!-- /pages/[...slug].vue -->
 <template>
   <div
     v-if="activePage?.body"
@@ -7,14 +8,17 @@
   </div>
 
   <div
-    v-else-if="isPageLoading || isRetryingInitialPage"
+    v-else-if="isPageLoading || isRetryingPage"
     class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
   >
     <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
+
     <p class="text-base font-bold text-info">Loading page…</p>
+
     <p class="max-w-xl text-sm text-base-content/60">
       Looking for {{ contentPath }}
     </p>
+
     <p
       v-if="retryCount > 0"
       class="max-w-xl text-xs font-bold uppercase tracking-widest text-warning"
@@ -24,14 +28,35 @@
   </div>
 
   <div
+    v-else-if="error"
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-error/40 bg-error/5 p-6 text-center"
+  >
+    <Icon name="kind-icon:alert" class="h-10 w-10 text-error" />
+
+    <p class="text-base font-bold text-error">Content query failed</p>
+
+    <p class="max-w-xl text-sm text-base-content/70">
+      Nuxt Content could not load {{ contentPath }}.
+    </p>
+
+    <pre
+      class="max-h-64 w-full max-w-3xl overflow-auto rounded-2xl border border-error/30 bg-base-200 p-3 text-left text-xs text-base-content/70"
+      >{{ debugPayload }}</pre
+    >
+  </div>
+
+  <div
     v-else
     class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
   >
     <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
+
     <p class="text-base font-bold text-warning">Page not found</p>
+
     <p class="max-w-xl text-sm text-base-content/60">
       No Nuxt Content page was found for {{ contentPath }}.
     </p>
+
     <pre
       class="max-h-64 w-full max-w-3xl overflow-auto rounded-2xl border border-base-300 bg-base-200 p-3 text-left text-xs text-base-content/70"
       >{{ debugPayload }}</pre
@@ -56,20 +81,20 @@ const route = useRoute()
 const pageStore = usePageStore()
 
 const retryCount = ref(0)
-const retryTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-const isRetryingInitialPage = ref(false)
-
 const maxPageRetries = 2
 const retryDelayMs = 250
+const retryTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const isRetryingPage = ref(false)
 
 const contentPath = computed(() => {
   const path = route.path.replace(/\/+$/, '')
+
   return path || '/'
 })
 
 const asyncKey = computed(() => `content:${contentPath.value}`)
 
-function logSlug(action: string, payload: Record<string, unknown> = {}) {
+function logSlug(action: string, payload: Record<string, unknown> = {}): void {
   if (!import.meta.client) return
 
   console.groupCollapsed(`[slug-page] ${action}`)
@@ -84,13 +109,14 @@ function logSlug(action: string, payload: Record<string, unknown> = {}) {
     contentPath: contentPath.value,
     asyncKey: asyncKey.value,
     status: status.value,
+    error: error.value,
     hasResolvedCurrentPath: hasResolvedCurrentPath.value,
     hasActivePage: Boolean(activePage.value),
     activePagePath: activePage.value?.path ?? null,
     payloadPath: pagePayload.value?.path ?? null,
     payloadHasPage: Boolean(pagePayload.value?.page),
     retryCount: retryCount.value,
-    isRetryingInitialPage: isRetryingInitialPage.value,
+    isRetryingPage: isRetryingPage.value,
   })
   console.log('pageStore:', pageStore.debugState)
   console.groupEnd()
@@ -149,7 +175,8 @@ const hasResolvedCurrentPath = computed(() => {
 
 const activePage = computed(() => {
   if (!hasResolvedCurrentPath.value) return null
-  return pagePayload.value.page
+
+  return pagePayload.value?.page ?? null
 })
 
 const isPageLoading = computed(() => {
@@ -166,6 +193,7 @@ const canRetryEmptyPage = computed(() => {
     status.value === 'success' &&
     hasResolvedCurrentPath.value &&
     !activePage.value &&
+    !error.value &&
     retryCount.value < maxPageRetries
   )
 })
@@ -175,6 +203,7 @@ const hasExhaustedPageRetries = computed(() => {
     status.value === 'success' &&
     hasResolvedCurrentPath.value &&
     !activePage.value &&
+    !error.value &&
     retryCount.value >= maxPageRetries
   )
 })
@@ -206,42 +235,42 @@ function clearRetryTimer(): void {
   retryTimer.value = null
 }
 
-async function retryEmptyPage(reason: string): Promise<void> {
+function scheduleEmptyPageRetry(reason: string): void {
   if (!canRetryEmptyPage.value || retryTimer.value) return
 
-  isRetryingInitialPage.value = true
-  const attempt = pageStore.registerLoadAttempt(contentPath.value, reason)
-  retryCount.value = attempt
+  retryCount.value += 1
+  isRetryingPage.value = true
+  pageStore.registerLoadAttempt(contentPath.value, reason)
 
-  logSlug('retryEmptyPage:scheduled', {
+  const attempt = retryCount.value
+
+  logSlug('scheduleEmptyPageRetry', {
     reason,
     attempt,
-    delay: retryDelayMs,
-  })
-retryTimer.value = setTimeout(async () => {
-  retryTimer.value = null
-
-  logSlug('retryEmptyPage:refresh:start', {
-    reason,
-    attempt,
+    retryDelayMs,
   })
 
-  await refresh()
-  await nextTick()
+  retryTimer.value = setTimeout(() => {
+    retryTimer.value = null
 
-  isRetryingInitialPage.value = false
+    void refresh()
+      .then(() => nextTick())
+      .finally(() => {
+        isRetryingPage.value = false
 
-  logSlug('retryEmptyPage:refresh:done', {
-    reason,
-    attempt,
-  })
-}, retryDelayMs)
+        logSlug('scheduleEmptyPageRetry:done', {
+          reason,
+          attempt,
+        })
+      })
+  }, retryDelayMs)
+}
 
 watch(
   contentPath,
   (nextPath, previousPath) => {
     retryCount.value = 0
-    isRetryingInitialPage.value = false
+    isRetryingPage.value = false
     clearRetryTimer()
 
     logSlug('contentPath:changed', {
@@ -258,33 +287,53 @@ watch(
 )
 
 watch(
-  [activePage, status, error, contentPath],
+  [activePage, status, error, contentPath, pagePayload],
   () => {
-    console.groupCollapsed('[slug-page] state')
-    console.log('contentPath:', contentPath.value)
-    console.log('status:', status.value)
-    console.log('error:', error.value)
-    console.log('payload:', pagePayload.value)
-    console.log('activePage:', activePage.value)
-    console.log('pageStore:', pageStore.debugState)
-    console.groupEnd()
+    logSlug('watch:evaluate')
 
-    if (status.value === 'pending' || status.value === 'idle') {
-      pageStore.setLoading(true, 'slug pending')
+    if (isPageLoading.value) {
+      pageStore.setLoading(true, 'slug watcher loading')
       return
     }
 
     if (error.value) {
-      pageStore.setLoading(false, 'slug error')
+      clearRetryTimer()
+      isRetryingPage.value = false
+      pageStore.setLoading(false, 'slug watcher content query error')
+
+      if (import.meta.client) {
+        console.error('[slug-page] content query failed', {
+          contentPath: contentPath.value,
+          status: status.value,
+          error: error.value,
+          pagePayload: pagePayload.value,
+        })
+      }
+
       return
     }
 
     if (activePage.value) {
-      pageStore.setPage(activePage.value, 'slug activePage')
+      clearRetryTimer()
+      isRetryingPage.value = false
+      pageStore.setPage(activePage.value, 'slug watcher activePage')
       return
     }
 
-    pageStore.setLoading(false, 'slug success empty')
+    if (canRetryEmptyPage.value) {
+      pageStore.setLoading(true, 'slug watcher empty success retry')
+      scheduleEmptyPageRetry('empty success payload')
+      return
+    }
+
+    if (hasExhaustedPageRetries.value) {
+      clearRetryTimer()
+      isRetryingPage.value = false
+      pageStore.clearPage('slug watcher exhausted retries')
+      return
+    }
+
+    pageStore.setLoading(false, 'slug watcher no matching branch')
   },
   { immediate: true },
 )
@@ -295,7 +344,7 @@ onMounted(() => {
   logSlug('mounted')
 
   if (canRetryEmptyPage.value) {
-    void retryEmptyPage('mounted empty page fallback')
+    scheduleEmptyPageRetry('mounted empty page fallback')
   }
 })
 

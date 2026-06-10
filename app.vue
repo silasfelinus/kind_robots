@@ -137,13 +137,14 @@
     </button>
   </div>
 </template>
-
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRoute } from '#app'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
+const route = useRoute()
 const pageStore = usePageStore()
 const navStore = useNavStore()
 
@@ -152,8 +153,35 @@ const { workspaceSheetOpen } = storeToRefs(navStore)
 const showLoader = ref(true)
 const chromeMinimized = ref(false)
 
+function logApp(action: string, payload: Record<string, unknown> = {}) {
+  if (!import.meta.client) return
+
+  console.groupCollapsed(`[app] ${action}`)
+  console.log('payload:', payload)
+  console.log('route:', {
+    fullPath: route.fullPath,
+    path: route.path,
+    params: route.params,
+    query: route.query,
+  })
+  console.log('pageStore:', pageStore.debugState)
+  console.log('navStore:', {
+    isInitialized: navStore.isInitialized,
+    isInitializing: navStore.isInitializing,
+    loading: navStore.loading,
+    lastError: navStore.lastError,
+    workspaceSheetOpen: navStore.workspaceSheetOpen,
+    dashboardShell: navStore.dashboardShell,
+  })
+  console.groupEnd()
+}
+
 function handlePageReady(): void {
   showLoader.value = false
+
+  logApp('handlePageReady', {
+    showLoader: showLoader.value,
+  })
 }
 
 function persist(key: string, value: boolean): void {
@@ -165,11 +193,15 @@ function persist(key: string, value: boolean): void {
 function minimizeChrome(): void {
   chromeMinimized.value = true
   persist('kindrobots:chrome-minimized', true)
+
+  logApp('minimizeChrome')
 }
 
 function restoreChrome(): void {
   chromeMinimized.value = false
   persist('kindrobots:chrome-minimized', false)
+
+  logApp('restoreChrome')
 }
 
 function toggleChrome(): void {
@@ -179,6 +211,10 @@ function toggleChrome(): void {
 
 function setWorkspaceSheetOpen(value: boolean): void {
   navStore.setWorkspaceSheetOpen(value)
+
+  logApp('setWorkspaceSheetOpen', {
+    value,
+  })
 }
 
 useSeoMeta({
@@ -189,7 +225,32 @@ useSeoMeta({
     'A friendly AI playground for humans and robots.',
 })
 
+watch(
+  () => route.fullPath,
+  (nextPath, previousPath) => {
+    logApp('route:changed', {
+      previousPath,
+      nextPath,
+    })
+  },
+  { immediate: true },
+)
+
+watch(
+  () => pageStore.debugState,
+  (state) => {
+    logApp('pageStore:changed', {
+      state,
+    })
+  },
+  { deep: true },
+)
+
 onMounted(async () => {
+  logApp('mounted:start')
+
+  pageStore.initialize()
+
   await navStore.initialize()
 
   const storedChromeMinimized = window.localStorage.getItem(
@@ -199,5 +260,10 @@ onMounted(async () => {
   if (storedChromeMinimized) {
     chromeMinimized.value = storedChromeMinimized === 'true'
   }
+
+  logApp('mounted:done', {
+    storedChromeMinimized,
+    chromeMinimized: chromeMinimized.value,
+  })
 })
 </script>

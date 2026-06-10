@@ -61,6 +61,9 @@ export const usePageStore = defineStore('pageStore', () => {
   const initialized = ref(false)
   const isLoading = ref(false)
   const workspaceCardKey = ref('')
+  const lastResolvedPath = ref('')
+  const lastPageAction = ref('created')
+  const loadAttempt = ref(0)
 
   const currentPage = computed(() => page.value as WorkspacePage | null)
 
@@ -98,8 +101,39 @@ export const usePageStore = defineStore('pageStore', () => {
     refreshLabel: getString(currentPage.value?.refreshLabel),
   }))
 
+  const debugState = computed(() => ({
+    initialized: initialized.value,
+    ready: ready.value,
+    isLoading: isLoading.value,
+    hasPage: Boolean(page.value),
+    pagePath: currentPage.value?.path ?? null,
+    title: meta.value.title,
+    dashboardKey: meta.value.dashboardKey,
+    dashboardTab: meta.value.dashboardTab,
+    cardsKey: cardsKey.value,
+    lastResolvedPath: lastResolvedPath.value,
+    lastPageAction: lastPageAction.value,
+    loadAttempt: loadAttempt.value,
+  }))
+
+  function logPageStore(action: string, payload: Record<string, unknown> = {}) {
+    if (!import.meta.client) return
+
+    console.groupCollapsed(`[pageStore] ${action}`)
+    console.log('payload:', payload)
+    console.log('state:', debugState.value)
+    console.groupEnd()
+  }
+
   function syncDashboardShellFromPage(): void {
     const navStore = useNavStore()
+
+    logPageStore('syncDashboardShellFromPage:start', {
+      title: meta.value.title,
+      dashboardKey: meta.value.dashboardKey,
+      dashboardTab: meta.value.dashboardTab,
+      cardsKey: cardsKey.value,
+    })
 
     navStore.setDashboardShellFromContent({
       title: meta.value.title,
@@ -112,95 +146,114 @@ export const usePageStore = defineStore('pageStore', () => {
       loadingMessage: meta.value.loadingMessage,
       refreshLabel: meta.value.refreshLabel,
     })
+
+    logPageStore('syncDashboardShellFromPage:done')
   }
 
   function initialize(): void {
-    if (initialized.value) return
+    if (initialized.value) {
+      logPageStore('initialize:skipped')
+      return
+    }
 
     initialized.value = true
     ready.value = true
+    lastPageAction.value = 'initialize'
 
-    if (import.meta.client) {
-      console.log('[pageStore] initialized')
-    }
+    logPageStore('initialize:done')
   }
 
-  function setLoading(value: boolean): void {
+  function setLoading(value: boolean, reason = 'unknown'): void {
     isLoading.value = value
+    lastPageAction.value = `setLoading:${value}`
 
-    if (import.meta.client) {
-      console.log('[pageStore] setLoading', value)
-    }
+    logPageStore('setLoading', {
+      value,
+      reason,
+    })
   }
 
-  function setPage(newPage: ContentCollectionItem): void {
+  function setPage(newPage: ContentCollectionItem, reason = 'unknown'): void {
     page.value = newPage
     workspaceCardKey.value = ''
     ready.value = true
     isLoading.value = false
+    lastResolvedPath.value = (newPage as WorkspacePage).path ?? ''
+    lastPageAction.value = 'setPage'
+    loadAttempt.value = 0
 
-    // New page: drop any model/tab override so the sheet shows this
-    // page's defaults. If the dashboard tab changes during shell sync
-    // below, navStore pushes that tab's intro right back in.
     useSheetStore().clearSheet()
 
     syncDashboardShellFromPage()
 
-    if (import.meta.client) {
-      console.groupCollapsed('[pageStore] setPage')
-      console.log('title:', meta.value.title)
-      console.log('room:', meta.value.room)
-      console.log('dashboardKey:', meta.value.dashboardKey)
-      console.log('dashboardTab:', meta.value.dashboardTab)
-      console.log('cardsKey:', cardsKey.value)
-      console.log('path:', currentPage.value?.path)
-      console.log('page:', newPage)
-      console.groupEnd()
-    }
+    logPageStore('setPage', {
+      reason,
+      path: currentPage.value?.path,
+      title: meta.value.title,
+      room: meta.value.room,
+      dashboardKey: meta.value.dashboardKey,
+      dashboardTab: meta.value.dashboardTab,
+      cardsKey: cardsKey.value,
+      page: newPage,
+    })
   }
 
-  function clearPage(): void {
+  function clearPage(reason = 'unknown'): void {
     const navStore = useNavStore()
 
     page.value = null
     workspaceCardKey.value = ''
     ready.value = true
+    isLoading.value = false
+    lastPageAction.value = 'clearPage'
 
     useSheetStore().clearSheet()
     navStore.clearDashboardShell()
 
-    if (import.meta.client) {
-      console.groupCollapsed('[pageStore] clearPage')
-      console.log('Page cleared.')
-      console.groupEnd()
-    }
+    logPageStore('clearPage', {
+      reason,
+    })
   }
 
-  function resetPage(): void {
+  function resetPage(reason = 'unknown'): void {
     const navStore = useNavStore()
 
     page.value = null
     workspaceCardKey.value = ''
     ready.value = false
     isLoading.value = false
+    lastResolvedPath.value = ''
+    lastPageAction.value = 'resetPage'
+    loadAttempt.value = 0
 
     navStore.clearDashboardShell()
 
-    if (import.meta.client) {
-      console.groupCollapsed('[pageStore] resetPage')
-      console.log('Page state reset.')
-      console.groupEnd()
-    }
+    logPageStore('resetPage', {
+      reason,
+    })
+  }
+
+  function registerLoadAttempt(path: string, reason = 'unknown'): number {
+    loadAttempt.value += 1
+    lastResolvedPath.value = path
+    lastPageAction.value = 'registerLoadAttempt'
+
+    logPageStore('registerLoadAttempt', {
+      path,
+      reason,
+      attempt: loadAttempt.value,
+    })
+
+    return loadAttempt.value
   }
 
   function setWorkspaceCardKey(cardKey: string): void {
     workspaceCardKey.value = cardKey
+    lastPageAction.value = 'setWorkspaceCardKey'
 
-    if (import.meta.client) {
-      console.log('[pageStore] setWorkspaceCardKey', {
-        cardKey,
-      })
-    }
+    logPageStore('setWorkspaceCardKey', {
+      cardKey,
+    })
   }
 
   return {
@@ -214,12 +267,17 @@ export const usePageStore = defineStore('pageStore', () => {
     cards,
     cardsKey,
     workspaceCardKey,
+    lastResolvedPath,
+    lastPageAction,
+    loadAttempt,
+    debugState,
 
     setPage,
     clearPage,
     resetPage,
     setLoading,
     initialize,
+    registerLoadAttempt,
     setWorkspaceCardKey,
 
     title: computed(() => meta.value.title),

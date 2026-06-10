@@ -66,31 +66,32 @@ const { data: pagePayload, status } = await useAsyncData<PagePayload>(
   },
   {
     default: () => ({
-      path: contentPath.value,
+      path: '',
       page: null,
     }),
     watch: [contentPath],
     server: true,
     lazy: false,
     immediate: true,
-    dedupe: 'cancel',
+    dedupe: 'defer',
   },
 )
 
-const activePage = computed(() => {
-  if (pagePayload.value?.path !== contentPath.value) {
-    return null
-  }
+const hasResolvedCurrentPath = computed(() => {
+  return pagePayload.value?.path === contentPath.value
+})
 
+const activePage = computed(() => {
+  if (!hasResolvedCurrentPath.value) return null
   return pagePayload.value.page
 })
 
 const isPageLoading = computed(() => {
-  if (status.value === 'pending' || status.value === 'idle') {
-    return true
-  }
-
-  return pagePayload.value?.path !== contentPath.value
+  return (
+    status.value === 'pending' ||
+    status.value === 'idle' ||
+    !hasResolvedCurrentPath.value
+  )
 })
 
 watch(
@@ -106,8 +107,10 @@ watch(
       return
     }
 
-    pageStore.clearPage()
-    pageStore.setLoading(false)
+    if (status.value === 'success' && hasResolvedCurrentPath.value) {
+      pageStore.clearPage()
+      pageStore.setLoading(false)
+    }
   },
   { immediate: true },
 )

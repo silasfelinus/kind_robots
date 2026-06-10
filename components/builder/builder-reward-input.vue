@@ -5,13 +5,16 @@
       v-if="slotKey"
       class="flex items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
-      <div>
+      <div class="min-w-0">
         <p
           class="text-xs font-black uppercase tracking-widest text-base-content/50"
         >
           Reward slot
         </p>
-        <p class="font-black text-base-content">{{ slotKey }}</p>
+
+        <p class="truncate font-black text-base-content">
+          {{ slotLabel }}
+        </p>
       </div>
 
       <button
@@ -44,12 +47,12 @@
           <div
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-secondary/10 text-secondary"
           >
-            <Icon :name="reward.icon || 'kind-icon:reward'" class="h-5 w-5" />
+            <Icon :name="reward.icon || fallbackIcon" class="h-5 w-5" />
           </div>
 
           <div class="min-w-0 flex-1">
             <p class="font-black text-base-content">
-              {{ reward.name }}
+              {{ reward.label }}
             </p>
 
             <p
@@ -75,25 +78,52 @@
       class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
     >
       <Icon
-        name="kind-icon:reward"
+        :name="fallbackIcon"
         class="mx-auto h-10 w-10 text-base-content/25"
       />
 
       <p class="mt-2 font-black text-base-content">No reward options yet</p>
 
-      <p class="mt-1 text-sm text-base-content/50">
-        Use Reroll options to draw a fresh set for this slot.
+      <p class="mx-auto mt-1 max-w-md text-sm text-base-content/50">
+        Draw a fresh set for this slot.
       </p>
+
+      <button
+        v-if="slotKey"
+        type="button"
+        class="btn btn-sm btn-primary mt-4 rounded-xl"
+        @click="rerollOptions"
+      >
+        <Icon name="kind-icon:dice" class="h-4 w-4" />
+        Draw options
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useAdventureStore } from '@/stores/adventureStore'
 
 const store = useAdventureStore()
+
 const slotKey = computed(() => store.activeCard?.rewardSlotKey ?? '')
+
+const slotLabel = computed(() => {
+  if (!slotKey.value) return 'No slot selected'
+
+  return slotKey.value
+    .split('-')
+    .filter(Boolean)
+    .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+})
+
+const fallbackIcon = computed(() => {
+  if (slotKey.value.includes('skill')) return 'kind-icon:sparkles'
+  if (slotKey.value.includes('item')) return 'kind-icon:treasure'
+  return 'kind-icon:reward'
+})
 
 function selectReward(optionId: string): void {
   if (!slotKey.value) return
@@ -104,4 +134,14 @@ function rerollOptions(): void {
   if (!slotKey.value) return
   store.rollRewardOptions(slotKey.value)
 }
+
+watch(
+  slotKey,
+  (nextSlotKey: string) => {
+    if (!nextSlotKey) return
+    if (store.activeRewardOptions.length) return
+    store.rollRewardOptions(nextSlotKey)
+  },
+  { immediate: true },
+)
 </script>

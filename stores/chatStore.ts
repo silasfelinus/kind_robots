@@ -120,6 +120,65 @@ function validateTextPrompt(prompt: string): ApiResponse<true> {
   return { success: true, data: true }
 }
 
+function getStoredAuthToken(): string | null {
+  if (!isClient) return null
+
+  const possibleKeys = [
+    'token',
+    'authToken',
+    'auth_token',
+    'jwt',
+    'kindToken',
+    'googleToken',
+    'user',
+    'userStore',
+  ]
+
+  for (const key of possibleKeys) {
+    const raw = safeGetLocalStorage(key)
+
+    if (!raw) continue
+
+    const cleanRaw = raw.trim()
+
+    if (!cleanRaw) continue
+
+    if (cleanRaw.startsWith('Bearer ')) {
+      return cleanRaw.replace(/^Bearer\s+/i, '').trim()
+    }
+
+    if (!cleanRaw.startsWith('{')) {
+      return cleanRaw
+    }
+
+    try {
+      const parsed = JSON.parse(cleanRaw) as Record<string, unknown>
+
+      const token =
+        parsed.token ||
+        parsed.authToken ||
+        parsed.accessToken ||
+        parsed.jwt ||
+        parsed.googleToken
+
+      if (typeof token === 'string' && token.trim()) {
+        return token.replace(/^Bearer\s+/i, '').trim()
+      }
+    } catch {}
+  }
+
+  return null
+}
+
+function buildJsonAuthHeaders(): HeadersInit {
+  const token = getStoredAuthToken()
+
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+}
+
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
 
@@ -390,7 +449,9 @@ export const useChatStore = defineStore('chatStore', () => {
     return generationServers.value.filter(isUsableTextServer)
   }
 
-  function resolveTextServer(data: Partial<GenerateTextData> = {}): Server | null {
+  function resolveTextServer(
+    data: Partial<GenerateTextData> = {},
+  ): Server | null {
     const requirement = getGenerationRequirement(data)
     const selectionMode = data.serverSelectionMode ?? 'default'
     const explicitServer = getServerByOptionalId(data.serverId)
@@ -439,7 +500,9 @@ export const useChatStore = defineStore('chatStore', () => {
     )
   }
 
-  function getSelectedTextServer(data: Partial<GenerateTextData>): Server | null {
+  function getSelectedTextServer(
+    data: Partial<GenerateTextData>,
+  ): Server | null {
     const selectedServer = resolveTextServer(data)
 
     if (data.serverSelectionMode === 'specific' && !selectedServer) {
@@ -685,13 +748,17 @@ export const useChatStore = defineStore('chatStore', () => {
     const server = getSelectedTextServer(options)
     const provider = server ? getServerProvider(server) : 'openai'
     const model =
-      options.model || server?.model || (provider === 'ollama' ? 'llama3.1' : 'gpt-4o-mini')
+      options.model ||
+      server?.model ||
+      (provider === 'ollama' ? 'llama3.1' : 'gpt-4o-mini')
 
     return {
       model,
       provider,
       serverType: server?.serverType ?? null,
-      serverName: server ? getServerLabel(server) : options.serverName ?? null,
+      serverName: server
+        ? getServerLabel(server)
+        : (options.serverName ?? null),
       messages,
       temperature: options.temperature ?? 0.7,
       maxTokens: options.maxTokens ?? 2048,
@@ -744,7 +811,7 @@ export const useChatStore = defineStore('chatStore', () => {
     try {
       const response = await fetch('/api/botcafe/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildJsonAuthHeaders(),
         body: JSON.stringify(
           buildStreamPayload(chatId, messages, runtimeOptions, billing),
         ),
@@ -805,7 +872,8 @@ export const useChatStore = defineStore('chatStore', () => {
       }
 
       state.lastGeneratedText = cleanText
-      state.lastGeneratedChat = chats.value.find((entry) => entry.id === chatId) ?? null
+      state.lastGeneratedChat =
+        chats.value.find((entry) => entry.id === chatId) ?? null
 
       return cleanText
     } catch (error) {
@@ -852,7 +920,12 @@ export const useChatStore = defineStore('chatStore', () => {
         ...state.textForm,
         ...data,
         prompt,
-        userId: data.userId ?? state.textForm.userId ?? userStore.userId ?? userStore.user?.id ?? 10,
+        userId:
+          data.userId ??
+          state.textForm.userId ??
+          userStore.userId ??
+          userStore.user?.id ??
+          10,
         type:
           data.type ??
           state.textForm.type ??
@@ -874,8 +947,7 @@ export const useChatStore = defineStore('chatStore', () => {
         isPublic: runtimeData.isPublic ?? false,
         userId: runtimeData.userId ?? 10,
         type: runtimeData.type ?? 'ToForum',
-        recipientId:
-          runtimeData.recipientId ?? runtimeData.botId ?? undefined,
+        recipientId: runtimeData.recipientId ?? runtimeData.botId ?? undefined,
         characterId: runtimeData.characterId ?? null,
         serverId: runtimeData.serverId ?? null,
         serverName: runtimeData.serverName ?? null,
@@ -888,7 +960,8 @@ export const useChatStore = defineStore('chatStore', () => {
       saveToLocalStorage()
 
       const text = await streamResponse(newChat.id, runtimeData)
-      const generatedChat = chats.value.find((entry) => entry.id === newChat.id) ?? newChat
+      const generatedChat =
+        chats.value.find((entry) => entry.id === newChat.id) ?? newChat
 
       state.lastGeneratedText = text
       state.lastGeneratedChat = generatedChat

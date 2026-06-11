@@ -269,7 +269,7 @@
                       {{ server.label || server.title }}
                     </p>
                     <p
-                      class="break-words text-xs leading-snug text-base-content/60"
+                      class="wrap-break-word text-xs leading-snug text-base-content/60"
                     >
                       {{ localServerLabel(server.serverType) }}
                       <span v-if="server.baseUrl"> · {{ server.baseUrl }}</span>

@@ -2,37 +2,33 @@
 import type { Rarity } from '@/stores/rewardStore'
 import type { RolledReward } from '@/stores/generatorStore'
 
-export type RewardCategory =
-  | 'item'
-  | 'skill'
-  | 'ability'
-  | 'character'
-  | 'location'
-  | 'title'
-  | 'lore'
-  | 'theme'
-  | 'treasure'
-  | 'gear'
-  | 'equipment'
+export type RewardType =
+  | 'SKILL'
+  | 'ITEM'
+  | 'POWER'
+  | 'PET'
+  | 'MAGIC'
+  | 'FAVOR'
 
 export type RewardSlotConfig = {
   key: string
   count?: number
   baseRarity?: Rarity
-  guaranteedCategories?: RewardCategory[]
-  bonusCategories?: RewardCategory[]
-  categoryUpgradeChance?: number
+  requiredTypes?: RewardType[]
+  bonusTypes?: RewardType[]
+  typeDriftChance?: number
   rarityUpgradeChance?: number
 }
 
 const DEFAULT_COUNT = 6
 
-const DEFAULT_CATEGORIES: RewardCategory[] = [
-  'item',
-  'skill',
-  'character',
-  'location',
-  'title',
+const DEFAULT_REWARD_TYPES: RewardType[] = [
+  'ITEM',
+  'SKILL',
+  'POWER',
+  'PET',
+  'MAGIC',
+  'FAVOR',
 ]
 
 const RARITY_WEIGHTS: Array<{ rarity: Rarity; weight: number }> = [
@@ -49,27 +45,27 @@ export const DEFAULT_REWARD_SLOT_CONFIGS: Record<string, RewardSlotConfig> = {
     key: 'starting-item',
     count: 6,
     baseRarity: 'COMMON',
-    guaranteedCategories: ['item'],
-    bonusCategories: DEFAULT_CATEGORIES,
-    categoryUpgradeChance: 0.18,
+    requiredTypes: ['ITEM'],
+    bonusTypes: DEFAULT_REWARD_TYPES,
+    typeDriftChance: 0.18,
     rarityUpgradeChance: 0.24,
   },
   'starting-skill': {
     key: 'starting-skill',
     count: 6,
     baseRarity: 'COMMON',
-    guaranteedCategories: ['skill'],
-    bonusCategories: DEFAULT_CATEGORIES,
-    categoryUpgradeChance: 0.18,
+    requiredTypes: ['SKILL'],
+    bonusTypes: DEFAULT_REWARD_TYPES,
+    typeDriftChance: 0.18,
     rarityUpgradeChance: 0.24,
   },
   rewards: {
     key: 'rewards',
     count: 6,
     baseRarity: 'COMMON',
-    guaranteedCategories: DEFAULT_CATEGORIES,
-    bonusCategories: DEFAULT_CATEGORIES,
-    categoryUpgradeChance: 0.24,
+    requiredTypes: DEFAULT_REWARD_TYPES,
+    bonusTypes: DEFAULT_REWARD_TYPES,
+    typeDriftChance: 0.24,
     rarityUpgradeChance: 0.28,
   },
 }
@@ -85,52 +81,55 @@ function rollWeightedRarity(): Rarity {
 
   for (const entry of RARITY_WEIGHTS) {
     roll -= entry.weight
-    if (roll <= 0) return entry.rarity
+
+    if (roll <= 0) {
+      return entry.rarity
+    }
   }
 
   return 'COMMON'
 }
 
-function getRewardCategory(reward: RolledReward): string {
-  const payload = (reward as unknown as { payload?: Record<string, unknown> })
-    .payload
+function normalizeRewardType(value: unknown): RewardType | '' {
+  const normalized = String(value ?? '').trim().toUpperCase()
 
-  return String(
-    payload?.category ??
-      payload?.type ??
-      payload?.kind ??
-      (reward as unknown as { category?: string }).category ??
-      (reward as unknown as { type?: string }).type ??
-      '',
-  ).toLowerCase()
+  if (
+    normalized === 'SKILL' ||
+    normalized === 'ITEM' ||
+    normalized === 'POWER' ||
+    normalized === 'PET' ||
+    normalized === 'MAGIC' ||
+    normalized === 'FAVOR'
+  ) {
+    return normalized
+  }
+
+  return ''
 }
 
-function rewardMatchesCategory(
+export function getRolledRewardType(reward: RolledReward): RewardType | '' {
+  const rewardWithLooseShape = reward as RolledReward & {
+    rewardType?: unknown
+    type?: unknown
+    category?: unknown
+    payload?: Record<string, unknown> | null
+  }
+
+  return (
+    normalizeRewardType(rewardWithLooseShape.rewardType) ||
+    normalizeRewardType(rewardWithLooseShape.payload?.rewardType) ||
+    normalizeRewardType(rewardWithLooseShape.payload?.type) ||
+    normalizeRewardType(rewardWithLooseShape.type) ||
+    normalizeRewardType(rewardWithLooseShape.category) ||
+    ''
+  )
+}
+
+function rewardMatchesType(
   reward: RolledReward,
-  category: RewardCategory,
+  rewardType: RewardType,
 ): boolean {
-  const rewardCategory = getRewardCategory(reward)
-
-  if (!rewardCategory) return true
-
-  if (category === 'skill') {
-    return rewardCategory.includes('skill') || rewardCategory.includes('ability')
-  }
-
-  if (category === 'ability') {
-    return rewardCategory.includes('ability') || rewardCategory.includes('skill')
-  }
-
-  if (category === 'item') {
-    return (
-      rewardCategory.includes('item') ||
-      rewardCategory.includes('treasure') ||
-      rewardCategory.includes('gear') ||
-      rewardCategory.includes('equipment')
-    )
-  }
-
-  return rewardCategory.includes(category)
+  return getRolledRewardType(reward) === rewardType
 }
 
 function pushUniqueReward(
@@ -140,7 +139,49 @@ function pushUniqueReward(
 ): void {
   if (target.length >= count) return
   if (target.some((option) => option.id === reward.id)) return
+
   target.push(reward)
+}
+
+function chooseRarity(baseRarity: Rarity, rarityUpgradeChance: number): Rarity {
+  return Math.random() < rarityUpgradeChance ? rollWeightedRarity() : baseRarity
+}
+
+function findRewardByType(
+  rewards: RolledReward[],
+  rewardType: RewardType,
+): RolledReward | null {
+  return rewards.find((reward) => rewardMatchesType(reward, rewardType)) ?? null
+}
+
+function rollRequiredType({
+  rewardType,
+  baseRarity,
+  count,
+  rarityUpgradeChance,
+  rollFromGenerator,
+}: {
+  rewardType: RewardType
+  baseRarity: Rarity
+  count: number
+  rarityUpgradeChance: number
+  rollFromGenerator: (baseRarity: Rarity, count: number) => RolledReward[]
+}): RolledReward | null {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const rarity =
+      attempt === 0
+        ? baseRarity
+        : chooseRarity(baseRarity, rarityUpgradeChance)
+
+    const rolled = rollFromGenerator(rarity, count * 4)
+    const match = findRewardByType(rolled, rewardType)
+
+    if (match) {
+      return match
+    }
+  }
+
+  return null
 }
 
 type RollRewardOptionsInput = {
@@ -158,59 +199,74 @@ export function rollRewardOptionsForSlot({
     key: slotKey,
     count: DEFAULT_COUNT,
     baseRarity: 'COMMON',
-    guaranteedCategories: DEFAULT_CATEGORIES,
-    bonusCategories: DEFAULT_CATEGORIES,
-    categoryUpgradeChance: 0.2,
+    requiredTypes: DEFAULT_REWARD_TYPES,
+    bonusTypes: DEFAULT_REWARD_TYPES,
+    typeDriftChance: 0.2,
     rarityUpgradeChance: 0.25,
   }
 
   const count = config.count ?? DEFAULT_COUNT
   const baseRarity = config.baseRarity ?? 'COMMON'
-  const guaranteedCategories = config.guaranteedCategories?.length
-    ? config.guaranteedCategories
-    : DEFAULT_CATEGORIES
-  const bonusCategories = config.bonusCategories?.length
-    ? config.bonusCategories
-    : DEFAULT_CATEGORIES
+  const requiredTypes = config.requiredTypes?.length
+    ? config.requiredTypes
+    : DEFAULT_REWARD_TYPES
+  const bonusTypes = config.bonusTypes?.length
+    ? config.bonusTypes
+    : DEFAULT_REWARD_TYPES
+  const typeDriftChance = config.typeDriftChance ?? 0
+  const rarityUpgradeChance = config.rarityUpgradeChance ?? 0
 
   const options: RolledReward[] = []
 
-  for (const category of guaranteedCategories) {
+  for (const rewardType of requiredTypes) {
     if (options.length >= count) break
 
-    const upgradedCategory =
-      Math.random() < (config.categoryUpgradeChance ?? 0)
-        ? randomFrom(bonusCategories) ?? category
-        : category
+    const reward = rollRequiredType({
+      rewardType,
+      baseRarity,
+      count,
+      rarityUpgradeChance,
+      rollFromGenerator,
+    })
 
-    const rarity =
-      Math.random() < (config.rarityUpgradeChance ?? 0)
-        ? rollWeightedRarity()
-        : baseRarity
-
-    const rolled = rollFromGenerator(rarity, count * 3)
-
-    for (const reward of rolled) {
-      if (!rewardMatchesCategory(reward, upgradedCategory)) continue
+    if (reward) {
       pushUniqueReward(options, reward, count)
-      break
     }
   }
 
-  for (let attempt = 0; attempt < 10 && options.length < count; attempt++) {
-    const rarity = attempt === 0 ? baseRarity : rollWeightedRarity()
-    const category = randomFrom(bonusCategories) ?? 'item'
-    const rolled = rollFromGenerator(rarity, count * 3)
+  for (let attempt = 0; attempt < 16 && options.length < count; attempt++) {
+    const preferredType = randomFrom(requiredTypes) ?? 'ITEM'
+    const rewardType =
+      Math.random() < typeDriftChance
+        ? randomFrom(bonusTypes) ?? preferredType
+        : preferredType
+
+    const rarity = chooseRarity(baseRarity, rarityUpgradeChance)
+    const rolled = rollFromGenerator(rarity, count * 4)
 
     for (const reward of rolled) {
-      if (!rewardMatchesCategory(reward, category)) continue
+      if (!rewardMatchesType(reward, rewardType)) continue
+
       pushUniqueReward(options, reward, count)
+
       if (options.length >= count) break
     }
   }
 
-  if (!options.length) {
-    return rollFromGenerator(baseRarity, count)
+  for (let attempt = 0; attempt < 8 && options.length < count; attempt++) {
+    const rarity = chooseRarity(baseRarity, rarityUpgradeChance)
+    const rolled = rollFromGenerator(rarity, count * 4)
+
+    for (const reward of rolled) {
+      const rewardType = getRolledRewardType(reward)
+
+      if (!rewardType) continue
+      if (!bonusTypes.includes(rewardType)) continue
+
+      pushUniqueReward(options, reward, count)
+
+      if (options.length >= count) break
+    }
   }
 
   return options.slice(0, count)

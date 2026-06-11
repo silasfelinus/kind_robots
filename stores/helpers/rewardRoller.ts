@@ -1,14 +1,6 @@
 // /stores/helpers/rewardRoller.ts
-import type { Rarity } from '@/stores/rewardStore'
+import type { Rarity, RewardType } from '~/prisma/generated/prisma/client'
 import type { RolledReward } from '@/stores/generatorStore'
-
-export type RewardType =
-  | 'SKILL'
-  | 'ITEM'
-  | 'POWER'
-  | 'PET'
-  | 'MAGIC'
-  | 'FAVOR'
 
 export type RewardSlotConfig = {
   key: string
@@ -18,6 +10,18 @@ export type RewardSlotConfig = {
   bonusTypes?: RewardType[]
   typeDriftChance?: number
   rarityUpgradeChance?: number
+}
+
+type RollFromGeneratorInput = {
+  baseRarity: Rarity
+  count: number
+  rewardTypes?: RewardType[]
+}
+
+type RollRewardOptionsInput = {
+  slotKey: string
+  rollFromGenerator: (input: RollFromGeneratorInput) => RolledReward[]
+  slotConfigs?: Record<string, RewardSlotConfig>
 }
 
 const DEFAULT_COUNT = 6
@@ -90,46 +94,8 @@ function rollWeightedRarity(): Rarity {
   return 'COMMON'
 }
 
-function normalizeRewardType(value: unknown): RewardType | '' {
-  const normalized = String(value ?? '').trim().toUpperCase()
-
-  if (
-    normalized === 'SKILL' ||
-    normalized === 'ITEM' ||
-    normalized === 'POWER' ||
-    normalized === 'PET' ||
-    normalized === 'MAGIC' ||
-    normalized === 'FAVOR'
-  ) {
-    return normalized
-  }
-
-  return ''
-}
-
-export function getRolledRewardType(reward: RolledReward): RewardType | '' {
-  const rewardWithLooseShape = reward as RolledReward & {
-    rewardType?: unknown
-    type?: unknown
-    category?: unknown
-    payload?: Record<string, unknown> | null
-  }
-
-  return (
-    normalizeRewardType(rewardWithLooseShape.rewardType) ||
-    normalizeRewardType(rewardWithLooseShape.payload?.rewardType) ||
-    normalizeRewardType(rewardWithLooseShape.payload?.type) ||
-    normalizeRewardType(rewardWithLooseShape.type) ||
-    normalizeRewardType(rewardWithLooseShape.category) ||
-    ''
-  )
-}
-
-function rewardMatchesType(
-  reward: RolledReward,
-  rewardType: RewardType,
-): boolean {
-  return getRolledRewardType(reward) === rewardType
+function chooseRarity(baseRarity: Rarity, upgradeChance: number): Rarity {
+  return Math.random() < upgradeChance ? rollWeightedRarity() : baseRarity
 }
 
 function pushUniqueReward(
@@ -143,51 +109,37 @@ function pushUniqueReward(
   target.push(reward)
 }
 
-function chooseRarity(baseRarity: Rarity, rarityUpgradeChance: number): Rarity {
-  return Math.random() < rarityUpgradeChance ? rollWeightedRarity() : baseRarity
-}
-
-function findRewardByType(
-  rewards: RolledReward[],
-  rewardType: RewardType,
-): RolledReward | null {
-  return rewards.find((reward) => rewardMatchesType(reward, rewardType)) ?? null
-}
-
-function rollRequiredType({
-  rewardType,
+function rollForTypes({
+  rewardTypes,
   baseRarity,
   count,
   rarityUpgradeChance,
   rollFromGenerator,
 }: {
-  rewardType: RewardType
+  rewardTypes: RewardType[]
   baseRarity: Rarity
   count: number
   rarityUpgradeChance: number
-  rollFromGenerator: (baseRarity: Rarity, count: number) => RolledReward[]
-}): RolledReward | null {
+  rollFromGenerator: (input: RollFromGeneratorInput) => RolledReward[]
+}): RolledReward[] {
   for (let attempt = 0; attempt < 8; attempt++) {
     const rarity =
       attempt === 0
         ? baseRarity
         : chooseRarity(baseRarity, rarityUpgradeChance)
 
-    const rolled = rollFromGenerator(rarity, count * 4)
-    const match = findRewardByType(rolled, rewardType)
+    const rolled = rollFromGenerator({
+      baseRarity: rarity,
+      count: count * 4,
+      rewardTypes,
+    })
 
-    if (match) {
-      return match
+    if (rolled.length) {
+      return rolled
     }
   }
 
-  return null
-}
-
-type RollRewardOptionsInput = {
-  slotKey: string
-  rollFromGenerator: (baseRarity: Rarity, count: number) => RolledReward[]
-  slotConfigs?: Record<string, RewardSlotConfig>
+  return []
 }
 
 export function rollRewardOptionsForSlot({
@@ -221,13 +173,15 @@ export function rollRewardOptionsForSlot({
   for (const rewardType of requiredTypes) {
     if (options.length >= count) break
 
-    const reward = rollRequiredType({
-      rewardType,
+    const rolled = rollForTypes({
+      rewardTypes: [rewardType],
       baseRarity,
       count,
       rarityUpgradeChance,
       rollFromGenerator,
     })
+
+    const reward = rolled.find((entry) => entry.rewardType === rewardType)
 
     if (reward) {
       pushUniqueReward(options, reward, count)
@@ -242,10 +196,15 @@ export function rollRewardOptionsForSlot({
         : preferredType
 
     const rarity = chooseRarity(baseRarity, rarityUpgradeChance)
-    const rolled = rollFromGenerator(rarity, count * 4)
+
+    const rolled = rollFromGenerator({
+      baseRarity: rarity,
+      count: count * 4,
+      rewardTypes: [rewardType],
+    })
 
     for (const reward of rolled) {
-      if (!rewardMatchesType(reward, rewardType)) continue
+      if (reward.rewardType !== rewardType) continue
 
       pushUniqueReward(options, reward, count)
 
@@ -255,13 +214,15 @@ export function rollRewardOptionsForSlot({
 
   for (let attempt = 0; attempt < 8 && options.length < count; attempt++) {
     const rarity = chooseRarity(baseRarity, rarityUpgradeChance)
-    const rolled = rollFromGenerator(rarity, count * 4)
+
+    const rolled = rollFromGenerator({
+      baseRarity: rarity,
+      count: count * 4,
+      rewardTypes: bonusTypes,
+    })
 
     for (const reward of rolled) {
-      const rewardType = getRolledRewardType(reward)
-
-      if (!rewardType) continue
-      if (!bonusTypes.includes(rewardType)) continue
+      if (!bonusTypes.includes(reward.rewardType)) continue
 
       pushUniqueReward(options, reward, count)
 

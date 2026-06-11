@@ -24,7 +24,7 @@
         @toggle-chrome="toggleChrome"
       />
 
-      <section class="relative z-40 min-h-0 flex-1 overflow-hidden">
+      <section class="relative z-30 min-h-0 flex-1 overflow-hidden">
         <button
           v-if="!workspaceSheetOpen"
           type="button"
@@ -86,7 +86,7 @@
             </Transition>
 
             <section
-              class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4"
+              class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4 z-30"
               :class="workspaceSheetOpen ? 'hidden md:flex' : 'flex'"
             >
               <div

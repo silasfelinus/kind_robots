@@ -448,9 +448,9 @@
                           class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
                         >
                           <img
-                            v-if="skillForSlot(slot.key)?.imagePath"
-                            :src="skillForSlot(slot.key)?.imagePath"
-                            :alt="skillForSlot(slot.key)?.label"
+                            v-if="skillImagePath(slot.key)"
+                            :src="skillImagePath(slot.key)"
+                            :alt="skillLabel(slot.key)"
                             class="h-full w-full object-cover"
                           />
 
@@ -676,9 +676,9 @@ const completionItems = computed(() => [
     done: Boolean(props.sheet.backstory?.trim()),
   },
   {
-    key: 'skills',
-    cardKey: 'common-skill',
-    label: 'Skills',
+    key: 'rewards',
+    cardKey: 'starting-skill',
+    label: 'Starting Rewards',
     done: props.rewardSlots.every((slot) => Boolean(skillForSlot(slot.key))),
   },
   {
@@ -696,6 +696,13 @@ const completionItems = computed(() => [
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+function skillImagePath(slotKey: string): string | undefined {
+  return skillForSlot(slotKey)?.imagePath || undefined
+}
+
+function skillLabel(slotKey: string): string {
+  return skillForSlot(slotKey)?.label || 'Character reward'
+}
 
 function skillForSlot(slotKey: string): CharacterRewardDraft | null {
   return props.sheet.rewards?.find((r) => r.slotKey === slotKey) ?? null

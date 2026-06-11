@@ -127,6 +127,12 @@ export const useBuilderStore = defineStore('builderStore', () => {
   const draftStats = reactive<BuilderStatEntry[]>([])
   const activeSelectionPreview = ref<BuilderSelectionPreview | null>(null)
 
+  const isRewardLoading = computed(() => generator.rewardLoading)
+
+  const rewardError = computed(() => {
+    return generator.rewardError || lastError.value || ''
+  })
+
   const selectedStatBlock = ref<number | null>(null)
   const isHydrated = ref(false)
   const isSuggesting = ref(false)
@@ -553,8 +559,8 @@ export const useBuilderStore = defineStore('builderStore', () => {
     }
 
     if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
-  void rollRewardOptionsForCard(card)
-}
+      void rollRewardOptionsForCard(card)
+    }
 
     persist()
   }
@@ -648,6 +654,17 @@ export const useBuilderStore = defineStore('builderStore', () => {
     persist()
   }
 
+  function rewardTypeIcon(rewardType: RolledReward['rewardType']): string {
+    if (rewardType === 'SKILL') return 'kind-icon:sparkles'
+    if (rewardType === 'ITEM') return 'kind-icon:treasure'
+    if (rewardType === 'POWER') return 'kind-icon:bolt'
+    if (rewardType === 'PET') return 'kind-icon:heart'
+    if (rewardType === 'MAGIC') return 'kind-icon:wand'
+    if (rewardType === 'FAVOR') return 'kind-icon:star'
+
+    return 'kind-icon:gift'
+  }
+
   function rolledRewardToBuilderOption(
     reward: RolledReward,
   ): BuilderRewardOption {
@@ -657,46 +674,62 @@ export const useBuilderStore = defineStore('builderStore', () => {
       description:
         reward.description || reward.flavorText || reward.effect || '',
       rarity: reward.rarity,
-      icon: reward.icon ?? undefined,
+      icon: reward.icon ?? rewardTypeIcon(reward.rewardType),
       imagePath: reward.imagePath ?? null,
       payload: {
         reward,
+        rewardId: reward.rewardId,
+        rewardType: reward.rewardType,
       },
     }
   }
 
- async function rollRewardOptionsForCard(card = activeCard.value): Promise<void> {
-  if (!card?.rewardSlotKey) return
+  async function rollRewardOptionsForCard(
+    card = activeCard.value,
+  ): Promise<void> {
+    if (!card?.rewardSlotKey) return
 
-  await generator.fetchRewards()
+    await generator.fetchRewards()
 
-  if (generator.rewardError) {
-    lastError.value = generator.rewardError
-    return
+    if (generator.rewardError) {
+      lastError.value = generator.rewardError
+      rewardOptions[card.rewardSlotKey] = []
+      selectedRewardId[card.rewardSlotKey] = ''
+      persist()
+      return
+    }
+
+    const options = rollRewardOptionsForSlot({
+      slotKey: card.rewardSlotKey,
+      slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
+      rollFromGenerator: ({ baseRarity, count, rewardTypes }) =>
+        generator.rollRewardOptions({
+          baseRarity,
+          count,
+          rewardTypes,
+        }),
+    }).map(rolledRewardToBuilderOption)
+
+    rewardOptions[card.rewardSlotKey] = options
+    selectedRewardId[card.rewardSlotKey] = ''
+    persist()
   }
 
-  const options = rollRewardOptionsForSlot({
-    slotKey: card.rewardSlotKey,
-    slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
-    rollFromGenerator: ({ baseRarity, count, rewardTypes }) =>
-      generator.rollRewardOptions({
-        baseRarity,
-        count,
-        rewardTypes,
-      }),
-  }).map(rolledRewardToBuilderOption)
+  async function rerollRewardOptionsForCard(
+    card = activeCard.value,
+  ): Promise<void> {
+    await rollRewardOptionsForCard(card)
+  }
 
-  rewardOptions[card.rewardSlotKey] = options
-  selectedRewardId[card.rewardSlotKey] = ''
-  persist()
-}
+  async function rollRewardOptions(slotKey: string): Promise<void> {
+    const card =
+      cards.value.find((entry) => entry.rewardSlotKey === slotKey) ??
+      activeCard.value
 
-async function rerollRewardOptionsForCard(
-  card = activeCard.value,
-): Promise<void> {
-  await rollRewardOptionsForCard(card)
-}
+    if (!card?.rewardSlotKey) return
 
+    await rollRewardOptionsForCard(card)
+  }
 
   function setRewardOptions(
     slotKey: string,
@@ -1048,5 +1081,8 @@ async function rerollRewardOptionsForCard(
     clearSelectionPreview,
     confirmSelectionPreview,
     chooseSelectionPreview,
+    isRewardLoading,
+    rewardError,
+    rollRewardOptions,
   }
 })

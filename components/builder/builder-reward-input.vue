@@ -20,11 +20,23 @@
       <button
         type="button"
         class="btn btn-sm btn-ghost rounded-xl border border-base-300"
+        :disabled="store.isRewardLoading"
         @click="rerollOptions"
       >
-        <Icon name="kind-icon:dice" class="h-4 w-4" />
-        Reroll options
+        <Icon
+          :name="store.isRewardLoading ? 'kind-icon:spinner' : 'kind-icon:dice'"
+          class="h-4 w-4"
+          :class="store.isRewardLoading ? 'animate-spin' : ''"
+        />
+        {{ store.isRewardLoading ? 'Drawing…' : 'Reroll options' }}
       </button>
+    </div>
+
+    <div
+      v-if="store.rewardError"
+      class="rounded-2xl border border-error/30 bg-error/10 p-4 text-sm font-bold text-error"
+    >
+      {{ store.rewardError }}
     </div>
 
     <div
@@ -47,13 +59,22 @@
           <div
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-secondary/10 text-secondary"
           >
-            <Icon :name="reward.icon || fallbackIcon" class="h-5 w-5" />
+            <Icon :name="rewardIcon(reward)" class="h-5 w-5" />
           </div>
 
           <div class="min-w-0 flex-1">
-            <p class="font-black text-base-content">
-              {{ rewardTitle(reward) }}
-            </p>
+            <div class="flex min-w-0 flex-wrap items-center gap-2">
+              <p class="min-w-0 truncate font-black text-base-content">
+                {{ reward.label || 'Unnamed reward' }}
+              </p>
+
+              <span
+                v-if="rewardTypeLabel(reward)"
+                class="badge badge-sm rounded-xl border-base-300 bg-base-200 text-[0.65rem] font-black uppercase tracking-widest text-base-content/60"
+              >
+                {{ rewardTypeLabel(reward) }}
+              </span>
+            </div>
 
             <p
               v-if="reward.rarity"
@@ -63,10 +84,10 @@
             </p>
 
             <p
-              v-if="rewardDescription(reward)"
+              v-if="reward.description"
               class="mt-2 text-sm leading-relaxed text-base-content/60"
             >
-              {{ rewardDescription(reward) }}
+              {{ reward.description }}
             </p>
           </div>
         </div>
@@ -78,18 +99,25 @@
       class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
     >
       <Icon
-        :name="fallbackIcon"
+        :name="store.isRewardLoading ? 'kind-icon:spinner' : fallbackIcon"
         class="mx-auto h-10 w-10 text-base-content/25"
+        :class="store.isRewardLoading ? 'animate-spin' : ''"
       />
 
-      <p class="mt-2 font-black text-base-content">No reward options yet</p>
+      <p class="mt-2 font-black text-base-content">
+        {{
+          store.isRewardLoading
+            ? 'Drawing reward options…'
+            : 'No reward options yet'
+        }}
+      </p>
 
       <p class="mx-auto mt-1 max-w-md text-sm text-base-content/50">
-        Draw a fresh set for this slot.
+        {{ emptyMessage }}
       </p>
 
       <button
-        v-if="slotKey"
+        v-if="slotKey && !store.isRewardLoading"
         type="button"
         class="btn btn-sm btn-primary mt-4 rounded-xl"
         @click="rerollOptions"
@@ -100,12 +128,14 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useAdventureStore } from '@/stores/adventureStore'
+import { useBuilderStore } from '@/stores/builderStore'
+import type { BuilderRewardOption } from '@/stores/helpers/builderCards'
 import type { RolledReward } from '@/stores/generatorStore'
 
-const store = useAdventureStore()
+const store = useBuilderStore()
 
 const slotKey = computed(() => store.activeCard?.rewardSlotKey ?? '')
 
@@ -122,52 +152,61 @@ const slotLabel = computed(() => {
 const fallbackIcon = computed(() => {
   if (slotKey.value.includes('skill')) return 'kind-icon:sparkles'
   if (slotKey.value.includes('item')) return 'kind-icon:treasure'
-  return 'kind-icon:reward'
+
+  return 'kind-icon:gift'
 })
 
-function rewardPayload(reward: RolledReward): Record<string, unknown> {
-  return (reward as { payload?: Record<string, unknown> }).payload ?? {}
-}
-
-function rewardString(
-  reward: RolledReward,
-  keys: string[],
-  fallback = '',
-): string {
-  const payload = rewardPayload(reward)
-  const source = reward as unknown as Record<string, unknown>
-
-  for (const key of keys) {
-    const directValue = source[key]
-    if (typeof directValue === 'string' && directValue.trim()) {
-      return directValue
-    }
-
-    const payloadValue = payload[key]
-    if (typeof payloadValue === 'string' && payloadValue.trim()) {
-      return payloadValue
-    }
+const emptyMessage = computed(() => {
+  if (store.isRewardLoading) {
+    return 'Checking your reward pool for matching options.'
   }
 
-  return fallback
+  if (slotKey.value.includes('skill')) {
+    return 'Draw a fresh set of starting skills.'
+  }
+
+  if (slotKey.value.includes('item')) {
+    return 'Draw a fresh set of starting items.'
+  }
+
+  return 'Draw a fresh set for this slot.'
+})
+
+function payloadReward(option: BuilderRewardOption): RolledReward | null {
+  const reward = option.payload?.reward
+
+  if (reward && typeof reward === 'object') {
+    return reward as RolledReward
+  }
+
+  return null
 }
 
-function rewardTitle(reward: RolledReward): string {
-  return rewardString(
-    reward,
-    ['label', 'name', 'title', 'text', 'reward', 'power'],
-    'Unnamed reward',
-  )
+function rewardTypeLabel(option: BuilderRewardOption): string {
+  const reward = payloadReward(option)
+  const rewardType = String(
+    reward?.rewardType ?? option.payload?.rewardType ?? '',
+  ).trim()
+
+  return rewardType ? rewardType.toLowerCase() : ''
 }
 
-function rewardDescription(reward: RolledReward): string {
-  return rewardString(reward, [
-    'description',
-    'summary',
-    'subtext',
-    'text',
-    'power',
-  ])
+function rewardIcon(option: BuilderRewardOption): string {
+  const reward = payloadReward(option)
+  const rewardType = String(
+    reward?.rewardType ?? option.payload?.rewardType ?? '',
+  ).toUpperCase()
+
+  if (option.icon) return option.icon
+  if (reward?.icon) return reward.icon
+  if (rewardType === 'SKILL') return 'kind-icon:sparkles'
+  if (rewardType === 'ITEM') return 'kind-icon:treasure'
+  if (rewardType === 'POWER') return 'kind-icon:bolt'
+  if (rewardType === 'PET') return 'kind-icon:heart'
+  if (rewardType === 'MAGIC') return 'kind-icon:wand'
+  if (rewardType === 'FAVOR') return 'kind-icon:star'
+
+  return fallbackIcon.value
 }
 
 function selectReward(optionId: string): void {
@@ -175,9 +214,9 @@ function selectReward(optionId: string): void {
   store.selectRewardOption(slotKey.value, optionId)
 }
 
-function rerollOptions(): void {
+async function rerollOptions(): Promise<void> {
   if (!slotKey.value) return
-  store.rollRewardOptions(slotKey.value)
+  await store.rollRewardOptions(slotKey.value)
 }
 
 watch(
@@ -185,7 +224,8 @@ watch(
   (nextSlotKey: string) => {
     if (!nextSlotKey) return
     if (store.activeRewardOptions.length) return
-    store.rollRewardOptions(nextSlotKey)
+
+    void store.rollRewardOptions(nextSlotKey)
   },
   { immediate: true },
 )

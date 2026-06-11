@@ -47,7 +47,7 @@ import {
   ADVENTURE_REQUIRED_CARD_KEYS,
   buildAdventureArtPrompt,
   syncAdventureStatTiers,
-} from '@/stores/helpers/adventureHelper'
+} from '@/stores/helpers/characterHelper'
 
 import type { Rarity, RewardType } from '~/prisma/generated/prisma/client'
 

@@ -7,15 +7,12 @@
   >
     <div
       ref="scrollEl"
-      class="workspace-hand-scroll pointer-events-auto flex h-full touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="workspace-hand-scroll pointer-events-none flex h-full touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
     >
       <div
         ref="stripEl"
-        class="flex min-w-full items-end gap-2 px-3 sm:px-0"
-        :class="[
-          handJustifyClass,
-          hasCards ? 'pointer-events-auto' : 'pointer-events-none',
-        ]"
+        class="pointer-events-none flex min-w-full items-end gap-2 px-3 sm:px-0"
+        :class="handJustifyClass"
         :style="handStyle"
       >
         <button
@@ -310,8 +307,6 @@ const handFrameStyle = computed<CSSProperties>(() => {
     height: `${expandedHandHeightPx.value}px`,
   }
 })
-
-const hasCards = computed(() => handCards.value.length > 0)
 
 function publishHeight(): void {
   if (!import.meta.client) return

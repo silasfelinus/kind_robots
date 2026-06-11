@@ -1,19 +1,25 @@
 <!-- /components/content/navigation/channel-select.vue -->
 <template>
   <div ref="menuRef" class="relative">
-    <button
-      ref="buttonRef"
-      class="btn btn-sm rounded-xl"
-      :class="
-        showMenu
-          ? 'btn-secondary'
-          : 'btn-ghost border border-base-300 bg-base-100'
-      "
-      type="button"
-      :aria-expanded="showMenu"
-      :title="`Explore: ${activeChannel.label}`"
-      @click.stop="toggleMenu"
-    >
+<button
+  ref="buttonRef"
+  class="btn btn-sm flex h-9 min-h-9 w-12 min-w-12 shrink-0 items-center justify-center gap-1 rounded-xl px-2"
+  :class="
+    showMenu
+      ? 'btn-secondary'
+      : 'btn-ghost border border-base-300 bg-base-100'
+  "
+  type="button"
+  :aria-expanded="showMenu"
+  :title="`Explore: ${activeChannel.label}`"
+  @click.stop="toggleMenu"
+>
+  <Icon :name="activeChannel.icon" class="h-4 w-4 shrink-0" />
+  <Icon
+    :name="showMenu ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
+    class="h-3.5 w-3.5 shrink-0 opacity-50"
+  />
+</button>
       <Icon :name="activeChannel.icon" class="h-4 w-4 shrink-0" />
       <Icon
         :name="showMenu ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"

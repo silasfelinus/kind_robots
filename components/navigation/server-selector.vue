@@ -2,466 +2,475 @@
 <template>
   <div class="relative inline-flex shrink-0">
     <button
-      class="btn btn-sm btn-ghost btn-square rounded-xl border border-base-300 bg-base-100"
+      class="btn btn-sm btn-ghost flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-100 p-0"
       type="button"
       title="Server settings"
+      aria-label="Server settings"
       @click="openSelector"
     >
-      <Icon name="kind-icon:server" class="h-4 w-4" />
+      <Icon name="kind-icon:server" class="h-4 w-4 shrink-0" />
     </button>
 
-    <dialog ref="selectorDialog" class="modal">
+    <dialog ref="selectorDialog" class="modal modal-bottom sm:modal-middle">
       <div
-        class="modal-box flex max-h-[90vh] w-11/12 max-w-3xl flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100"
+        class="modal-box flex h-[92dvh] max-h-[92dvh] w-full max-w-none flex-col overflow-hidden rounded-t-2xl border border-base-300 bg-base-100 p-0 sm:h-auto sm:max-h-[90vh] sm:w-11/12 sm:max-w-3xl sm:rounded-2xl"
       >
-        <header class="flex items-start justify-between gap-3">
-          <div>
-            <h2 class="text-xl font-black text-primary">Server Connections</h2>
-            <p class="text-sm text-base-content/60">
+        <header
+          class="sticky top-0 z-10 flex shrink-0 items-start justify-between gap-3 border-b border-base-300 bg-base-100/95 p-4 backdrop-blur"
+        >
+          <div class="min-w-0">
+            <h2 class="truncate text-lg font-black text-primary sm:text-xl">
+              Server Connections
+            </h2>
+            <p class="mt-1 text-xs leading-snug text-base-content/60 sm:text-sm">
               Pick defaults, save provider keys, and manage local endpoints.
             </p>
           </div>
 
           <button
-            class="btn btn-sm btn-ghost rounded-xl"
+            class="btn btn-sm btn-ghost btn-square shrink-0 rounded-xl"
             type="button"
+            aria-label="Close server settings"
             @click="closeSelector"
           >
             <Icon name="kind-icon:x" class="h-4 w-4" />
           </button>
         </header>
 
-        <div
-          v-if="statusMessage"
-          class="rounded-2xl border p-3 text-sm font-bold"
-          :class="
-            statusTone === 'success'
-              ? 'border-success/40 bg-success/10 text-success'
-              : 'border-error/40 bg-error/10 text-error'
-          "
-        >
-          {{ statusMessage }}
-        </div>
-
-        <section class="grid gap-3 md:grid-cols-2">
-          <label class="form-control">
-            <span class="label-text font-bold">Default Art</span>
-            <select
-              v-model.number="selectedArtServerId"
-              class="select select-bordered rounded-xl"
-            >
-              <option :value="null">Use system / mana route</option>
-              <option
-                v-for="server in artServers"
-                :key="server.id"
-                :value="server.id"
-              >
-                {{ server.label || server.title }} · {{ server.serverType }}
-              </option>
-            </select>
-          </label>
-
-          <label class="form-control">
-            <span class="label-text font-bold">Default Text</span>
-            <select
-              v-model.number="selectedTextServerId"
-              class="select select-bordered rounded-xl"
-            >
-              <option :value="null">Use system / mana route</option>
-              <option
-                v-for="server in textServers"
-                :key="server.id"
-                :value="server.id"
-              >
-                {{ server.label || server.title }} · {{ server.serverType }}
-              </option>
-            </select>
-          </label>
-
-          <button
-            class="btn btn-primary rounded-xl md:col-span-2"
-            type="button"
-            @click="saveSelections"
+        <div class="min-h-0 flex-1 space-y-4 overflow-y-auto p-3 sm:p-4">
+          <div
+            v-if="statusMessage"
+            class="rounded-2xl border p-3 text-sm font-bold"
+            :class="
+              statusTone === 'success'
+                ? 'border-success/40 bg-success/10 text-success'
+                : 'border-error/40 bg-error/10 text-error'
+            "
           >
-            Save Defaults
-          </button>
-        </section>
-
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h3 class="font-black text-primary">Connections</h3>
-              <p class="text-sm text-base-content/60">
-                Provider keys and private local servers.
-              </p>
-            </div>
-
-            <button
-              class="btn btn-sm btn-secondary rounded-xl"
-              type="button"
-              @click="showAddLocal = !showAddLocal"
-            >
-              <Icon name="kind-icon:plus" class="h-4 w-4" />
-              Add Local
-            </button>
+            {{ statusMessage }}
           </div>
 
-          <div class="mt-3 grid gap-3">
-            <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
-              <div class="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p class="font-black">OpenAI</p>
-                  <p class="text-xs text-base-content/60">
-                    {{
-                      serverHasKey(openAiTextServer)
-                        ? 'Text saved'
-                        : 'No text key saved'
-                    }}
-                    ·
-                    {{
+          <section class="grid gap-3 md:grid-cols-2">
+            <label class="form-control min-w-0">
+              <span class="label-text font-bold">Default Art</span>
+              <select
+                v-model.number="selectedArtServerId"
+                class="select select-bordered w-full rounded-xl"
+              >
+                <option :value="null">Use system / mana route</option>
+                <option
+                  v-for="server in artServers"
+                  :key="server.id"
+                  :value="server.id"
+                >
+                  {{ server.label || server.title }} · {{ server.serverType }}
+                </option>
+              </select>
+            </label>
+
+            <label class="form-control min-w-0">
+              <span class="label-text font-bold">Default Text</span>
+              <select
+                v-model.number="selectedTextServerId"
+                class="select select-bordered w-full rounded-xl"
+              >
+                <option :value="null">Use system / mana route</option>
+                <option
+                  v-for="server in textServers"
+                  :key="server.id"
+                  :value="server.id"
+                >
+                  {{ server.label || server.title }} · {{ server.serverType }}
+                </option>
+              </select>
+            </label>
+
+            <button
+              class="btn btn-primary w-full rounded-xl md:col-span-2"
+              type="button"
+              @click="saveSelections"
+            >
+              Save Defaults
+            </button>
+          </section>
+
+          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="min-w-0">
+                <h3 class="font-black text-primary">Connections</h3>
+                <p class="text-sm leading-snug text-base-content/60">
+                  Provider keys and private local servers.
+                </p>
+              </div>
+
+              <button
+                class="btn btn-sm btn-secondary w-full rounded-xl sm:w-auto"
+                type="button"
+                @click="showAddLocal = !showAddLocal"
+              >
+                <Icon name="kind-icon:plus" class="h-4 w-4" />
+                Add Local
+              </button>
+            </div>
+
+            <div class="mt-3 grid gap-3">
+              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="font-black">OpenAI</p>
+                    <p class="text-xs leading-snug text-base-content/60">
+                      {{
+                        serverHasKey(openAiTextServer)
+                          ? 'Text saved'
+                          : 'No text key saved'
+                      }}
+                      ·
+                      {{
+                        serverHasKey(openAiArtServer)
+                          ? 'Images saved'
+                          : 'No image key saved'
+                      }}
+                    </p>
+                  </div>
+
+                  <span
+                    class="badge shrink-0"
+                    :class="
+                      serverHasKey(openAiTextServer) ||
                       serverHasKey(openAiArtServer)
-                        ? 'Images saved'
-                        : 'No image key saved'
-                    }}
-                  </p>
-                </div>
-
-                <span
-                  class="badge"
-                  :class="
-                    serverHasKey(openAiTextServer) ||
-                    serverHasKey(openAiArtServer)
-                      ? 'badge-success'
-                      : 'badge-ghost'
-                  "
-                >
-                  {{
-                    serverHasKey(openAiTextServer) ||
-                    serverHasKey(openAiArtServer)
-                      ? 'saved'
-                      : 'empty'
-                  }}
-                </span>
-              </div>
-
-              <form
-                class="mt-3 flex flex-col gap-2 sm:flex-row"
-                @submit.prevent="saveOpenAi"
-              >
-                <input
-                  type="text"
-                  name="username"
-                  autocomplete="username"
-                  value="openai"
-                  class="hidden"
-                  tabindex="-1"
-                  aria-hidden="true"
-                />
-
-                <input
-                  v-model.trim="openAiKey"
-                  class="input input-bordered min-w-0 flex-1 rounded-xl"
-                  type="password"
-                  name="openai-api-key"
-                  autocomplete="new-password"
-                  :placeholder="
-                    openAiTextServer || openAiArtServer
-                      ? '••••••••••••••••'
-                      : 'OpenAI API key'
-                  "
-                />
-
-                <button
-                  class="btn btn-primary rounded-xl"
-                  type="submit"
-                  :disabled="isSaving || !openAiKey"
-                >
-                  Save
-                </button>
-              </form>
-            </article>
-
-            <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
-              <div class="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p class="font-black">Anthropic</p>
-                  <p class="text-xs text-base-content/60">
+                        ? 'badge-success'
+                        : 'badge-ghost'
+                    "
+                  >
                     {{
-                      serverHasKey(anthropicServer)
-                        ? 'Key saved'
-                        : 'No key saved'
+                      serverHasKey(openAiTextServer) ||
+                      serverHasKey(openAiArtServer)
+                        ? 'saved'
+                        : 'empty'
                     }}
-                  </p>
+                  </span>
                 </div>
 
-                <span
-                  class="badge"
-                  :class="
-                    serverHasKey(anthropicServer)
-                      ? 'badge-success'
-                      : 'badge-ghost'
-                  "
+                <form
+                  class="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
+                  @submit.prevent="saveOpenAi"
                 >
-                  {{ serverHasKey(anthropicServer) ? 'saved' : 'empty' }}
-                </span>
-              </div>
+                  <input
+                    type="text"
+                    name="username"
+                    autocomplete="username"
+                    value="openai"
+                    class="hidden"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  />
 
-              <form
-                class="mt-3 flex flex-col gap-2 sm:flex-row"
-                @submit.prevent="saveAnthropic"
-              >
-                <input
-                  type="text"
-                  name="username"
-                  autocomplete="username"
-                  value="anthropic"
-                  class="hidden"
-                  tabindex="-1"
-                  aria-hidden="true"
-                />
+                  <input
+                    v-model.trim="openAiKey"
+                    class="input input-bordered min-w-0 rounded-xl"
+                    type="password"
+                    name="openai-api-key"
+                    autocomplete="new-password"
+                    :placeholder="
+                      openAiTextServer || openAiArtServer
+                        ? '••••••••••••••••'
+                        : 'OpenAI API key'
+                    "
+                  />
 
-                <input
-                  v-model.trim="anthropicKey"
-                  class="input input-bordered min-w-0 flex-1 rounded-xl"
-                  type="password"
-                  name="anthropic-api-key"
-                  autocomplete="new-password"
-                  :placeholder="
-                    anthropicServer ? '••••••••••••••••' : 'Anthropic API key'
-                  "
-                />
+                  <button
+                    class="btn btn-primary w-full rounded-xl sm:w-auto"
+                    type="submit"
+                    :disabled="isSaving || !openAiKey"
+                  >
+                    Save
+                  </button>
+                </form>
+              </article>
 
-                <button
-                  class="btn btn-primary rounded-xl"
-                  type="submit"
-                  :disabled="isSaving || !anthropicKey"
-                >
-                  Save
-                </button>
-              </form>
-            </article>
+              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="font-black">Anthropic</p>
+                    <p class="text-xs leading-snug text-base-content/60">
+                      {{
+                        serverHasKey(anthropicServer)
+                          ? 'Key saved'
+                          : 'No key saved'
+                      }}
+                    </p>
+                  </div>
 
-            <article
-              v-for="server in localServers"
-              :key="server.id"
-              class="rounded-2xl border border-base-300 bg-base-100 p-3"
-            >
-              <div class="flex items-center justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="truncate font-black">
-                    {{ server.label || server.title }}
-                  </p>
-                  <p class="truncate text-xs text-base-content/60">
-                    {{ localServerLabel(server.serverType) }}
-                    <span v-if="server.baseUrl"> · {{ server.baseUrl }}</span>
-                  </p>
+                  <span
+                    class="badge shrink-0"
+                    :class="
+                      serverHasKey(anthropicServer)
+                        ? 'badge-success'
+                        : 'badge-ghost'
+                    "
+                  >
+                    {{ serverHasKey(anthropicServer) ? 'saved' : 'empty' }}
+                  </span>
                 </div>
 
-                <button
-                  class="btn btn-sm btn-ghost rounded-xl"
-                  type="button"
-                  @click="startEdit(server)"
+                <form
+                  class="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
+                  @submit.prevent="saveAnthropic"
                 >
-                  Edit
-                </button>
-              </div>
-            </article>
+                  <input
+                    type="text"
+                    name="username"
+                    autocomplete="username"
+                    value="anthropic"
+                    class="hidden"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  />
 
-            <p
-              v-if="!localServers.length"
-              class="rounded-2xl border border-dashed border-base-300 p-3 text-sm text-base-content/60"
-            >
-              No local servers saved yet.
-            </p>
-          </div>
-        </section>
+                  <input
+                    v-model.trim="anthropicKey"
+                    class="input input-bordered min-w-0 rounded-xl"
+                    type="password"
+                    name="anthropic-api-key"
+                    autocomplete="new-password"
+                    :placeholder="
+                      anthropicServer ? '••••••••••••••••' : 'Anthropic API key'
+                    "
+                  />
 
-        <section
-          v-if="showAddLocal"
-          class="rounded-2xl border border-secondary/40 bg-secondary/10 p-3"
-        >
-          <h3 class="font-black text-secondary">Add Local Server</h3>
+                  <button
+                    class="btn btn-primary w-full rounded-xl sm:w-auto"
+                    type="submit"
+                    :disabled="isSaving || !anthropicKey"
+                  >
+                    Save
+                  </button>
+                </form>
+              </article>
 
-          <div class="mt-3 grid gap-3">
-            <label class="form-control">
-              <span class="label-text font-bold">Server Type</span>
-              <select
-                v-model="newLocal.serverType"
-                class="select select-bordered rounded-xl"
+              <article
+                v-for="server in localServers"
+                :key="server.id"
+                class="rounded-2xl border border-base-300 bg-base-100 p-3"
               >
-                <option value="COMFY">ComfyUI</option>
-                <option value="A1111">Stable Diffusion / A1111</option>
-                <option value="OLLAMA">Ollama</option>
-              </select>
-            </label>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="min-w-0">
+                    <p class="truncate font-black">
+                      {{ server.label || server.title }}
+                    </p>
+                    <p class="break-words text-xs leading-snug text-base-content/60">
+                      {{ localServerLabel(server.serverType) }}
+                      <span v-if="server.baseUrl"> · {{ server.baseUrl }}</span>
+                    </p>
+                  </div>
 
-            <label class="form-control">
-              <span class="label-text font-bold">Connection Type</span>
-              <select
-                v-model="newLocal.accessMode"
-                class="select select-bordered rounded-xl"
+                  <button
+                    class="btn btn-sm btn-ghost w-full shrink-0 rounded-xl border border-base-300 sm:w-auto"
+                    type="button"
+                    @click="startEdit(server)"
+                  >
+                    Edit
+                  </button>
+                </div>
+              </article>
+
+              <p
+                v-if="!localServers.length"
+                class="rounded-2xl border border-dashed border-base-300 p-3 text-sm text-base-content/60"
               >
-                <option value="BROWSER">Browser direct</option>
-                <option value="BACKEND">Backend proxy</option>
-                <option value="TAILSCALE">Tailscale</option>
-                <option value="LOCAL">Local</option>
-                <option value="PUBLIC">Public</option>
-              </select>
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Label</span>
-              <input
-                v-model.trim="newLocal.label"
-                class="input input-bordered rounded-xl"
-                type="text"
-                :placeholder="defaultLocalLabel(newLocal.serverType)"
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Base URL</span>
-              <input
-                v-model.trim="newLocal.baseUrl"
-                class="input input-bordered rounded-xl"
-                type="url"
-                placeholder="http://192.168.1.50:8188"
-              />
-            </label>
-
-            <div class="flex flex-wrap gap-2">
-              <button
-                class="btn btn-secondary rounded-xl"
-                type="button"
-                :disabled="isSaving || !newLocal.baseUrl"
-                @click="saveLocalServer"
-              >
-                Save Local Server
-              </button>
-
-              <button
-                class="btn btn-ghost rounded-xl"
-                type="button"
-                @click="cancelAddLocal"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section
-          v-if="editingServerId"
-          class="rounded-2xl border border-info/40 bg-info/10 p-3"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h3 class="font-black text-info">Edit Local Server</h3>
-              <p class="text-sm text-base-content/60">
-                Advanced options for endpoints and health checks.
+                No local servers saved yet.
               </p>
             </div>
+          </section>
 
-            <button
-              class="btn btn-sm btn-ghost rounded-xl"
-              type="button"
-              @click="cancelEdit"
-            >
-              <Icon name="kind-icon:x" class="h-4 w-4" />
-            </button>
-          </div>
+          <section
+            v-if="showAddLocal"
+            class="rounded-2xl border border-secondary/40 bg-secondary/10 p-3"
+          >
+            <h3 class="font-black text-secondary">Add Local Server</h3>
 
-          <div class="mt-3 grid gap-3 md:grid-cols-2">
-            <label class="form-control">
-              <span class="label-text font-bold">Label</span>
-              <input
-                v-model.trim="editForm.label"
-                class="input input-bordered rounded-xl"
-                type="text"
-              />
-            </label>
+            <div class="mt-3 grid gap-3 md:grid-cols-2">
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Server Type</span>
+                <select
+                  v-model="newLocal.serverType"
+                  class="select select-bordered w-full rounded-xl"
+                >
+                  <option value="COMFY">ComfyUI</option>
+                  <option value="A1111">Stable Diffusion / A1111</option>
+                  <option value="OLLAMA">Ollama</option>
+                </select>
+              </label>
 
-            <label class="form-control">
-              <span class="label-text font-bold">Connection Type</span>
-              <select
-                v-model="editForm.accessMode"
-                class="select select-bordered rounded-xl"
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Connection Type</span>
+                <select
+                  v-model="newLocal.accessMode"
+                  class="select select-bordered w-full rounded-xl"
+                >
+                  <option value="BROWSER">Browser direct</option>
+                  <option value="BACKEND">Backend proxy</option>
+                  <option value="TAILSCALE">Tailscale</option>
+                  <option value="LOCAL">Local</option>
+                  <option value="PUBLIC">Public</option>
+                </select>
+              </label>
+
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Label</span>
+                <input
+                  v-model.trim="newLocal.label"
+                  class="input input-bordered w-full rounded-xl"
+                  type="text"
+                  :placeholder="defaultLocalLabel(newLocal.serverType)"
+                />
+              </label>
+
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Base URL</span>
+                <input
+                  v-model.trim="newLocal.baseUrl"
+                  class="input input-bordered w-full rounded-xl"
+                  type="url"
+                  placeholder="http://192.168.1.50:8188"
+                />
+              </label>
+
+              <div class="grid gap-2 md:col-span-2 sm:flex sm:flex-wrap">
+                <button
+                  class="btn btn-secondary w-full rounded-xl sm:w-auto"
+                  type="button"
+                  :disabled="isSaving || !newLocal.baseUrl"
+                  @click="saveLocalServer"
+                >
+                  Save Local Server
+                </button>
+
+                <button
+                  class="btn btn-ghost w-full rounded-xl sm:w-auto"
+                  type="button"
+                  @click="cancelAddLocal"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section
+            v-if="editingServerId"
+            class="rounded-2xl border border-info/40 bg-info/10 p-3"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="font-black text-info">Edit Local Server</h3>
+                <p class="text-sm leading-snug text-base-content/60">
+                  Advanced options for endpoints and health checks.
+                </p>
+              </div>
+
+              <button
+                class="btn btn-sm btn-ghost btn-square shrink-0 rounded-xl"
+                type="button"
+                aria-label="Cancel editing local server"
+                @click="cancelEdit"
               >
-                <option value="BROWSER">Browser direct</option>
-                <option value="BACKEND">Backend proxy</option>
-                <option value="TAILSCALE">Tailscale</option>
-                <option value="LOCAL">Local</option>
-                <option value="PUBLIC">Public</option>
-              </select>
-            </label>
+                <Icon name="kind-icon:x" class="h-4 w-4" />
+              </button>
+            </div>
 
-            <label class="form-control md:col-span-2">
-              <span class="label-text font-bold">Base URL</span>
-              <input
-                v-model.trim="editForm.baseUrl"
-                class="input input-bordered rounded-xl"
-                type="url"
-              />
-            </label>
+            <div class="mt-3 grid gap-3 md:grid-cols-2">
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Label</span>
+                <input
+                  v-model.trim="editForm.label"
+                  class="input input-bordered w-full rounded-xl"
+                  type="text"
+                />
+              </label>
 
-            <label class="form-control">
-              <span class="label-text font-bold">Endpoint Path</span>
-              <input
-                v-model.trim="editForm.endpointPath"
-                class="input input-bordered rounded-xl"
-                type="text"
-              />
-            </label>
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Connection Type</span>
+                <select
+                  v-model="editForm.accessMode"
+                  class="select select-bordered w-full rounded-xl"
+                >
+                  <option value="BROWSER">Browser direct</option>
+                  <option value="BACKEND">Backend proxy</option>
+                  <option value="TAILSCALE">Tailscale</option>
+                  <option value="LOCAL">Local</option>
+                  <option value="PUBLIC">Public</option>
+                </select>
+              </label>
 
-            <label class="form-control">
-              <span class="label-text font-bold">Health Path</span>
-              <input
-                v-model.trim="editForm.healthPath"
-                class="input input-bordered rounded-xl"
-                type="text"
-              />
-            </label>
+              <label class="form-control min-w-0 md:col-span-2">
+                <span class="label-text font-bold">Base URL</span>
+                <input
+                  v-model.trim="editForm.baseUrl"
+                  class="input input-bordered w-full rounded-xl"
+                  type="url"
+                />
+              </label>
 
-            <label class="form-control md:col-span-2">
-              <span class="label-text font-bold">Model</span>
-              <input
-                v-model.trim="editForm.model"
-                class="input input-bordered rounded-xl"
-                type="text"
-                placeholder="Optional"
-              />
-            </label>
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Endpoint Path</span>
+                <input
+                  v-model.trim="editForm.endpointPath"
+                  class="input input-bordered w-full rounded-xl"
+                  type="text"
+                />
+              </label>
 
-            <label class="form-control md:col-span-2">
-              <span class="label-text font-bold">Notes</span>
-              <textarea
-                v-model.trim="editForm.notes"
-                class="textarea textarea-bordered rounded-xl"
-                rows="3"
-              />
-            </label>
-          </div>
+              <label class="form-control min-w-0">
+                <span class="label-text font-bold">Health Path</span>
+                <input
+                  v-model.trim="editForm.healthPath"
+                  class="input input-bordered w-full rounded-xl"
+                  type="text"
+                />
+              </label>
 
-          <div class="mt-3 flex flex-wrap gap-2">
-            <button
-              class="btn btn-info rounded-xl"
-              type="button"
-              :disabled="isSaving"
-              @click="saveEditedServer"
-            >
-              Save Changes
-            </button>
+              <label class="form-control min-w-0 md:col-span-2">
+                <span class="label-text font-bold">Model</span>
+                <input
+                  v-model.trim="editForm.model"
+                  class="input input-bordered w-full rounded-xl"
+                  type="text"
+                  placeholder="Optional"
+                />
+              </label>
 
-            <button
-              class="btn btn-error rounded-xl"
-              type="button"
-              :disabled="isSaving"
-              @click="deleteEditedServer"
-            >
-              Delete
-            </button>
-          </div>
-        </section>
+              <label class="form-control min-w-0 md:col-span-2">
+                <span class="label-text font-bold">Notes</span>
+                <textarea
+                  v-model.trim="editForm.notes"
+                  class="textarea textarea-bordered w-full rounded-xl"
+                  rows="3"
+                />
+              </label>
+            </div>
+
+            <div class="mt-3 grid gap-2 sm:flex sm:flex-wrap">
+              <button
+                class="btn btn-info w-full rounded-xl sm:w-auto"
+                type="button"
+                :disabled="isSaving"
+                @click="saveEditedServer"
+              >
+                Save Changes
+              </button>
+
+              <button
+                class="btn btn-error w-full rounded-xl sm:w-auto"
+                type="button"
+                :disabled="isSaving"
+                @click="deleteEditedServer"
+              >
+                Delete
+              </button>
+            </div>
+          </section>
+        </div>
       </div>
 
       <form method="dialog" class="modal-backdrop">
@@ -470,6 +479,7 @@
     </dialog>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
@@ -778,7 +788,7 @@ async function saveOpenAi() {
     )
 
     if (!imageResult.success) {
-      throw new Error(imageResult.message || 'Unable to save OpenAI image key.')
+      throw new Error(textResult.message || 'Unable to save OpenAI image key.')
     }
 
     openAiKey.value = ''

@@ -192,3 +192,45 @@ It was quite lovely to see all the art appear once the new files loaded. The sit
 I added a half dozen more todos, then started clearing them.  builder scroll was fixed on load, which also fixed the builder not appearing in the first place.
 
 Right now I'm going through all the nav and builder locations to root out missing images. The broken windows theory of development. Once all the rooms look functional, then I'll be able to work on actually having things to happen once you interact with them.
+
+6/11/26
+Last night I backed up the server as a working front end copy! I've got some lingering issues with formatting on mobile, and there's *always* more to do layout wise, but I've got a front end with more polish than ever before!
+
+I'd say physical notes are a great productivity tool, after two days of working with them, I've knocked off about half of my first set of todos and have an eye on a bigger picture goal: having put out all the small fires, have a working interactible for every aspect of the site. Current todos:
+
+Fix Character Rewards not loading during builder
+Finish working characrter builder (including art)
+Working SD Generation
+Working Comfy Generation
+Working OpenAI Image generation
+Mobile Display tightening (and icon appearance for mana token and server selector).
+
+My remaining todos are all interactible based, and at this point deserve their own list (or two):
+
+Interactibles (Phase 1)
+
+Bot (bot chat)
+Reward (story prompts)
+Scenario (story launches)
+Dream (multiplayer chatroom generation)
+Character (character chat, roles)
+Pitches (brainstorm creator)
+
+Interactibles Phase 2
+Composition Interactible
+Giftshop Swag ordering
+Subscription purchases
+Memory Dungeon art fix
+Forums
+Messaging (and chat page cleanup)
+Lab Reactions
+Art Reaction
+Builders (dream, reward, scenario, character, pitch)
+Token Economy
+FX Layouts and generation controls
+Code Cards
+
+and perhaps finally:
+Story Cards 3.0, fully interactible story and reward system.
+---
+I'll admit everything feels a bit intimidating laying it out like that. But now I'm back to eating the elephant, one bite at a time.

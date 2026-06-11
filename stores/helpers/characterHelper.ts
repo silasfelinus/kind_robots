@@ -1,28 +1,10 @@
 // /stores/helpers/characterHelper.ts
-import { useRandomCharacterData } from '~/stores/utils/randomCharacter'
-import type { Character } from '~/prisma/generated/prisma/client'
-
-export const rarityOptions = [
-  'COMMON',
-  'UNCOMMON',
-  'RARE',
-  'EPIC',
-  'LEGENDARY',
-  'MYTHIC',
-] as const
-
-export type Rarity = (typeof rarityOptions)[number]
-
-export const rewardTypeOptions = [
-  'SKILL',
-  'ITEM',
-  'TREASURE',
-  'TITLE',
-  'POWER',
-  'STORY',
-] as const
-
-export type RewardType = (typeof rewardTypeOptions)[number]
+import type { Rarity, RewardType } from '~/prisma/generated/prisma/client'
+import type {
+  BuilderRewardOption,
+  BuilderSheet,
+  BuilderStatEntry,
+} from '@/stores/helpers/builderCards'
 
 export type CharacterStatKey =
   | 'luck'
@@ -32,23 +14,12 @@ export type CharacterStatKey =
   | 'charm'
   | 'empathy'
 
-// Three skill slots — matches builder and schema
-export type RewardSlotKey = 'common-skill' | 'uncommon-skill' | 'rare-skill'
-
-export type RandomizerKeys =
-  | 'name'
-  | 'honorific'
-  | 'class'
-  | 'genre'
-  | 'species'
-  | 'personality'
-  | 'backstory'
-  | 'quirks'
-  | CharacterStatKey
+export type CharacterRewardSlotKey = 'starting-skill' | 'starting-item'
 
 export type CharacterRewardDraft = {
   id?: number | null
-  slotKey: RewardSlotKey
+  rewardId?: number | null
+  slotKey: CharacterRewardSlotKey
   label: string
   text: string
   power: string
@@ -56,30 +27,29 @@ export type CharacterRewardDraft = {
   rewardType: RewardType
   rarity: Rarity
   icon: string
-  imagePath: string
+  imagePath: string | null
   artImageId?: number | null
   artPrompt: string
 }
 
 export type RewardPromptSlot = {
-  key: RewardSlotKey
+  key: CharacterRewardSlotKey
   label: string
-  description?: string // optional flavor text shown in the sheet
+  description?: string
   rewardType: RewardType
   rarity: Rarity
   icon: string
 }
 
-// Matches Character schema exactly — class and gender, no characterClass/genderIdentity
 export type CharacterSheetDraft = {
   id: number | null
   name: string
   honorific: string
   title: string
   role: string
-  class: string // schema: class
+  class: string
   species: string
-  gender: string // schema: gender
+  gender: string
   presentation: string
   genre: string
   alignment: string
@@ -105,9 +75,22 @@ export type CharacterSheetDraft = {
   rewards: CharacterRewardDraft[]
 }
 
-export type RandomizerReturnType = {
-  [K in RandomizerKeys]: K extends CharacterStatKey ? Rarity : string
-}
+export const CHARACTER_CORE_CARD_KEYS = [
+  'species',
+  'gender',
+  'alignment',
+  'class',
+  'personality',
+  'quirks',
+  'backstory',
+  'stats',
+]
+
+export const CHARACTER_REQUIRED_CARD_KEYS = [
+  ...CHARACTER_CORE_CARD_KEYS,
+  'starting-skill',
+  'starting-item',
+]
 
 export const characterStatFields: Array<{
   key: CharacterStatKey
@@ -121,96 +104,100 @@ export const characterStatFields: Array<{
   { key: 'empathy', label: 'Empathy' },
 ]
 
-export const randomizerMap: Record<RandomizerKeys, () => string | Rarity> = {
-  name: () => useRandomCharacterData().randomName(),
-  honorific: () => useRandomCharacterData().randomHonorific(),
-  class: () => useRandomCharacterData().randomClass(),
-  genre: () => useRandomCharacterData().randomGenre(),
-  species: () => useRandomCharacterData().randomSpecies(),
-  personality: () => useRandomCharacterData().randomPersonality(),
-  backstory: () => useRandomCharacterData().randomBackstory(),
-  quirks: () => useRandomCharacterData().randomQuirk(),
-  luck: () => randomRarity(),
-  might: () => randomRarity(),
-  wits: () => randomRarity(),
-  grace: () => randomRarity(),
-  charm: () => randomRarity(),
-  empathy: () => randomRarity(),
+function tierFromValue(value: number): Rarity {
+  if (value >= 6) return 'MYTHIC'
+  if (value === 5) return 'LEGENDARY'
+  if (value === 4) return 'EPIC'
+  if (value === 3) return 'RARE'
+  if (value === 2) return 'UNCOMMON'
+
+  return 'COMMON'
 }
 
-export function getRandomValue<K extends RandomizerKeys>(
-  key: K,
-): RandomizerReturnType[K] | null {
-  const fn = randomizerMap[key]
-  return fn ? (fn() as RandomizerReturnType[K]) : null
-}
+function numericRewardIdFromOptionId(id: string): number {
+  const numericId = Number(id)
 
-export function updateFieldWithRandomValue(
-  form: Partial<Character> & Partial<Record<CharacterStatKey, Rarity>>,
-  key: RandomizerKeys,
-) {
-  const value = getRandomValue(key)
-  if (value !== null) {
-    form[key] = value as never
+  if (Number.isFinite(numericId) && numericId > 0) {
+    return numericId
   }
+
+  return Array.from(id).reduce((total, char) => {
+    return total + char.charCodeAt(0)
+  }, 0)
 }
 
-export function randomRarity(): Rarity {
-  const roll = Math.random()
-  if (roll < 0.45) return 'COMMON'
-  if (roll < 0.7) return 'UNCOMMON'
-  if (roll < 0.87) return 'RARE'
-  if (roll < 0.96) return 'EPIC'
-  if (roll < 0.995) return 'LEGENDARY'
-  return 'MYTHIC'
-}
+function rewardPayloadType(option: BuilderRewardOption): RewardType | null {
+  const payloadType = option.payload?.rewardType
+  const rawReward = option.payload?.reward
 
-export function rerollStats(): Record<CharacterStatKey, Rarity> {
-  return {
-    luck: randomRarity(),
-    might: randomRarity(),
-    wits: randomRarity(),
-    grace: randomRarity(),
-    charm: randomRarity(),
-    empathy: randomRarity(),
+  if (isRewardType(payloadType)) {
+    return payloadType
   }
+
+  if (rawReward && typeof rawReward === 'object' && 'rewardType' in rawReward) {
+    const rewardType = (rawReward as { rewardType?: unknown }).rewardType
+
+    if (isRewardType(rewardType)) {
+      return rewardType
+    }
+  }
+
+  return null
 }
 
-// Three skill slots — common, uncommon, rare
-export function defaultRewardSlots(): RewardPromptSlot[] {
+function isRewardType(value: unknown): value is RewardType {
+  return (
+    value === 'SKILL' ||
+    value === 'ITEM' ||
+    value === 'POWER' ||
+    value === 'PET' ||
+    value === 'MAGIC' ||
+    value === 'FAVOR'
+  )
+}
+
+function rewardTypeFromSlot(slotKey: string): RewardType {
+  if (slotKey.includes('skill')) return 'SKILL'
+  if (slotKey.includes('item')) return 'ITEM'
+
+  return 'ITEM'
+}
+
+function rewardTypeLabel(slotKey: string, reward: BuilderRewardOption): string {
+  return (
+    rewardPayloadType(reward) ?? rewardTypeFromSlot(slotKey)
+  ).toLowerCase()
+}
+
+export function defaultCharacterRewardSlots(): RewardPromptSlot[] {
   return [
     {
-      key: 'common-skill',
-      label: 'Common Skill',
-      description: 'A reliable skill for everyday story problems.',
+      key: 'starting-skill',
+      label: 'Starting Skill',
+      description:
+        'A reliable trick, talent, spell, habit, or dramatic problem-solving button.',
       rewardType: 'SKILL',
       rarity: 'COMMON',
-      icon: 'kind-icon:bolt',
-    },
-    {
-      key: 'uncommon-skill',
-      label: 'Uncommon Skill',
-      description: 'A specialized edge that surprises when it lands.',
-      rewardType: 'SKILL',
-      rarity: 'UNCOMMON',
-      icon: 'kind-icon:comet',
-    },
-    {
-      key: 'rare-skill',
-      label: 'Rare Skill',
-      description: 'The signature move that earns a dramatic pause.',
-      rewardType: 'SKILL',
-      rarity: 'RARE',
       icon: 'kind-icon:sparkles',
+    },
+    {
+      key: 'starting-item',
+      label: 'Starting Item',
+      description:
+        'A useful object, suspicious artifact, lucky tool, or inventory goblin.',
+      rewardType: 'ITEM',
+      rarity: 'COMMON',
+      icon: 'kind-icon:treasure',
     },
   ]
 }
 
-export function createEmptyRewardDraft(
+export function createEmptyCharacterRewardDraft(
   slot: RewardPromptSlot,
 ): CharacterRewardDraft {
   return {
     id: null,
+    rewardId: null,
     slotKey: slot.key,
     label: '',
     text: '',
@@ -219,13 +206,55 @@ export function createEmptyRewardDraft(
     rewardType: slot.rewardType,
     rarity: slot.rarity,
     icon: slot.icon,
-    imagePath: '',
+    imagePath: null,
     artImageId: null,
     artPrompt: '',
   }
 }
 
-// Matches schema field names — class and gender
+export function builderRewardOptionToCharacterRewardDraft(
+  slotKey: CharacterRewardSlotKey,
+  option: BuilderRewardOption,
+): CharacterRewardDraft {
+  const rawReward = option.payload?.reward
+  const reward =
+    rawReward && typeof rawReward === 'object'
+      ? (rawReward as Record<string, unknown>)
+      : {}
+
+  const rewardType = rewardPayloadType(option) ?? rewardTypeFromSlot(slotKey)
+
+  const rewardId =
+    typeof option.payload?.rewardId === 'number'
+      ? option.payload.rewardId
+      : typeof reward.rewardId === 'number'
+        ? reward.rewardId
+        : numericRewardIdFromOptionId(option.id)
+
+  const effect =
+    typeof reward.effect === 'string' && reward.effect.trim()
+      ? reward.effect
+      : (option.description ?? '')
+
+  return {
+    id: null,
+    rewardId,
+    slotKey,
+    label: option.label,
+    text: option.description ?? option.label,
+    power: effect,
+    collection: 'starting-character-reward',
+    rewardType,
+    rarity: (option.rarity ?? 'COMMON') as Rarity,
+    icon:
+      option.icon ?? fallbackRewardIcon({ rewardType, rarity: option.rarity }),
+    imagePath: option.imagePath ?? null,
+    artImageId:
+      typeof reward.artImageId === 'number' ? reward.artImageId : null,
+    artPrompt: typeof reward.artPrompt === 'string' ? reward.artPrompt : '',
+  }
+}
+
 export function createEmptyCharacterSheet(userId = 10): CharacterSheetDraft {
   return {
     id: null,
@@ -233,9 +262,9 @@ export function createEmptyCharacterSheet(userId = 10): CharacterSheetDraft {
     honorific: 'adventurer',
     title: '',
     role: '',
-    class: '', // schema: class
+    class: '',
     species: '',
-    gender: '', // schema: gender
+    gender: '',
     presentation: '',
     genre: '',
     alignment: '',
@@ -262,12 +291,95 @@ export function createEmptyCharacterSheet(userId = 10): CharacterSheetDraft {
   }
 }
 
-export function fallbackRewardIcon(draft: CharacterRewardDraft): string {
-  if (draft.icon) return draft.icon
-  if (draft.rewardType === 'SKILL') {
-    if (draft.rarity === 'RARE') return 'kind-icon:sparkles'
-    if (draft.rarity === 'UNCOMMON') return 'kind-icon:comet'
-    return 'kind-icon:bolt'
+export function syncCharacterStatTiers(sheet: BuilderSheet): void {
+  const stats = Array.isArray(sheet.stats)
+    ? (sheet.stats as BuilderStatEntry[])
+    : []
+
+  const valueFor = (key: string) =>
+    stats.find((entry) => entry.key === key)?.value ?? 0
+
+  sheet.luck = tierFromValue(valueFor('luck'))
+  sheet.might = tierFromValue(valueFor('swol'))
+  sheet.wits = tierFromValue(valueFor('wits'))
+  sheet.grace = tierFromValue(valueFor('flexibility'))
+  sheet.charm = tierFromValue(valueFor('rizz'))
+  sheet.empathy = tierFromValue(valueFor('empathy'))
+}
+
+export function buildCharacterArtPrompt(sheet: BuilderSheet): string {
+  const parts: string[] = []
+
+  const add = (value: unknown, prefix?: string) => {
+    const text = typeof value === 'string' ? value.trim() : ''
+    if (!text) return
+
+    parts.push(prefix ? `${prefix}: ${text}` : text)
   }
+
+  if (typeof sheet.name === 'string' && sheet.name.trim()) {
+    parts.push(`Character portrait of ${sheet.name.trim()}`)
+  }
+
+  add(sheet.species)
+  add(sheet.class)
+  add(sheet.personality, 'personality')
+
+  if (typeof sheet.genre === 'string' && sheet.genre.trim()) {
+    parts.push(`${sheet.genre.trim()} aesthetic`)
+  }
+
+  add(sheet.alignment)
+
+  const rewards = sheet.rewards
+
+  if (rewards && typeof rewards === 'object' && !Array.isArray(rewards)) {
+    const rewardText = Object.entries(
+      rewards as Record<string, BuilderRewardOption>,
+    )
+      .map(([slotKey, reward]) => {
+        const rarity = reward.rarity?.toLowerCase() ?? 'special'
+        const label = reward.label || 'Unnamed Reward'
+        const type = rewardTypeLabel(slotKey, reward)
+
+        return `${rarity} ${type}: ${label}`
+      })
+      .join(', ')
+
+    if (rewardText) {
+      parts.push(`starting rewards: ${rewardText}`)
+    }
+  }
+
+  if (typeof sheet.backstory === 'string' && sheet.backstory.trim()) {
+    parts.push(`context: ${sheet.backstory.trim().slice(0, 120)}`)
+  }
+
+  parts.push(
+    'expressive presence, strong silhouette, detailed design, vivid narrative quality',
+  )
+
+  return parts.filter(Boolean).join(', ')
+}
+
+export function fallbackRewardIcon(input: {
+  rewardType?: RewardType | string | null
+  rarity?: Rarity | string | null
+  icon?: string | null
+}): string {
+  if (input.icon) return input.icon
+
+  if (input.rewardType === 'SKILL') return 'kind-icon:sparkles'
+  if (input.rewardType === 'ITEM') return 'kind-icon:treasure'
+  if (input.rewardType === 'POWER') return 'kind-icon:bolt'
+  if (input.rewardType === 'PET') return 'kind-icon:heart'
+  if (input.rewardType === 'MAGIC') return 'kind-icon:wand'
+  if (input.rewardType === 'FAVOR') return 'kind-icon:star'
+
   return 'kind-icon:gift'
 }
+
+export const ADVENTURE_CORE_CARD_KEYS = CHARACTER_CORE_CARD_KEYS
+export const ADVENTURE_REQUIRED_CARD_KEYS = CHARACTER_REQUIRED_CARD_KEYS
+export const syncAdventureStatTiers = syncCharacterStatTiers
+export const buildAdventureArtPrompt = buildCharacterArtPrompt

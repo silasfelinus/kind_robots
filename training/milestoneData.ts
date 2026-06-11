@@ -49,7 +49,7 @@ export const milestoneData: Milestone[] = [
     updatedAt: new Date(),
     tooltip: 'Start your path in weirdlandia',
     isActive: false,
-    pageHint: '/weirdlandia',
+    pageHint: '/stories',
     subtleHint: 'Venture into a new realm',
     artImageId: null,
     artPrompt: null,

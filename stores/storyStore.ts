@@ -290,17 +290,16 @@ export const useStoryStore = defineStore('storyStore', () => {
     }
 
     await chatStore.streamResponse(newChat.id, {
+      model: activeTextServer?.model || 'gpt-4o-mini',
       temperature: 0.9,
       maxTokens: 2048,
-      serverId: serverStore.activeTextServer?.id ?? null,
-      serverName:
-        serverStore.activeTextServer?.label ||
-        serverStore.activeTextServer?.title ||
-        null,
-      serverSelectionMode: serverStore.activeTextServer
-        ? 'specific'
-        : 'default',
-      generationRequirement: { provider: 'any' },
+      serverId: activeTextServer?.id ?? null,
+      serverName: activeTextServer?.label || activeTextServer?.title || null,
+      serverSelectionMode: activeTextServer ? 'specific' : 'default',
+      generationRequirement: {
+        provider:
+          activeTextServer?.serverType === 'ANTHROPIC' ? 'anthropic' : 'any',
+      },
       messages: buildMessagesForStoryResponse(),
     })
 

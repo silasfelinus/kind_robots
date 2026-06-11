@@ -1,3 +1,4 @@
+<!-- /components/servers/text-server-select.vue -->
 <template>
   <section
     class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
@@ -26,15 +27,11 @@
       :disabled="isLoading"
       @change="handleSelect"
     >
-      <option value="">Default text server</option>
+      <option value="">System OpenAI · mana</option>
 
-      <option
-        v-for="server in chatStore.generationServers"
-        :key="server.id"
-        :value="server.id"
-      >
+      <option v-for="server in textServers" :key="server.id" :value="server.id">
         {{ server.label || server.title || `Server #${server.id}` }}
-        · {{ server.serverType }}
+        · {{ server.serverType }} · {{ serverBillingLabel(server) }}
       </option>
     </select>
 
@@ -54,8 +51,23 @@ const chatStore = useChatStore()
 const serverStore = useServerStore()
 const isLoading = ref(false)
 
+const textServers = computed<Server[]>(() => {
+  return serverStore.textServers
+    .filter((server) => server.isActive)
+    .sort((a, b) => {
+      const defaultSort =
+        Number(Boolean(b.isDefault)) - Number(Boolean(a.isDefault))
+
+      if (defaultSort) return defaultSort
+
+      return String(a.label || a.title || '').localeCompare(
+        String(b.label || b.title || ''),
+      )
+    }) as Server[]
+})
+
 const activeServer = computed<Server | null>(() => {
-  return chatStore.activeGenerationServer
+  return (serverStore.activeTextServer as Server | null) ?? null
 })
 
 const selectedValue = computed(() => {
@@ -65,7 +77,7 @@ const selectedValue = computed(() => {
 const activeLabel = computed(() => {
   const server = activeServer.value
 
-  if (!server) return 'Default OpenAI'
+  if (!server) return 'System OpenAI'
 
   return server.label || server.title || `Server #${server.id}`
 })
@@ -79,10 +91,7 @@ const usesOwnResource = computed(() => {
 })
 
 const billingLabel = computed(() => {
-  if (!activeServer.value) return 'Mana'
-  if (usesOwnResource.value) return 'Own resource'
-
-  return 'Mana'
+  return usesOwnResource.value ? 'Own resource' : 'Mana'
 })
 
 const billingBadgeClass = computed(() => {
@@ -93,32 +102,73 @@ const helperText = computed(() => {
   const server = activeServer.value
 
   if (!server) {
-    return 'Using the hosted default text model. This spends mana.'
+    return 'Using the hosted OpenAI fallback. This spends mana.'
   }
 
   if (usesOwnResource.value) {
-    return 'Using a local, browser, BYOK, owned, or non-official public text server. This should not spend mana.'
+    return 'Using your selected private/local text server. This should not spend mana.'
   }
 
   return 'Using an official hosted text server. This spends mana.'
 })
 
+function serverBillingLabel(server: Server) {
+  return chatStore.serverUsesOwnResource(server) ? 'own resource' : 'mana'
+}
+
 async function handleSelect(event: Event) {
   const target = event.target as HTMLSelectElement
   const serverId = Number(target.value) || null
 
+  const result = await serverStore.setActiveTextServer(serverId)
+
+  if (!result.success) {
+    chatStore.setGenerationMessage(
+      'error',
+      result.message || 'Unable to select text server.',
+    )
+    return
+  }
+
   chatStore.selectGenerationServer(serverId)
 
-  if (serverId && typeof serverStore.setActiveTextServer === 'function') {
-    serverStore.setActiveTextServer(serverId)
-  }
+  const server = serverId
+    ? (textServers.value.find((entry) => entry.id === serverId) ?? null)
+    : null
+
+  chatStore.setTextForm({
+    serverId,
+    serverName: server?.label || server?.title || null,
+    serverSelectionMode: serverId ? 'specific' : 'default',
+    generationRequirement: {
+      provider: server?.serverType === 'ANTHROPIC' ? 'anthropic' : 'any',
+    },
+  })
 }
 
 onMounted(async () => {
   isLoading.value = true
 
   try {
-    await chatStore.prepareTextGenerator()
+    await serverStore.initialize({
+      fetchRemote: true,
+    })
+
+    if (!serverStore.hasLoaded || !serverStore.servers.length) {
+      await serverStore.fetchAllServers(true)
+    }
+
+    const activeTextServer = serverStore.activeTextServer as Server | null
+
+    chatStore.setTextForm({
+      serverId: activeTextServer?.id ?? null,
+      serverName: activeTextServer?.label || activeTextServer?.title || null,
+      serverSelectionMode: activeTextServer ? 'specific' : 'default',
+      generationRequirement: {
+        provider:
+          activeTextServer?.serverType === 'ANTHROPIC' ? 'anthropic' : 'any',
+      },
+    })
   } finally {
     isLoading.value = false
   }

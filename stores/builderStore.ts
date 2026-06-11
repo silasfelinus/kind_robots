@@ -553,8 +553,8 @@ export const useBuilderStore = defineStore('builderStore', () => {
     }
 
     if (card.rewardSlotKey && !rewardOptions[card.rewardSlotKey]?.length) {
-      rollRewardOptionsForCard(card)
-    }
+  void rollRewardOptionsForCard(card)
+}
 
     persist()
   }
@@ -665,24 +665,38 @@ export const useBuilderStore = defineStore('builderStore', () => {
     }
   }
 
-  function rollRewardOptionsForCard(card = activeCard.value): void {
-    if (!card?.rewardSlotKey) return
+ async function rollRewardOptionsForCard(card = activeCard.value): Promise<void> {
+  if (!card?.rewardSlotKey) return
 
-    const options = rollRewardOptionsForSlot({
-      slotKey: card.rewardSlotKey,
-      slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
-      rollFromGenerator: (baseRarity, count) =>
-        generator.rollRewardOptions(baseRarity, count),
-    }).map(rolledRewardToBuilderOption)
+  await generator.fetchRewards()
 
-    rewardOptions[card.rewardSlotKey] = options
-    selectedRewardId[card.rewardSlotKey] = ''
-    persist()
+  if (generator.rewardError) {
+    lastError.value = generator.rewardError
+    return
   }
 
-  function rerollRewardOptionsForCard(card = activeCard.value): void {
-    rollRewardOptionsForCard(card)
-  }
+  const options = rollRewardOptionsForSlot({
+    slotKey: card.rewardSlotKey,
+    slotConfigs: DEFAULT_REWARD_SLOT_CONFIGS,
+    rollFromGenerator: ({ baseRarity, count, rewardTypes }) =>
+      generator.rollRewardOptions({
+        baseRarity,
+        count,
+        rewardTypes,
+      }),
+  }).map(rolledRewardToBuilderOption)
+
+  rewardOptions[card.rewardSlotKey] = options
+  selectedRewardId[card.rewardSlotKey] = ''
+  persist()
+}
+
+async function rerollRewardOptionsForCard(
+  card = activeCard.value,
+): Promise<void> {
+  await rollRewardOptionsForCard(card)
+}
+
 
   function setRewardOptions(
     slotKey: string,

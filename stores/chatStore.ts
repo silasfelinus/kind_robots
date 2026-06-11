@@ -266,6 +266,15 @@ export const useChatStore = defineStore('chatStore', () => {
   const userStore = useUserStore()
   const serverStore = useServerStore()
 
+  function buildJsonAuthHeaders(): HeadersInit {
+    const token = userStore.token?.trim()
+
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    }
+  }
+
   const activeChatsByBotId = (botId: number) =>
     chats.value.filter((chat) => chat.botId === botId)
 
@@ -774,6 +783,10 @@ export const useChatStore = defineStore('chatStore', () => {
     chatId: number,
     options: StreamResponseOptions = {},
   ): Promise<string> {
+    if (!userStore.initialized) {
+      await userStore.initialize()
+    }
+
     if (userStore.isGuest) {
       const promo = await userStore.ensureRealUser()
       if (!promo.success) {

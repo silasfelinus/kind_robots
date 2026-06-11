@@ -1,24 +1,12 @@
 <template>
   <div ref="root" class="relative">
-<button
-  class="btn btn-sm btn-ghost flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center rounded-full p-0 sm:w-auto sm:min-w-0 sm:gap-2 sm:px-3"
-  :class="{ 'animate-pulse': manaStore.refillReady && !manaStore.isFamily }"
-  type="button"
-  title="Mana"
-  aria-label="Mana"
-  @click="toggle"
->
-  <span
-    class="flex h-5 w-5 shrink-0 items-center justify-center text-lg leading-none"
-    aria-hidden="true"
-  >
-    ⚡
-  </span>
-
-  <span class="hidden font-semibold tabular-nums sm:inline">
-    {{ manaStore.isFamily ? '∞' : manaStore.balance }}
-  </span>
-</button>
+    <button
+      class="btn btn-sm btn-ghost btn-square rounded-full sm:btn-auto sm:w-auto sm:gap-2 sm:px-3"
+      :class="{ 'animate-pulse': manaStore.refillReady && !manaStore.isFamily }"
+      type="button"
+      title="Mana"
+      @click="toggle"
+    >
       <span class="mana-icon text-lg leading-none">⚡</span>
       <span class="hidden font-semibold tabular-nums sm:inline">
         {{ manaStore.isFamily ? '∞' : manaStore.balance }}

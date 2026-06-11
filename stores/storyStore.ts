@@ -258,13 +258,16 @@ export const useStoryStore = defineStore('storyStore', () => {
   }
 
   async function createAndStreamStoryChat(content: string) {
+    const activeTextServer = serverStore.activeTextServer
+
     const payload: ChatRuntimeInput = {
       content,
       userId: userStore.userId ?? userStore.user?.id ?? 10,
       type: 'Weirdlandia',
       characterId: null,
       recipientId: null,
-      serverId: serverStore.activeTextServer?.id ?? null,
+      serverId: activeTextServer?.id ?? null,
+      serverName: activeTextServer?.label || activeTextServer?.title || null,
       isPublic: false,
     }
 
@@ -287,10 +290,17 @@ export const useStoryStore = defineStore('storyStore', () => {
     }
 
     await chatStore.streamResponse(newChat.id, {
-      model: serverStore.activeTextServer?.model || 'gpt-4o-mini',
       temperature: 0.9,
       maxTokens: 2048,
       serverId: serverStore.activeTextServer?.id ?? null,
+      serverName:
+        serverStore.activeTextServer?.label ||
+        serverStore.activeTextServer?.title ||
+        null,
+      serverSelectionMode: serverStore.activeTextServer
+        ? 'specific'
+        : 'default',
+      generationRequirement: { provider: 'any' },
       messages: buildMessagesForStoryResponse(),
     })
 

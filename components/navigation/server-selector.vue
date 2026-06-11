@@ -2,7 +2,7 @@
 <template>
   <div class="relative inline-flex shrink-0">
     <button
-      class="btn btn-sm btn-ghost flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-100 p-0"
+      class="btn btn-sm btn-ghost flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-100 p-0 sm:h-full sm:w-full sm:min-w-0"
       type="button"
       title="Server settings"
       aria-label="Server settings"

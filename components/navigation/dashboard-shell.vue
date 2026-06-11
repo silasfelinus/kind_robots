@@ -272,7 +272,7 @@
                   />
 
                   <span
-                    class="line-clamp-2 max-w-full wrap-break-wordword text-[0.68rem] font-black normal-case leading-tight drop-shadow xl:text-xs"
+                    class="line-clamp-2 max-w-full wrap-break-word text-[0.68rem] font-black normal-case leading-tight drop-shadow xl:text-xs"
                     :class="
                       activeTabKey === tab.key
                         ? 'text-primary-content'
@@ -289,20 +289,22 @@
           <div v-else class="hidden min-w-0 flex-1 lg:block" />
 
           <section
-            class="header-control-rail flex w-auto shrink-0 flex-col gap-1 self-stretch sm:w-44 sm:gap-2 lg:w-44 xl:w-48 2xl:w-52"
+            class="header-control-rail flex w-auto shrink-0 flex-col gap-1 self-stretch sm:w-40 sm:gap-1.5 lg:w-44 xl:w-48 2xl:w-52"
           >
+            <!-- Row 1: channel + server stretch to fill the rail width -->
             <div
-              class="header-icon-strip flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:gap-2 sm:overflow-hidden sm:p-2"
+              class="header-icon-strip flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:items-stretch sm:gap-1.5 sm:overflow-hidden sm:p-1.5"
             >
-              <channel-select class="shrink-0" />
-              <server-selector class="shrink-0" />
-              <mana-widget class="shrink-0 lg:hidden" />
+              <channel-select class="min-w-0 sm:flex-1" />
+              <server-selector class="min-w-0 sm:flex-1" />
+              <mana-widget class="shrink-0 sm:hidden" />
             </div>
 
+            <!-- Row 2: mana gets its own full-width row from sm up -->
             <div
-              class="hidden min-w-0 items-center justify-end overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:overflow-hidden sm:p-2 lg:flex"
+              class="hidden min-w-0 flex-1 items-center overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:flex sm:overflow-hidden sm:p-1.5"
             >
-              <mana-widget />
+              <mana-widget class="w-full" />
             </div>
           </section>
         </div>

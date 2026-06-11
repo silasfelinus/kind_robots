@@ -4,7 +4,14 @@ import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '@/server/utils/error'
 import { manaGate } from '@/server/utils/manaGate'
 import { estimateTextCostUsd } from '@/server/utils/manaCost'
-import { getServerEndpoint, resolveServer } from '@/server/utils/serverResolver'
+import { resolveServer } from '@/server/utils/serverResolver'
+import { createTextCompletion } from '@/server/utils/textServer'
+import {
+  ServerAccessMode,
+  ServerAuthType,
+  ServerStatus,
+  ServerType,
+} from '~/prisma/generated/prisma/client'
 
 type ChatRole = 'system' | 'user' | 'assistant'
 
@@ -15,6 +22,8 @@ type ChatMessage = {
 
 type BotCafeBody = {
   model?: string
+  provider?: string
+  serverType?: string | null
   messages?: ChatMessage[]
   temperature?: number
   maxTokens?: number
@@ -24,30 +33,55 @@ type BotCafeBody = {
   serverName?: string | null
   chatId?: number | null
   userApiKey?: string | null
+  useOwnResource?: boolean
 }
 
-type OpenAIChatResponse = {
-  id?: string
-  object?: string
-  created?: number
-  model?: string
+type TextResponsePayload = {
   choices?: Array<{
-    index?: number
     message?: {
-      role?: string
       content?: string | null
     }
-    finish_reason?: string | null
   }>
-  usage?: {
-    prompt_tokens?: number
-    completion_tokens?: number
-    total_tokens?: number
-  }
   error?: {
     message?: string
-    type?: string
-    code?: string
+  }
+}
+
+function buildDefaultOpenAiServer(): Server {
+  const now = new Date()
+
+  return {
+    id: 0,
+    createdAt: now,
+    updatedAt: now,
+    title: 'OpenAI',
+    label: 'OpenAI',
+    description: 'Default hosted OpenAI text generation.',
+    category: 'text',
+    serverType: ServerType.OPENAI,
+    accessMode: ServerAccessMode.BACKEND,
+    authType: ServerAuthType.BEARER,
+    baseUrl: 'https://api.openai.com/v1',
+    endpointPath: '/chat/completions',
+    healthPath: null,
+    apiLink: null,
+    apiKey: process.env.OPENAI_API_KEY ?? null,
+    apiKeyName: 'Authorization',
+    model: process.env.OPENAI_TEXT_MODEL || 'gpt-4o-mini',
+    notes: null,
+    designer: 'system',
+    version: null,
+    sortOrder: 0,
+    userId: null,
+    isPublic: false,
+    isOfficial: true,
+    isDefault: true,
+    isActive: true,
+    isEditable: false,
+    isMature: false,
+    lastCheckedAt: null,
+    lastStatus: ServerStatus.UNKNOWN,
+    artPrompt: null,
   }
 }
 
@@ -71,6 +105,34 @@ function normalizeMessages(messages: unknown): ChatMessage[] {
     }))
 }
 
+async function resolveOptionalTextServer(input: {
+  userId: number
+  serverId?: number | null
+  serverName?: string | null
+}): Promise<Server | null> {
+  if (!input.serverId && !input.serverName) return null
+
+  return await resolveServer({
+    userId: input.userId,
+    serverId: input.serverId ?? null,
+    serverName: input.serverName ?? null,
+    capability: 'text',
+  })
+}
+
+function getRuntimeApiKey(options: {
+  userApiKey?: string | null
+  serverApiKey?: string | null
+  runtimeApiKey?: string | null
+}): string {
+  return (
+    options.userApiKey?.trim() ||
+    options.serverApiKey?.trim() ||
+    options.runtimeApiKey?.trim() ||
+    ''
+  )
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<BotCafeBody>(event)
@@ -85,6 +147,7 @@ export default defineEventHandler(async (event) => {
 
     const model = body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-4o-mini'
     const maxTokens = body.max_tokens ?? body.maxTokens ?? 2048
+    const usesOwnResource = Boolean(body.useOwnResource || body.userApiKey)
 
     const gate = await manaGate(event, {
       kind: 'text',
@@ -93,59 +156,48 @@ export default defineEventHandler(async (event) => {
         maxTokens,
       }),
       serverId: body.serverId ?? null,
-      useOwnResource: Boolean(body.userApiKey),
+      useOwnResource: usesOwnResource,
     })
 
-    const server = await resolveOptionalTextServer({
+    const selectedServer = await resolveOptionalTextServer({
       userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
     })
 
-    const endpoint = server
-      ? getOpenAiCompatibleEndpoint(server)
-      : 'https://api.openai.com/v1/chat/completions'
+    const server = selectedServer ?? buildDefaultOpenAiServer()
 
-    const apiKey = getOpenAiCompatibleApiKey({
+    const apiKey = getRuntimeApiKey({
       userApiKey: body.userApiKey,
       serverApiKey: server?.apiKey,
       runtimeApiKey: process.env.OPENAI_API_KEY,
     })
 
-    if (!apiKey) {
+    if (!apiKey && !server) {
       throw createError({
         statusCode: 500,
-        message: 'No OpenAI-compatible API key is configured.',
+        message: 'No text generation API key or text server is configured.',
       })
     }
 
-    const openAiPayload = {
+    const response = await createTextCompletion({
+      server,
+      apiKey,
       model,
       messages,
       temperature: body.temperature ?? 0.7,
       max_tokens: maxTokens,
       stream: false,
-    }
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: apiKey.startsWith('Bearer ')
-          ? apiKey
-          : `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(openAiPayload),
     })
 
-    const raw = (await response.json()) as OpenAIChatResponse
+    const raw = (await response.json()) as TextResponsePayload
 
     if (!response.ok) {
       throw createError({
         statusCode: response.status,
         message:
           raw.error?.message ||
-          `OpenAI request failed with status ${response.status}.`,
+          `Text generation request failed with status ${response.status}.`,
       })
     }
 
@@ -154,7 +206,7 @@ export default defineEventHandler(async (event) => {
     if (!content) {
       throw createError({
         statusCode: 502,
-        message: 'OpenAI returned no assistant content.',
+        message: 'Text generation returned no assistant content.',
       })
     }
 
@@ -179,42 +231,3 @@ export default defineEventHandler(async (event) => {
     return errorHandler(error)
   }
 })
-
-async function resolveOptionalTextServer(input: {
-  userId: number
-  serverId?: number | null
-  serverName?: string | null
-}): Promise<Server | null> {
-  if (!input.serverId && !input.serverName) return null
-
-  return await resolveServer({
-    userId: input.userId,
-    serverId: input.serverId ?? null,
-    serverName: input.serverName ?? null,
-    capability: 'text',
-  })
-}
-
-function getOpenAiCompatibleEndpoint(server: Server): string {
-  const endpoint = getServerEndpoint(server).trim()
-
-  if (!endpoint) return 'https://api.openai.com/v1/chat/completions'
-
-  if (endpoint.endsWith('/chat/completions')) return endpoint
-  if (endpoint.endsWith('/v1')) return `${endpoint}/chat/completions`
-
-  return endpoint
-}
-
-function getOpenAiCompatibleApiKey(options: {
-  userApiKey?: string | null
-  serverApiKey?: string | null
-  runtimeApiKey?: string | null
-}): string {
-  return (
-    options.userApiKey?.trim() ||
-    options.serverApiKey?.trim() ||
-    options.runtimeApiKey?.trim() ||
-    ''
-  )
-}

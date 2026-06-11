@@ -310,6 +310,8 @@
             "
           />
 
+          <text-server-select />
+
           <button
             class="btn btn-success min-h-12 w-full rounded-2xl"
             type="button"

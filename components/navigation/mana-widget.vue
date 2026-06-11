@@ -1,7 +1,7 @@
 <template>
   <div ref="root" class="relative">
     <button
-      class="btn btn-sm btn-ghost btn-square rounded-full sm:btn-auto sm:w-auto sm:gap-2 sm:px-3"
+      class="btn btn-sm btn-ghost btn-square rounded-full sm:btn-auto sm:w-full sm:justify-center sm:gap-2 sm:rounded-xl sm:px-3"
       :class="{ 'animate-pulse': manaStore.refillReady && !manaStore.isFamily }"
       type="button"
       title="Mana"

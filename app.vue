@@ -4,13 +4,17 @@
     class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100 text-base-content"
     style="--hand-h: 11.5rem"
   >
-    <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
-      <kind-loader @pageReady="handlePageReady" />
-    </div>
+    <ClientOnly>
+      <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
+        <kind-loader @pageReady="handlePageReady" />
+      </div>
+    </ClientOnly>
 
-    <butterfly-layer />
-    <animation-layer />
-    <milestone-popup />
+    <ClientOnly>
+      <butterfly-layer />
+      <animation-layer />
+      <milestone-popup />
+    </ClientOnly>
 
     <section
       class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
@@ -100,19 +104,19 @@
       </section>
     </section>
 
-    <Transition name="workspace-hand-slide">
-      <ClientOnly v-if="!chromeMinimized">
-        <workspace-hand />
+    <ClientOnly>
+      <Transition name="workspace-hand-slide">
+        <workspace-hand v-if="!chromeMinimized" />
+      </Transition>
 
-        <template #fallback>
-          <div
-            class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
-          >
-            Loading workspace hand...
-          </div>
-        </template>
-      </ClientOnly>
-    </Transition>
+      <template #fallback>
+        <div
+          class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+        >
+          Loading workspace hand...
+        </div>
+      </template>
+    </ClientOnly>
 
     <button
       type="button"
@@ -149,7 +153,7 @@ const navStore = useNavStore()
 
 const { workspaceSheetOpen } = storeToRefs(navStore)
 
-const showLoader = ref(true)
+const showLoader = ref(false)
 const chromeMinimized = ref(false)
 
 function handlePageReady(): void {
@@ -190,6 +194,8 @@ useSeoMeta({
 })
 
 onMounted(async () => {
+  showLoader.value = true
+
   pageStore.initialize()
 
   await navStore.initialize()

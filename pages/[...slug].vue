@@ -46,8 +46,11 @@
     </p>
   </div>
 
-  <error-popup />
+  <ClientOnly>
+    <error-popup />
+  </ClientOnly>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from '#app'
@@ -116,39 +119,35 @@ const isPageLoading = computed(() => {
   )
 })
 
-watch(
-  contentPath,
-  () => {
+function syncPageStore(): void {
+  if (isPageLoading.value) {
     pageStore.setLoading(true)
-  },
-  { immediate: true },
-)
+    return
+  }
 
-watch(
-  [activePage, status, error, contentPath, pagePayload],
-  () => {
-    if (isPageLoading.value) {
-      pageStore.setLoading(true)
-      return
-    }
+  pageStore.setLoading(false)
 
-    if (error.value) {
-      pageStore.setLoading(false)
-      return
-    }
+  if (error.value) return
 
-    if (activePage.value) {
-      pageStore.setPage(activePage.value)
-      return
-    }
+  if (activePage.value) {
+    pageStore.setPage(activePage.value)
+    return
+  }
 
-    pageStore.clearPage()
-  },
-  { immediate: true },
-)
+  pageStore.clearPage()
+}
 
 onMounted(() => {
   pageStore.initialize()
+  syncPageStore()
+
+  watch(
+    [activePage, status, error, contentPath, pagePayload],
+    () => {
+      syncPageStore()
+    },
+    { flush: 'post' },
+  )
 })
 </script>
 

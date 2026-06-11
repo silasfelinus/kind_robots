@@ -22,7 +22,10 @@
         class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div
-          class="flex min-h-20 min-w-0 items-stretch gap-2 p-2 sm:min-h-28 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4 xl:min-h-40"
+          class="flex min-h-20 min-w-0 items-stretch gap-2 p-2 sm:min-h-28 sm:gap-3 sm:p-3 lg:gap-4 lg:p-4"
+          :class="
+            twoRowTabs ? 'lg:min-h-44 xl:min-h-48' : 'lg:min-h-36 xl:min-h-40'
+          "
         >
           <button
             type="button"
@@ -55,14 +58,14 @@
             </p>
 
             <h1
-              class="truncate text-3xl font-black leading-tight text-base-content lg:text-4xl"
+              class="line-clamp-2 text-xl font-black leading-tight text-base-content xl:text-2xl"
             >
               {{ activeTitle }}
             </h1>
 
             <p
               v-if="activeSummary"
-              class="mt-1 line-clamp-3 text-xs font-medium leading-snug text-base-content/60 sm:text-sm lg:text-[0.95rem]"
+              class="mt-1 line-clamp-2 text-xs font-medium leading-snug text-base-content/60 xl:line-clamp-3 xl:text-sm"
             >
               {{ activeSummary }}
             </p>
@@ -78,10 +81,31 @@
               class="btn btn-primary h-12 min-h-12 w-full min-w-0 justify-between rounded-xl px-3 shadow-sm"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <Icon
-                  :name="activeTabConfig.icon || fallbackIcon"
-                  class="h-5 w-5 shrink-0"
-                />
+                <span
+                  class="h-8 w-8 shrink-0 overflow-hidden rounded-lg ring-1 ring-primary-content/30"
+                >
+                  <img
+                    v-if="
+                      activeTabConfig.image &&
+                      !failedTabImages[activeTabConfig.key]
+                    "
+                    :src="activeTabConfig.image"
+                    :alt="activeTabConfig.label"
+                    class="h-full w-full object-cover"
+                    loading="lazy"
+                    @error="failedTabImages[activeTabConfig.key] = true"
+                  />
+
+                  <span
+                    v-else
+                    class="flex h-full w-full items-center justify-center"
+                  >
+                    <Icon
+                      :name="activeTabConfig.icon || fallbackIcon"
+                      class="h-5 w-5"
+                    />
+                  </span>
+                </span>
 
                 <span class="flex min-w-0 flex-col items-start leading-tight">
                   <span
@@ -182,22 +206,36 @@
             aria-label="Dashboard tabs"
           >
             <div
-              class="tab-scroller flex h-full min-w-0 snap-x snap-proximity items-stretch gap-1.5 overflow-x-auto overscroll-x-contain rounded-2xl border border-base-300 bg-base-200/70 p-1.5"
+              class="tab-scroller h-full min-w-0 overscroll-x-contain rounded-2xl border border-base-300 bg-base-200/70 p-1.5"
+              :class="
+                twoRowTabs
+                  ? 'tab-grid grid gap-1.5 overflow-x-auto'
+                  : 'flex snap-x snap-proximity items-stretch gap-1.5 overflow-x-auto'
+              "
+              :style="
+                twoRowTabs
+                  ? {
+                      gridTemplateRows: '1fr 1fr',
+                      gridTemplateColumns: `repeat(${tabColumnCount}, minmax(6.5rem, 1fr))`,
+                    }
+                  : undefined
+              "
             >
               <button
                 v-for="tab in resolvedTabs"
                 :key="tab.key"
                 type="button"
-                class="group relative isolate h-full min-h-0 flex-1 snap-start overflow-hidden rounded-xl border transition-all"
-                :class="
+                class="group relative isolate h-full min-h-0 min-w-0 overflow-hidden rounded-xl border transition-all"
+                :class="[
+                  twoRowTabs ? '' : 'flex-1 snap-start',
                   activeTabKey === tab.key
                     ? 'border-primary shadow-md ring-2 ring-primary'
-                    : 'border-base-300/60 hover:-translate-y-px hover:border-primary/40 hover:shadow-sm'
-                "
+                    : 'border-base-300/60 hover:-translate-y-px hover:border-primary/40 hover:shadow-sm',
+                ]"
                 :title="tab.summary || tab.title"
                 @click="setTab(tab.key)"
               >
-                <!-- Tab art (icon panel until the generator catches up) -->
+                <!-- Tab art fills the panel; icon only when no art exists -->
                 <img
                   v-if="tab.image && !failedTabImages[tab.key]"
                   :src="tab.image"
@@ -220,11 +258,12 @@
                 />
 
                 <span
-                  class="relative z-10 flex h-full min-w-0 flex-col items-center justify-end gap-0.5 px-1.5 pb-1.5 text-center"
+                  class="relative z-10 flex h-full min-w-0 flex-col items-center justify-end px-1 pb-1 text-center"
                 >
                   <Icon
+                    v-if="!tab.image || failedTabImages[tab.key]"
                     :name="tab.icon || fallbackIcon"
-                    class="h-5 w-5 shrink-0 drop-shadow xl:h-6 xl:w-6"
+                    class="mx-auto mb-1 mt-auto h-6 w-6 shrink-0 drop-shadow"
                     :class="
                       activeTabKey === tab.key
                         ? 'text-primary-content'
@@ -233,7 +272,7 @@
                   />
 
                   <span
-                    class="max-w-full truncate text-xs font-black normal-case leading-tight drop-shadow xl:text-sm"
+                    class="line-clamp-2 max-w-full break-words text-[0.68rem] font-black normal-case leading-tight drop-shadow xl:text-xs"
                     :class="
                       activeTabKey === tab.key
                         ? 'text-primary-content'
@@ -328,6 +367,13 @@ const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   const key = resolvedDashboardKey.value
   return key ? navStore.getDashboardTabs(key) : []
 })
+
+// 6+ tabs wrap to two rows so labels stay legible.
+const twoRowTabs = computed(() => resolvedTabs.value.length >= 6)
+
+const tabColumnCount = computed(() =>
+  Math.max(1, Math.ceil(resolvedTabs.value.length / 2)),
+)
 
 const routeRequestedTabKey = computed(() => {
   const tabKey = (pageStore.dashboardTab || '').trim()
@@ -455,13 +501,14 @@ function toggleChrome(): void {
 }
 
 /* Stretch when few tabs, scroll when many: flex-1 grows to fill,
-   min-width stops the shrink and forces overflow into the scroller. */
-.tab-scroller > button {
+   min-width stops the shrink and forces overflow into the scroller.
+   Grid mode (6+ tabs) sizes via minmax() columns instead. */
+.tab-scroller:not(.tab-grid) > button {
   min-width: 7.5rem;
 }
 
 @media (min-width: 1280px) {
-  .tab-scroller > button {
+  .tab-scroller:not(.tab-grid) > button {
     min-width: 8.5rem;
   }
 }
@@ -487,7 +534,7 @@ function toggleChrome(): void {
 
 .header-slide-enter-to,
 .header-slide-leave-from {
-  max-height: 14rem;
+  max-height: 18rem;
   margin-bottom: 0.75rem;
   opacity: 1;
   transform: translateY(0) scaleY(1);

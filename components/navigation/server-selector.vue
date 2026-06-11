@@ -8,7 +8,7 @@
       aria-label="Server settings"
       @click="openSelector"
     >
-      <Icon name="kind-icon:server" class="h-4 w-4 shrink-0" />
+      <Icon name="kind-icon:server" class="h-6 w-6 shrink-0" />
     </button>
 
     <dialog ref="selectorDialog" class="modal modal-bottom sm:modal-middle">
@@ -22,7 +22,9 @@
             <h2 class="truncate text-lg font-black text-primary sm:text-xl">
               Server Connections
             </h2>
-            <p class="mt-1 text-xs leading-snug text-base-content/60 sm:text-sm">
+            <p
+              class="mt-1 text-xs leading-snug text-base-content/60 sm:text-sm"
+            >
               Pick defaults, save provider keys, and manage local endpoints.
             </p>
           </div>
@@ -95,7 +97,9 @@
           </section>
 
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div
+              class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            >
               <div class="min-w-0">
                 <h3 class="font-black text-primary">Connections</h3>
                 <p class="text-sm leading-snug text-base-content/60">
@@ -114,7 +118,9 @@
             </div>
 
             <div class="mt-3 grid gap-3">
-              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
+              <article
+                class="rounded-2xl border border-base-300 bg-base-100 p-3"
+              >
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">OpenAI</p>
@@ -188,7 +194,9 @@
                 </form>
               </article>
 
-              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
+              <article
+                class="rounded-2xl border border-base-300 bg-base-100 p-3"
+              >
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">Anthropic</p>
@@ -253,12 +261,16 @@
                 :key="server.id"
                 class="rounded-2xl border border-base-300 bg-base-100 p-3"
               >
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div
+                  class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div class="min-w-0">
                     <p class="truncate font-black">
                       {{ server.label || server.title }}
                     </p>
-                    <p class="break-words text-xs leading-snug text-base-content/60">
+                    <p
+                      class="break-words text-xs leading-snug text-base-content/60"
+                    >
                       {{ localServerLabel(server.serverType) }}
                       <span v-if="server.baseUrl"> · {{ server.baseUrl }}</span>
                     </p>

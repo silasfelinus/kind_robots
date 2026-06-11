@@ -14,7 +14,7 @@ const requireEnv = (key: string) => {
 export default defineNuxtConfig({
   compatibilityDate: '2026-06-01',
   sourcemap: {
-    server: true,
+    server: false,
     client: false,
   },
 

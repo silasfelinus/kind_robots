@@ -343,7 +343,17 @@ onMounted(() => {
 
   logSlug('mounted')
 
-  if (canRetryEmptyPage.value) {
+  // SSR query failed but the client has its own local content DB —
+  // re-run the query in the browser, where it will succeed.
+  if (error.value) {
+    logSlug('mounted:retrying-after-ssr-error')
+    isRetryingPage.value = true
+    void refresh()
+      .then(() => nextTick())
+      .finally(() => {
+        isRetryingPage.value = false
+      })
+  } else if (canRetryEmptyPage.value) {
     scheduleEmptyPageRetry('mounted empty page fallback')
   }
 })

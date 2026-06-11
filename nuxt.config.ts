@@ -13,6 +13,11 @@ const requireEnv = (key: string) => {
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-06-01',
+  content: {
+    experimental: {
+      sqliteConnector: 'native',
+    },
+  },
   sourcemap: {
     server: false,
     client: false,

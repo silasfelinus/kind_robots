@@ -30,11 +30,11 @@
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"
   },
   "devDependencies": {
-    "@interactjs/types": "^1.10.27",
+    "@nuxt/eslint": "^1.1.0",
     "@nuxt/icon": "^2.2.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
-    "@types/bcrypt": "^6.0.0",
+    "@types/node": "24.x",
     "@vitejs/plugin-vue": "^6.0.6",
     "cypress": "^15.13.1",
     "daisyui": "^5.5.19",
@@ -54,23 +54,17 @@
     "vue-tsc": "^2.1.10"
   },
   "dependencies": {
-    "@interactjs/interact": "^1.10.27",
     "@nuxt/content": "^3.3.0",
-    "@nuxt/eslint": "^1.1.0",
     "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.3",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@stripe/stripe-js": "^9.1.0",
-    "@types/node": "24.x",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.9.0",
     "canvas-confetti": "^1.9.3",
     "esbuild": "^0.28.0",
-    "interactjs": "^1.10.27",
     "jose": "^6.2.2",
     "mariadb": "^3.5.2",
-    "mysql2": "^3.16.0",
     "nuxt": "4.4.8",
     "open-simplex-noise": "^2.5.0",
     "pinia": "^3.0.4",
@@ -78,11 +72,22 @@
   },
   "overrides": {
     "vue": "^3.5.13",
-    "oxc-parser": "0.117.0"
+    "oxc-parser": "0.117.0",
+    "@hono/node-server": "^1.19.13"
   },
   "type": "module",
   "engines": {
     "node": "24.x",
     "npm": "11.x"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true,
+    "esbuild@0.28.0": true,
+    "@parcel/watcher@2.5.6": true,
+    "@prisma/engines@7.8.0": true,
+    "cypress@15.17.0": true,
+    "prisma@7.8.0": true,
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true
   }
 }

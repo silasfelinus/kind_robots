@@ -3,7 +3,7 @@
   <div ref="menuRef" class="relative">
     <button
       ref="buttonRef"
-      class="btn btn-sm flex h-9 min-h-9 w-12 min-w-12 shrink-0 items-center justify-center gap-1 rounded-xl px-2"
+      class="btn btn-sm flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center gap-0 rounded-xl p-0 sm:w-14 sm:min-w-14 sm:gap-1 sm:px-1.5"
       :class="
         showMenu
           ? 'btn-secondary'
@@ -14,10 +14,10 @@
       :title="`Explore: ${activeChannel.label}`"
       @click.stop="toggleMenu"
     >
-      <Icon :name="activeChannel.icon" class="h-4 w-4 shrink-0" />
+      <Icon :name="activeChannel.icon" class="h-6 w-6 shrink-0" />
       <Icon
         :name="showMenu ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-        class="h-3.5 w-3.5 shrink-0 opacity-50"
+        class="hidden h-3.5 w-3.5 shrink-0 opacity-50 sm:block"
       />
     </button>
 

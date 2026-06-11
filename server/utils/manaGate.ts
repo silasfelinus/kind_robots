@@ -1,6 +1,7 @@
 // /server/utils/manaGate.ts
 import { createError, type H3Event } from 'h3'
 import prisma from './prisma'
+import { requireApiUser } from './authGuard'
 
 type ManaGateKind = 'text' | 'art' | 'video' | 'model' | 'free'
 
@@ -8,12 +9,14 @@ type ManaGateInput = {
   kind: ManaGateKind
   estCostUsd?: number
   serverId?: number | null
+  useOwnResource?: boolean
 }
 
 type ManaGateResult = {
   user: {
     id: number
     mana: number | null
+    Role?: string | null
   }
   cost: number
   free: boolean
@@ -29,38 +32,33 @@ export async function manaGate(
   event: H3Event,
   input: ManaGateInput,
 ): Promise<ManaGateResult> {
-  const authorizationHeader = event.node.req.headers.authorization
+  const auth = await requireApiUser(event)
 
-  if (!authorizationHeader?.startsWith('Bearer ')) {
-    throw createError({
-      statusCode: 401,
-      message:
-        'Authorization token is required in the format "Bearer <token>".',
-    })
-  }
-
-  const token = authorizationHeader.split(' ')[1] ?? ''
-
-  const user = await prisma.user.findFirst({
+  const user = await prisma.user.findUnique({
     where: {
-      apiKey: token,
+      id: auth.user.id,
     },
     select: {
       id: true,
       mana: true,
+      Role: true,
     },
   })
 
   if (!user) {
     throw createError({
       statusCode: 401,
-      message: 'Invalid or expired authorization token.',
+      message: 'Authorization user was not found.',
     })
   }
 
-  const free = await isFreeServerForUser({
+  const free = await isFreeGeneration({
     userId: user.id,
     serverId: input.serverId ?? null,
+    useOwnResource: input.useOwnResource ?? false,
+    isAdmin: auth.isAdmin,
+    isServerKey: auth.isServerKey,
+    kind: input.kind,
   })
 
   const cost = free
@@ -106,6 +104,25 @@ export async function manaGate(
       }
     },
   }
+}
+
+async function isFreeGeneration(input: {
+  userId: number
+  serverId?: number | null
+  useOwnResource: boolean
+  isAdmin: boolean
+  isServerKey: boolean
+  kind: ManaGateKind
+}): Promise<boolean> {
+  if (input.kind === 'free') return true
+  if (input.useOwnResource) return true
+  if (input.isAdmin) return true
+  if (input.isServerKey) return true
+
+  return await isFreeServerForUser({
+    userId: input.userId,
+    serverId: input.serverId ?? null,
+  })
 }
 
 async function isFreeServerForUser(input: {

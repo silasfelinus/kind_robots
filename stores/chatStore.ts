@@ -266,12 +266,51 @@ export const useChatStore = defineStore('chatStore', () => {
   const userStore = useUserStore()
   const serverStore = useServerStore()
 
+  function cleanBearerToken(token?: string | null): string | null {
+    const cleanToken = token?.trim()
+
+    if (!cleanToken) return null
+
+    return cleanToken.replace(/^Bearer\s+/i, '').trim()
+  }
+
   function buildJsonAuthHeaders(): HeadersInit {
-    const token = userStore.token?.trim()
+    const token = cleanBearerToken(userStore.token)
 
     return {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    }
+  }
+
+  async function prepareStreamingAuth(): Promise<void> {
+    if (!userStore.initialized) {
+      await userStore.initialize()
+    }
+
+    if (userStore.token) {
+      const tokenIsValid = await userStore.validateAndFetchUserData()
+
+      if (tokenIsValid) return
+
+      userStore.logout()
+    }
+
+    if (userStore.isGuest) {
+      const promo = await userStore.ensureRealUser()
+
+      if (!promo.success) {
+        throw new Error(
+          promo.message ||
+            'We could not set up your account for generating. Please try again.',
+        )
+      }
+
+      void useManaStore().fetch()
+    }
+
+    if (!userStore.token) {
+      throw new Error('We could not prepare an authorization token.')
     }
   }
 
@@ -783,20 +822,7 @@ export const useChatStore = defineStore('chatStore', () => {
     chatId: number,
     options: StreamResponseOptions = {},
   ): Promise<string> {
-    if (!userStore.initialized) {
-      await userStore.initialize()
-    }
-
-    if (userStore.isGuest) {
-      const promo = await userStore.ensureRealUser()
-      if (!promo.success) {
-        throw new Error(
-          promo.message ||
-            'We could not set up your account for generating. Please try again.',
-        )
-      }
-      void useManaStore().fetch()
-    }
+    await prepareStreamingAuth()
 
     const chat = chats.value.find((entry) => entry.id === chatId)
 
@@ -829,7 +855,6 @@ export const useChatStore = defineStore('chatStore', () => {
           buildStreamPayload(chatId, messages, runtimeOptions, billing),
         ),
       })
-
       if (!response.ok) {
         let message = `Bot response failed with status ${response.status}.`
 

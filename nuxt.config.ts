@@ -36,45 +36,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
     '@nuxt/image',
-    'nuxt-oidc-auth',
   ],
-
-  oidc: {
-    defaultProvider: 'oidc',
-
-    providers: {
-      oidc: {
-        clientId: requireEnv('AUTHELIA_CLIENT_ID'),
-        clientSecret: requireEnv('AUTHELIA_CLIENT_SECRET'),
-        redirectUri: requireEnv('NUXT_OIDC_REDIRECT_URI'),
-
-        authorizationUrl:
-          'https://auth.acrocatranch.com/api/oidc/authorization',
-        tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',
-        userInfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
-
-        scope: ['openid', 'profile', 'email'],
-        responseType: 'code',
-        grantType: 'authorization_code',
-        authenticationScheme: 'header',
-        tokenRequestType: 'form',
-        pkce: true,
-        state: true,
-        nonce: true,
-        userNameClaim: 'preferred_username',
-      },
-    },
-
-    session: {
-      expirationCheck: true,
-      automaticRefresh: true,
-    },
-
-    middleware: {
-      globalMiddlewareEnabled: false,
-      customLoginPage: false,
-    },
-  },
 
   components: [
     {

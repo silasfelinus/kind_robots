@@ -265,7 +265,7 @@
               <div
                 class="flex h-9 w-9 shrink-0 items-center justify-center self-end rounded-full border border-base-300 bg-base-100"
               >
-                <Icon name="kind-icon:weird" class="h-5 w-5 text-secondary" />
+                <Icon name="kind-icon:alien" class="h-5 w-5 text-secondary" />
               </div>
 
               <div

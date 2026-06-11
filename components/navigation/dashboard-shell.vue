@@ -272,7 +272,7 @@
                   />
 
                   <span
-                    class="line-clamp-2 max-w-full break-words text-[0.68rem] font-black normal-case leading-tight drop-shadow xl:text-xs"
+                    class="line-clamp-2 max-w-full wrap-break-wordword text-[0.68rem] font-black normal-case leading-tight drop-shadow xl:text-xs"
                     :class="
                       activeTabKey === tab.key
                         ? 'text-primary-content'

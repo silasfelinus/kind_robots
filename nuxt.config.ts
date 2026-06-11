@@ -12,7 +12,11 @@ const requireEnv = (key: string) => {
 }
 
 export default defineNuxtConfig({
-  compatibilityDate: '2024-08-13',
+  compatibilityDate: '2026-06-01',
+  sourcemap: {
+    server: true,
+    client: false,
+  },
 
   vite: {
     plugins: [tailwindcss()],
@@ -136,24 +140,13 @@ export default defineNuxtConfig({
         console.log('Skipping component JSON generation in production mode.')
         return
       }
-
-      const { exec } = await import('node:child_process')
-
-      exec(
-        'node utils/scripts/create-component-json.mjs',
-        (error, stdout, stderr) => {
-          if (error) {
-            console.error('Failed to generate components JSON:', error)
-            return
-          }
-
-          if (stderr) {
-            console.error('stderr:', stderr)
-          }
-
-          console.log(stdout)
-        },
-      )
+      const { execSync } = await import('node:child_process')
+      try {
+        const out = execSync('node utils/scripts/create-component-json.mjs')
+        console.log(out.toString())
+      } catch (err) {
+        console.error('Failed to generate components JSON:', err)
+      }
     },
   },
 })

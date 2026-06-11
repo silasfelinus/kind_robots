@@ -1,16 +1,11 @@
 // /stores/characterStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { Character } from '~/prisma/generated/prisma/client'
+import type { Character, Rarity } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import {
-  randomizerMap,
-  getRandomValue,
-  rerollStats,
-  type RandomizerKeys,
-} from '@/stores/helpers/characterHelper'
+import { useGeneratorStore } from '@/stores/generatorStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -31,6 +26,50 @@ const characterFormStorageKey = 'characterForm'
 const useGeneratedStorageKey = 'useGenerated'
 const selectedCharacterStorageKey = 'selectedCharacter'
 const characterPlaceholder = '/images/character-placeholder.webp'
+
+type CharacterStatKey =
+  | 'luck'
+  | 'might'
+  | 'wits'
+  | 'grace'
+  | 'charm'
+  | 'empathy'
+
+const characterRandomFields = [
+  'name',
+  'honorific',
+  'class',
+  'genre',
+  'species',
+  'personality',
+  'backstory',
+  'quirks',
+] as const
+
+type CharacterRandomField = (typeof characterRandomFields)[number]
+
+function randomRarity(): Rarity {
+  const roll = Math.random()
+
+  if (roll < 0.45) return 'COMMON'
+  if (roll < 0.7) return 'UNCOMMON'
+  if (roll < 0.87) return 'RARE'
+  if (roll < 0.96) return 'EPIC'
+  if (roll < 0.995) return 'LEGENDARY'
+
+  return 'MYTHIC'
+}
+
+function rerollStats(): Record<CharacterStatKey, Rarity> {
+  return {
+    luck: randomRarity(),
+    might: randomRarity(),
+    wits: randomRarity(),
+    grace: randomRarity(),
+    charm: randomRarity(),
+    empathy: randomRarity(),
+  }
+}
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
@@ -142,15 +181,19 @@ export const useCharacterStore = defineStore('characterStore', () => {
     lastError.value = null
   }
 
-  function generateDefaultCharacter() {
-    const base = Object.fromEntries(
-      Object.keys(randomizerMap).map((key) => [
-        key,
-        getRandomValue(key as RandomizerKeys),
-      ]),
-    )
+  function generateDefaultCharacter(): Partial<Character> {
+    const generator = useGeneratorStore()
 
-    return base as Partial<Character>
+    const base: Partial<Character> = {}
+
+    for (const field of characterRandomFields) {
+      base[field] = generator.generateOne(field)
+    }
+
+    return {
+      ...base,
+      ...rerollStats(),
+    }
   }
 
   function createDefaultCharacterForm(

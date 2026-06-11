@@ -93,6 +93,7 @@ export default defineEventHandler(async (event) => {
         maxTokens,
       }),
       serverId: body.serverId ?? null,
+      useOwnResource: Boolean(body.userApiKey),
     })
 
     const server = await resolveOptionalTextServer({

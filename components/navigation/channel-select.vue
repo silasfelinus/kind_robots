@@ -1,29 +1,23 @@
 <!-- /components/content/navigation/channel-select.vue -->
 <template>
   <div ref="menuRef" class="relative">
-<button
-  ref="buttonRef"
-  class="btn btn-sm flex h-9 min-h-9 w-12 min-w-12 shrink-0 items-center justify-center gap-1 rounded-xl px-2"
-  :class="
-    showMenu
-      ? 'btn-secondary'
-      : 'btn-ghost border border-base-300 bg-base-100'
-  "
-  type="button"
-  :aria-expanded="showMenu"
-  :title="`Explore: ${activeChannel.label}`"
-  @click.stop="toggleMenu"
->
-  <Icon :name="activeChannel.icon" class="h-4 w-4 shrink-0" />
-  <Icon
-    :name="showMenu ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-    class="h-3.5 w-3.5 shrink-0 opacity-50"
-  />
-</button>
+    <button
+      ref="buttonRef"
+      class="btn btn-sm flex h-9 min-h-9 w-12 min-w-12 shrink-0 items-center justify-center gap-1 rounded-xl px-2"
+      :class="
+        showMenu
+          ? 'btn-secondary'
+          : 'btn-ghost border border-base-300 bg-base-100'
+      "
+      type="button"
+      :aria-expanded="showMenu"
+      :title="`Explore: ${activeChannel.label}`"
+      @click.stop="toggleMenu"
+    >
       <Icon :name="activeChannel.icon" class="h-4 w-4 shrink-0" />
       <Icon
         :name="showMenu ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-        class="h-3.5 w-3.5 opacity-50"
+        class="h-3.5 w-3.5 shrink-0 opacity-50"
       />
     </button>
 
@@ -32,7 +26,7 @@
         <div
           v-if="showMenu"
           ref="panelRef"
-          class="fixed z-90 max-h-[min(36rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+          class="fixed z-[90] max-h-[min(36rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
           :style="menuStyle"
           @click.stop
         >
@@ -380,7 +374,7 @@ const bottomProjectChannels: ChannelRoute[] = [
     label: 'Lab',
     path: '/memory',
     icon: 'kind-icon:dungeon',
-    summary: 'Explore behind the scenes, and play our match game',
+    summary: 'Explore behind the scenes, and play our match game.',
   },
 ]
 

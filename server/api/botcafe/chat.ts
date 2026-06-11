@@ -47,6 +47,73 @@ type TextResponsePayload = {
   }
 }
 
+function cleanProviderKey(value?: string | null): string {
+  return (
+    value
+      ?.trim()
+      .replace(/^Bearer\s+/i, '')
+      .trim() || ''
+  )
+}
+
+function looksLikeOpenAiKey(value: string): boolean {
+  return value.startsWith('sk-')
+}
+
+function looksLikeAnthropicKey(value: string): boolean {
+  return value.startsWith('sk-ant-')
+}
+
+function getProviderApiKey(options: {
+  server: Server
+  userApiKey?: string | null
+}): string {
+  const userApiKey = cleanProviderKey(options.userApiKey)
+  const serverApiKey = cleanProviderKey(options.server.apiKey)
+  const runtimeOpenAiKey = cleanProviderKey(process.env.OPENAI_API_KEY)
+
+  if (userApiKey) return userApiKey
+  if (serverApiKey) return serverApiKey
+
+  if (options.server.serverType === 'OPENAI') {
+    return runtimeOpenAiKey
+  }
+
+  return ''
+}
+
+function assertProviderKeyMatchesServer(options: {
+  server: Server
+  apiKey: string
+}) {
+  const { server, apiKey } = options
+
+  if (server.authType === 'NONE') return
+
+  if (!apiKey) {
+    throw createError({
+      statusCode: 500,
+      message: `No provider API key configured for ${server.label || server.title}.`,
+    })
+  }
+
+  if (server.serverType === 'OPENAI' && !looksLikeOpenAiKey(apiKey)) {
+    throw createError({
+      statusCode: 500,
+      message:
+        'OpenAI provider key is invalid. Expected an OpenAI key starting with "sk-". The app authorization key is probably being used as the provider key.',
+    })
+  }
+
+  if (server.serverType === 'ANTHROPIC' && !looksLikeAnthropicKey(apiKey)) {
+    throw createError({
+      statusCode: 500,
+      message:
+        'Anthropic provider key is invalid. Expected an Anthropic key starting with "sk-ant-".',
+    })
+  }
+}
+
 function buildDefaultOpenAiServer(): Server {
   const now = new Date()
 
@@ -167,10 +234,14 @@ export default defineEventHandler(async (event) => {
 
     const server = selectedServer ?? buildDefaultOpenAiServer()
 
-    const apiKey = getRuntimeApiKey({
+    const apiKey = getProviderApiKey({
+      server,
       userApiKey: body.userApiKey,
-      serverApiKey: server?.apiKey,
-      runtimeApiKey: process.env.OPENAI_API_KEY,
+    })
+
+    assertProviderKeyMatchesServer({
+      server,
+      apiKey,
     })
 
     if (!apiKey && !server) {
@@ -179,6 +250,22 @@ export default defineEventHandler(async (event) => {
         message: 'No text generation API key or text server is configured.',
       })
     }
+
+    console.info('[botcafe/chat] text server', {
+      authUserId: gate.user.id,
+      selectedServerId: selectedServer?.id ?? null,
+      serverId: server.id,
+      serverTitle: server.title,
+      serverType: server.serverType,
+      serverCategory: server.category,
+      serverAccessMode: server.accessMode,
+      serverAuthType: server.authType,
+      providerKeyPrefix: apiKey.slice(0, 6),
+      providerKeyLength: apiKey.length,
+      bodyHasUserApiKey: Boolean(body.userApiKey),
+      manaFree: gate.free,
+      manaCost: gate.cost,
+    })
 
     const response = await createTextCompletion({
       server,

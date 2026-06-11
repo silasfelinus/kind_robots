@@ -563,7 +563,9 @@ export const useChatStore = defineStore('chatStore', () => {
   function serverUsesOwnResource(server: Server | null | undefined): boolean {
     if (!server) return false
     if (!server.isActive) return false
+
     if (server.userId && server.userId === userStore.userId) return true
+    if (!server.isOfficial && !server.isPublic) return true
     if (server.isPublic && !server.isOfficial) return true
 
     return (
@@ -577,25 +579,24 @@ export const useChatStore = defineStore('chatStore', () => {
   function resolveTextBilling(options: StreamResponseOptions): TextBilling {
     const server = getSelectedTextServer(options)
     const serverId = server?.id ?? null
+    const ownKey = options.userApiKey ?? null
 
     if (typeof options.useOwnResource === 'boolean') {
       return {
         useOwnResource: options.useOwnResource,
-        userApiKey: options.userApiKey ?? null,
+        userApiKey: ownKey,
         serverId,
       }
     }
 
-    const ownKey = options.userApiKey ?? userStore.apiKey ?? null
     const useOwnResource = Boolean(ownKey) || serverUsesOwnResource(server)
 
     return {
       useOwnResource,
-      userApiKey: useOwnResource ? ownKey : null,
+      userApiKey: ownKey,
       serverId,
     }
   }
-
   function extractBotText(payload: BotCafeResponse): string {
     if (typeof payload.content === 'string' && payload.content.trim()) {
       return payload.content

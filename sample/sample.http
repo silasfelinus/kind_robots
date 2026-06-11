@@ -1,3 +1,6 @@
+@admintoken = {{$dotenv ADMIN_TOKEN}}
+@usertoken = {{$dotenv USER_TOKEN}}
+
 // @ts-nocheck
 /* eslint-disable */
 // test-ignore
@@ -6,7 +9,7 @@
 ### Create a SampleModel (POST single entry)
 POST https://kind-robots.vercel.app/api/sampleModels
 Content-Type: application/json
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer {{ usertoken }}
 
 {
   "title": "Test SampleModel",
@@ -22,7 +25,7 @@ Authorization: Bearer YOUR_API_KEY
 ### Seed Multiple SampleModels (POST batch)
 POST https://kind-robots.vercel.app/api/sampleModels
 Content-Type: application/json
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer {{ usertoken }}
 
 [
   {
@@ -56,7 +59,7 @@ GET https://kind-robots.vercel.app/api/sampleModels/1
 ### Update SampleModel by ID (requires auth)
 PATCH https://kind-robots.vercel.app/api/sampleModels/1
 Content-Type: application/json
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer {{ usertoken }}
 
 {
   "label": "Updated Label",
@@ -67,7 +70,7 @@ Authorization: Bearer YOUR_API_KEY
 
 ### Delete SampleModel by ID (requires auth)
 DELETE https://kind-robots.vercel.app/api/sampleModels/1
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer {{ usertoken }}
 
 ###
 

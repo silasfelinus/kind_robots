@@ -3,12 +3,7 @@ import { createError, type H3Event, getHeader } from 'h3'
 import prisma from './prisma'
 import { validateApiKey } from './validateKey'
 import { verifyJwtToken } from '@/server/api/auth'
-
-export type AuthUser = {
-  id: number
-  username?: string | null
-  Role?: string | null
-}
+import { type AuthUser, userIsAdmin, withAdminFlag } from './authUser'
 
 export type AuthGuardResult = {
   user: AuthUser
@@ -30,6 +25,14 @@ function readBearerToken(event: H3Event): string {
   return cleanBearer(getHeader(event, 'authorization'))
 }
 
+async function getUserById(id: number): Promise<AuthUser | null> {
+  const user = await prisma.user.findUnique({
+    where: { id },
+  })
+
+  return user ? withAdminFlag(user) : null
+}
+
 async function validateJwtString(
   token: string,
 ): Promise<AuthGuardResult | null> {
@@ -39,39 +42,24 @@ async function validateJwtString(
 
   if (!verification.success || !verification.userId) return null
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: verification.userId,
-    },
-    select: {
-      id: true,
-      username: true,
-      Role: true,
-    },
-  })
+  const user = await getUserById(verification.userId)
 
-  if (!user) return null
-
-  const isAdmin = user.Role === 'ADMIN' || user.id === 1
+  if (!user || !user.isActive) return null
 
   return {
     user,
     kind: 'jwt',
-    isAdmin,
+    isAdmin: user.isAdmin,
     isServerKey: false,
   }
 }
 
-export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {
+export async function getOptionalApiUser(
+  event: H3Event,
+): Promise<AuthGuardResult | null> {
   const token = readBearerToken(event)
 
-  if (!token) {
-    throw createError({
-      statusCode: 401,
-      message:
-        'Authorization token is required in the format "Bearer <token>".',
-    })
-  }
+  if (!token) return null
 
   const jwtAuth = await validateJwtString(token)
 
@@ -79,20 +67,14 @@ export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {
 
   const apiAuth = await validateApiKey(event)
 
-  if (!apiAuth.isValid || !apiAuth.user?.id) {
-    throw createError({
-      statusCode: 401,
-      message: 'Invalid or expired authorization token.',
-    })
-  }
+  if (!apiAuth.isValid || !apiAuth.user?.id) return null
 
-  const user = {
-    id: apiAuth.user.id,
-    Role: apiAuth.user.Role ?? null,
-  }
+  const user = await getUserById(apiAuth.user.id)
+
+  if (!user || !user.isActive) return null
 
   const isServerKey = apiAuth.kind === 'server'
-  const isAdmin = user.Role === 'ADMIN' || user.id === 1
+  const isAdmin = userIsAdmin(user)
 
   return {
     user,
@@ -100,4 +82,17 @@ export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {
     isAdmin,
     isServerKey,
   }
+}
+
+export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {
+  const auth = await getOptionalApiUser(event)
+
+  if (!auth) {
+    throw createError({
+      statusCode: 401,
+      message: 'Invalid or expired authorization token.',
+    })
+  }
+
+  return auth
 }

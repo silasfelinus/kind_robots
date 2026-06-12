@@ -14,6 +14,7 @@
       <butterfly-layer />
       <animation-layer />
       <milestone-popup />
+      <login-manager />
     </ClientOnly>
 
     <section

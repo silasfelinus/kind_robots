@@ -22,6 +22,7 @@ type OllamaStreamBody = {
   serverId?: number | null
   serverName?: string | null
   chatId?: number | string | null
+  useOwnResource?: boolean
 }
 
 type StreamManaResult = {
@@ -35,15 +36,16 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<OllamaStreamBody>(event)
     const config = useRuntimeConfig()
     const model = body.model || 'llama3.2'
+    const maxTokens = body.maxTokens ?? 1024
 
     const gate = await manaGate(event, {
       kind: 'text',
-      estCostUsd: estimateTextCostUsd({
-        provider: 'ollama',
+      estCostUsd: estimateOllamaTextCostUsd({
         model,
-        maxTokens: body.maxTokens ?? 1024,
+        maxTokens,
       }),
       serverId: body.serverId ?? null,
+      useOwnResource: body.useOwnResource ?? true,
     })
 
     const server = await resolveServer({
@@ -64,22 +66,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const messages = body.messages?.length
-      ? body.messages
-      : [
-          ...(body.system
-            ? [{ role: 'system' as const, content: body.system }]
-            : []),
-          { role: 'user' as const, content: body.prompt ?? '' },
-        ]
+    const messages = normalizeMessages(body)
 
     const payload = {
       model,
       messages,
       stream: true,
       options: {
-        temperature: body.temperature,
-        num_predict: body.maxTokens,
+        temperature: body.temperature ?? 0.7,
+        num_predict: maxTokens,
       },
     }
 
@@ -110,10 +105,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    setHeader(event, 'Content-Type', 'application/x-ndjson')
-    setHeader(event, 'Cache-Control', 'no-cache, no-transform')
-    setHeader(event, 'Connection', 'keep-alive')
-    setHeader(event, 'X-Accel-Buffering', 'no')
+    setStreamHeaders(event, 'application/x-ndjson')
 
     return sendMeteredStream(event, upstream.body, async () => {
       const refId = body.chatId ? `chat:${body.chatId}` : `ollama:${Date.now()}`
@@ -126,14 +118,7 @@ export default defineEventHandler(async (event) => {
       }
     })
   } catch (error) {
-    const statusCode =
-      typeof error === 'object' &&
-      error !== null &&
-      'statusCode' in error &&
-      typeof error.statusCode === 'number'
-        ? error.statusCode
-        : 500
-
+    const statusCode = getErrorStatusCode(error)
     const message = error instanceof Error ? error.message : 'Unknown error'
 
     console.error('[ollama/stream] error:', message)
@@ -144,6 +129,20 @@ export default defineEventHandler(async (event) => {
     })
   }
 })
+
+function normalizeMessages(body: OllamaStreamBody) {
+  if (body.messages?.length) {
+    return body.messages
+  }
+
+  return [
+    ...(body.system ? [{ role: 'system' as const, content: body.system }] : []),
+    {
+      role: 'user' as const,
+      content: body.prompt ?? '',
+    },
+  ]
+}
 
 function normalizeOllamaChatEndpoint(url: string): string {
   const cleanUrl = url.trim().replace(/\/+$/, '')
@@ -184,6 +183,13 @@ function buildServerHeaders(server: {
   }
 
   return headers
+}
+
+function setStreamHeaders(event: H3Event, contentType: string) {
+  setHeader(event, 'Content-Type', contentType)
+  setHeader(event, 'Cache-Control', 'no-cache, no-transform')
+  setHeader(event, 'Connection', 'keep-alive')
+  setHeader(event, 'X-Accel-Buffering', 'no')
 }
 
 function sendMeteredStream(
@@ -230,12 +236,20 @@ function sendMeteredStream(
   return new Promise(() => {})
 }
 
-function estimateTextCostUsd(input: {
-  provider: string
+function estimateOllamaTextCostUsd(input: {
   model: string
   maxTokens: number
 }): number {
   const maxTokens = Math.max(1, input.maxTokens)
 
   return (maxTokens / 1_000_000) * 1
+}
+
+function getErrorStatusCode(error: unknown) {
+  return typeof error === 'object' &&
+    error !== null &&
+    'statusCode' in error &&
+    typeof error.statusCode === 'number'
+    ? error.statusCode
+    : 500
 }

@@ -1,10 +1,4 @@
 // /stores/storyStore.ts
-// Single source of truth for the live Weirdlandia story session.
-// scenario-interact and anything else render from this store.
-// Phase is derived:
-//   story     — a session is running or has chats
-//   configure — a scenario is selected, no session yet
-//   browse    — nothing selected
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
@@ -30,6 +24,19 @@ export type StoryMessage = {
   content: string
 }
 
+export type StoryReplyOption = {
+  id: string
+  label: string
+  text: string
+  raw: string
+}
+
+export type StoryDisplayChat = StorySessionChat & {
+  displayResponse: string
+  replyOptions: StoryReplyOption[]
+  isStreaming: boolean
+}
+
 type ChatRuntimeInput = Parameters<
   ReturnType<typeof useChatStore>['addChat']
 >[0]
@@ -38,6 +45,114 @@ type PersistedSession = {
   sessionChatIds: number[]
   storyRunning: boolean
   customDirection: string
+}
+
+function normalizeChoiceText(value: string): string {
+  return value.replace(/\s+/g, ' ').trim().toLowerCase()
+}
+
+function stripMarkdown(value: string): string {
+  return value
+    .replace(/\*\*/g, '')
+    .replace(/__/g, '')
+    .replace(/`/g, '')
+    .replace(/^\s*[-*]\s+/, '')
+    .trim()
+}
+
+function cleanOptionText(value: string): string {
+  return stripMarkdown(value)
+    .replace(/^["“”]+|["“”]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function isOptionLine(line: string): boolean {
+  const trimmed = line.trim()
+
+  return (
+    /^\d+[.)]\s+/.test(trimmed) ||
+    /^[A-Ea-e][.)]\s+/.test(trimmed) ||
+    /^[-*]\s+\*\*.+\*\*/.test(trimmed)
+  )
+}
+
+function isChoiceHeader(line: string): boolean {
+  const clean = stripMarkdown(line).toLowerCase()
+
+  return (
+    clean.includes('what do you do next') ||
+    clean.includes('what will you do') ||
+    clean.includes('choose your next') ||
+    clean.includes('next options') ||
+    clean.includes('options')
+  )
+}
+
+function optionFromLine(line: string, index: number): StoryReplyOption | null {
+  const trimmed = line.trim()
+
+  const numbered = trimmed.match(/^(\d+)[.)]\s+(.+)$/)
+  const lettered = trimmed.match(/^([A-Ea-e])[.)]\s+(.+)$/)
+  const bulleted = trimmed.match(/^[-*]\s+(.+)$/)
+
+  const label = numbered?.[1]
+    ? `Option ${numbered[1]}`
+    : lettered?.[1]
+      ? `Option ${lettered[1].toUpperCase()}`
+      : `Option ${index + 1}`
+
+  const raw = numbered?.[2] || lettered?.[2] || bulleted?.[1] || ''
+
+  if (!raw) return null
+
+  const text = cleanOptionText(raw)
+
+  if (!text) return null
+
+  return {
+    id: `${index}-${text.slice(0, 32).replace(/[^a-z0-9]+/gi, '-')}`,
+    label,
+    text,
+    raw: trimmed,
+  }
+}
+
+function parseStoryReplyOptions(text?: string | null): StoryReplyOption[] {
+  if (!text) return []
+
+  const lines = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+  const firstHeaderIndex = lines.findIndex(isChoiceHeader)
+  const searchLines =
+    firstHeaderIndex >= 0 ? lines.slice(firstHeaderIndex + 1) : lines
+
+  return searchLines
+    .map((line, index) => optionFromLine(line, index))
+    .filter((option): option is StoryReplyOption => Boolean(option))
+    .slice(0, 5)
+}
+
+function storyTextWithoutReplyOptions(text?: string | null): string {
+  if (!text) return ''
+
+  const lines = text.split('\n')
+  const firstChoiceHeaderIndex = lines.findIndex(isChoiceHeader)
+  const firstOptionIndex = lines.findIndex(isOptionLine)
+
+  const cutIndex =
+    firstChoiceHeaderIndex >= 0
+      ? firstChoiceHeaderIndex
+      : firstOptionIndex >= 0
+        ? firstOptionIndex
+        : -1
+
+  if (cutIndex < 0) return text.trim()
+
+  return lines.slice(0, cutIndex).join('\n').trim()
 }
 
 export const useStoryStore = defineStore('storyStore', () => {
@@ -49,6 +164,7 @@ export const useStoryStore = defineStore('storyStore', () => {
 
   const storyRunning = ref(false)
   const isStartingStory = ref(false)
+  const activeStreamingChatId = ref<number | null>(null)
   const customDirection = ref('')
   const statusMessage = ref('')
   const statusTone = ref<'success' | 'error'>('success')
@@ -98,8 +214,35 @@ export const useStoryStore = defineStore('storyStore', () => {
     ) as StorySessionChat[]
   })
 
+  const storyDisplayChats = computed<StoryDisplayChat[]>(() => {
+    return sessionChats.value.map((chat) => {
+      const isStreaming = activeStreamingChatId.value === chat.id
+      const botResponse = chat.botResponse || ''
+
+      return {
+        ...chat,
+        isStreaming,
+        displayResponse: isStreaming
+          ? botResponse
+          : storyTextWithoutReplyOptions(botResponse),
+        replyOptions: isStreaming ? [] : parseStoryReplyOptions(botResponse),
+      }
+    })
+  })
+
+  const latestReplyOptions = computed<StoryReplyOption[]>(() => {
+    const latest = [...storyDisplayChats.value]
+      .reverse()
+      .find((chat) => chat.replyOptions.length)
+
+    return latest?.replyOptions ?? []
+  })
+
   const isResponding = computed(() => {
-    return sessionChats.value.some((chat) => !chat.botResponse)
+    return (
+      activeStreamingChatId.value !== null ||
+      sessionChats.value.some((chat) => !chat.botResponse)
+    )
   })
 
   const isBusy = computed(() => {
@@ -143,9 +286,9 @@ export const useStoryStore = defineStore('storyStore', () => {
       'You are the Weirdlandia storyteller for Kind Robots.',
       'Write interactive branching fiction with sharp sensory detail, meaningful consequences, and playful weirdness.',
       'Honor the selected scenario and opening choice.',
-      'End every response with 3-5 clear follow-up options.',
-      'Each option should invite a different kind of action: cautious, bold, clever, strange, or emotionally revealing.',
       'Do not explain the prompt. Write the story scene directly.',
+      'End every response with a section titled "What do you do next?" followed by 3-5 numbered options, one option per line.',
+      'Each numbered option should be short, clickable, and invite a different kind of action: cautious, bold, clever, strange, or emotionally revealing.',
     ].join('\n')
   })
 
@@ -176,6 +319,13 @@ export const useStoryStore = defineStore('storyStore', () => {
       return messages
     })
   })
+
+  function selectedReplyMatches(option: StoryReplyOption): boolean {
+    return (
+      normalizeChoiceText(customDirection.value) ===
+      normalizeChoiceText(option.text)
+    )
+  }
 
   function setStatus(
     messageText: string,
@@ -211,6 +361,20 @@ export const useStoryStore = defineStore('storyStore', () => {
     syncToLocalStorage()
   }
 
+  function selectReplyOption(option: StoryReplyOption | string) {
+    const text = typeof option === 'string' ? option : option.text
+
+    if (
+      normalizeChoiceText(customDirection.value) === normalizeChoiceText(text)
+    ) {
+      customDirection.value = ''
+    } else {
+      customDirection.value = text
+    }
+
+    syncToLocalStorage()
+  }
+
   function buildStoryPrompt() {
     const scenario = scenarioStore.selectedScenario
 
@@ -224,7 +388,7 @@ export const useStoryStore = defineStore('storyStore', () => {
       `Opening choice: ${scenarioStore.currentChoice || 'None selected'}`,
       direction ? `Player direction: ${direction}` : '',
       '',
-      'Generate the opening scene as an interactive branching narrative. Include vivid sensory detail, meaningful consequences, and 3-5 clear follow-up options. Keep the focus on the scenario, the player’s chosen opening, and the immediate situation.',
+      'Generate the opening scene as an interactive branching narrative. Include vivid sensory detail, meaningful consequences, and a section titled "What do you do next?" with 3-5 numbered follow-up options. Keep the focus on the scenario, the player’s chosen opening, and the immediate situation.',
     ]
       .filter(Boolean)
       .join('\n')
@@ -241,7 +405,7 @@ export const useStoryStore = defineStore('storyStore', () => {
       `Scenario: ${scenario.title}`,
       `Player action: ${direction}`,
       '',
-      'Resolve this action in the ongoing story. Preserve continuity from the previous messages. Include consequences and 3-5 new follow-up options.',
+      'Resolve this action in the ongoing story. Preserve continuity from the previous messages. Include consequences and a section titled "What do you do next?" with 3-5 new numbered follow-up options.',
     ]
       .filter(Boolean)
       .join('\n')
@@ -279,6 +443,7 @@ export const useStoryStore = defineStore('storyStore', () => {
 
     sessionChatIds.value.push(newChat.id)
     chatStore.selectedChat = newChat
+    activeStreamingChatId.value = newChat.id
     syncToLocalStorage()
 
     if (Array.isArray(weirdStore.history)) {
@@ -289,19 +454,30 @@ export const useStoryStore = defineStore('storyStore', () => {
       throw new Error('chatStore.streamResponse is not available.')
     }
 
-    await chatStore.streamResponse(newChat.id, {
-      model: activeTextServer?.model || 'gpt-4o-mini',
-      temperature: 0.9,
-      maxTokens: 2048,
-      serverId: activeTextServer?.id ?? null,
-      serverName: activeTextServer?.label || activeTextServer?.title || null,
-      serverSelectionMode: activeTextServer ? 'specific' : 'default',
-      generationRequirement: {
-        provider:
-          activeTextServer?.serverType === 'ANTHROPIC' ? 'anthropic' : 'any',
-      },
-      messages: buildMessagesForStoryResponse(),
-    })
+    try {
+      await chatStore.streamResponse(newChat.id, {
+        model: activeTextServer?.model || 'gpt-4o-mini',
+        temperature: 0.9,
+        maxTokens: 2048,
+        stream: true,
+        serverId: activeTextServer?.id ?? null,
+        serverName: activeTextServer?.label || activeTextServer?.title || null,
+        serverSelectionMode: activeTextServer ? 'specific' : 'default',
+        generationRequirement: {
+          provider:
+            activeTextServer?.serverType === 'ANTHROPIC'
+              ? 'anthropic'
+              : activeTextServer?.serverType === 'OLLAMA'
+                ? 'ollama'
+                : activeTextServer?.serverType === 'OPENAI'
+                  ? 'openai'
+                  : 'any',
+        },
+        messages: buildMessagesForStoryResponse(),
+      })
+    } finally {
+      activeStreamingChatId.value = null
+    }
 
     return newChat
   }
@@ -384,6 +560,7 @@ export const useStoryStore = defineStore('storyStore', () => {
   function newStory() {
     sessionChatIds.value = []
     storyRunning.value = false
+    activeStreamingChatId.value = null
     chatStore.selectedChat = null
     customDirection.value = ''
     clearStatus()
@@ -429,6 +606,7 @@ export const useStoryStore = defineStore('storyStore', () => {
       storyRunning.value = false
     }
 
+    activeStreamingChatId.value = null
     syncToLocalStorage()
     isInitialized.value = true
   }
@@ -436,6 +614,7 @@ export const useStoryStore = defineStore('storyStore', () => {
   return {
     storyRunning,
     isStartingStory,
+    activeStreamingChatId,
     customDirection,
     statusMessage,
     statusTone,
@@ -444,6 +623,8 @@ export const useStoryStore = defineStore('storyStore', () => {
 
     phase,
     sessionChats,
+    storyDisplayChats,
+    latestReplyOptions,
     isResponding,
     isBusy,
     hasLaunchDirection,
@@ -459,6 +640,10 @@ export const useStoryStore = defineStore('storyStore', () => {
     clearStatus,
     pickIntro,
     setCustomDirection,
+    selectReplyOption,
+    selectedReplyMatches,
+    parseStoryReplyOptions,
+    storyTextWithoutReplyOptions,
     buildStoryPrompt,
     buildNextTurnPrompt,
     buildMessagesForStoryResponse,

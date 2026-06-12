@@ -130,7 +130,6 @@
         <label class="form-control mt-3">
           <span class="label">
             <span class="label-text font-bold">Custom direction</span>
-
             <span class="label-text-alt text-base-content/50">Optional</span>
           </span>
 
@@ -181,7 +180,7 @@
           </button>
 
           <span class="text-xs text-base-content/50">
-            {{ activeServerName }}
+            {{ activeServerLabel }}
           </span>
         </div>
       </div>
@@ -211,7 +210,7 @@
             </h2>
 
             <p class="truncate text-xs text-base-content/60">
-              Scenario session
+              Scenario session · {{ activeServerLabel }}
             </p>
           </div>
         </div>
@@ -247,7 +246,7 @@
       >
         <div class="mx-auto flex max-w-3xl flex-col gap-4">
           <article
-            v-for="chat in storyStore.sessionChats"
+            v-for="chat in storyStore.storyDisplayChats"
             :key="chat.id"
             class="flex flex-col gap-3"
           >
@@ -256,7 +255,6 @@
                 class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm leading-relaxed text-primary-content shadow-sm"
               >
                 <p class="mb-1 text-xs font-bold opacity-70">You</p>
-
                 <p class="whitespace-pre-wrap">{{ chat.content }}</p>
               </div>
             </div>
@@ -269,9 +267,9 @@
               </div>
 
               <div
-                class="max-w-[85%] rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
+                class="flex max-w-[85%] flex-col gap-3 rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
               >
-                <p class="mb-1 text-xs font-bold text-base-content/50">
+                <p class="text-xs font-bold text-base-content/50">
                   Weirdlandia
                 </p>
 
@@ -284,9 +282,53 @@
                   <span class="story-dot delay-300" />
                 </span>
 
-                <p v-else class="whitespace-pre-wrap text-base-content/80">
-                  {{ chat.botResponse }}
+                <p
+                  v-else
+                  class="whitespace-pre-wrap text-base-content/80"
+                  :class="chat.isStreaming ? 'story-streaming' : ''"
+                >
+                  {{ chat.displayResponse || chat.botResponse }}
                 </p>
+
+                <div
+                  v-if="!chat.isStreaming && chat.replyOptions.length"
+                  class="grid gap-2 pt-1"
+                >
+                  <p
+                    class="text-xs font-black uppercase tracking-widest text-base-content/40"
+                  >
+                    What do you do next?
+                  </p>
+
+                  <button
+                    v-for="option in chat.replyOptions"
+                    :key="option.id"
+                    type="button"
+                    class="group flex items-start gap-2 rounded-2xl border p-3 text-left text-sm transition"
+                    :class="
+                      storyStore.selectedReplyMatches(option)
+                        ? 'border-secondary bg-secondary/15 ring-2 ring-secondary'
+                        : 'border-base-300 bg-base-200 hover:border-secondary/50 hover:bg-secondary/10'
+                    "
+                    :disabled="storyStore.isBusy"
+                    @click="storyStore.selectReplyOption(option)"
+                  >
+                    <span
+                      class="shrink-0 rounded-xl px-2 py-0.5 text-xs font-black"
+                      :class="
+                        storyStore.selectedReplyMatches(option)
+                          ? 'bg-secondary text-secondary-content'
+                          : 'bg-base-100 text-secondary group-hover:bg-secondary group-hover:text-secondary-content'
+                      "
+                    >
+                      {{ option.label }}
+                    </span>
+
+                    <span class="min-w-0 flex-1 leading-relaxed">
+                      {{ option.text }}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           </article>
@@ -295,10 +337,38 @@
 
       <footer class="shrink-0 border-t border-base-300 bg-base-100 p-3">
         <div class="mx-auto flex max-w-3xl flex-col gap-2">
+          <div
+            v-if="storyStore.customDirection"
+            class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p
+                  class="text-xs font-black uppercase tracking-widest text-secondary"
+                >
+                  Selected action
+                </p>
+
+                <p class="mt-1 whitespace-pre-wrap text-base-content">
+                  {{ storyStore.customDirection }}
+                </p>
+              </div>
+
+              <button
+                class="btn btn-ghost btn-xs shrink-0 rounded-xl"
+                type="button"
+                :disabled="storyStore.isBusy"
+                @click="storyStore.setCustomDirection('')"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
           <textarea
             :value="storyStore.customDirection"
             class="textarea textarea-bordered min-h-20 w-full resize-none rounded-2xl bg-base-200"
-            placeholder="Choose what happens next, ask a question, or do something deeply unwise..."
+            placeholder="Choose a reply above, type your own action, ask a question, or do something deeply unwise..."
             :disabled="storyStore.isBusy"
             @input="
               storyStore.setCustomDirection(
@@ -310,7 +380,12 @@
             "
           />
 
-          <text-server-select />
+          <div
+            class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs text-base-content/60"
+          >
+            <span class="font-bold text-base-content/70">Text server</span>
+            <span class="truncate">{{ activeServerLabel }}</span>
+          </div>
 
           <button
             class="btn btn-success min-h-12 w-full rounded-2xl"
@@ -375,12 +450,15 @@ const introChoices = computed(() => {
   }))
 })
 
-const activeServerName = computed(() => {
-  return (
-    serverStore.activeTextServer?.label ||
-    serverStore.activeTextServer?.title ||
-    'No text server selected'
-  )
+const activeServerLabel = computed(() => {
+  const server = serverStore.activeTextServer
+
+  if (!server) return 'System OpenAI · mana'
+
+  const name = server.label || server.title || `Server #${server.id}`
+  const type = server.serverType ? ` · ${server.serverType}` : ''
+
+  return `${name}${type}`
 })
 
 const canLaunchScenario = computed(() => {
@@ -438,7 +516,10 @@ watch(
 )
 
 watch(
-  () => storyStore.sessionChats.map((chat) => chat.botResponse).join(''),
+  () =>
+    storyStore.storyDisplayChats
+      .map((chat) => `${chat.botResponse || ''}:${chat.replyOptions.length}`)
+      .join('|'),
   async () => {
     await nextTick()
     scrollToBottom()
@@ -464,6 +545,14 @@ watch(
   animation-delay: 300ms;
 }
 
+.story-streaming::after {
+  display: inline-block;
+  margin-left: 0.125rem;
+  color: currentColor;
+  content: '▌';
+  animation: story-cursor 0.85s steps(2, start) infinite;
+}
+
 @keyframes story-bounce {
   0%,
   80%,
@@ -475,6 +564,18 @@ watch(
   40% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes story-cursor {
+  0%,
+  45% {
+    opacity: 1;
+  }
+
+  46%,
+  100% {
+    opacity: 0;
   }
 }
 </style>

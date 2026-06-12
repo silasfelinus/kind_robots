@@ -155,7 +155,7 @@
         v-if="isLoading"
         class="flex h-full items-center justify-center py-12"
       >
-        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <span class="loading loading-spinner loading-lg text-primary" />
       </div>
 
       <div
@@ -242,7 +242,7 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+              <span v-else class="badge badge-ghost badge-sm">Private</span>
 
               <span
                 v-if="rewardStore.selectedReward.isMature"
@@ -318,7 +318,7 @@ import { useRewardStore } from '@/stores/rewardStore'
 import type { Rarity } from '@/stores/rewardStore'
 import { useUserStore } from '@/stores/userStore'
 
-type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
+type GalleryVariant = 'grid' | 'dashboard' | 'row' | 'dropdown'
 
 const props = withDefaults(
   defineProps<{
@@ -339,7 +339,7 @@ const props = withDefaults(
     autoLoad?: boolean
   }>(),
   {
-    variant: 'dashboard',
+    variant: 'grid',
     title: 'Rewards',
     subtitle: 'Pick a story reward, boon, curse, artifact, or plot grenade.',
     showHeader: true,
@@ -414,7 +414,13 @@ const selectedRewardSubtitle = computed(() => {
 
   if (!reward) return 'Choose a reward or add a new one.'
 
-  return reward.collection || reward.rewardType || reward.effect || reward.name || 'Reward selected.'
+  return (
+    reward.collection ||
+    reward.rewardType ||
+    reward.effect ||
+    reward.name ||
+    'Reward selected.'
+  )
 })
 
 const selectedRewardDescription = computed(() => {
@@ -560,7 +566,12 @@ async function refreshRewards(force = false) {
 }
 
 async function selectReward(id: number) {
-  await rewardStore.selectReward(id)
+  if (isDropdownMode.value) {
+    await rewardStore.selectReward(id)
+    return
+  }
+
+  await rewardStore.startRewardInteraction(id)
 }
 
 function selectRewardFromEvent(event: Event) {

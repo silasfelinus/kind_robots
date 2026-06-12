@@ -6,7 +6,10 @@ import {
   setHeader,
   type H3Event,
 } from 'h3'
+import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { manaGate } from '../../../utils/manaGate'
+import { requireApiUser } from '../../../utils/authGuard'
+import type { Server } from '~/prisma/generated/prisma/client'
 
 type AnthropicStreamBody = {
   prompt?: string
@@ -19,7 +22,10 @@ type AnthropicStreamBody = {
   temperature?: number
   maxTokens?: number
   serverId?: number | null
+  serverName?: string | null
   chatId?: number | string | null
+  userApiKey?: string | null
+  useOwnResource?: boolean
 }
 
 type StreamManaResult = {
@@ -31,37 +37,43 @@ type StreamManaResult = {
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<AnthropicStreamBody>(event)
-    const { anthropicApiKey } = useRuntimeConfig()
-
-    if (!anthropicApiKey) {
-      throw createError({
-        statusCode: 500,
-        message: 'anthropicApiKey not configured',
-      })
-    }
+    const config = useRuntimeConfig()
+    const auth = await requireApiUser(event)
 
     const model = body.model || 'claude-sonnet-4-6'
     const maxTokens = body.maxTokens ?? 4096
 
+    const server = await resolveOptionalServer({
+      userId: auth.user.id,
+      serverId: body.serverId ?? null,
+      serverName: body.serverName ?? null,
+    })
+
     const gate = await manaGate(event, {
       kind: 'text',
-      estCostUsd: estimateTextCostUsd({
-        provider: 'anthropic',
+      estCostUsd: estimateAnthropicTextCostUsd({
         model,
         maxTokens,
       }),
-      serverId: body.serverId ?? null,
+      serverId: server?.id ?? body.serverId ?? null,
+      useOwnResource: Boolean(body.useOwnResource || body.userApiKey),
     })
 
-    const messages = body.messages?.length
-      ? body.messages
-      : [{ role: 'user' as const, content: body.prompt ?? '' }]
+    const messages = normalizeMessages(body)
+    const endpoint = getAnthropicEndpoint(server)
+    const apiKey = getAnthropicApiKey({
+      serverApiKey: server?.apiKey,
+      userApiKey: body.userApiKey,
+      runtimeApiKey: getRuntimeAnthropicKey(config),
+    })
+
+    assertAnthropicApiKey(apiKey)
 
     const payload: Record<string, unknown> = {
       model,
       messages,
       max_tokens: maxTokens,
-      temperature: body.temperature,
+      temperature: body.temperature ?? 0.7,
       stream: true,
     }
 
@@ -69,20 +81,26 @@ export default defineEventHandler(async (event) => {
       payload.system = body.system
     }
 
-    const endpoint = 'https://api.anthropic.com/v1/messages'
-
     console.log('[anthropic/stream] →', {
+      endpoint,
       model: payload.model,
       messages: messages.length,
+      authUserId: auth.user.id,
+      serverId: server?.id ?? null,
+      serverTitle: server?.title ?? 'System Anthropic',
+      serverType: server?.serverType ?? 'ANTHROPIC',
       chargedMana: gate.cost,
       free: gate.free,
+      providerKeyPrefix: apiKey.slice(0, 8),
+      providerKeyLength: apiKey.length,
+      bodyHasUserApiKey: Boolean(body.userApiKey),
     })
 
     const upstream = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': anthropicApiKey,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify(payload),
@@ -97,10 +115,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    setHeader(event, 'Content-Type', 'text/event-stream')
-    setHeader(event, 'Cache-Control', 'no-cache, no-transform')
-    setHeader(event, 'Connection', 'keep-alive')
-    setHeader(event, 'X-Accel-Buffering', 'no')
+    setStreamHeaders(event, 'text/event-stream')
 
     return sendMeteredStream(event, upstream.body, async () => {
       const refId = body.chatId
@@ -116,14 +131,7 @@ export default defineEventHandler(async (event) => {
       }
     })
   } catch (error) {
-    const statusCode =
-      typeof error === 'object' &&
-      error !== null &&
-      'statusCode' in error &&
-      typeof error.statusCode === 'number'
-        ? error.statusCode
-        : 500
-
+    const statusCode = getErrorStatusCode(error)
     const message = error instanceof Error ? error.message : 'Unknown error'
 
     console.error('[anthropic/stream] error:', message)
@@ -134,6 +142,107 @@ export default defineEventHandler(async (event) => {
     })
   }
 })
+
+function normalizeMessages(body: AnthropicStreamBody) {
+  if (body.messages?.length) {
+    return body.messages
+  }
+
+  return [
+    {
+      role: 'user' as const,
+      content: body.prompt ?? '',
+    },
+  ]
+}
+
+async function resolveOptionalServer(input: {
+  userId: number
+  serverId?: number | null
+  serverName?: string | null
+}): Promise<Server | null> {
+  if (!input.serverId && !input.serverName) {
+    return null
+  }
+
+  return await resolveServer({
+    userId: input.userId,
+    serverId: input.serverId ?? null,
+    serverName: input.serverName ?? null,
+    capability: 'text',
+  })
+}
+
+function getRuntimeAnthropicKey(config: ReturnType<typeof useRuntimeConfig>) {
+  return String(
+    config.anthropicApiKey ||
+      process.env.ANTHROPIC_API_KEY ||
+      process.env.CLAUDE_API_KEY ||
+      '',
+  ).trim()
+}
+
+function getAnthropicEndpoint(server: Server | null) {
+  if (!server) {
+    return 'https://api.anthropic.com/v1/messages'
+  }
+
+  const endpoint = getServerEndpoint(server).trim()
+
+  if (!endpoint) {
+    return 'https://api.anthropic.com/v1/messages'
+  }
+
+  if (endpoint.endsWith('/messages')) {
+    return endpoint
+  }
+
+  if (endpoint.endsWith('/v1')) {
+    return `${endpoint}/messages`
+  }
+
+  return endpoint
+}
+
+function cleanProviderKey(value?: string | null) {
+  return value?.trim().replace(/^Bearer\s+/i, '').trim() || ''
+}
+
+function getAnthropicApiKey(options: {
+  serverApiKey?: string | null
+  userApiKey?: string | null
+  runtimeApiKey?: string | null
+}) {
+  return (
+    cleanProviderKey(options.userApiKey) ||
+    cleanProviderKey(options.serverApiKey) ||
+    cleanProviderKey(options.runtimeApiKey)
+  )
+}
+
+function assertAnthropicApiKey(apiKey: string) {
+  if (!apiKey) {
+    throw createError({
+      statusCode: 500,
+      message: 'No Anthropic API key is configured.',
+    })
+  }
+
+  if (!apiKey.startsWith('sk-ant-')) {
+    throw createError({
+      statusCode: 500,
+      message:
+        'Anthropic provider key is invalid. Expected an Anthropic key starting with "sk-ant-". The app authorization key is probably being used as the provider key.',
+    })
+  }
+}
+
+function setStreamHeaders(event: H3Event, contentType: string) {
+  setHeader(event, 'Content-Type', contentType)
+  setHeader(event, 'Cache-Control', 'no-cache, no-transform')
+  setHeader(event, 'Connection', 'keep-alive')
+  setHeader(event, 'X-Accel-Buffering', 'no')
+}
 
 function sendMeteredStream(
   event: H3Event,
@@ -179,8 +288,7 @@ function sendMeteredStream(
   return new Promise(() => {})
 }
 
-function estimateTextCostUsd(input: {
-  provider: string
+function estimateAnthropicTextCostUsd(input: {
   model: string
   maxTokens: number
 }): number {
@@ -200,4 +308,13 @@ function estimateTextCostUsd(input: {
   }
 
   return (maxTokens / 1_000_000) * 15
+}
+
+function getErrorStatusCode(error: unknown) {
+  return typeof error === 'object' &&
+    error !== null &&
+    'statusCode' in error &&
+    typeof error.statusCode === 'number'
+    ? error.statusCode
+    : 500
 }

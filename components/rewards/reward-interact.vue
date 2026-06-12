@@ -30,7 +30,20 @@
       {{ statusMessage }}
     </div>
 
+    <reward-gallery
+      v-if="!rewardStore.selectedReward && sessionChats.length === 0"
+      class="min-h-0 flex-1"
+      variant="dashboard"
+      title="Choose Your Reward"
+      subtitle="Pick a story reward, artifact, power, pet, curse, or plot grenade."
+      :show-header="true"
+      :show-images="true"
+      :show-controls="true"
+      :show-card-actions="true"
+    />
+
     <section
+      v-else
       class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,440px)]"
     >
       <div
@@ -504,6 +517,7 @@ const activeServerName = computed(() => {
     'No text server selected'
   )
 })
+
 const selectedRewardName = computed(() => {
   return rewardStore.selectedReward?.name || 'the reward'
 })
@@ -515,7 +529,6 @@ const selectedRewardEffect = computed(() => {
 
   return reward.effect || reward.description || 'No effect described yet.'
 })
-
 
 const sessionChats = computed<Chat[]>(() => {
   return chatStore.chats.filter((chat) =>

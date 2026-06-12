@@ -1,4 +1,4 @@
-<!-- /components/characters/character-manager.vue -->
+<!-- /components/content/characters/character-manager.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
@@ -19,77 +19,20 @@
         :disabled="isLoadingManager"
         @click="refreshManagerData"
       >
-        <Icon
-          name="kind-icon:refresh"
-          class="h-4 w-4"
-          :class="isLoadingManager ? 'animate-spin' : ''"
+        <span
+          v-if="isLoadingManager"
+          class="loading loading-spinner loading-xs"
         />
+        <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
         Refresh
       </button>
     </div>
 
     <section
-      v-if="activeTab === 'overview'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+      v-if="activeTab === 'characters'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <div class="flex flex-col gap-4">
-            <character-gallery
-              variant="dropdown"
-              :show-header="false"
-              :show-controls="false"
-              :show-images="true"
-              :show-card-actions="false"
-              :show-mode-buttons="false"
-              :show-meta="true"
-              :compact="true"
-            />
-
-            <scenario-gallery
-              variant="dropdown"
-              :show-header="false"
-              :show-controls="false"
-              :show-images="true"
-              :show-card-actions="false"
-              :show-inspirations="false"
-              :show-choices="false"
-              :show-meta="false"
-              :compact="true"
-            />
-
-            <reward-gallery
-              variant="dropdown"
-              :show-header="false"
-              :show-controls="false"
-              :show-images="true"
-              :show-card-actions="false"
-              :show-meta="false"
-              :compact="true"
-            />
-
-            <dream-gallery
-              variant="dropdown"
-              :show-header="false"
-              :show-controls="false"
-              :show-images="true"
-              :show-card-actions="false"
-              :show-open-button="false"
-              :show-stats="false"
-              :show-meta="false"
-              :compact="true"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
-      >
-        <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
+      <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <section
@@ -110,62 +53,27 @@
       <stage-manager class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
-    <section
-      v-else-if="activeTab === 'characters'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <character-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'scenarios'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <scenario-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'rewards'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <reward-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'dreams'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'interact'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
-
     <div
       v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-center text-warning"
     >
-      Unknown character tab: {{ activeTab }}
+      <Icon name="kind-icon:warning" class="h-10 w-10" />
+
+      <div>
+        <p class="text-lg font-black">Unknown character tab: {{ activeTab }}</p>
+
+        <p class="mt-1 text-sm opacity-80">
+          Expected one of: {{ validTabLabels }}
+        </p>
+      </div>
+
+      <button
+        class="btn btn-warning btn-sm rounded-xl"
+        type="button"
+        @click="goToDefaultTab"
+      >
+        Go to {{ defaultTabLabel }}
+      </button>
     </div>
   </section>
 </template>
@@ -173,108 +81,60 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
-import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
-import { useRewardStore } from '@/stores/rewardStore'
-import { useScenarioStore } from '@/stores/scenarioStore'
-import { useServerStore } from '@/stores/serverStore'
+import {
+  getDashboardConfig,
+  getDashboardDefaultTab,
+  getDashboardTabs,
+  isDashboardTabKey,
+  type DashboardKey,
+} from '@/stores/helpers/dashboardHelper'
 
-type CharacterTab =
-  | 'overview'
-  | 'adventure'
-  | 'stage'
-  | 'characters'
-  | 'scenarios'
-  | 'rewards'
-  | 'dreams'
-  | 'interact'
+const dashboardKey: DashboardKey = 'character'
 
 const characterStore = useCharacterStore()
-const dreamStore = useDreamStore()
 const navStore = useNavStore()
-const rewardStore = useRewardStore()
-const scenarioStore = useScenarioStore()
-const serverStore = useServerStore()
-
-const defaultDashboardKey = 'character'
-const defaultTab: CharacterTab = 'overview'
-
-const validTabs: CharacterTab[] = [
-  'overview',
-  'adventure',
-  'stage',
-  'characters',
-  'scenarios',
-  'rewards',
-  'dreams',
-  'interact',
-]
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const dashboardKey = computed(() => {
-  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
+const dashboardConfig = computed(() => {
+  return getDashboardConfig(dashboardKey)
 })
 
-const activeTab = computed<CharacterTab>(() => {
-  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
+const dashboardTabs = computed(() => {
+  return getDashboardTabs(dashboardKey)
+})
 
-  if (validTabs.includes(selectedTab as CharacterTab)) {
-    return selectedTab as CharacterTab
+const defaultTab = computed(() => {
+  return getDashboardDefaultTab(dashboardKey)
+})
+
+const activeTab = computed(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey)
+
+  if (isDashboardTabKey(dashboardKey, selectedTab)) {
+    return selectedTab
   }
 
-  return defaultTab
-})
-
-const selectedCharacterName = computed(() => {
-  const character = characterStore.selectedCharacter
-
-  if (!character) return 'no character'
-
-  if (character.name && character.honorific) {
-    return `${character.name} the ${character.honorific}`
-  }
-
-  return character.name || character.honorific || 'unnamed character'
-})
-
-const selectedScenarioName = computed(() => {
-  return scenarioStore.selectedScenario?.title || 'no scenario'
-})
-
-const selectedRewardName = computed(() => {
-  const reward = rewardStore.selectedReward
-
-  if (!reward) return 'no reward'
-
-  return (
-    reward.name ||
-    reward.description ||
-    reward.flavorText ||
-    reward.effect ||
-    'unnamed reward'
-  )
-})
-const selectedDreamName = computed(() => {
-  return dreamStore.selectedDream?.title || 'no dream'
-})
-
-const selectedTextServerName = computed(() => {
-  return (
-    serverStore.activeTextServer?.label ||
-    serverStore.activeTextServer?.title ||
-    'no text server'
-  )
+  return defaultTab.value
 })
 
 const managerSummary = computed(() => {
-  const characterCount = characterStore.characters.length
-  const scenarioCount = scenarioStore.scenarios.length
-  const rewardCount = rewardStore.rewards.length
-  const dreamCount = dreamStore.dreams.length
+  const count = characterStore.characters.length
 
-  return `${characterCount} characters, ${scenarioCount} scenarios, ${rewardCount} rewards, and ${dreamCount} dreams loaded. Current setup: ${selectedCharacterName.value}, ${selectedScenarioName.value}, ${selectedRewardName.value}, ${selectedDreamName.value}, ${selectedTextServerName.value}.`
+  return `${count} character${count === 1 ? '' : 's'} loaded.`
+})
+
+const validTabLabels = computed(() => {
+  return dashboardTabs.value.map((tab) => tab.key).join(', ')
+})
+
+const defaultTabLabel = computed(() => {
+  return (
+    dashboardTabs.value.find((tab) => tab.key === defaultTab.value)?.label ||
+    dashboardConfig.value.label
+  )
 })
 
 async function loadManagerData(force = false) {
@@ -282,28 +142,14 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
-    await Promise.all([
-      characterStore.initialize({
-        force,
-        fetchRemote: true,
-        createDefaultForm: true,
-      }),
-      scenarioStore.initialize({
-        force,
-        fetchRemote: true,
-        includeSeeds: true,
-      }),
-      rewardStore.initialize({ force, fetchRemote: true }),
-      dreamStore.initialize(force),
-      ...(force || !serverStore.hasLoaded
-        ? [serverStore.initialize({ force, fetchRemote: true })]
-        : []),
-    ])
+    await characterStore.initialize({
+      force,
+      fetchRemote: true,
+      createDefaultForm: true,
+    })
   } catch (error) {
     managerError.value =
-      error instanceof Error
-        ? error.message
-        : 'Failed to load character manager data.'
+      error instanceof Error ? error.message : 'Failed to load characters.'
   } finally {
     isLoadingManager.value = false
   }
@@ -311,6 +157,10 @@ async function loadManagerData(force = false) {
 
 async function refreshManagerData() {
   await loadManagerData(true)
+}
+
+function goToDefaultTab() {
+  navStore.setDashboardTab(dashboardKey, defaultTab.value)
 }
 
 onMounted(async () => {

@@ -369,7 +369,7 @@ const props = withDefaults(
   {
     variant: 'dashboard',
     title: 'Bots',
-    subtitle: 'Browse, select, add, edit, clone, or launch bots.',
+    subtitle: 'Choose a bot to start a focused interaction.',
     showHeader: true,
     showImages: true,
     showControls: true,
@@ -562,7 +562,34 @@ async function refreshBots(force = false) {
 }
 
 async function selectBot(id: number) {
-  await botStore.selectBot(id)
+  if (isDropdownMode.value) {
+    await botStore.selectBot(id)
+    return
+  }
+
+  await launchBotById(id)
+}
+
+function startAddingBot() {
+  botStore.startAddingBot()
+
+  if (!isDropdownMode.value) {
+    navStore.setDashboardTab('bot', 'forge')
+    return
+  }
+
+  formMode.value = 'add'
+  showBotForm.value = true
+}
+
+async function launchBotById(id: number) {
+  const selected = await botStore.selectBot(id)
+
+  if (!selected) return
+
+  botStore.setPendingLaunchMessage?.(
+    `Ready to chat with ${selected.name || 'this bot'}.`,
+  )
 }
 
 function selectBotFromEvent(event: Event) {
@@ -581,12 +608,6 @@ function selectBotFromEvent(event: Event) {
   }
 
   void selectBot(id)
-}
-
-function startAddingBot() {
-  botStore.startAddingBot()
-  formMode.value = 'add'
-  showBotForm.value = true
 }
 
 async function startEditingSelectedBot() {
@@ -649,11 +670,6 @@ function handleBotDeleted(id: number) {
   if (botStore.currentBot?.id === id) {
     botStore.deselectBot()
   }
-}
-
-async function launchBotById(id: number) {
-  await botStore.selectBot(id)
-  navStore.setDashboardTab('bot', 'interact')
 }
 </script>
 

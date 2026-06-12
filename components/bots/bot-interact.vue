@@ -28,7 +28,21 @@
       {{ statusMessage }}
     </div>
 
+    <bot-gallery
+      v-if="!botStore.currentBot && sessionChats.length === 0"
+      class="min-h-0 flex-1"
+      variant="dashboard"
+      title="Choose Your Bot"
+      subtitle="Pick a bot to start a focused chat session."
+      :show-header="true"
+      :show-images="true"
+      :show-controls="true"
+      :show-card-actions="true"
+      :show-launch-button="true"
+    />
+
     <section
+      v-else
       class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]"
     >
       <div
@@ -93,7 +107,6 @@
               subtitle="Choose a bot."
               :show-images="false"
               :show-controls="false"
-              :show-toolbar="false"
               :show-card-actions="false"
               :show-launch-button="false"
             />
@@ -425,7 +438,11 @@ const runtimeTextServer = computed(() => {
   const botServerId = botStore.currentBot?.serverId
 
   if (typeof botServerId === 'number') {
-    return serverStore.getServerById(botServerId) ?? serverStore.activeTextServer ?? null
+    return (
+      serverStore.getServerById(botServerId) ??
+      serverStore.activeTextServer ??
+      null
+    )
   }
 
   return serverStore.activeTextServer ?? null
@@ -620,9 +637,7 @@ async function sendMessage() {
 
       await chatStore.streamResponse(newChat.id, {
         model:
-          modelName.value ||
-          runtimeTextServer.value?.model ||
-          'gpt-4o-mini',
+          modelName.value || runtimeTextServer.value?.model || 'gpt-4o-mini',
         temperature: temperature.value,
         maxTokens: maxTokens.value,
         serverId: runtimeTextServer.value?.id ?? null,
@@ -630,6 +645,7 @@ async function sendMessage() {
         messages,
       })
     }
+
     await nextTick()
     scrollToBottom()
   } catch (error) {
@@ -650,7 +666,6 @@ async function copyPromptPreview() {
 }
 
 onMounted(async () => {
-  // FIX:
   await Promise.all([
     botStore.initialize({
       fetchRemote: true,

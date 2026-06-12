@@ -3,108 +3,104 @@
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager || managerError"
-      class="mb-4 shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
+      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
     >
-      <div v-if="isLoadingManager" class="flex items-center gap-2 text-sm">
-        <span class="loading loading-spinner loading-sm text-primary" />
-        <span>Loading rewards and story goblin collateral...</span>
-      </div>
-
-      <div v-if="managerError" class="mt-2 text-sm text-error">
-        {{ managerError }}
-      </div>
+      <p
+        class="min-w-0 flex-1 text-base-content/70"
+        :class="managerError ? 'text-error' : ''"
+      >
+        {{ managerError || 'Loading rewards...' }}
+      </p>
 
       <button
-        v-if="managerError"
         type="button"
-        class="btn btn-sm btn-outline mt-3 rounded-2xl"
+        class="btn btn-sm rounded-2xl"
+        :class="managerError ? 'btn-error' : 'btn-ghost'"
+        :disabled="isLoadingManager"
         @click="refreshManagerData"
       >
-        Try Again
+        <span
+          v-if="isLoadingManager"
+          class="loading loading-spinner loading-xs"
+        />
+        <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+        Refresh
       </button>
     </div>
 
     <section
-      v-if="activeTab === 'overview'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 grid-rows-2 gap-4 overflow-hidden xl:grid-cols-12 xl:grid-rows-1"
-    >
-      <section
-        class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <reward-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-images="true"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :compact="true"
-          />
-        </div>
-      </section>
-
-      <section
-        class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
-      >
-        <div class="min-h-0 flex-1 overflow-hidden">
-          <reward-interact class="h-full min-h-0 overflow-hidden" />
-        </div>
-      </section>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'rewards'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <reward-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'interact'"
+      v-if="activeTab === 'rewards'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
       <reward-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
+    <section
+      v-else-if="activeTab === 'add'"
+      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
+    >
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="text-xl font-black text-primary">Add Reward</h2>
+
+          <p class="mt-1 text-sm text-base-content/60">
+            Create a skill, item, pet, boon, curse, magic favor, or narrative
+            plot grenade.
+          </p>
+        </div>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          @click="goToRewards"
+        >
+          <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+          <span class="hidden sm:inline">Rewards</span>
+        </button>
+      </div>
+
+      <add-reward mode="add" @saved="handleRewardSaved" />
+    </section>
+
     <div
       v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-center text-warning"
     >
-      Unknown reward tab: {{ activeTab }}
+      <Icon name="kind-icon:warning" class="h-10 w-10" />
+
+      <div>
+        <p class="text-lg font-black">Unknown reward tab: {{ activeTab }}</p>
+
+        <p class="mt-1 text-sm opacity-80">
+          The reward dashboard only supports Rewards and Add.
+        </p>
+      </div>
+
+      <button
+        class="btn btn-warning btn-sm rounded-xl"
+        type="button"
+        @click="goToRewards"
+      >
+        Go to Rewards
+      </button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useCharacterStore } from '@/stores/characterStore'
 import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
-import { useServerStore } from '@/stores/serverStore'
 
-type RewardTab = 'overview' | 'rewards' | 'collections' | 'builder' | 'interact'
+type RewardTab = 'rewards' | 'add'
 
-const rewardTabs: RewardTab[] = [
-  'overview',
-  'rewards',
-  'collections',
-  'builder',
-  'interact',
-]
+const rewardTabs: RewardTab[] = ['rewards', 'add']
 
 const defaultDashboardKey = 'reward'
-const defaultTab: RewardTab = 'overview'
+const defaultTab: RewardTab = 'rewards'
 
-const characterStore = useCharacterStore()
 const navStore = useNavStore()
 const rewardStore = useRewardStore()
-const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
@@ -128,22 +124,10 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
-    await Promise.all([
-      characterStore.initialize({
-        force,
-        fetchRemote: true,
-        createDefaultForm: true,
-      }),
-      rewardStore.initialize({ force, fetchRemote: true }),
-      ...(force || !serverStore.hasLoaded
-        ? [serverStore.initialize({ force, fetchRemote: true })]
-        : []),
-    ])
+    await rewardStore.initialize({ force, fetchRemote: true })
   } catch (error) {
     managerError.value =
-      error instanceof Error
-        ? error.message
-        : 'Failed to load reward manager data.'
+      error instanceof Error ? error.message : 'Failed to load rewards.'
   } finally {
     isLoadingManager.value = false
   }
@@ -151,6 +135,15 @@ async function loadManagerData(force = false) {
 
 async function refreshManagerData() {
   await loadManagerData(true)
+}
+
+function goToRewards() {
+  navStore.setDashboardTab(dashboardKey.value, 'rewards')
+}
+
+async function handleRewardSaved() {
+  await loadManagerData(true)
+  goToRewards()
 }
 
 onMounted(async () => {

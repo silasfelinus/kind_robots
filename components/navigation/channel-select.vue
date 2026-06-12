@@ -26,7 +26,7 @@
         <div
           v-if="showMenu"
           ref="panelRef"
-          class="fixed z-90 max-h-[min(36rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+          class="fixed z-999 max-h-[min(36rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
           :style="menuStyle"
           @click.stop
         >

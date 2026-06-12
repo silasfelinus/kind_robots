@@ -234,3 +234,11 @@ and perhaps finally:
 Story Cards 3.0, fully interactible story and reward system.
 ---
 I'll admit everything feels a bit intimidating laying it out like that. But now I'm back to eating the elephant, one bite at a time.
+
+
+6/12/2026 1:45pm
+I'm still feeling productive and motivated, but 'm sensing some dread as I get things moving. I think I am afraid of transitioning towards a live site. There is a safety and comfort to the endless build cycle. But I don't want to always be Not Ready for Primetime.
+
+I got inspiration from another site focused on choose your own adventure AI experiences where user's got back credits when people used their creations, and I think that is just brilliant, and might be the missing piece for the website's financial picture. I love the idea of a 1/3 distribution: creators get 1/3, 1/3 going to the anti-malaria fundraiser, and 1/3 goes back to me and website expenses (I'm unsure if I should be including my operating costs in my share, I wasn't thinking of paying directly for openAI credits (beyond what I'm using for testing and free generations for new users), but there are definitely grey areas since I have the abilility to host my own generators and offering solar-powered art and text generation is definitely on the roadmap.
+
+Yesterday I realized that the generators never fully came back online after adding in the token manager, and there is still a ways more to go if we're adding in a profit share refund to creators. But I stitched a lot back together, upgraded the anthropic stream end to the same quality as openai, and successfully tested the scenario exchange to get back generated text (though not yet with streaming or stylish handling of choice returns). Once scenario was at base function, I recreated Bots, Rewards, and Characters for the same framework: manager > interact > gallery > add. That still leaves Pitch, Dream, User, and Art, which are all a little different, but it should be more or less another day of work to bring everything together and have at least one interactible deliverable for each main page.

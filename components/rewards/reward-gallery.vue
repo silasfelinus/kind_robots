@@ -13,15 +13,26 @@
             {{ title }}
           </h2>
 
-          <p
+          <div
             v-if="rewardStore.selectedReward"
-            class="truncate text-sm text-base-content/70"
+            class="flex min-w-0 items-center gap-2"
           >
-            Selected:
-            <span class="font-semibold text-primary">
-              {{ selectedRewardTitle }}
-            </span>
-          </p>
+            <p class="truncate text-sm text-base-content/70">
+              Selected:
+              <span class="font-semibold text-primary">
+                {{ selectedRewardTitle }}
+              </span>
+            </p>
+
+            <button
+              class="btn btn-primary btn-xs shrink-0 rounded-xl"
+              type="button"
+              @click="continueWithSelected"
+            >
+              <Icon name="kind-icon:story" class="h-3 w-3" />
+              Continue
+            </button>
+          </div>
 
           <p v-else class="text-sm text-base-content/60">
             {{ subtitle }}
@@ -570,6 +581,14 @@ async function selectReward(id: number) {
     await rewardStore.selectReward(id)
     return
   }
+
+  await rewardStore.startRewardInteraction(id)
+}
+
+async function continueWithSelected() {
+  const id = rewardStore.selectedReward?.id
+
+  if (!id) return
 
   await rewardStore.startRewardInteraction(id)
 }

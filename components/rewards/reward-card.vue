@@ -53,14 +53,14 @@
         v-if="visibleRewardImageSrc"
         :src="visibleRewardImageSrc"
         :alt="rewardTitle"
-        class="h-full w-full object-cover transition-transform group-hover:scale-105"
+        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         loading="lazy"
         @error="handleImageError"
       />
 
       <div
         v-else
-        class="flex h-full w-full items-center justify-center bg-base-200"
+        class="flex h-full w-full items-center justify-center bg-linear-to-br from-base-200 to-base-300"
       >
         <span
           v-if="isLoadingImage"
@@ -75,16 +75,24 @@
         />
       </div>
 
+      <div
+        v-if="visibleRewardImageSrc"
+        class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-base-300/80 to-transparent"
+      />
+
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span v-if="activeSelected" class="badge badge-primary badge-sm">
+        <span v-if="activeSelected" class="badge badge-primary badge-sm shadow">
           Selected
         </span>
 
-        <span v-if="reward.collection" class="badge badge-secondary badge-sm">
+        <span
+          v-if="reward.collection"
+          class="badge badge-secondary badge-sm shadow"
+        >
           {{ reward.collection }}
         </span>
 
-        <span class="badge badge-ghost badge-sm">
+        <span class="badge badge-sm shadow" :class="rarityBadgeClass">
           {{ reward.rarity || 'COMMON' }}
         </span>
       </div>
@@ -128,20 +136,16 @@
       </p>
 
       <div v-if="showMeta" class="flex flex-wrap gap-2">
-        <span class="badge badge-outline badge-sm">
-          {{ reward.collection || 'general' }}
-        </span>
-
-        <span class="badge badge-ghost badge-sm">
-          {{ reward.rarity || 'COMMON' }}
-        </span>
-
         <span v-if="reward.rewardType" class="badge badge-primary badge-sm">
           {{ reward.rewardType }}
         </span>
 
-        <span v-if="reward.userId" class="badge badge-accent badge-sm">
-          User #{{ reward.userId }}
+        <span class="badge badge-outline badge-sm">
+          {{ reward.collection || 'general' }}
+        </span>
+
+        <span class="badge badge-sm" :class="rarityBadgeClass">
+          {{ reward.rarity || 'COMMON' }}
         </span>
       </div>
 
@@ -266,27 +270,81 @@ const rewardStore = useRewardStore()
 
 const artImage = ref<RewardCardImage | null>(null)
 const isLoadingImage = ref(false)
-const imageFailed = ref(false)
+const imageCandidateIndex = ref(0)
 
 const embeddedArtImage = computed<RewardCardImage | null>(() => {
   return props.reward.ArtImage ?? null
 })
 
-const rewardImageSrc = computed(() => {
+// Ordered fallback chain: ArtImage base64 -> thumbnail -> imagePath ->
+// slug-derived /images/rewards/{type}/{slug}.webp. A failed <img> load
+// advances to the next candidate instead of giving up entirely.
+const imageCandidates = computed<string[]>(() => {
+  const candidates: string[] = []
   const image = embeddedArtImage.value || artImage.value
 
   if (image?.imageData) {
-    return `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`,
+    )
   }
 
-  return props.reward.imagePath || ''
+  if (image?.thumbnailData) {
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.thumbnailData}`,
+    )
+  }
+
+  const path = props.reward.imagePath?.trim()
+
+  if (path) {
+    candidates.push(path)
+
+    if (
+      !path.startsWith('/') &&
+      !path.startsWith('http') &&
+      !path.startsWith('data:')
+    ) {
+      candidates.push(`/${path}`)
+    }
+  }
+
+  const slug = props.reward.slug?.trim()
+  const rewardType = props.reward.rewardType?.toLowerCase()
+
+  if (slug && rewardType) {
+    candidates.push(`/images/rewards/${rewardType}/${slug}.webp`)
+  }
+
+  return Array.from(new Set(candidates))
 })
 
 const visibleRewardImageSrc = computed(() => {
-  if (!props.showImage || imageFailed.value) return ''
+  if (!props.showImage) return ''
 
-  return rewardImageSrc.value
+  return imageCandidates.value[imageCandidateIndex.value] ?? ''
 })
+
+const rarityBadgeClass = computed(() => {
+  return getRarityBadgeClass(props.reward.rarity)
+})
+
+function getRarityBadgeClass(rarity?: string | null) {
+  switch (rarity) {
+    case 'UNCOMMON':
+      return 'badge-success'
+    case 'RARE':
+      return 'badge-info'
+    case 'EPIC':
+      return 'badge-secondary'
+    case 'LEGENDARY':
+      return 'badge-warning'
+    case 'MYTHIC':
+      return 'badge-error'
+    default:
+      return 'badge-ghost'
+  }
+}
 
 async function fetchArtImageById(id: number): Promise<RewardCardImage | null> {
   if (typeof artStore.getArtImageById === 'function') {
@@ -341,7 +399,7 @@ function normalizeImageMime(fileType?: string | null) {
 
 async function loadRewardImage() {
   artImage.value = null
-  imageFailed.value = false
+  imageCandidateIndex.value = 0
 
   if (!props.reward.artImageId || !props.showImage || embeddedArtImage.value) {
     return
@@ -359,7 +417,7 @@ async function loadRewardImage() {
 }
 
 function handleImageError() {
-  imageFailed.value = true
+  imageCandidateIndex.value += 1
 }
 
 onMounted(async () => {

@@ -4,7 +4,8 @@
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
     <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
+      v-if="!isInteractMode"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
     >
       <h1 class="text-2xl font-bold text-primary md:text-3xl">
         What Happens When You Find It?
@@ -18,9 +19,42 @@
       </p>
     </header>
 
+    <header
+      v-else
+      class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+    >
+      <button
+        class="btn btn-ghost btn-sm shrink-0 rounded-xl"
+        type="button"
+        :disabled="isStarting"
+        @click="backToGallery"
+      >
+        <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+        <span class="hidden sm:inline">Rewards</span>
+      </button>
+
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-lg font-bold text-primary md:text-xl">
+          {{ selectedRewardName }}
+        </h1>
+
+        <p class="hidden truncate text-xs text-base-content/50 sm:block">
+          Set the scene, then let the narrative gremlin loose.
+        </p>
+      </div>
+
+      <span
+        v-if="rewardStore.selectedReward"
+        class="badge shrink-0"
+        :class="rarityBadgeClass"
+      >
+        {{ rewardStore.selectedReward.rarity }}
+      </span>
+    </header>
+
     <div
       v-if="statusMessage"
-      class="rounded-2xl border p-3 text-sm"
+      class="shrink-0 rounded-2xl border p-3 text-sm"
       :class="
         statusTone === 'error'
           ? 'border-error/40 bg-error/10 text-error'
@@ -31,7 +65,7 @@
     </div>
 
     <reward-gallery
-      v-if="!rewardStore.selectedReward && sessionChats.length === 0"
+      v-if="!isInteractMode"
       class="min-h-0 flex-1"
       variant="dashboard"
       title="Choose Your Reward"
@@ -44,41 +78,89 @@
 
     <section
       v-else
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,440px)]"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(320px,440px)] xl:overflow-hidden"
     >
       <div
-        class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="grid min-h-[70vh] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:min-h-0"
       >
         <div class="shrink-0 border-b border-base-300 p-4">
-          <article>
-            <h2 class="mb-2 text-lg font-bold text-base-content">The Reward</h2>
+          <article v-if="rewardStore.selectedReward">
+            <div class="flex flex-col gap-4 sm:flex-row">
+              <div
+                class="relative h-40 w-full shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-300 sm:h-36 sm:w-36 md:h-44 md:w-44"
+              >
+                <img
+                  v-if="rewardHeroSrc"
+                  :src="rewardHeroSrc"
+                  :alt="selectedRewardName"
+                  class="h-full w-full object-cover"
+                  @error="handleHeroImageError"
+                />
 
-            <div
-              v-if="rewardStore.selectedReward"
-              class="rounded-2xl border border-primary/30 bg-primary/10 p-4"
-            >
-              <p class="text-xl font-bold text-primary">
-                {{ selectedRewardName }}
-              </p>
+                <div
+                  v-else
+                  class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/10 to-base-300"
+                >
+                  <Icon
+                    :name="rewardStore.selectedReward.icon || 'kind-icon:gift'"
+                    class="h-16 w-16 text-primary/70"
+                  />
+                </div>
+              </div>
 
-              <p class="mt-2 text-sm text-base-content/70">
-                {{ selectedRewardEffect }}
-              </p>
+              <div class="min-w-0 flex-1">
+                <p class="text-xl font-black text-primary">
+                  {{ selectedRewardName }}
+                </p>
 
-              <p class="mt-2 text-xs text-base-content/50">
-                Collection: {{ rewardStore.selectedReward.collection }} ·
-                Rarity:
-                {{ rewardStore.selectedReward.rarity }}
-              </p>
-            </div>
+                <p
+                  v-if="rewardStore.selectedReward.flavorText"
+                  class="mt-1 text-sm italic text-base-content/60"
+                >
+                  "{{ rewardStore.selectedReward.flavorText }}"
+                </p>
 
-            <div
-              v-else
-              class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
-            >
-              No reward selected. Go pick something from the Rewards tab.
+                <p
+                  v-if="rewardStore.selectedReward.description"
+                  class="mt-2 text-sm text-base-content/75"
+                >
+                  {{ rewardStore.selectedReward.description }}
+                </p>
+
+                <p
+                  v-if="rewardStore.selectedReward.effect"
+                  class="mt-2 text-sm text-base-content/75"
+                >
+                  <span class="font-bold text-secondary">Effect:</span>
+                  {{ rewardStore.selectedReward.effect }}
+                </p>
+
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="badge badge-primary badge-sm">
+                    {{ rewardStore.selectedReward.rewardType }}
+                  </span>
+
+                  <span
+                    v-if="rewardStore.selectedReward.collection"
+                    class="badge badge-outline badge-sm"
+                  >
+                    {{ rewardStore.selectedReward.collection }}
+                  </span>
+
+                  <span class="badge badge-sm" :class="rarityBadgeClass">
+                    {{ rewardStore.selectedReward.rarity }}
+                  </span>
+                </div>
+              </div>
             </div>
           </article>
+
+          <div
+            v-else
+            class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
+          >
+            No reward selected. Head back to the gallery and pick something.
+          </div>
         </div>
 
         <div ref="storyLogRef" class="min-h-0 overflow-y-auto bg-base-200 p-4">
@@ -91,7 +173,7 @@
             <div>
               <p class="text-lg font-bold">Start the encounter</p>
               <p class="mt-1 text-sm">
-                Pick a reward, tune the premise, and unleash the narrative
+                Tune the premise on the right, then unleash the narrative
                 gremlin.
               </p>
             </div>
@@ -153,7 +235,7 @@
                       <button
                         v-for="choice in getStoryChoices(chat.botResponse)"
                         :key="choice.key"
-                        class="btn btn-sm justify-start rounded-2xl text-left normal-case"
+                        class="btn btn-sm h-auto min-h-10 justify-start rounded-2xl py-2 text-left normal-case"
                         :class="
                           selectedPath === choice.text
                             ? 'btn-secondary'
@@ -220,7 +302,10 @@
         </div>
 
         <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
-          <div class="mb-2 flex flex-wrap items-center gap-2">
+          <div
+            class="flex flex-wrap items-center gap-2"
+            :class="sessionChats.length === 0 ? 'mb-2' : ''"
+          >
             <button
               class="btn btn-xs btn-ghost rounded-xl"
               type="button"
@@ -254,6 +339,7 @@
           </div>
 
           <button
+            v-if="sessionChats.length === 0"
             class="btn btn-success min-h-14 w-full rounded-2xl"
             type="button"
             :disabled="!canStartStory"
@@ -269,9 +355,9 @@
         </div>
       </div>
 
-      <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
+      <aside class="flex flex-col gap-4 xl:min-h-0 xl:overflow-y-auto xl:pr-1">
         <section
-          class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
           <h2 class="mb-3 text-lg font-bold text-base-content">
             The Encounter
@@ -338,7 +424,7 @@
         </section>
 
         <section
-          class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
           <h2 class="mb-1 text-lg font-bold text-base-content">About You</h2>
 
@@ -363,7 +449,7 @@
         </section>
 
         <section
-          class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
           <button
             class="flex w-full items-center justify-between gap-3 text-left"
@@ -417,13 +503,30 @@
         </section>
 
         <section
-          class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
-          <div class="mb-3 flex items-center justify-between gap-2">
-            <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
+          <div class="flex items-center justify-between gap-3">
+            <button
+              class="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
+              type="button"
+              @click="showPromptPreview = !showPromptPreview"
+            >
+              <h2 class="text-lg font-bold text-base-content">
+                Prompt Preview
+              </h2>
+
+              <Icon
+                :name="
+                  showPromptPreview
+                    ? 'kind-icon:chevron-up'
+                    : 'kind-icon:chevron-down'
+                "
+                class="h-5 w-5 shrink-0 text-base-content/50"
+              />
+            </button>
 
             <button
-              class="btn btn-xs btn-ghost rounded-xl"
+              class="btn btn-xs btn-ghost shrink-0 rounded-xl"
               type="button"
               :disabled="!rewardPromptPreview"
               @click="copyPrompt"
@@ -433,7 +536,8 @@
           </div>
 
           <pre
-            class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+            v-if="showPromptPreview"
+            class="mt-3 max-h-72 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
             >{{ rewardPromptPreview }}</pre
           >
         </section>
@@ -449,7 +553,8 @@ import { useChatStore } from '@/stores/chatStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
-import type { Chat } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '@/stores/artStore'
+import type { Chat, Reward } from '~/prisma/generated/prisma/client'
 
 type ChatRuntimeInput = Parameters<
   ReturnType<typeof useChatStore>['addChat']
@@ -464,6 +569,10 @@ type ParsedChoice = {
   key: string
   label: string
   text: string
+}
+
+type RewardWithArt = Reward & {
+  ArtImage?: ArtImage | null
 }
 
 const rewardStore = useRewardStore()
@@ -495,10 +604,12 @@ const customFollowup = ref('')
 const selectedPath = ref('')
 const userBackground = ref(userStore.user?.bio ?? '')
 const showCharacterPanel = ref(false)
+const showPromptPreview = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const isStarting = ref(false)
 const sessionChatIds = ref<number[]>([])
+const heroImageIndex = ref(0)
 
 const selectedCharacterTitle = computed(() => {
   const character = characterStore.selectedCharacter
@@ -522,18 +633,96 @@ const selectedRewardName = computed(() => {
   return rewardStore.selectedReward?.name || 'the reward'
 })
 
-const selectedRewardEffect = computed(() => {
-  const reward = rewardStore.selectedReward
-
-  if (!reward) return 'No effect described yet.'
-
-  return reward.effect || reward.description || 'No effect described yet.'
+const rarityBadgeClass = computed(() => {
+  switch (rewardStore.selectedReward?.rarity) {
+    case 'UNCOMMON':
+      return 'badge-success'
+    case 'RARE':
+      return 'badge-info'
+    case 'EPIC':
+      return 'badge-secondary'
+    case 'LEGENDARY':
+      return 'badge-warning'
+    case 'MYTHIC':
+      return 'badge-error'
+    default:
+      return 'badge-ghost'
+  }
 })
+
+// Ordered fallback chain for the hero image: ArtImage base64 -> thumbnail ->
+// imagePath -> slug-derived /images/rewards/{type}/{slug}.webp. A failed load
+// advances to the next candidate instead of giving up.
+const heroImageCandidates = computed<string[]>(() => {
+  const reward = rewardStore.selectedReward as RewardWithArt | null
+
+  if (!reward) return []
+
+  const candidates: string[] = []
+  const image = reward.ArtImage
+
+  if (image?.imageData) {
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`,
+    )
+  }
+
+  if (image?.thumbnailData) {
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.thumbnailData}`,
+    )
+  }
+
+  const path = reward.imagePath?.trim()
+
+  if (path) {
+    candidates.push(path)
+
+    if (
+      !path.startsWith('/') &&
+      !path.startsWith('http') &&
+      !path.startsWith('data:')
+    ) {
+      candidates.push(`/${path}`)
+    }
+  }
+
+  const slug = reward.slug?.trim()
+  const rewardType = reward.rewardType?.toLowerCase()
+
+  if (slug && rewardType) {
+    candidates.push(`/images/rewards/${rewardType}/${slug}.webp`)
+  }
+
+  return Array.from(new Set(candidates))
+})
+
+const rewardHeroSrc = computed(() => {
+  return heroImageCandidates.value[heroImageIndex.value] ?? ''
+})
+
+function handleHeroImageError() {
+  heroImageIndex.value += 1
+}
+
+function normalizeImageMime(fileType?: string | null) {
+  const fallback = 'image/webp'
+  const cleaned = fileType?.trim().replace(/^\./, '')
+
+  if (!cleaned) return fallback
+  if (cleaned.startsWith('image/')) return cleaned
+
+  return `image/${cleaned}`
+}
 
 const sessionChats = computed<Chat[]>(() => {
   return chatStore.chats.filter((chat) =>
     sessionChatIds.value.includes(chat.id),
   )
+})
+
+const isInteractMode = computed(() => {
+  return Boolean(rewardStore.selectedReward) || sessionChats.value.length > 0
 })
 
 const latestSessionChat = computed(() => {
@@ -877,6 +1066,11 @@ function newStory() {
   statusMessage.value = ''
 }
 
+function backToGallery() {
+  newStory()
+  rewardStore.deselectReward()
+}
+
 function clearPromptOptions() {
   encounterMode.value = 'discover'
   tone.value = 'whimsical'
@@ -895,6 +1089,13 @@ onMounted(async () => {
       : [serverStore.initialize({ fetchRemote: true })]),
   ])
 })
+
+watch(
+  () => rewardStore.selectedReward?.id,
+  () => {
+    heroImageIndex.value = 0
+  },
+)
 
 watch(
   () => sessionChats.value.map((chat) => chat.botResponse).join(''),

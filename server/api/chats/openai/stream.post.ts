@@ -8,6 +8,7 @@ import {
 } from 'h3'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { manaGate } from '../../../utils/manaGate'
+import { requireApiUser } from '../../../utils/authGuard'
 import type { Server } from '~/prisma/generated/prisma/client'
 
 type OpenAiStreamBody = {
@@ -38,12 +39,13 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<OpenAiStreamBody>(event)
     const config = useRuntimeConfig()
+    const auth = await requireApiUser(event)
 
     const model = body.model || 'gpt-4o-mini'
     const maxTokens = body.maxTokens ?? 2048
 
     const server = await resolveOptionalServer({
-      event,
+      userId: auth.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
     })
@@ -61,12 +63,16 @@ export default defineEventHandler(async (event) => {
     const messages = normalizeMessages(body)
     const endpoint = getOpenAiCompatibleEndpoint(server)
     const apiKey = getOpenAiCompatibleApiKey({
+      server,
       serverApiKey: server?.apiKey,
       userApiKey: body.userApiKey,
       runtimeApiKey: getRuntimeOpenAiKey(config),
     })
 
-    assertOpenAiApiKey(apiKey)
+    assertOpenAiCompatibleApiKey({
+      server,
+      apiKey,
+    })
 
     const payload = {
       model,
@@ -81,8 +87,10 @@ export default defineEventHandler(async (event) => {
       endpoint,
       model: payload.model,
       messages: payload.messages.length,
+      authUserId: auth.user.id,
       serverId: server?.id ?? null,
       serverTitle: server?.title ?? 'System OpenAI',
+      serverType: server?.serverType ?? 'OPENAI',
       chargedMana: gate.cost,
       free: gate.free,
       providerKeyPrefix: apiKey.slice(0, 6),
@@ -150,7 +158,7 @@ function normalizeMessages(body: OpenAiStreamBody) {
 }
 
 async function resolveOptionalServer(input: {
-  event: H3Event
+  userId: number
   serverId?: number | null
   serverName?: string | null
 }): Promise<Server | null> {
@@ -158,14 +166,8 @@ async function resolveOptionalServer(input: {
     return null
   }
 
-  const gate = await manaGate(input.event, {
-    kind: 'free',
-    serverId: input.serverId ?? null,
-    useOwnResource: true,
-  })
-
   return await resolveServer({
-    userId: gate.user.id,
+    userId: input.userId,
     serverId: input.serverId ?? null,
     serverName: input.serverName ?? null,
     capability: 'text',
@@ -203,6 +205,7 @@ function cleanProviderKey(value?: string | null) {
 }
 
 function getOpenAiCompatibleApiKey(options: {
+  server: Server | null
   serverApiKey?: string | null
   userApiKey?: string | null
   runtimeApiKey?: string | null
@@ -214,7 +217,12 @@ function getOpenAiCompatibleApiKey(options: {
   )
 }
 
-function assertOpenAiApiKey(apiKey: string) {
+function assertOpenAiCompatibleApiKey(input: {
+  server: Server | null
+  apiKey: string
+}) {
+  const { server, apiKey } = input
+
   if (!apiKey) {
     throw createError({
       statusCode: 500,
@@ -222,7 +230,9 @@ function assertOpenAiApiKey(apiKey: string) {
     })
   }
 
-  if (!apiKey.startsWith('sk-')) {
+  const serverType = String(server?.serverType || 'OPENAI')
+
+  if (serverType === 'OPENAI' && !apiKey.startsWith('sk-')) {
     throw createError({
       statusCode: 500,
       message:
@@ -290,4 +300,25 @@ function estimateOpenAiTextCostUsd(input: {
   const maxTokens = Math.max(1, input.maxTokens)
 
   if (model.includes('gpt-4o-mini')) {
-    return (maxTokens / 1_000_
+    return (maxTokens / 1_000_000) * 0.6
+  }
+
+  if (model.includes('gpt-4o')) {
+    return (maxTokens / 1_000_000) * 10
+  }
+
+  if (model.includes('gpt-4')) {
+    return (maxTokens / 1_000_000) * 30
+  }
+
+  return (maxTokens / 1_000_000) * 2
+}
+
+function getErrorStatusCode(error: unknown) {
+  return typeof error === 'object' &&
+    error !== null &&
+    'statusCode' in error &&
+    typeof error.statusCode === 'number'
+    ? error.statusCode
+    : 500
+}

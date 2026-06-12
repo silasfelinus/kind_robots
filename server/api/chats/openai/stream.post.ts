@@ -1,14 +1,13 @@
 // /server/api/chats/openai/stream.post.ts
 import {
+  createError,
   defineEventHandler,
   readBody,
-  createError,
   setHeader,
   type H3Event,
 } from 'h3'
-import { validateApiKey } from '../../../utils/validateKey'
-import { resolveServer, getServerEndpoint } from '../../../utils/serverResolver'
-import { withTextMana } from '../../../utils/generationMana'
+import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
+import { manaGate } from '../../../utils/manaGate'
 import type { Server } from '~/prisma/generated/prisma/client'
 
 type OpenAiStreamBody = {
@@ -26,76 +25,69 @@ type OpenAiStreamBody = {
   serverName?: string | null
   chatId?: number | string | null
   userApiKey?: string | null
+  useOwnResource?: boolean
+}
+
+type StreamManaResult = {
+  balance: number
+  charged: number
+  free: boolean
 }
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<OpenAiStreamBody>(event)
-    const { openaiApiKey } = useRuntimeConfig()
-
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token is required or invalid.',
-      })
-    }
-
-    const messages = body.messages?.length
-      ? body.messages
-      : [
-          ...(body.system
-            ? [{ role: 'system' as const, content: body.system }]
-            : []),
-          { role: 'user' as const, content: body.prompt ?? '' },
-        ]
+    const config = useRuntimeConfig()
 
     const model = body.model || 'gpt-4o-mini'
+    const maxTokens = body.maxTokens ?? 2048
 
-    const server = await resolveServer({
-      userId: user.id,
+    const server = await resolveOptionalServer({
+      event,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
-      capability: 'text',
     })
 
-    const gate = await withTextMana(event, {
-      server,
-      model,
-      maxTokens: body.maxTokens ?? null,
+    const gate = await manaGate(event, {
+      kind: 'text',
+      estCostUsd: estimateOpenAiTextCostUsd({
+        model,
+        maxTokens,
+      }),
+      serverId: server?.id ?? body.serverId ?? null,
+      useOwnResource: Boolean(body.useOwnResource || body.userApiKey),
     })
+
+    const messages = normalizeMessages(body)
+    const endpoint = getOpenAiCompatibleEndpoint(server)
+    const apiKey = getOpenAiCompatibleApiKey({
+      serverApiKey: server?.apiKey,
+      userApiKey: body.userApiKey,
+      runtimeApiKey: getRuntimeOpenAiKey(config),
+    })
+
+    assertOpenAiApiKey(apiKey)
 
     const payload = {
       model,
       messages,
       temperature: body.temperature ?? 0.7,
-      max_tokens: body.maxTokens,
+      max_tokens: maxTokens,
       n: body.n,
       stream: true,
     }
 
-    const endpoint = getOpenAiCompatibleEndpoint(server)
-    const apiKey = getOpenAiCompatibleApiKey({
-      serverApiKey: server.apiKey,
-      userApiKey: body.userApiKey,
-      runtimeApiKey: openaiApiKey,
-    })
-
-    if (!apiKey) {
-      throw createError({
-        statusCode: 500,
-        message: 'No OpenAI-compatible API key is configured.',
-      })
-    }
-
     console.log('[openai/stream] →', {
+      endpoint,
       model: payload.model,
       messages: payload.messages.length,
-      serverId: server.id,
-      serverTitle: server.title,
+      serverId: server?.id ?? null,
+      serverTitle: server?.title ?? 'System OpenAI',
       chargedMana: gate.cost,
       free: gate.free,
+      providerKeyPrefix: apiKey.slice(0, 6),
+      providerKeyLength: apiKey.length,
+      bodyHasUserApiKey: Boolean(body.userApiKey),
     })
 
     const upstream = await fetch(endpoint, {
@@ -118,13 +110,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    setHeader(event, 'Content-Type', 'text/event-stream')
-    setHeader(event, 'Cache-Control', 'no-cache, no-transform')
-    setHeader(event, 'Connection', 'keep-alive')
-    setHeader(event, 'X-Accel-Buffering', 'no')
+    setStreamHeaders(event, 'text/event-stream')
 
     return sendMeteredStream(event, upstream.body, async () => {
-      const refId = body.chatId ? `chat:${body.chatId}` : `text:${Date.now()}`
+      const refId = body.chatId ? `chat:${body.chatId}` : `openai:${Date.now()}`
       const { balance } = await gate.commit(refId)
 
       return {
@@ -134,14 +123,7 @@ export default defineEventHandler(async (event) => {
       }
     })
   } catch (error) {
-    const statusCode =
-      typeof error === 'object' &&
-      error !== null &&
-      'statusCode' in error &&
-      typeof error.statusCode === 'number'
-        ? error.statusCode
-        : 500
-
+    const statusCode = getErrorStatusCode(error)
     const message = error instanceof Error ? error.message : 'Unknown error'
 
     console.error('[openai/stream] error:', message)
@@ -153,7 +135,52 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-function getOpenAiCompatibleEndpoint(server: Server) {
+function normalizeMessages(body: OpenAiStreamBody) {
+  if (body.messages?.length) {
+    return body.messages
+  }
+
+  return [
+    ...(body.system ? [{ role: 'system' as const, content: body.system }] : []),
+    {
+      role: 'user' as const,
+      content: body.prompt ?? '',
+    },
+  ]
+}
+
+async function resolveOptionalServer(input: {
+  event: H3Event
+  serverId?: number | null
+  serverName?: string | null
+}): Promise<Server | null> {
+  if (!input.serverId && !input.serverName) {
+    return null
+  }
+
+  const gate = await manaGate(input.event, {
+    kind: 'free',
+    serverId: input.serverId ?? null,
+    useOwnResource: true,
+  })
+
+  return await resolveServer({
+    userId: gate.user.id,
+    serverId: input.serverId ?? null,
+    serverName: input.serverName ?? null,
+    capability: 'text',
+  })
+}
+
+function getRuntimeOpenAiKey(config: ReturnType<typeof useRuntimeConfig>) {
+  return String(config.openaiApiKey || process.env.OPENAI_API_KEY || '').trim()
+}
+
+function getOpenAiCompatibleEndpoint(server: Server | null) {
+  if (!server) {
+    return 'https://api.openai.com/v1/chat/completions'
+  }
+
   const endpoint = getServerEndpoint(server).trim()
 
   if (!endpoint) {
@@ -171,18 +198,8 @@ function getOpenAiCompatibleEndpoint(server: Server) {
   return endpoint
 }
 
-function normalizeChatCompletionsEndpoint(url: string) {
-  const cleanUrl = url.trim().replace(/\/+$/, '')
-
-  if (cleanUrl.endsWith('/chat/completions')) {
-    return cleanUrl
-  }
-
-  if (cleanUrl.endsWith('/v1')) {
-    return `${cleanUrl}/chat/completions`
-  }
-
-  return cleanUrl
+function cleanProviderKey(value?: string | null) {
+  return value?.trim().replace(/^Bearer\s+/i, '').trim() || ''
 }
 
 function getOpenAiCompatibleApiKey(options: {
@@ -191,21 +208,40 @@ function getOpenAiCompatibleApiKey(options: {
   runtimeApiKey?: string | null
 }) {
   return (
-    options.userApiKey?.trim() ||
-    options.serverApiKey?.trim() ||
-    options.runtimeApiKey?.trim() ||
-    ''
+    cleanProviderKey(options.userApiKey) ||
+    cleanProviderKey(options.serverApiKey) ||
+    cleanProviderKey(options.runtimeApiKey)
   )
+}
+
+function assertOpenAiApiKey(apiKey: string) {
+  if (!apiKey) {
+    throw createError({
+      statusCode: 500,
+      message: 'No OpenAI-compatible API key is configured.',
+    })
+  }
+
+  if (!apiKey.startsWith('sk-')) {
+    throw createError({
+      statusCode: 500,
+      message:
+        'OpenAI provider key is invalid. Expected an OpenAI key starting with "sk-". The app authorization key is probably being used as the provider key.',
+    })
+  }
+}
+
+function setStreamHeaders(event: H3Event, contentType: string) {
+  setHeader(event, 'Content-Type', contentType)
+  setHeader(event, 'Cache-Control', 'no-cache, no-transform')
+  setHeader(event, 'Connection', 'keep-alive')
+  setHeader(event, 'X-Accel-Buffering', 'no')
 }
 
 function sendMeteredStream(
   event: H3Event,
   body: ReadableStream<Uint8Array>,
-  onComplete: () => Promise<{
-    balance: number
-    charged: number
-    free: boolean
-  }>,
+  onComplete: () => Promise<StreamManaResult>,
 ) {
   const reader = body.getReader()
   const res = event.node.res
@@ -228,7 +264,7 @@ function sendMeteredStream(
         })}\n\n`,
       )
     } catch (err) {
-      console.error('[stream pump] error:', err)
+      console.error('[openai stream pump] error:', err)
 
       res.write(
         `event: error\ndata: ${JSON.stringify({
@@ -245,3 +281,13 @@ function sendMeteredStream(
 
   return new Promise(() => {})
 }
+
+function estimateOpenAiTextCostUsd(input: {
+  model: string
+  maxTokens: number
+}): number {
+  const model = input.model.toLowerCase()
+  const maxTokens = Math.max(1, input.maxTokens)
+
+  if (model.includes('gpt-4o-mini')) {
+    return (maxTokens / 1_000_

@@ -17,6 +17,7 @@
       </button>
 
       <button
+        v-if="isLoggedIn"
         class="btn btn-error btn-sm rounded-xl"
         type="button"
         :disabled="isLoggingOut"
@@ -146,6 +147,8 @@ const activeTab = computed<UserTab>(() => {
     : fallbackTab
 })
 
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+
 async function refreshManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
@@ -175,7 +178,7 @@ async function logout(): Promise<void> {
 
   try {
     await userStore.logout()
-    await navigateTo('/login')
+    await navigateTo('/login', { replace: true })
   } finally {
     isLoggingOut.value = false
   }

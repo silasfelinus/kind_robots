@@ -27,11 +27,18 @@
         <div
           class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
         >
-          <div class="relative">
+          <div v-if="isLoggedIn" class="relative">
             <user-avatar
               class="h-24 w-24 rounded-full ring-2 ring-accent ring-offset-2 ring-offset-base-100"
             />
           </div>
+
+          <span
+            v-else
+            class="flex h-24 w-24 items-center justify-center rounded-full border border-dashed border-base-300 bg-base-200 text-base-content/35"
+          >
+            <Icon name="kind-icon:user" class="h-12 w-12" />
+          </span>
 
           <div class="flex w-full flex-col items-center gap-1">
             <h2
@@ -50,7 +57,10 @@
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div
+          v-if="isLoggedIn"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
           <div class="mb-2 flex items-center gap-1.5">
             <Icon name="kind-icon:camera" class="h-3.5 w-3.5 text-primary" />
             <span class="text-xs font-bold text-base-content/60">
@@ -61,15 +71,27 @@
           <image-upload class="w-full" />
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div
+          v-if="isLoggedIn"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
           <div class="flex flex-wrap items-center justify-center gap-3">
             <jellybean-icon />
             <theme-icon class="flex flex-row" />
           </div>
         </div>
 
+        <NuxtLink
+          v-if="!isLoggedIn"
+          to="/login"
+          class="btn btn-primary w-full rounded-xl"
+        >
+          <Icon name="kind-icon:login" class="h-4 w-4" />
+          Sign in
+        </NuxtLink>
+
         <button
-          v-if="isLoggedIn"
+          v-else
           class="btn btn-outline w-full rounded-xl border-error/40 text-error hover:border-error hover:bg-error hover:text-error-content"
           type="button"
           @click="logout"
@@ -125,6 +147,10 @@
               Charming, mysterious, and tragically short on saved stuff.
             </p>
           </div>
+
+          <NuxtLink to="/login" class="btn btn-secondary mt-2 rounded-xl">
+            Go to login
+          </NuxtLink>
         </div>
       </main>
     </div>
@@ -143,9 +169,11 @@ const user = computed(() => userStore.user)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 function configureUserImageUpload() {
+  if (!userStore.user?.id) return
+
   imageUploadStore.setTarget({
     model: 'User',
-    modelId: userStore.userId ?? userStore.user?.id ?? null,
+    modelId: userStore.user.id,
     galleryName: 'avatarUploads',
     collectionLabel: 'avatars',
     promptString: '[UserAvatar]',
@@ -179,6 +207,7 @@ watch(
 const logout = async () => {
   try {
     await userStore.logout()
+    await navigateTo('/login', { replace: true })
   } catch (error) {
     console.error('Failed to logout:', error)
   }

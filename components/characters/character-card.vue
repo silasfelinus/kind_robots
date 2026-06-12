@@ -54,6 +54,7 @@
         :alt="displayName"
         class="h-full w-full object-cover transition-transform group-hover:scale-105"
         loading="lazy"
+        @error="handleImageError"
       />
 
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
@@ -61,9 +62,7 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm">
-          Private
-        </span>
+        <span v-else class="badge badge-warning badge-sm"> Private </span>
 
         <span v-if="activeSelected" class="badge badge-primary badge-sm">
           Selected
@@ -206,6 +205,15 @@ import { useUserStore } from '@/stores/userStore'
 
 type CharacterMode = 'chat' | 'adventure'
 
+const CHARACTER_FALLBACK_IMAGES = [
+  '/images/characters/fallbacks/alien-01.webp',
+  '/images/characters/fallbacks/alien-02.webp',
+  '/images/characters/fallbacks/alien-03.webp',
+  '/images/characters/fallbacks/alien-04.webp',
+  '/images/characters/fallbacks/alien-05.webp',
+  '/images/characters/fallbacks/alien-06.webp',
+] as const
+
 const props = withDefaults(
   defineProps<{
     character: Character
@@ -242,7 +250,7 @@ const props = withDefaults(
     allowEdit: true,
     allowClone: true,
     allowDelete: true,
-    fallbackImage: '/images/bot.webp',
+    fallbackImage: '',
   },
 )
 
@@ -260,6 +268,7 @@ const artStore = useArtStore()
 
 const artImage = ref<ArtImage | null>(null)
 const activeMode = ref<CharacterMode | null>(null)
+const hasImageError = ref(false)
 
 const statIndexes = [1, 2, 3, 4, 5, 6]
 
@@ -286,13 +295,44 @@ const displayName = computed(() => {
   }`.trim()
 })
 
+const rotatingFallbackImage = computed(() => {
+  if (props.fallbackImage) return props.fallbackImage
+
+  const id = Number(props.character.id)
+  const stableIndex = Number.isFinite(id)
+    ? Math.abs(id) % CHARACTER_FALLBACK_IMAGES.length
+    : 0
+
+  return CHARACTER_FALLBACK_IMAGES[stableIndex]
+})
+
+function normalizeImageMime(fileType?: string | null) {
+  const fallback = 'image/webp'
+  const cleaned = fileType?.trim().replace(/^\./, '')
+
+  if (!cleaned) return fallback
+  if (cleaned.startsWith('image/')) return cleaned
+
+  return `image/${cleaned}`
+}
+
 const computedCharacterImage = computed(() => {
-  if (artImage.value?.imageData && artImage.value?.fileType) {
-    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
+  if (hasImageError.value) {
+    return rotatingFallbackImage.value
   }
 
-  return props.character.imagePath || props.fallbackImage
+  if (artImage.value?.imageData) {
+    return `data:${normalizeImageMime(artImage.value.fileType)};base64,${
+      artImage.value.imageData
+    }`
+  }
+
+  return props.character.imagePath || rotatingFallbackImage.value
 })
+
+function handleImageError() {
+  hasImageError.value = true
+}
 
 function statName(index: number) {
   const key = `statName${index}` as keyof Character
@@ -334,6 +374,7 @@ function toggleMode(mode: CharacterMode) {
 
 async function loadCharacterImage() {
   artImage.value = null
+  hasImageError.value = false
 
   if (!props.character.artImageId || !props.showImage) return
 
@@ -350,7 +391,7 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.character.artImageId, props.showImage],
+  () => [props.character.id, props.character.artImageId, props.showImage],
   async () => {
     await loadCharacterImage()
   },

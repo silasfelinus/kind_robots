@@ -399,14 +399,9 @@ async function launchBot() {
     `Ready to chat with ${selected.name || 'this bot'}.`,
   )
 
-  navStore.setDashboardTab('bot', 'interact')
   emit('launch', props.bot.id)
   setStatus('Bot selected for chat.')
 }
-
-onMounted(async () => {
-  await loadBotImage()
-})
 
 watch(
   () => [

@@ -404,7 +404,8 @@ const props = withDefaults(
   {
     variant: 'dashboard',
     title: 'Characters',
-    subtitle: 'Browse, select, add, edit, or clone the cast.',
+    subtitle:
+      'Choose a character to chat, prompt, or throw into narrative danger.',
     showHeader: true,
     showImages: true,
     showControls: true,
@@ -675,24 +676,24 @@ onMounted(async () => {
 })
 
 function characterMatchesSearch(character: Character, query: string) {
-const haystack = [
-  character.name,
-  character.honorific,
-  character.title,
-  character.role,
-  character.species,
-  character.class,
-  character.gender,
-  character.presentation,
-  character.genre,
-  character.alignment,
-  character.personality,
-  character.backstory,
-  character.achievements,
-  character.quirks,
-  character.drive,
-  character.artPrompt,
-]
+  const haystack = [
+    character.name,
+    character.honorific,
+    character.title,
+    character.role,
+    character.species,
+    character.class,
+    character.gender,
+    character.presentation,
+    character.genre,
+    character.alignment,
+    character.personality,
+    character.backstory,
+    character.achievements,
+    character.quirks,
+    character.drive,
+    character.artPrompt,
+  ]
     .filter(Boolean)
     .join(' ')
     .toLowerCase()

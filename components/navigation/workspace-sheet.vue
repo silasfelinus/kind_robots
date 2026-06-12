@@ -465,6 +465,14 @@ const activeSelectedFieldInfo = computed(() => {
   return completedFields.find((field) => field.imagePath) ?? null
 })
 
+function selectionPreviewImagePath(): string {
+  const preview = builderStore.activeSelectionPreview
+
+  if (!preview) return ''
+
+  return imagePathFromRecord(preview as ImageRecord)
+}
+
 const imagePath = computed(() => {
   if (override.value?.imagePath) {
     const overrideImage = override.value.imagePath
@@ -485,10 +493,7 @@ const imagePath = computed(() => {
       firstString([
         activeSelectedFieldInfo.value?.imagePath,
         builderCompletedDefaultImagePath(),
-        builderStore.activeSelectionPreview?.imagePath,
-        builderStore.activeSelectionPreview?.image,
-        builderStore.activeSelectionPreview?.heroImage,
-        builderStore.activeSelectionPreview?.deckImage,
+        selectionPreviewImagePath(),
         builderStore.activeConfig.splash?.imagePath,
         pageStore.image,
       ]),

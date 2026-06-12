@@ -29,7 +29,7 @@
 
     <div
       v-if="showControls"
-      class="grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+      class="grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]"
     >
       <label class="input input-bordered flex items-center gap-2 rounded-2xl">
         <Icon name="kind-icon:search" class="h-5 w-5 opacity-60" />
@@ -41,6 +41,15 @@
           @keyup.enter="refresh"
         />
       </label>
+
+      <select
+        v-model="displayMode"
+        class="select select-bordered rounded-2xl bg-base-100"
+        aria-label="Dream gallery display mode"
+      >
+        <option value="cards">Cards</option>
+        <option value="dropdown">Dropdown</option>
+      </select>
 
       <button
         class="btn rounded-2xl"
@@ -71,32 +80,37 @@
       </button>
     </div>
 
-    <select
-      v-if="variant === 'dropdown'"
-      class="select select-bordered rounded-2xl"
-      :value="dreamStore.selectedDream?.id ?? ''"
-      @change="selectFromDropdown"
-    >
-      <option value="">Select a Dream location</option>
-      <option v-for="dream in filteredDreams" :key="dream.id" :value="dream.id">
-        {{ dream.title }} · {{ dream.isPublic ? 'public' : 'private' }}
-      </option>
-    </select>
+    <div v-if="showDropdown" class="flex flex-col gap-3">
+      <select
+        class="select select-bordered rounded-2xl bg-base-100"
+        :value="selectedDreamId"
+        @change="selectFromDropdown"
+      >
+        <option value="">Select a Dream location</option>
+        <option
+          v-for="dream in filteredDreams"
+          :key="dream.id"
+          :value="dream.id"
+        >
+          {{ dream.title }} · {{ dream.isPublic ? 'public' : 'private' }}
+        </option>
+      </select>
 
-    <div
-      v-if="dreamStore.selectedDream && variant === 'dropdown'"
-      class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
-    >
-      <p class="font-black text-primary">
-        {{ dreamStore.selectedDream.title }}
-      </p>
-      <p class="line-clamp-2 text-sm text-base-content/70">
-        {{ dreamStore.selectedDream.currentVibe }}
-      </p>
+      <div
+        v-if="dreamStore.selectedDream"
+        class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
+      >
+        <p class="font-black text-primary">
+          {{ dreamStore.selectedDream.title }}
+        </p>
+        <p class="line-clamp-2 text-sm text-base-content/70">
+          {{ dreamStore.selectedDream.currentVibe }}
+        </p>
+      </div>
     </div>
 
     <div
-      v-if="variant !== 'dropdown'"
+      v-if="showCardGrid"
       class="grid min-h-0 gap-3 overflow-y-auto pr-1"
       :class="
         compact ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'
@@ -142,9 +156,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
+
+type DreamGalleryVariant = 'dashboard' | 'dropdown'
+type DreamDisplayMode = 'cards' | 'dropdown'
 
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
@@ -152,7 +169,7 @@ const dashboardKey = 'dream' as const
 
 const props = withDefaults(
   defineProps<{
-    variant?: 'dashboard' | 'dropdown'
+    variant?: DreamGalleryVariant
     showHeader?: boolean
     showControls?: boolean
     showImages?: boolean
@@ -178,6 +195,14 @@ const props = withDefaults(
 const search = ref('')
 const showMine = ref(false)
 const showInactive = ref(false)
+const displayMode = ref<DreamDisplayMode>(
+  props.variant === 'dropdown' ? 'dropdown' : 'cards',
+)
+
+const selectedDreamId = computed(() => dreamStore.selectedDream?.id ?? '')
+
+const showDropdown = computed(() => displayMode.value === 'dropdown')
+const showCardGrid = computed(() => displayMode.value === 'cards')
 
 const filteredDreams = computed(() => {
   const term = search.value.trim().toLowerCase()
@@ -186,18 +211,31 @@ const filteredDreams = computed(() => {
     : dreamStore.activeDreams
 
   return source.filter((dream) => {
+    const title = dream.title.toLowerCase()
+    const description = dream.description?.toLowerCase() ?? ''
+    const currentVibe = dream.currentVibe?.toLowerCase() ?? ''
+    const currentPrompt = dream.currentPrompt?.toLowerCase() ?? ''
+
     const ownershipMatch =
       !showMine.value || dream.userId === dreamStore.currentUserId
+
     const searchMatch =
       !term ||
-      dream.title.toLowerCase().includes(term) ||
-      dream.description?.toLowerCase().includes(term) ||
-      dream.currentVibe?.toLowerCase().includes(term) ||
-      dream.currentPrompt?.toLowerCase().includes(term)
+      title.includes(term) ||
+      description.includes(term) ||
+      currentVibe.includes(term) ||
+      currentPrompt.includes(term)
 
     return ownershipMatch && searchMatch
   })
 })
+
+watch(
+  () => props.variant,
+  (variant) => {
+    displayMode.value = variant === 'dropdown' ? 'dropdown' : 'cards'
+  },
+)
 
 onMounted(async () => {
   await dreamStore.initialize()

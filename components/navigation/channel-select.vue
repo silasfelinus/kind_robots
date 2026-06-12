@@ -3,7 +3,7 @@
   <div ref="menuRef" class="relative flex">
     <button
       ref="buttonRef"
-      class="btn btn-sm flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center gap-0 rounded-xl p-0 sm:h-full sm:w-full sm:min-w-0 sm:flex-1 lg:gap-1"
+      class="btn btn-sm flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center rounded-xl p-0 sm:h-full sm:w-full sm:min-w-0 sm:flex-1"
       :class="
         showMenu
           ? 'btn-secondary'
@@ -15,10 +15,6 @@
       @click.stop="toggleMenu"
     >
       <Icon :name="activeChannel.icon" class="h-6 w-6 shrink-0" />
-      <Icon
-        :name="showMenu ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-        class="hidden h-3.5 w-3.5 shrink-0 opacity-50 lg:block"
-      />
     </button>
 
     <Teleport to="body">
@@ -26,7 +22,7 @@
         <div
           v-if="showMenu"
           ref="panelRef"
-          class="fixed z-999 max-h-[min(36rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+          class="fixed z-110 max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl sm:max-h-[calc(100dvh-2rem)]"
           :style="menuStyle"
           @click.stop
         >
@@ -79,14 +75,14 @@
             </NuxtLink>
           </div>
 
-          <div class="space-y-4 p-3">
+          <div class="space-y-2 p-2 sm:space-y-3 sm:p-3">
             <div class="rounded-2xl border border-base-300 bg-base-200/40 p-2">
               <div
                 class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:items-stretch"
               >
                 <NuxtLink
                   :to="artChannel.path"
-                  class="group relative flex min-h-28 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border p-3 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md sm:min-h-36"
+                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md sm:min-h-32 sm:gap-2 sm:p-3"
                   :class="
                     isChannelActive(artChannel)
                       ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
@@ -99,7 +95,7 @@
                   />
 
                   <span
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-14 sm:w-14"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-12 sm:w-12"
                     :class="
                       isChannelActive(artChannel)
                         ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
@@ -112,13 +108,13 @@
                     />
                   </span>
 
-                  <span class="text-base font-black leading-tight">
+                  <span class="text-sm font-black leading-tight sm:text-base">
                     {{ artChannel.label }}
                   </span>
 
                   <span
                     v-if="artChannel.summary"
-                    class="max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100"
+                    class="hidden max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100 sm:block"
                   >
                     {{ artChannel.summary }}
                   </span>
@@ -126,7 +122,7 @@
 
                 <NuxtLink
                   :to="builderChannel.path"
-                  class="group relative flex min-h-28 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border p-3 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md sm:min-h-36 sm:scale-[1.03]"
+                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md sm:min-h-32 sm:scale-[1.03] sm:gap-2 sm:p-3"
                   :class="
                     isChannelActive(builderChannel)
                       ? 'border-primary bg-primary text-primary-content shadow-sm'
@@ -139,7 +135,7 @@
                   />
 
                   <span
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-14 sm:w-14"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-12 sm:w-12"
                     :class="
                       isChannelActive(builderChannel)
                         ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
@@ -152,13 +148,13 @@
                     />
                   </span>
 
-                  <span class="text-base font-black leading-tight">
+                  <span class="text-sm font-black leading-tight sm:text-base">
                     {{ builderChannel.label }}
                   </span>
 
                   <span
                     v-if="builderChannel.summary"
-                    class="max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100"
+                    class="hidden max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100 sm:block"
                   >
                     {{ builderChannel.summary }}
                   </span>
@@ -166,7 +162,7 @@
 
                 <NuxtLink
                   :to="storiesChannel.path"
-                  class="group relative flex min-h-28 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border p-3 text-center transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md sm:min-h-36"
+                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md sm:min-h-32 sm:gap-2 sm:p-3"
                   :class="
                     isChannelActive(storiesChannel)
                       ? 'border-accent bg-accent text-accent-content shadow-sm'
@@ -179,7 +175,7 @@
                   />
 
                   <span
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-14 sm:w-14"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-12 sm:w-12"
                     :class="
                       isChannelActive(storiesChannel)
                         ? 'border-accent-content/30 bg-accent-content/20 text-accent-content'
@@ -192,13 +188,13 @@
                     />
                   </span>
 
-                  <span class="text-base font-black leading-tight">
+                  <span class="text-sm font-black leading-tight sm:text-base">
                     {{ storiesChannel.label }}
                   </span>
 
                   <span
                     v-if="storiesChannel.summary"
-                    class="max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100"
+                    class="hidden max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100 sm:block"
                   >
                     {{ storiesChannel.summary }}
                   </span>
@@ -213,12 +209,12 @@
                 Projects
               </p>
 
-              <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
+              <div class="grid grid-cols-3 gap-1.5">
                 <NuxtLink
                   v-for="channel in bottomProjectChannels"
                   :key="channel.key"
                   :to="channel.path"
-                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-xl border p-2.5 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm"
+                  class="group relative flex min-h-18 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm sm:min-h-20"
                   :class="
                     isChannelActive(channel)
                       ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
@@ -238,7 +234,7 @@
                   </span>
 
                   <span
-                    class="max-w-full truncate text-center text-[0.65rem] font-bold leading-none"
+                    class="max-w-full truncate text-center text-[0.62rem] font-bold leading-none sm:text-[0.65rem]"
                   >
                     {{ channel.label }}
                   </span>
@@ -400,16 +396,16 @@ const activeChannel = computed<ChannelRoute>(() => {
   )
 })
 
-function isChannelActive(channel: ChannelRoute) {
+function isChannelActive(channel: ChannelRoute): boolean {
   if (route.path === channel.path) return true
   return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
 }
 
-function clamp(value: number, min: number, max: number) {
+function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
-function updateMenuPosition() {
+function updateMenuPosition(): void {
   const button = buttonRef.value
   if (!button) return
 
@@ -418,7 +414,7 @@ function updateMenuPosition() {
   const viewportHeight = window.innerHeight
   const margin = 8
   const menuWidth = Math.min(480, viewportWidth - margin * 2)
-  const estimatedMenuHeight = Math.min(576, viewportHeight - margin * 2)
+  const estimatedMenuHeight = Math.min(500, viewportHeight - margin * 2)
 
   const left = clamp(
     rect.right - menuWidth,
@@ -439,7 +435,7 @@ function updateMenuPosition() {
       }
 }
 
-async function toggleMenu() {
+async function toggleMenu(): Promise<void> {
   showMenu.value = !showMenu.value
 
   if (!showMenu.value) return
@@ -448,11 +444,11 @@ async function toggleMenu() {
   updateMenuPosition()
 }
 
-function closeMenu() {
+function closeMenu(): void {
   showMenu.value = false
 }
 
-function handleDocumentClick(event: MouseEvent) {
+function handleDocumentClick(event: MouseEvent): void {
   const target = event.target
   if (!(target instanceof Node)) return
   if (menuRef.value?.contains(target)) return
@@ -460,12 +456,12 @@ function handleDocumentClick(event: MouseEvent) {
   closeMenu()
 }
 
-function handleWindowChange() {
+function handleWindowChange(): void {
   if (!showMenu.value) return
   updateMenuPosition()
 }
 
-function handleKeydown(event: KeyboardEvent) {
+function handleKeydown(event: KeyboardEvent): void {
   if (event.key !== 'Escape') return
   closeMenu()
 }

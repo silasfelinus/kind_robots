@@ -40,12 +40,22 @@
             <span class="label-text font-bold">Locations</span>
           </span>
 
-          <input
-            v-model="scenarioStore.scenarioForm.locations"
-            type="text"
-            placeholder="foggy casino, moon library, cursed mall..."
-            class="input input-bordered w-full bg-base-100"
-          />
+          <div class="form-control">
+            <span class="label">
+              <span class="label-text font-bold">Dream Location</span>
+            </span>
+
+            <dream-gallery
+              variant="dropdown"
+              :show-header="false"
+              :show-controls="false"
+              :show-images="false"
+              :show-card-actions="false"
+              :show-open-button="false"
+              :show-stats="false"
+              compact
+            />
+          </div>
         </label>
 
         <label class="form-control lg:col-span-2">
@@ -61,24 +71,26 @@
         </label>
       </section>
 
-      <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="mb-3 text-lg font-bold text-base-content">Locations</h2>
-
-          <choice-manager label="locations" model="Scenario" />
-        </div>
-
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <h2 class="mb-3 text-lg font-bold text-base-content">Genres</h2>
 
-          <choice-manager label="genres" model="Scenario" />
+          <choice-manager label="genre" model="Scenario" />
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="mb-3 text-lg font-bold text-base-content">Inspirations</h2>
+        <label
+          class="form-control rounded-2xl border border-base-300 bg-base-100 p-4"
+        >
+          <span class="label">
+            <span class="label-text font-bold">Inspirations</span>
+          </span>
 
-          <choice-manager label="inspirations" model="Scenario" />
-        </div>
+          <textarea
+            v-model="scenarioStore.scenarioForm.inspirations"
+            placeholder="Studio Ghibli, Disco Elysium, The Princess Bride, Kafka..."
+            class="textarea textarea-bordered min-h-28 w-full bg-base-200"
+          />
+        </label>
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
@@ -272,6 +284,7 @@ import { useChoiceStore } from '@/stores/choiceStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
+import { useDreamStore } from '@/stores/dreamStore'
 
 const props = withDefaults(
   defineProps<{
@@ -291,6 +304,7 @@ const choiceStore = useChoiceStore()
 const scenarioStore = useScenarioStore()
 const uploadStore = useUploadStore()
 const userStore = useUserStore()
+const dreamStore = useDreamStore()
 
 const isGeneratingArt = ref(false)
 const keepArtPrompt = ref(false)
@@ -595,16 +609,14 @@ async function saveScenario() {
   }
 
   try {
-    choiceStore.applyToForm(scenarioStore.scenarioForm, 'locations', 'Scenario')
-    choiceStore.applyToForm(scenarioStore.scenarioForm, 'genres', 'Scenario')
-    choiceStore.applyToForm(
-      scenarioStore.scenarioForm,
-      'inspirations',
-      'Scenario',
-    )
+    choiceStore.applyToForm(scenarioStore.scenarioForm, 'genre', 'Scenario')
+
+    const selectedDream = dreamStore.selectedDream
 
     scenarioStore.scenarioForm = {
       ...scenarioStore.scenarioForm,
+      locations:
+        selectedDream?.title || scenarioStore.scenarioForm.locations || '',
       userId: scenarioStore.scenarioForm.userId || userStore.userId || 10,
     }
 
@@ -612,6 +624,21 @@ async function saveScenario() {
 
     if (!saved) {
       throw new Error(scenarioStore.lastError || 'Failed to save scenario.')
+    }
+
+    const savedScenarioId =
+      scenarioStore.selectedScenario?.id ?? scenarioStore.scenarioForm.id
+
+    if (selectedDream?.id && savedScenarioId) {
+      const dreamResult = await dreamStore.setDreamScenario(savedScenarioId)
+
+      if (!dreamResult.success) {
+        statusTone.value = 'error'
+        statusMessage.value =
+          dreamResult.message ||
+          'Scenario saved, but Dream location linking failed.'
+        return
+      }
     }
 
     statusTone.value = 'success'

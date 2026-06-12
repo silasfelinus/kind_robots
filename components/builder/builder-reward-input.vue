@@ -57,9 +57,18 @@
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-secondary/10 text-secondary"
+            class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-secondary/10 text-secondary"
           >
-            <Icon :name="rewardIcon(reward)" class="h-5 w-5" />
+            <img
+              v-if="rewardImagePath(reward)"
+              :src="rewardImagePath(reward) || ''"
+              :alt="reward.label || 'Reward image'"
+              class="h-full w-full object-cover"
+              loading="lazy"
+              @error="markRewardImageFailed(reward.id)"
+            />
+
+            <Icon v-else :name="rewardIcon(reward)" class="h-6 w-6" />
           </div>
 
           <div class="min-w-0 flex-1">
@@ -130,12 +139,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
 import type { BuilderRewardOption } from '@/stores/helpers/builderCards'
 import type { RolledReward } from '@/stores/generatorStore'
 
+type RewardImageSource = {
+  image?: string | null
+  imageUrl?: string | null
+  imagePath?: string | null
+  image_path?: string | null
+}
+
+type RewardPayload = {
+  reward?: RolledReward & RewardImageSource
+  image?: string | null
+  imageUrl?: string | null
+  imagePath?: string | null
+  image_path?: string | null
+  rewardType?: string | null
+}
+
 const store = useBuilderStore()
+const failedRewardImages = ref<Set<string>>(new Set())
 
 const slotKey = computed(() => store.activeCard?.rewardSlotKey ?? '')
 
@@ -172,8 +198,16 @@ const emptyMessage = computed(() => {
   return 'Draw a fresh set for this slot.'
 })
 
+function optionPayload(option: BuilderRewardOption): RewardPayload {
+  if (option.payload && typeof option.payload === 'object') {
+    return option.payload as RewardPayload
+  }
+
+  return {}
+}
+
 function payloadReward(option: BuilderRewardOption): RolledReward | null {
-  const reward = option.payload?.reward
+  const reward = optionPayload(option).reward
 
   if (reward && typeof reward === 'object') {
     return reward as RolledReward
@@ -182,10 +216,54 @@ function payloadReward(option: BuilderRewardOption): RolledReward | null {
   return null
 }
 
+function cleanImagePath(path: string): string {
+  const trimmedPath = path.trim()
+
+  if (!trimmedPath) return ''
+  if (trimmedPath.startsWith('/')) return trimmedPath
+  if (trimmedPath.startsWith('http://')) return trimmedPath
+  if (trimmedPath.startsWith('https://')) return trimmedPath
+  if (trimmedPath.startsWith('data:')) return trimmedPath
+
+  return `/${trimmedPath}`
+}
+
+function rewardImagePath(option: BuilderRewardOption): string | null {
+  if (failedRewardImages.value.has(option.id)) return null
+
+  const payload = optionPayload(option)
+  const reward = payload.reward
+  const optionImageSource = option as BuilderRewardOption & RewardImageSource
+
+  const imagePath =
+    optionImageSource.imagePath ||
+    optionImageSource.imageUrl ||
+    optionImageSource.image ||
+    optionImageSource.image_path ||
+    payload.imagePath ||
+    payload.imageUrl ||
+    payload.image ||
+    payload.image_path ||
+    reward?.imagePath ||
+    reward?.imageUrl ||
+    reward?.image ||
+    reward?.image_path ||
+    ''
+
+  const cleanedPath = cleanImagePath(String(imagePath))
+
+  return cleanedPath || null
+}
+
+function markRewardImageFailed(optionId: string): void {
+  failedRewardImages.value = new Set([...failedRewardImages.value, optionId])
+}
+
 function rewardTypeLabel(option: BuilderRewardOption): string {
   const reward = payloadReward(option)
+  const payload = optionPayload(option)
   const rewardType = String(
-    reward?.rewardType ?? option.payload?.rewardType ?? '',
+    reward?.rewardType ?? payload.rewardType ?? '',
   ).trim()
 
   return rewardType ? rewardType.toLowerCase() : ''
@@ -193,8 +271,9 @@ function rewardTypeLabel(option: BuilderRewardOption): string {
 
 function rewardIcon(option: BuilderRewardOption): string {
   const reward = payloadReward(option)
+  const payload = optionPayload(option)
   const rewardType = String(
-    reward?.rewardType ?? option.payload?.rewardType ?? '',
+    reward?.rewardType ?? payload.rewardType ?? '',
   ).toUpperCase()
 
   if (option.icon) return option.icon
@@ -216,12 +295,16 @@ function selectReward(optionId: string): void {
 
 async function rerollOptions(): Promise<void> {
   if (!slotKey.value) return
+
+  failedRewardImages.value = new Set()
   await store.rollRewardOptions(slotKey.value)
 }
 
 watch(
   slotKey,
   (nextSlotKey: string) => {
+    failedRewardImages.value = new Set()
+
     if (!nextSlotKey) return
     if (store.activeRewardOptions.length) return
 

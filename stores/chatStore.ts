@@ -31,22 +31,51 @@ type BotCafeMessage = {
   content: string
 }
 
+type StreamMessageObject = {
+  role?: string
+  content?: string | null
+}
+
+type StreamContentBlock = {
+  text?: string | null
+}
+
 type BotCafeResponse = {
   success?: boolean
-  message?: string
-  content?: string
+  message?: string | StreamMessageObject
+  content?: string | StreamContentBlock[]
+  response?: string
   data?: unknown
   id?: string
   choices?: Array<{
-    message?: {
-      role?: string
-      content?: string | null
-    }
+    message?: StreamMessageObject
     delta?: {
       content?: string | null
+      text?: string | null
     }
     finish_reason?: string | null
   }>
+  delta?: {
+    content?: string | null
+    text?: string | null
+  }
+  content_block?: {
+    text?: string | null
+  }
+  content_block_delta?: {
+    text?: string | null
+  }
+  mana?: {
+    balance?: number
+    charged?: number
+    free?: boolean
+  }
+}
+
+type StreamParseResult = {
+  token: string
+  errorMessage: string
+  hasMana: boolean
 }
 
 export type TextServerSelectionMode = 'default' | 'any' | 'specific'
@@ -118,65 +147,6 @@ function validateTextPrompt(prompt: string): ApiResponse<true> {
   }
 
   return { success: true, data: true }
-}
-
-function getStoredAuthToken(): string | null {
-  if (!isClient) return null
-
-  const possibleKeys = [
-    'token',
-    'authToken',
-    'auth_token',
-    'jwt',
-    'kindToken',
-    'googleToken',
-    'user',
-    'userStore',
-  ]
-
-  for (const key of possibleKeys) {
-    const raw = safeGetLocalStorage(key)
-
-    if (!raw) continue
-
-    const cleanRaw = raw.trim()
-
-    if (!cleanRaw) continue
-
-    if (cleanRaw.startsWith('Bearer ')) {
-      return cleanRaw.replace(/^Bearer\s+/i, '').trim()
-    }
-
-    if (!cleanRaw.startsWith('{')) {
-      return cleanRaw
-    }
-
-    try {
-      const parsed = JSON.parse(cleanRaw) as Record<string, unknown>
-
-      const token =
-        parsed.token ||
-        parsed.authToken ||
-        parsed.accessToken ||
-        parsed.jwt ||
-        parsed.googleToken
-
-      if (typeof token === 'string' && token.trim()) {
-        return token.replace(/^Bearer\s+/i, '').trim()
-      }
-    } catch {}
-  }
-
-  return null
-}
-
-function buildJsonAuthHeaders(): HeadersInit {
-  const token = getStoredAuthToken()
-
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  }
 }
 
 function safeGetLocalStorage(key: string): string | null {
@@ -405,6 +375,10 @@ export const useChatStore = defineStore('chatStore', () => {
     setTextForm({
       serverId,
       serverName: server ? getServerLabel(server) : null,
+      serverSelectionMode: server ? 'specific' : 'default',
+      generationRequirement: {
+        provider: server ? getServerProvider(server) : 'any',
+      },
     })
   }
 
@@ -446,6 +420,24 @@ export const useChatStore = defineStore('chatStore', () => {
     if (server.serverType === 'ANTHROPIC') return 'anthropic'
     if (server.serverType === 'OLLAMA') return 'ollama'
     return 'any'
+  }
+
+  function getTextStreamEndpoint(server: Server | null): string {
+    if (server?.serverType === 'ANTHROPIC') {
+      return '/api/chats/anthropic/stream'
+    }
+
+    if (server?.serverType === 'OLLAMA') {
+      return '/api/chats/ollama/stream'
+    }
+
+    return '/api/chats/openai/stream'
+  }
+
+  function defaultModelForProvider(provider: TextGenerationProvider): string {
+    if (provider === 'anthropic') return 'claude-sonnet-4-6'
+    if (provider === 'ollama') return 'llama3.2'
+    return 'gpt-4o-mini'
   }
 
   function serverSupportsTextProvider(
@@ -532,6 +524,16 @@ export const useChatStore = defineStore('chatStore', () => {
 
     if (ownedServer) return ownedServer
 
+    const privateServer = getCandidateGenerationServers().find((server) => {
+      return (
+        !server.isPublic &&
+        !server.isOfficial &&
+        serverMatchesGenerationRequirement(server, requirement)
+      )
+    })
+
+    if (privateServer) return privateServer
+
     const publicServer = getCandidateGenerationServers().find((server) => {
       return (
         Boolean(server.isPublic) &&
@@ -597,6 +599,47 @@ export const useChatStore = defineStore('chatStore', () => {
       serverId,
     }
   }
+
+  function splitAnthropicMessages(messages: BotCafeMessage[]): {
+    system: string | null
+    messages: Array<{
+      role: 'user' | 'assistant'
+      content: string
+    }>
+  } {
+    const systemMessages = messages
+      .filter((message) => message.role === 'system')
+      .map((message) => message.content.trim())
+      .filter(Boolean)
+
+    const chatMessages = messages
+      .filter(
+        (
+          message,
+        ): message is {
+          role: 'user' | 'assistant'
+          content: string
+        } => message.role === 'user' || message.role === 'assistant',
+      )
+      .map((message) => ({
+        role: message.role,
+        content: message.content,
+      }))
+      .filter((message) => message.content.trim())
+
+    if (!chatMessages.length) {
+      chatMessages.push({
+        role: 'user',
+        content: 'Continue.',
+      })
+    }
+
+    return {
+      system: systemMessages.length ? systemMessages.join('\n\n') : null,
+      messages: chatMessages,
+    }
+  }
+
   function extractBotText(payload: BotCafeResponse): string {
     if (typeof payload.content === 'string' && payload.content.trim()) {
       return payload.content
@@ -642,6 +685,15 @@ export const useChatStore = defineStore('chatStore', () => {
       }
     }
 
+    if (
+      payload.message &&
+      typeof payload.message === 'object' &&
+      typeof payload.message.content === 'string' &&
+      payload.message.content.trim()
+    ) {
+      return payload.message.content
+    }
+
     throw new Error('Bot response returned, but no assistant text was found.')
   }
 
@@ -652,75 +704,230 @@ export const useChatStore = defineStore('chatStore', () => {
     const data = response.data as BotCafeResponse | undefined
 
     const directContent = response.content
-    if (typeof directContent === 'string' && directContent.trim()) {
+    if (typeof directContent === 'string' && directContent) {
       return directContent
     }
 
-    const deltaContent = response.choices?.[0]?.delta?.content
+    if (Array.isArray(response.content)) {
+      const contentText = response.content
+        .map((entry) => entry.text)
+        .filter(Boolean)
+        .join('')
+
+      if (contentText) return contentText
+    }
+
+    const responseText = response.response
+    if (typeof responseText === 'string' && responseText) {
+      return responseText
+    }
+
+    const responseMessage = response.message
+
+    if (
+      responseMessage &&
+      typeof responseMessage === 'object' &&
+      'content' in responseMessage &&
+      typeof responseMessage.content === 'string' &&
+      responseMessage.content
+    ) {
+      return responseMessage.content
+    }
+
+    const deltaText = response.delta?.text
+    if (typeof deltaText === 'string' && deltaText) {
+      return deltaText
+    }
+
+    const deltaContent = response.delta?.content
     if (typeof deltaContent === 'string' && deltaContent) {
       return deltaContent
     }
 
+    const choiceDeltaText = response.choices?.[0]?.delta?.text
+    if (typeof choiceDeltaText === 'string' && choiceDeltaText) {
+      return choiceDeltaText
+    }
+
+    const choiceDeltaContent = response.choices?.[0]?.delta?.content
+    if (typeof choiceDeltaContent === 'string' && choiceDeltaContent) {
+      return choiceDeltaContent
+    }
+
     const messageContent = response.choices?.[0]?.message?.content
-    if (typeof messageContent === 'string' && messageContent.trim()) {
+    if (typeof messageContent === 'string' && messageContent) {
       return messageContent
     }
 
+    const blockText = response.content_block?.text
+    if (typeof blockText === 'string' && blockText) {
+      return blockText
+    }
+
+    const blockDeltaText = response.content_block_delta?.text
+    if (typeof blockDeltaText === 'string' && blockDeltaText) {
+      return blockDeltaText
+    }
+
     const dataContent = data?.content
-    if (typeof dataContent === 'string' && dataContent.trim()) {
+    if (typeof dataContent === 'string' && dataContent) {
       return dataContent
     }
 
-    const dataDeltaContent = data?.choices?.[0]?.delta?.content
+    const dataResponse = data?.response
+    if (typeof dataResponse === 'string' && dataResponse) {
+      return dataResponse
+    }
+
+    const dataDeltaText = data?.delta?.text
+    if (typeof dataDeltaText === 'string' && dataDeltaText) {
+      return dataDeltaText
+    }
+
+    const dataDeltaContent = data?.delta?.content
     if (typeof dataDeltaContent === 'string' && dataDeltaContent) {
       return dataDeltaContent
     }
 
+    const dataChoiceDeltaContent = data?.choices?.[0]?.delta?.content
+    if (typeof dataChoiceDeltaContent === 'string' && dataChoiceDeltaContent) {
+      return dataChoiceDeltaContent
+    }
+
     const dataMessageContent = data?.choices?.[0]?.message?.content
-    if (typeof dataMessageContent === 'string' && dataMessageContent.trim()) {
+    if (typeof dataMessageContent === 'string' && dataMessageContent) {
       return dataMessageContent
     }
 
     const dataMessage = data?.message
-    if (typeof dataMessage === 'string' && dataMessage.trim()) {
-      return dataMessage
-    }
 
-    const directMessage = response.message
-    if (typeof directMessage === 'string' && directMessage.trim()) {
-      const genericMessages = new Set([
-        'Bot response received.',
-        'Response received.',
-        'Success',
-        'OK',
-      ])
-
-      if (!genericMessages.has(directMessage.trim())) {
-        return directMessage
-      }
+    if (
+      dataMessage &&
+      typeof dataMessage === 'object' &&
+      'content' in dataMessage &&
+      typeof dataMessage.content === 'string' &&
+      dataMessage.content
+    ) {
+      return dataMessage.content
     }
 
     return ''
   }
 
-  function parseStreamLine(line: string): string {
+  function parseStreamPayload(
+    rawData: string,
+    currentEvent: string,
+  ): StreamParseResult {
+    if (!rawData || rawData === '[DONE]') {
+      return {
+        token: '',
+        errorMessage: '',
+        hasMana: false,
+      }
+    }
+
+    try {
+      const parsed = JSON.parse(rawData) as BotCafeResponse
+
+      if (currentEvent === 'error') {
+        return {
+          token: '',
+          errorMessage:
+            typeof parsed.message === 'string'
+              ? parsed.message
+              : 'Streaming response failed.',
+          hasMana: false,
+        }
+      }
+
+      if (currentEvent === 'mana' || parsed.mana) {
+        return {
+          token: '',
+          errorMessage: '',
+          hasMana: true,
+        }
+      }
+
+      return {
+        token: extractStreamToken(parsed),
+        errorMessage: '',
+        hasMana: false,
+      }
+    } catch {
+      if (currentEvent === 'error') {
+        return {
+          token: '',
+          errorMessage: rawData,
+          hasMana: false,
+        }
+      }
+
+      return {
+        token: currentEvent === 'mana' ? '' : rawData,
+        errorMessage: '',
+        hasMana: currentEvent === 'mana',
+      }
+    }
+  }
+
+  function parseStreamDataLine(
+    line: string,
+    currentEvent: string,
+  ): StreamParseResult {
     const trimmed = line.trim()
 
-    if (!trimmed || trimmed === '[DONE]' || trimmed.startsWith('event:')) {
-      return ''
+    if (!trimmed || trimmed === '[DONE]') {
+      return {
+        token: '',
+        errorMessage: '',
+        hasMana: false,
+      }
     }
 
     const rawData = trimmed.startsWith('data:')
       ? trimmed.replace(/^data:\s*/, '')
       : trimmed
 
-    if (!rawData || rawData === '[DONE]') return ''
-
-    try {
-      return extractStreamToken(JSON.parse(rawData))
-    } catch {
-      return trimmed.startsWith('data:') ? '' : rawData
+    if (!rawData || rawData === '[DONE]') {
+      return {
+        token: '',
+        errorMessage: '',
+        hasMana: false,
+      }
     }
+
+    return parseStreamPayload(rawData, currentEvent)
+  }
+
+  function extractErrorMessage(
+    payload: BotCafeResponse,
+    fallback: string,
+  ): string {
+    if (typeof payload.message === 'string' && payload.message.trim()) {
+      return payload.message
+    }
+
+    if (
+      payload.message &&
+      typeof payload.message === 'object' &&
+      'content' in payload.message &&
+      typeof payload.message.content === 'string' &&
+      payload.message.content.trim()
+    ) {
+      return payload.message.content
+    }
+
+    if (
+      payload.data &&
+      typeof payload.data === 'object' &&
+      'message' in payload.data &&
+      typeof payload.data.message === 'string' &&
+      payload.data.message.trim()
+    ) {
+      return payload.data.message
+    }
+
+    return fallback
   }
 
   async function readJsonResponse(response: Response): Promise<string> {
@@ -740,6 +947,39 @@ export const useChatStore = defineStore('chatStore', () => {
     const decoder = new TextDecoder()
     let fullText = ''
     let pending = ''
+    let currentEvent = ''
+
+    const processLine = (line: string) => {
+      const trimmed = line.trim()
+
+      if (!trimmed) {
+        return
+      }
+
+      if (trimmed.startsWith('event:')) {
+        currentEvent = trimmed.replace(/^event:\s*/, '').trim()
+        return
+      }
+
+      const result = parseStreamDataLine(trimmed, currentEvent)
+
+      if (result.errorMessage) {
+        throw new Error(result.errorMessage)
+      }
+
+      if (result.hasMana) {
+        void useManaStore().fetch()
+        currentEvent = ''
+        return
+      }
+
+      if (!result.token) {
+        return
+      }
+
+      fullText += result.token
+      onToken(result.token)
+    }
 
     while (true) {
       const { done, value } = await reader.read()
@@ -750,10 +990,7 @@ export const useChatStore = defineStore('chatStore', () => {
       pending = lines.pop() ?? ''
 
       for (const line of lines) {
-        const token = parseStreamLine(line)
-        if (!token) continue
-        fullText += token
-        onToken(token)
+        processLine(line)
       }
     }
 
@@ -763,12 +1000,7 @@ export const useChatStore = defineStore('chatStore', () => {
     }
 
     if (pending.trim()) {
-      const token = parseStreamLine(pending)
-
-      if (token) {
-        fullText += token
-        onToken(token)
-      }
+      processLine(pending)
     }
 
     return fullText
@@ -793,29 +1025,39 @@ export const useChatStore = defineStore('chatStore', () => {
     messages: BotCafeMessage[],
     options: StreamResponseOptions,
     billing: TextBilling,
+    server: Server | null,
   ): Record<string, unknown> {
-    const server = getSelectedTextServer(options)
     const provider = server ? getServerProvider(server) : 'openai'
     const model =
-      options.model ||
-      server?.model ||
-      (provider === 'ollama' ? 'llama3.1' : 'gpt-4o-mini')
+      options.model || server?.model || defaultModelForProvider(provider)
 
-    return {
+    const basePayload = {
       model,
-      provider,
-      serverType: server?.serverType ?? null,
-      serverName: server
-        ? getServerLabel(server)
-        : (options.serverName ?? null),
-      messages,
       temperature: options.temperature ?? 0.7,
       maxTokens: options.maxTokens ?? 2048,
       stream: options.stream ?? true,
       serverId: billing.serverId,
+      serverName: server
+        ? getServerLabel(server)
+        : (options.serverName ?? null),
       chatId,
       useOwnResource: billing.useOwnResource,
       userApiKey: billing.userApiKey,
+    }
+
+    if (provider === 'anthropic') {
+      const anthropic = splitAnthropicMessages(messages)
+
+      return {
+        ...basePayload,
+        system: anthropic.system,
+        messages: anthropic.messages,
+      }
+    }
+
+    return {
+      ...basePayload,
+      messages,
     }
   }
 
@@ -837,11 +1079,16 @@ export const useChatStore = defineStore('chatStore', () => {
           ...options,
           serverId: selectedServer.id,
           serverName: getServerLabel(selectedServer),
+          serverSelectionMode: 'specific',
+          generationRequirement: {
+            provider: getServerProvider(selectedServer),
+          },
         }
       : options
 
     const messages = buildMessagesForChat(chat, runtimeOptions)
     const billing = resolveTextBilling(runtimeOptions)
+    const streamEndpoint = getTextStreamEndpoint(selectedServer)
 
     updateChat(chatId, {
       botResponse: '',
@@ -849,24 +1096,29 @@ export const useChatStore = defineStore('chatStore', () => {
     } as Partial<Chat>)
 
     try {
-      const response = await fetch('/api/botcafe/chat', {
+      const response = await fetch(streamEndpoint, {
         method: 'POST',
         headers: buildJsonAuthHeaders(),
         body: JSON.stringify(
-          buildStreamPayload(chatId, messages, runtimeOptions, billing),
+          buildStreamPayload(
+            chatId,
+            messages,
+            runtimeOptions,
+            billing,
+            selectedServer,
+          ),
         ),
       })
+
       if (!response.ok) {
         let message = `Bot response failed with status ${response.status}.`
-
         try {
           const payload = (await response.json()) as BotCafeResponse
-          message = payload.message || message
+          message = extractErrorMessage(payload, message)
         } catch {
           const text = await response.text()
           message = text || message
         }
-
         throw new Error(message)
       }
 
@@ -977,6 +1229,10 @@ export const useChatStore = defineStore('chatStore', () => {
             ...mergedData,
             serverId: server.id,
             serverName: getServerLabel(server),
+            serverSelectionMode: 'specific',
+            generationRequirement: {
+              provider: getServerProvider(server),
+            },
           }
         : mergedData
 
@@ -1310,6 +1566,7 @@ export const useChatStore = defineStore('chatStore', () => {
     getSelectedTextServer,
     serverUsesOwnResource,
     getServerProvider,
+    getTextStreamEndpoint,
   }
 })
 

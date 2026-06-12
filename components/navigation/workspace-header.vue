@@ -70,25 +70,41 @@
             v-if="resolvedTabs.length"
             class="dropdown min-w-0 flex-1 self-center lg:hidden"
           >
-            <div
+            <button
               tabindex="0"
-              class="menu dropdown-content z-100 mt-2 max-h-72 w-72 flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+              type="button"
+              class="btn flex h-14 min-h-14 w-full max-w-full items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 px-2 shadow-sm"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <Icon
-                  :name="activeTabConfig.icon || fallbackIcon"
-                  class="h-5 w-5 shrink-0"
-                />
+                <span
+                  class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-200"
+                >
+                  <img
+                    v-if="activeTabConfig.image"
+                    :src="activeTabConfig.image"
+                    :alt="activeTabConfig.title || activeTabConfig.label"
+                    class="h-full w-full object-cover"
+                  />
+
+                  <span
+                    class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+                  >
+                    <Icon
+                      :name="activeTabConfig.icon || fallbackIcon"
+                      class="h-5 w-5 text-base-100 drop-shadow"
+                    />
+                  </span>
+                </span>
 
                 <span class="flex min-w-0 flex-col items-start leading-tight">
                   <span
                     v-if="shellTitle"
-                    class="truncate text-[0.6rem] font-bold uppercase tracking-wide text-primary-content/70"
+                    class="truncate text-[0.6rem] font-bold uppercase tracking-wide text-primary/70"
                   >
                     {{ shellTitle }}
                   </span>
 
-                  <span class="min-w-0 truncate text-sm font-bold">
+                  <span class="min-w-0 truncate text-sm font-black">
                     {{ activeTitle }}
                   </span>
                 </span>
@@ -98,16 +114,16 @@
                 name="kind-icon:chevron-down"
                 class="h-4 w-4 shrink-0 opacity-80"
               />
-            </div>
+            </button>
 
             <ul
               tabindex="0"
-              class="menu dropdown-content z-50 mt-2 max-h-72 w-72 flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+              class="menu dropdown-content z-110 mt-2 max-h-80 w-[min(22rem,calc(100vw-2rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
             >
               <li v-for="tab in resolvedTabs" :key="tab.key">
                 <button
                   type="button"
-                  class="flex items-center gap-2 rounded-xl"
+                  class="flex min-h-14 items-center gap-2 rounded-xl"
                   :class="
                     activeTabKey === tab.key
                       ? 'active bg-primary text-primary-content'
@@ -115,13 +131,37 @@
                   "
                   @click="selectTabFromDropdown(tab.key)"
                 >
-                  <Icon
-                    :name="tab.icon || fallbackIcon"
-                    class="h-4 w-4 shrink-0"
-                  />
+                  <span
+                    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-200"
+                  >
+                    <img
+                      v-if="tab.image"
+                      :src="tab.image"
+                      :alt="tab.title || tab.label"
+                      class="h-full w-full object-cover"
+                    />
 
-                  <span class="min-w-0 truncate text-sm font-bold">
-                    {{ tab.title || tab.label }}
+                    <span
+                      class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+                    >
+                      <Icon
+                        :name="tab.icon || fallbackIcon"
+                        class="h-4 w-4 text-base-100 drop-shadow"
+                      />
+                    </span>
+                  </span>
+
+                  <span class="flex min-w-0 flex-col items-start">
+                    <span class="min-w-0 truncate text-sm font-black">
+                      {{ tab.label }}
+                    </span>
+
+                    <span
+                      v-if="tab.summary"
+                      class="line-clamp-1 text-xs font-medium opacity-70"
+                    >
+                      {{ tab.summary }}
+                    </span>
                   </span>
                 </button>
               </li>
@@ -152,29 +192,58 @@
             aria-label="Dashboard tabs"
           >
             <div
-              class="grid min-h-0 w-full min-w-0 grid-cols-2 gap-1.5 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none"
+              class="grid min-h-0 w-full min-w-0 gap-1.5"
+              :class="desktopTabGridClass"
             >
               <button
                 v-for="tab in resolvedTabs"
                 :key="tab.key"
-                class="btn h-full min-h-0 w-full min-w-0 justify-center rounded-xl border border-transparent px-2 py-2 text-center text-sm font-black normal-case leading-tight transition-all xl:px-3 xl:text-base 2xl:text-lg"
+                class="group relative isolate flex h-full min-h-0 w-full min-w-0 items-stretch overflow-hidden rounded-xl border px-2 py-2 text-center font-black normal-case leading-tight transition-all hover:-translate-y-0.5 hover:shadow-md"
                 type="button"
                 :class="
                   activeTabKey === tab.key
-                    ? 'btn-primary shadow-sm'
-                    : 'btn-ghost bg-base-100/70 hover:border-primary/30 hover:bg-base-100'
+                    ? 'border-primary bg-primary text-primary-content shadow-sm'
+                    : 'border-base-300 bg-base-100 text-base-content hover:border-primary/40'
                 "
                 @click="setTab(tab.key)"
               >
-                <span
-                  class="flex min-w-0 flex-col items-center justify-center gap-1 xl:gap-1.5"
-                >
-                  <Icon
-                    :name="tab.icon || fallbackIcon"
-                    class="h-5 w-5 shrink-0 xl:h-6 xl:w-6 2xl:h-7 2xl:w-7"
-                  />
+                <img
+                  v-if="tab.image"
+                  :src="tab.image"
+                  :alt="tab.title || tab.label"
+                  class="absolute inset-0 -z-10 h-full w-full object-cover opacity-35 transition-all duration-300 group-hover:scale-105 group-hover:opacity-50"
+                  :class="activeTabKey === tab.key ? 'opacity-45' : ''"
+                />
 
-                  <span class="max-w-full truncate">
+                <span
+                  class="absolute inset-0 -z-10 bg-linear-to-b from-base-100/20 via-base-100/65 to-base-100/95"
+                  :class="
+                    activeTabKey === tab.key
+                      ? 'from-primary/20 via-primary/70 to-primary'
+                      : ''
+                  "
+                />
+
+                <span
+                  class="flex min-h-0 w-full min-w-0 flex-col items-center justify-center gap-1"
+                >
+                  <span
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border backdrop-blur-sm xl:h-9 xl:w-9 2xl:h-10 2xl:w-10"
+                    :class="
+                      activeTabKey === tab.key
+                        ? 'border-primary-content/40 bg-primary-content/20 text-primary-content'
+                        : 'border-base-300 bg-base-100/80 text-base-content'
+                    "
+                  >
+                    <Icon
+                      :name="tab.icon || fallbackIcon"
+                      class="h-4 w-4 shrink-0 xl:h-5 xl:w-5 2xl:h-6 2xl:w-6"
+                    />
+                  </span>
+
+                  <span
+                    class="max-w-full truncate text-xs drop-shadow-sm xl:text-sm 2xl:text-base"
+                  >
                     {{ tab.label }}
                   </span>
                 </span>
@@ -253,6 +322,19 @@ const resolvedDashboardKey = computed<DashboardKey | null>(() => {
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   const key = resolvedDashboardKey.value
   return key ? navStore.getDashboardTabs(key) : []
+})
+
+const desktopTabGridClass = computed(() => {
+  const count = resolvedTabs.value.length
+
+  if (count >= 7) return 'grid-cols-4 grid-rows-2'
+  if (count >= 6) return 'grid-cols-3 grid-rows-2'
+  if (count === 5) return 'grid-cols-5'
+  if (count === 4) return 'grid-cols-4'
+  if (count === 3) return 'grid-cols-3'
+  if (count === 2) return 'grid-cols-2'
+
+  return 'grid-cols-1'
 })
 
 const routeRequestedTabKey = computed(() => {
@@ -433,12 +515,15 @@ function toggleChrome(): void {
   padding-right: 0;
 }
 
-.header-control-grid :deep(.btn > span:not(.loading):not(.mana-icon)) {
+.header-control-grid :deep(.btn > span) {
   max-width: 100%;
 }
 
-.header-control-grid :deep(.mana-icon) {
+.header-control-grid :deep(.mana-icon),
+.header-control-grid :deep(.iconify),
+.header-control-grid :deep(svg) {
   display: inline-flex;
+  flex-shrink: 0;
 }
 
 @media (max-width: 639px) {
@@ -450,16 +535,15 @@ function toggleChrome(): void {
     gap: 0;
   }
 
-  .header-control-grid :deep(.btn > span:not(.loading):not(.mana-icon)) {
-    display: none;
-  }
-
+  .header-control-grid :deep(.btn .control-label),
   .header-control-grid :deep(.btn > .badge) {
     display: none;
   }
 
+  .header-control-grid :deep(.mana-icon),
+  .header-control-grid :deep(.iconify),
   .header-control-grid :deep(svg) {
-    display: inline-block;
+    display: inline-flex;
   }
 }
 </style>

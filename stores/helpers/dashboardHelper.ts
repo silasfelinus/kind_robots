@@ -460,6 +460,35 @@ export const dashboardConfigs = {
     defaultTab: 'fx',
     tabs: [
       {
+        key: 'builder',
+        label: 'Builder',
+        icon: 'kind-icon:blueprint',
+        title: 'Builder',
+        summary:
+          'Create the pieces of a world, one strange little card at a time.',
+        image: getNavHeroImagePath('builder'),
+        flourish: '▣',
+        tagline: 'Build people, places, bots, rewards, and story fuel.',
+        narrative:
+          'Build the pieces of your world from reusable cards: profiles, pitches, dreams, characters, bots, rewards, scenarios, and art. Start small, stack boldly, and let the tiny construction goblins unionize later.',
+        route: '/dashboard',
+      },
+      {
+        key: 'memory',
+        label: 'Memory',
+        icon: 'kind-icon:castle',
+        title: 'Memory Dungeon',
+        summary:
+          'Explore a card-matching crawl through memories, patterns, and tiny emotional traps.',
+        image: getNavHeroImagePath('memory'),
+        flourish: '◇',
+        tagline:
+          'A memory crawl with glowing keys and suspiciously clever cards.',
+        narrative:
+          'Enter the Memory Dungeon: a gamified crawl through matching cards, remembered patterns, hidden rooms, and little nostalgic monsters. Explore, survive, and see what the dungeon remembers back.',
+        route: '/wonderlab',
+      },
+      {
         key: 'fx',
         label: 'FX',
         icon: 'kind-icon:butterfly',
@@ -1032,6 +1061,8 @@ export const footerDashboardMap = {
   dream: 'dream',
   character: 'character',
   reward: 'reward',
+  builder: 'builder',
+  memory: 'wonder',
 } as const satisfies Record<FooterKey, DashboardKey>
 
 export function isDashboardKey(value: string): value is DashboardKey {

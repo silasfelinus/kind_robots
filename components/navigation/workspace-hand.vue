@@ -5,6 +5,8 @@
     class="pointer-events-none absolute inset-x-0 bottom-0 z-40 overflow-visible px-1"
     :style="handFrameStyle"
   >
+    <fx-region region="hand" />
+
     <div
       ref="scrollEl"
       class="workspace-hand-scroll pointer-events-none flex h-full touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"

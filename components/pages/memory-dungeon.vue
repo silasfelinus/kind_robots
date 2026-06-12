@@ -2,7 +2,10 @@
 <template>
   <!-- root div -->
   <div
-    class="flex h-full min-h-[80vh] select-none flex-col overflow-hidden bg-base-200"
+    class="flex h-full min-h-[80vh] select-none flex-col bg-base-200"
+    :class="
+      gameStarted ? 'overflow-hidden' : 'overflow-y-auto overscroll-contain'
+    "
   >
     <header
       v-if="gameStarted"
@@ -150,10 +153,10 @@
     <!-- ─── SPLASH SCREEN (pre-game takeover) ───────────────── -->
     <div
       v-if="!gameStarted"
-      class="splash-screen relative flex min-h-0 flex-1 flex-col overflow-hidden bg-black"
+      class="splash-screen relative flex min-h-full flex-1 flex-col overflow-visible bg-black"
     >
       <div
-        class="splash-hero relative flex-1 overflow-hidden min-h-[60vh] sm:min-h-[70vh]"
+        class="splash-hero relative min-h-[58svh] overflow-hidden sm:min-h-[64svh] lg:min-h-[70svh]"
       >
         <img
           src="/images/background/memorydungeon.png"
@@ -218,7 +221,7 @@
           </div>
 
           <!-- Start / Back buttons always visible below the config row -->
-          <div class="flex items-center gap-3">
+          <div class="flex w-full flex-col items-center gap-3 px-3 sm:px-4">
             <button
               v-if="memoryStore.cardSource.type !== 'all'"
               type="button"
@@ -228,7 +231,11 @@
               ← All Images
             </button>
 
-            <button type="button" class="splash-enter-btn" @click="startGame">
+            <button
+              type="button"
+              class="splash-enter-btn max-w-full text-sm sm:text-base"
+              @click="startGame"
+            >
               ⚔️ ENTER THE DUNGEON
             </button>
           </div>
@@ -549,8 +556,6 @@ type MemoryStoreWithFlexibleReset = typeof memoryStore & {
   resetGame: (payload?: ResetGamePayload) => void
 }
 
-const playableCollections = computed(() => artStore.generationCollections)
-
 const memoryStore = useMemoryStore()
 const milestoneStore = useMilestoneStore()
 
@@ -564,37 +569,6 @@ const CHALLENGE_MULTIPLIER = 3
 const POWERUP_CHANCE = 0.3
 const CHALLENGE_EVERY_N = 4
 const MAX_POWERUPS = 3
-
-function handleSourceTypeChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const type = target.value as MemoryCardSourceType
-
-  if (type === 'all') {
-    memoryStore.useAllArtImages()
-    return
-  }
-
-  if (type === 'generated') {
-    memoryStore.useGeneratedArtImages()
-    return
-  }
-
-  if (type === 'collection') {
-    memoryStore.useCollection(memoryStore.cardSource.collectionId)
-    return
-  }
-
-  if (type === 'collections') {
-    memoryStore.useCollections(memoryStore.cardSource.collectionIds)
-  }
-}
-
-function handleCollectionChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const id = Number(target.value)
-
-  memoryStore.useCollection(Number.isInteger(id) && id > 0 ? id : null)
-}
 
 function updateBoardBounds() {
   const element = boardPanel.value
@@ -1675,25 +1649,6 @@ onUnmounted(() => {
   }
 }
 
-.splash-enter-btn {
-  background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #facc15 100%);
-  color: #1a0a0a;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  padding: 0.9rem 2.4rem;
-  border-radius: 9999px;
-  font-size: 1.1rem;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
-  box-shadow:
-    0 0 0 3px rgba(255, 200, 0, 0.4),
-    0 0 30px rgba(255, 100, 0, 0.5),
-    0 8px 24px rgba(0, 0, 0, 0.6);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  animation: enter-pulse 2.4s ease-in-out infinite;
-}
-
 .splash-enter-btn:hover {
   transform: scale(1.05);
   box-shadow:
@@ -1764,6 +1719,32 @@ onUnmounted(() => {
   }
   50% {
     transform: translateY(-4px);
+  }
+}
+
+.splash-enter-btn {
+  background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #facc15 100%);
+  color: #1a0a0a;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 0.8rem 1.4rem;
+  border-radius: 9999px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 0 0 3px rgba(255, 200, 0, 0.4),
+    0 0 30px rgba(255, 100, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.6);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  animation: enter-pulse 2.4s ease-in-out infinite;
+}
+
+@media (min-width: 640px) {
+  .splash-enter-btn {
+    padding: 0.9rem 2.4rem;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
   }
 }
 </style>

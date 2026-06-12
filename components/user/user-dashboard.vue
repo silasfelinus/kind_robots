@@ -27,7 +27,7 @@
         <div
           class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
         >
-          <div v-if="isLoggedIn" class="relative">
+          <div v-if="!isGuest" class="relative">
             <user-avatar
               class="h-24 w-24 rounded-full ring-2 ring-accent ring-offset-2 ring-offset-base-100"
             />
@@ -44,21 +44,21 @@
             <h2
               class="max-w-full truncate text-xl font-black text-base-content"
             >
-              {{ user?.username || 'Kind Guest' }}
+              {{ displayName }}
             </h2>
 
-            <span v-if="isLoggedIn" class="badge badge-accent badge-sm">
+            <span v-if="!isGuest" class="badge badge-accent badge-sm">
               Logged in
             </span>
 
             <span v-else class="text-xs text-base-content/45">
-              Not logged in
+              Guest mode
             </span>
           </div>
         </div>
 
         <div
-          v-if="isLoggedIn"
+          v-if="!isGuest"
           class="rounded-2xl border border-base-300 bg-base-100 p-3"
         >
           <div class="mb-2 flex items-center gap-1.5">
@@ -72,7 +72,7 @@
         </div>
 
         <div
-          v-if="isLoggedIn"
+          v-if="!isGuest"
           class="rounded-2xl border border-base-300 bg-base-100 p-3"
         >
           <div class="flex flex-wrap items-center justify-center gap-3">
@@ -82,7 +82,7 @@
         </div>
 
         <NuxtLink
-          v-if="!isLoggedIn"
+          v-if="isGuest"
           to="/login"
           class="btn btn-primary w-full rounded-xl"
         >
@@ -112,7 +112,7 @@
 
           <div class="min-w-0">
             <p class="truncate text-base font-black text-base-content">
-              Welcome back, {{ user?.username || 'traveller' }}
+              {{ welcomeMessage }}
             </p>
 
             <p class="text-xs text-base-content/55">
@@ -122,7 +122,7 @@
         </div>
 
         <div
-          v-if="isLoggedIn"
+          v-if="!isGuest"
           class="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
         >
           <user-panel class="min-w-0" />
@@ -166,10 +166,20 @@ const userStore = useUserStore()
 const imageUploadStore = useUploadStore()
 
 const user = computed(() => userStore.user)
-const isLoggedIn = computed(() => userStore.isLoggedIn)
+const isGuest = computed(() => userStore.isGuest)
+
+const displayName = computed(() => {
+  return isGuest.value ? 'Kind Guest' : user.value?.username || 'Kind User'
+})
+
+const welcomeMessage = computed(() => {
+  return isGuest.value
+    ? 'Welcome, mysterious traveller'
+    : `Welcome back, ${user.value?.username || 'traveller'}`
+})
 
 function configureUserImageUpload() {
-  if (!userStore.user?.id) return
+  if (isGuest.value || !userStore.user?.id) return
 
   imageUploadStore.setTarget({
     model: 'User',
@@ -182,7 +192,7 @@ function configureUserImageUpload() {
     icon: 'kind-icon:camera',
     showPreview: false,
     applyImage: async ({ artImageId, imageData }) => {
-      if (!userStore.user?.id) return
+      if (isGuest.value || !userStore.user?.id) return
 
       await userStore.updateUserInfo({
         id: userStore.user.id,

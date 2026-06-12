@@ -50,26 +50,25 @@
       ]"
     >
       <img
-        v-if="artImage"
-        :src="`data:image/${artImage.fileType};base64,${artImage.imageData}`"
+        v-if="visibleRewardImageSrc"
+        :src="visibleRewardImageSrc"
         :alt="rewardTitle"
         class="h-full w-full object-cover transition-transform group-hover:scale-105"
         loading="lazy"
-      />
-
-      <img
-        v-else-if="reward.imagePath"
-        :src="reward.imagePath"
-        :alt="rewardTitle"
-        class="h-full w-full object-cover transition-transform group-hover:scale-105"
-        loading="lazy"
+        @error="handleImageError"
       />
 
       <div
         v-else
         class="flex h-full w-full items-center justify-center bg-base-200"
       >
+        <span
+          v-if="isLoadingImage"
+          class="loading loading-spinner loading-md text-primary"
+        />
+
         <Icon
+          v-else
           :name="reward.icon || fallbackIcon"
           :class="compact ? 'h-14 w-14' : 'h-20 w-20'"
           class="text-primary/70"
@@ -86,7 +85,7 @@
         </span>
 
         <span class="badge badge-ghost badge-sm">
-          {{ reward.rarity || "COMMON" }}
+          {{ reward.rarity || 'COMMON' }}
         </span>
       </div>
 
@@ -134,7 +133,7 @@
         </span>
 
         <span class="badge badge-ghost badge-sm">
-          {{ reward.rarity || "COMMON" }}
+          {{ reward.rarity || 'COMMON' }}
         </span>
 
         <span v-if="reward.rewardType" class="badge badge-primary badge-sm">
@@ -211,9 +210,20 @@ import type { Reward } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { useRewardStore } from '@/stores/rewardStore'
 
+type RewardWithArt = Reward & {
+  ArtImage?: ArtImage | null
+}
+
+type RewardCardImage = ArtImage
+
+type ArtStoreWithImageLoaders = ReturnType<typeof useArtStore> & {
+  getArtImageById?: (id: number) => Promise<ArtImage | null | undefined>
+  getArtImagesByIds?: (ids: number[]) => Promise<ArtImage[]>
+}
+
 const props = withDefaults(
   defineProps<{
-    reward: Reward
+    reward: RewardWithArt
     selected?: boolean
     showImage?: boolean
     compact?: boolean
@@ -251,11 +261,48 @@ const emit = defineEmits<{
   delete: [id: number]
 }>()
 
-const artStore = useArtStore()
+const artStore = useArtStore() as ArtStoreWithImageLoaders
 const rewardStore = useRewardStore()
 
-const artImage = ref<ArtImage | null>(null)
+const artImage = ref<RewardCardImage | null>(null)
 const isLoadingImage = ref(false)
+const imageFailed = ref(false)
+
+const embeddedArtImage = computed<RewardCardImage | null>(() => {
+  return props.reward.ArtImage ?? null
+})
+
+const rewardImageSrc = computed(() => {
+  const image = embeddedArtImage.value || artImage.value
+
+  if (image?.imageData) {
+    return `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`
+  }
+
+  return props.reward.imagePath || ''
+})
+
+const visibleRewardImageSrc = computed(() => {
+  if (!props.showImage || imageFailed.value) return ''
+
+  return rewardImageSrc.value
+})
+
+async function fetchArtImageById(id: number): Promise<RewardCardImage | null> {
+  if (typeof artStore.getArtImageById === 'function') {
+    const result = await artStore.getArtImageById(id)
+
+    return result ?? null
+  }
+
+  if (typeof artStore.getArtImagesByIds === 'function') {
+    const results = await artStore.getArtImagesByIds([id])
+
+    return results[0] ?? null
+  }
+
+  return null
+}
 
 const activeSelected = computed(() => {
   return props.selected || rewardStore.selectedReward?.id === props.reward.id
@@ -282,16 +329,28 @@ async function deleteReward() {
   }
 }
 
+function normalizeImageMime(fileType?: string | null) {
+  const fallback = 'image/webp'
+  const cleaned = fileType?.trim().replace(/^\./, '')
+
+  if (!cleaned) return fallback
+  if (cleaned.startsWith('image/')) return cleaned
+
+  return `image/${cleaned}`
+}
+
 async function loadRewardImage() {
   artImage.value = null
+  imageFailed.value = false
 
-  if (!props.reward.artImageId || !props.showImage) return
+  if (!props.reward.artImageId || !props.showImage || embeddedArtImage.value) {
+    return
+  }
 
   isLoadingImage.value = true
 
   try {
-    const results = await artStore.getArtImagesByIds([props.reward.artImageId])
-    artImage.value = results[0] ?? null
+    artImage.value = await fetchArtImageById(props.reward.artImageId)
   } catch (error) {
     console.error('Failed to load reward art image:', error)
   } finally {
@@ -299,12 +358,22 @@ async function loadRewardImage() {
   }
 }
 
+function handleImageError() {
+  imageFailed.value = true
+}
+
 onMounted(async () => {
   await loadRewardImage()
 })
 
 watch(
-  () => [props.reward.artImageId, props.showImage],
+  () => [
+    props.reward.id,
+    props.reward.artImageId,
+    props.reward.imagePath,
+    props.showImage,
+    embeddedArtImage.value?.id,
+  ],
   async () => {
     await loadRewardImage()
   },

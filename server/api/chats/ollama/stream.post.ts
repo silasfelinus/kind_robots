@@ -8,6 +8,7 @@ import {
 } from 'h3'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { manaGate } from '../../../utils/manaGate'
+import { requireApiUser } from '../../../utils/authGuard'
 
 type OllamaStreamBody = {
   prompt?: string
@@ -35,8 +36,17 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<OllamaStreamBody>(event)
     const config = useRuntimeConfig()
+    const auth = await requireApiUser(event)
+
     const model = body.model || 'llama3.2'
     const maxTokens = body.maxTokens ?? 1024
+
+    const server = await resolveServer({
+      userId: auth.user.id,
+      serverId: body.serverId ?? null,
+      serverName: body.serverName ?? null,
+      capability: 'text',
+    })
 
     const gate = await manaGate(event, {
       kind: 'text',
@@ -44,15 +54,8 @@ export default defineEventHandler(async (event) => {
         model,
         maxTokens,
       }),
-      serverId: body.serverId ?? null,
+      serverId: server.id,
       useOwnResource: body.useOwnResource ?? true,
-    })
-
-    const server = await resolveServer({
-      userId: gate.user.id,
-      serverId: body.serverId ?? null,
-      serverName: body.serverName ?? null,
-      capability: 'text',
     })
 
     const resolvedEndpoint = getServerEndpoint(server)
@@ -84,6 +87,7 @@ export default defineEventHandler(async (event) => {
       endpoint,
       model: payload.model,
       messages: messages.length,
+      authUserId: auth.user.id,
       serverId: server.id,
       serverTitle: server.title,
       chargedMana: gate.cost,

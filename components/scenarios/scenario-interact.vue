@@ -274,7 +274,7 @@
                 </p>
 
                 <span
-                  v-if="!chat.botResponse"
+                  v-if="chat.isStreaming && !chat.botResponse"
                   class="flex items-center gap-1 py-1 text-base-content/60"
                 >
                   <span class="story-dot" />
@@ -285,7 +285,10 @@
                 <p
                   v-else
                   class="whitespace-pre-wrap text-base-content/80"
-                  :class="chat.isStreaming ? 'story-streaming' : ''"
+                  :class="[
+                    chat.isStreaming ? 'story-streaming' : '',
+                    chat.isInterrupted ? 'text-warning' : '',
+                  ]"
                 >
                   {{ chat.displayResponse || chat.botResponse }}
                 </p>

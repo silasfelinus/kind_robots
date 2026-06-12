@@ -1,6 +1,6 @@
 <!-- /components/content/navigation/workspace-header.vue -->
 <template>
-  <div class="relative z-30 shrink-0 overflow-visible">
+  <div class="relative z-90 shrink-0 overflow-visible">
     <transition name="header-toggle">
       <button
         v-if="chromeMinimized"
@@ -17,7 +17,7 @@
     <transition name="header-slide">
       <header
         v-if="!chromeMinimized"
-        class="relative z-30 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
+        class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
         <div
           class="flex min-h-20 min-w-0 items-stretch gap-2 p-2 sm:min-h-28 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4 xl:min-h-40"
@@ -72,8 +72,7 @@
           >
             <div
               tabindex="0"
-              role="button"
-              class="btn btn-primary h-12 min-h-12 w-full min-w-0 justify-between rounded-xl px-3 shadow-sm"
+              class="menu dropdown-content z-100 mt-2 max-h-72 w-72 flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <Icon

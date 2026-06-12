@@ -5,7 +5,7 @@
     style="--hand-h: 11.5rem"
   >
     <ClientOnly>
-      <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
+      <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-120">
         <kind-loader @pageReady="handlePageReady" />
       </div>
     </ClientOnly>
@@ -20,15 +20,16 @@
       class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
     >
       <workspace-header
+        class="relative z-90"
         :chrome-minimized="chromeMinimized"
         @toggle-chrome="toggleChrome"
       />
 
-      <section class="relative z-30 min-h-0 flex-1 overflow-hidden">
+      <section class="relative z-10 min-h-0 flex-1 overflow-hidden">
         <button
           v-if="!workspaceSheetOpen"
           type="button"
-          class="btn btn-xs btn-square absolute left-3 top-3 z-30 shadow-lg"
+          class="btn btn-xs btn-square absolute left-3 top-3 z-80 shadow-lg"
           aria-label="Open workspace"
           :aria-expanded="workspaceSheetOpen"
           @click="setWorkspaceSheetOpen(true)"
@@ -37,16 +38,16 @@
         </button>
 
         <main
-          class="flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+          class="relative z-10 flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
         >
           <div
-            class="flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
+            class="relative z-10 flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
             :class="chromeMinimized ? 'pb-10' : 'pb-(--hand-h)'"
           >
             <Transition name="workspace-sheet-slide">
               <aside
                 v-if="workspaceSheetOpen"
-                class="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
+                class="relative z-70 flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
               >
                 <div
                   class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
@@ -86,14 +87,14 @@
             </Transition>
 
             <section
-              class="flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4 z-30"
+              class="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden p-3 sm:p-4"
               :class="workspaceSheetOpen ? 'hidden md:flex' : 'flex'"
             >
               <div
-                class="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-base-100"
+                class="relative z-10 min-h-0 flex-1 overflow-hidden rounded-2xl bg-base-100"
               >
                 <main
-                  class="h-full min-h-0 w-full overflow-y-auto overscroll-contain"
+                  class="relative z-10 h-full min-h-0 w-full overflow-y-auto overscroll-contain"
                 >
                   <NuxtPage />
                 </main>
@@ -111,7 +112,7 @@
 
       <template #fallback>
         <div
-          class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+          class="fixed inset-x-0 bottom-0 z-60 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
         >
           Loading workspace hand...
         </div>
@@ -120,7 +121,7 @@
 
     <button
       type="button"
-      class="btn btn-sm btn-circle fixed left-1/2 z-40 -translate-x-1/2 shadow-xl transition-all duration-300"
+      class="btn btn-sm btn-circle fixed left-1/2 z-100 -translate-x-1/2 shadow-xl transition-all duration-300"
       :class="
         chromeMinimized ? 'bottom-3' : 'bottom-[calc(var(--hand-h)-3.0rem)]'
       "

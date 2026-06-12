@@ -1,5 +1,5 @@
 // /server/utils/serverApi.ts
-import { createError, getHeader } from 'h3'
+import { createError } from 'h3'
 import type { H3Event } from 'h3'
 import prisma from './prisma'
 import type {
@@ -8,12 +8,9 @@ import type {
   ServerAuthType,
   ServerStatus,
   ServerType,
-  User,
 } from '~/prisma/generated/prisma/client'
-
-export type AuthUser = User & {
-  isAdmin: boolean
-}
+import { getOptionalApiUser, requireApiUser } from './authGuard'
+import type { AuthUser } from './authUser'
 
 type ServerInput = Record<string, unknown>
 
@@ -78,19 +75,6 @@ function cleanEnum<T extends string>(
   return allowed.includes(value as T) ? (value as T) : undefined
 }
 
-function getBearerToken(event: H3Event): string | null {
-  const authorization = getHeader(event, 'authorization')
-  if (!authorization?.startsWith('Bearer ')) return null
-  return authorization.slice('Bearer '.length).trim() || null
-}
-
-function withAdminFlag(user: User): AuthUser {
-  return {
-    ...user,
-    isAdmin: String(user.Role) === 'ADMIN',
-  }
-}
-
 export function parseId(value: string | undefined): number {
   const id = Number(value)
 
@@ -107,30 +91,13 @@ export function parseId(value: string | undefined): number {
 export async function getOptionalAuthUser(
   event: H3Event,
 ): Promise<AuthUser | null> {
-  const token = getBearerToken(event)
-  if (!token) return null
-
-  const user = await prisma.user.findFirst({
-    where: {
-      OR: [{ apiKey: token }, { token }],
-      isActive: true,
-    },
-  })
-
-  return user ? withAdminFlag(user) : null
+  const auth = await getOptionalApiUser(event)
+  return auth?.user ?? null
 }
 
 export async function requireAuthUser(event: H3Event): Promise<AuthUser> {
-  const user = await getOptionalAuthUser(event)
-
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      message: 'Authorization token is required.',
-    })
-  }
-
-  return user
+  const auth = await requireApiUser(event)
+  return auth.user
 }
 
 export async function readServerById(id: number): Promise<Server> {

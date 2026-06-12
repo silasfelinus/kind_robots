@@ -662,6 +662,9 @@ export const useUserStore = defineStore('userStore', () => {
       await setUser(loginData.user)
       setToken(loginData.token)
 
+const { useLoginManagerStore } = await import('@/stores/loginStore')
+useLoginManagerStore().captureCurrentSession() 
+
       initialized.value = true
       lastError.value = null
 
@@ -702,6 +705,9 @@ export const useUserStore = defineStore('userStore', () => {
         if (stayLoggedIn.value) {
           saveToLocalStorage('token', res.data.token)
         }
+
+const { useLoginManagerStore } = await import('@/stores/loginStore')
+useLoginManagerStore().captureCurrentSession()
 
         lastError.value = null
         return res

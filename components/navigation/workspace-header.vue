@@ -19,6 +19,8 @@
         v-if="!chromeMinimized"
         class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
       >
+        <fx-region region="header" />
+
         <div
           class="flex min-h-20 min-w-0 items-stretch gap-2 p-2 sm:min-h-28 sm:gap-3 sm:p-3 lg:min-h-36 lg:gap-4 lg:p-4 xl:min-h-40"
         >

@@ -1,33 +1,5 @@
 <!-- /components/content/screenfx/screen-fx.vue -->
 <template>
-  <Teleport to="body">
-    <div
-      v-if="activeCount > 0"
-      class="effect-container"
-      :class="{ 'effect-container--interactive': hasBlockingEffect }"
-    >
-      <component
-        :is="activeComponent.component"
-        v-for="activeComponent in activeComponents"
-        :key="activeComponent.id"
-      />
-    </div>
-
-    <Transition name="fade-up">
-      <button
-        v-if="activeCount > 0"
-        class="escape-btn"
-        title="Clear all effects"
-        type="button"
-        @click="clearAll"
-      >
-        <Icon name="kind-icon:close" class="h-5 w-5" />
-        <span>clear all</span>
-        <strong>{{ activeCount }}</strong>
-      </button>
-    </Transition>
-  </Teleport>
-
   <section class="screen-fx-shell">
     <div class="fx-panel">
       <div class="fx-header">
@@ -42,10 +14,15 @@
         </div>
 
         <div class="fx-header-right">
-          <span v-if="activeCount > 0" class="fx-active-badge">
-            {{ activeCount }} active
+          <span
+            v-if="animationStore.screenEffectCount > 0"
+            class="fx-active-badge"
+          >
+            {{ animationStore.screenEffectCount }} active
           </span>
-          <span class="fx-total-label">{{ effects.length }} effects</span>
+          <span class="fx-total-label">
+            {{ animationStore.effects.length }} effects
+          </span>
         </div>
       </div>
 
@@ -54,55 +31,83 @@
           <div>
             <span class="fx-zone-title">Coverage zones</span>
             <p class="fx-zone-subtitle">
-              Choose where animations are allowed to wander.
+              Choose where animations wander, and whether they go behind or in
+              front of each surface.
             </p>
           </div>
 
           <button
-            v-if="anyZoneActive"
             class="fx-zone-reset"
             type="button"
-            @click="animationStore.resetZones()"
+            @click="animationStore.resetSurfaces()"
           >
             reset
           </button>
         </div>
 
         <div class="fx-zone-grid">
-          <button
+          <div
             v-for="zone in zoneOptions"
             :key="zone.id"
-            class="fx-zone-btn"
-            :class="{ 'fx-zone-btn--active': animationStore.zones[zone.id] }"
+            class="fx-zone-card"
+            :class="{ 'fx-zone-card--active': zoneActive(zone.id) }"
             :title="zone.tooltip"
-            type="button"
-            @click="animationStore.toggleZone(zone.id)"
           >
             <span class="fx-zone-icon-wrap">
               <Icon :name="zone.icon" class="fx-zone-icon" />
             </span>
+
             <span class="fx-zone-label">{{ zone.label }}</span>
-            <span class="fx-zone-state">
-              {{ animationStore.zones[zone.id] ? 'on' : 'off' }}
-            </span>
-          </button>
+
+            <div class="fx-zone-toggles">
+              <button
+                class="fx-zone-toggle"
+                :class="{
+                  'fx-zone-toggle--active':
+                    animationStore.screenSurfaces[zone.id].behind,
+                }"
+                type="button"
+                :title="`Render behind the ${zone.label.toLowerCase()} content`"
+                @click="animationStore.toggleSurface(zone.id, 'behind')"
+              >
+                behind
+              </button>
+
+              <button
+                class="fx-zone-toggle"
+                :class="{
+                  'fx-zone-toggle--active':
+                    animationStore.screenSurfaces[zone.id].front,
+                }"
+                type="button"
+                :title="`Render in front of the ${zone.label.toLowerCase()}`"
+                @click="animationStore.toggleSurface(zone.id, 'front')"
+              >
+                front
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="fx-grid">
         <button
-          v-for="effect in effects"
+          v-for="effect in animationStore.effects"
           :key="effect.id"
           class="fx-btn"
           :class="{
-            'fx-btn--active': effect.isActive,
+            'fx-btn--active': animationStore.isScreenEffectActive(effect.id),
             'fx-btn--blocks': effect.blocksInput,
           }"
-          :style="effect.isActive ? { '--ec': effect.color } : {}"
+          :style="
+            animationStore.isScreenEffectActive(effect.id)
+              ? { '--ec': effect.color }
+              : {}
+          "
           type="button"
-          :aria-pressed="effect.isActive"
+          :aria-pressed="animationStore.isScreenEffectActive(effect.id)"
           :aria-label="effect.label"
-          @click="toggleEffect(effect.id)"
+          @click="animationStore.toggleScreenEffect(effect.id)"
           @mouseenter="hoveredEffect = effect.id"
           @mouseleave="hoveredEffect = null"
         >
@@ -115,14 +120,21 @@
             </div>
           </Transition>
 
-          <span v-if="effect.isActive" class="fx-pulse" />
+          <span
+            v-if="animationStore.isScreenEffectActive(effect.id)"
+            class="fx-pulse"
+          />
 
           <span class="fx-icon-wrap">
             <Icon :name="effect.icon" class="fx-icon" />
           </span>
 
           <span class="fx-label">
-            {{ effect.isActive ? effect.reveal : effect.label }}
+            {{
+              animationStore.isScreenEffectActive(effect.id)
+                ? effect.reveal
+                : effect.label
+            }}
           </span>
 
           <span v-if="effect.blocksInput" class="fx-block-chip">
@@ -132,7 +144,9 @@
       </div>
 
       <div class="fx-footer">
-        <span>Effects stack. Combine freely.</span>
+        <span
+          >Effects stack, combine freely, and follow you between pages.</span
+        >
         <span>Several are absolutely unhinged. Good.</span>
       </div>
     </div>
@@ -140,16 +154,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, resolveComponent } from 'vue'
+import { ref } from 'vue'
 import {
   useAnimationStore,
-  type AnimationLayerZone,
+  type AnimationEffectId,
+  type FxRegion,
 } from '@/stores/animationStore'
 
 const animationStore = useAnimationStore()
 
+const hoveredEffect = ref<AnimationEffectId | null>(null)
+
 const zoneOptions: {
-  id: AnimationLayerZone
+  id: FxRegion
   label: string
   icon: string
   tooltip: string
@@ -158,362 +175,31 @@ const zoneOptions: {
     id: 'header',
     label: 'Header',
     icon: 'kind-icon:layout-top',
-    tooltip: 'Extend into the header bar',
+    tooltip: 'The dashboard header bar',
   },
   {
-    id: 'left',
-    label: 'Left',
+    id: 'sheet',
+    label: 'Sheet',
     icon: 'kind-icon:layout-left',
-    tooltip: 'Extend into the left sidebar',
+    tooltip: 'The workspace sheet sidebar',
   },
   {
-    id: 'right',
-    label: 'Right',
-    icon: 'kind-icon:layout-right',
-    tooltip: 'Extend into the right sidebar',
+    id: 'page',
+    label: 'Page',
+    icon: 'kind-icon:sparkle',
+    tooltip: 'The main page content',
   },
   {
-    id: 'footer',
-    label: 'Footer',
+    id: 'hand',
+    label: 'Hand',
     icon: 'kind-icon:layout-bottom',
-    tooltip: 'Extend into the footer bar',
+    tooltip: 'The card hand along the bottom',
   },
 ]
 
-const anyZoneActive = computed(() =>
-  zoneOptions.some((zone) => animationStore.zones[zone.id]),
-)
-
-interface Effect {
-  id: string
-  label: string
-  reveal: string
-  icon: string
-  tooltip: string
-  color: string
-  isActive: boolean
-  blocksInput?: boolean
-}
-
-type ComponentMapType = {
-  [key: string]: ReturnType<typeof resolveComponent>
-}
-
-const componentsMap: ComponentMapType = {
-  'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
-  'rain-effect': resolveComponent('LazyRainEffect'),
-  'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
-  'starfield-effect': resolveComponent('LazyStarfieldEffect'),
-  'matrix-rain': resolveComponent('LazyMatrixRain'),
-  'firefly-effect': resolveComponent('LazyFireflyEffect'),
-  'lightning-effect': resolveComponent('LazyLightningEffect'),
-  'snow-effect': resolveComponent('LazySnowEffect'),
-  'toaster-effect': resolveComponent('LazyToasterEffect'),
-  'aurora-effect': resolveComponent('LazyAuroraEffect'),
-  'constellation-effect': resolveComponent('LazyConstellationEffect'),
-  'plasma-effect': resolveComponent('LazyPlasmaEffect'),
-  'nyan-trail': resolveComponent('LazyNyanTrail'),
-  'pixel-rain': resolveComponent('LazyPixelRain'),
-  'orbit-effect': resolveComponent('LazyOrbitEffect'),
-  'wishing-stars': resolveComponent('LazyWishingStars'),
-  'fireworks-effect': resolveComponent('LazyFireworksEffect'),
-  'ripple-effect': resolveComponent('LazyRippleEffect'),
-  'wandering-creatures': resolveComponent('LazyWanderingCreatures'),
-  'floating-hearts': resolveComponent('LazyFloatingHearts'),
-  'glitch-effect': resolveComponent('LazyGlitchEffect'),
-  'fire-effect': resolveComponent('LazyFireEffect'),
-  'kaleidoscope-effect': resolveComponent('LazyKaleidoscopeEffect'),
-  'pixel-explosion': resolveComponent('LazyPixelExplosion'),
-  'ascii-aquarium': resolveComponent('LazyAsciiAquarium'),
-  'pacbot-effect': resolveComponent('LazyPacbotEffect'),
-  'pocket-gremlin': resolveComponent('LazyPocketGremlin'),
-  'siege-engine': resolveComponent('LazySiegeEngine'),
-}
-
-const effects = ref<Effect[]>([
-  {
-    id: 'aurora-effect',
-    label: 'Aurora',
-    reveal: 'Borealis!',
-    icon: 'kind-icon:rainbow',
-    tooltip: 'Northern lights drift across the sky 🌌',
-    color: '#14b8a6',
-    isActive: false,
-  },
-  {
-    id: 'starfield-effect',
-    label: 'Warp Drive',
-    reveal: 'Hyperspace!',
-    icon: 'kind-icon:star',
-    tooltip: 'Punch it, Chewie ✨',
-    color: '#6366f1',
-    isActive: false,
-  },
-  {
-    id: 'constellation-effect',
-    label: 'Constellation',
-    reveal: 'Star map',
-    icon: 'kind-icon:sparkle',
-    tooltip: 'Drifting stars connect into patterns 🔭',
-    color: '#60a5fa',
-    isActive: false,
-  },
-  {
-    id: 'wishing-stars',
-    label: 'Wishing Stars',
-    reveal: '✨ Wish granted',
-    icon: 'kind-icon:star',
-    tooltip: 'Shooting stars streak across the sky 🌠',
-    color: '#fbbf24',
-    isActive: false,
-  },
-  {
-    id: 'orbit-effect',
-    label: 'Orrery',
-    reveal: 'Solar system',
-    icon: 'kind-icon:orbit',
-    tooltip: 'Glowing orbs trace orbital paths 🪐',
-    color: '#a855f7',
-    isActive: false,
-  },
-  {
-    id: 'butterfly-animation',
-    label: 'Butterfly Scouts',
-    reveal: 'Happy butterflies',
-    icon: 'kind-icon:butterfly',
-    tooltip: 'Release AMI into the world 🦋',
-    color: '#e879f9',
-    isActive: false,
-  },
-  {
-    id: 'firefly-effect',
-    label: 'Fireflies',
-    reveal: 'Golden hour',
-    icon: 'kind-icon:sparkle',
-    tooltip: 'Organic warm glow drifting through the dark 🌿',
-    color: '#f59e0b',
-    isActive: false,
-  },
-  {
-    id: 'rain-effect',
-    label: 'Rainmaker',
-    reveal: 'Just a drizzle',
-    icon: 'kind-icon:raindrop',
-    tooltip: "Rain doesn't have to be sad 🌧️",
-    color: '#7ba7c0',
-    isActive: false,
-  },
-  {
-    id: 'snow-effect',
-    label: 'Snow Globe',
-    reveal: 'Cozy ❄️',
-    icon: 'kind-icon:snowflake',
-    tooltip: 'Soft particle snowfall ❄️',
-    color: '#93c5fd',
-    isActive: false,
-  },
-  {
-    id: 'floating-hearts',
-    label: 'Love Bomb',
-    reveal: 'So much love',
-    icon: 'kind-icon:heart',
-    tooltip: 'Click anywhere to burst 💖',
-    color: '#f43f5e',
-    isActive: false,
-  },
-  {
-    id: 'fizzy-bubbles',
-    label: 'Fizzy Lifting',
-    reveal: 'Carbonation!',
-    icon: 'kind-icon:soda',
-    tooltip: 'Float away with fizzy bubbles 🍾',
-    color: '#38bdf8',
-    isActive: false,
-  },
-  {
-    id: 'ripple-effect',
-    label: 'Ripple',
-    reveal: 'Still waters',
-    icon: 'kind-icon:raindrop',
-    tooltip: 'Move your cursor to ripple the surface 💧',
-    color: '#0ea5e9',
-    isActive: false,
-  },
-  {
-    id: 'fireworks-effect',
-    label: 'Fireworks',
-    reveal: '🎆 Celebration!',
-    icon: 'kind-icon:sparkle',
-    tooltip: 'Click anywhere to fire 🎆',
-    color: '#ef4444',
-    isActive: false,
-  },
-  {
-    id: 'lightning-effect',
-    label: 'Storm Caller',
-    reveal: 'Feel the power',
-    icon: 'kind-icon:lightning',
-    tooltip: 'Recursive arc strikes from the sky ⚡',
-    color: '#eab308',
-    isActive: false,
-  },
-  {
-    id: 'fire-effect',
-    label: 'Wildfire',
-    reveal: 'Everything is fine',
-    icon: 'kind-icon:flame',
-    tooltip: 'This is fine 🔥',
-    color: '#ea580c',
-    isActive: false,
-  },
-  {
-    id: 'glitch-effect',
-    label: 'Glitch',
-    reveal: 'ERR_404',
-    icon: 'kind-icon:lightning',
-    tooltip: 'Signal corruption detected 📺',
-    color: '#7c3aed',
-    isActive: false,
-  },
-  {
-    id: 'kaleidoscope-effect',
-    label: 'Kaleidoscope',
-    reveal: 'Infinite mirror',
-    icon: 'kind-icon:gem',
-    tooltip: 'Sacred geometry in motion 🔮',
-    color: '#9333ea',
-    isActive: false,
-  },
-  {
-    id: 'plasma-effect',
-    label: 'Plasma',
-    reveal: 'Sine wave soup',
-    icon: 'kind-icon:wave',
-    tooltip: 'Summed sine waves, After Dark plasma 🌊',
-    color: '#8b5cf6',
-    isActive: false,
-  },
-  {
-    id: 'nyan-trail',
-    label: 'Nyan Trail',
-    reveal: 'Nyan nyan nyan',
-    icon: 'kind-icon:rainbow',
-    tooltip: 'Rainbow particle trail follows your cursor 🌈',
-    color: '#ec4899',
-    isActive: false,
-  },
-  {
-    id: 'matrix-rain',
-    label: 'Matrix Rain',
-    reveal: 'There is no spoon',
-    icon: 'kind-icon:code',
-    tooltip: 'Follow the white rabbit 🐇',
-    color: '#22c55e',
-    isActive: false,
-  },
-  {
-    id: 'pixel-rain',
-    label: 'Pixel Rain',
-    reveal: "It's raining bits",
-    icon: 'kind-icon:pixel',
-    tooltip: 'Retro pixel blocks fall and pile up 🕹️',
-    color: '#06b6d4',
-    isActive: false,
-  },
-  {
-    id: 'pixel-explosion',
-    label: 'Pixel Smash',
-    reveal: 'Everything is pixels',
-    icon: 'kind-icon:pixel',
-    tooltip: 'Click anything to shatter it into pixels 💥',
-    color: '#dc2626',
-    isActive: false,
-  },
-  {
-    id: 'wandering-creatures',
-    label: 'Creatures',
-    reveal: 'They live here now',
-    icon: 'kind-icon:butterfly',
-    tooltip: 'Critters with distinct personalities roam the screen 🐾',
-    color: '#10b981',
-    isActive: false,
-  },
-  {
-    id: 'toaster-effect',
-    label: 'Flying Toasters',
-    reveal: 'Toast incoming!',
-    icon: 'kind-icon:toast',
-    tooltip: 'After Dark tribute, the original screensaver 🍞',
-    color: '#f97316',
-    isActive: false,
-  },
-
-  {
-    id: 'ascii-aquarium',
-    label: 'Aquarium',
-    reveal: 'Glub glub',
-    icon: 'kind-icon:fish',
-    tooltip: 'Click to feed, Move cursor to spook 🐠',
-    color: '#06b6d4',
-    isActive: false,
-  },
-  {
-    id: 'pacbot-effect',
-    label: 'Pac-Bot',
-    reveal: 'Nom nom nom',
-    icon: 'kind-icon:robot',
-    tooltip:
-      'Move to leave crumbs, Click for power, Dbl-click for crumb storm 🤖',
-    color: '#eab308',
-    isActive: false,
-  },
-  {
-    id: 'pocket-gremlin',
-    label: 'Gremlin',
-    reveal: 'beep?',
-    icon: 'kind-icon:ghost',
-    tooltip: 'Click it to pet it, Ignore it at your peril 👾',
-    color: '#a78bfa',
-    isActive: false,
-  },
-  {
-    id: 'siege-engine',
-    label: 'Siege Engine',
-    reveal: 'FIRE!!!',
-    icon: 'kind-icon:flame',
-    tooltip: 'Hold to charge, Release to launch 🪨',
-    color: '#b45309',
-    isActive: false,
-  },
-])
-
-const hoveredEffect = ref<string | null>(null)
-
-const activeCount = computed(
-  () => effects.value.filter((effect) => effect.isActive).length,
-)
-
-const hasBlockingEffect = computed(() =>
-  effects.value.some((effect) => effect.isActive && effect.blocksInput),
-)
-
-const activeComponents = computed(() =>
-  effects.value
-    .filter((effect) => effect.isActive)
-    .map((effect) => ({ id: effect.id, component: componentsMap[effect.id] }))
-    .filter((activeComponent) => activeComponent.component),
-)
-
-const toggleEffect = (id: string) => {
-  const effect = effects.value.find((item) => item.id === id)
-  if (!effect) return
-  effect.isActive = !effect.isActive
-}
-
-const clearAll = () => {
-  effects.value.forEach((effect) => {
-    effect.isActive = false
-  })
+function zoneActive(region: FxRegion): boolean {
+  const surface = animationStore.screenSurfaces[region]
+  return surface.behind || surface.front
 }
 </script>
 
@@ -524,79 +210,6 @@ const clearAll = () => {
   width: 100%;
   min-height: 100%;
   padding: 0.75rem;
-}
-
-.effect-container {
-  position: fixed;
-  z-index: 40;
-  overflow: hidden;
-  pointer-events: none;
-  isolation: isolate;
-}
-
-.effect-container--interactive {
-  pointer-events: auto;
-}
-
-.escape-btn {
-  position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  z-index: 9999;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  min-height: 3rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid color-mix(in srgb, hsl(var(--er)) 45%, white 15%);
-  border-radius: 999px;
-  background:
-    radial-gradient(
-      circle at 20% 20%,
-      rgba(255, 255, 255, 0.22),
-      transparent 28%
-    ),
-    linear-gradient(
-      135deg,
-      hsl(var(--er)),
-      color-mix(in srgb, hsl(var(--er)) 70%, black 30%)
-    );
-  color: hsl(var(--erc));
-  font-size: 0.85rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  box-shadow:
-    0 1.25rem 3rem rgba(0, 0, 0, 0.35),
-    0 0 0 0.25rem rgba(255, 255, 255, 0.08);
-  cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    filter 0.18s ease;
-}
-
-.escape-btn:hover {
-  transform: translateY(-2px) scale(1.03);
-  filter: saturate(1.2);
-  box-shadow:
-    0 1.5rem 3.5rem rgba(0, 0, 0, 0.42),
-    0 0 0 0.3rem rgba(255, 255, 255, 0.12);
-}
-
-.escape-btn:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.escape-btn strong {
-  display: grid;
-  min-width: 1.55rem;
-  height: 1.55rem;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.24);
-  font-size: 0.8rem;
 }
 
 .fx-panel {
@@ -784,17 +397,15 @@ const clearAll = () => {
 
 .fx-zone-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
   gap: 0.65rem;
 }
 
-.fx-zone-btn {
+.fx-zone-card {
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  min-height: 4.25rem;
-  align-items: center;
-  gap: 0.65rem;
+  justify-items: center;
+  gap: 0.55rem;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, hsl(var(--bc)) 13%, transparent);
   border-radius: 1.1rem;
@@ -807,29 +418,14 @@ const clearAll = () => {
     color-mix(in srgb, hsl(var(--b2)) 82%, black 6%);
   color: hsl(var(--bc));
   padding: 0.75rem;
-  text-align: left;
-  cursor: pointer;
+  text-align: center;
   transition:
-    transform 0.18s ease,
     border-color 0.18s ease,
     background 0.18s ease,
     box-shadow 0.18s ease;
 }
 
-.fx-zone-btn:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, hsl(var(--a)) 45%, transparent);
-  background:
-    radial-gradient(
-      circle at 20% 20%,
-      color-mix(in srgb, hsl(var(--a)) 18%, transparent),
-      transparent 38%
-    ),
-    color-mix(in srgb, hsl(var(--b1)) 88%, transparent);
-  box-shadow: 0 0.85rem 1.8rem rgba(0, 0, 0, 0.18);
-}
-
-.fx-zone-btn--active {
+.fx-zone-card--active {
   border-color: color-mix(in srgb, hsl(var(--a)) 72%, white 8%);
   background:
     radial-gradient(
@@ -858,7 +454,7 @@ const clearAll = () => {
   color: color-mix(in srgb, hsl(var(--bc)) 72%, transparent);
 }
 
-.fx-zone-btn--active .fx-zone-icon-wrap {
+.fx-zone-card--active .fx-zone-icon-wrap {
   background: color-mix(in srgb, hsl(var(--a)) 26%, transparent);
   color: hsl(var(--a));
 }
@@ -878,21 +474,39 @@ const clearAll = () => {
   white-space: nowrap;
 }
 
-.fx-zone-state {
+.fx-zone-toggles {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.fx-zone-toggle {
   display: inline-flex;
-  min-width: 2.45rem;
+  min-width: 3.6rem;
   justify-content: center;
+  border: 1px solid color-mix(in srgb, hsl(var(--bc)) 14%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, hsl(var(--bc)) 8%, transparent);
   color: color-mix(in srgb, hsl(var(--bc)) 60%, transparent);
-  padding: 0.25rem 0.45rem;
-  font-size: 0.68rem;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.66rem;
   font-weight: 950;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
 }
 
-.fx-zone-btn--active .fx-zone-state {
+.fx-zone-toggle:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, hsl(var(--a)) 45%, transparent);
+}
+
+.fx-zone-toggle--active {
+  border-color: color-mix(in srgb, hsl(var(--a)) 72%, white 8%);
   background: color-mix(in srgb, hsl(var(--a)) 28%, transparent);
   color: hsl(var(--a));
 }
@@ -1104,19 +718,6 @@ const clearAll = () => {
   font-weight: 750;
 }
 
-.fade-up-enter-active,
-.fade-up-leave-active {
-  transition:
-    opacity 0.18s ease,
-    transform 0.18s ease;
-}
-
-.fade-up-enter-from,
-.fade-up-leave-to {
-  opacity: 0;
-  transform: translateY(0.75rem) scale(0.96);
-}
-
 .tooltip-enter-active,
 .tooltip-leave-active {
   transition:
@@ -1143,16 +744,6 @@ const clearAll = () => {
   }
 }
 
-.fx-zone-btn {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr;
-  justify-items: center;
-  min-height: 4.25rem;
-  align-items: center;
-  text-align: center;
-}
-
 @media (max-width: 480px) {
   .fx-header {
     flex-direction: column;
@@ -1164,14 +755,6 @@ const clearAll = () => {
 
   .fx-btn {
     min-height: 6.7rem;
-  }
-
-  .escape-btn {
-    right: max(0.75rem, env(safe-area-inset-right));
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
-    min-height: 2.75rem;
-    padding: 0.65rem 0.85rem;
-    font-size: 0.75rem;
   }
 }
 </style>

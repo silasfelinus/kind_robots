@@ -186,20 +186,15 @@
           <div v-else class="hidden min-w-0 flex-1 lg:block" />
 
           <section
-            class="header-control-rail flex w-auto shrink-0 flex-col gap-1 self-stretch sm:w-44 sm:gap-2 lg:w-44 xl:w-48 2xl:w-52"
+            class="header-control-rail flex w-21 shrink-0 self-stretch sm:w-44 lg:w-44 xl:w-48 2xl:w-52"
           >
             <div
-              class="header-icon-strip flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:gap-2 sm:overflow-hidden sm:p-2"
+              class="header-control-grid grid min-h-0 w-full grid-cols-2 grid-rows-2 gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:gap-2 sm:p-2"
             >
-              <channel-select class="shrink-0" />
-              <server-selector class="shrink-0" />
-              <mana-widget class="shrink-0 lg:hidden" />
-            </div>
-
-            <div
-              class="hidden min-w-0 items-center justify-end overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:overflow-hidden sm:p-2 lg:flex"
-            >
-              <mana-widget />
+              <channel-select class="min-w-0" />
+              <server-selector class="min-w-0" />
+              <login-switcher class="min-w-0" />
+              <mana-widget class="min-w-0" />
             </div>
           </section>
         </div>
@@ -421,13 +416,34 @@ function toggleChrome(): void {
   transform: translateY(0);
 }
 
-.header-icon-strip :deep(.btn) {
+.header-control-grid :deep(.btn) {
   min-height: 2.25rem;
   height: 2.25rem;
+  width: 100%;
+  min-width: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.header-control-grid :deep(.btn-circle),
+.header-control-grid :deep(.btn-square) {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.header-control-grid :deep(.btn > span:not(.loading):not(.mana-icon)) {
+  max-width: 100%;
+}
+
+.header-control-grid :deep(.mana-icon) {
+  display: inline-flex;
 }
 
 @media (max-width: 639px) {
-  .header-icon-strip :deep(.btn) {
+  .header-control-grid :deep(.btn) {
     width: 2.25rem;
     min-width: 2.25rem;
     padding-left: 0;
@@ -435,19 +451,15 @@ function toggleChrome(): void {
     gap: 0;
   }
 
-  .header-icon-strip :deep(.btn > span:not(.loading):not(.mana-icon)) {
+  .header-control-grid :deep(.btn > span:not(.loading):not(.mana-icon)) {
     display: none;
   }
 
-  .header-icon-strip :deep(.btn > .badge) {
+  .header-control-grid :deep(.btn > .badge) {
     display: none;
   }
 
-  .header-icon-strip :deep(.mana-icon) {
-    display: inline-flex;
-  }
-
-  .header-icon-strip :deep(svg) {
+  .header-control-grid :deep(svg) {
     display: inline-block;
   }
 }

@@ -92,7 +92,6 @@
           :key="card.key"
           class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
         >
-          <!-- Hero image: full-bleed, leads the card -->
           <div
             v-if="cardImagePath(card)"
             class="relative aspect-video overflow-hidden bg-base-300"
@@ -138,7 +137,6 @@
             </div>
           </div>
 
-          <!-- Text-only header fallback (no card image) -->
           <div
             v-else
             class="flex items-center justify-between gap-3 border-b border-base-300/60 p-4"
@@ -174,20 +172,20 @@
             </button>
           </div>
 
-          <!-- Fields -->
           <div class="flex flex-col gap-2 p-3">
             <template
               v-for="field in visibleFields(card.restoresFields)"
               :key="field.key"
             >
-              <!-- Image field: full-bleed tile, image-first with overlaid label -->
-              <div
+              <button
                 v-if="field.imagePath"
-                class="group/field relative aspect-video overflow-hidden rounded-2xl border border-base-300/60 bg-base-300"
+                type="button"
+                class="group/field relative aspect-video overflow-hidden rounded-2xl border border-base-300/60 bg-base-300 text-left"
+                @click="toggleFieldDetails(card.key, field.key)"
               >
                 <img
                   :src="field.imagePath"
-                  :alt="field.key"
+                  :alt="field.title || field.key"
                   class="h-full w-full object-cover transition-transform duration-500 group-hover/field:scale-105"
                 />
 
@@ -196,38 +194,79 @@
                 />
 
                 <div class="absolute inset-x-0 bottom-0 p-3">
-                  <p
-                    class="text-xs font-black uppercase tracking-widest text-primary drop-shadow-sm"
-                  >
-                    {{ formatFieldKey(field.key) }}
-                  </p>
+                  <div class="flex items-end justify-between gap-3">
+                    <div class="min-w-0">
+                      <p
+                        class="text-xs font-black uppercase tracking-widest text-primary drop-shadow-sm"
+                      >
+                        {{ formatFieldKey(field.key) }}
+                      </p>
 
-                  <p
-                    v-if="field.value.trim()"
-                    class="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-base-content/85 drop-shadow-sm"
+                      <p
+                        v-if="field.value.trim()"
+                        class="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-base-content/85 drop-shadow-sm"
+                      >
+                        {{ field.value }}
+                      </p>
+                    </div>
+
+                    <Icon
+                      :name="
+                        isFieldOpen(card.key, field.key)
+                          ? 'kind-icon:chevron-up'
+                          : 'kind-icon:info'
+                      "
+                      class="h-4 w-4 shrink-0 text-primary"
+                    />
+                  </div>
+
+                  <div
+                    v-if="isFieldOpen(card.key, field.key)"
+                    class="mt-3 rounded-2xl border border-base-300/60 bg-base-100/90 p-3 text-sm font-semibold leading-relaxed text-base-content/70 shadow-sm backdrop-blur"
                   >
-                    {{ field.value }}
-                  </p>
+                    {{ fieldDetails(field) }}
+                  </div>
                 </div>
-              </div>
+              </button>
 
-              <!-- Text field: compact -->
-              <div
+              <button
                 v-else
-                class="rounded-2xl border border-base-300/60 bg-base-200/80 px-3 py-2.5"
+                type="button"
+                class="rounded-2xl border border-base-300/60 bg-base-200/80 px-3 py-2.5 text-left transition hover:border-primary/40 hover:bg-base-200"
+                @click="toggleFieldDetails(card.key, field.key)"
               >
-                <p
-                  class="text-xs font-black uppercase tracking-widest text-base-content/35"
-                >
-                  {{ formatFieldKey(field.key) }}
-                </p>
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p
+                      class="text-xs font-black uppercase tracking-widest text-base-content/35"
+                    >
+                      {{ formatFieldKey(field.key) }}
+                    </p>
+
+                    <p
+                      class="mt-1 text-sm font-semibold leading-relaxed text-base-content/75"
+                    >
+                      {{ field.value }}
+                    </p>
+                  </div>
+
+                  <Icon
+                    :name="
+                      isFieldOpen(card.key, field.key)
+                        ? 'kind-icon:chevron-up'
+                        : 'kind-icon:info'
+                    "
+                    class="mt-1 h-4 w-4 shrink-0 text-primary/60"
+                  />
+                </div>
 
                 <p
-                  class="mt-1 text-sm font-semibold leading-relaxed text-base-content/75"
+                  v-if="isFieldOpen(card.key, field.key)"
+                  class="mt-3 rounded-xl bg-base-100 px-3 py-2 text-sm font-semibold leading-relaxed text-base-content/65"
                 >
-                  {{ field.value }}
+                  {{ fieldDetails(field) }}
                 </p>
-              </div>
+              </button>
             </template>
           </div>
         </section>
@@ -274,6 +313,17 @@ type ImageCard = BuilderCard & {
   payload?: Record<string, unknown>
 }
 
+type ImageRecord = Record<string, unknown>
+
+type VisibleField = {
+  key: string
+  value: string
+  imagePath: string
+  title: string
+  description: string
+  narrative: string
+}
+
 const BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY = [
   'species',
   'gender',
@@ -286,54 +336,19 @@ const BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY = [
   'artPrompt',
 ] as const
 
-type VisibleField = {
-  key: string
-  value: string
-  imagePath: string
-}
-
 const route = useRoute()
 const builderStore = useBuilderStore()
 const pageStore = usePageStore()
 const sheetStore = useSheetStore()
 
 const showDebugPath = ref(false)
+const openFieldKey = ref('')
 
-// Override layer: when any store has pushed content into sheetStore
-// (selected scenario, subtab intro, etc.), it wins over the cascade below.
 const override = computed(() => sheetStore.override)
 
 const isBuilder = computed(() => {
   return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0
 })
-
-function priorityForBuilderField(key: string): number {
-  const normalizedKey = key.trim().toLowerCase()
-
-  const index = BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY.findIndex((field) => {
-    return field.toLowerCase() === normalizedKey
-  })
-
-  return index === -1 ? BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY.length : index
-}
-
-function builderCompletedDefaultImagePath(): string {
-  if (!isBuilder.value) return ''
-
-  const candidates = builderStore.completedCardList
-    .flatMap((card) => {
-      return visibleFields(card.restoresFields)
-        .filter((field) => field.imagePath)
-        .map((field) => ({
-          key: field.key,
-          imagePath: field.imagePath,
-          priority: priorityForBuilderField(field.key),
-        }))
-    })
-    .sort((a, b) => a.priority - b.priority)
-
-  return candidates[0]?.imagePath ?? ''
-}
 
 const builderCards = computed<BuilderCard[]>(() => {
   return builderStore.visibleCards.length
@@ -375,6 +390,10 @@ const activeCard = computed(() => {
   )
 })
 
+const activeImageCard = computed(() => {
+  return activeCard.value as ImageCard | null
+})
+
 const title = computed(() => {
   if (override.value?.title) {
     return override.value.title
@@ -414,7 +433,8 @@ const narrative = computed(() => {
     return String(
       builderStore.sheet.narrative ||
         builderStore.sheet.description ||
-        activeImageCard.value?.narrative ||
+        activeSelectedFieldInfo.value?.description ||
+        activeSelectedFieldInfo.value?.narrative ||
         builderStore.activeConfig.splash?.description ||
         pageStore.description,
     )
@@ -428,8 +448,21 @@ const narrative = computed(() => {
   )
 })
 
-const activeImageCard = computed(() => {
-  return activeCard.value as ImageCard | null
+const activeSelectedFieldInfo = computed(() => {
+  if (!isBuilder.value) return null
+
+  const activeFields = activeCard.value?.restoresFields ?? []
+  const activeField = activeFields
+    .map((key) => visibleFieldFromKey(key))
+    .find((field) => field.imagePath)
+
+  if (activeField) return activeField
+
+  const completedFields = builderStore.completedCardList.flatMap((card) => {
+    return visibleFields(card.restoresFields)
+  })
+
+  return completedFields.find((field) => field.imagePath) ?? null
 })
 
 const imagePath = computed(() => {
@@ -450,9 +483,12 @@ const imagePath = computed(() => {
 
     return normalizeImagePath(
       firstString([
-        builderStore.activeSelectionPreview?.image,
+        activeSelectedFieldInfo.value?.imagePath,
         builderCompletedDefaultImagePath(),
-        cardImagePath(activeImageCard.value),
+        builderStore.activeSelectionPreview?.imagePath,
+        builderStore.activeSelectionPreview?.image,
+        builderStore.activeSelectionPreview?.heroImage,
+        builderStore.activeSelectionPreview?.deckImage,
         builderStore.activeConfig.splash?.imagePath,
         pageStore.image,
       ]),
@@ -499,19 +535,76 @@ function getCardPath(card: BuilderCard): string {
   return typeof path === 'string' ? path : ''
 }
 
+function priorityForBuilderField(key: string): number {
+  const normalizedKey = key.trim().toLowerCase()
+
+  const index = BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY.findIndex((field) => {
+    return field.toLowerCase() === normalizedKey
+  })
+
+  return index === -1 ? BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY.length : index
+}
+
+function builderCompletedDefaultImagePath(): string {
+  if (!isBuilder.value) return ''
+
+  const candidates = builderStore.completedCardList
+    .flatMap((card) => {
+      return visibleFields(card.restoresFields)
+        .filter((field) => field.imagePath)
+        .map((field) => ({
+          key: field.key,
+          imagePath: field.imagePath,
+          priority: priorityForBuilderField(field.key),
+        }))
+    })
+    .sort((a, b) => a.priority - b.priority)
+
+  return candidates[0]?.imagePath ?? ''
+}
+
 function visibleFields(fields: string[]): VisibleField[] {
   return fields
-    .map((key) => {
-      const value = stringifyValue(builderStore.sheet[key])
-      const imagePath = imagePathFromValue(builderStore.sheet[key])
-
-      return {
-        key,
-        value,
-        imagePath,
-      }
-    })
+    .map((key) => visibleFieldFromKey(key))
     .filter((entry) => entry.value.trim().length > 0 || entry.imagePath)
+}
+
+function visibleFieldFromKey(key: string): VisibleField {
+  const value = builderStore.sheet[key]
+  const directRecord = objectRecord(value)
+  const optionRecord = resolveFieldOptionRecord(key, value)
+  const record = optionRecord ?? directRecord
+  const valueText = stringifyValue(value)
+  const title = firstString([
+    record?.label,
+    record?.title,
+    record?.name,
+    valueText,
+    formatFieldKey(key),
+  ])
+
+  return {
+    key,
+    value: title,
+    imagePath: imagePathFromRecord(record) || imagePathFromValue(value),
+    title,
+    description: firstString([
+      record?.description,
+      record?.summary,
+      record?.tagline,
+      directRecord?.description,
+      directRecord?.summary,
+      directRecord?.tagline,
+    ]),
+    narrative: firstString([
+      record?.narrative,
+      record?.text,
+      record?.content,
+      directRecord?.narrative,
+      directRecord?.text,
+      directRecord?.content,
+    ]),
+  }
 }
 
 function completedCardSummary(card: BuilderCard): string {
@@ -519,6 +612,10 @@ function completedCardSummary(card: BuilderCard): string {
   const firstTextField = fields.find((field) => !field.imagePath)
 
   if (firstTextField?.value) return firstTextField.value
+
+  const firstImageField = fields.find((field) => field.imagePath)
+
+  if (firstImageField?.value) return firstImageField.value
 
   return 'A completed piece of the sheet is ready.'
 }
@@ -549,23 +646,136 @@ function imagePathFromValue(value: unknown): string {
     return looksLikeImagePath(value) ? normalizeImagePath(value) : ''
   }
 
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    const record = value as Record<string, unknown>
+  return imagePathFromRecord(objectRecord(value))
+}
 
-    return normalizeImagePath(
-      firstString([
-        record.heroImage,
-        record.deckImage,
-        record.image,
-        record.imagePath,
-        record.splashImage,
-        record.url,
-        record.src,
-      ]),
-    )
+function imagePathFromRecord(record: ImageRecord | null): string {
+  if (!record) return ''
+
+  return normalizeImagePath(
+    firstString([
+      record.imagePath,
+      record.heroImage,
+      record.deckImage,
+      record.image,
+      record.splashImage,
+      record.url,
+      record.src,
+      objectRecord(record.payload)?.imagePath,
+      objectRecord(record.payload)?.heroImage,
+      objectRecord(record.payload)?.deckImage,
+      objectRecord(record.payload)?.image,
+      objectRecord(record.payload)?.splashImage,
+    ]),
+  )
+}
+
+function resolveFieldOptionRecord(
+  key: string,
+  value: unknown,
+): ImageRecord | null {
+  const cleanValue = stringifyValue(value)
+
+  if (!cleanValue) return null
+
+  const matchingCards = builderStore.cards.filter((card) => {
+    return card.key === key || card.restoresFields?.includes(key)
+  })
+
+  const records = matchingCards.flatMap((card) => collectImageRecords(card))
+
+  return (
+    records.find((record) => recordMatchesFieldValue(record, cleanValue)) ??
+    null
+  )
+}
+
+function collectImageRecords(value: unknown, depth = 0): ImageRecord[] {
+  if (depth > 7) return []
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => collectImageRecords(entry, depth + 1))
   }
 
-  return ''
+  const record = objectRecord(value)
+
+  if (!record) return []
+
+  const nestedKeys = [
+    'options',
+    'choices',
+    'items',
+    'cards',
+    'steps',
+    'fields',
+    'values',
+    'payload',
+    'data',
+    'reward',
+  ]
+
+  const self =
+    hasOptionIdentity(record) || imagePathFromRecord(record) ? [record] : []
+
+  const nested = nestedKeys.flatMap((nestedKey) => {
+    return collectImageRecords(record[nestedKey], depth + 1)
+  })
+
+  return [...self, ...nested]
+}
+
+function hasOptionIdentity(record: ImageRecord): boolean {
+  return Boolean(
+    firstString([
+      record.id,
+      record.key,
+      record.value,
+      record.label,
+      record.title,
+      record.name,
+    ]),
+  )
+}
+
+function recordMatchesFieldValue(record: ImageRecord, value: string): boolean {
+  const normalizedValue = normalizeComparable(value)
+  const identities = [
+    record.id,
+    record.key,
+    record.value,
+    record.label,
+    record.title,
+    record.name,
+  ].map((entry) => normalizeComparable(firstString([entry])))
+
+  return identities.includes(normalizedValue)
+}
+
+function objectRecord(value: unknown): ImageRecord | null {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as ImageRecord
+  }
+
+  return null
+}
+
+function toggleFieldDetails(cardKey: string, fieldKey: string): void {
+  const nextKey = `${cardKey}:${fieldKey}`
+
+  openFieldKey.value = openFieldKey.value === nextKey ? '' : nextKey
+}
+
+function isFieldOpen(cardKey: string, fieldKey: string): boolean {
+  return openFieldKey.value === `${cardKey}:${fieldKey}`
+}
+
+function fieldDetails(field: VisibleField): string {
+  return (
+    field.description ||
+    field.narrative ||
+    field.value ||
+    `${formatFieldKey(field.key)} has been added to this character.`
+  )
 }
 
 function looksLikeImagePath(value: string): boolean {
@@ -574,6 +784,10 @@ function looksLikeImagePath(value: string): boolean {
   return (
     cleanValue.startsWith('/images/') ||
     cleanValue.startsWith('images/') ||
+    cleanValue.startsWith('/species/') ||
+    cleanValue.startsWith('species/') ||
+    cleanValue.startsWith('/rewards/') ||
+    cleanValue.startsWith('rewards/') ||
     cleanValue.startsWith('http') ||
     cleanValue.endsWith('.png') ||
     cleanValue.endsWith('.jpg') ||
@@ -607,9 +821,10 @@ function stringifyValue(value: unknown): string {
       record.label ||
         record.title ||
         record.name ||
+        record.value ||
         record.description ||
         record.narrative ||
-        JSON.stringify(value),
+        '',
     )
   }
 
@@ -626,15 +841,30 @@ function firstString(values: unknown[]): string {
   return typeof found === 'string' ? found : ''
 }
 
+function normalizeComparable(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-')
+}
+
 function normalizeImagePath(path: string): string {
   const cleanPath = path.trim()
 
   if (!cleanPath) return ''
-  if (cleanPath.startsWith('/') || cleanPath.startsWith('http')) {
+  if (
+    cleanPath.startsWith('/') ||
+    cleanPath.startsWith('http') ||
+    cleanPath.startsWith('data:')
+  ) {
     return cleanPath
   }
 
-  if (cleanPath.startsWith('images/')) {
+  if (
+    cleanPath.startsWith('images/') ||
+    cleanPath.startsWith('species/') ||
+    cleanPath.startsWith('rewards/')
+  ) {
     return `/${cleanPath}`
   }
 

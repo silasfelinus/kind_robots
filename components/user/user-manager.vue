@@ -16,8 +16,17 @@
         Refresh
       </button>
 
+      <NuxtLink
+        v-if="isGuest"
+        to="/login"
+        class="btn btn-primary btn-sm rounded-xl"
+      >
+        <Icon name="kind-icon:login" class="size-4" />
+        Log In
+      </NuxtLink>
+
       <button
-        v-if="isLoggedIn"
+        v-else
         class="btn btn-error btn-sm rounded-xl"
         type="button"
         :disabled="isLoggingOut"
@@ -147,7 +156,7 @@ const activeTab = computed<UserTab>(() => {
     : fallbackTab
 })
 
-const isLoggedIn = computed(() => userStore.isLoggedIn)
+const isGuest = computed(() => userStore.isGuest)
 
 async function refreshManagerData(force = false) {
   isLoadingManager.value = true

@@ -35,6 +35,7 @@ export type StoryDisplayChat = StorySessionChat & {
   displayResponse: string
   replyOptions: StoryReplyOption[]
   isStreaming: boolean
+  isInterrupted: boolean
 }
 
 type ChatRuntimeInput = Parameters<
@@ -218,14 +219,21 @@ export const useStoryStore = defineStore('storyStore', () => {
     return sessionChats.value.map((chat) => {
       const isStreaming = activeStreamingChatId.value === chat.id
       const botResponse = chat.botResponse || ''
+      const isInterrupted = !isStreaming && !botResponse.trim()
 
       return {
         ...chat,
         isStreaming,
-        displayResponse: isStreaming
-          ? botResponse
-          : storyTextWithoutReplyOptions(botResponse),
-        replyOptions: isStreaming ? [] : parseStoryReplyOptions(botResponse),
+        isInterrupted,
+        displayResponse: isInterrupted
+          ? 'The Weirdlandia response was interrupted by a reload. Choose an action below or resubmit a turn to continue.'
+          : isStreaming
+            ? botResponse
+            : storyTextWithoutReplyOptions(botResponse),
+        replyOptions:
+          isStreaming || isInterrupted
+            ? []
+            : parseStoryReplyOptions(botResponse),
       }
     })
   })
@@ -238,12 +246,7 @@ export const useStoryStore = defineStore('storyStore', () => {
     return latest?.replyOptions ?? []
   })
 
-  const isResponding = computed(() => {
-    return (
-      activeStreamingChatId.value !== null ||
-      sessionChats.value.some((chat) => !chat.botResponse)
-    )
-  })
+  const isResponding = computed(() => activeStreamingChatId.value !== null)
 
   const isBusy = computed(() => {
     return isStartingStory.value || isResponding.value

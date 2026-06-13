@@ -2282,12 +2282,8 @@ export const useArtStore = defineStore('artStore', () => {
     clearGenerationMessage()
 
     animationStore.startGeneration({
-      zones: {
-        header: false,
-        left: false,
-        center: true,
-        right: false,
-        footer: false,
+      surfaces: {
+        page: { front: true },
       },
     })
 

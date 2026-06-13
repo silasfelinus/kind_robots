@@ -13,6 +13,8 @@ import {
   patchChat,
   deleteChatById,
   fetchChatsForUser,
+  fetchHumanChatsForUser,
+  isHumanDirectChat,
   markChatAsRead,
   type AddChatInput,
 } from '@/stores/helpers/chatHelper'
@@ -205,6 +207,8 @@ export const useChatStore = defineStore('chatStore', () => {
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchChatsPromise = ref<Promise<void> | null>(null)
   const lastFetchedUserId = ref<number | null>(null)
+  const fetchHumanChatsPromise = ref<Promise<void> | null>(null)
+  const lastFetchedHumanUserId = ref<number | null>(null)
 
   const state = reactive<ChatStoreState>({
     isGenerating: false,
@@ -291,6 +295,12 @@ export const useChatStore = defineStore('chatStore', () => {
     const uid = userStore.user?.id
     if (!uid) return []
     return chats.value.filter((chat) => chat.userId === uid)
+  })
+
+  const humanChats = computed(() => {
+    return chats.value.filter((chat) =>
+      isHumanDirectChat(chat, userStore.userId, userStore.username),
+    )
   })
 
   const unreadCountByRecipient = (recipientId: number) =>
@@ -1306,6 +1316,8 @@ export const useChatStore = defineStore('chatStore', () => {
 
     unreadMessages.value = chats.value.filter((chat) => {
       if (chat.isRead) return false
+      if (!isHumanDirectChat(chat, currentUserId, userStore.username))
+        return false
       return chat.recipientId === currentUserId
     })
   }
@@ -1461,6 +1473,55 @@ export const useChatStore = defineStore('chatStore', () => {
     return fetchChatsPromise.value
   }
 
+  async function fetchHumanChats(userId: number, force = false): Promise<void> {
+    if (
+      !force &&
+      lastFetchedHumanUserId.value === userId &&
+      isInitialized.value
+    ) {
+      return
+    }
+
+    if (fetchHumanChatsPromise.value) {
+      return fetchHumanChatsPromise.value
+    }
+
+    fetchHumanChatsPromise.value = (async () => {
+      try {
+        const data = await fetchHumanChatsForUser(userId)
+        const nonHumanChats = chats.value.filter(
+          (chat) => !isHumanDirectChat(chat, userId, userStore.username),
+        )
+
+        chats.value = [...nonHumanChats, ...data]
+        lastFetchedHumanUserId.value = userId
+        refreshUnreadMessages()
+        saveToLocalStorage()
+      } catch (error) {
+        handleError(
+          ErrorType.NETWORK_ERROR,
+          `Failed to fetch human chats: ${error}`,
+        )
+      } finally {
+        fetchHumanChatsPromise.value = null
+      }
+    })()
+
+    return fetchHumanChatsPromise.value
+  }
+
+  async function refreshHumanChatsForCurrentUser(force = true): Promise<void> {
+    const currentUserId = userStore.user?.id
+
+    if (!currentUserId) {
+      refreshUnreadMessages()
+      return
+    }
+
+    await fetchHumanChats(currentUserId, force)
+    isInitialized.value = true
+  }
+
   async function refreshForCurrentUser(force = true): Promise<void> {
     const currentUserId = userStore.user?.id
     if (!currentUserId) {
@@ -1567,6 +1628,11 @@ export const useChatStore = defineStore('chatStore', () => {
     serverUsesOwnResource,
     getServerProvider,
     getTextStreamEndpoint,
+    fetchHumanChatsPromise,
+    lastFetchedHumanUserId,
+    humanChats,
+    fetchHumanChats,
+    refreshHumanChatsForCurrentUser,
   }
 })
 

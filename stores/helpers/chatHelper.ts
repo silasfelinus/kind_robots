@@ -9,6 +9,7 @@ export interface AddChatInput {
   botId?: number | null
   botName?: string | null
   recipientId: number | null
+  recipient?: string | null
   isPublic?: boolean
   originId?: number | null
   previousEntryId?: number | null
@@ -24,39 +25,87 @@ export interface AddChatInput {
   dreamId?: number | null
 }
 
+export function isHumanDirectChat(
+  chat: Partial<Chat> | null | undefined,
+  currentUserId?: number | null,
+  currentUsername?: string | null,
+): chat is Chat {
+  if (!chat) return false
+  if (chat.isActive === false) return false
+  if (chat.type !== 'ToUser') return false
+  if (chat.botId) return false
+  if (chat.characterId) return false
+  if (chat.dreamId) return false
+  if (chat.channel) return false
+  if (chat.botName) return false
+  if (chat.botResponse) return false
+
+  const userId = Number(currentUserId || 0)
+
+  if (userId > 0 && (chat.userId === userId || chat.recipientId === userId)) {
+    return true
+  }
+
+  const username = String(currentUsername || '')
+    .trim()
+    .toLowerCase()
+  if (!username) return false
+
+  const sender = String(chat.sender || '')
+    .trim()
+    .toLowerCase()
+  const recipient = String(chat.recipient || '')
+    .trim()
+    .toLowerCase()
+
+  return sender === username || recipient === username
+}
+
 export function buildNewChat(
   input: AddChatInput,
 ): Omit<Chat, 'id' | 'createdAt' | 'updatedAt'> {
-  const isUserMessage = !!input.botId
-  const sender = isUserMessage ? input.username : input.botName
-  const recipient = isUserMessage ? input.botName : input.username
+  const isBotChat = input.type === 'ToBot' || input.type === 'BotResponse'
+  const isCharacterChat =
+    input.type === 'ToCharacter' || input.type === 'Character'
+  const isHumanChat = input.type === 'ToUser'
+
+  const sender =
+    input.sender ||
+    (isBotChat || isCharacterChat ? input.username : input.username) ||
+    'Unknown User'
+
+  const recipient =
+    input.recipient ||
+    (isBotChat || isCharacterChat ? input.botName : null) ||
+    (isHumanChat && input.recipientId ? `User #${input.recipientId}` : null) ||
+    'Unknown'
 
   return {
     content: input.content,
     userId: input.userId,
-    sender: input.sender ?? sender ?? 'Unknown',
-    recipient: recipient ?? 'Unknown',
-    isPublic: input.isPublic ?? true,
+    sender,
+    recipient,
+    isPublic: input.isPublic ?? !isHumanChat,
     type: input.type,
     recipientId: input.recipientId,
-    botId: input.botId ?? null,
-    botName: input.botName ?? null,
+    botId: isHumanChat ? null : (input.botId ?? null),
+    botName: isHumanChat ? null : (input.botName ?? null),
     originId: input.originId ?? null,
     previousEntryId: input.previousEntryId ?? null,
     artImageId: null,
     title: null,
-    channel: input.channel ?? null,
+    channel: isHumanChat ? null : (input.channel ?? null),
     isFavorite: false,
     promptId: input.promptId ?? null,
-    botResponse: input.botResponse ?? null,
-    characterId: input.characterId ?? null,
+    botResponse: isHumanChat ? null : (input.botResponse ?? null),
+    characterId: isHumanChat ? null : (input.characterId ?? null),
     isRead: false,
     readAt: null,
     isMature: false,
     serverId: input.serverId ?? null,
     serverName: input.serverName ?? null,
-    dreamId: input.dreamId ?? null,
-    isActive: false,
+    dreamId: isHumanChat ? null : (input.dreamId ?? null),
+    isActive: true,
   }
 }
 
@@ -97,6 +146,7 @@ export async function deleteChatById(chatId: number): Promise<boolean> {
   const response = await performFetch(`/api/chats/${chatId}`, {
     method: 'DELETE',
   })
+
   return response.success
 }
 
@@ -105,6 +155,16 @@ export async function fetchChatsForUser(userId: number): Promise<Chat[]> {
 
   if (!response.success) {
     throw new Error(response.message || 'Failed to fetch chats')
+  }
+
+  return response.data || []
+}
+
+export async function fetchHumanChatsForUser(userId: number): Promise<Chat[]> {
+  const response = await performFetch<Chat[]>(`/api/chats/user/human/${userId}`)
+
+  if (!response.success) {
+    throw new Error(response.message || 'Failed to fetch human chats')
   }
 
   return response.data || []

@@ -32,6 +32,25 @@ export type ConnectableModel =
   | 'Reward'
   | 'Scenario'
 
+export interface UploadMetadata {
+  promptString?: string | null
+  negativePrompt?: string | null
+  checkpoint?: string | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  cfg?: number | null
+  cfgHalf?: boolean
+  designer?: string | null
+  genres?: string | null
+  rarity?: number | null
+  isPublic?: boolean
+  isMature?: boolean
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+}
+
 export interface ImageUploadApplyData {
   artImageId: number
   imageData?: string | null
@@ -77,7 +96,22 @@ export interface BatchUploadResult {
   total: number
 }
 
+export interface BatchUploadOptions {
+  collectionLabel?: string
+  connectedModelType?: ConnectableModel | null
+  connectedModelId?: number | null
+  metadata?: UploadMetadata | null
+}
+
 const allowedFileTypes = ['image/png', 'image/jpeg', 'image/webp']
+
+// API/storage expects the short form ('png', 'jpeg', 'webp'), not the MIME type.
+function normalizeFileType(value: string | null | undefined): string {
+  if (!value) return 'png'
+  const lower = value.toLowerCase().trim()
+  const short = lower.replace(/^image\//, '')
+  return short === 'jpg' ? 'jpeg' : short || 'png'
+}
 
 export const useUploadStore = defineStore('UploadStore', () => {
   const activeTarget = ref<ImageUploadTarget | null>(null)
@@ -152,6 +186,16 @@ export const useUploadStore = defineStore('UploadStore', () => {
     }
   }
 
+  function appendOptionalBoolean(
+    formData: FormData,
+    key: string,
+    value: boolean | null | undefined,
+  ): void {
+    if (typeof value === 'boolean') {
+      formData.append(key, value ? 'true' : 'false')
+    }
+  }
+
   function getCurrentUser() {
     const userStore = useUserStore()
 
@@ -198,35 +242,61 @@ export const useUploadStore = defineStore('UploadStore', () => {
     collectionLabel?: string,
     connectedModelType?: ConnectableModel | null,
     connectedModelId?: number | null,
+    metadata?: UploadMetadata | null,
   ): FormData {
     const formData = new FormData()
     const galleryId = target.galleryId ?? 21
     const galleryName = target.galleryName ?? 'userUpload'
     const collectionId = getSelectedCollectionId(target)
+    const designer = metadata?.designer?.trim() || username
 
     formData.append('image', file)
     formData.append('galleryName', galleryName)
     formData.append('galleryId', String(galleryId))
     formData.append('userId', String(userId))
-    formData.append('fileType', file.type)
+    formData.append('fileType', normalizeFileType(file.type))
     formData.append('fileName', file.name)
-    formData.append('designer', username)
+    formData.append('designer', designer)
 
     appendOptionalString(
       formData,
       'promptString',
-      target.promptString || target.artPrompt || '[UploadedImage]',
+      metadata?.promptString ||
+        target.promptString ||
+        target.artPrompt ||
+        '[UploadedImage]',
     )
     appendOptionalString(
       formData,
       'artPrompt',
-      target.artPrompt || target.promptString || '[UploadedImage]',
+      target.artPrompt ||
+        metadata?.promptString ||
+        target.promptString ||
+        '[UploadedImage]',
     )
     appendOptionalString(formData, 'path', target.path || '[UploadedImage]')
     appendOptionalString(formData, 'collectionLabel', collectionLabel)
 
     appendOptionalNumber(formData, 'artCollectionId', collectionId)
     appendOptionalNumber(formData, 'collectionId', collectionId)
+
+    // Optional generation metadata
+    appendOptionalString(formData, 'negativePrompt', metadata?.negativePrompt)
+    appendOptionalString(formData, 'checkpoint', metadata?.checkpoint)
+    appendOptionalString(formData, 'sampler', metadata?.sampler)
+    appendOptionalString(formData, 'genres', metadata?.genres)
+    appendOptionalString(formData, 'serverName', metadata?.serverName)
+    appendOptionalString(formData, 'serverUrl', metadata?.serverUrl)
+
+    appendOptionalNumber(formData, 'seed', metadata?.seed)
+    appendOptionalNumber(formData, 'steps', metadata?.steps)
+    appendOptionalNumber(formData, 'cfg', metadata?.cfg)
+    appendOptionalNumber(formData, 'rarity', metadata?.rarity)
+    appendOptionalNumber(formData, 'serverId', metadata?.serverId)
+
+    appendOptionalBoolean(formData, 'cfgHalf', metadata?.cfgHalf)
+    appendOptionalBoolean(formData, 'isPublic', metadata?.isPublic)
+    appendOptionalBoolean(formData, 'isMature', metadata?.isMature)
 
     if (connectedModelType && connectedModelId) {
       formData.append('connectedModelType', connectedModelType)
@@ -278,6 +348,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
     collectionLabel?: string,
     connectedModelType?: ConnectableModel | null,
     connectedModelId?: number | null,
+    metadata?: UploadMetadata | null,
   ): Promise<ArtImage> {
     const artStore = useArtStore()
 
@@ -289,6 +360,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
       collectionLabel,
       connectedModelType,
       connectedModelId,
+      metadata,
     )
 
     const uploadResult = await artStore.uploadImage(formData)
@@ -304,7 +376,44 @@ export const useUploadStore = defineStore('UploadStore', () => {
     return artImage
   }
 
-  async function uploadForActiveTarget(file: File): Promise<ImageUploadResult> {
+  // Fires the target's per-image connection callback, if defined.
+  async function runApplyImage(
+    target: ImageUploadTarget,
+    artImage: ArtImage,
+  ): Promise<void> {
+    if (!target.applyImage) return
+
+    await target.applyImage({
+      artImageId: artImage.id,
+      imageData: artImage.imageData,
+      imagePath: artImage.imagePath || artImage.path,
+      artImage,
+    })
+  }
+
+  // Fires the target's batch connection callback, if defined.
+  async function runApplyCollection(
+    target: ImageUploadTarget,
+    artImages: ArtImage[],
+    collectionLabel: string,
+    connectedModelType: ConnectableModel | null,
+    connectedModelId: number | null,
+  ): Promise<void> {
+    if (!target.applyCollection || !artImages.length) return
+
+    await target.applyCollection({
+      artImageIds: artImages.map((image) => image.id),
+      collectionLabel,
+      artImages: [...artImages],
+      connectedModelType,
+      connectedModelId,
+    })
+  }
+
+  async function uploadForActiveTarget(
+    file: File,
+    options: BatchUploadOptions = {},
+  ): Promise<ImageUploadResult> {
     const target = activeTarget.value
 
     if (!target) {
@@ -319,31 +428,54 @@ export const useUploadStore = defineStore('UploadStore', () => {
       return { success: false, message: validationError }
     }
 
+    const {
+      collectionLabel,
+      connectedModelType = null,
+      connectedModelId = null,
+      metadata = null,
+    } = options
+
     isUploading.value = true
+    uploadProgress.value = 0
+    uploadTotal.value = 1
     error.value = null
     message.value = null
 
     try {
       const { userId, username } = getCurrentUser()
+      const label = getSelectedCollectionLabel(target, collectionLabel)
 
-      const artImage = await uploadSingleFile(file, target, userId, username)
+      const artImage = await uploadSingleFile(
+        file,
+        target,
+        userId,
+        username,
+        label,
+        connectedModelType,
+        connectedModelId,
+        metadata,
+      )
 
       lastArtImage.value = artImage
+      lastBatchArtImages.value = [artImage]
 
-      if (target.applyImage) {
-        await target.applyImage({
-          artImageId: artImage.id,
-          imageData: artImage.imageData,
-          imagePath: artImage.imagePath || artImage.path,
-          artImage,
-        })
-      }
+      // Both connection paths run, so a target defining either (or both) is linked.
+      await runApplyImage(target, artImage)
+      await runApplyCollection(
+        target,
+        [artImage],
+        label,
+        connectedModelType,
+        connectedModelId,
+      )
 
+      uploadProgress.value = 1
       message.value = 'Image uploaded.'
 
       return {
         success: true,
         message: message.value,
+        fileName: file.name,
         artImage,
       }
     } catch (caught) {
@@ -354,6 +486,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
       return {
         success: false,
         message: fallback,
+        fileName: file.name,
       }
     } finally {
       isUploading.value = false
@@ -362,9 +495,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
 
   async function uploadBatchForActiveTarget(
     files: File[],
-    collectionLabel?: string,
-    connectedModelType?: ConnectableModel | null,
-    connectedModelId?: number | null,
+    options: BatchUploadOptions = {},
   ): Promise<BatchUploadResult> {
     const target = activeTarget.value
 
@@ -388,6 +519,13 @@ export const useUploadStore = defineStore('UploadStore', () => {
       }
     }
 
+    const {
+      collectionLabel,
+      connectedModelType = null,
+      connectedModelId = null,
+      metadata = null,
+    } = options
+
     isUploading.value = true
     uploadProgress.value = 0
     uploadTotal.value = validFiles.length
@@ -410,10 +548,14 @@ export const useUploadStore = defineStore('UploadStore', () => {
           label,
           connectedModelType,
           connectedModelId,
+          metadata,
         )
 
         lastBatchArtImages.value.push(artImage)
         lastArtImage.value = artImage
+
+        // Per-image connection (avatar / single-owner targets).
+        await runApplyImage(target, artImage)
 
         succeeded.push({
           success: true,
@@ -435,15 +577,14 @@ export const useUploadStore = defineStore('UploadStore', () => {
       }
     }
 
-    if (target.applyCollection && lastBatchArtImages.value.length) {
-      await target.applyCollection({
-        artImageIds: lastBatchArtImages.value.map((image) => image.id),
-        collectionLabel: label,
-        artImages: [...lastBatchArtImages.value],
-        connectedModelType: connectedModelType ?? null,
-        connectedModelId: connectedModelId ?? null,
-      })
-    }
+    // Batch connection (collections / multi-image targets).
+    await runApplyCollection(
+      target,
+      lastBatchArtImages.value,
+      label,
+      connectedModelType,
+      connectedModelId,
+    )
 
     const skipped = files.length - validFiles.length
     const parts: string[] = [

@@ -116,19 +116,27 @@
             >
           </div>
 
-          <LazyArtGallery
-            variant="dropdown"
-            title="Upload Collection"
-            subtitle="Choose where these images should land."
-            :show-header="false"
-            :show-controls="false"
-            :show-selected-panel="false"
-            :allow-add="true"
-            :allow-edit="true"
-            :allow-delete="false"
-            :allow-merge="false"
-            :allow-refresh="false"
-          />
+          <select
+            v-model="selectedCollectionId"
+            class="select select-bordered select-sm w-full"
+            :disabled="isUploading"
+          >
+            <option value="">No collection</option>
+            <option
+              v-for="collection in collectionOptions"
+              :key="collection.id"
+              :value="String(collection.id)"
+            >
+              {{ collection.label }}
+            </option>
+          </select>
+
+          <p class="text-xs text-base-content/50">
+            Selected:
+            <span class="font-semibold text-primary">
+              {{ selectedCollectionLabel }}
+            </span>
+          </p>
 
           <p class="text-xs text-base-content/50">
             Selected:
@@ -516,7 +524,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import { useUploadStore } from '@/stores/uploadStore'
 import type { ConnectableModel } from '@/stores/uploadStore'
 import { useArtStore } from '@/stores/artStore'
@@ -582,6 +590,20 @@ const connectedModelType = ref<ConnectableModel | ''>('')
 const queuedFiles = ref<QueuedFile[]>([])
 const succeededNames = ref<Set<string>>(new Set())
 const failedNames = ref<Set<string>>(new Set())
+
+const collectionOptions = computed(() => collectionStore.collections ?? [])
+
+const selectedCollectionId = computed<string>({
+  get: () => String(collectionStore.currentCollection?.id ?? ''),
+  set: (value) => {
+    const id = Number(value)
+
+    collectionStore.currentCollection = Number.isFinite(id)
+      ? (collectionOptions.value.find((collection) => collection.id === id) ??
+        null)
+      : null
+  },
+})
 
 const imageForm = reactive<ImageUploadForm>({
   promptString: '',

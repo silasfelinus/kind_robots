@@ -15,4 +15,4 @@ loadingMessage: Loading stage manager...
 refreshLabel: Refresh Stages
 ---
 
-:stage-manager
+:character-manager

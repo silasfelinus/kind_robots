@@ -592,6 +592,40 @@ export type EnumRoleWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumRoleFilter<$PrismaModel>
 }
 
+export type EnumRelationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationType | Prisma.EnumRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationType[]
+  notIn?: $Enums.RelationType[]
+  not?: Prisma.NestedEnumRelationTypeFilter<$PrismaModel> | $Enums.RelationType
+}
+
+export type EnumRelationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationStatus | Prisma.EnumRelationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationStatus[]
+  notIn?: $Enums.RelationStatus[]
+  not?: Prisma.NestedEnumRelationStatusFilter<$PrismaModel> | $Enums.RelationStatus
+}
+
+export type EnumRelationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationType | Prisma.EnumRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationType[]
+  notIn?: $Enums.RelationType[]
+  not?: Prisma.NestedEnumRelationTypeWithAggregatesFilter<$PrismaModel> | $Enums.RelationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRelationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRelationTypeFilter<$PrismaModel>
+}
+
+export type EnumRelationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationStatus | Prisma.EnumRelationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationStatus[]
+  notIn?: $Enums.RelationStatus[]
+  not?: Prisma.NestedEnumRelationStatusWithAggregatesFilter<$PrismaModel> | $Enums.RelationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRelationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRelationStatusFilter<$PrismaModel>
+}
+
 export type NestedIntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[]
@@ -1136,6 +1170,40 @@ export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRoleFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRoleFilter<$PrismaModel>
+}
+
+export type NestedEnumRelationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationType | Prisma.EnumRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationType[]
+  notIn?: $Enums.RelationType[]
+  not?: Prisma.NestedEnumRelationTypeFilter<$PrismaModel> | $Enums.RelationType
+}
+
+export type NestedEnumRelationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationStatus | Prisma.EnumRelationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationStatus[]
+  notIn?: $Enums.RelationStatus[]
+  not?: Prisma.NestedEnumRelationStatusFilter<$PrismaModel> | $Enums.RelationStatus
+}
+
+export type NestedEnumRelationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationType | Prisma.EnumRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationType[]
+  notIn?: $Enums.RelationType[]
+  not?: Prisma.NestedEnumRelationTypeWithAggregatesFilter<$PrismaModel> | $Enums.RelationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRelationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRelationTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumRelationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RelationStatus | Prisma.EnumRelationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RelationStatus[]
+  notIn?: $Enums.RelationStatus[]
+  not?: Prisma.NestedEnumRelationStatusWithAggregatesFilter<$PrismaModel> | $Enums.RelationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRelationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRelationStatusFilter<$PrismaModel>
 }
 
 

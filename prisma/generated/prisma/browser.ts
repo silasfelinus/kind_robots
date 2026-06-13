@@ -149,3 +149,12 @@ export type Theme = Prisma.ThemeModel
  * our user model. default test user is userId=10. 
  */
 export type User = Prisma.UserModel
+/**
+ * Model UserRelation
+ * Directed relationship between two users with a typed role.
+ * One row per (userId, relatedUserId, type). Symmetric types (FRIEND) are
+ * normalized in the app layer so a single row represents the mutual link.
+ * Follows the ButterflyRecord/MilestoneRecord pattern (explicit join model,
+ * not implicit M2M) so we can attach status + timestamps + future metadata.
+ */
+export type UserRelation = Prisma.UserRelationModel

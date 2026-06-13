@@ -16,4 +16,4 @@ loadingMessage: Loading screen fx...
 refreshLabel: Refresh Effects
 ---
 
-:screen-fx
+:lab-manager

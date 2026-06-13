@@ -1,0 +1,596 @@
+// /cypress/e2e/api/friendships.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
+/// <reference types="cypress" />
+
+// Tests the UserRelation API: friend requests (send / accept / cancel /
+// decline / remove), blocking, family (PARENT/CHILD) request flow, and the
+// FRIEND-only auto-accept-on-reverse behavior.
+//
+// Two real users are needed: USER_TOKEN (the actor) and ADMIN_TOKEN (the
+// target who confirms/rejects requests). RELATED_USER_ID is the target's user
+// id; if not provided we resolve it from /api/users/me with the admin token.
+//
+// Everything created is tracked and torn down in the Cleanup block with a
+// [200, 404] guard so a partial run still cleans up.
+
+type ApiResponse<T = any> = {
+  success: boolean
+  message?: string
+  data?: T
+  statusCode?: number
+}
+
+type RelationType = 'FRIEND' | 'BLOCK' | 'PARENT' | 'CHILD' | 'REFEREE'
+type RelationStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED'
+
+type UserRelation = {
+  id: number
+  userId: number
+  relatedUserId: number
+  type: RelationType
+  status: RelationStatus
+  pairId?: number | null
+}
+
+const fallbackApiBase = 'https://kind-robots.vercel.app'
+const invalidToken = 'definitely-not-a-real-token'
+const time = Date.now()
+
+const normalRequestTimeout = 20000
+const expectedFailureTimeout = 8000
+const cleanupRequestTimeout = 12000
+
+const relationsPath = '/api/relations'
+
+let apiBase = fallbackApiBase
+let userToken = ''
+let adminToken = ''
+let actorUserId = 0 // USER_TOKEN's user id (the requester)
+let relatedUserId = 0 // ADMIN_TOKEN's user id (the target)
+
+// Every relation row id we create, tracked for teardown.
+const createdRelationIds: number[] = []
+
+const urlFor = (recordId?: number) =>
+  recordId
+    ? `${apiBase}${relationsPath}/${recordId}`
+    : `${apiBase}${relationsPath}`
+
+const userHeaders = () => ({
+  Authorization: `Bearer ${userToken}`,
+  'Content-Type': 'application/json',
+})
+
+const adminAuthHeaders = () => ({
+  Authorization: `Bearer ${adminToken}`,
+  'Content-Type': 'application/json',
+})
+
+const jsonHeaders = () => ({
+  'Content-Type': 'application/json',
+})
+
+type ApiRequestOptions = {
+  method: string
+  url: string
+  headers?: Record<string, string>
+  body?: unknown
+  timeout?: number
+}
+
+const apiRequest = <T = any>(options: ApiRequestOptions) =>
+  cy.request<ApiResponse<T>>({
+    ...options,
+    timeout: options.timeout ?? normalRequestTimeout,
+    failOnStatusCode: false,
+    retryOnStatusCodeFailure: false,
+    retryOnNetworkFailure: false,
+  } as Cypress.RequestOptions)
+
+const expectedFailureRequest = (
+  options: ApiRequestOptions,
+  statusCodes: number[],
+) =>
+  cy
+    .request<ApiResponse>({
+      ...options,
+      timeout: options.timeout ?? expectedFailureTimeout,
+      failOnStatusCode: false,
+      retryOnStatusCodeFailure: false,
+      retryOnNetworkFailure: false,
+    } as Cypress.RequestOptions)
+    .then((response) => {
+      expectFailure(response, statusCodes)
+      return response
+    })
+
+const cleanupRequest = <T = any>(options: ApiRequestOptions) =>
+  cy.request<ApiResponse<T>>({
+    ...options,
+    timeout: options.timeout ?? cleanupRequestTimeout,
+    failOnStatusCode: false,
+    retryOnStatusCodeFailure: false,
+    retryOnNetworkFailure: false,
+  } as Cypress.RequestOptions)
+
+const expectSuccess = (
+  response: Cypress.Response<ApiResponse>,
+  statusCodes = [200, 201],
+) => {
+  expect(statusCodes, JSON.stringify(response.body)).to.include(response.status)
+  expect(response.body.success, JSON.stringify(response.body)).to.eq(true)
+  expect(response.body.data, JSON.stringify(response.body)).to.exist
+}
+
+const expectFailure = (
+  response: Cypress.Response<ApiResponse>,
+  statusCodes: number[],
+) => {
+  expect(statusCodes, JSON.stringify(response.body)).to.include(response.status)
+  expect(response.body.success, JSON.stringify(response.body)).to.eq(false)
+}
+
+const expectId = (value: unknown, label: string) => {
+  expect(value, label).to.be.a('number')
+  expect(value, label).to.be.greaterThan(0)
+}
+
+const track = (recordId: number) => {
+  if (!createdRelationIds.includes(recordId)) createdRelationIds.push(recordId)
+}
+
+// Create a relation as the actor (USER_TOKEN). Tracks the resulting row.
+const createRelation = (
+  type: RelationType,
+  target = relatedUserId,
+  headers: Record<string, string> = userHeaders(),
+) =>
+  apiRequest<UserRelation>({
+    method: 'POST',
+    url: urlFor(),
+    headers,
+    body: { relatedUserId: target, type },
+  }).then((response) => {
+    expectSuccess(response)
+    const row = response.body.data as UserRelation
+    expectId(row.id, `relation(${type}).id`)
+    track(row.id)
+    return { row, response }
+  })
+
+// List all relations touching the given token's user.
+const listRelations = (headers: Record<string, string>) =>
+  apiRequest<UserRelation[]>({
+    method: 'GET',
+    url: urlFor(),
+    headers,
+  }).then((response) => {
+    expectSuccess(response, [200])
+    expect(response.body.data, 'relations list').to.be.an('array')
+    return response.body.data as UserRelation[]
+  })
+
+const acceptRelation = (
+  recordId: number,
+  headers: Record<string, string> = adminAuthHeaders(),
+) =>
+  apiRequest<UserRelation>({
+    method: 'PATCH',
+    url: urlFor(recordId),
+    headers,
+    body: { status: 'ACCEPTED' },
+  }).then((response) => {
+    expectSuccess(response, [200])
+    return response.body.data as UserRelation
+  })
+
+const deleteRelation = (
+  recordId: number,
+  headers: Record<string, string> = userHeaders(),
+) =>
+  cleanupRequest({
+    method: 'DELETE',
+    url: urlFor(recordId),
+    headers,
+  })
+
+// Find a relation row in a list by type and the two participants (either dir).
+const findRelation = (
+  rows: UserRelation[],
+  type: RelationType,
+  a: number,
+  b: number,
+) =>
+  rows.find(
+    (r) =>
+      r.type === type &&
+      ((r.userId === a && r.relatedUserId === b) ||
+        (r.userId === b && r.relatedUserId === a)),
+  )
+
+describe('Friendship / UserRelation API Tests', () => {
+  before(() => {
+    cy.env(['API_BASE', 'USER_TOKEN', 'ADMIN_TOKEN', 'RELATED_USER_ID']).then(
+      (env) => {
+        apiBase = String(env.API_BASE || fallbackApiBase)
+        userToken = String(env.USER_TOKEN || '')
+        adminToken = String(env.ADMIN_TOKEN || '')
+
+        expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+          .empty
+        expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
+          .empty
+
+        if (env.RELATED_USER_ID) relatedUserId = Number(env.RELATED_USER_ID)
+      },
+    )
+
+    // Resolve actor id (USER_TOKEN) and, if needed, the target id (ADMIN_TOKEN).
+    cy.then(() => {
+      return apiRequest({
+        method: 'GET',
+        url: `${apiBase}/api/users/me`,
+        headers: userHeaders(),
+      }).then((res) => {
+        actorUserId = Number(res.body?.data?.id ?? res.body?.user?.id ?? 0)
+        expectId(actorUserId, 'actorUserId')
+      })
+    })
+
+    cy.then(() => {
+      if (relatedUserId > 0) return
+      return apiRequest({
+        method: 'GET',
+        url: `${apiBase}/api/users/me`,
+        headers: adminAuthHeaders(),
+      }).then((res) => {
+        relatedUserId = Number(res.body?.data?.id ?? res.body?.user?.id ?? 0)
+        expectId(relatedUserId, 'relatedUserId')
+        expect(relatedUserId, 'actor and target must differ').to.not.eq(
+          actorUserId,
+        )
+      })
+    })
+  })
+
+  // Each block leaves the graph clean so subsequent blocks start fresh.
+
+  context('Friend request lifecycle', () => {
+    it('rejects creating a relation without auth', () => {
+      expectedFailureRequest(
+        {
+          method: 'POST',
+          url: urlFor(),
+          headers: jsonHeaders(),
+          body: { relatedUserId, type: 'FRIEND' },
+        },
+        [401],
+      )
+    })
+
+    it('rejects creating a relation with invalid auth', () => {
+      expectedFailureRequest(
+        {
+          method: 'POST',
+          url: urlFor(),
+          headers: {
+            Authorization: `Bearer ${invalidToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: { relatedUserId, type: 'FRIEND' },
+        },
+        [401],
+      )
+    })
+
+    it('rejects friending yourself', () => {
+      expectedFailureRequest(
+        {
+          method: 'POST',
+          url: urlFor(),
+          headers: userHeaders(),
+          body: { relatedUserId: actorUserId, type: 'FRIEND' },
+        },
+        [400, 422],
+      )
+    })
+
+    it('sends a friend request as PENDING', () => {
+      createRelation('FRIEND').then(({ row }) => {
+        expect(row.type).to.eq('FRIEND')
+        expect(row.status).to.eq('PENDING')
+        expect(row.userId).to.eq(actorUserId)
+        expect(row.relatedUserId).to.eq(relatedUserId)
+      })
+    })
+
+    it('shows the pending request on the target side', () => {
+      listRelations(adminAuthHeaders()).then((rows) => {
+        const pending = rows.find(
+          (r) =>
+            r.type === 'FRIEND' &&
+            r.status === 'PENDING' &&
+            r.userId === actorUserId &&
+            r.relatedUserId === relatedUserId,
+        )
+        expect(pending, 'target sees pending FRIEND request').to.not.be
+          .undefined
+      })
+    })
+
+    it('lets only the target accept, creating an accepted pair', () => {
+      listRelations(adminAuthHeaders()).then((rows) => {
+        const pending = findRelation(rows, 'FRIEND', actorUserId, relatedUserId)
+        expect(pending, 'pending request exists').to.not.be.undefined
+
+        acceptRelation(pending!.id).then((accepted) => {
+          expect(accepted.status).to.eq('ACCEPTED')
+
+          // Both halves should now exist; track the inverse for cleanup too.
+          listRelations(userHeaders()).then((actorRows) => {
+            const mine = actorRows.find(
+              (r) =>
+                r.type === 'FRIEND' &&
+                r.status === 'ACCEPTED' &&
+                r.userId === actorUserId &&
+                r.relatedUserId === relatedUserId,
+            )
+            const inverse = actorRows.find(
+              (r) =>
+                r.type === 'FRIEND' &&
+                r.status === 'ACCEPTED' &&
+                r.userId === relatedUserId &&
+                r.relatedUserId === actorUserId,
+            )
+            expect(mine, 'actor owns accepted FRIEND row').to.not.be.undefined
+            expect(inverse, 'inverse FRIEND row created').to.not.be.undefined
+            if (inverse) track(inverse.id)
+          })
+        })
+      })
+    })
+
+    it('forbids a third party (no auth) from accepting', () => {
+      // Re-create a fresh pending request to attack, then clean it up.
+      // (The previous one is already accepted.)
+      // Use a throwaway: cancel immediately after the negative check.
+      listRelations(userHeaders()).then((rows) => {
+        const accepted = findRelation(
+          rows,
+          'FRIEND',
+          actorUserId,
+          relatedUserId,
+        )
+        // Nothing pending to accept now; assert PATCH without auth is rejected
+        // against the accepted row id.
+        if (accepted) {
+          expectedFailureRequest(
+            {
+              method: 'PATCH',
+              url: urlFor(accepted.id),
+              headers: jsonHeaders(),
+              body: { status: 'ACCEPTED' },
+            },
+            [401, 403],
+          )
+        }
+      })
+    })
+
+    it('removes the friendship and clears both halves', () => {
+      listRelations(userHeaders()).then((rows) => {
+        const mine = findRelation(rows, 'FRIEND', actorUserId, relatedUserId)
+        expect(mine, 'accepted friendship to remove').to.not.be.undefined
+
+        deleteRelation(mine!.id).then((response) => {
+          expect([200, 202, 204], JSON.stringify(response.body)).to.include(
+            response.status,
+          )
+
+          // Both halves gone.
+          listRelations(userHeaders()).then((after) => {
+            const stillThere = findRelation(
+              after,
+              'FRIEND',
+              actorUserId,
+              relatedUserId,
+            )
+            expect(stillThere, 'friendship fully removed').to.be.undefined
+          })
+        })
+      })
+    })
+  })
+
+  context('Cancel and decline', () => {
+    it('lets the requester cancel a pending request', () => {
+      createRelation('FRIEND').then(({ row }) => {
+        deleteRelation(row.id).then((response) => {
+          expect([200, 202, 204]).to.include(response.status)
+        })
+      })
+    })
+
+    it('lets the target decline (delete) a pending request', () => {
+      createRelation('FRIEND').then(({ row }) => {
+        deleteRelation(row.id, adminAuthHeaders()).then((response) => {
+          expect([200, 202, 204]).to.include(response.status)
+
+          listRelations(adminAuthHeaders()).then((rows) => {
+            const declined = findRelation(
+              rows,
+              'FRIEND',
+              actorUserId,
+              relatedUserId,
+            )
+            expect(declined, 'declined request removed').to.be.undefined
+          })
+        })
+      })
+    })
+  })
+
+  context('Auto-accept on mutual FRIEND request', () => {
+    it('completes the friendship when both sides request', () => {
+      // Actor requests target.
+      createRelation('FRIEND').then(({ row: actorRow }) => {
+        expect(actorRow.status).to.eq('PENDING')
+
+        // Target requests actor back → should auto-accept, not stack.
+        apiRequest<UserRelation>({
+          method: 'POST',
+          url: urlFor(),
+          headers: adminAuthHeaders(),
+          body: { relatedUserId: actorUserId, type: 'FRIEND' },
+        }).then((response) => {
+          expectSuccess(response)
+          const data = response.body.data as UserRelation
+          if (data?.id) track(data.id)
+
+          listRelations(userHeaders()).then((rows) => {
+            const mine = rows.find(
+              (r) =>
+                r.type === 'FRIEND' &&
+                r.userId === actorUserId &&
+                r.relatedUserId === relatedUserId,
+            )
+            const inverse = rows.find(
+              (r) =>
+                r.type === 'FRIEND' &&
+                r.userId === relatedUserId &&
+                r.relatedUserId === actorUserId,
+            )
+            expect(mine?.status, 'actor half accepted').to.eq('ACCEPTED')
+            expect(inverse, 'inverse half present').to.not.be.undefined
+            if (inverse) track(inverse.id)
+          })
+
+          // Tear down the friendship for the next block.
+          listRelations(userHeaders()).then((rows) => {
+            const mine = findRelation(
+              rows,
+              'FRIEND',
+              actorUserId,
+              relatedUserId,
+            )
+            if (mine) deleteRelation(mine.id)
+          })
+        })
+      })
+    })
+  })
+
+  context('Family request flow does NOT auto-accept on reverse', () => {
+    it('keeps PARENT and reverse-CHILD as separate pending requests', () => {
+      // Actor requests to be PARENT of target.
+      createRelation('PARENT').then(({ row: parentRow }) => {
+        expect(parentRow.status).to.eq('PENDING')
+
+        // Target requests to be CHILD of actor (the natural inverse).
+        // This must NOT silently complete the link.
+        apiRequest<UserRelation>({
+          method: 'POST',
+          url: urlFor(),
+          headers: adminAuthHeaders(),
+          body: { relatedUserId: actorUserId, type: 'CHILD' },
+        }).then((response) => {
+          expectSuccess(response)
+          const childRow = response.body.data as UserRelation
+          if (childRow?.id) track(childRow.id)
+
+          expect(
+            childRow.status,
+            'reverse CHILD stays PENDING (no auto-accept)',
+          ).to.eq('PENDING')
+          expect(parentRow.status, 'original PARENT still pending').to.eq(
+            'PENDING',
+          )
+        })
+
+        // Clean up both pending rows.
+        deleteRelation(parentRow.id)
+      })
+    })
+
+    it('creates the inverse only on explicit accept (PARENT → CHILD)', () => {
+      createRelation('PARENT').then(({ row: parentRow }) => {
+        acceptRelation(parentRow.id).then((accepted) => {
+          expect(accepted.status).to.eq('ACCEPTED')
+
+          // Target should now own a CHILD row pointing back at the actor.
+          listRelations(adminAuthHeaders()).then((rows) => {
+            const childRow = rows.find(
+              (r) =>
+                r.type === 'CHILD' &&
+                r.status === 'ACCEPTED' &&
+                r.userId === relatedUserId &&
+                r.relatedUserId === actorUserId,
+            )
+            expect(childRow, 'CHILD inverse created on accept').to.not.be
+              .undefined
+            if (childRow) track(childRow.id)
+          })
+
+          // Remove the pair.
+          deleteRelation(parentRow.id)
+        })
+      })
+    })
+  })
+
+  context('Block is immediate, no request', () => {
+    it('creates a BLOCK as ACCEPTED with no inverse', () => {
+      createRelation('BLOCK').then(({ row }) => {
+        expect(row.type).to.eq('BLOCK')
+        expect(row.status).to.eq('ACCEPTED')
+
+        // Target should NOT gain a block row of their own.
+        listRelations(adminAuthHeaders()).then((rows) => {
+          const targetOwnsBlock = rows.find(
+            (r) =>
+              r.type === 'BLOCK' &&
+              r.userId === relatedUserId &&
+              r.relatedUserId === actorUserId,
+          )
+          expect(targetOwnsBlock, 'block is one-directional').to.be.undefined
+        })
+
+        // Unblock (cleanup).
+        deleteRelation(row.id).then((response) => {
+          expect([200, 202, 204]).to.include(response.status)
+        })
+      })
+    })
+  })
+
+  // Final safety net: remove anything still tracked, in case a test bailed
+  // before its inline cleanup ran. Guarded with [200, 404].
+  after(() => {
+    if (!userToken) return
+
+    Array.from(new Set(createdRelationIds))
+      .filter((rid) => Number.isInteger(rid) && rid > 0)
+      .forEach((rid) => {
+        // Try as the actor first; if forbidden/owned by admin, retry as admin.
+        cleanupRequest({
+          method: 'DELETE',
+          url: urlFor(rid),
+          headers: userHeaders(),
+        }).then((response) => {
+          if (response.status === 403) {
+            cleanupRequest({
+              method: 'DELETE',
+              url: urlFor(rid),
+              headers: adminAuthHeaders(),
+            })
+            return
+          }
+          expect(
+            [200, 202, 204, 404],
+            `cleanup relation ${rid} ${JSON.stringify(response.body)}`,
+          ).to.include(response.status)
+        })
+      })
+  })
+})

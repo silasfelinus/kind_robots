@@ -9,6 +9,16 @@
 * 🟢 You can import this file directly.
 */
 
+export const DreamAccessMode = {
+  OPEN: 'OPEN',
+  CODE: 'CODE',
+  PRIVATE: 'PRIVATE',
+  SOLO: 'SOLO'
+} as const
+
+export type DreamAccessMode = (typeof DreamAccessMode)[keyof typeof DreamAccessMode]
+
+
 export const ManaReason = {
   SIGNUP_BONUS: 'SIGNUP_BONUS',
   CYCLE_REFILL: 'CYCLE_REFILL',
@@ -28,14 +38,24 @@ export const ManaReason = {
 export type ManaReason = (typeof ManaReason)[keyof typeof ManaReason]
 
 
-export const DreamAccessMode = {
-  OPEN: 'OPEN',
-  CODE: 'CODE',
-  PRIVATE: 'PRIVATE',
-  SOLO: 'SOLO'
+export const RelationType = {
+  FRIEND: 'FRIEND',
+  BLOCK: 'BLOCK',
+  PARENT: 'PARENT',
+  CHILD: 'CHILD',
+  REFEREE: 'REFEREE'
 } as const
 
-export type DreamAccessMode = (typeof DreamAccessMode)[keyof typeof DreamAccessMode]
+export type RelationType = (typeof RelationType)[keyof typeof RelationType]
+
+
+export const RelationStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED'
+} as const
+
+export type RelationStatus = (typeof RelationStatus)[keyof typeof RelationStatus]
 
 
 export const ResourceType = {

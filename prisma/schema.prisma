@@ -402,6 +402,13 @@ model Dream {
   @@index([scenarioId])
 }
 
+enum DreamAccessMode {
+  OPEN
+  CODE
+  PRIVATE
+  SOLO
+}
+
 /// our woefully underutilized log function, but it's there.
 model Log {
   id        Int      @id @default(autoincrement())
@@ -893,14 +900,56 @@ model User {
   Codes                 Code[]
   Compositions          Composition[]
 
+  RelationsOwned        UserRelation[]    @relation("UserRelationOwner")
+  RelationsReceived     UserRelation[]    @relation("UserRelationTarget")
+
+
   @@index([artImageId], map: "User_artImageId_fkey")
 }
 
-enum DreamAccessMode {
-  OPEN
-  CODE
-  PRIVATE
-  SOLO
+
+
+enum RelationType {
+  FRIEND
+  BLOCK
+  PARENT
+  CHILD
+  REFEREE
+}
+
+enum RelationStatus {
+  PENDING // requested by userId, not yet accepted by relatedUserId
+  ACCEPTED // active relationship
+  DECLINED // relatedUserId declined; kept for history/anti-spam, or hard-delete
+}
+
+/// Directed relationship between two users with a typed role.
+/// One row per (userId, relatedUserId, type). Symmetric types (FRIEND) are
+/// normalized in the app layer so a single row represents the mutual link.
+/// Follows the ButterflyRecord/MilestoneRecord pattern (explicit join model,
+/// not implicit M2M) so we can attach status + timestamps + future metadata.
+model UserRelation {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime?      @default(now()) @updatedAt
+  userId         Int
+  relatedUserId  Int
+  type           RelationType
+  status         RelationStatus @default(PENDING)
+  note           String?        @db.Text
+  pairId    Int?
+
+  User        User @relation("UserRelationOwner", fields: [userId], references: [id])
+  RelatedUser User @relation("UserRelationTarget", fields: [relatedUserId], references: [id])
+
+  // Prevents duplicate links of the same type between the same ordered pair.
+  // A user can both FRIEND and (later) BLOCK someone — different type, allowed.
+  @@unique([userId, relatedUserId, type])
+  @@index([userId], map: "UserRelation_userId_fkey")
+  @@index([relatedUserId], map: "UserRelation_relatedUserId_fkey")
+  @@index([type])
+  @@index([status])
+  @@index([pairId])
 }
 
 enum ResourceType {

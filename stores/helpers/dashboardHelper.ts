@@ -471,7 +471,7 @@ export const dashboardConfigs = {
         tagline: 'Build people, places, bots, rewards, and story fuel.',
         narrative:
           'Build the pieces of your world from reusable cards: profiles, pitches, dreams, characters, bots, rewards, scenarios, and art. Start small, stack boldly, and let the tiny construction goblins unionize later.',
-        route: '/dashboard',
+        route: '/builder',
       },
       {
         key: 'memory',
@@ -486,7 +486,7 @@ export const dashboardConfigs = {
           'A memory crawl with glowing keys and suspiciously clever cards.',
         narrative:
           'Enter the Memory Dungeon: a gamified crawl through matching cards, remembered patterns, hidden rooms, and little nostalgic monsters. Explore, survive, and see what the dungeon remembers back.',
-        route: '/wonderlab',
+        route: '/memory',
       },
 
       {

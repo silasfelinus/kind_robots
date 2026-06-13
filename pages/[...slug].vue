@@ -57,7 +57,6 @@ import { computed, onMounted, watch } from 'vue'
 import { useRoute } from '#app'
 import type { ContentCollectionItem } from '@nuxt/content'
 import { usePageStore } from '@/stores/pageStore'
-import LoginPage from '@/components/content/user/login-page.vue'
 
 type PagePayload = {
   path: string

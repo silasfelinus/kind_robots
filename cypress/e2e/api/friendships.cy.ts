@@ -33,6 +33,14 @@ type UserRelation = {
   pairId?: number | null
 }
 
+type CurrentUserData = {
+  id: number
+  username: string
+  email?: string | null
+  Role?: string
+  isAdmin?: boolean
+}
+
 const fallbackApiBase = 'https://kind-robots.vercel.app'
 const invalidToken = 'definitely-not-a-real-token'
 const time = Date.now()
@@ -228,24 +236,24 @@ describe('Friendship / UserRelation API Tests', () => {
 
     // Resolve actor id (USER_TOKEN) and, if needed, the target id (ADMIN_TOKEN).
     cy.then(() => {
-      return apiRequest({
+      return apiRequest<CurrentUserData>({
         method: 'GET',
         url: `${apiBase}/api/users/me`,
         headers: userHeaders(),
       }).then((res) => {
-        actorUserId = Number(res.body?.data?.id ?? res.body?.user?.id ?? 0)
+        actorUserId = Number(res.body?.data?.id ?? 0)
         expectId(actorUserId, 'actorUserId')
       })
     })
 
     cy.then(() => {
       if (relatedUserId > 0) return
-      return apiRequest({
+      return apiRequest<CurrentUserData>({
         method: 'GET',
         url: `${apiBase}/api/users/me`,
         headers: adminAuthHeaders(),
       }).then((res) => {
-        relatedUserId = Number(res.body?.data?.id ?? res.body?.user?.id ?? 0)
+        relatedUserId = Number(res.body?.data?.id ?? 0)
         expectId(relatedUserId, 'relatedUserId')
         expect(relatedUserId, 'actor and target must differ').to.not.eq(
           actorUserId,

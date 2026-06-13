@@ -1,12 +1,10 @@
 // /cypress/e2e/api/rewards.cy.ts
 
 describe('Reward Management API Tests', () => {
-  const baseUrl =
-    Cypress.env('REWARDS_API_URL') ||
-    'https://kind-robots.vercel.app/api/rewards'
-
+  const fallbackBaseUrl = 'https://kind-robots.vercel.app/api/rewards'
   const invalidToken = 'someInvalidTokenValue'
 
+  let baseUrl = fallbackBaseUrl
   let userToken = ''
   let rewardId: number | undefined
 
@@ -50,8 +48,13 @@ describe('Reward Management API Tests', () => {
   }
 
   before(() => {
-    userToken = String(Cypress.env('USER_TOKEN') || '')
-    expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    cy.env(['REWARDS_API_URL', 'USER_TOKEN']).then((env) => {
+      baseUrl = String(env.REWARDS_API_URL || fallbackBaseUrl)
+      userToken = String(env.USER_TOKEN || '')
+
+      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+        .empty
+    })
   })
 
   after(() => {

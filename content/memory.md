@@ -15,4 +15,4 @@ loadingMessage: Loading memory
 refreshLabel: Refresh memory
 ---
 
-:memory-dungeon
+:lab-manager

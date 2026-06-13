@@ -1,39 +1,73 @@
 // /server/api/chats/user/human/[id].get.ts
-import { defineEventHandler } from 'h3'
+import {
+  defineEventHandler,
+  getRouterParam,
+  setHeader,
+  setResponseStatus,
+} from 'h3'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { validateApiKey } from '../../../../utils/validateKey'
 
-export default defineEventHandler(async (event) => {
-  const requestedUserId = Number(event.context.params?.id)
+function fail(
+  event: Parameters<Parameters<typeof defineEventHandler>[0]>[0],
+  error: unknown,
+  context = 'Fetch Human Chats by User ID',
+  fallbackStatusCode = 500,
+) {
+  const handled = errorHandler({
+    error,
+    context,
+    statusCode: fallbackStatusCode,
+  })
 
-  if (!Number.isFinite(requestedUserId) || requestedUserId <= 0) {
-    return errorHandler({
-      error: new Error('Invalid User ID. It must be a positive integer.'),
-      context: 'Fetch Human Chats by User ID',
-      statusCode: 400,
-    })
+  const statusCode = handled.statusCode || fallbackStatusCode
+
+  setResponseStatus(event, statusCode)
+
+  return {
+    success: false,
+    message: handled.message,
+    data: null,
+    statusCode,
+  }
+}
+
+export default defineEventHandler(async (event) => {
+  setHeader(event, 'Cache-Control', 'private, no-store')
+
+  const requestedUserId = Number(getRouterParam(event, 'id'))
+
+  if (!Number.isInteger(requestedUserId) || requestedUserId <= 0) {
+    return fail(
+      event,
+      new Error('Invalid User ID. It must be a positive integer.'),
+      'Fetch Human Chats by User ID',
+      400,
+    )
   }
 
   try {
     const { isValid, user } = await validateApiKey(event)
 
     if (!isValid || !user) {
-      return errorHandler({
-        error: new Error('Invalid or expired token.'),
-        context: 'Fetch Human Chats by User ID',
-        statusCode: 401,
-      })
+      return fail(
+        event,
+        new Error('Invalid or expired token.'),
+        'Fetch Human Chats by User ID',
+        401,
+      )
     }
 
     const authUser = user as { id: number; isAdmin?: boolean }
 
     if (authUser.id !== requestedUserId && !authUser.isAdmin) {
-      return errorHandler({
-        error: new Error('You can only fetch your own human chats.'),
-        context: 'Fetch Human Chats by User ID',
-        statusCode: 403,
-      })
+      return fail(
+        event,
+        new Error('You can only fetch your own human chats.'),
+        'Fetch Human Chats by User ID',
+        403,
+      )
     }
 
     const data = await prisma.chat.findMany({
@@ -60,13 +94,6 @@ export default defineEventHandler(async (event) => {
       message: 'Human chats fetched successfully.',
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-
-    return {
-      success: false,
-      message,
-      data: null,
-      statusCode,
-    }
+    return fail(event, error)
   }
 })

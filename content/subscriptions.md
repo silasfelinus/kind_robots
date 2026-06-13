@@ -15,4 +15,4 @@ loadingMessage: Loading plans....
 refreshLabel: Refresh plans
 ---
 
-:subscription-manager
+:giftshop-manager

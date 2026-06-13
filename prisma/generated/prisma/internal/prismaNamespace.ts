@@ -408,7 +408,8 @@ export const ModelName = {
   Server: 'Server',
   SmartIcon: 'SmartIcon',
   Theme: 'Theme',
-  User: 'User'
+  User: 'User',
+  UserRelation: 'UserRelation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2078,6 +2079,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserRelation: {
+      payload: Prisma.$UserRelationPayload<ExtArgs>
+      fields: Prisma.UserRelationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserRelationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserRelationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload>
+        }
+        findFirst: {
+          args: Prisma.UserRelationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserRelationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload>
+        }
+        findMany: {
+          args: Prisma.UserRelationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload>[]
+        }
+        create: {
+          args: Prisma.UserRelationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload>
+        }
+        createMany: {
+          args: Prisma.UserRelationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.UserRelationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload>
+        }
+        update: {
+          args: Prisma.UserRelationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserRelationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserRelationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.UserRelationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRelationPayload>
+        }
+        aggregate: {
+          args: Prisma.UserRelationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserRelation>
+        }
+        groupBy: {
+          args: Prisma.UserRelationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserRelationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserRelationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserRelationCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2753,6 +2820,21 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const UserRelationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  relatedUserId: 'relatedUserId',
+  type: 'type',
+  status: 'status',
+  note: 'note',
+  pairId: 'pairId'
+} as const
+
+export type UserRelationScalarFieldEnum = (typeof UserRelationScalarFieldEnum)[keyof typeof UserRelationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3151,6 +3233,13 @@ export const UserOrderByRelevanceFieldEnum = {
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
 
 
+export const UserRelationOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type UserRelationOrderByRelevanceFieldEnum = (typeof UserRelationOrderByRelevanceFieldEnum)[keyof typeof UserRelationOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -3317,6 +3406,20 @@ export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
     
 
+
+/**
+ * Reference to a field of type 'RelationType'
+ */
+export type EnumRelationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RelationType'>
+    
+
+
+/**
+ * Reference to a field of type 'RelationStatus'
+ */
+export type EnumRelationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RelationStatus'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -3452,6 +3555,7 @@ export type GlobalOmitConfig = {
   smartIcon?: Prisma.SmartIconOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
+  userRelation?: Prisma.UserRelationOmit
 }
 
 /* Types for Logging */

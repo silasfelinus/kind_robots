@@ -75,7 +75,8 @@ export const ModelName = {
   Server: 'Server',
   SmartIcon: 'SmartIcon',
   Theme: 'Theme',
-  User: 'User'
+  User: 'User',
+  UserRelation: 'UserRelation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -730,6 +731,21 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const UserRelationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  relatedUserId: 'relatedUserId',
+  type: 'type',
+  status: 'status',
+  note: 'note',
+  pairId: 'pairId'
+} as const
+
+export type UserRelationScalarFieldEnum = (typeof UserRelationScalarFieldEnum)[keyof typeof UserRelationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1126,4 +1142,11 @@ export const UserOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const UserRelationOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type UserRelationOrderByRelevanceFieldEnum = (typeof UserRelationOrderByRelevanceFieldEnum)[keyof typeof UserRelationOrderByRelevanceFieldEnum]
 

@@ -16,4 +16,4 @@ loadingMessage: Loading milestones
 refreshLabel: Refresh Milestones
 ---
 
-:milestone-gallery
+:user-manager

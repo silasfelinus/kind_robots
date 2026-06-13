@@ -16,6 +16,6 @@ loadingMessage: Loading theme gallery...
 refreshLabel: Refresh Themes
 ---
 
-:theme-manager
+:user-manager
 
 

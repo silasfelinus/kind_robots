@@ -1,0 +1,96 @@
+// /server/api/relations/index.post.ts
+// POST /api/relations — create a relation REQUEST.
+// Body: { relatedUserId, type, note? }
+//
+// BLOCK is created immediately as ACCEPTED (no consent, no inverse).
+// All other types are created as PENDING for relatedUserId to confirm.
+// FRIEND only: a matching reverse pending FRIEND request auto-accepts.
+
+import prisma from '../../utils/prisma'
+import { getCurrentUserId } from '../../utils/auth'
+import { acceptPair } from '../../utils/relations'
+import type { RelationType } from '~/prisma/generated/prisma/client'
+
+const VALID_TYPES: RelationType[] = [
+  'FRIEND',
+  'BLOCK',
+  'PARENT',
+  'CHILD',
+  'REFEREE',
+]
+
+export default defineEventHandler(async (event) => {
+  const userId = await getCurrentUserId(event)
+  if (!userId) {
+    setResponseStatus(event, 401)
+    return { success: false, message: 'Not authenticated.' }
+  }
+
+  const body = await readBody(event)
+  const relatedUserId = Number(body?.relatedUserId)
+  const type = String(body?.type) as RelationType
+
+  if (!relatedUserId || relatedUserId === userId) {
+    setResponseStatus(event, 400)
+    return { success: false, message: 'Invalid relatedUserId.' }
+  }
+  if (!VALID_TYPES.includes(type)) {
+    setResponseStatus(event, 400)
+    return { success: false, message: `Invalid relation type: ${type}.` }
+  }
+
+  // BLOCK: immediate, no request, no inverse.
+  if (type === 'BLOCK') {
+    const data = await prisma.userRelation.upsert({
+      where: {
+        userId_relatedUserId_type: { userId, relatedUserId, type },
+      },
+      create: { userId, relatedUserId, type, status: 'ACCEPTED' },
+      update: { status: 'ACCEPTED' },
+    })
+    setResponseStatus(event, 201)
+    return { success: true, message: 'User blocked.', data }
+  }
+
+  // FRIEND only: if the target already sent ME a pending FRIEND request, both
+  // sides consent, so complete the friendship instead of stacking a second
+  // row. PARENT/CHILD/REFEREE require an explicit accept and skip this.
+  if (type === 'FRIEND') {
+    const reverse = await prisma.userRelation.findFirst({
+      where: {
+        userId: relatedUserId,
+        relatedUserId: userId,
+        type: 'FRIEND',
+        status: 'PENDING',
+      },
+    })
+    if (reverse) {
+      const { acceptedRow } = await acceptPair(reverse.id)
+      setResponseStatus(event, 200)
+      return {
+        success: true,
+        message: 'Friend request accepted.',
+        data: acceptedRow,
+        pairCreated: true,
+      }
+    }
+  }
+
+  // Fresh request → PENDING.
+  const data = await prisma.userRelation.upsert({
+    where: {
+      userId_relatedUserId_type: { userId, relatedUserId, type },
+    },
+    create: {
+      userId,
+      relatedUserId,
+      type,
+      status: 'PENDING',
+      note: body?.note ?? null,
+    },
+    update: { status: 'PENDING', note: body?.note ?? undefined },
+  })
+
+  setResponseStatus(event, 201)
+  return { success: true, message: 'Relation request created.', data }
+})

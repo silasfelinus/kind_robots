@@ -1,7 +1,8 @@
-<!-- /pages/[...slug].vue -->
 <template>
+  <LoginPage v-if="isLoginPath" />
+
   <div
-    v-if="activePage?.body"
+    v-else-if="activePage?.body"
     class="content-host flex h-full min-h-0 w-full flex-col rounded-2xl border border-success/30 bg-success/5"
   >
     <ContentRenderer :value="activePage" />
@@ -56,6 +57,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useRoute } from '#app'
 import type { ContentCollectionItem } from '@nuxt/content'
 import { usePageStore } from '@/stores/pageStore'
+import LoginPage from '@/components/content/user/login-page.vue'
 
 type PagePayload = {
   path: string
@@ -71,6 +73,8 @@ const contentPath = computed(() => {
   return path || '/'
 })
 
+const isLoginPath = computed(() => contentPath.value === '/login')
+
 const asyncKey = computed(() => `content:${contentPath.value}`)
 
 const {
@@ -81,6 +85,14 @@ const {
   asyncKey,
   async () => {
     const path = contentPath.value
+
+    if (path === '/login') {
+      return {
+        path,
+        page: null,
+      }
+    }
+
     const page = await queryCollection('content').path(path).first()
 
     return {
@@ -106,12 +118,15 @@ const hasResolvedCurrentPath = computed(() => {
 })
 
 const activePage = computed(() => {
+  if (isLoginPath.value) return null
   if (!hasResolvedCurrentPath.value) return null
 
   return pagePayload.value?.page ?? null
 })
 
 const isPageLoading = computed(() => {
+  if (isLoginPath.value) return false
+
   return (
     status.value === 'pending' ||
     status.value === 'idle' ||
@@ -120,6 +135,12 @@ const isPageLoading = computed(() => {
 })
 
 function syncPageStore(): void {
+  if (isLoginPath.value) {
+    pageStore.clearPage()
+    pageStore.setLoading(false)
+    return
+  }
+
   if (isPageLoading.value) {
     pageStore.setLoading(true)
     return
@@ -142,7 +163,7 @@ onMounted(() => {
   syncPageStore()
 
   watch(
-    [activePage, status, error, contentPath, pagePayload],
+    [activePage, status, error, contentPath, pagePayload, isLoginPath],
     () => {
       syncPageStore()
     },

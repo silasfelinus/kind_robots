@@ -1,7 +1,6 @@
-<!-- /components/content/user/login-page.vue -->
 <template>
   <section
-    class="relative flex min-h-dvh w-full items-center justify-center overflow-hidden bg-base-300 px-3 py-4 text-base-content sm:px-6 sm:py-8"
+    class="relative flex min-h-full w-full items-center justify-center overflow-y-auto bg-base-300 px-3 py-4 text-base-content sm:px-6 sm:py-8"
   >
     <div
       class="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -77,11 +76,18 @@
       </div>
 
       <form
-        v-if="!store.isLoggedIn"
+        v-if="shouldShowLoginForm"
         class="flex flex-col gap-4"
         :autocomplete="stayLoggedIn ? 'on' : 'off'"
         @submit.prevent="handleLogin"
       >
+        <div
+          v-if="isKindGuest"
+          class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm font-semibold text-info"
+        >
+          You are browsing as Kind Guest. Sign in to use your own account.
+        </div>
+
         <label for="login" class="flex flex-col gap-2">
           <span class="pl-1 text-sm font-black text-base-content/80">
             Username
@@ -158,6 +164,25 @@
         </div>
       </form>
 
+      <div
+        v-else
+        class="flex flex-col gap-3 rounded-2xl border border-success/30 bg-success/10 p-4 text-center"
+      >
+        <Icon name="kind-icon:check" class="mx-auto h-10 w-10 text-success" />
+
+        <p class="text-lg font-black text-success">
+          You are already signed in.
+        </p>
+
+        <p class="text-sm font-semibold text-base-content/70">
+          The gate robot recognizes you. Slightly alarming, but convenient.
+        </p>
+
+        <NuxtLink to="/dashboard" class="btn btn-success rounded-2xl">
+          Go to Dashboard
+        </NuxtLink>
+      </div>
+
       <div class="my-5 flex items-center gap-3">
         <span class="h-px flex-1 bg-base-content/15" />
         <span
@@ -224,7 +249,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/user/login-page.vue
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
@@ -239,12 +263,26 @@ const password = ref('')
 const errorMessage = ref('')
 const userNotFound = ref(false)
 
+const normalizedUsername = computed(() => {
+  return String(store.username || '')
+    .trim()
+    .toLowerCase()
+})
+
+const isKindGuest = computed(() => {
+  return normalizedUsername.value === 'kindguest'
+})
+
+const shouldShowLoginForm = computed(() => {
+  return !store.isLoggedIn || isKindGuest.value
+})
+
 const stayLoggedIn = computed({
   get: () => store.stayLoggedIn,
   set: (value: boolean) => store.setStayLoggedIn(value),
 })
 
-const handleLogin = async () => {
+async function handleLogin(): Promise<void> {
   errorMessage.value = ''
   userNotFound.value = false
 
@@ -272,7 +310,7 @@ const handleLogin = async () => {
   }
 }
 
-const handleRetryLogin = () => {
+function handleRetryLogin(): void {
   login.value = ''
   password.value = ''
   errorMessage.value = ''

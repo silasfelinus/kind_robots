@@ -137,13 +137,6 @@
               {{ selectedCollectionLabel }}
             </span>
           </p>
-
-          <p class="text-xs text-base-content/50">
-            Selected:
-            <span class="font-semibold text-primary">{{
-              selectedCollectionLabel
-            }}</span>
-          </p>
         </div>
 
         <div class="border-t border-base-300 pt-3">
@@ -525,9 +518,9 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted, reactive, ref, watchEffect } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useUploadStore } from '@/stores/uploadStore'
-import type { ConnectableModel } from '@/stores/uploadStore'
-import { useArtStore } from '@/stores/artStore'
+import type { ConnectableModel, UploadMetadata } from '@/stores/uploadStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
@@ -535,7 +528,6 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useCollectionStore } from '@/stores/collectionStore'
-import { useUserStore } from '@/stores/userStore'
 import { useServerStore } from '@/stores/serverStore'
 
 withDefaults(defineProps<{ showModelConnect?: boolean }>(), {
@@ -565,10 +557,8 @@ interface QueuedFile {
   file: File
   preview: string
 }
-type UploadResult = { fileName?: string | null; id?: number }
 
 const uploadStore = useUploadStore()
-const artStore = useArtStore()
 const botStore = useBotStore()
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
@@ -576,14 +566,14 @@ const pitchStore = usePitchStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
 const collectionStore = useCollectionStore()
-const userStore = useUserStore()
 const serverStore = useServerStore()
+
+// Upload lifecycle state lives in the store; read it reactively.
+const { isUploading, uploadProgress, uploadTotal, uploadPercent } =
+  storeToRefs(uploadStore)
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
-const isUploading = ref(false)
-const uploadProgress = ref(0)
-const uploadTotal = ref(0)
 const message = ref('')
 const error = ref('')
 const connectedModelType = ref<ConnectableModel | ''>('')
@@ -639,11 +629,6 @@ const icon = computed(
 const buttonLabel = computed(
   () => uploadStore.activeTarget?.buttonLabel ?? 'Upload images',
 )
-const uploadPercent = computed(() =>
-  !uploadTotal.value
-    ? 0
-    : Math.round((uploadProgress.value / uploadTotal.value) * 100),
-)
 const selectedCollection = computed(() => collectionStore.currentCollection)
 const selectedCollectionLabel = computed(
   () => selectedCollection.value?.label?.trim() || 'None selected',
@@ -666,11 +651,6 @@ const connectedModelId = computed<number | null>(() => {
     default:
       return null
   }
-})
-
-const connectedModelPayload = computed(() => {
-  if (!connectedModelType.value || !connectedModelId.value) return null
-  return { model: connectedModelType.value, modelId: connectedModelId.value }
 })
 
 function getServerUrl(server: typeof serverStore.activeArtServer): string {
@@ -714,34 +694,20 @@ function addFiles(incoming: FileList | File[]) {
   error.value = ''
 }
 
-function clearUploadedImages() {
-  queuedFiles.value.forEach((item) => URL.revokeObjectURL(item.preview))
-  queuedFiles.value = []
-  succeededNames.value = new Set()
-  failedNames.value = new Set()
-  connectedModelType.value = ''
-  uploadProgress.value = 0
-  uploadTotal.value = 0
-  if (fileInput.value) fileInput.value.value = ''
-  clearModelSelection()
-}
-
-function removeFile(index: number) {
-  const removed = queuedFiles.value.splice(index, 1)[0]
-  if (removed) URL.revokeObjectURL(removed.preview)
-}
-
 function clearQueue() {
   queuedFiles.value.forEach((item) => URL.revokeObjectURL(item.preview))
   queuedFiles.value = []
   succeededNames.value = new Set()
   failedNames.value = new Set()
   connectedModelType.value = ''
-  uploadProgress.value = 0
-  uploadTotal.value = 0
   message.value = ''
   error.value = ''
   clearModelSelection()
+}
+
+function removeFile(index: number) {
+  const removed = queuedFiles.value.splice(index, 1)[0]
+  if (removed) URL.revokeObjectURL(removed.preview)
 }
 
 function handleFileSelect(event: Event) {
@@ -755,89 +721,65 @@ function handleDrop(event: DragEvent) {
   if (event.dataTransfer?.files?.length) addFiles(event.dataTransfer.files)
 }
 
-function appendText(
-  formData: FormData,
-  key: string,
-  value: string | null | undefined,
-) {
-  const cleanValue = value?.trim()
-  if (cleanValue) formData.append(key, cleanValue)
-}
-function appendNumber(
-  formData: FormData,
-  key: string,
-  value: number | null | undefined,
-) {
-  if (typeof value === 'number' && Number.isFinite(value))
-    formData.append(key, String(value))
-}
-function appendBoolean(formData: FormData, key: string, value: boolean) {
-  formData.append(key, value ? 'true' : 'false')
-}
-
-function buildImageFormData(file: File): FormData {
-  const formData = new FormData()
-  const modelConnection = connectedModelPayload.value
-  const collectionId = selectedCollection.value?.id ?? null
-  formData.append('file', file)
-  formData.append('fileName', file.name)
-  formData.append('fileType', file.type.replace('image/', '') || 'png')
-  appendNumber(formData, 'userId', userStore.userId || userStore.user?.id || 10)
-  appendNumber(formData, 'artCollectionId', collectionId)
-  appendNumber(formData, 'serverId', imageForm.serverId)
-  appendNumber(formData, 'seed', imageForm.seed)
-  appendNumber(formData, 'steps', imageForm.steps)
-  appendNumber(formData, 'cfg', imageForm.cfg)
-  appendNumber(formData, 'rarity', imageForm.rarity)
-  appendText(formData, 'promptString', imageForm.promptString)
-  appendText(formData, 'negativePrompt', imageForm.negativePrompt)
-  appendText(formData, 'checkpoint', imageForm.checkpoint)
-  appendText(formData, 'sampler', imageForm.sampler)
-  appendText(formData, 'designer', imageForm.designer)
-  appendText(formData, 'genres', imageForm.genres)
-  appendText(formData, 'serverName', imageForm.serverName)
-  appendText(formData, 'serverUrl', imageForm.serverUrl)
-  appendBoolean(formData, 'cfgHalf', imageForm.cfgHalf)
-  appendBoolean(formData, 'isPublic', imageForm.isPublic)
-  appendBoolean(formData, 'isMature', imageForm.isMature)
-  if (modelConnection) {
-    formData.append('connectedModelType', modelConnection.model)
-    formData.append('connectedModelId', String(modelConnection.modelId))
+function buildMetadata(): UploadMetadata {
+  return {
+    promptString: imageForm.promptString || null,
+    negativePrompt: imageForm.negativePrompt || null,
+    checkpoint: imageForm.checkpoint || null,
+    sampler: imageForm.sampler || null,
+    seed: imageForm.seed,
+    steps: imageForm.steps,
+    cfg: imageForm.cfg,
+    cfgHalf: imageForm.cfgHalf,
+    designer: imageForm.designer || null,
+    genres: imageForm.genres || null,
+    rarity: imageForm.rarity,
+    isPublic: imageForm.isPublic,
+    isMature: imageForm.isMature,
+    serverId: imageForm.serverId,
+    serverName: imageForm.serverName || null,
+    serverUrl: imageForm.serverUrl || null,
   }
-  return formData
 }
 
 async function handleBatchUpload() {
   if (!queuedFiles.value.length || isUploading.value) return
-  isUploading.value = true
-  uploadProgress.value = 0
-  uploadTotal.value = queuedFiles.value.length
+
+  if (!uploadStore.hasActiveTarget) {
+    error.value = 'No upload target configured.'
+    return
+  }
+
   succeededNames.value = new Set()
   failedNames.value = new Set()
   message.value = ''
   error.value = ''
-  const succeeded: UploadResult[] = []
-  const failed: UploadResult[] = []
-  for (const item of queuedFiles.value) {
-    const result = await artStore.uploadImage(buildImageFormData(item.file))
-    if (result.success && result.data) {
-      succeeded.push({
-        fileName: result.data.fileName || item.file.name,
-        id: result.data.id,
-      })
-      succeededNames.value = new Set([...succeededNames.value, item.file.name])
-    } else {
-      failed.push({ fileName: item.file.name })
-      failedNames.value = new Set([...failedNames.value, item.file.name])
-    }
-    uploadProgress.value += 1
+
+  const files = queuedFiles.value.map((item) => item.file)
+
+  const result = await uploadStore.uploadBatchForActiveTarget(files, {
+    connectedModelType: connectedModelType.value || null,
+    connectedModelId: connectedModelId.value,
+    metadata: buildMetadata(),
+  })
+
+  succeededNames.value = new Set(
+    result.succeeded.map((r) => r.fileName).filter(Boolean) as string[],
+  )
+  failedNames.value = new Set(
+    result.failed.map((r) => r.fileName).filter(Boolean) as string[],
+  )
+
+  // Mirror store messaging locally so the component owns its own banners.
+  message.value = uploadStore.message ?? ''
+  error.value = result.failed.length
+    ? `${result.failed.length} image${result.failed.length === 1 ? '' : 's'} failed.`
+    : ''
+
+  // Clear the queue only on a clean run.
+  if (result.succeeded.length && !result.failed.length) {
+    clearQueue()
   }
-  if (failed.length)
-    error.value = `${failed.length} image${failed.length === 1 ? '' : 's'} failed.`
-  if (succeeded.length)
-    message.value = `Uploaded ${succeeded.length} art image${succeeded.length === 1 ? '' : 's'}.`
-  isUploading.value = false
-  if (succeeded.length && !failed.length) clearUploadedImages()
 }
 
 onUnmounted(() => {

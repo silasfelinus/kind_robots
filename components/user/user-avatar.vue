@@ -11,8 +11,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { useUserStore } from '../../stores/userStore'
+import { computed, ref, watch } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 
 const props = defineProps<{
   userId?: number
@@ -45,7 +45,13 @@ const handleAvatarError = (event: Event) => {
   ;(event.target as HTMLImageElement).src = fallbackAvatar
 }
 
-watch(() => [effectiveUserId.value, userStore.user?.artImageId], fetchAvatar)
-
-onMounted(fetchAvatar)
+watch(
+  () => [
+    effectiveUserId.value,
+    userStore.user?.artImageId,
+    userStore.users.find((u) => u.id === effectiveUserId.value)?.artImageId,
+  ],
+  fetchAvatar,
+  { immediate: true },
+)
 </script>

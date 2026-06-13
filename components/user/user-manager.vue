@@ -61,11 +61,11 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'subscription'"
+      v-else-if="activeTab === 'friends'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
     >
       <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-        <subscription-manager />
+        <friend-gallery />
       </div>
     </section>
 
@@ -98,13 +98,6 @@
       />
     </section>
 
-    <section
-      v-else-if="activeTab === 'servers'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <server-manager class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
-
     <div
       v-else
       class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
@@ -120,24 +113,17 @@ import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 
-type UserTab =
-  | 'dashboard'
-  | 'subscription'
-  | 'milestones'
-  | 'themes'
-  | 'chats'
-  | 'servers'
+type UserTab = 'dashboard' | 'friends' | 'milestones' | 'themes' | 'chats'
 
 const dashboardKey = 'user' as const
 const fallbackTab: UserTab = 'dashboard'
 
 const validTabs: UserTab[] = [
   'dashboard',
-  'subscription',
+  'friends',
   'milestones',
   'themes',
   'chats',
-  'servers',
 ]
 
 const navStore = useNavStore()

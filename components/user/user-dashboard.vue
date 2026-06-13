@@ -28,7 +28,7 @@
           class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
         >
           <div v-if="!isGuest" class="relative">
-            <avatar-image
+            <user-avatar
               class="h-24 w-24 rounded-full ring-2 ring-accent ring-offset-2 ring-offset-base-100"
             />
           </div>

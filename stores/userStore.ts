@@ -495,16 +495,31 @@ export const useUserStore = defineStore('userStore', () => {
 
   async function userImage(userIdOverride?: number): Promise<string> {
     const resolvedId = userIdOverride ?? userId.value
-    const target = await getUserById(resolvedId)
 
-    if (!target?.artImageId) {
+    if (!resolvedId) {
+      return fallbackAvatar
+    }
+
+    const target =
+      user.value?.id === resolvedId
+        ? user.value
+        : (users.value.find((u) => u.id === resolvedId) ??
+          (await getUserById(resolvedId)))
+
+    const artImageId = target?.artImageId
+
+    if (!artImageId) {
       return fallbackAvatar
     }
 
     const artStore = useArtStore()
 
     try {
-      const artImage = await artStore.getArtImageById(target.artImageId)
+      const artImage =
+        typeof artStore.getOrFetchArtImageById === 'function'
+          ? await artStore.getOrFetchArtImageById(artImageId)
+          : await artStore.getArtImageById(artImageId)
+
       const data = artImage?.imageData
 
       if (!data) {
@@ -513,7 +528,8 @@ export const useUserStore = defineStore('userStore', () => {
 
       if (
         data.startsWith('/') ||
-        data.startsWith('http') ||
+        data.startsWith('http://') ||
+        data.startsWith('https://') ||
         data.startsWith('data:')
       ) {
         return data
@@ -662,8 +678,8 @@ export const useUserStore = defineStore('userStore', () => {
       await setUser(loginData.user)
       setToken(loginData.token)
 
-const { useLoginManagerStore } = await import('@/stores/loginStore')
-useLoginManagerStore().captureCurrentSession() 
+      const { useLoginManagerStore } = await import('@/stores/loginStore')
+      useLoginManagerStore().captureCurrentSession()
 
       initialized.value = true
       lastError.value = null
@@ -706,8 +722,8 @@ useLoginManagerStore().captureCurrentSession()
           saveToLocalStorage('token', res.data.token)
         }
 
-const { useLoginManagerStore } = await import('@/stores/loginStore')
-useLoginManagerStore().captureCurrentSession()
+        const { useLoginManagerStore } = await import('@/stores/loginStore')
+        useLoginManagerStore().captureCurrentSession()
 
         lastError.value = null
         return res

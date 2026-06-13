@@ -900,14 +900,15 @@ export const dashboardConfigs = {
         route: '/dashboard',
       },
       {
-        key: 'subscription',
-        label: 'Subscription',
-        icon: 'kind-icon:credit-card',
-        title: 'Subscription',
-        summary: 'Manage plans, credits, and billing.',
-        image: tabImage('user', 'subscription'),
+        key: 'friends',
+        label: 'Friends',
+        icon: 'kind-icon:heart',
+        title: 'Friends Gallery',
+        summary:
+          'Browse friends, companions, collaborators, and favorite people.',
+        image: tabImage('user', 'friends'),
         narrative:
-          'Manage plans, credits, billing, and support status without making the mana purse file a formal complaint.',
+          'Browse the friends gallery: favorite people, companions, collaborators, friendly weirdos, and the social sparks that make the whole robot village feel alive.',
         route: '/dashboard',
       },
       {

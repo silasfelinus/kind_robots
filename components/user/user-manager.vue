@@ -127,26 +127,18 @@ import type { ArtImage } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+import {
+  getDashboardDefaultTab,
+  getDashboardTabs,
+  type DashboardKey,
+} from '@/stores/helpers/dashboardHelper'
 
-type UserTab =
-  | 'dashboard'
-  | 'avatars'
-  | 'friends'
-  | 'milestones'
-  | 'themes'
-  | 'chats'
+const dashboardKey = 'user' satisfies DashboardKey
 
-const dashboardKey = 'user' as const
-const fallbackTab: UserTab = 'dashboard'
+type UserTab = (typeof validTabs)[number]
 
-const validTabs: UserTab[] = [
-  'dashboard',
-  'avatars',
-  'friends',
-  'milestones',
-  'themes',
-  'chats',
-]
+const validTabs = getDashboardTabs(dashboardKey).map((tab) => tab.key)
+const fallbackTab = getDashboardDefaultTab(dashboardKey) as UserTab
 
 const navStore = useNavStore()
 const userStore = useUserStore()
@@ -202,7 +194,6 @@ async function logout(): Promise<void> {
 }
 
 function onAvatarChosen(_artImage: ArtImage): void {
-  // Avatar is already persisted by avatar-picker; return to the dashboard tab.
   navStore.setDashboardTab(dashboardKey, 'dashboard', 'avatar chosen')
 }
 

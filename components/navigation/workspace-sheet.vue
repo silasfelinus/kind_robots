@@ -1,39 +1,6 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
-    <!-- Tutorial trigger: shown when the current page maps to a channel. -->
-    <div
-      v-if="tutorialChannel"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-base-100 p-3 shadow-sm"
-    >
-      <div class="flex min-w-0 items-center gap-3">
-        <div
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10"
-        >
-          <Icon name="kind-icon:info" class="h-5 w-5 text-primary" />
-        </div>
-
-        <div class="min-w-0">
-          <p
-            class="truncate text-xs font-black uppercase tracking-widest text-base-content/45"
-          >
-            How this works
-          </p>
-          <p class="truncate text-sm font-black text-base-content">
-            {{ tutorialChannel.title }} tour
-          </p>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        class="btn btn-sm btn-primary shrink-0 rounded-xl"
-        @click="openTutorial"
-      >
-        View
-      </button>
-    </div>
-
     <div
       class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
     >
@@ -92,6 +59,12 @@
         </p>
       </div>
     </div>
+
+    <TutorialPage
+      v-if="tutorialChannelKey"
+      :channel="tutorialChannelKey"
+      inline
+    />
 
     <template v-if="isBuilder">
       <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
@@ -323,10 +296,6 @@
         </p>
       </div>
     </template>
-
-    <!-- Tutorial popup. Renders as a modal when tutorialStore.activeChannel
-         matches this channel; hidden otherwise. -->
-    <TutorialPage v-if="tutorialChannelKey" :channel="tutorialChannelKey" />
   </aside>
 </template>
 
@@ -336,13 +305,9 @@ import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useSheetStore } from '@/stores/sheetStore'
-import { useTutorialStore } from '@/stores/tutorialStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import {
-  getTutorialChannel,
-  resolveTutorialChannelFromRoute,
-} from '@/stores/helpers/tutorialCards'
+import { resolveTutorialChannelFromRoute } from '@/stores/helpers/tutorialCards'
 
 type ImageCard = BuilderCard & {
   image?: string
@@ -382,15 +347,11 @@ const route = useRoute()
 const builderStore = useBuilderStore()
 const pageStore = usePageStore()
 const sheetStore = useSheetStore()
-const tutorialStore = useTutorialStore()
 
 const showDebugPath = ref(false)
 const openFieldKey = ref('')
 
 const override = computed(() => sheetStore.override)
-
-
-
 
 const tutorialChannelKey = computed(() => {
   const key = resolveTutorialChannelFromRoute(route.path)
@@ -405,18 +366,6 @@ const tutorialChannelKey = computed(() => {
 
   return key
 })
-
-const tutorialChannel = computed(() =>
-  tutorialChannelKey.value
-    ? getTutorialChannel(tutorialChannelKey.value)
-    : null,
-)
-
-function openTutorial(): void {
-  if (tutorialChannelKey.value) {
-    tutorialStore.open(tutorialChannelKey.value)
-  }
-}
 
 const isBuilder = computed(() => {
   return pageStore.cardsKey === 'builderCards' && builderStore.cards.length > 0

@@ -8,7 +8,7 @@
         aria-live="polite"
       >
         <div
-          class="pointer-events-auto flex max-w-full items-center gap-3 rounded-2xl border border-base-300 bg-base-100/90 px-4 py-3 text-sm font-bold text-base-content shadow-xl backdrop-blur-md"
+          class="pointer-events-auto flex max-w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-base-content shadow-xl backdrop-blur-md"
         >
           <span class="loading loading-spinner loading-sm text-primary" />
 

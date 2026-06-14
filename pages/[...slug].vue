@@ -3,7 +3,7 @@
 
   <div
     v-else-if="activePage?.body"
-    class="content-host flex h-full min-h-0 w-full flex-col rounded-2xl border border-success/30 bg-success/5"
+    class="content-host flex h-full min-h-0 w-full flex-col rounded-2xl"
   >
     <ContentRenderer :value="activePage" />
   </div>

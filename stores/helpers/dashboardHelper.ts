@@ -125,6 +125,19 @@ export const dashboardConfigs = {
           'Assemble modular server requests with reusable code cards, test weird pipelines, and keep the experimental sparks mostly inside the box.',
         route: '/art',
       },
+      {
+        key: 'art-test',
+        label: 'Art Test',
+        icon: 'kind-icon:image',
+        title: 'Art Test',
+        summary: 'Test our image generators.',
+        image: tabImage('wonder', 'art-test'),
+        flourish: '◐',
+        tagline: 'Throw prompts at the image generators.',
+        narrative:
+          'Test image generators directly with quick prompts, fast iteration, and a healthy distrust of default settings.',
+        route: '/wonderlab',
+      },
     ],
   },
 
@@ -568,7 +581,7 @@ export const dashboardConfigs = {
       },
       {
         key: 'sanctuary',
-        label: 'Orientation',
+        label: 'Community',
         icon: 'kind-icon:butterfly',
         title: 'Butterfly Sanctuary',
         summary: 'The butterfly sanctuary.',
@@ -598,24 +611,12 @@ export const dashboardConfigs = {
 
   giftshop: {
     key: 'giftshop',
-    label: 'Butterfly Giftshop',
-    defaultTab: 'sanctuary',
+    label: 'Butterfly Community',
+    defaultTab: 'community',
     tabs: [
       {
-        key: 'sanctuary',
-        label: 'Sanctuary',
-        icon: 'kind-icon:butterfly',
-        title: 'Butterfly Sanctuary',
-        summary:
-          'Create, summon, inspect, and interact with the butterflies who absolutely, definitely do not run this entire website.',
-        image: tabImage('giftshop', 'sanctuary'),
-        narrative:
-          'Create, summon, inspect, and interact with the butterflies who absolutely, definitely do not run this entire website.',
-        route: '/sanctuary',
-      },
-      {
-        key: 'about',
-        label: 'About',
+        key: 'community',
+        label: 'Community',
         icon: 'kind-icon:sparkles',
         title: 'About the Swarm',
         summary:
@@ -638,18 +639,6 @@ export const dashboardConfigs = {
         route: '/sanctuary',
       },
       {
-        key: 'cart',
-        label: 'Cart',
-        icon: 'kind-icon:cart',
-        title: 'Cart Nest',
-        summary:
-          'Review your cart, update quantities, release unwanted butterflies, and proceed to checkout.',
-        image: tabImage('giftshop', 'cart'),
-        narrative:
-          'Review your cart, update quantities, release unwanted butterflies, and proceed to checkout without angering the tiny inventory moths.',
-        route: '/sanctuary',
-      },
-      {
         key: 'forum',
         label: 'Forum',
         icon: 'kind-icon:chat',
@@ -661,19 +650,7 @@ export const dashboardConfigs = {
         route: '/sanctuary',
       },
       {
-        key: 'subscriptions',
-        label: 'Subscriptions',
-        icon: 'kind-icon:credit-card',
-        title: 'Subscriptions',
-        summary:
-          'Manage support plans, credits, billing, and the ceremonial exchange of jellybeans for robot uptime.',
-        image: tabImage('giftshop', 'subscriptions'),
-        narrative:
-          'Manage support plans, credits, billing, and the ceremonial exchange of jellybeans for robot uptime.',
-        route: '/sanctuary',
-      },
-      {
-        key: 'wallet',
+        key: 'mana',
         label: 'Mana Purse',
         icon: 'kind-icon:bag',
         title: 'Mana Purse',
@@ -681,18 +658,6 @@ export const dashboardConfigs = {
         image: tabImage('giftshop', 'wallet'),
         narrative:
           'Manage your mana wallet, check balances, and keep the magical economy from rolling under the couch.',
-        route: '/sanctuary',
-      },
-      {
-        key: 'sponsor',
-        label: 'Sponsor',
-        icon: 'kind-icon:hand-heart',
-        title: 'Sponsor the Mission',
-        summary:
-          'Support the anti-malaria mission and help AMI turn tiny digital wings into real-world mosquito-net energy.',
-        image: tabImage('giftshop', 'sponsor'),
-        narrative:
-          'Support the anti-malaria mission and help AMI turn tiny digital wings into real-world mosquito-net energy.',
         route: '/sanctuary',
       },
     ],
@@ -963,19 +928,6 @@ export const dashboardConfigs = {
         narrative:
           'Control the screen-effect layer, including matrix rain, firefly drift, butterflies, and ambient theater.',
         route: '/screenfx',
-      },
-      {
-        key: 'art-test',
-        label: 'Art Test',
-        icon: 'kind-icon:image',
-        title: 'Art Test',
-        summary: 'Test our image generators.',
-        image: tabImage('wonder', 'art-test'),
-        flourish: '◐',
-        tagline: 'Throw prompts at the image generators.',
-        narrative:
-          'Test image generators directly with quick prompts, fast iteration, and a healthy distrust of default settings.',
-        route: '/wonderlab',
       },
     ],
   },

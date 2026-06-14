@@ -59,16 +59,6 @@
       />
     </section>
 
-    <section
-      v-else-if="activeTab === 'art-test'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <art-test
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        :show-header="false"
-      />
-    </section>
-
     <div
       v-else
       class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
@@ -87,23 +77,12 @@ import LabInteract from '@/components/wonderlab/lab-interact.vue'
 import MemoryDungeon from '@/components/pages/memory-dungeon.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
 
-type LabTab =
-  | 'memory-dungeon'
-  | 'wonder-lab'
-  | 'screen-fx'
-  | 'chat-test'
-  | 'art-test'
+type LabTab = 'memory-dungeon' | 'wonder-lab' | 'screen-fx'
 
 const dashboardKey = 'wonder' as const
 const fallbackTab: LabTab = 'memory-dungeon'
 
-const validTabs: LabTab[] = [
-  'memory-dungeon',
-  'wonder-lab',
-  'screen-fx',
-  'chat-test',
-  'art-test',
-]
+const validTabs: LabTab[] = ['memory-dungeon', 'wonder-lab', 'screen-fx']
 
 const navStore = useNavStore()
 const componentStore = useComponentStore()

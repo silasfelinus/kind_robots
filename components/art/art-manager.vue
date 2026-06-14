@@ -94,6 +94,16 @@
     </section>
 
     <section
+      v-else-if="activeTab === 'art-test'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <art-test
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
+
+    <section
       v-else-if="activeTab === 'workbench'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
@@ -124,7 +134,7 @@ type ArtTab =
   | 'checkpoints'
   | 'styler'
   | 'workbench'
-  | 'memory-dungeon'
+  | 'art-test'
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
@@ -142,7 +152,7 @@ const validTabs: ArtTab[] = [
   'checkpoints',
   'styler',
   'workbench',
-  'memory-dungeon',
+  'art-test',
 ]
 
 const isLoadingManager = ref(false)

@@ -127,7 +127,7 @@
       type="button"
       class="btn btn-sm btn-circle fixed left-1/2 z-100 -translate-x-1/2 shadow-xl transition-all duration-300"
       :class="
-        chromeMinimized ? 'bottom-3' : 'bottom-[calc(var(--hand-h)-3.0rem)]'
+        chromeMinimized ? 'bottom-3' : 'bottom-[calc(var(--hand-h)+0.5rem)]'
       "
       :aria-label="
         chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'

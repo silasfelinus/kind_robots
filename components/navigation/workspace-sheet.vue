@@ -402,6 +402,26 @@ const tutorialChannel = computed(() =>
     : null,
 )
 
+const tutorialChannelKey = computed(() => {
+  const key = resolveTutorialChannelFromRoute(route.path)
+
+  console.log('[workspace-sheet tutorial match]', {
+    routePath: route.path,
+    matchedChannel: key,
+    pageCardsKey: pageStore.cardsKey,
+    workspaceCardKey: pageStore.workspaceCardKey,
+    pageTitle: pageStore.title,
+  })
+
+  return key
+})
+
+const tutorialChannel = computed(() =>
+  tutorialChannelKey.value
+    ? getTutorialChannel(tutorialChannelKey.value)
+    : null,
+)
+
 function openTutorial(): void {
   if (tutorialChannelKey.value) {
     tutorialStore.open(tutorialChannelKey.value)

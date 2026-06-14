@@ -12,7 +12,7 @@
     </ClientOnly>
 
     <ClientOnly>
-      <butterfly-layer />
+      <butterfly-layer class="pointer-events-none fixed inset-0 z-130" />
       <animation-layer />
       <fx-clear-all />
       <milestone-popup />

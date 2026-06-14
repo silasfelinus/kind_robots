@@ -4,7 +4,7 @@
     <transition name="header-toggle">
       <button
         v-if="chromeMinimized"
-        class="absolute left-1 top-1 z-30 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
+        class="absolute left-1 top-1 z-30 flex items-center gap-1.5 rounded-xl bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
         type="button"
         title="Show header and footer"
         @click="toggleChrome"
@@ -17,7 +17,7 @@
     <transition name="header-slide">
       <header
         v-if="!chromeMinimized"
-        class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl border border-base-300 bg-base-100 shadow-sm"
+        class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl bg-base-100 shadow-sm"
       >
         <fx-region region="header" />
 
@@ -75,7 +75,7 @@
             <button
               tabindex="0"
               type="button"
-              class="btn flex h-14 min-h-14 w-full max-w-full items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 px-2 shadow-sm"
+              class="btn flex h-14 min-h-14 w-full max-w-full items-center justify-between gap-2 rounded-2xlbg-base-100 px-2 shadow-sm"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <span
@@ -120,7 +120,7 @@
 
             <ul
               tabindex="0"
-              class="menu dropdown-content z-110 mt-2 max-h-80 w-[min(22rem,calc(100vw-2rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+              class="menu dropdown-content z-110 mt-2 max-h-80 w-[min(22rem,calc(100vw-2rem))] flex-nowrap overflow-y-auto rounded-2xl bg-base-100 p-2 shadow-xl"
             >
               <li v-for="tab in resolvedTabs" :key="tab.key">
                 <button
@@ -134,7 +134,7 @@
                   @click="selectTabFromDropdown(tab.key)"
                 >
                   <span
-                    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-200"
+                    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-base-200"
                   >
                     <img
                       v-if="tab.image"
@@ -190,7 +190,7 @@
 
           <nav
             v-if="resolvedTabs.length"
-            class="hidden min-w-0 flex-1 items-stretch overflow-hidden rounded-2xl border border-base-300 bg-base-200/70 p-1.5 lg:flex"
+            class="hidden min-w-0 flex-1 items-stretch overflow-hidden rounded-2xl bg-base-200/70 p-1.5 lg:flex"
             aria-label="Dashboard tabs"
           >
             <div

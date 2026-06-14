@@ -876,7 +876,7 @@ export const dashboardConfigs = {
         route: '/dashboard',
       },
       {
-        key: 'avatar-picker',
+        key: 'avatars',
         label: 'Avatars',
         icon: 'kind-icon:mask',
         title: 'Avatar Picker',

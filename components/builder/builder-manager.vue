@@ -3,12 +3,6 @@
   <section
     class="flex h-full min-h-0 max-h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
-    <user-builder
-      v-if="activeTab === 'user'"
-      class="hidden"
-      aria-hidden="true"
-    />
-
     <header
       class="flex h-10 shrink-0 items-center gap-2 border-b border-base-300 bg-base-100 px-2 sm:px-3"
     >
@@ -87,7 +81,7 @@
         </h3>
 
         <p class="mt-2 max-w-md text-sm leading-relaxed text-base-content/60">
-          Pick a builder tab to start shaping a user, character, bot, reward,
+          Pick a builder tab to start shaping a character, bot, reward,
           scenario, dream, pitch, or art project.
         </p>
       </div>
@@ -211,7 +205,6 @@ const showBuilderControls = computed(() => {
 })
 
 const fallbackIcon = computed(() => {
-  if (activeTab.value === 'user') return 'kind-icon:user'
   if (activeTab.value === 'art') return 'kind-icon:palette'
   return 'kind-icon:blueprint'
 })
@@ -221,7 +214,6 @@ const headerIcon = computed(() => {
 })
 
 const fallbackTitle = computed(() => {
-  if (activeTab.value === 'user') return 'User Builder'
   if (activeTab.value === 'art') return 'Art Builder'
   return 'Builder'
 })
@@ -239,10 +231,6 @@ const title = computed(() => {
 })
 
 const fallbackSubtitle = computed(() => {
-  if (activeTab.value === 'user') {
-    return 'Shape the human side of the Kind Robots universe.'
-  }
-
   if (activeTab.value === 'art') {
     return 'Generate and refine artwork for the builder flow.'
   }

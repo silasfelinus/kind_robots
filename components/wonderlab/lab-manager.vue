@@ -60,16 +60,6 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'chat-test'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <chat-test
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        :show-header="false"
-      />
-    </section>
-
-    <section
       v-else-if="activeTab === 'art-test'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >

@@ -100,16 +100,6 @@
       <code-workbench class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
-    <section
-      v-else-if="activeTab === 'memory-dungeon'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <memory-dungeon
-        class="h-full min-h-0 w-full flex-1 overflow-hidden"
-        :show-header="false"
-      />
-    </section>
-
     <div
       v-else
       class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"

@@ -39,9 +39,7 @@
           <Icon name="kind-icon:question" class="h-4 w-4" />
         </button>
 
-        <main
-          class="relative z-10 flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
-        >
+        <main class="relative z-10 flex h-full min-h-0 overflow-hidden">
           <div
             class="relative z-10 flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
             :class="chromeMinimized ? 'pb-10' : 'pb-(--hand-h)'"

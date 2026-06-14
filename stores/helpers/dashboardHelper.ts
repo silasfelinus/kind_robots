@@ -125,17 +125,6 @@ export const dashboardConfigs = {
           'Assemble modular server requests with reusable code cards, test weird pipelines, and keep the experimental sparks mostly inside the box.',
         route: '/art',
       },
-      {
-        key: 'memory-dungeon',
-        label: 'Dungeon',
-        icon: 'kind-icon:castle',
-        title: 'Memory Dungeon',
-        summary: 'Explore the gamified memory adventure.',
-        image: tabImage('wonder', 'memory-dungeon'), // shared with wonder dashboard
-        narrative:
-          'Step into the gamified memory dungeon, match cards, survive the crawl, and let the art tools moonlight as fantasy cartographers.',
-        route: '/wonderlab',
-      },
     ],
   },
 
@@ -207,28 +196,24 @@ export const dashboardConfigs = {
           'Browse reusable prompts, sharpen your language tools, and keep the good incantations somewhere safer than a sticky note swamp.',
         route: '/brainstorm',
       },
+      {
+        key: 'brainstorm',
+        label: 'Brainstorm!',
+        icon: 'kind-icon:brain',
+        title: 'Brainstorm!!!',
+        summary: 'Browse reusable text prompts.',
+        image: tabImage('brainstorm', 'brainstorm'),
+        narrative: 'Start with a pitch and generate and iterate upon ideas!',
+        route: '/brainstorm',
+      },
     ],
   },
 
   builder: {
     key: 'builder',
     label: 'Builder',
-    defaultTab: 'user',
+    defaultTab: 'character',
     tabs: [
-      {
-        key: 'user',
-        label: 'User',
-        icon: 'kind-icon:person',
-        title: 'User Builder',
-        summary:
-          'Login or register, pick a designer name, choose an avatar, configure privacy, maturity, and servers.',
-        image: tabImage('builder', 'user'),
-        narrative:
-          'Start with the creator profile: identity, avatar, privacy, maturity, and server preferences before the rest of the build starts wearing a fake mustache.',
-        modelType: 'user',
-        route: '/dashboard',
-        requiredBeforeNext: ['designerName'],
-      },
       {
         key: 'pitch',
         label: 'Pitch',
@@ -247,7 +232,7 @@ export const dashboardConfigs = {
         key: 'dream',
         label: 'Dream',
         icon: 'kind-icon:moon',
-        title: 'Dream Builder',
+        title: 'Location Builder',
         summary:
           'Evolve the pitch into a richer world with setting, vibe, conflicts, locations, and reusable story fuel.',
         image: tabImage('builder', 'dream'),
@@ -457,7 +442,7 @@ export const dashboardConfigs = {
   footer: {
     key: 'footer',
     label: 'Footer',
-    defaultTab: 'fx',
+    defaultTab: 'builder',
     tabs: [
       {
         key: 'builder',
@@ -474,7 +459,7 @@ export const dashboardConfigs = {
         route: '/builder',
       },
       {
-        key: 'memory',
+        key: 'games',
         label: 'Games',
         icon: 'kind-icon:castle',
         title: 'Memory Dungeon',
@@ -567,7 +552,7 @@ export const dashboardConfigs = {
           'Build bots with the builder cards, chat with them, forge new ones, or compose your own endpoint.',
         route: '/bots',
       },
-      
+
       {
         key: 'art',
         label: 'Art',
@@ -980,19 +965,6 @@ export const dashboardConfigs = {
         route: '/screenfx',
       },
       {
-        key: 'chat-test',
-        label: 'Chat Test',
-        icon: 'kind-icon:chat',
-        title: 'Chat Test',
-        summary: 'Test different chat streams.',
-        image: tabImage('wonder', 'chat-test'),
-        flourish: '◈',
-        tagline: 'Poke the text engines and watch them stream.',
-        narrative:
-          'Test different chat streams and text backends, then watch the tokens arrive with either grace or slapstick timing.',
-        route: '/wonderlab',
-      },
-      {
         key: 'art-test',
         label: 'Art Test',
         icon: 'kind-icon:image',
@@ -1026,19 +998,17 @@ export const footerRouteMap = Object.fromEntries(
 ) as Record<FooterKey, string>
 
 export const footerDashboardMap = {
-  fx: 'footer',
-  bot: 'bot',
-  art: 'art',
+  builder: 'builder',
+  games: 'footer',
   scenario: 'scenario',
-  theme: 'theme',
   brainstorm: 'brainstorm',
-  sanctuary: 'giftshop',
   dream: 'dream',
   character: 'character',
   reward: 'reward',
-  builder: 'builder',
-  memory: 'wonder',
-  home: 'footer',
+  bot: 'bot',
+  art: 'art',
+  sanctuary: 'giftshop',
+  home: 'user',
 } as const satisfies Record<FooterKey, DashboardKey>
 
 export function isDashboardKey(value: string): value is DashboardKey {

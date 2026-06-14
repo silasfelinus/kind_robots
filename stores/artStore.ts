@@ -1226,7 +1226,7 @@ export const useArtStore = defineStore('artStore', () => {
     try {
       clearError()
 
-      const response = await performFetch<ArtImage>('/api/art/image/upload', {
+      const response = await performFetch<ArtImage>('/api/art/upload', {
         method: 'POST',
         body: formData,
       })

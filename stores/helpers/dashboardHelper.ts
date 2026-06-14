@@ -475,7 +475,7 @@ export const dashboardConfigs = {
       },
       {
         key: 'memory',
-        label: 'Memory',
+        label: 'Games',
         icon: 'kind-icon:castle',
         title: 'Memory Dungeon',
         summary:
@@ -491,7 +491,7 @@ export const dashboardConfigs = {
 
       {
         key: 'scenario',
-        label: 'Storyteller',
+        label: 'Stories',
         icon: 'kind-icon:story',
         title: 'Stories',
         summary: 'Bring everything into one narrative space.',
@@ -504,7 +504,7 @@ export const dashboardConfigs = {
       },
       {
         key: 'brainstorm',
-        label: 'Brainstorm!',
+        label: 'Brainstorm',
         icon: 'kind-icon:brain',
         title: 'Brainstorm',
         summary: 'Catch loose ideas before they escape into the walls.',
@@ -556,7 +556,7 @@ export const dashboardConfigs = {
       },
       {
         key: 'bot',
-        label: 'Bot Factory',
+        label: 'Bots',
         icon: 'kind-icon:robot-color',
         title: 'Bots',
         summary: 'Build personalities, assistants, and accomplices.',
@@ -567,22 +567,10 @@ export const dashboardConfigs = {
           'Build bots with the builder cards, chat with them, forge new ones, or compose your own endpoint.',
         route: '/bots',
       },
-      {
-        key: 'fx',
-        label: 'FX',
-        icon: 'kind-icon:butterfly',
-        title: 'Butterfly Sanctuary',
-        summary: 'Summon, inspect, and interact with screen effects.',
-        image: getNavHeroImagePath('fx'),
-        flourish: '✿',
-        tagline: 'The swarm that absolutely does not run this website.',
-        narrative:
-          'Summon, inspect, and interact with the butterflies, and tune the screen effects they pretend not to control.',
-        route: '/screenfx',
-      },
+      
       {
         key: 'art',
-        label: 'Artmaker',
+        label: 'Art',
         icon: 'kind-icon:palette',
         title: 'Art',
         summary: 'Generate and browse AI artwork.',
@@ -606,18 +594,6 @@ export const dashboardConfigs = {
         narrative:
           'Browse the shop, manage your mana purse, and sponsor the anti-malaria mission behind AMI.',
         route: '/sanctuary',
-      },
-      {
-        key: 'theme',
-        label: 'Themes',
-        icon: 'kind-icon:paintbrush',
-        title: 'Themes',
-        summary: 'Change the look and the vibe.',
-        image: getNavHeroImagePath('theme'),
-        flourish: '✦',
-        tagline: 'Change the look and the vibe.',
-        narrative: 'Browse and activate themes, or build a custom palette.',
-        route: '/themes',
       },
       {
         key: 'home',

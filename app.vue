@@ -30,7 +30,7 @@
         <button
           v-if="!workspaceSheetOpen"
           type="button"
-          class="btn btn-xs btn-square absolute left-3 top-3 z-80 shadow-lg"
+          class="btn btn-xs btn-square absolute left-0 top-0 z-80 shadow-lg"
           aria-label="Open workspace"
           :aria-expanded="workspaceSheetOpen"
           @click="setWorkspaceSheetOpen(true)"

@@ -242,3 +242,21 @@ I'm still feeling productive and motivated, but 'm sensing some dread as I get t
 I got inspiration from another site focused on choose your own adventure AI experiences where user's got back credits when people used their creations, and I think that is just brilliant, and might be the missing piece for the website's financial picture. I love the idea of a 1/3 distribution: creators get 1/3, 1/3 going to the anti-malaria fundraiser, and 1/3 goes back to me and website expenses (I'm unsure if I should be including my operating costs in my share, I wasn't thinking of paying directly for openAI credits (beyond what I'm using for testing and free generations for new users), but there are definitely grey areas since I have the abilility to host my own generators and offering solar-powered art and text generation is definitely on the roadmap.
 
 Yesterday I realized that the generators never fully came back online after adding in the token manager, and there is still a ways more to go if we're adding in a profit share refund to creators. But I stitched a lot back together, upgraded the anthropic stream end to the same quality as openai, and successfully tested the scenario exchange to get back generated text (though not yet with streaming or stylish handling of choice returns). Once scenario was at base function, I recreated Bots, Rewards, and Characters for the same framework: manager > interact > gallery > add. That still leaves Pitch, Dream, User, and Art, which are all a little different, but it should be more or less another day of work to bring everything together and have at least one interactible deliverable for each main page.
+
+
+
+6/14/2026 1:44p
+tutorial system created! after showing Ronin my website two days ago, I was inspired to do a mad ruah of improvements focusing on the new user experience.
+
+that included tightening up the front end nav cards, building the tutorial system complete with images, and fixing major layout bugs, especially in the user tab (also moved the user tab to the end, so the first attempt at plinking buttons no longer leads to borrowing settings.
+
+oh, also built an avatar image maker/picker but haven't tested it
+
+been really focused on front end experience, but at this point, the art generation is the biggest missing piece.
+at least it's gotten working a few times by now. stitching it back in is just a matter of effort.
+
+there are lots of little annoyances to iron out at this point. the loading butterlies don't appear until too late. i'm still fighting with the character builder to give rewards images, but at this point, it's really almost done.
+
+phase one will be complete when each model has an interactible and a builder. phase three is me stitching in the extra options (code cards, compositions, forums, subscriptions, and the profit share.
+
+phase three will be the revamped storyteller builder that attempts to unify all our pieces into one llm and community drive gamified creative experience. 

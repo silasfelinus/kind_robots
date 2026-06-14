@@ -146,12 +146,14 @@ const frontInteractive = computed(() => {
 }
 
 /*
- * Paints above the region's own background, below its normal-flow content.
- * Requires the region element to be a stacking context (relative + z-index,
- * or isolate), which header, sheet, page, and hand all already are.
+ * Paints above the region's own background but below its normal-flow content.
+ * The region's content children all carry z-index >= 1 (z-10, z-70, etc.),
+ * so a z-index of 0 here sits above the opaque region background and below
+ * that content. A negative z-index would hide behind the background and
+ * render the effect invisible.
  */
 .fx-surface--behind {
-  z-index: -10;
+  z-index: 0;
 }
 
 .fx-surface--front {

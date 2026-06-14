@@ -2,7 +2,7 @@
 <template>
   <div
     ref="handEl"
-    class="pointer-events-none absolute inset-x-0 bottom-0 z-40 overflow-visible px-1"
+    class="pointer-events-none absolute inset-x-0 bottom-0 z-90 overflow-visible px-1"
     :style="handFrameStyle"
   >
     <fx-region region="hand" />

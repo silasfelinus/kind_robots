@@ -4,6 +4,7 @@ import { computed, reactive, ref, toRefs } from 'vue'
 
 export type FxRegion = 'header' | 'sheet' | 'page' | 'hand'
 export type FxPlacement = 'behind' | 'front'
+export type FxPlacementState = 'off' | FxPlacement
 export type FxSurfaceMap = Record<FxRegion, Record<FxPlacement, boolean>>
 
 export const FX_REGIONS: FxRegion[] = ['header', 'sheet', 'page', 'hand']
@@ -485,6 +486,25 @@ export const useAnimationStore = defineStore('animationStore', () => {
     state.screenSurfaces[region][placement] = value
   }
 
+  function getSurfacePlacement(region: FxRegion): FxPlacementState {
+    const surface = state.screenSurfaces[region]
+    if (surface.front) return 'front'
+    if (surface.behind) return 'behind'
+    return 'off'
+  }
+
+  function setSurfacePlacement(
+    region: FxRegion,
+    placement: FxPlacementState,
+  ): void {
+    // Placements are mutually exclusive per region: setting one clears the
+    // other, and 'off' clears both.
+    state.screenSurfaces[region] = {
+      behind: placement === 'behind',
+      front: placement === 'front',
+    }
+  }
+
   function resetSurfaces(): void {
     state.screenSurfaces = defaultScreenSurfaces()
   }
@@ -576,6 +596,8 @@ export const useAnimationStore = defineStore('animationStore', () => {
     clearScreenEffects,
     toggleSurface,
     setSurface,
+    getSurfacePlacement,
+    setSurfacePlacement,
     resetSurfaces,
     start,
     startGeneration,

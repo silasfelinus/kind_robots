@@ -59,31 +59,33 @@
 
             <span class="fx-zone-label">{{ zone.label }}</span>
 
-            <div class="fx-zone-toggles">
+            <div
+              class="fx-zone-segments"
+              role="group"
+              :aria-label="`${zone.label} placement`"
+            >
               <button
-                class="fx-zone-toggle"
+                v-for="option in placementOptions"
+                :key="option.value"
+                class="fx-zone-segment"
                 :class="{
-                  'fx-zone-toggle--active':
-                    animationStore.screenSurfaces[zone.id].behind,
+                  'fx-zone-segment--active':
+                    animationStore.getSurfacePlacement(zone.id) ===
+                    option.value,
+                  [`fx-zone-segment--${option.value}`]:
+                    animationStore.getSurfacePlacement(zone.id) ===
+                    option.value,
                 }"
                 type="button"
-                :title="`Render behind the ${zone.label.toLowerCase()} content`"
-                @click="animationStore.toggleSurface(zone.id, 'behind')"
+                :aria-pressed="
+                  animationStore.getSurfacePlacement(zone.id) === option.value
+                "
+                :title="option.title(zone.label)"
+                @click="
+                  animationStore.setSurfacePlacement(zone.id, option.value)
+                "
               >
-                behind
-              </button>
-
-              <button
-                class="fx-zone-toggle"
-                :class="{
-                  'fx-zone-toggle--active':
-                    animationStore.screenSurfaces[zone.id].front,
-                }"
-                type="button"
-                :title="`Render in front of the ${zone.label.toLowerCase()}`"
-                @click="animationStore.toggleSurface(zone.id, 'front')"
-              >
-                front
+                {{ option.label }}
               </button>
             </div>
           </div>
@@ -159,6 +161,7 @@ import {
   useAnimationStore,
   type AnimationEffectId,
   type FxRegion,
+  type FxPlacementState,
 } from '@/stores/animationStore'
 
 const animationStore = useAnimationStore()
@@ -198,9 +201,30 @@ const zoneOptions: {
 ]
 
 function zoneActive(region: FxRegion): boolean {
-  const surface = animationStore.screenSurfaces[region]
-  return surface.behind || surface.front
+  return animationStore.getSurfacePlacement(region) !== 'off'
 }
+
+const placementOptions: {
+  value: FxPlacementState
+  label: string
+  title: (zone: string) => string
+}[] = [
+  {
+    value: 'off',
+    label: 'off',
+    title: (zone) => `No effects on the ${zone.toLowerCase()}`,
+  },
+  {
+    value: 'behind',
+    label: 'behind',
+    title: (zone) => `Render behind the ${zone.toLowerCase()} content`,
+  },
+  {
+    value: 'front',
+    label: 'front',
+    title: (zone) => `Render in front of the ${zone.toLowerCase()}`,
+  },
+]
 </script>
 
 <style scoped>
@@ -474,41 +498,65 @@ function zoneActive(region: FxRegion): boolean {
   white-space: nowrap;
 }
 
-.fx-zone-toggles {
-  display: flex;
-  gap: 0.4rem;
+.fx-zone-segments {
+  display: inline-flex;
+  gap: 0;
+  padding: 0.2rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, hsl(var(--bc)) 14%, transparent);
+  background: color-mix(in srgb, hsl(var(--b3)) 70%, black 6%);
 }
 
-.fx-zone-toggle {
+.fx-zone-segment {
   display: inline-flex;
-  min-width: 3.6rem;
+  min-width: 3.1rem;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, hsl(var(--bc)) 14%, transparent);
+  border: none;
   border-radius: 999px;
-  background: color-mix(in srgb, hsl(var(--bc)) 8%, transparent);
-  color: color-mix(in srgb, hsl(var(--bc)) 60%, transparent);
-  padding: 0.3rem 0.55rem;
-  font-size: 0.66rem;
+  background: transparent;
+  color: color-mix(in srgb, hsl(var(--bc)) 52%, transparent);
+  padding: 0.32rem 0.6rem;
+  font-size: 0.64rem;
   font-weight: 950;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    transform 0.16s ease,
     background 0.16s ease,
-    border-color 0.16s ease,
-    color 0.16s ease;
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-.fx-zone-toggle:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, hsl(var(--a)) 45%, transparent);
+.fx-zone-segment:hover {
+  color: hsl(var(--bc));
 }
 
-.fx-zone-toggle--active {
-  border-color: color-mix(in srgb, hsl(var(--a)) 72%, white 8%);
-  background: color-mix(in srgb, hsl(var(--a)) 28%, transparent);
-  color: hsl(var(--a));
+.fx-zone-segment--active {
+  color: hsl(var(--pc));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.fx-zone-segment--off {
+  background: color-mix(in srgb, hsl(var(--bc)) 30%, transparent);
+  color: hsl(var(--b1));
+}
+
+.fx-zone-segment--behind {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--in)),
+    color-mix(in srgb, hsl(var(--in)) 70%, black 12%)
+  );
+  color: hsl(var(--inc));
+}
+
+.fx-zone-segment--front {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--a)),
+    color-mix(in srgb, hsl(var(--a)) 70%, black 12%)
+  );
+  color: hsl(var(--ac));
 }
 
 .fx-grid {

@@ -84,6 +84,66 @@
           </p>
         </div>
 
+        <section
+          v-if="hasTabHero"
+          class="mt-5 overflow-hidden rounded-2xl border border-base-300 bg-base-200/50"
+        >
+          <div
+            v-if="tabImage"
+            class="relative aspect-video overflow-hidden bg-base-300"
+          >
+            <img
+              :src="tabImage"
+              :alt="tabHeroTitle"
+              loading="lazy"
+              class="h-full w-full object-cover"
+            />
+
+            <div
+              class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-base-100 via-base-100/45 to-transparent"
+            />
+
+            <div class="absolute inset-x-0 bottom-0 p-4">
+              <p
+                v-if="tabLabel"
+                class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-base-100/85 px-3 py-1 text-xs font-black uppercase tracking-widest text-primary shadow-sm backdrop-blur"
+              >
+                <Icon
+                  v-if="tabIcon"
+                  :name="tabIcon"
+                  class="h-3.5 w-3.5 shrink-0"
+                />
+                <span class="truncate">{{ tabLabel }}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2 p-4">
+            <p
+              v-if="tabLabel && !tabImage"
+              class="inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-primary/20 bg-base-100/85 px-3 py-1 text-xs font-black uppercase tracking-widest text-primary shadow-sm"
+            >
+              <Icon
+                v-if="tabIcon"
+                :name="tabIcon"
+                class="h-3.5 w-3.5 shrink-0"
+              />
+              <span class="truncate">{{ tabLabel }}</span>
+            </p>
+
+            <h3 class="text-2xl font-black leading-tight text-base-content">
+              {{ tabHeroTitle }}
+            </h3>
+
+            <p
+              v-if="tabDescription"
+              class="text-sm font-semibold leading-relaxed text-base-content/75 sm:text-base"
+            >
+              {{ tabDescription }}
+            </p>
+          </div>
+        </section>
+
         <ol class="mt-6 space-y-4">
           <li
             v-for="(section, index) in config.sections"
@@ -176,10 +236,20 @@ const props = withDefaults(
     channel: TutorialChannelKey | string
     autoOpen?: boolean
     inline?: boolean
+    tabTitle?: string
+    tabLabel?: string
+    tabDescription?: string
+    tabImage?: string
+    tabIcon?: string
   }>(),
   {
     autoOpen: false,
     inline: false,
+    tabTitle: '',
+    tabLabel: '',
+    tabDescription: '',
+    tabImage: '',
+    tabIcon: '',
   },
 )
 
@@ -195,6 +265,20 @@ const config = computed(() => {
 
 const heroImage = computed(() => {
   return channelKey.value ? getTutorialHero(channelKey.value) : null
+})
+
+const tabHeroTitle = computed(() => {
+  return props.tabTitle || props.tabLabel || 'Current tab'
+})
+
+const hasTabHero = computed(() => {
+  return Boolean(
+    props.tabTitle ||
+    props.tabLabel ||
+    props.tabDescription ||
+    props.tabImage ||
+    props.tabIcon,
+  )
 })
 
 const visible = computed(() => {

@@ -1,6 +1,12 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
+    <TutorialPage
+      v-if="tutorialChannelKey"
+      :channel="tutorialChannelKey"
+      inline
+    />
+
     <div
       class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
     >
@@ -59,12 +65,6 @@
         </p>
       </div>
     </div>
-
-    <TutorialPage
-      v-if="tutorialChannelKey"
-      :channel="tutorialChannelKey"
-      inline
-    />
 
     <template v-if="isBuilder">
       <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">

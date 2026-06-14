@@ -11,6 +11,15 @@
     },
     {
       "path": "d:\\code\\kind_robots\\stores\\navStore.ts"
+    },
+    {
+      "path": "d:\\code\\kind_robots\\prisma\\schema.prisma"
+    },
+    {
+      "path": "d:\\code\\kind_robots\\app.vue"
+    },
+    {
+      "path": "d:\\code\\kind_robots\\pages\\[...slug].vue"
     }
   ]
 }

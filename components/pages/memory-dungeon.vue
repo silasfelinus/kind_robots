@@ -156,7 +156,7 @@
       class="splash-screen relative flex min-h-full flex-1 flex-col overflow-visible bg-black"
     >
       <div
-        class="splash-hero relative min-h-[58svh] overflow-hidden sm:min-h-[64svh] lg:min-h-[70svh]"
+        class="splash-hero relative flex min-h-[58svh] flex-col overflow-hidden sm:min-h-[64svh] lg:min-h-[70svh]"
       >
         <img
           src="/images/background/memorydungeon.png"
@@ -173,7 +173,7 @@
         <div class="torch torch-right">🔥</div>
 
         <div
-          class="absolute inset-x-0 top-4 z-10 flex flex-col items-center px-4 text-center sm:top-8"
+          class="relative z-10 flex flex-col items-center px-4 pt-4 text-center sm:pt-8"
         >
           <h1
             class="splash-title text-4xl font-black tracking-widest text-yellow-100 sm:text-5xl md:text-6xl"
@@ -188,7 +188,7 @@
         </div>
 
         <div
-          class="absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-3 px-4 sm:bottom-10"
+          class="relative z-10 mt-auto flex flex-col items-center gap-3 px-4 pb-6 pt-6 sm:pb-10"
         >
           <div
             class="flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-black/65 p-3 text-yellow-100 shadow-2xl backdrop-blur sm:flex-row sm:items-center sm:justify-center"
@@ -813,7 +813,7 @@ const boardLayout = computed(() => {
   let best = {
     columns: Math.ceil(Math.sqrt(count)),
     rows: Math.ceil(count / Math.ceil(Math.sqrt(count))),
-    size: 72,
+    size: -Infinity,
   }
 
   for (let columns = 1; columns <= count; columns++) {
@@ -835,7 +835,7 @@ const boardLayout = computed(() => {
 
   return {
     ...best,
-    size: Math.max(48, Math.min(best.size, 190)),
+    size: Math.max(48, Math.min(best.size, 260)),
   }
 })
 

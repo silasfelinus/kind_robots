@@ -591,6 +591,49 @@
         </section>
 
         <section
+          v-if="sourceMode === 'pitch' && selectedPitch"
+          class="rounded-2xl border border-base-300 bg-base-200 p-3"
+        >
+          <h2 class="mb-2 text-lg font-bold">Pitch Art</h2>
+
+          <p class="mb-2 text-xs text-base-content/60">
+            Generate an image from this pitch's saved art prompt.
+          </p>
+
+          <pre
+            class="mb-2 max-h-24 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-100 p-2 text-xs text-base-content/60"
+            >{{
+              selectedPitch.artPrompt || 'No art prompt on this pitch.'
+            }}</pre
+          >
+
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-accent rounded-2xl"
+              :disabled="isGeneratingArt || !selectedPitch.artPrompt?.trim()"
+              @click="generateArtImage"
+            >
+              <span
+                v-if="isGeneratingArt"
+                class="loading loading-spinner loading-xs"
+              />
+              <Icon v-else name="kind-icon:palette" class="h-4 w-4" />
+              Get Art
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-error btn-outline rounded-2xl"
+              @click="deleteSelectedPitch"
+            >
+              <Icon name="kind-icon:trash" class="h-4 w-4" />
+              Delete
+            </button>
+          </div>
+        </section>
+
+        <section
           class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
         >
           <div class="mb-2 flex items-center justify-between gap-2">
@@ -617,6 +660,7 @@ import type { Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { usePitchStore, PitchType } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
 
 type SourceMode = 'pitch' | 'prompt'
 type CreationSourceType = 'HUMAN' | 'AI' | 'HYBRID' | 'UPLOAD' | 'UNKNOWN'
@@ -640,6 +684,7 @@ type ActionResult<T = unknown> = {
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 const userStore = useUserStore()
+const artStore = useArtStore()
 
 const sourceMode = ref<SourceMode>('pitch')
 const sourceSearch = ref('')
@@ -653,6 +698,7 @@ const hasHumanEdits = ref(false)
 const generatedThisSession = ref(false)
 const saveIsPublic = ref(true)
 const saveIsMature = ref(false)
+const isGeneratingArt = ref(false)
 
 const selectedPitch = computed(() => pitchStore.selectedPitch as Pitch | null)
 const selectedPrompt = computed(
@@ -1005,6 +1051,75 @@ async function generateCandidates(useRejectedFeedback: boolean) {
 
   generatedThisSession.value = true
   setStatus(`Generated ${nextCandidates.length} response(s).`)
+}
+
+async function generateArtImage() {
+  const prompt = selectedPitch.value?.artPrompt?.trim()
+
+  if (!prompt) {
+    setStatus('Selected pitch has no art prompt.', 'error')
+    return
+  }
+
+  isGeneratingArt.value = true
+  setStatus('Generating pitch image...')
+
+  try {
+    promptStore.promptField = prompt
+    promptStore.currentPrompt = prompt
+    promptStore.syncToLocalStorage()
+
+    const result = await artStore.generateArt({
+      promptString: prompt,
+      pitch: selectedPitch.value?.pitch || selectedPitch.value?.title || prompt,
+      pitchId: selectedPitch.value?.id ?? null,
+      userId: userStore.userId || 10,
+      designer: userStore.username || 'Kind Designer',
+      isPublic: saveIsPublic.value,
+      isMature: saveIsMature.value,
+    } as Parameters<typeof artStore.generateArt>[0])
+
+    if (!result.success || !result.data) {
+      throw new Error(result.message || 'Art generation failed.')
+    }
+
+    const artImageId = result.data.id
+
+    if (selectedPitch.value && artImageId) {
+      await pitchStore.updatePitch(selectedPitch.value.id, {
+        artImageId,
+        artPrompt: prompt,
+      })
+      await pitchStore.fetchPitches(true)
+    }
+
+    setStatus('Pitch image generated.')
+  } catch (error) {
+    setStatus(
+      error instanceof Error ? error.message : 'Art image request failed.',
+      'error',
+    )
+  } finally {
+    isGeneratingArt.value = false
+  }
+}
+
+async function deleteSelectedPitch() {
+  if (!selectedPitch.value) {
+    setStatus('Select a pitch to delete.', 'error')
+    return
+  }
+
+  const result = await pitchStore.deletePitch(selectedPitch.value.id)
+
+  if (!result.success) {
+    setStatus(result.message || 'Failed to delete pitch.', 'error')
+    return
+  }
+
+  await pitchStore.fetchPitches(true)
+  resetSession()
+  setStatus('Pitch deleted.')
 }
 
 async function saveAcceptedAsNew() {

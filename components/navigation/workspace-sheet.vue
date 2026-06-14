@@ -389,12 +389,6 @@ const openFieldKey = ref('')
 
 const override = computed(() => sheetStore.override)
 
-// Tutorial channel for the current page, resolved from the route. Null on
-// pages that don't map to a footer channel, in which case the tutorial card
-// is hidden entirely.
-const tutorialChannelKey = computed(() =>
-  resolveTutorialChannelFromRoute(route.path),
-)
 
 const tutorialChannel = computed(() =>
   tutorialChannelKey.value

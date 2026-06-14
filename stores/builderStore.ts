@@ -665,9 +665,52 @@ export const useBuilderStore = defineStore('builderStore', () => {
     return 'kind-icon:gift'
   }
 
+  type RewardImageSource = {
+    image?: string | null
+    imageUrl?: string | null
+    imagePath?: string | null
+    image_path?: string | null
+    artImagePath?: string | null
+    art_image_path?: string | null
+    imageData?: string | null
+    image_data?: string | null
+    artImage?: {
+      imagePath?: string | null
+      path?: string | null
+      imageData?: string | null
+    } | null
+    art?: {
+      imagePath?: string | null
+      path?: string | null
+    } | null
+  }
+
+  function getRolledRewardImagePath(reward: RolledReward): string | null {
+    const source = reward as RolledReward & RewardImageSource
+
+    return (
+      source.imagePath ||
+      source.imageUrl ||
+      source.image ||
+      source.image_path ||
+      source.artImagePath ||
+      source.art_image_path ||
+      source.imageData ||
+      source.image_data ||
+      source.artImage?.imagePath ||
+      source.artImage?.path ||
+      source.artImage?.imageData ||
+      source.art?.imagePath ||
+      source.art?.path ||
+      null
+    )
+  }
+
   function rolledRewardToBuilderOption(
     reward: RolledReward,
   ): BuilderRewardOption {
+    const imagePath = getRolledRewardImagePath(reward)
+
     return {
       id: reward.id,
       label: reward.name || reward.description || 'Unnamed Reward',
@@ -675,11 +718,12 @@ export const useBuilderStore = defineStore('builderStore', () => {
         reward.description || reward.flavorText || reward.effect || '',
       rarity: reward.rarity,
       icon: reward.icon ?? rewardTypeIcon(reward.rewardType),
-      imagePath: reward.imagePath ?? null,
+      imagePath,
       payload: {
         reward,
         rewardId: reward.rewardId,
         rewardType: reward.rewardType,
+        imagePath,
       },
     }
   }

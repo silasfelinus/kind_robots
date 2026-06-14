@@ -149,6 +149,19 @@ type RewardImageSource = {
   imageUrl?: string | null
   imagePath?: string | null
   image_path?: string | null
+  artImagePath?: string | null
+  art_image_path?: string | null
+  imageData?: string | null
+  image_data?: string | null
+  artImage?: {
+    imagePath?: string | null
+    path?: string | null
+    imageData?: string | null
+  } | null
+  art?: {
+    imagePath?: string | null
+    path?: string | null
+  } | null
 }
 
 type RewardPayload = {
@@ -157,7 +170,72 @@ type RewardPayload = {
   imageUrl?: string | null
   imagePath?: string | null
   image_path?: string | null
+  artImagePath?: string | null
+  art_image_path?: string | null
+  imageData?: string | null
+  image_data?: string | null
   rewardType?: string | null
+}
+
+function cleanImagePath(path: string): string {
+  const trimmedPath = path.trim()
+
+  if (!trimmedPath) return ''
+  if (trimmedPath.startsWith('/')) return trimmedPath
+  if (trimmedPath.startsWith('http://')) return trimmedPath
+  if (trimmedPath.startsWith('https://')) return trimmedPath
+  if (trimmedPath.startsWith('data:')) return trimmedPath
+
+  return `/${trimmedPath}`
+}
+
+function rewardImagePath(option: BuilderRewardOption): string | null {
+  if (failedRewardImages.value.has(option.id)) return null
+
+  const payload = optionPayload(option)
+  const reward = payload.reward
+  const optionImageSource = option as BuilderRewardOption & RewardImageSource
+
+  const imagePath =
+    optionImageSource.imagePath ||
+    optionImageSource.imageUrl ||
+    optionImageSource.image ||
+    optionImageSource.image_path ||
+    optionImageSource.artImagePath ||
+    optionImageSource.art_image_path ||
+    optionImageSource.imageData ||
+    optionImageSource.image_data ||
+    optionImageSource.artImage?.imagePath ||
+    optionImageSource.artImage?.path ||
+    optionImageSource.artImage?.imageData ||
+    optionImageSource.art?.imagePath ||
+    optionImageSource.art?.path ||
+    payload.imagePath ||
+    payload.imageUrl ||
+    payload.image ||
+    payload.image_path ||
+    payload.artImagePath ||
+    payload.art_image_path ||
+    payload.imageData ||
+    payload.image_data ||
+    reward?.imagePath ||
+    reward?.imageUrl ||
+    reward?.image ||
+    reward?.image_path ||
+    reward?.artImagePath ||
+    reward?.art_image_path ||
+    reward?.imageData ||
+    reward?.image_data ||
+    reward?.artImage?.imagePath ||
+    reward?.artImage?.path ||
+    reward?.artImage?.imageData ||
+    reward?.art?.imagePath ||
+    reward?.art?.path ||
+    ''
+
+  const cleanedPath = cleanImagePath(String(imagePath))
+
+  return cleanedPath || null
 }
 
 const store = useBuilderStore()
@@ -214,45 +292,6 @@ function payloadReward(option: BuilderRewardOption): RolledReward | null {
   }
 
   return null
-}
-
-function cleanImagePath(path: string): string {
-  const trimmedPath = path.trim()
-
-  if (!trimmedPath) return ''
-  if (trimmedPath.startsWith('/')) return trimmedPath
-  if (trimmedPath.startsWith('http://')) return trimmedPath
-  if (trimmedPath.startsWith('https://')) return trimmedPath
-  if (trimmedPath.startsWith('data:')) return trimmedPath
-
-  return `/${trimmedPath}`
-}
-
-function rewardImagePath(option: BuilderRewardOption): string | null {
-  if (failedRewardImages.value.has(option.id)) return null
-
-  const payload = optionPayload(option)
-  const reward = payload.reward
-  const optionImageSource = option as BuilderRewardOption & RewardImageSource
-
-  const imagePath =
-    optionImageSource.imagePath ||
-    optionImageSource.imageUrl ||
-    optionImageSource.image ||
-    optionImageSource.image_path ||
-    payload.imagePath ||
-    payload.imageUrl ||
-    payload.image ||
-    payload.image_path ||
-    reward?.imagePath ||
-    reward?.imageUrl ||
-    reward?.image ||
-    reward?.image_path ||
-    ''
-
-  const cleanedPath = cleanImagePath(String(imagePath))
-
-  return cleanedPath || null
 }
 
 function markRewardImageFailed(optionId: string): void {

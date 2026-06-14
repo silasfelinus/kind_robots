@@ -4,6 +4,14 @@
     class="relative h-dvh min-h-dvh w-full overflow-hidden bg-base-100 text-base-content"
     style="--hand-h: 11.5rem"
   >
+    <!-- Black backdrop: present in SSR output, paints on the first frame
+         before hydration, stays until pageReady flips showLoader off. -->
+    <div
+      v-if="showLoader"
+      class="fixed inset-0 z-110 bg-black"
+      aria-hidden="true"
+    />
+
     <ClientOnly>
       <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-120">
         <kind-loader @pageReady="handlePageReady" />
@@ -159,11 +167,20 @@ const navStore = useNavStore()
 
 const { workspaceSheetOpen } = storeToRefs(navStore)
 
-const showLoader = ref(false)
+// Start TRUE so the first paint (SSR + initial client render, before
+// hydration) is covered by the black backdrop. handlePageReady flips it off.
+const showLoader = ref(true)
 const chromeMinimized = ref(false)
+
+let failsafeTimeoutId: ReturnType<typeof setTimeout> | null = null
 
 function handlePageReady(): void {
   showLoader.value = false
+
+  if (failsafeTimeoutId) {
+    clearTimeout(failsafeTimeoutId)
+    failsafeTimeoutId = null
+  }
 }
 
 function persist(key: string, value: boolean): void {
@@ -200,7 +217,7 @@ useSeoMeta({
 })
 
 onMounted(async () => {
-  showLoader.value = true
+  // Do NOT set showLoader here — it must already be true from SSR.
 
   pageStore.initialize()
 
@@ -213,5 +230,12 @@ onMounted(async () => {
   if (storedChromeMinimized) {
     chromeMinimized.value = storedChromeMinimized === 'true'
   }
+
+  // Failsafe: if pageReady never fires (a store init hangs past the loader's
+  // own fade fallback), don't trap the user behind a black screen forever.
+  failsafeTimeoutId = setTimeout(() => {
+    showLoader.value = false
+    failsafeTimeoutId = null
+  }, 8000)
 })
 </script>

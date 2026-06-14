@@ -1181,11 +1181,15 @@ async function fetchCollectionsSafely(force = false) {
   await collectionStore.fetchCollections(force)
 }
 
-async function fetchArtImagesSafely() {
+async function fetchArtImagesSafely(force = false) {
   if (typeof artStore.fetchAllArtImages !== 'function') return
 
+  // Force a fetch when the cache is empty so the Unsorted group can populate,
+  // even if a prior (e.g. dropdown-mode) pass left artImages untouched.
+  const shouldForce = force || artStore.artImages.length === 0
+
   await artStore.fetchAllArtImages({
-    force: false,
+    force: shouldForce,
     includeImageData: false,
     includeThumbnailData: false,
     includePitches: false,

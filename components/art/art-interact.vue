@@ -36,6 +36,29 @@
         </button>
 
         <button
+          v-if="userStore.isLoggedIn"
+          class="btn btn-xs rounded-xl sm:btn-sm"
+          :class="
+            isCurrentAvatar ? 'btn-success text-success-content' : 'btn-outline'
+          "
+          type="button"
+          :disabled="!currentArtImage || isSettingAvatar || isCurrentAvatar"
+          :title="
+            isCurrentAvatar
+              ? 'This is your avatar'
+              : 'Use this image as your avatar'
+          "
+          @click="setAsAvatar"
+        >
+          <span
+            v-if="isSettingAvatar"
+            class="loading loading-spinner loading-xs"
+          />
+          <Icon v-else name="kind-icon:user" class="h-4 w-4" />
+          {{ isCurrentAvatar ? 'Avatar' : 'Set avatar' }}
+        </button>
+
+        <button
           class="btn btn-xs btn-primary rounded-xl text-white sm:btn-sm"
           type="button"
           :disabled="!currentArtImage"
@@ -548,6 +571,7 @@ const statusTone = ref<'success' | 'error'>('success')
 const remixPrompt = ref('')
 const deleteArmed = ref(false)
 const isDeleting = ref(false)
+const isSettingAvatar = ref(false)
 
 const editForm = reactive({
   designer: '',
@@ -574,6 +598,12 @@ const canDeleteCurrentImage = computed(() => {
     Number(currentArtImage.value.userId) ===
       Number(userStore.userId ?? userStore.user?.id)
   )
+})
+
+const isCurrentAvatar = computed(() => {
+  const id = currentArtImage.value?.id
+  if (!id) return false
+  return Number(userStore.user?.artImageId) === Number(id)
 })
 
 const collectionOptions = computed<CollectionLike[]>(() =>
@@ -805,6 +835,23 @@ async function confirmDelete() {
     deleteArmed.value = false
   } finally {
     isDeleting.value = false
+  }
+}
+
+async function setAsAvatar() {
+  if (!currentArtImage.value || !userStore.isLoggedIn) return
+  if (isCurrentAvatar.value) return
+  isSettingAvatar.value = true
+  try {
+    await userStore.updateUser({ artImageId: currentArtImage.value.id })
+    setStatus('Avatar updated.')
+  } catch (error) {
+    setStatus(
+      error instanceof Error ? error.message : 'Failed to update avatar.',
+      'error',
+    )
+  } finally {
+    isSettingAvatar.value = false
   }
 }
 

@@ -900,6 +900,18 @@ export const dashboardConfigs = {
         route: '/dashboard',
       },
       {
+        key: 'avatar-picker',
+        label: 'Avatars',
+        icon: 'kind-icon:mask',
+        title: 'Avatar Picker',
+        summary:
+          'Choose an avatar from site images, browse the avatar collection, upload your own, or generate something new.',
+        image: tabImage('user', 'avatar-picker'),
+        narrative:
+          'Choose how you show up: start from the avatar collection, browse website images, upload your own face-shaped chaos, or generate a fresh identity spark from the art tools.',
+        route: '/dashboard',
+      },
+      {
         key: 'friends',
         label: 'Friends',
         icon: 'kind-icon:heart',

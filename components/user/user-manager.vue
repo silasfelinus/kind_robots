@@ -61,6 +61,20 @@
     </section>
 
     <section
+      v-else-if="activeTab === 'avatars'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    >
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+        <avatar-picker
+          default-collection-label="avatars"
+          :dismissible="true"
+          @selected="onAvatarChosen"
+          @close="closePicker"
+        />
+      </div>
+    </section>
+
+    <section
       v-else-if="activeTab === 'friends'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
     >
@@ -109,17 +123,25 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { ArtImage } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 
-type UserTab = 'dashboard' | 'friends' | 'milestones' | 'themes' | 'chats'
+type UserTab =
+  | 'dashboard'
+  | 'avatars'
+  | 'friends'
+  | 'milestones'
+  | 'themes'
+  | 'chats'
 
 const dashboardKey = 'user' as const
 const fallbackTab: UserTab = 'dashboard'
 
 const validTabs: UserTab[] = [
   'dashboard',
+  'avatars',
   'friends',
   'milestones',
   'themes',
@@ -177,5 +199,14 @@ async function logout(): Promise<void> {
   } finally {
     isLoggingOut.value = false
   }
+}
+
+function onAvatarChosen(_artImage: ArtImage): void {
+  // Avatar is already persisted by avatar-picker; return to the dashboard tab.
+  navStore.setDashboardTab(dashboardKey, 'dashboard', 'avatar chosen')
+}
+
+function closePicker(): void {
+  navStore.setDashboardTab(dashboardKey, 'dashboard', 'avatar picker closed')
 }
 </script>

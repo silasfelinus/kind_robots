@@ -1,7 +1,7 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
-    <TutorialPage
+    <tutorial-flyer
       v-if="tutorialChannelKey"
       :channel="tutorialChannelKey"
       inline

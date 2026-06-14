@@ -390,11 +390,7 @@ const openFieldKey = ref('')
 const override = computed(() => sheetStore.override)
 
 
-const tutorialChannel = computed(() =>
-  tutorialChannelKey.value
-    ? getTutorialChannel(tutorialChannelKey.value)
-    : null,
-)
+
 
 const tutorialChannelKey = computed(() => {
   const key = resolveTutorialChannelFromRoute(route.path)

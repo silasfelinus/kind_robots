@@ -34,7 +34,9 @@
       v-else-if="activeTab === 'generate'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <art-maker class="h-full min-h-0 flex-1 overflow-hidden" />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <art-maker class="min-h-full w-full" />
+      </div>
     </section>
 
     <section
@@ -53,11 +55,13 @@
       v-else-if="activeTab === 'checkpoints'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <checkpoint-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <checkpoint-gallery
+          class="min-h-full w-full"
+          variant="dashboard"
+          :show-header="false"
+        />
+      </div>
     </section>
 
     <section
@@ -79,10 +83,9 @@
       v-else-if="activeTab === 'art-test'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <art-test
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        :show-header="false"
-      />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <art-test class="min-h-full w-full" :show-header="false" />
+      </div>
     </section>
 
     <section

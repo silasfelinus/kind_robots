@@ -148,21 +148,21 @@ const ENDPOINTS: EndpointDef[] = [
     needsSize: true,
   },
   {
-  id: 'kombine',
-  label: 'Kombine',
-  route: '/api/comfy/kontext/kombine',
-  description: 'Combine any two animal test images into one hybrid',
-  icon: '⊕',
-  color: 'text-accent',
-  engine: 'kontext',
-  mode: 'combine',
-  needsNegative: false,
-  needsSteps: true,
-  needsCfg: false,
-  needsGuidance: true,
-  needsSeed: true,
-  needsSize: true,
-},
+    id: 'kombine',
+    label: 'Kombine',
+    route: '/api/comfy/kontext/kombine',
+    description: 'Combine any two animal test images into one hybrid',
+    icon: '⊕',
+    color: 'text-accent',
+    engine: 'kontext',
+    mode: 'combine',
+    needsNegative: false,
+    needsSteps: true,
+    needsCfg: false,
+    needsGuidance: true,
+    needsSeed: true,
+    needsSize: true,
+  },
 ]
 
 const ANIMALS: AnimalDef[] = [
@@ -709,7 +709,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex min-h-full w-full flex-col gap-6">
     <div
       class="rounded-2xl border border-base-300 bg-base-200 p-4 shadow-lg md:p-6"
     >

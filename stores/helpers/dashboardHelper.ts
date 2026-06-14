@@ -478,7 +478,7 @@ export const dashboardConfigs = {
         title: 'Memory Dungeon',
         summary:
           'Explore a card-matching crawl through memories, patterns, and tiny emotional traps.',
-        image: getNavHeroImagePath('memory'),
+        image: getNavHeroImagePath('games'),
         flourish: '◇',
         tagline:
           'A memory crawl with glowing keys and suspiciously clever cards.',

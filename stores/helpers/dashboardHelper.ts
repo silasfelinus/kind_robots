@@ -810,7 +810,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:dashboard',
         title: 'User Dashboard',
         summary: 'Account, profile, and app settings.',
-        image: tabImage('user', 'dashboard'),
+        image: tabImage('home', 'dashboard'),
         narrative:
           'Manage the account hub: profile, preferences, app settings, and the practical knobs that keep the whole contraption personalized.',
         route: '/dashboard',
@@ -822,7 +822,7 @@ export const dashboardConfigs = {
         title: 'Avatar Picker',
         summary:
           'Choose an avatar from site images, browse the avatar collection, upload your own, or generate something new.',
-        image: tabImage('user', 'avatar-picker'),
+        image: tabImage('home', 'avatar-picker'),
         narrative:
           'Choose how you show up: start from the avatar collection, browse website images, upload your own face-shaped chaos, or generate a fresh identity spark from the art tools.',
         route: '/dashboard',
@@ -834,7 +834,7 @@ export const dashboardConfigs = {
         title: 'Friends Gallery',
         summary:
           'Browse friends, companions, collaborators, and favorite people.',
-        image: tabImage('user', 'friends'),
+        image: tabImage('home', 'friends'),
         narrative:
           'Browse the friends gallery: favorite people, companions, collaborators, friendly weirdos, and the social sparks that make the whole robot village feel alive.',
         route: '/dashboard',
@@ -845,7 +845,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:trophy',
         title: 'Milestones',
         summary: 'Track achievements, rewards, and progress.',
-        image: tabImage('user', 'milestones'),
+        image: tabImage('home', 'milestones'),
         narrative:
           'Track achievements, rewards, progress, and the little victory stickers that prove the journey is doing numbers.',
         route: '/dashboard',
@@ -856,7 +856,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:palette',
         title: 'Theme Gallery',
         summary: 'Customize the look and vibe of the app.',
-        image: tabImage('theme', 'gallery'), // shared with theme dashboard
+        image: tabImage('home', 'themes'),
         narrative:
           'Customize the look and vibe of the app from the user dashboard, because aesthetics are infrastructure with better shoes.',
         route: '/dashboard',
@@ -867,7 +867,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:chat',
         title: 'Chats',
         summary: 'Review conversations and message activity.',
-        image: tabImage('user', 'chats'),
+        image: tabImage('home', 'chats'),
         narrative:
           'Review conversations, message activity, and chat history so useful sparks do not vanish into the scroll mines.',
         route: '/dashboard',

@@ -313,7 +313,8 @@ const handFrameStyle = computed<CSSProperties>(() => {
 
 const scrollFrameStyle = computed<CSSProperties>(() => {
   return {
-    height: `${restingHandHeightPx.value}px`,
+    height: `${expandedHandHeightPx.value}px`,
+    paddingTop: `${expandedHandHeightPx.value - restingHandHeightPx.value}px`,
   }
 })
 

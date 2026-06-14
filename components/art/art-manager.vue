@@ -32,26 +32,9 @@
 
     <section
       v-else-if="activeTab === 'generate'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-5"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-          <art-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :compact="true"
-          />
-        </div>
-      </section>
-
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:col-span-7"
-      >
-        <art-maker class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
+      <art-maker class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <section
@@ -64,15 +47,6 @@
         :show-header="false"
         :show-selected-panel="false"
       />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'upload'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <image-upload />
-      </div>
     </section>
 
     <section
@@ -90,7 +64,15 @@
       v-else-if="activeTab === 'styler'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <art-styler class="h-full min-h-0 flex-1 overflow-hidden" />
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <div
+          class="grid min-h-full gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
+        >
+          <art-styler class="min-h-0" />
+
+          <image-upload class="min-h-0" :show-model-connect="false" />
+        </div>
+      </div>
     </section>
 
     <section
@@ -130,11 +112,12 @@ import { useServerStore } from '@/stores/serverStore'
 type ArtTab =
   | 'generate'
   | 'gallery'
-  | 'upload'
   | 'checkpoints'
   | 'styler'
   | 'workbench'
   | 'art-test'
+
+type LegacyArtTab = ArtTab | 'upload'
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
@@ -145,10 +128,9 @@ const serverStore = useServerStore()
 const defaultDashboardKey = 'art'
 const defaultTab: ArtTab = 'generate'
 
-const validTabs: ArtTab[] = [
+const validTabs: LegacyArtTab[] = [
   'generate',
   'gallery',
-  'upload',
   'checkpoints',
   'styler',
   'workbench',
@@ -165,11 +147,15 @@ const dashboardKey = computed(() => {
 const activeTab = computed<ArtTab>(() => {
   const selectedTab = navStore.getDashboardTab(dashboardKey.value)
 
-  if (validTabs.includes(selectedTab as ArtTab)) {
-    return selectedTab as ArtTab
+  if (!validTabs.includes(selectedTab as LegacyArtTab)) {
+    return defaultTab
   }
 
-  return defaultTab
+  if (selectedTab === 'upload') {
+    return 'styler'
+  }
+
+  return selectedTab as ArtTab
 })
 
 async function loadManagerData(force = false) {

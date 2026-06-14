@@ -18,7 +18,7 @@
     </ClientOnly>
 
     <section
-      class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
+      class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl p-3 sm:p-4"
     >
       <workspace-header
         class="relative z-90"
@@ -79,7 +79,7 @@
 
                     <template #fallback>
                       <div
-                        class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
+                        class="rounded-2xl border border-dashed border-base-300 p-4 text-sm text-base-content/60"
                       >
                         Loading workspace...
                       </div>

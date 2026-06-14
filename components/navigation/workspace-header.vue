@@ -79,7 +79,7 @@
             >
               <span class="flex min-w-0 items-center gap-2">
                 <span
-                  class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-200"
+                  class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-xl"
                 >
                   <img
                     v-if="activeTabConfig.image"
@@ -259,7 +259,7 @@
             class="header-control-rail flex w-21 shrink-0 self-stretch sm:w-44 lg:w-44 xl:w-48 2xl:w-52"
           >
             <div
-              class="header-control-grid grid min-h-0 w-full grid-cols-2 grid-rows-2 gap-1 overflow-visible rounded-2xl border border-base-300 bg-base-200/50 p-1 sm:gap-2 sm:p-2"
+              class="header-control-grid grid min-h-0 w-full grid-cols-2 grid-rows-2 gap-1 overflow-visible rounded-2xl p-1 sm:gap-2 sm:p-2"
             >
               <channel-select class="min-w-0" />
               <server-selector class="min-w-0" />

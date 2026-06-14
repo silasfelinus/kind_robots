@@ -9,7 +9,8 @@
 
     <div
       ref="scrollEl"
-      class="workspace-hand-scroll pointer-events-none flex h-full touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="workspace-hand-scroll pointer-events-auto absolute inset-x-0 bottom-0 flex touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      :style="scrollFrameStyle"
     >
       <div
         ref="stripEl"
@@ -310,6 +311,12 @@ const handFrameStyle = computed<CSSProperties>(() => {
   }
 })
 
+const scrollFrameStyle = computed<CSSProperties>(() => {
+  return {
+    height: `${restingHandHeightPx.value}px`,
+  }
+})
+
 function publishHeight(): void {
   if (!import.meta.client) return
 
@@ -477,6 +484,12 @@ onBeforeUnmount(() => {
 .workspace-hand-scroll {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  cursor: grab;
+}
+
+.workspace-hand-scroll:active {
+  cursor: grabbing;
 }
 
 .workspace-hand-scroll::-webkit-scrollbar {

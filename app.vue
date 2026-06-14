@@ -47,7 +47,7 @@
         </button>
 
         <main
-          class="relative z-10 flex h-full min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm"
+          class="relative z-10 flex h-full min-h-0 overflow-hidden rounded-xl bg-base-100 shadow-sm"
         >
           <div
             class="relative z-10 flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
@@ -56,12 +56,12 @@
             <Transition name="workspace-sheet-slide">
               <aside
                 v-if="workspaceSheetOpen"
-                class="relative z-70 flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-base-300 bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
+                class="relative z-70 flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden bg-base-100 md:basis-1/2 md:max-w-[50%] lg:basis-1/3 lg:max-w-[33.333%] xl:basis-1/4 xl:max-w-[25%]"
               >
                 <fx-region region="sheet" />
 
                 <div
-                  class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
+                  class="flex shrink-0 items-center justify-between gap-3 bg-base-100 px-3 py-2"
                 >
                   <p
                     class="truncate text-xs font-black uppercase tracking-widest text-primary"

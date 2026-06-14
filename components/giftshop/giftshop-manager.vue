@@ -29,61 +29,13 @@
     </div>
 
     <section class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
-      <div class="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <div
-          class="min-w-0 flex-1 rounded-2xl border border-base-300 bg-base-200/70 px-4 py-3 text-sm text-base-content/70"
-        >
-          <span class="font-bold text-primary">Swarm memo:</span>
-          {{ swarmMemo }}
-        </div>
-
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <button
-            type="button"
-            class="btn btn-sm rounded-2xl"
-            :class="
-              activeTab === 'cart'
-                ? 'btn-secondary'
-                : cartStore.hasItems
-                  ? 'btn-primary'
-                  : 'btn-ghost'
-            "
-            @click="setTab('cart')"
-          >
-            <Icon name="kind-icon:cart" class="h-4 w-4" />
-            <span>{{ cartStore.totalItems }}</span>
-          </button>
-
-          <div
-            v-if="cartStore.hasItems"
-            class="badge badge-secondary gap-1 p-3"
-          >
-            <Icon name="kind-icon:jellybean" class="h-3 w-3" />
-            ${{ cartStore.formattedTotalPrice }}
-          </div>
-
-          <div class="badge badge-accent gap-1 p-3">
-            <Icon name="kind-icon:butterfly" class="h-3 w-3" />
-            Swarm-operated
-          </div>
-        </div>
-      </div>
-
       <section
-        v-if="activeTab === 'sanctuary'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-      >
-        <butterfly-sanctuary
-          class="h-full min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-        />
-      </section>
-
-      <section
-        v-else-if="activeTab === 'about'"
+        v-if="activeTab === 'community'"
         class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
           <about-page />
+          <sponsor-page />
         </div>
       </section>
 
@@ -95,35 +47,11 @@
       </section>
 
       <section
-        v-else-if="activeTab === 'cart'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <cart-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
-
-      <section
-        v-else-if="activeTab === 'wallet'"
+        v-else-if="activeTab === 'mana'"
         class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
         <mana-wallet class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
-
-      <section
-        v-else-if="activeTab === 'subscriptions'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-          <subscription-manager />
-        </div>
-      </section>
-
-      <section
-        v-else-if="activeTab === 'sponsor'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-          <sponsor-page />
-        </div>
+        <subscription-manager />
       </section>
 
       <section
@@ -209,21 +137,13 @@ const managerSummary = computed(() => {
 
 const swarmMemo = computed(() => {
   const messages: Record<GiftshopTabKey, string> = {
-    sanctuary:
+    community:
       'Sanctuary first. Commerce second. Tiny winged governance always.',
-    about:
-      'The org chart is mostly humans, robots, and butterflies pretending not to understand payroll.',
     giftshop:
       'Every artifact is inspected for whimsy, structural integrity, and whether AMI thinks it has main character energy.',
-    cart: 'Cart review initiated. The butterflies are counting jellybeans with terrifying precision.',
     forum:
       'Forum open. The butterflies are moderating discourse with tiny clipboards and unreasonable confidence.',
-    subscriptions:
-      'Subscriptions keep the servers awake and the butterflies in premium-grade imaginary nectar.',
-    wallet:
-      'Wallet open. The butterflies audit every mana transaction with tiny green visors and zero chill.',
-    sponsor:
-      'Sponsor energy goes toward the mission. The butterflies accept gratitude, impact, and tasteful confetti.',
+    mana: 'Wallet open. The butterflies audit every mana transaction with tiny green visors and zero chill.',
   }
 
   return messages[activeTab.value]

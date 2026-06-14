@@ -69,17 +69,7 @@ export const dashboardConfigs = {
           'Build prompts, choose the active art server, and turn story fuel into fresh images without waking the prompt goblin unless absolutely necessary.',
         route: '/art',
       },
-      {
-        key: 'upload',
-        label: 'Upload',
-        icon: 'kind-icon:save',
-        title: 'Upload Art',
-        summary: 'Add an image to our gallery.',
-        image: tabImage('art', 'upload'),
-        narrative:
-          'Bring outside images into the gallery, attach useful metadata, and make them available for collections, sheets, and future remixing.',
-        route: '/art',
-      },
+
       {
         key: 'gallery',
         label: 'Gallery',
@@ -116,7 +106,7 @@ export const dashboardConfigs = {
       },
       {
         key: 'workbench',
-        label: 'Workbench',
+        label: 'Code Cards',
         icon: 'kind-icon:foundry',
         title: 'Workbench',
         summary: 'Create modular server requests with special code cards.',

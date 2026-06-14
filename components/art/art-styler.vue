@@ -574,14 +574,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Convert this image into loose watercolor style',
     label: 'Watercolor',
     category: 'Painterly',
-  },
-  {
-    loraPath: 'FLUX/oil_painting.safetensors',
-    loraWeight: 1,
-    triggerPhrase:
-      'Convert this image into heavy oil paint brush strokes style',
-    label: 'Oil Painting',
-    category: 'Painterly',
+    previewImageSrc: '/images/styler/watercolor.webp',
   },
   {
     loraPath: 'FLUX/acrylic.safetensors',
@@ -589,6 +582,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Convert this image into acrylic art style',
     label: 'Acrylic',
     category: 'Painterly',
+    previewImageSrc: '/images/styler/acrylic.webp',
   },
   {
     loraPath: 'FLUX/impressionist.safetensors',
@@ -596,6 +590,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Convert this image into impressionist art style',
     label: 'Impressionist',
     category: 'Painterly',
+    previewImageSrc: '/images/styler/impressionist.webp',
   },
   {
     loraPath: 'FLUX/flux1-kt_oil_painting_lora_v2.safetensors',
@@ -603,6 +598,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'oil style',
     label: 'Oil (v2)',
     category: 'Painterly',
+    previewImageSrc: '/images/styler/oil2.webp',
   },
   {
     loraPath: 'FLUX/FLUX-daubrez-DB4RZ.safetensors',
@@ -610,20 +606,16 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'DB4RZ style painting',
     label: 'DB4RZ Painterly',
     category: 'Painterly',
+    previewImageSrc: '/images/styler/db4rz.webp',
   },
-  {
-    loraPath: 'FLUX/digital-illustration.safetensors',
-    loraWeight: 1,
-    triggerPhrase: 'digital illustration',
-    label: 'Digital Illust.',
-    category: 'Illustration',
-  },
+
   {
     loraPath: 'FLUX/manuscript_illustration_kontext.safetensors',
     loraWeight: 1,
     triggerPhrase: 'make it a manuscript illustration',
     label: 'Manuscript',
     category: 'Illustration',
+    previewImageSrc: '/images/styler/manuscript.webp',
   },
   {
     loraPath: 'FLUX/itacomic_mima6_noc_d4a2e11',
@@ -631,6 +623,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'itacomic1 illustration',
     label: 'ITA Comic',
     category: 'Illustration',
+    previewImageSrc: '/images/styler/itacomic.webp',
   },
   {
     loraPath: 'FLUX/realcomic_000000900.safetensors',
@@ -638,6 +631,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'convert the image into an illustration style',
     label: 'Real Comic',
     category: 'Illustration',
+    previewImageSrc: '/images/styler/illustration.webp',
   },
   {
     loraPath: 'FLUX/luc_cris_art_style.safetensors',
@@ -645,6 +639,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'lucart style',
     label: 'Lucart',
     category: 'Illustration',
+    previewImageSrc: '/images/styler/lucart.webp',
   },
   {
     loraPath: 'FLUX/collage.safetensors',
@@ -652,6 +647,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Convert this image into collage art style',
     label: 'Collage',
     category: 'Illustration',
+    previewImageSrc: '/images/styler/collage.webp',
   },
   {
     loraPath: 'FLUX/disney_lora_comfy_converted.safetensors',
@@ -659,6 +655,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Disney style',
     label: 'Disney',
     category: 'Cartoon',
+    previewImageSrc: '/images/styler/disney.webp',
   },
   {
     loraPath: 'FLUX/american_kontext.safetensors',
@@ -666,6 +663,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'American Cartoon Style',
     label: 'American Cartoon',
     category: 'Cartoon',
+    previewImageSrc: '/images/styler/cartoon.webp',
   },
   {
     loraPath: 'FLUX/gorillaz-kontext-lora.safetensors',
@@ -673,6 +671,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'make this image gorillaz style',
     label: 'Gorillaz',
     category: 'Cartoon',
+    previewImageSrc: '/images/styler/gorillaz.webp',
   },
   {
     loraPath: 'FLUX/FlatAnimation.safetensors',
@@ -680,13 +679,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'change into animation style',
     label: 'Flat Animation',
     category: 'Cartoon',
-  },
-  {
-    loraPath: 'FLUX/D1gitalCart00n.safetensors',
-    loraWeight: 1,
-    triggerPhrase: 'Turn this image to D1gitalCart00n style',
-    label: 'Digital Cartoon',
-    category: 'Cartoon',
+    previewImageSrc: '/images/styler/flatanimation.webp',
   },
   {
     loraPath: 'FLUX/kontext-qtorealanime.safetensors',
@@ -694,6 +687,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'converted to a real anime style',
     label: 'Real Anime',
     category: 'Anime',
+    previewImageSrc: '/images/styler/realanime.webp',
   },
   {
     loraPath: 'FLUX/ink_style-4-500.safetensors',
@@ -701,6 +695,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'ink style',
     label: 'Ink',
     category: 'Ink',
+    previewImageSrc: '/images/styler/inkstyle.webp',
   },
   {
     loraPath: 'FLUX/fae_ink.safetensors',
@@ -708,6 +703,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'fae_ink',
     label: 'Fae Ink',
     category: 'Ink',
+    previewImageSrc: '/images/styler/fae-ink.webp',
   },
   {
     loraPath: 'FLUX/Claymation.safetensors',
@@ -715,13 +711,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Claymation',
     label: 'Claymation',
     category: '3D/Craft',
-  },
-  {
-    loraPath: 'FLUX/StopMotionClay.safetensors',
-    loraWeight: 1,
-    triggerPhrase: 'Turn this image to StopMotionClay',
-    label: 'Stop-Motion Clay',
-    category: '3D/Craft',
+    previewImageSrc: '/images/styler/clay.webp',
   },
   {
     loraPath: 'FLUX/Papercraft_Magic_style.safetensors',
@@ -729,13 +719,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Convert to Papercraft Magic style',
     label: 'Papercraft',
     category: '3D/Craft',
-  },
-  {
-    loraPath: 'FLUX/CuteAnimalsStyle.safetensors',
-    loraWeight: 1,
-    triggerPhrase: 'Cute Fluffy Animals Style',
-    label: 'Cute Animals',
-    category: '3D/Craft',
+    previewImageSrc: '/images/styler/papercraft.webp',
   },
   {
     loraPath: 'FLUX/LSD_and_Mushrooms_from_Trippy_Lalaland_Ethanar.safetensors',
@@ -743,49 +727,25 @@ const BUILTIN_STYLES: StyleEntry[] = [
     triggerPhrase: 'Trippy Lalaland',
     label: 'Trippy Lalaland',
     category: 'Trippy',
+    previewImageSrc: '/images/styler/trippy.webp',
   },
-  {
-    loraPath: 'FLUX/Glowing_Tiedye_FLUX.safetensors',
-    loraWeight: 1,
-    triggerPhrase: 'mad-glwngtdy',
-    label: 'Tie-Dye Glow',
-    category: 'Trippy',
-  },
+
   {
     loraPath: 'FLUX/Brain_Melt.safetensors',
     loraWeight: 0.8,
     triggerPhrase: 'acid surrealism',
     label: 'Brain Melt',
     category: 'Trippy',
+    previewImageSrc: '/images/styler/brainmelt.webp',
   },
-  {
-    loraPath: 'FLUX/Weird_Things_Flux_v1_renderartist.safetensors',
-    loraWeight: 0.8,
-    triggerPhrase: 'w3irdth1ngs illustration',
-    label: 'Weird Things',
-    category: 'Trippy',
-  },
+
   {
     loraPath: 'FLUX/aidmaHyperrealism-FLUX-v0.3.safetensors',
     loraWeight: 1,
     triggerPhrase: 'hyperrealism',
     label: 'Hyperrealism',
     category: 'Realism',
-  },
-  {
-    loraPath: 'FLUX/realistic_kontext.safetensors',
-    loraWeight: 1,
-    triggerPhrase: 'Convert to a realistic art style',
-    label: 'Realistic',
-    category: 'Realism',
-  },
-  {
-    loraPath:
-      'FLUX/Dtpr_Photorealistic_flux_kontext_lora_v1-PAseer.safetensors',
-    loraWeight: 1,
-    triggerPhrase: 'dtpr_photorealistic',
-    label: 'Photorealistic',
-    category: 'Realism',
+    previewImageSrc: '/images/styler/hyperrealism.webp',
   },
 ]
 

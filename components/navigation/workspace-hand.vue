@@ -9,12 +9,12 @@
 
     <div
       ref="scrollEl"
-      class="workspace-hand-scroll pointer-events-auto absolute inset-x-0 bottom-0 flex touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="workspace-hand-scroll pointer-events-none absolute inset-x-0 bottom-0 flex touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
       :style="scrollFrameStyle"
     >
       <div
         ref="stripEl"
-        class="pointer-events-none flex min-w-full items-end gap-2 px-3 sm:px-0"
+        class="pointer-events-auto flex min-w-full items-end gap-2 px-3 sm:px-0"
         :class="handJustifyClass"
         :style="handStyle"
       >
@@ -132,6 +132,7 @@ const pageStore = usePageStore()
 
 const handEl = ref<HTMLElement | null>(null)
 const scrollEl = ref<HTMLElement | null>(null)
+const stripEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
 const selectedCardKey = ref('')
 
@@ -464,15 +465,18 @@ onMounted(() => {
 
   if (scrollEl.value) {
     observer.observe(scrollEl.value)
-    scrollEl.value.addEventListener('wheel', handleWheel, { passive: false })
+  }
+
+  if (stripEl.value) {
+    stripEl.value.addEventListener('wheel', handleWheel, { passive: false })
   }
 })
 
 onBeforeUnmount(() => {
   observer?.disconnect()
 
-  if (scrollEl.value) {
-    scrollEl.value.removeEventListener('wheel', handleWheel)
+  if (stripEl.value) {
+    stripEl.value.removeEventListener('wheel', handleWheel)
   }
 
   if (flipTimer) clearTimeout(flipTimer)

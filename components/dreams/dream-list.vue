@@ -1,160 +1,79 @@
 <!-- /components/dreams/dream-list.vue -->
 <template>
   <section
-    class="flex min-h-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
+    class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
   >
     <header
-      class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+      class="flex shrink-0 items-start justify-between gap-2 border-b border-base-300 bg-base-200 p-3"
     >
       <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
-          <p class="text-xs font-bold uppercase tracking-wide text-primary">
-            {{ title }}
-          </p>
-
-          <span class="badge badge-primary rounded-2xl">
-            {{ entries.length }}
-          </span>
-        </div>
-
-        <h3 class="mt-1 line-clamp-2 text-xl font-black text-base-content">
-          {{ dreamStore.selectedDream?.title || 'No Dream selected' }}
-        </h3>
-
-        <p class="mt-1 max-w-2xl text-sm text-base-content/60">
-          {{ subtitle }}
-        </p>
+        <h3 class="truncate text-lg font-black text-primary">{{ title }}</h3>
+        <p class="text-xs text-base-content/60">{{ subtitle }}</p>
       </div>
 
-      <div class="flex flex-wrap gap-2">
-        <div class="join">
-          <button
-            class="btn btn-sm join-item rounded-l-2xl"
-            :class="viewMode === 'compact' ? 'btn-primary' : 'btn-ghost'"
-            type="button"
-            title="Compact view"
-            @click="viewMode = 'compact'"
-          >
-            <Icon name="kind-icon:list" class="h-4 w-4" />
-          </button>
-
-          <button
-            class="btn btn-sm join-item rounded-r-2xl"
-            :class="viewMode === 'roomy' ? 'btn-primary' : 'btn-ghost'"
-            type="button"
-            title="Roomy view"
-            @click="viewMode = 'roomy'"
-          >
-            <Icon name="kind-icon:grid" class="h-4 w-4" />
-          </button>
-        </div>
-
-        <button
-          class="btn btn-sm btn-secondary rounded-2xl"
-          type="button"
-          :disabled="!dreamStore.selectedDreamId || isLoading"
-          @click="refreshList"
-        >
-          <Icon
-            name="kind-icon:refresh"
-            class="h-4 w-4"
-            :class="isLoading ? 'animate-spin' : ''"
-          />
-          {{ refreshLabel }}
-        </button>
-      </div>
+      <button
+        v-if="showRefresh"
+        type="button"
+        class="btn btn-xs btn-outline rounded-xl"
+        :disabled="isLoading"
+        @click="refreshList"
+      >
+        <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+        <Icon v-else name="kind-icon:refresh" class="h-3 w-3" />
+        {{ refreshLabel }}
+      </button>
     </header>
 
-    <div
-      v-if="dreamStore.selectedDream"
-      class="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4"
-    >
-      <div
-        v-for="stat in contextStats"
-        :key="stat.label"
-        class="rounded-2xl border border-base-300 bg-base-200 p-2"
-      >
-        <div class="flex items-center gap-1 text-base-content/50">
-          <Icon :name="stat.icon" class="h-4 w-4" />
-          <span class="font-bold uppercase tracking-wide">
-            {{ stat.label }}
-          </span>
-        </div>
-
-        <div class="mt-1 text-lg font-black text-secondary">
-          {{ stat.value }}
-        </div>
-      </div>
-    </div>
-
-    <div class="min-h-0 flex-1 overflow-y-auto pr-1" :class="listLayoutClass">
-      <article
-        v-for="entry in entries"
-        :key="entry.key"
-        class="group rounded-2xl border border-base-300 bg-base-200 p-3 transition hover:-translate-y-0.5 hover:border-primary/50 hover:bg-base-100 hover:shadow"
-      >
-        <div class="flex items-start gap-3">
+    <div class="min-h-0 flex-1 overflow-y-auto p-3">
+      <div v-if="entries.length" :class="listLayoutClass">
+        <article
+          v-for="entry in entries"
+          :key="entry.key"
+          class="flex gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+        >
+          <img
+            v-if="entry.image"
+            :src="entry.image"
+            :alt="entry.title"
+            class="h-16 w-16 rounded-xl object-cover"
+            loading="lazy"
+          />
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+            v-else
+            class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-base-300 text-primary"
           >
-            <img
-              v-if="entry.image"
-              :src="entry.image"
-              class="h-full w-full object-cover"
-              :alt="entry.title"
-            />
-
-            <Icon
-              v-else
-              :name="entry.icon"
-              class="h-7 w-7 text-primary transition group-hover:scale-110"
-            />
+            <Icon :name="entry.icon" class="h-7 w-7" />
           </div>
 
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-start justify-between gap-2">
-              <div class="min-w-0">
-                <h4 class="line-clamp-2 font-black text-secondary">
-                  {{ entry.title }}
-                </h4>
-
-                <p
-                  v-if="entry.meta"
-                  class="mt-0.5 text-xs font-semibold uppercase tracking-wide text-base-content/40"
-                >
-                  {{ entry.meta }}
-                </p>
-              </div>
-
-              <span v-if="entry.badge" class="badge badge-outline rounded-2xl">
+              <h4 class="line-clamp-1 font-black text-base-content">
+                {{ entry.title }}
+              </h4>
+              <span v-if="entry.badge" class="badge badge-sm rounded-xl">
                 {{ entry.badge }}
               </span>
             </div>
-
+            <p v-if="entry.meta" class="mt-1 text-xs text-base-content/50">
+              {{ entry.meta }}
+            </p>
             <p
-              class="mt-2 text-sm leading-relaxed text-base-content/70"
-              :class="viewMode === 'compact' ? 'line-clamp-3' : 'line-clamp-6'"
+              class="mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-base-content/70"
             >
               {{ entry.body }}
             </p>
           </div>
-        </div>
-      </article>
+        </article>
+      </div>
 
       <div
-        v-if="!entries.length"
-        class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center text-sm text-base-content/60"
+        v-else
+        class="flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/50"
       >
-        <Icon :name="emptyIcon" class="h-14 w-14 text-primary/70" />
-
+        <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
         <div>
-          <h4 class="text-lg font-black text-base-content">
-            {{ emptyTitle }}
-          </h4>
-
-          <p class="mt-1 max-w-md">
-            {{ emptyMessage }}
-          </p>
+          <p class="font-black">{{ emptyTitle }}</p>
+          <p class="mt-1">{{ emptyMessage }}</p>
         </div>
       </div>
     </div>
@@ -162,11 +81,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
 
 type DreamListType = 'cast' | 'items' | 'art' | 'chats'
-type ViewMode = 'compact' | 'roomy'
+type ViewMode = 'compact' | 'grid'
 
 type ListEntry = {
   key: string
@@ -181,16 +100,19 @@ type ListEntry = {
 const props = withDefaults(
   defineProps<{
     listType?: DreamListType
+    viewMode?: ViewMode
     autoLoad?: boolean
+    showRefresh?: boolean
   }>(),
   {
     listType: 'chats',
+    viewMode: 'compact',
     autoLoad: true,
+    showRefresh: true,
   },
 )
 
 const dreamStore = useDreamStore()
-const viewMode = ref<ViewMode>('compact')
 
 const isLoading = computed(() => {
   if (props.listType === 'chats') return dreamStore.chatsLoading
@@ -198,169 +120,160 @@ const isLoading = computed(() => {
 })
 
 const title = computed(() => {
-  if (props.listType === 'cast') return 'Cast in Location'
-  if (props.listType === 'items') return 'Items in Location'
-  if (props.listType === 'art') return 'Scene Assets'
-  return 'Room History'
+  if (props.listType === 'cast') return 'Cast'
+  if (props.listType === 'items') return 'Rewards & Items'
+  if (props.listType === 'art') return 'Dream Art'
+  return 'Dream Chat'
 })
 
 const subtitle = computed(() => {
-  if (props.listType === 'cast') {
-    return 'Characters linked to this Dream as residents, visitors, guides, rivals, or suspiciously charming disasters.'
-  }
-
-  if (props.listType === 'items') {
-    return 'Rewards available inside this location as tools, relics, plot twists, or cursed teapots.'
-  }
-
-  if (props.listType === 'art') {
-    return 'Visual assets attached to this Dream through its active image or ArtCollection.'
-  }
-
-  return 'The timeline of what has happened inside this Dream location.'
+  if (!dreamStore.selectedDream) return 'Select a Dream first.'
+  if (props.listType === 'cast')
+    return 'Characters currently attached to this Dream.'
+  if (props.listType === 'items')
+    return 'Rewards, props, and objects in this Dream.'
+  if (props.listType === 'art')
+    return 'Generated or attached art around this Dream concept.'
+  return 'Messages inside this Dream workspace.'
 })
 
-const refreshLabel = computed(() => {
-  if (props.listType === 'chats') return 'Load'
-  return 'Refresh'
-})
+const refreshLabel = computed(() =>
+  props.listType === 'chats' ? 'Load' : 'Refresh',
+)
 
 const emptyIcon = computed(() => {
-  if (props.listType === 'cast') return 'kind-icon:users'
+  if (props.listType === 'cast') return 'kind-icon:user'
   if (props.listType === 'items') return 'kind-icon:gift'
   if (props.listType === 'art') return 'kind-icon:image'
   return 'kind-icon:chat'
 })
 
 const emptyTitle = computed(() => {
-  if (props.listType === 'cast') return 'No cast linked'
-  if (props.listType === 'items') return 'No items linked'
-  if (props.listType === 'art') return 'No scene art linked'
-  return 'No room history yet'
+  if (props.listType === 'cast') return 'No cast yet'
+  if (props.listType === 'items') return 'No items yet'
+  if (props.listType === 'art') return 'No art linked'
+  return 'No chat yet'
 })
 
 const emptyMessage = computed(() => {
-  if (props.listType === 'cast') {
-    return 'The room is empty, which is either peaceful or the first warning sign. Link Characters when the cast picker is ready.'
-  }
-
-  if (props.listType === 'items') {
-    return 'Add Rewards when the item picker lands. A haunted location without loot is just real estate.'
-  }
-
-  if (props.listType === 'art') {
-    return 'The Dream is still wearing placeholder pajamas. Generate or attach art assets to give it a face.'
-  }
-
-  return 'Say something ominous but useful. The wallpaper is listening politely.'
+  if (props.listType === 'cast') return 'Attach characters from Dream Interact.'
+  if (props.listType === 'items')
+    return 'Attach rewards or story objects from Dream Interact.'
+  if (props.listType === 'art')
+    return 'Generate or upload art to give this Dream a face.'
+  return 'Start a public or private Dream chat.'
 })
 
 const listLayoutClass = computed(() => {
-  if (viewMode.value === 'compact') return 'space-y-3'
-  return 'grid grid-cols-1 gap-3 2xl:grid-cols-2'
+  return props.viewMode === 'grid'
+    ? 'grid grid-cols-1 gap-3 md:grid-cols-2'
+    : 'grid gap-3'
 })
 
-const contextStats = computed(() => [
-  {
-    label: 'Cast',
-    value:
-      dreamStore.selectedDream?._count?.Characters ??
-      dreamStore.selectedDreamCast.length,
-    icon: 'kind-icon:users',
-  },
-  {
-    label: 'Items',
-    value:
-      dreamStore.selectedDream?._count?.Rewards ??
-      dreamStore.selectedDreamItems.length,
-    icon: 'kind-icon:gift',
-  },
-  {
-    label: 'Art',
-    value: dreamStore.selectedDreamCollectionArt.length,
-    icon: 'kind-icon:image',
-  },
-  {
-    label: 'Notes',
-    value:
-      dreamStore.selectedDream?._count?.Chats ??
-      dreamStore.selectedDreamChats.length,
-    icon: 'kind-icon:chat',
-  },
-])
-
 const entries = computed<ListEntry[]>(() => {
-  if (props.listType === 'cast') {
-    return dreamStore.selectedDreamCast.map((character) => ({
-      key: `character-${character.id}`,
-      title: character.name || `Character #${character.id}`,
-      body:
-        character.personality ||
-        character.backstory ||
-        character.species ||
-        'A linked Character waiting for narrative mischief.',
-      icon: 'kind-icon:users',
-      image: character.imagePath || undefined,
-      meta: [character.species, character.class, character.honorific]
-        .filter(Boolean)
-        .join(' · '),
-      badge: character.isMature ? 'Mature' : undefined,
-    }))
-  }
+  if (props.listType === 'cast') return castEntries.value
+  if (props.listType === 'items') return itemEntries.value
+  if (props.listType === 'art') return artEntries.value
+  return chatEntries.value
+})
 
-  if (props.listType === 'items') {
-    return dreamStore.selectedDreamItems.map((reward) => ({
-      key: `reward-${reward.id}`,
-      title: reward.name || `Reward #${reward.id}`,
-      body:
-        reward.effect ||
-        reward.description ||
-        reward.flavorText ||
-        reward.collection ||
-        'A linked Reward with suspicious potential.',
-      icon: reward.icon || 'kind-icon:gift',
-      image: reward.imagePath || undefined,
-      meta: reward.collection || undefined,
-      badge: typeof reward.rarity === 'string' ? reward.rarity : undefined,
-    }))
-  }
+const castEntries = computed<ListEntry[]>(() => {
+  return dreamStore.selectedDreamCast.map((character) => {
+    const record = asRecord(character)
+    const id = readId(record)
 
-  if (props.listType === 'art') {
-    return dreamStore.selectedDreamCollectionArt.map((art) => ({
-      key: `art-${art.id}`,
-      title: `Art #${art.id}`,
+    return {
+      key: `character-${id}`,
+      title: readString(record, ['name', 'title']) || `Character #${id}`,
       body:
-        art.promptString ||
-        art.imagePath ||
-        'Scene asset linked to this Dream.',
-      icon: 'kind-icon:image',
-      image: art.imagePath || undefined,
-      meta: art.designer || art.serverName || undefined,
-      badge: art.isMature ? 'Mature' : undefined,
-    }))
-  }
+        readString(record, [
+          'backstory',
+          'description',
+          'personality',
+          'flavorText',
+          'artPrompt',
+        ]) || 'No character notes yet.',
+      icon: readString(record, ['icon']) || 'kind-icon:user',
+      image: readImage(record),
+      meta: readString(record, ['species', 'class', 'gender']),
+      badge: readBool(record, 'isPublic') === false ? 'Private' : undefined,
+    }
+  })
+})
 
+const itemEntries = computed<ListEntry[]>(() => {
+  return dreamStore.selectedDreamItems.map((reward) => {
+    const record = asRecord(reward)
+    const id = readId(record)
+
+    return {
+      key: `reward-${id}`,
+      title: readString(record, ['name', 'title', 'label']) || `Reward #${id}`,
+      body:
+        readString(record, [
+          'description',
+          'flavorText',
+          'power',
+          'text',
+          'artPrompt',
+        ]) || 'No reward notes yet.',
+      icon: readString(record, ['icon']) || 'kind-icon:gift',
+      image: readImage(record),
+      meta: readString(record, ['collection']),
+      badge: readString(record, ['rarity', 'rewardType', 'type']),
+    }
+  })
+})
+
+const artEntries = computed<ListEntry[]>(() => {
+  return dreamStore.selectedDreamCollectionArt.map((art, index) => {
+    const record = asRecord(art)
+    const id = readId(record, index + 1)
+
+    return {
+      key: `art-${id}`,
+      title: readString(record, ['title', 'name']) || `Art #${id}`,
+      body:
+        readString(record, [
+          'promptString',
+          'prompt',
+          'description',
+          'artPrompt',
+          'imagePath',
+        ]) || 'No art prompt saved.',
+      icon: readString(record, ['icon']) || 'kind-icon:image',
+      image: readImage(record),
+      meta: readString(record, ['designer', 'serverName', 'model']),
+      badge: readBool(record, 'isMature') ? 'Mature' : undefined,
+    }
+  })
+})
+
+const chatEntries = computed<ListEntry[]>(() => {
   return dreamStore.selectedDreamChats.map((chat) => ({
     key: `chat-${chat.id}`,
-    title: chat.title || chat.sender || chat.type,
-    body: chat.content,
+    title:
+      chat.title ||
+      chat.sender ||
+      chat.User?.username ||
+      chat.type ||
+      'Dream note',
+    body: chat.content || chat.botResponse || '',
     icon: chat.type === 'BotResponse' ? 'kind-icon:sparkles' : 'kind-icon:chat',
-    image: chat.ArtImage?.fileName || undefined,
+    image: chat.ArtImage?.fileName || chat.ArtImage?.imagePath || undefined,
     meta: formatChatMeta(chat.createdAt, chat.sender),
-    badge: chat.type,
+    badge: chat.isPublic === false ? 'Private' : chat.type,
   }))
 })
 
 onMounted(async () => {
-  if (props.autoLoad && props.listType === 'chats') {
-    await loadChats()
-  }
+  if (props.autoLoad && props.listType === 'chats') await loadChats()
 })
 
 watch(
   () => dreamStore.selectedDreamId,
-  async (dreamId) => {
-    if (!dreamId || !props.autoLoad || props.listType !== 'chats') return
+  async () => {
+    if (!props.autoLoad || props.listType !== 'chats') return
     await loadChats()
   },
 )
@@ -378,33 +291,56 @@ async function refreshList() {
 
 async function loadChats() {
   if (!dreamStore.selectedDreamId) return
+  await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
+}
 
-  await dreamStore.fetchDreamChats({
-    dreamId: dreamStore.selectedDreamId,
-  })
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object'
+    ? (value as Record<string, unknown>)
+    : {}
+}
+
+function readId(record: Record<string, unknown>, fallback = 0) {
+  const id = Number(record.id)
+  return Number.isInteger(id) && id > 0 ? id : fallback
+}
+
+function readString(record: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = record[key]
+    if (typeof value === 'string' && value.trim()) return value.trim()
+    if (typeof value === 'number' && Number.isFinite(value))
+      return String(value)
+  }
+
+  return undefined
+}
+
+function readBool(record: Record<string, unknown>, key: string) {
+  return typeof record[key] === 'boolean' ? record[key] : undefined
+}
+
+function readImage(record: Record<string, unknown>) {
+  return readString(record, [
+    'imagePath',
+    'avatarImage',
+    'fileName',
+    'path',
+    'thumbnailPath',
+    'thumbnailData',
+  ])
 }
 
 function formatChatMeta(
-  createdAt: Date | string | null | undefined,
+  createdAt?: Date | string | null,
   sender?: string | null,
 ) {
   const parts: string[] = []
-
   if (sender) parts.push(sender)
 
   if (createdAt) {
     const date = new Date(createdAt)
-
-    if (!Number.isNaN(date.getTime())) {
-      parts.push(
-        new Intl.DateTimeFormat(undefined, {
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-        }).format(date),
-      )
-    }
+    if (!Number.isNaN(date.getTime())) parts.push(date.toLocaleString())
   }
 
   return parts.join(' · ')

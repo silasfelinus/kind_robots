@@ -3,12 +3,13 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { DreamType, Prisma } from '~/prisma/generated/prisma/client'
+import type { CreationSource, DreamType, Prisma } from '~/prisma/generated/prisma/client'
 
 type DreamCreateBody = {
   title?: string
   slug?: string | null
   dreamType?: DreamType
+  creationSource?: CreationSource
   description?: string | null
   pitch?: string | null
   flavorText?: string | null
@@ -45,6 +46,8 @@ const dreamTypes: DreamType[] = [
   'SCENARIO',
   'TEXT',
   'LOCATION',
+  'PITCH',
+  'GENRE',
 ]
 
 const dreamInclude = {
@@ -97,6 +100,20 @@ function normalizeDreamType(value: unknown): DreamType {
   return dreamTypes.includes(value as DreamType)
     ? (value as DreamType)
     : 'ARTDREAM'
+}
+
+const creationSources: CreationSource[] = [
+  'HUMAN',
+  'AI',
+  'HYBRID',
+  'UPLOAD',
+  'UNKNOWN',
+]
+
+function normalizeCreationSource(value: unknown): CreationSource {
+  return creationSources.includes(value as CreationSource)
+    ? (value as CreationSource)
+    : 'HUMAN'
 }
 
 function normalizeSlug(value: string): string {
@@ -176,6 +193,7 @@ export default defineEventHandler(async (event) => {
       title,
       slug,
       dreamType: normalizeDreamType(body.dreamType),
+      creationSource: normalizeCreationSource(body.creationSource),
       description: normalizeOptionalText(body.description),
       pitch: normalizeOptionalText(body.pitch),
       flavorText: normalizeOptionalText(body.flavorText),

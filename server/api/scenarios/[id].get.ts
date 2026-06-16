@@ -20,6 +20,11 @@ export default defineEventHandler(async (event) => {
     // Fetch the scenario by ID
     const data = await prisma.scenario.findUnique({
       where: { id },
+      include: {
+        Dreams: {
+          select: { id: true, title: true, slug: true, dreamType: true },
+        },
+      },
     })
     if (!data) {
       return {

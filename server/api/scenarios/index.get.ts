@@ -5,12 +5,14 @@ import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('Fetching all scenarios from the database')
-
-    // Fetch all scenarios
-    const data = await prisma.scenario.findMany()
-
-    console.log('All scenarios fetched successfully.')
+    const data = await prisma.scenario.findMany({
+      include: {
+        Dreams: {
+          select: { id: true, title: true, slug: true, dreamType: true },
+        },
+      },
+      orderBy: { id: 'asc' },
+    })
 
     return {
       success: true,
@@ -19,20 +21,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error: unknown) {
-    console.error('Error occurred while fetching scenarios:', error)
-
-    // Use errorHandler to get the structured error response
     const { success, message, statusCode } = errorHandler(error)
-    console.log('Error details after handling:', {
-      success,
-      message,
-      statusCode,
-    })
-
-    return {
-      success,
-      message,
-      statusCode,
-    }
+    return { success, message, statusCode }
   }
 })

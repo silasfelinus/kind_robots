@@ -75,179 +75,118 @@
             </NuxtLink>
           </div>
 
-          <div class="space-y-2 p-2 sm:space-y-3 sm:p-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200/40 p-2">
-              <div
-                class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:items-stretch"
-              >
-                <NuxtLink
-                  :to="artChannel.path"
-                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md sm:min-h-32 sm:gap-2 sm:p-3"
-                  :class="
-                    isChannelActive(artChannel)
-                      ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
-                      : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/70 text-base-content'
-                  "
-                  @click="closeMenu"
+          <div class="space-y-3 p-2 sm:p-3">
+            <section
+              class="rounded-2xl border border-primary/30 bg-primary/10 p-2 sm:p-3"
+            >
+              <div class="mb-2 flex items-center justify-between gap-2 px-1">
+                <p
+                  class="text-[0.6rem] font-black uppercase tracking-widest text-primary"
                 >
-                  <span
-                    class="absolute inset-x-4 top-0 h-px bg-secondary/30 opacity-0 transition-opacity group-hover:opacity-100"
-                  />
-
-                  <span
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-12 sm:w-12"
-                    :class="
-                      isChannelActive(artChannel)
-                        ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
-                        : 'border-base-300 bg-base-100 text-secondary'
-                    "
-                  >
-                    <Icon
-                      :name="artChannel.icon"
-                      class="h-5 w-5 sm:h-6 sm:w-6"
-                    />
-                  </span>
-
-                  <span class="text-sm font-black leading-tight sm:text-base">
-                    {{ artChannel.label }}
-                  </span>
-
-                  <span
-                    v-if="artChannel.summary"
-                    class="hidden max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100 sm:block"
-                  >
-                    {{ artChannel.summary }}
-                  </span>
-                </NuxtLink>
-
-                <NuxtLink
-                  :to="builderChannel.path"
-                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md sm:min-h-32 sm:scale-[1.03] sm:gap-2 sm:p-3"
-                  :class="
-                    isChannelActive(builderChannel)
-                      ? 'border-primary bg-primary text-primary-content shadow-sm'
-                      : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/70 text-base-content'
-                  "
-                  @click="closeMenu"
-                >
-                  <span
-                    class="absolute inset-x-4 top-0 h-px bg-primary/30 opacity-0 transition-opacity group-hover:opacity-100"
-                  />
-
-                  <span
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-12 sm:w-12"
-                    :class="
-                      isChannelActive(builderChannel)
-                        ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
-                        : 'border-base-300 bg-base-100 text-primary'
-                    "
-                  >
-                    <Icon
-                      :name="builderChannel.icon"
-                      class="h-5 w-5 sm:h-6 sm:w-6"
-                    />
-                  </span>
-
-                  <span class="text-sm font-black leading-tight sm:text-base">
-                    {{ builderChannel.label }}
-                  </span>
-
-                  <span
-                    v-if="builderChannel.summary"
-                    class="hidden max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100 sm:block"
-                  >
-                    {{ builderChannel.summary }}
-                  </span>
-                </NuxtLink>
-
-                <NuxtLink
-                  :to="storiesChannel.path"
-                  class="group relative flex min-h-22 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md sm:min-h-32 sm:gap-2 sm:p-3"
-                  :class="
-                    isChannelActive(storiesChannel)
-                      ? 'border-accent bg-accent text-accent-content shadow-sm'
-                      : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/70 text-base-content'
-                  "
-                  @click="closeMenu"
-                >
-                  <span
-                    class="absolute inset-x-4 top-0 h-px bg-accent/30 opacity-0 transition-opacity group-hover:opacity-100"
-                  />
-
-                  <span
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110 sm:h-12 sm:w-12"
-                    :class="
-                      isChannelActive(storiesChannel)
-                        ? 'border-accent-content/30 bg-accent-content/20 text-accent-content'
-                        : 'border-base-300 bg-base-100 text-accent'
-                    "
-                  >
-                    <Icon
-                      :name="storiesChannel.icon"
-                      class="h-5 w-5 sm:h-6 sm:w-6"
-                    />
-                  </span>
-
-                  <span class="text-sm font-black leading-tight sm:text-base">
-                    {{ storiesChannel.label }}
-                  </span>
-
-                  <span
-                    v-if="storiesChannel.summary"
-                    class="hidden max-w-36 text-center text-[0.66rem] font-medium leading-snug opacity-55 transition-opacity group-hover:opacity-100 sm:block"
-                  >
-                    {{ storiesChannel.summary }}
-                  </span>
-                </NuxtLink>
+                  Creation Tools
+                </p>
+                <p class="text-[0.58rem] font-bold text-base-content/45">
+                  Lab · Builder · Art · Bots
+                </p>
               </div>
-            </div>
 
-            <div>
-              <p
-                class="mb-1.5 px-0.5 text-[0.6rem] font-black uppercase tracking-widest text-base-content/40"
-              >
-                Projects
-              </p>
-
-              <div class="grid grid-cols-3 gap-1.5">
+              <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <NuxtLink
-                  v-for="channel in bottomProjectChannels"
+                  v-for="channel in creationChannels"
                   :key="channel.key"
                   :to="channel.path"
-                  class="group relative flex min-h-18 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm sm:min-h-20"
+                  class="group relative flex min-h-24 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md sm:min-h-28"
                   :class="
                     isChannelActive(channel)
-                      ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
-                      : 'border-base-300 bg-base-100 text-base-content'
+                      ? 'border-primary bg-primary text-primary-content shadow-sm'
+                      : 'border-primary/20 bg-linear-to-b from-base-100 to-primary/5 text-base-content'
                   "
                   @click="closeMenu"
                 >
                   <span
-                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all group-hover:scale-110"
-                    :class="
-                      isChannelActive(channel)
-                        ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
-                        : 'border-base-300 bg-base-200 text-base-content'
-                    "
-                  >
-                    <Icon :name="channel.icon" class="h-4 w-4" />
-                  </span>
+                    class="absolute inset-x-4 top-0 h-px bg-primary/40 opacity-0 transition-opacity group-hover:opacity-100"
+                  />
 
                   <span
-                    class="max-w-full truncate text-center text-[0.62rem] font-bold leading-none sm:text-[0.65rem]"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110"
+                    :class="
+                      isChannelActive(channel)
+                        ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
+                        : 'border-primary/20 bg-base-100 text-primary'
+                    "
                   >
+                    <Icon :name="channel.icon" class="h-5 w-5" />
+                  </span>
+
+                  <span class="max-w-full truncate text-sm font-black">
                     {{ channel.label }}
                   </span>
 
                   <span
                     v-if="channel.summary"
-                    class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-secondary/95 px-2 text-center text-[0.6rem] leading-snug text-secondary-content opacity-0 transition-opacity group-hover:opacity-100"
+                    class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-primary/95 px-2 text-center text-[0.6rem] font-semibold leading-snug text-primary-content opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     {{ channel.summary }}
                   </span>
                 </NuxtLink>
               </div>
-            </div>
+            </section>
+
+            <section
+              class="rounded-2xl border border-secondary/30 bg-secondary/10 p-2 sm:p-3"
+            >
+              <div class="mb-2 flex items-center justify-between gap-2 px-1">
+                <p
+                  class="text-[0.6rem] font-black uppercase tracking-widest text-secondary"
+                >
+                  World Content
+                </p>
+                <p class="text-[0.58rem] font-bold text-base-content/45">
+                  Rewards · Dreams · Characters · Scenarios
+                </p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <NuxtLink
+                  v-for="channel in worldChannels"
+                  :key="channel.key"
+                  :to="channel.path"
+                  class="group relative flex min-h-24 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md sm:min-h-28"
+                  :class="
+                    isChannelActive(channel)
+                      ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
+                      : 'border-secondary/20 bg-linear-to-b from-base-100 to-secondary/5 text-base-content'
+                  "
+                  @click="closeMenu"
+                >
+                  <span
+                    class="absolute inset-x-4 top-0 h-px bg-secondary/40 opacity-0 transition-opacity group-hover:opacity-100"
+                  />
+
+                  <span
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110"
+                    :class="
+                      isChannelActive(channel)
+                        ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
+                        : 'border-secondary/20 bg-base-100 text-secondary'
+                    "
+                  >
+                    <Icon :name="channel.icon" class="h-5 w-5" />
+                  </span>
+
+                  <span class="max-w-full truncate text-sm font-black">
+                    {{ channel.label }}
+                  </span>
+
+                  <span
+                    v-if="channel.summary"
+                    class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-secondary/95 px-2 text-center text-[0.6rem] font-semibold leading-snug text-secondary-content opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    {{ channel.summary }}
+                  </span>
+                </NuxtLink>
+              </div>
+            </section>
           </div>
         </div>
       </Transition>
@@ -303,12 +242,12 @@ const sanctuaryChannel: ChannelRoute = {
 
 const utilityChannels: ChannelRoute[] = [homeChannel, sanctuaryChannel]
 
-const artChannel: ChannelRoute = {
-  key: 'art',
-  label: 'Art',
-  path: '/art',
-  icon: 'kind-icon:palette',
-  summary: 'Generate and browse AI artwork.',
+const labChannel: ChannelRoute = {
+  key: 'lab',
+  label: 'Lab',
+  path: '/memory',
+  icon: 'kind-icon:dungeon',
+  summary: 'Explore behind the scenes, and play our match game.',
 }
 
 const builderChannel: ChannelRoute = {
@@ -319,60 +258,73 @@ const builderChannel: ChannelRoute = {
   summary: 'Build easily with our step by step builder.',
 }
 
-const storiesChannel: ChannelRoute = {
-  key: 'stories',
-  label: 'Stories',
-  path: '/stories',
-  icon: 'kind-icon:story',
-  summary:
-    'Bring characters, places, treasures, and art into one narrative space.',
+const artChannel: ChannelRoute = {
+  key: 'art',
+  label: 'Art',
+  path: '/art',
+  icon: 'kind-icon:palette',
+  summary: 'Generate and browse AI artwork.',
 }
 
-const bottomProjectChannels: ChannelRoute[] = [
-  {
-    key: 'bots',
-    label: 'Bots',
-    path: '/bots',
-    icon: 'kind-icon:robot-color',
-    summary:
-      'Build personalities, assistants, gremlins, and conversational accomplices.',
-  },
-  {
-    key: 'rewards',
-    label: 'Rewards',
-    path: '/rewards',
-    icon: 'kind-icon:trophy',
-    summary: 'Earn and collect rewards for your creations.',
-  },
-  {
-    key: 'dreams',
-    label: 'Locations',
-    path: '/dreams',
-    icon: 'kind-icon:moon',
-    summary: 'Explore imagined places and dreamscapes.',
-  },
-  {
-    key: 'characters',
-    label: 'Characters',
-    path: '/characters',
-    icon: 'kind-icon:mask',
-    summary: 'Design and meet the cast of your world.',
-  },
-  {
-    key: 'wonderlab',
-    label: 'Lab',
-    path: '/memory',
-    icon: 'kind-icon:dungeon',
-    summary: 'Explore behind the scenes, and play our match game.',
-  },
+const botsChannel: ChannelRoute = {
+  key: 'bots',
+  label: 'Bots',
+  path: '/bots',
+  icon: 'kind-icon:robot-color',
+  summary:
+    'Build personalities, assistants, gremlins, and conversational accomplices.',
+}
+
+const rewardsChannel: ChannelRoute = {
+  key: 'rewards',
+  label: 'Rewards',
+  path: '/rewards',
+  icon: 'kind-icon:trophy',
+  summary: 'Earn and collect rewards for your creations.',
+}
+
+const dreamsChannel: ChannelRoute = {
+  key: 'dreams',
+  label: 'Dreams',
+  path: '/dreams',
+  icon: 'kind-icon:moon',
+  summary: 'Explore imagined places and dreamscapes.',
+}
+
+const charactersChannel: ChannelRoute = {
+  key: 'characters',
+  label: 'Characters',
+  path: '/characters',
+  icon: 'kind-icon:mask',
+  summary: 'Design and meet the cast of your world.',
+}
+
+const scenariosChannel: ChannelRoute = {
+  key: 'scenarios',
+  label: 'Scenarios',
+  path: '/scenarios',
+  icon: 'kind-icon:story',
+  summary: 'Create story situations, prompts, encounters, and playable scenes.',
+}
+
+const creationChannels: ChannelRoute[] = [
+  labChannel,
+  builderChannel,
+  artChannel,
+  botsChannel,
+]
+
+const worldChannels: ChannelRoute[] = [
+  rewardsChannel,
+  dreamsChannel,
+  charactersChannel,
+  scenariosChannel,
 ]
 
 const allChannels = computed<ChannelRoute[]>(() => [
   ...utilityChannels,
-  artChannel,
-  builderChannel,
-  storiesChannel,
-  ...bottomProjectChannels,
+  ...creationChannels,
+  ...worldChannels,
 ])
 
 const fallbackChannel: ChannelRoute = {

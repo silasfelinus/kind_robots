@@ -28,6 +28,19 @@ export const ManaReason = {
 export type ManaReason = (typeof ManaReason)[keyof typeof ManaReason]
 
 
+export const ScenarioOutputType = {
+  STORY: 'STORY',
+  ART: 'ART',
+  CHARACTER: 'CHARACTER',
+  REWARD: 'REWARD',
+  DREAM: 'DREAM',
+  SCENARIO: 'SCENARIO',
+  MIXED: 'MIXED'
+} as const
+
+export type ScenarioOutputType = (typeof ScenarioOutputType)[keyof typeof ScenarioOutputType]
+
+
 export const RelationType = {
   FRIEND: 'FRIEND',
   BLOCK: 'BLOCK',

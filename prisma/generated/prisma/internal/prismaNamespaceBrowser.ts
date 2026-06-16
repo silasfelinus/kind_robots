@@ -562,7 +562,8 @@ export const ScenarioScalarFieldEnum = {
   tier: 'tier',
   group: 'group',
   secretNotes: 'secretNotes',
-  cast: 'cast'
+  cast: 'cast',
+  outputType: 'outputType'
 } as const
 
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]

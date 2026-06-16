@@ -514,6 +514,13 @@ export type JsonNullableFilterBase<$PrismaModel = never> = {
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
 }
 
+export type EnumScenarioOutputTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScenarioOutputType | Prisma.EnumScenarioOutputTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ScenarioOutputType[]
+  notIn?: $Enums.ScenarioOutputType[]
+  not?: Prisma.NestedEnumScenarioOutputTypeFilter<$PrismaModel> | $Enums.ScenarioOutputType
+}
+
 export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
@@ -539,6 +546,16 @@ export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedJsonNullableFilter<$PrismaModel>
   _max?: Prisma.NestedJsonNullableFilter<$PrismaModel>
+}
+
+export type EnumScenarioOutputTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScenarioOutputType | Prisma.EnumScenarioOutputTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ScenarioOutputType[]
+  notIn?: $Enums.ScenarioOutputType[]
+  not?: Prisma.NestedEnumScenarioOutputTypeWithAggregatesFilter<$PrismaModel> | $Enums.ScenarioOutputType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScenarioOutputTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScenarioOutputTypeFilter<$PrismaModel>
 }
 
 export type EnumServerTypeFilter<$PrismaModel = never> = {
@@ -1104,6 +1121,13 @@ export type NestedEnumRewardTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumRewardTypeFilter<$PrismaModel>
 }
 
+export type NestedEnumScenarioOutputTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScenarioOutputType | Prisma.EnumScenarioOutputTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ScenarioOutputType[]
+  notIn?: $Enums.ScenarioOutputType[]
+  not?: Prisma.NestedEnumScenarioOutputTypeFilter<$PrismaModel> | $Enums.ScenarioOutputType
+}
+
 export type NestedJsonNullableFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -1126,6 +1150,16 @@ export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue
   gte?: runtime.InputJsonValue
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedEnumScenarioOutputTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScenarioOutputType | Prisma.EnumScenarioOutputTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ScenarioOutputType[]
+  notIn?: $Enums.ScenarioOutputType[]
+  not?: Prisma.NestedEnumScenarioOutputTypeWithAggregatesFilter<$PrismaModel> | $Enums.ScenarioOutputType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScenarioOutputTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScenarioOutputTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumServerTypeFilter<$PrismaModel = never> = {

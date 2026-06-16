@@ -2585,7 +2585,8 @@ export const ScenarioScalarFieldEnum = {
   tier: 'tier',
   group: 'group',
   secretNotes: 'secretNotes',
-  cast: 'cast'
+  cast: 'cast',
+  outputType: 'outputType'
 } as const
 
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
@@ -3274,6 +3275,13 @@ export type EnumSupportedServerFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'RewardType'
  */
 export type EnumRewardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RewardType'>
+    
+
+
+/**
+ * Reference to a field of type 'ScenarioOutputType'
+ */
+export type EnumScenarioOutputTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScenarioOutputType'>
     
 
 

@@ -148,10 +148,6 @@ describe('Dream API tests', () => {
     'Content-Type': 'application/json',
   })
 
-  const chatsUrl = `${API_BASE}/api/chats`
-
-  const dreamChatCreateUrl = () => chatsUrl
-
   const dreamChatsUrl = (dreamId: number, query = '') => {
     const params = new URLSearchParams(query)
 
@@ -159,13 +155,14 @@ describe('Dream API tests', () => {
       params.set('dreamId', String(dreamId))
     }
 
-    return `${chatsUrl}?${params.toString()}`
+    return `${dreamsUrl}/chats?${params.toString()}`
   }
 
-  // Kept as an alias so older assertions can still describe a "path" case
-  // without recreating nested Dream chat endpoints. Dream chat history belongs to /api/chats.
-  const dreamChatsPathUrl = (dreamId: number, query = '') =>
-    dreamChatsUrl(dreamId, query)
+  const dreamChatsPathUrl = (dreamId: number, query = '') => {
+    const suffix = query ? `?${query}` : ''
+
+    return `${dreamsUrl}/chats/${dreamId}${suffix}`
+  }
 
   const expectDreamShape = (dream: DreamResponse) => {
     expect(dream.id).to.be.a('number')
@@ -585,17 +582,15 @@ describe('Dream API tests', () => {
   it('POST: adds a Dream room chat entry', () => {
     cy.request<ApiResponse<ChatResponse>>({
       method: 'POST',
-      url: dreamChatCreateUrl(),
+      url: dreamChatsUrl(publicDreamId),
       headers: jsonAuthHeaders(),
       body: {
         type: 'Dream',
-        sender: 'Cypress Dreamer',
         title: 'Cypress first arrival',
         content:
           'Add a silver fox made of moonlight and make the greenhouse warmer.',
         userId: testUserId,
         dreamId: publicDreamId,
-        channel: `dream-${publicDreamId}`,
         isPublic: true,
         isMature: false,
       },
@@ -616,7 +611,7 @@ describe('Dream API tests', () => {
   it('POST: adds a model response chat and updates Dream concept fields', () => {
     cy.request<ApiResponse<ChatResponse>>({
       method: 'POST',
-      url: dreamChatCreateUrl(),
+      url: dreamChatsUrl(publicDreamId),
       headers: jsonAuthHeaders(),
       body: {
         type: 'BotResponse',
@@ -628,7 +623,6 @@ describe('Dream API tests', () => {
           'The dream warms. A silver fox curls beneath the lanterns, scattering moonlit sparks.',
         userId: testUserId,
         dreamId: publicDreamId,
-        channel: `dream-${publicDreamId}`,
         updateDream: true,
         description:
           'A warm floating greenhouse market where a moonlit fox guides tiny robot philosophers.',
@@ -653,24 +647,6 @@ describe('Dream API tests', () => {
     })
 
     cy.request<ApiResponse<DreamResponse>>({
-      method: 'PATCH',
-      url: `${dreamsUrl}/${publicDreamId}`,
-      headers: jsonAuthHeaders(),
-      body: {
-        description:
-          'A warm floating greenhouse market where a moonlit fox guides tiny robot philosophers.',
-        pitch:
-          'A warm floating greenhouse market where a moonlit fox guides tiny robot philosophers.',
-        artPrompt:
-          'warm floating greenhouse market, moonlit silver fox, tiny robot philosophers, cozy surreal fantasy',
-        updateNote: 'Cypress bot response updated the Dream concept fields.',
-      },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      requireData(res.body)
-    })
-
-    cy.request<ApiResponse<DreamResponse>>({
       method: 'GET',
       url: `${dreamsUrl}/${publicDreamId}`,
       headers: authHeaders(),
@@ -687,7 +663,7 @@ describe('Dream API tests', () => {
   it('POST: rejects Dream chat without auth', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: dreamChatCreateUrl(),
+      url: dreamChatsUrl(publicDreamId),
       headers: jsonHeaders(),
       body: {
         content: 'This should fail.',
@@ -704,7 +680,7 @@ describe('Dream API tests', () => {
   it('POST: rejects Dream chat with invalid auth', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: dreamChatCreateUrl(),
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         Authorization: `Bearer ${invalidToken}`,
         'Content-Type': 'application/json',
@@ -724,11 +700,10 @@ describe('Dream API tests', () => {
   it('POST: rejects Dream chat without content', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: dreamChatCreateUrl(),
+      url: dreamChatsUrl(publicDreamId),
       headers: jsonAuthHeaders(),
       body: {
         type: 'Dream',
-        sender: 'Cypress Dreamer',
         userId: testUserId,
         dreamId: publicDreamId,
       },
@@ -743,14 +718,12 @@ describe('Dream API tests', () => {
   it('POST: allows owner to chat in a private Dream', () => {
     cy.request<ApiResponse<ChatResponse>>({
       method: 'POST',
-      url: dreamChatCreateUrl(),
+      url: dreamChatsUrl(privateDreamId),
       headers: jsonAuthHeaders(),
       body: {
         type: 'Dream',
-        sender: 'Cypress Dreamer',
         content: 'This owner-authenticated request is allowed to chat.',
         dreamId: privateDreamId,
-        channel: `dream-${privateDreamId}`,
         updateDream: true,
         description: 'Owner reshaped private Dream through chat.',
         pitch: 'Owner reshaped private Dream through chat.',
@@ -767,7 +740,7 @@ describe('Dream API tests', () => {
     })
   })
 
-  it('GET: fetch Dream chat history through /api/chats query', () => {
+  it('GET: fetch Dream chat history through query route', () => {
     cy.request<ApiResponse<ChatResponse[]>>({
       method: 'GET',
       url: dreamChatsUrl(publicDreamId),
@@ -784,7 +757,7 @@ describe('Dream API tests', () => {
     })
   })
 
-  it('GET: fetch Dream chat history through /api/chats query alias', () => {
+  it('GET: fetch Dream chat history through path route', () => {
     cy.request<ApiResponse<ChatResponse[]>>({
       method: 'GET',
       url: dreamChatsPathUrl(publicDreamId),
@@ -929,15 +902,13 @@ describe('Dream API tests', () => {
   it('POST: archived Dream owner chat behavior is stable', () => {
     cy.request<ApiResponse<ChatResponse>>({
       method: 'POST',
-      url: dreamChatCreateUrl(),
+      url: dreamChatsUrl(publicDreamId),
       headers: jsonAuthHeaders(),
       body: {
         type: 'Dream',
-        sender: 'Cypress Dreamer',
         content:
           'Owner can still leave an archival note after closing the Dream.',
         dreamId: publicDreamId,
-        channel: `dream-${publicDreamId}`,
         isPublic: true,
         isMature: false,
       },

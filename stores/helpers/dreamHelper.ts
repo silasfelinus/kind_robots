@@ -31,7 +31,11 @@ export const CREATION_SOURCES = [
 
 export type DreamCreationSource = (typeof CREATION_SOURCES)[number]
 
-type LegacyPitchLike = Partial<Dream> & {
+type LegacyPitchLike = Omit<
+  Partial<Dream>,
+  'title' | 'pitch' | 'artPrompt' | 'designer' | 'creationSource'
+> & {
+  title?: string | null
   PitchType?: string | null
   pitch?: string | null
   artPrompt?: string | null
@@ -277,7 +281,6 @@ export function buildDreamPayload(dream: Partial<Dream>): Partial<Dream> {
     isActive: dream.isActive ?? true,
     artImageId: dream.artImageId ?? null,
     artCollectionId: dream.artCollectionId ?? null,
-    scenarioId: dream.scenarioId ?? null,
   }
 }
 

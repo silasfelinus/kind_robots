@@ -4,8 +4,12 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
-import type { CreationSource, DreamType, Prisma } from '~/prisma/generated/prisma/client'
-import { assertDreamAccess } from './index'
+import type {
+  CreationSource,
+  DreamType,
+  Prisma,
+} from '~/prisma/generated/prisma/client'
+import { assertDreamAccess } from '..'
 
 type DreamPatchBody = {
   title?: string
@@ -224,7 +228,7 @@ function normalizeCreationSource(value: unknown): CreationSource {
     : 'HUMAN'
 }
 
-/** Connect / disconnect a singular primary FK based on a nullable id. */
+/** Connect / disconnect a singular relation based on a nullable id. Do not use for many-to-many relations. */
 function relationFromNullableId(
   value: unknown,
 ): { connect: { id: number } } | { disconnect: true } | undefined {
@@ -397,8 +401,17 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.scenarioId !== undefined) {
-      const relation = relationFromNullableId(body.scenarioId)
-      if (relation) dataInput.Scenario = relation
+      const scenarioId = normalizeNullableId(body.scenarioId)
+
+      if (scenarioId === null) {
+        dataInput.Scenarios = {
+          set: [],
+        }
+      } else if (scenarioId) {
+        dataInput.Scenarios = {
+          set: [{ id: scenarioId }],
+        }
+      }
     }
 
     if (typeof body.isPublic === 'boolean') {

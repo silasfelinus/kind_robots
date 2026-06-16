@@ -25,59 +25,80 @@ export interface AddChatInput {
   dreamId?: number | null
 }
 
-export function isHumanDirectChat(
+function normalizeChatIdentity(value?: string | null): string {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+}
+
+function toPositiveId(value?: number | null): number | null {
+  const id = Number(value || 0)
+  return Number.isFinite(id) && id > 0 ? id : null
+}
+
+function chatMatchesUserId(
+  chat: Partial<Chat>,
+  currentUserId?: number | null,
+): boolean {
+  const userId = toPositiveId(currentUserId)
+
+  if (!userId) return false
+
+  return chat.userId === userId || chat.recipientId === userId
+}
+
+function chatMatchesUsername(
+  chat: Partial<Chat>,
+  currentUsername?: string | null,
+): boolean {
+  const username = normalizeChatIdentity(currentUsername)
+
+  if (!username) return false
+
+  const sender = normalizeChatIdentity(chat.sender)
+  const recipient = normalizeChatIdentity(chat.recipient)
+
+  return sender === username || recipient === username
+}
+
+export function isInboxChat(
   chat: Partial<Chat> | null | undefined,
   currentUserId?: number | null,
   currentUsername?: string | null,
 ): chat is Chat {
   if (!chat) return false
   if (chat.isActive === false) return false
-  if (chat.type !== 'ToUser') return false
-  if (chat.botId) return false
-  if (chat.characterId) return false
-  if (chat.dreamId) return false
-  if (chat.channel) return false
-  if (chat.botName) return false
-  if (chat.botResponse) return false
 
-  const userId = Number(currentUserId || 0)
+  return (
+    chatMatchesUserId(chat, currentUserId) ||
+    chatMatchesUsername(chat, currentUsername)
+  )
+}
 
-  if (userId > 0 && (chat.userId === userId || chat.recipientId === userId)) {
-    return true
-  }
-
-  const username = String(currentUsername || '')
-    .trim()
-    .toLowerCase()
-  if (!username) return false
-
-  const sender = String(chat.sender || '')
-    .trim()
-    .toLowerCase()
-  const recipient = String(chat.recipient || '')
-    .trim()
-    .toLowerCase()
-
-  return sender === username || recipient === username
+export function isHumanDirectChat(
+  chat: Partial<Chat> | null | undefined,
+  currentUserId?: number | null,
+  currentUsername?: string | null,
+): chat is Chat {
+  return isInboxChat(chat, currentUserId, currentUsername)
 }
 
 export function buildNewChat(
   input: AddChatInput,
 ): Omit<Chat, 'id' | 'createdAt' | 'updatedAt'> {
+  const isDirectUserChat = input.type === 'ToUser'
   const isBotChat = input.type === 'ToBot' || input.type === 'BotResponse'
   const isCharacterChat =
     input.type === 'ToCharacter' || input.type === 'Character'
-  const isHumanChat = input.type === 'ToUser'
 
-  const sender =
-    input.sender ||
-    (isBotChat || isCharacterChat ? input.username : input.username) ||
-    'Unknown User'
+  const sender = input.sender || input.username || 'Unknown User'
 
   const recipient =
     input.recipient ||
     (isBotChat || isCharacterChat ? input.botName : null) ||
-    (isHumanChat && input.recipientId ? `User #${input.recipientId}` : null) ||
+    (isDirectUserChat && input.recipientId
+      ? `User #${input.recipientId}`
+      : null) ||
     'Unknown'
 
   return {
@@ -85,26 +106,26 @@ export function buildNewChat(
     userId: input.userId,
     sender,
     recipient,
-    isPublic: input.isPublic ?? !isHumanChat,
+    isPublic: input.isPublic ?? !isDirectUserChat,
     type: input.type,
     recipientId: input.recipientId,
-    botId: isHumanChat ? null : (input.botId ?? null),
-    botName: isHumanChat ? null : (input.botName ?? null),
+    botId: input.botId ?? null,
+    botName: input.botName ?? null,
     originId: input.originId ?? null,
     previousEntryId: input.previousEntryId ?? null,
     artImageId: null,
     title: null,
-    channel: isHumanChat ? null : (input.channel ?? null),
+    channel: input.channel ?? null,
     isFavorite: false,
     promptId: input.promptId ?? null,
-    botResponse: isHumanChat ? null : (input.botResponse ?? null),
-    characterId: isHumanChat ? null : (input.characterId ?? null),
+    botResponse: input.botResponse ?? null,
+    characterId: input.characterId ?? null,
     isRead: false,
     readAt: null,
     isMature: false,
     serverId: input.serverId ?? null,
     serverName: input.serverName ?? null,
-    dreamId: isHumanChat ? null : (input.dreamId ?? null),
+    dreamId: input.dreamId ?? null,
     isActive: true,
   }
 }
@@ -160,14 +181,18 @@ export async function fetchChatsForUser(userId: number): Promise<Chat[]> {
   return response.data || []
 }
 
-export async function fetchHumanChatsForUser(userId: number): Promise<Chat[]> {
-  const response = await performFetch<Chat[]>(`/api/chats/user/human/${userId}`)
+export async function fetchInboxChatsForUser(userId: number): Promise<Chat[]> {
+  const response = await performFetch<Chat[]>(`/api/chats/user/inbox/${userId}`)
 
   if (!response.success) {
-    throw new Error(response.message || 'Failed to fetch human chats')
+    throw new Error(response.message || 'Failed to fetch inbox chats')
   }
 
   return response.data || []
+}
+
+export async function fetchHumanChatsForUser(userId: number): Promise<Chat[]> {
+  return await fetchInboxChatsForUser(userId)
 }
 
 export async function markChatAsRead(chatId: number): Promise<void> {
@@ -176,7 +201,7 @@ export async function markChatAsRead(chatId: number): Promise<void> {
   } catch (error) {
     handleError(
       ErrorType.NETWORK_ERROR,
-      `Failed to mark chat ${chatId} as read`,
+      `Failed to mark chat ${chatId} as read: ${String(error)}`,
     )
   }
 }
@@ -203,6 +228,7 @@ export async function streamChatResponse(
       buffer += decoder.decode(value, { stream: true })
 
       let boundary = -1
+
       while ((boundary = buffer.indexOf('\n\n')) >= 0) {
         const chunk = buffer.slice(0, boundary).trim()
         buffer = buffer.slice(boundary + 2)

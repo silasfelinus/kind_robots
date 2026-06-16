@@ -59,6 +59,8 @@ function normalizeDreamType(value: unknown): DreamType | null {
     'SCENARIO',
     'TEXT',
     'LOCATION',
+    'PITCH',
+    'GENRE',
   ]
 
   return typeof value === 'string' && dreamTypes.includes(value as DreamType)

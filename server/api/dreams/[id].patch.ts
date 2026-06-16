@@ -4,13 +4,14 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
-import type { DreamType, Prisma } from '~/prisma/generated/prisma/client'
+import type { CreationSource, DreamType, Prisma } from '~/prisma/generated/prisma/client'
 import { assertDreamAccess } from './index'
 
 type DreamPatchBody = {
   title?: string
   slug?: string | null
   dreamType?: DreamType
+  creationSource?: CreationSource
   description?: string | null
   pitch?: string | null
   flavorText?: string | null
@@ -48,6 +49,8 @@ const dreamTypes: DreamType[] = [
   'SCENARIO',
   'TEXT',
   'LOCATION',
+  'PITCH',
+  'GENRE',
 ]
 
 const dreamInclude = {
@@ -207,6 +210,20 @@ function normalizeOptionalText(value: unknown): string | null | undefined {
   return value.trim()
 }
 
+const creationSources: CreationSource[] = [
+  'HUMAN',
+  'AI',
+  'HYBRID',
+  'UPLOAD',
+  'UNKNOWN',
+]
+
+function normalizeCreationSource(value: unknown): CreationSource {
+  return creationSources.includes(value as CreationSource)
+    ? (value as CreationSource)
+    : 'HUMAN'
+}
+
 /** Connect / disconnect a singular primary FK based on a nullable id. */
 function relationFromNullableId(
   value: unknown,
@@ -227,6 +244,7 @@ function getUpdateSummary(body: DreamPatchBody): string {
     changes.push('idea')
   }
   if (body.dreamType !== undefined) changes.push('type')
+  if (body.creationSource !== undefined) changes.push('source')
   if (body.artPrompt !== undefined) changes.push('prompt')
   if (
     body.artImageId !== undefined ||
@@ -326,6 +344,10 @@ export default defineEventHandler(async (event) => {
 
     if (body.dreamType !== undefined && dreamTypes.includes(body.dreamType)) {
       dataInput.dreamType = body.dreamType
+    }
+
+    if (body.creationSource !== undefined) {
+      dataInput.creationSource = normalizeCreationSource(body.creationSource)
     }
 
     if (body.description !== undefined) {

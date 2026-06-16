@@ -44,9 +44,9 @@ model ArtImage {
   Characters           Character[]
   Chats                Chat[]
   Components           Component[]
-  Dreams               Dream[]
+  DreamsPrimary        Dream[]         @relation("DreamPrimaryArtImage")
+  Dreams               Dream[]         @relation("DreamToArtImage")
   Milestones           Milestone[]
-  Pitches              Pitch[]
   Prompts              Prompt[]
   Reactions            Reaction[]
   Resources            Resource[]      @relation("ResourcePreviewImage")
@@ -70,12 +70,14 @@ model ArtCollection {
   label       String?
   isMature    Boolean    @default(false)
   isPublic    Boolean    @default(true)
+  imagePath    String?       @db.VarChar(764)
   description String?
   username    String?
   isActive    Boolean    @default(true)
   artPrompt   String?    @db.Text
   User        User       @relation(fields: [userId], references: [id])
-  Dreams      Dream[]
+  DreamsPrimary Dream[]  @relation("DreamPrimaryArtCollection")
+  Dreams      Dream[]    @relation("DreamToArtCollection")
   Reactions   Reaction[]
   ArtImages   ArtImage[] @relation("ArtCollectionToArtImage")
 
@@ -104,6 +106,7 @@ model Bot {
   underConstruction Boolean    @default(false)
   canDelete         Boolean    @default(false)
   userId            Int?       @default(1)
+  imagePath    String?       @db.VarChar(764)
   designer          String     @default("silasfelinus")
   serverId          Int?
   serverName        String?    @db.VarChar(256)
@@ -327,17 +330,16 @@ model Composition {
   characterId    Int?
   dreamId        Int?
   scenarioId     Int?
-  pitchId        Int?
   rewardId       Int?
   // ── Freeform overrides (used when no FK is set, or to override) ───────────
   characterBlurb String?    @db.VarChar(512)
   dreamBlurb     String?    @db.VarChar(512)
   scenarioBlurb  String?    @db.VarChar(512)
-  pitchBlurb     String?    @db.VarChar(512)
   rewardBlurb    String?    @db.VarChar(512)
   // ── Outputs ───────────────────────────────────────────────────────────────
   narrativeText  String?    @db.Text
   artPrompt      String?    @db.Text
+  imagePath      String?       @db.VarChar(764)
   // ── Relations ─────────────────────────────────────────────────────────────
   userId         Int?
   User           User?      @relation(fields: [userId], references: [id])
@@ -346,7 +348,6 @@ model Composition {
   Character      Character? @relation(fields: [characterId], references: [id])
   Dream          Dream?     @relation(fields: [dreamId], references: [id])
   Scenario       Scenario?  @relation(fields: [scenarioId], references: [id])
-  Pitch          Pitch?     @relation(fields: [pitchId], references: [id])
   Reward         Reward?    @relation(fields: [rewardId], references: [id])
   Reactions      Reaction[]
 
@@ -355,58 +356,62 @@ model Composition {
   @@index([characterId])
   @@index([dreamId])
   @@index([scenarioId])
-  @@index([pitchId])
   @@index([rewardId])
 }
 
+/// A Dream is the canonical "idea/vibe" that governs a generation. It absorbs
+/// the old Pitch concept: a single big-picture seed that fuels art assets, text
+/// assets, characters, rewards, and collections. Each Dream can own many
+/// ArtImages / ArtCollections / Characters / Rewards, while also designating a
+/// primary "main choice" for each via the singular FK fields.
 model Dream {
-  id              Int             @id @default(autoincrement())
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime?       @default(now()) @updatedAt
-  title           String          @db.VarChar(255)
-  slug            String?         @unique @db.VarChar(255)
-  description     String?         @db.Text
-  currentVibe     String?         @db.Text
-  currentPrompt   String?         @db.Text
-  userId          Int             @default(10)
-  pitchId         Int?
+  id              Int            @id @default(autoincrement())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime?      @default(now()) @updatedAt
+  // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────
+  title           String         @db.VarChar(255)
+  slug            String?        @unique @db.VarChar(255)
+  dreamType       DreamType      @default(ARTDREAM)
+  description     String?        @db.Text
+  pitch           String?        @db.Text
+  flavorText      String?        @db.VarChar(512)
+  examples        String?        @db.LongText
+  artPrompt       String?        @db.VarChar(764)
+  imagePath       String?        @db.Text
+  highlightImage  String?        @db.VarChar(256)
+  icon            String?
+  designer        String?        @db.VarChar(256)
+  creationSource  CreationSource @default(HUMAN)
+  // ── Flags ─────────────────────────────────────────────────────────────────
+  userId          Int            @default(10)
+  isPublic        Boolean        @default(true)
+  isMature        Boolean        @default(false)
+  isActive        Boolean        @default(true)
+  // ── Primary "main choice" FKs (one each) ──────────────────────────────────
   artImageId      Int?
-  textServerId    Int?
-  artServerId     Int?
   artCollectionId Int?
   scenarioId      Int?
-  isPublic        Boolean         @default(true)
-  isMature        Boolean         @default(false)
-  isActive        Boolean         @default(true)
-  accessMode      DreamAccessMode @default(OPEN)
-  privacyCode     String?         @db.VarChar(255)
-  artPrompt       String?         @db.Text
-  Chats           Chat[]
-  ArtCollection   ArtCollection?  @relation(fields: [artCollectionId], references: [id])
-  ArtImage        ArtImage?       @relation(fields: [artImageId], references: [id])
-  Pitch           Pitch?          @relation(fields: [pitchId], references: [id])
-  Scenario        Scenario?       @relation(fields: [scenarioId], references: [id])
-  User            User            @relation(fields: [userId], references: [id])
+  // ── Relations ─────────────────────────────────────────────────────────────
+  User            User           @relation(fields: [userId], references: [id])
+  ArtImage        ArtImage?      @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
+  ArtCollection   ArtCollection? @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
+  Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
   Reactions       Reaction[]
-  Characters      Character[]     @relation("CharacterToDream")
-  Rewards         Reward[]        @relation("DreamToReward")
   Compositions    Composition[]
+  Chats           Chat[]
+  // ── Many-relations (a Dream can govern many of each) ──────────────────────
+  ArtImages       ArtImage[]     @relation("DreamToArtImage")
+  ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
+  Characters      Character[]    @relation("CharacterToDream")
+  Rewards         Reward[]       @relation("DreamToReward")
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])
-  @@index([accessMode])
+  @@index([dreamType])
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
-  @@index([pitchId])
   @@index([scenarioId])
-}
-
-enum DreamAccessMode {
-  OPEN
-  CODE
-  PRIVATE
-  SOLO
 }
 
 /// our woefully underutilized log function, but it's there.
@@ -438,6 +443,7 @@ model Milestone {
   isRepeatable     Boolean           @default(true)
   artImageId       Int?
   artPrompt        String?           @db.Text
+  imagePath    String?       @db.VarChar(764)
   ArtImage         ArtImage?         @relation(fields: [artImageId], references: [id])
   MilestoneRecords MilestoneRecord[]
 
@@ -493,38 +499,6 @@ model MilestoneRecord {
   @@index([userId], map: "MilestoneRecord_userId_fkey")
 }
 
-/// A Pitch is a big picture tag system that is meant to be fuel for a project that can become art assets, text assets, and physical swag. It can be parents, siblings, or children with other pitches.
-model Pitch {
-  id             Int            @id @default(autoincrement())
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime?      @default(now()) @updatedAt
-  title          String?        @db.VarChar(256)
-  pitch          String         @db.VarChar(764)
-  designer       String?        @db.VarChar(256)
-  flavorText     String?        @db.VarChar(512)
-  highlightImage String?        @db.VarChar(256)
-  PitchType      PitchType      @default(ARTPITCH)
-  isMature       Boolean        @default(false)
-  isPublic       Boolean        @default(true)
-  userId         Int?           @default(1)
-  description    String?        @db.VarChar(256)
-  artImageId     Int?
-  examples       String?        @db.LongText
-  icon           String?
-  creationSource CreationSource @default(HUMAN)
-  isActive       Boolean        @default(true)
-  artPrompt      String?        @db.Text
-  Dreams         Dream[]
-  ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
-  User           User?          @relation(fields: [userId], references: [id])
-  Prompt         Prompt[]
-  Reactions      Reaction[]
-  Compositions   Composition[]
-
-  @@index([userId], map: "Pitch_userId_fkey")
-  @@index([artImageId], map: "Pitch_artImageId_fkey")
-}
-
 /// this is an art or text prompt to an ai to generate new media
 model Prompt {
   id             Int            @id @default(autoincrement())
@@ -532,7 +506,6 @@ model Prompt {
   updatedAt      DateTime?      @default(now()) @updatedAt
   prompt         String         @db.Text
   userId         Int?           @default(1)
-  pitchId        Int?
   botId          Int?
   artImageId     Int?
   creationSource CreationSource @default(HUMAN)
@@ -540,17 +513,16 @@ model Prompt {
   isPublic       Boolean        @default(true)
   isActive       Boolean        @default(true)
   artPrompt      String?        @db.Text
+  imagePath    String?       @db.VarChar(764)
   Chats          Chat[]
   ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
   Bot            Bot?           @relation(fields: [botId], references: [id])
-  Pitch          Pitch?         @relation(fields: [pitchId], references: [id])
   User           User?          @relation(fields: [userId], references: [id])
   Reactions      Reaction[]
 
   @@index([userId], map: "Prompt_userId_fkey")
   @@index([artImageId], map: "Prompt_artImageId_fkey")
   @@index([botId], map: "Prompt_botId_fkey")
-  @@index([pitchId], map: "Prompt_pitchId_fkey")
 }
 
 model Reaction {
@@ -559,7 +531,6 @@ model Reaction {
   updatedAt        DateTime?                 @default(now()) @updatedAt
   comment          String?                   @db.Text
   userId           Int
-  pitchId          Int?
   componentId      Int?
   reactionType     ReactionType
   reactionCategory Reaction_reactionCategory @default(ART_IMAGE)
@@ -586,7 +557,6 @@ model Reaction {
   Component        Component?                @relation(fields: [componentId], references: [id])
   Composition      Composition?              @relation(fields: [compositionId], references: [id])
   Dream            Dream?                    @relation(fields: [dreamId], references: [id])
-  Pitch            Pitch?                    @relation(fields: [pitchId], references: [id])
   Prompt           Prompt?                   @relation(fields: [promptId], references: [id])
   Resource         Resource?                 @relation(fields: [resourceId], references: [id])
   Reward           Reward?                   @relation(fields: [rewardId], references: [id])
@@ -603,7 +573,6 @@ model Reaction {
   @@index([chatId], map: "Reaction_chatId_fkey")
   @@index([componentId], map: "Reaction_componentId_fkey")
   @@index([dreamId], map: "Reaction_dreamId_fkey")
-  @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([promptId], map: "Reaction_promptId_fkey")
   @@index([resourceId], map: "Reaction_resourceId_fkey")
   @@index([rewardId], map: "Reaction_rewardId_fkey")
@@ -887,7 +856,6 @@ model User {
   Dreams                Dream[]
   Logs                  Log[]
   Milestones            MilestoneRecord[]
-  Pitches               Pitch[]
   Prompts               Prompt[]
   Reactions             Reaction[]
   Resources             Resource[]
@@ -1018,8 +986,8 @@ enum ChatType {
   Bot
 }
 
-enum PitchType {
-  ARTPITCH
+enum DreamType {
+  ARTDREAM
   BRAINSTORM
   WEIRDLANDIA
   RANDOMLIST
@@ -1027,12 +995,13 @@ enum PitchType {
   VIBE
   BOT
   INSPIRATION
-  DREAM
   CHARACTER
   REWARD
   SCENARIO
   TEXT
   LOCATION
+  PITCH
+  GENRE
 }
 
 enum Reaction_reactionCategory {
@@ -1046,7 +1015,6 @@ enum Reaction_reactionCategory {
   COMPOSITION
   DREAM
   MESSAGE
-  PITCH
   POST
   PROMPT
   RESOURCE

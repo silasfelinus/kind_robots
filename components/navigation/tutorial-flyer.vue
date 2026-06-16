@@ -1,25 +1,95 @@
 <!-- /components/navigation/tutorial-flyer.vue -->
 <template>
-  <Transition name="tutorial-fade">
+  <!-- Inline: lightweight, single-column on sm, image+text two-up on lg/xl -->
+  <div v-if="inline && config" class="flex flex-col gap-4">
+    <!-- Lead image -->
+    <img
+      v-if="heroImage"
+      :src="heroImage"
+      :alt="`${config.title} tutorial`"
+      loading="lazy"
+      class="w-full rounded-2xl object-cover shadow-sm md:max-h-72 lg:max-h-80"
+    />
+
+    <!-- Overview text -->
+    <div class="flex flex-col gap-3">
+      <p
+        class="text-sm font-medium leading-relaxed text-base-content/80 md:text-base"
+      >
+        {{ config.overview }}
+      </p>
+
+      <div
+        v-if="config.earnings"
+        class="flex items-start gap-2.5 rounded-xl border border-success/30 bg-success/10 px-3.5 py-2.5"
+      >
+        <span class="mt-0.5 leading-none text-success" aria-hidden="true">
+          ✦
+        </span>
+        <p
+          class="text-sm font-semibold leading-relaxed text-success-content/90"
+        >
+          {{ config.earnings }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Sections: image then text, side-by-side only on lg+ -->
+    <section
+      v-for="section in config.sections"
+      :key="section.key"
+      class="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-5"
+    >
+      <img
+        v-if="section.image"
+        :src="section.image"
+        :alt="`${section.title} tutorial illustration`"
+        loading="lazy"
+        class="w-full rounded-xl object-cover shadow-sm md:max-h-56 lg:max-h-none lg:w-2/5 lg:shrink-0"
+        :class="{ 'opacity-50 grayscale': section.underConstruction }"
+      />
+
+      <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div class="flex flex-wrap items-center gap-2">
+          <h3
+            class="text-base font-black leading-tight text-base-content md:text-lg"
+          >
+            {{ section.title }}
+          </h3>
+
+          <span
+            v-if="section.underConstruction"
+            class="badge badge-warning badge-sm gap-1 rounded-lg font-semibold"
+          >
+            <Icon name="kind-icon:wrench" class="h-3 w-3" />
+            Coming soon
+          </span>
+        </div>
+
+        <p
+          class="text-sm font-medium leading-relaxed text-base-content/70 md:text-base"
+        >
+          {{ section.body }}
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal: unchanged full-flyer experience -->
+  <Transition v-else name="tutorial-fade">
     <div
       v-if="visible && config"
-      :class="
-        inline
-          ? 'tutorial-flyer-inline'
-          : 'fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6'
-      "
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
     >
       <div
-        v-if="!inline"
         class="absolute inset-0 bg-base-300/60 backdrop-blur-md"
         @click="close"
       />
 
       <article
-        class="tutorial-flyer relative flex w-full flex-col overflow-hidden rounded-3xl border border-base-300/70 bg-base-100 shadow-2xl ring-1 ring-base-content/5"
-        :class="inline ? '' : 'max-h-[88vh] max-w-2xl'"
-        :role="inline ? undefined : 'dialog'"
-        :aria-modal="inline ? undefined : true"
+        class="tutorial-flyer relative flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-base-300/70 bg-base-100 shadow-2xl ring-1 ring-base-content/5"
+        role="dialog"
+        :aria-modal="true"
         :aria-label="`${config.title} tutorial`"
       >
         <!-- Hero band -->
@@ -36,7 +106,6 @@
           />
 
           <button
-            v-if="!inline"
             type="button"
             class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3 z-10 bg-base-100/70 shadow-sm backdrop-blur transition hover:rotate-90 hover:bg-base-100"
             aria-label="Close tutorial"
@@ -186,7 +255,6 @@
         </div>
 
         <footer
-          v-if="!inline"
           class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-base-300/60 bg-base-200/40 px-5 py-4 sm:px-7"
         >
           <label
@@ -313,16 +381,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.tutorial-flyer-inline {
-  width: 100%;
-  padding-left: 0.75rem;
-}
-
-.tutorial-flyer-inline .tutorial-flyer {
-  border-left-width: 4px;
-  box-shadow: none;
-}
-
 /* Open/close transition for the modal layer */
 .tutorial-fade-enter-active,
 .tutorial-fade-leave-active {

@@ -1,12 +1,6 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
-    <tutorial-flyer
-      v-if="tutorialChannelKey"
-      :channel="tutorialChannelKey"
-      inline
-    />
-
     <div
       class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
     >
@@ -65,6 +59,37 @@
         </p>
       </div>
     </div>
+
+    <!-- Tutorial: collapsed by default, toggled open -->
+    <template v-if="tutorialChannelKey">
+      <button
+        type="button"
+        class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left shadow-sm transition hover:border-primary/40"
+        :aria-expanded="showTutorial"
+        @click="showTutorial = !showTutorial"
+      >
+        <span class="flex items-center gap-2">
+          <Icon name="kind-icon:info" class="h-5 w-5 text-primary" />
+          <span
+            class="text-sm font-black uppercase tracking-widest text-base-content/70"
+          >
+            {{ showTutorial ? 'Hide tutorial' : 'Show tutorial' }}
+          </span>
+        </span>
+        <Icon
+          :name="
+            showTutorial ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+          "
+          class="h-5 w-5 shrink-0 text-base-content/45"
+        />
+      </button>
+
+      <tutorial-flyer
+        v-if="showTutorial"
+        :channel="tutorialChannelKey"
+        inline
+      />
+    </template>
 
     <template v-if="isBuilder">
       <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
@@ -349,6 +374,7 @@ const pageStore = usePageStore()
 const sheetStore = useSheetStore()
 
 const showDebugPath = ref(false)
+const showTutorial = ref(false)
 const openFieldKey = ref('')
 
 const override = computed(() => sheetStore.override)

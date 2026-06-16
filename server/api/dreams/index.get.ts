@@ -3,8 +3,7 @@ import { defineEventHandler, getHeader, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { Prisma } from '~/prisma/generated/prisma/client'
-import { redactDreamAccess } from './index'
+import type { DreamType, Prisma } from '~/prisma/generated/prisma/client'
 
 type DreamListQuery = {
   take?: string
@@ -15,6 +14,7 @@ type DreamListQuery = {
   mine?: string
   userOnly?: string
   search?: string
+  dreamType?: string
   artCollectionId?: string
 }
 
@@ -42,6 +42,28 @@ function normalizePositiveInt(value: unknown): number | null {
   const parsed = Number(value)
 
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null
+}
+
+function normalizeDreamType(value: unknown): DreamType | null {
+  const dreamTypes: DreamType[] = [
+    'ARTDREAM',
+    'BRAINSTORM',
+    'WEIRDLANDIA',
+    'RANDOMLIST',
+    'TITLE',
+    'VIBE',
+    'BOT',
+    'INSPIRATION',
+    'CHARACTER',
+    'REWARD',
+    'SCENARIO',
+    'TEXT',
+    'LOCATION',
+  ]
+
+  return typeof value === 'string' && dreamTypes.includes(value as DreamType)
+    ? (value as DreamType)
+    : null
 }
 
 export default defineEventHandler(async (event) => {
@@ -72,80 +94,43 @@ export default defineEventHandler(async (event) => {
     const userOnly =
       normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
     const search = typeof query.search === 'string' ? query.search.trim() : ''
+    const dreamType = normalizeDreamType(query.dreamType)
     const artCollectionId = normalizePositiveInt(query.artCollectionId)
 
     const andFilters: Prisma.DreamWhereInput[] = []
 
     if (!includeInactive) {
-      andFilters.push({
-        isActive: true,
-      })
+      andFilters.push({ isActive: true })
     }
 
     if (!includeMature) {
-      andFilters.push({
-        isMature: false,
-      })
+      andFilters.push({ isMature: false })
     }
 
     if (userOnly) {
-      if (!userId) {
-        andFilters.push({
-          id: -1,
-        })
-      } else {
-        andFilters.push({
-          userId,
-        })
-      }
+      andFilters.push(userId ? { userId } : { id: -1 })
     } else if (userId) {
       andFilters.push({
-        OR: [
-          {
-            isPublic: true,
-            accessMode: 'OPEN',
-          },
-          {
-            userId,
-          },
-        ],
+        OR: [{ isPublic: true }, { userId }],
       })
     } else {
-      andFilters.push({
-        isPublic: true,
-        accessMode: 'OPEN',
-      })
+      andFilters.push({ isPublic: true })
+    }
+
+    if (dreamType) {
+      andFilters.push({ dreamType })
     }
 
     if (artCollectionId) {
-      andFilters.push({
-        artCollectionId,
-      })
+      andFilters.push({ artCollectionId })
     }
 
     if (search) {
       andFilters.push({
         OR: [
-          {
-            title: {
-              contains: search,
-            },
-          },
-          {
-            description: {
-              contains: search,
-            },
-          },
-          {
-            currentVibe: {
-              contains: search,
-            },
-          },
-          {
-            currentPrompt: {
-              contains: search,
-            },
-          },
+          { title: { contains: search } },
+          { description: { contains: search } },
+          { pitch: { contains: search } },
         ],
       })
     }
@@ -191,6 +176,7 @@ export default defineEventHandler(async (event) => {
               id: true,
               label: true,
               description: true,
+              imagePath: true,
               isPublic: true,
               isMature: true,
               isActive: true,
@@ -218,6 +204,14 @@ export default defineEventHandler(async (event) => {
           },
           Characters: true,
           Rewards: true,
+          _count: {
+            select: {
+              Chats: true,
+              Reactions: true,
+              Characters: true,
+              Rewards: true,
+            },
+          },
         },
       }),
       prisma.dream.count({ where }),
@@ -228,9 +222,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dreams loaded successfully.',
-      data: dreams.map((dream) =>
-        redactDreamAccess(dream, dream.userId === userId),
-      ),
+      data: dreams,
       count,
       statusCode: 200,
     }

@@ -54,6 +54,7 @@ export type MilestoneMinAggregateOutputType = {
   isRepeatable: boolean | null
   artImageId: number | null
   artPrompt: string | null
+  imagePath: string | null
 }
 
 export type MilestoneMaxAggregateOutputType = {
@@ -72,6 +73,7 @@ export type MilestoneMaxAggregateOutputType = {
   isRepeatable: boolean | null
   artImageId: number | null
   artPrompt: string | null
+  imagePath: string | null
 }
 
 export type MilestoneCountAggregateOutputType = {
@@ -90,6 +92,7 @@ export type MilestoneCountAggregateOutputType = {
   isRepeatable: number
   artImageId: number
   artPrompt: number
+  imagePath: number
   _all: number
 }
 
@@ -122,6 +125,7 @@ export type MilestoneMinAggregateInputType = {
   isRepeatable?: true
   artImageId?: true
   artPrompt?: true
+  imagePath?: true
 }
 
 export type MilestoneMaxAggregateInputType = {
@@ -140,6 +144,7 @@ export type MilestoneMaxAggregateInputType = {
   isRepeatable?: true
   artImageId?: true
   artPrompt?: true
+  imagePath?: true
 }
 
 export type MilestoneCountAggregateInputType = {
@@ -158,6 +163,7 @@ export type MilestoneCountAggregateInputType = {
   isRepeatable?: true
   artImageId?: true
   artPrompt?: true
+  imagePath?: true
   _all?: true
 }
 
@@ -263,6 +269,7 @@ export type MilestoneGroupByOutputType = {
   isRepeatable: boolean
   artImageId: number | null
   artPrompt: string | null
+  imagePath: string | null
   _count: MilestoneCountAggregateOutputType | null
   _avg: MilestoneAvgAggregateOutputType | null
   _sum: MilestoneSumAggregateOutputType | null
@@ -304,6 +311,7 @@ export type MilestoneWhereInput = {
   isRepeatable?: Prisma.BoolFilter<"Milestone"> | boolean
   artImageId?: Prisma.IntNullableFilter<"Milestone"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  imagePath?: Prisma.StringNullableFilter<"Milestone"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   MilestoneRecords?: Prisma.MilestoneRecordListRelationFilter
 }
@@ -324,6 +332,7 @@ export type MilestoneOrderByWithRelationInput = {
   isRepeatable?: Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   MilestoneRecords?: Prisma.MilestoneRecordOrderByRelationAggregateInput
   _relevance?: Prisma.MilestoneOrderByRelevanceInput
@@ -348,6 +357,7 @@ export type MilestoneWhereUniqueInput = Prisma.AtLeast<{
   isRepeatable?: Prisma.BoolFilter<"Milestone"> | boolean
   artImageId?: Prisma.IntNullableFilter<"Milestone"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  imagePath?: Prisma.StringNullableFilter<"Milestone"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   MilestoneRecords?: Prisma.MilestoneRecordListRelationFilter
 }, "id">
@@ -368,6 +378,7 @@ export type MilestoneOrderByWithAggregationInput = {
   isRepeatable?: Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.MilestoneCountOrderByAggregateInput
   _avg?: Prisma.MilestoneAvgOrderByAggregateInput
   _max?: Prisma.MilestoneMaxOrderByAggregateInput
@@ -394,6 +405,7 @@ export type MilestoneScalarWhereWithAggregatesInput = {
   isRepeatable?: Prisma.BoolWithAggregatesFilter<"Milestone"> | boolean
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Milestone"> | number | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Milestone"> | string | null
+  imagePath?: Prisma.StringNullableWithAggregatesFilter<"Milestone"> | string | null
 }
 
 export type MilestoneCreateInput = {
@@ -410,6 +422,7 @@ export type MilestoneCreateInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
+  imagePath?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
   MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
 }
@@ -430,6 +443,7 @@ export type MilestoneUncheckedCreateInput = {
   isRepeatable?: boolean
   artImageId?: number | null
   artPrompt?: string | null
+  imagePath?: string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
 }
 
@@ -447,6 +461,7 @@ export type MilestoneUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
   MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
 }
@@ -467,6 +482,7 @@ export type MilestoneUncheckedUpdateInput = {
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
 }
 
@@ -486,6 +502,7 @@ export type MilestoneCreateManyInput = {
   isRepeatable?: boolean
   artImageId?: number | null
   artPrompt?: string | null
+  imagePath?: string | null
 }
 
 export type MilestoneUpdateManyMutationInput = {
@@ -502,6 +519,7 @@ export type MilestoneUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MilestoneUncheckedUpdateManyInput = {
@@ -520,6 +538,7 @@ export type MilestoneUncheckedUpdateManyInput = {
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MilestoneListRelationFilter = {
@@ -554,6 +573,7 @@ export type MilestoneCountOrderByAggregateInput = {
   isRepeatable?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  imagePath?: Prisma.SortOrder
 }
 
 export type MilestoneAvgOrderByAggregateInput = {
@@ -578,6 +598,7 @@ export type MilestoneMaxOrderByAggregateInput = {
   isRepeatable?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  imagePath?: Prisma.SortOrder
 }
 
 export type MilestoneMinOrderByAggregateInput = {
@@ -596,6 +617,7 @@ export type MilestoneMinOrderByAggregateInput = {
   isRepeatable?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  imagePath?: Prisma.SortOrder
 }
 
 export type MilestoneSumOrderByAggregateInput = {
@@ -679,6 +701,7 @@ export type MilestoneCreateWithoutArtImageInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
+  imagePath?: string | null
   MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
 }
 
@@ -697,6 +720,7 @@ export type MilestoneUncheckedCreateWithoutArtImageInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
+  imagePath?: string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
 }
 
@@ -745,6 +769,7 @@ export type MilestoneScalarWhereInput = {
   isRepeatable?: Prisma.BoolFilter<"Milestone"> | boolean
   artImageId?: Prisma.IntNullableFilter<"Milestone"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  imagePath?: Prisma.StringNullableFilter<"Milestone"> | string | null
 }
 
 export type MilestoneCreateWithoutMilestoneRecordsInput = {
@@ -761,6 +786,7 @@ export type MilestoneCreateWithoutMilestoneRecordsInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
+  imagePath?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
 }
 
@@ -780,6 +806,7 @@ export type MilestoneUncheckedCreateWithoutMilestoneRecordsInput = {
   isRepeatable?: boolean
   artImageId?: number | null
   artPrompt?: string | null
+  imagePath?: string | null
 }
 
 export type MilestoneCreateOrConnectWithoutMilestoneRecordsInput = {
@@ -812,6 +839,7 @@ export type MilestoneUpdateWithoutMilestoneRecordsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
 }
 
@@ -831,6 +859,7 @@ export type MilestoneUncheckedUpdateWithoutMilestoneRecordsInput = {
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MilestoneCreateManyArtImageInput = {
@@ -848,6 +877,7 @@ export type MilestoneCreateManyArtImageInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
+  imagePath?: string | null
 }
 
 export type MilestoneUpdateWithoutArtImageInput = {
@@ -864,6 +894,7 @@ export type MilestoneUpdateWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
 }
 
@@ -882,6 +913,7 @@ export type MilestoneUncheckedUpdateWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
 }
 
@@ -900,6 +932,7 @@ export type MilestoneUncheckedUpdateManyWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -949,6 +982,7 @@ export type MilestoneSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   isRepeatable?: boolean
   artImageId?: boolean
   artPrompt?: boolean
+  imagePath?: boolean
   ArtImage?: boolean | Prisma.Milestone$ArtImageArgs<ExtArgs>
   MilestoneRecords?: boolean | Prisma.Milestone$MilestoneRecordsArgs<ExtArgs>
   _count?: boolean | Prisma.MilestoneCountOutputTypeDefaultArgs<ExtArgs>
@@ -972,9 +1006,10 @@ export type MilestoneSelectScalar = {
   isRepeatable?: boolean
   artImageId?: boolean
   artPrompt?: boolean
+  imagePath?: boolean
 }
 
-export type MilestoneOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "label" | "message" | "icon" | "karma" | "pageHint" | "subtleHint" | "triggerCode" | "tooltip" | "isActive" | "isRepeatable" | "artImageId" | "artPrompt", ExtArgs["result"]["milestone"]>
+export type MilestoneOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "label" | "message" | "icon" | "karma" | "pageHint" | "subtleHint" | "triggerCode" | "tooltip" | "isActive" | "isRepeatable" | "artImageId" | "artPrompt" | "imagePath", ExtArgs["result"]["milestone"]>
 export type MilestoneInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Milestone$ArtImageArgs<ExtArgs>
   MilestoneRecords?: boolean | Prisma.Milestone$MilestoneRecordsArgs<ExtArgs>
@@ -1003,6 +1038,7 @@ export type $MilestonePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     isRepeatable: boolean
     artImageId: number | null
     artPrompt: string | null
+    imagePath: string | null
   }, ExtArgs["result"]["milestone"]>
   composites: {}
 }
@@ -1389,6 +1425,7 @@ export interface MilestoneFieldRefs {
   readonly isRepeatable: Prisma.FieldRef<"Milestone", 'Boolean'>
   readonly artImageId: Prisma.FieldRef<"Milestone", 'Int'>
   readonly artPrompt: Prisma.FieldRef<"Milestone", 'String'>
+  readonly imagePath: Prisma.FieldRef<"Milestone", 'String'>
 }
     
 

@@ -29,7 +29,6 @@ export type AggregateReaction = {
 export type ReactionAvgAggregateOutputType = {
   id: number | null
   userId: number | null
-  pitchId: number | null
   componentId: number | null
   rating: number | null
   artImageId: number | null
@@ -50,7 +49,6 @@ export type ReactionAvgAggregateOutputType = {
 export type ReactionSumAggregateOutputType = {
   id: number | null
   userId: number | null
-  pitchId: number | null
   componentId: number | null
   rating: number | null
   artImageId: number | null
@@ -74,7 +72,6 @@ export type ReactionMinAggregateOutputType = {
   updatedAt: Date | null
   comment: string | null
   userId: number | null
-  pitchId: number | null
   componentId: number | null
   reactionType: $Enums.ReactionType | null
   reactionCategory: $Enums.Reaction_reactionCategory | null
@@ -100,7 +97,6 @@ export type ReactionMaxAggregateOutputType = {
   updatedAt: Date | null
   comment: string | null
   userId: number | null
-  pitchId: number | null
   componentId: number | null
   reactionType: $Enums.ReactionType | null
   reactionCategory: $Enums.Reaction_reactionCategory | null
@@ -126,7 +122,6 @@ export type ReactionCountAggregateOutputType = {
   updatedAt: number
   comment: number
   userId: number
-  pitchId: number
   componentId: number
   reactionType: number
   reactionCategory: number
@@ -151,7 +146,6 @@ export type ReactionCountAggregateOutputType = {
 export type ReactionAvgAggregateInputType = {
   id?: true
   userId?: true
-  pitchId?: true
   componentId?: true
   rating?: true
   artImageId?: true
@@ -172,7 +166,6 @@ export type ReactionAvgAggregateInputType = {
 export type ReactionSumAggregateInputType = {
   id?: true
   userId?: true
-  pitchId?: true
   componentId?: true
   rating?: true
   artImageId?: true
@@ -196,7 +189,6 @@ export type ReactionMinAggregateInputType = {
   updatedAt?: true
   comment?: true
   userId?: true
-  pitchId?: true
   componentId?: true
   reactionType?: true
   reactionCategory?: true
@@ -222,7 +214,6 @@ export type ReactionMaxAggregateInputType = {
   updatedAt?: true
   comment?: true
   userId?: true
-  pitchId?: true
   componentId?: true
   reactionType?: true
   reactionCategory?: true
@@ -248,7 +239,6 @@ export type ReactionCountAggregateInputType = {
   updatedAt?: true
   comment?: true
   userId?: true
-  pitchId?: true
   componentId?: true
   reactionType?: true
   reactionCategory?: true
@@ -361,7 +351,6 @@ export type ReactionGroupByOutputType = {
   updatedAt: Date | null
   comment: string | null
   userId: number
-  pitchId: number | null
   componentId: number | null
   reactionType: $Enums.ReactionType
   reactionCategory: $Enums.Reaction_reactionCategory
@@ -410,7 +399,6 @@ export type ReactionWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Reaction"> | Date | string | null
   comment?: Prisma.StringNullableFilter<"Reaction"> | string | null
   userId?: Prisma.IntFilter<"Reaction"> | number
-  pitchId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   componentId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   reactionType?: Prisma.EnumReactionTypeFilter<"Reaction"> | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFilter<"Reaction"> | $Enums.Reaction_reactionCategory
@@ -437,7 +425,6 @@ export type ReactionWhereInput = {
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
   Composition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
-  Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
   Resource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
@@ -452,7 +439,6 @@ export type ReactionOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
-  pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
   componentId?: Prisma.SortOrderInput | Prisma.SortOrder
   reactionType?: Prisma.SortOrder
   reactionCategory?: Prisma.SortOrder
@@ -479,7 +465,6 @@ export type ReactionOrderByWithRelationInput = {
   Component?: Prisma.ComponentOrderByWithRelationInput
   Composition?: Prisma.CompositionOrderByWithRelationInput
   Dream?: Prisma.DreamOrderByWithRelationInput
-  Pitch?: Prisma.PitchOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByWithRelationInput
   Resource?: Prisma.ResourceOrderByWithRelationInput
   Reward?: Prisma.RewardOrderByWithRelationInput
@@ -498,7 +483,6 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"Reaction"> | Date | string | null
   comment?: Prisma.StringNullableFilter<"Reaction"> | string | null
   userId?: Prisma.IntFilter<"Reaction"> | number
-  pitchId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   componentId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   reactionType?: Prisma.EnumReactionTypeFilter<"Reaction"> | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFilter<"Reaction"> | $Enums.Reaction_reactionCategory
@@ -525,7 +509,6 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
   Composition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
-  Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
   Resource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
@@ -540,7 +523,6 @@ export type ReactionOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
-  pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
   componentId?: Prisma.SortOrderInput | Prisma.SortOrder
   reactionType?: Prisma.SortOrder
   reactionCategory?: Prisma.SortOrder
@@ -574,7 +556,6 @@ export type ReactionScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Reaction"> | Date | string | null
   comment?: Prisma.StringNullableWithAggregatesFilter<"Reaction"> | string | null
   userId?: Prisma.IntWithAggregatesFilter<"Reaction"> | number
-  pitchId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   componentId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   reactionType?: Prisma.EnumReactionTypeWithAggregatesFilter<"Reaction"> | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryWithAggregatesFilter<"Reaction"> | $Enums.Reaction_reactionCategory
@@ -610,7 +591,6 @@ export type ReactionCreateInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -625,7 +605,6 @@ export type ReactionUncheckedCreateInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -661,7 +640,6 @@ export type ReactionUpdateInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -676,7 +654,6 @@ export type ReactionUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -702,7 +679,6 @@ export type ReactionCreateManyInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -737,7 +713,6 @@ export type ReactionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -779,7 +754,6 @@ export type ReactionCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  pitchId?: Prisma.SortOrder
   componentId?: Prisma.SortOrder
   reactionType?: Prisma.SortOrder
   reactionCategory?: Prisma.SortOrder
@@ -802,7 +776,6 @@ export type ReactionCountOrderByAggregateInput = {
 export type ReactionAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  pitchId?: Prisma.SortOrder
   componentId?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -826,7 +799,6 @@ export type ReactionMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  pitchId?: Prisma.SortOrder
   componentId?: Prisma.SortOrder
   reactionType?: Prisma.SortOrder
   reactionCategory?: Prisma.SortOrder
@@ -852,7 +824,6 @@ export type ReactionMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  pitchId?: Prisma.SortOrder
   componentId?: Prisma.SortOrder
   reactionType?: Prisma.SortOrder
   reactionCategory?: Prisma.SortOrder
@@ -875,7 +846,6 @@ export type ReactionMinOrderByAggregateInput = {
 export type ReactionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  pitchId?: Prisma.SortOrder
   componentId?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -1271,48 +1241,6 @@ export type ReactionUncheckedUpdateManyWithoutDreamNestedInput = {
   deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
 }
 
-export type ReactionCreateNestedManyWithoutPitchInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutPitchInput, Prisma.ReactionUncheckedCreateWithoutPitchInput> | Prisma.ReactionCreateWithoutPitchInput[] | Prisma.ReactionUncheckedCreateWithoutPitchInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutPitchInput | Prisma.ReactionCreateOrConnectWithoutPitchInput[]
-  createMany?: Prisma.ReactionCreateManyPitchInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUncheckedCreateNestedManyWithoutPitchInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutPitchInput, Prisma.ReactionUncheckedCreateWithoutPitchInput> | Prisma.ReactionCreateWithoutPitchInput[] | Prisma.ReactionUncheckedCreateWithoutPitchInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutPitchInput | Prisma.ReactionCreateOrConnectWithoutPitchInput[]
-  createMany?: Prisma.ReactionCreateManyPitchInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUpdateManyWithoutPitchNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutPitchInput, Prisma.ReactionUncheckedCreateWithoutPitchInput> | Prisma.ReactionCreateWithoutPitchInput[] | Prisma.ReactionUncheckedCreateWithoutPitchInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutPitchInput | Prisma.ReactionCreateOrConnectWithoutPitchInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutPitchInput | Prisma.ReactionUpsertWithWhereUniqueWithoutPitchInput[]
-  createMany?: Prisma.ReactionCreateManyPitchInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutPitchInput | Prisma.ReactionUpdateWithWhereUniqueWithoutPitchInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutPitchInput | Prisma.ReactionUpdateManyWithWhereWithoutPitchInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
-export type ReactionUncheckedUpdateManyWithoutPitchNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutPitchInput, Prisma.ReactionUncheckedCreateWithoutPitchInput> | Prisma.ReactionCreateWithoutPitchInput[] | Prisma.ReactionUncheckedCreateWithoutPitchInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutPitchInput | Prisma.ReactionCreateOrConnectWithoutPitchInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutPitchInput | Prisma.ReactionUpsertWithWhereUniqueWithoutPitchInput[]
-  createMany?: Prisma.ReactionCreateManyPitchInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutPitchInput | Prisma.ReactionUpdateWithWhereUniqueWithoutPitchInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutPitchInput | Prisma.ReactionUpdateManyWithWhereWithoutPitchInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
 export type ReactionCreateNestedManyWithoutPromptInput = {
   create?: Prisma.XOR<Prisma.ReactionCreateWithoutPromptInput, Prisma.ReactionUncheckedCreateWithoutPromptInput> | Prisma.ReactionCreateWithoutPromptInput[] | Prisma.ReactionUncheckedCreateWithoutPromptInput[]
   connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutPromptInput | Prisma.ReactionCreateOrConnectWithoutPromptInput[]
@@ -1588,7 +1516,6 @@ export type ReactionCreateWithoutArtImageInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -1603,7 +1530,6 @@ export type ReactionUncheckedCreateWithoutArtImageInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -1657,7 +1583,6 @@ export type ReactionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Reaction"> | Date | string | null
   comment?: Prisma.StringNullableFilter<"Reaction"> | string | null
   userId?: Prisma.IntFilter<"Reaction"> | number
-  pitchId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   componentId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   reactionType?: Prisma.EnumReactionTypeFilter<"Reaction"> | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFilter<"Reaction"> | $Enums.Reaction_reactionCategory
@@ -1692,7 +1617,6 @@ export type ReactionCreateWithoutArtCollectionInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -1707,7 +1631,6 @@ export type ReactionUncheckedCreateWithoutArtCollectionInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -1767,7 +1690,6 @@ export type ReactionCreateWithoutBotInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -1782,7 +1704,6 @@ export type ReactionUncheckedCreateWithoutBotInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -1842,7 +1763,6 @@ export type ReactionCreateWithoutButterflyInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -1857,7 +1777,6 @@ export type ReactionUncheckedCreateWithoutButterflyInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -1917,7 +1836,6 @@ export type ReactionCreateWithoutCharacterInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -1932,7 +1850,6 @@ export type ReactionUncheckedCreateWithoutCharacterInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -1992,7 +1909,6 @@ export type ReactionCreateWithoutChatInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -2007,7 +1923,6 @@ export type ReactionUncheckedCreateWithoutChatInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2067,7 +1982,6 @@ export type ReactionCreateWithoutComponentInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -2082,7 +1996,6 @@ export type ReactionUncheckedCreateWithoutComponentInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
@@ -2142,7 +2055,6 @@ export type ReactionCreateWithoutCompositionInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -2157,7 +2069,6 @@ export type ReactionUncheckedCreateWithoutCompositionInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2217,7 +2128,6 @@ export type ReactionCreateWithoutDreamInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -2232,7 +2142,6 @@ export type ReactionUncheckedCreateWithoutDreamInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2277,81 +2186,6 @@ export type ReactionUpdateManyWithWhereWithoutDreamInput = {
   data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutDreamInput>
 }
 
-export type ReactionCreateWithoutPitchInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
-  Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
-  Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
-  Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
-  Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
-  Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
-  User: Prisma.UserCreateNestedOneWithoutReactionsInput
-}
-
-export type ReactionUncheckedCreateWithoutPitchInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  butterflyId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-  compositionId?: number | null
-}
-
-export type ReactionCreateOrConnectWithoutPitchInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutPitchInput, Prisma.ReactionUncheckedCreateWithoutPitchInput>
-}
-
-export type ReactionCreateManyPitchInputEnvelope = {
-  data: Prisma.ReactionCreateManyPitchInput | Prisma.ReactionCreateManyPitchInput[]
-  skipDuplicates?: boolean
-}
-
-export type ReactionUpsertWithWhereUniqueWithoutPitchInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.ReactionUpdateWithoutPitchInput, Prisma.ReactionUncheckedUpdateWithoutPitchInput>
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutPitchInput, Prisma.ReactionUncheckedCreateWithoutPitchInput>
-}
-
-export type ReactionUpdateWithWhereUniqueWithoutPitchInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.ReactionUpdateWithoutPitchInput, Prisma.ReactionUncheckedUpdateWithoutPitchInput>
-}
-
-export type ReactionUpdateManyWithWhereWithoutPitchInput = {
-  where: Prisma.ReactionScalarWhereInput
-  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutPitchInput>
-}
-
 export type ReactionCreateWithoutPromptInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2368,7 +2202,6 @@ export type ReactionCreateWithoutPromptInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
@@ -2382,7 +2215,6 @@ export type ReactionUncheckedCreateWithoutPromptInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2443,7 +2275,6 @@ export type ReactionCreateWithoutResourceInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
@@ -2457,7 +2288,6 @@ export type ReactionUncheckedCreateWithoutResourceInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2518,7 +2348,6 @@ export type ReactionCreateWithoutRewardInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
@@ -2532,7 +2361,6 @@ export type ReactionUncheckedCreateWithoutRewardInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2593,7 +2421,6 @@ export type ReactionCreateWithoutScenarioInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -2607,7 +2434,6 @@ export type ReactionUncheckedCreateWithoutScenarioInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2668,7 +2494,6 @@ export type ReactionCreateWithoutThemeInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -2682,7 +2507,6 @@ export type ReactionUncheckedCreateWithoutThemeInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2743,7 +2567,6 @@ export type ReactionCreateWithoutUserInput = {
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
@@ -2756,7 +2579,6 @@ export type ReactionUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   comment?: string | null
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2808,7 +2630,6 @@ export type ReactionCreateManyArtImageInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2842,7 +2663,6 @@ export type ReactionUpdateWithoutArtImageInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -2857,7 +2677,6 @@ export type ReactionUncheckedUpdateWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -2882,7 +2701,6 @@ export type ReactionUncheckedUpdateManyWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -2907,7 +2725,6 @@ export type ReactionCreateManyArtCollectionInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -2941,7 +2758,6 @@ export type ReactionUpdateWithoutArtCollectionInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -2956,7 +2772,6 @@ export type ReactionUncheckedUpdateWithoutArtCollectionInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -2981,7 +2796,6 @@ export type ReactionUncheckedUpdateManyWithoutArtCollectionInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3006,7 +2820,6 @@ export type ReactionCreateManyBotInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3040,7 +2853,6 @@ export type ReactionUpdateWithoutBotInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -3055,7 +2867,6 @@ export type ReactionUncheckedUpdateWithoutBotInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3080,7 +2891,6 @@ export type ReactionUncheckedUpdateManyWithoutBotInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3105,7 +2915,6 @@ export type ReactionCreateManyButterflyInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3139,7 +2948,6 @@ export type ReactionUpdateWithoutButterflyInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -3154,7 +2962,6 @@ export type ReactionUncheckedUpdateWithoutButterflyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3179,7 +2986,6 @@ export type ReactionUncheckedUpdateManyWithoutButterflyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3204,7 +3010,6 @@ export type ReactionCreateManyCharacterInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3238,7 +3043,6 @@ export type ReactionUpdateWithoutCharacterInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -3253,7 +3057,6 @@ export type ReactionUncheckedUpdateWithoutCharacterInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3278,7 +3081,6 @@ export type ReactionUncheckedUpdateManyWithoutCharacterInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3303,7 +3105,6 @@ export type ReactionCreateManyChatInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3337,7 +3138,6 @@ export type ReactionUpdateWithoutChatInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -3352,7 +3152,6 @@ export type ReactionUncheckedUpdateWithoutChatInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3377,7 +3176,6 @@ export type ReactionUncheckedUpdateManyWithoutChatInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3402,7 +3200,6 @@ export type ReactionCreateManyComponentInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
@@ -3436,7 +3233,6 @@ export type ReactionUpdateWithoutComponentInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -3451,7 +3247,6 @@ export type ReactionUncheckedUpdateWithoutComponentInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3476,7 +3271,6 @@ export type ReactionUncheckedUpdateManyWithoutComponentInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3501,7 +3295,6 @@ export type ReactionCreateManyCompositionInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3535,7 +3328,6 @@ export type ReactionUpdateWithoutCompositionInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -3550,7 +3342,6 @@ export type ReactionUncheckedUpdateWithoutCompositionInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3575,7 +3366,6 @@ export type ReactionUncheckedUpdateManyWithoutCompositionInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3600,7 +3390,6 @@ export type ReactionCreateManyDreamInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3634,7 +3423,6 @@ export type ReactionUpdateWithoutDreamInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -3649,7 +3437,6 @@ export type ReactionUncheckedUpdateWithoutDreamInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3674,7 +3461,6 @@ export type ReactionUncheckedUpdateManyWithoutDreamInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3685,105 +3471,6 @@ export type ReactionUncheckedUpdateManyWithoutDreamInput = {
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ReactionCreateManyPitchInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  butterflyId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-  compositionId?: number | null
-}
-
-export type ReactionUpdateWithoutPitchInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
-  Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
-  Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
-  Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
-  Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
-  Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
-  User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-}
-
-export type ReactionUncheckedUpdateWithoutPitchInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ReactionUncheckedUpdateManyWithoutPitchInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3798,7 +3485,6 @@ export type ReactionCreateManyPromptInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3833,7 +3519,6 @@ export type ReactionUpdateWithoutPromptInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
@@ -3847,7 +3532,6 @@ export type ReactionUncheckedUpdateWithoutPromptInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3872,7 +3556,6 @@ export type ReactionUncheckedUpdateManyWithoutPromptInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3897,7 +3580,6 @@ export type ReactionCreateManyResourceInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -3932,7 +3614,6 @@ export type ReactionUpdateWithoutResourceInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
@@ -3946,7 +3627,6 @@ export type ReactionUncheckedUpdateWithoutResourceInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3971,7 +3651,6 @@ export type ReactionUncheckedUpdateManyWithoutResourceInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3996,7 +3675,6 @@ export type ReactionCreateManyRewardInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -4031,7 +3709,6 @@ export type ReactionUpdateWithoutRewardInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
@@ -4045,7 +3722,6 @@ export type ReactionUncheckedUpdateWithoutRewardInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4070,7 +3746,6 @@ export type ReactionUncheckedUpdateManyWithoutRewardInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4095,7 +3770,6 @@ export type ReactionCreateManyScenarioInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -4130,7 +3804,6 @@ export type ReactionUpdateWithoutScenarioInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -4144,7 +3817,6 @@ export type ReactionUncheckedUpdateWithoutScenarioInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4169,7 +3841,6 @@ export type ReactionUncheckedUpdateManyWithoutScenarioInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4194,7 +3865,6 @@ export type ReactionCreateManyThemeInput = {
   updatedAt?: Date | string | null
   comment?: string | null
   userId: number
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -4229,7 +3899,6 @@ export type ReactionUpdateWithoutThemeInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -4243,7 +3912,6 @@ export type ReactionUncheckedUpdateWithoutThemeInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4268,7 +3936,6 @@ export type ReactionUncheckedUpdateManyWithoutThemeInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4292,7 +3959,6 @@ export type ReactionCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   comment?: string | null
-  pitchId?: number | null
   componentId?: number | null
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
@@ -4328,7 +3994,6 @@ export type ReactionUpdateWithoutUserInput = {
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
@@ -4341,7 +4006,6 @@ export type ReactionUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4366,7 +4030,6 @@ export type ReactionUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -4394,7 +4057,6 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   comment?: boolean
   userId?: boolean
-  pitchId?: boolean
   componentId?: boolean
   reactionType?: boolean
   reactionCategory?: boolean
@@ -4421,7 +4083,6 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
   Composition?: boolean | Prisma.Reaction$CompositionArgs<ExtArgs>
   Dream?: boolean | Prisma.Reaction$DreamArgs<ExtArgs>
-  Pitch?: boolean | Prisma.Reaction$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Reaction$PromptArgs<ExtArgs>
   Resource?: boolean | Prisma.Reaction$ResourceArgs<ExtArgs>
   Reward?: boolean | Prisma.Reaction$RewardArgs<ExtArgs>
@@ -4438,7 +4099,6 @@ export type ReactionSelectScalar = {
   updatedAt?: boolean
   comment?: boolean
   userId?: boolean
-  pitchId?: boolean
   componentId?: boolean
   reactionType?: boolean
   reactionCategory?: boolean
@@ -4458,7 +4118,7 @@ export type ReactionSelectScalar = {
   compositionId?: boolean
 }
 
-export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "pitchId" | "componentId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "dreamId" | "artCollectionId" | "butterflyId" | "characterId" | "scenarioId" | "themeId" | "compositionId", ExtArgs["result"]["reaction"]>
+export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "componentId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "dreamId" | "artCollectionId" | "butterflyId" | "characterId" | "scenarioId" | "themeId" | "compositionId", ExtArgs["result"]["reaction"]>
 export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reaction$ArtImageArgs<ExtArgs>
@@ -4469,7 +4129,6 @@ export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
   Composition?: boolean | Prisma.Reaction$CompositionArgs<ExtArgs>
   Dream?: boolean | Prisma.Reaction$DreamArgs<ExtArgs>
-  Pitch?: boolean | Prisma.Reaction$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Reaction$PromptArgs<ExtArgs>
   Resource?: boolean | Prisma.Reaction$ResourceArgs<ExtArgs>
   Reward?: boolean | Prisma.Reaction$RewardArgs<ExtArgs>
@@ -4490,7 +4149,6 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Component: Prisma.$ComponentPayload<ExtArgs> | null
     Composition: Prisma.$CompositionPayload<ExtArgs> | null
     Dream: Prisma.$DreamPayload<ExtArgs> | null
-    Pitch: Prisma.$PitchPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs> | null
     Resource: Prisma.$ResourcePayload<ExtArgs> | null
     Reward: Prisma.$RewardPayload<ExtArgs> | null
@@ -4504,7 +4162,6 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     updatedAt: Date | null
     comment: string | null
     userId: number
-    pitchId: number | null
     componentId: number | null
     reactionType: $Enums.ReactionType
     reactionCategory: $Enums.Reaction_reactionCategory
@@ -4871,7 +4528,6 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
   Component<T extends Prisma.Reaction$ComponentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ComponentArgs<ExtArgs>>): Prisma.Prisma__ComponentClient<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Composition<T extends Prisma.Reaction$CompositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$CompositionArgs<ExtArgs>>): Prisma.Prisma__CompositionClient<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Dream<T extends Prisma.Reaction$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Pitch<T extends Prisma.Reaction$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Reaction$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$PromptArgs<ExtArgs>>): Prisma.Prisma__PromptClient<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Resource<T extends Prisma.Reaction$ResourceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ResourceArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Reward<T extends Prisma.Reaction$RewardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$RewardArgs<ExtArgs>>): Prisma.Prisma__RewardClient<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -4912,7 +4568,6 @@ export interface ReactionFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"Reaction", 'DateTime'>
   readonly comment: Prisma.FieldRef<"Reaction", 'String'>
   readonly userId: Prisma.FieldRef<"Reaction", 'Int'>
-  readonly pitchId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly componentId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly reactionType: Prisma.FieldRef<"Reaction", 'ReactionType'>
   readonly reactionCategory: Prisma.FieldRef<"Reaction", 'Reaction_reactionCategory'>
@@ -5446,25 +5101,6 @@ export type Reaction$DreamArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.DreamInclude<ExtArgs> | null
   where?: Prisma.DreamWhereInput
-}
-
-/**
- * Reaction.Pitch
- */
-export type Reaction$PitchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Pitch
-   */
-  select?: Prisma.PitchSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Pitch
-   */
-  omit?: Prisma.PitchOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PitchInclude<ExtArgs> | null
-  where?: Prisma.PitchWhereInput
 }
 
 /**

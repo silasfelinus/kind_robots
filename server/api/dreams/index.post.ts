@@ -3,36 +3,77 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { Prisma } from '~/prisma/generated/prisma/client'
-import {
-  accessModeToIsPublic,
-  normalizeDreamAccessMode,
-  normalizeDreamPrivacyCode,
-  redactDreamAccess,
-  type DreamAccessMode,
-} from './index'
+import type { DreamType, Prisma } from '~/prisma/generated/prisma/client'
 
 type DreamCreateBody = {
   title?: string
   slug?: string | null
+  dreamType?: DreamType
   description?: string | null
-  currentVibe?: string
-  currentPrompt?: string | null
-  pitchId?: number | null
-  artId?: number | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  highlightImage?: string | null
+  icon?: string | null
+  designer?: string | null
   artImageId?: number | null
-  textServerId?: number | null
-  artServerId?: number | null
   artCollectionId?: number | null
-  galleryId?: number | null
   scenarioId?: number | null
-  accessMode?: DreamAccessMode
-  privacyCode?: string | null
+  characterIds?: number[]
+  rewardIds?: number[]
+  artImageIds?: number[]
+  artCollectionIds?: number[]
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
   createCollection?: boolean
 }
+
+const dreamTypes: DreamType[] = [
+  'ARTDREAM',
+  'BRAINSTORM',
+  'WEIRDLANDIA',
+  'RANDOMLIST',
+  'TITLE',
+  'VIBE',
+  'BOT',
+  'INSPIRATION',
+  'CHARACTER',
+  'REWARD',
+  'SCENARIO',
+  'TEXT',
+  'LOCATION',
+]
+
+const dreamInclude = {
+  User: {
+    select: {
+      id: true,
+      username: true,
+      avatarImage: true,
+    },
+  },
+  ArtImage: {
+    select: {
+      id: true,
+      fileName: true,
+      fileType: true,
+      imagePath: true,
+      path: true,
+      artPrompt: true,
+      promptString: true,
+      userId: true,
+      isPublic: true,
+      isMature: true,
+    },
+  },
+  ArtCollection: true,
+  Scenario: true,
+  Characters: true,
+  Rewards: true,
+} satisfies Prisma.DreamInclude
 
 function normalizeNullableId(value: unknown): number | null | undefined {
   if (value === null) return null
@@ -44,12 +85,34 @@ function normalizeNullableId(value: unknown): number | null | undefined {
   return parsed
 }
 
+function normalizeIdArray(value: unknown): number[] | undefined {
+  if (!Array.isArray(value)) return undefined
+
+  const ids = value.map(Number).filter((id) => Number.isInteger(id) && id > 0)
+
+  return Array.from(new Set(ids))
+}
+
+function normalizeDreamType(value: unknown): DreamType {
+  return dreamTypes.includes(value as DreamType)
+    ? (value as DreamType)
+    : 'ARTDREAM'
+}
+
 function normalizeSlug(value: string): string {
   return value
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '')
+}
+
+function normalizeOptionalText(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+
+  const trimmed = value.trim()
+
+  return trimmed || null
 }
 
 export default defineEventHandler(async (event) => {
@@ -73,25 +136,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const currentVibe = body.currentVibe?.trim()
-    if (!currentVibe) {
-      throw createError({
-        statusCode: 400,
-        message: 'The "currentVibe" field is required.',
-      })
-    }
-
-    const accessMode = normalizeDreamAccessMode(body.accessMode)
-    const privacyCode =
-      accessMode === 'CODE' ? normalizeDreamPrivacyCode(body.privacyCode) : null
-
-    if (accessMode === 'CODE' && !privacyCode) {
-      throw createError({
-        statusCode: 400,
-        message: 'A privacy code is required when accessMode is CODE.',
-      })
-    }
-
     const userRecord = await prisma.user.findUnique({
       where: { id: user.id },
       select: { username: true },
@@ -103,6 +147,9 @@ export default defineEventHandler(async (event) => {
       ? normalizeSlug(body.slug)
       : normalizeSlug(title)
 
+    const isPublic = body.isPublic ?? true
+    const isMature = body.isMature ?? false
+
     let artCollectionId = normalizeNullableId(body.artCollectionId)
 
     if (body.createCollection && !artCollectionId) {
@@ -112,60 +159,74 @@ export default defineEventHandler(async (event) => {
           description: `Curated art for ${title}`,
           userId: user.id,
           username: sender,
-          isPublic: body.isPublic ?? accessModeToIsPublic(accessMode),
-          isMature: body.isMature ?? false,
+          isPublic,
+          isMature,
         },
       })
 
       artCollectionId = collection.id
     }
 
-    const dataInput: Prisma.DreamUncheckedCreateInput = {
+    const characterIds = normalizeIdArray(body.characterIds)
+    const rewardIds = normalizeIdArray(body.rewardIds)
+    const artImageIds = normalizeIdArray(body.artImageIds)
+    const artCollectionIds = normalizeIdArray(body.artCollectionIds)
+
+    const dataInput: Prisma.DreamCreateInput = {
       title,
       slug,
-      description: body.description ?? null,
-      currentVibe,
-      currentPrompt: body.currentPrompt ?? null,
-      userId: user.id,
-      pitchId: normalizeNullableId(body.pitchId),
-      artImageId: normalizeNullableId(body.artImageId),
-      textServerId: normalizeNullableId(body.textServerId),
-      artServerId: normalizeNullableId(body.artServerId),
-      artCollectionId,
-      scenarioId: normalizeNullableId(body.scenarioId),
-      accessMode,
-      privacyCode,
-      isPublic: body.isPublic ?? accessModeToIsPublic(accessMode),
-      isMature: body.isMature ?? false,
+      dreamType: normalizeDreamType(body.dreamType),
+      description: normalizeOptionalText(body.description),
+      pitch: normalizeOptionalText(body.pitch),
+      flavorText: normalizeOptionalText(body.flavorText),
+      examples: normalizeOptionalText(body.examples),
+      artPrompt: normalizeOptionalText(body.artPrompt),
+      imagePath: normalizeOptionalText(body.imagePath),
+      highlightImage: normalizeOptionalText(body.highlightImage),
+      icon: normalizeOptionalText(body.icon),
+      designer: normalizeOptionalText(body.designer) ?? sender,
+      isPublic,
+      isMature,
       isActive: body.isActive ?? true,
+      User: {
+        connect: { id: user.id },
+      },
+      ...(normalizeNullableId(body.artImageId)
+        ? {
+            ArtImage: {
+              connect: { id: normalizeNullableId(body.artImageId)! },
+            },
+          }
+        : {}),
+      ...(artCollectionId
+        ? { ArtCollection: { connect: { id: artCollectionId } } }
+        : {}),
+      ...(normalizeNullableId(body.scenarioId)
+        ? {
+            Scenario: {
+              connect: { id: normalizeNullableId(body.scenarioId)! },
+            },
+          }
+        : {}),
+      ...(characterIds?.length
+        ? { Characters: { connect: characterIds.map((id) => ({ id })) } }
+        : {}),
+      ...(rewardIds?.length
+        ? { Rewards: { connect: rewardIds.map((id) => ({ id })) } }
+        : {}),
+      ...(artImageIds?.length
+        ? { ArtImages: { connect: artImageIds.map((id) => ({ id })) } }
+        : {}),
+      ...(artCollectionIds?.length
+        ? {
+            ArtCollections: { connect: artCollectionIds.map((id) => ({ id })) },
+          }
+        : {}),
     }
 
     const data = await prisma.dream.create({
       data: dataInput,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            avatarImage: true,
-          },
-        },
-        Pitch: true,
-        ArtImage: {
-          select: {
-            id: true,
-            fileName: true,
-            fileType: true,
-            createdAt: true,
-            updatedAt: true,
-            userId: true,
-          },
-        },
-        ArtCollection: true,
-        Scenario: true,
-        Characters: true,
-        Rewards: true,
-      },
+      include: dreamInclude,
     })
 
     await prisma.chat.create({
@@ -187,7 +248,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dream created successfully.',
-      data: redactDreamAccess(data, true),
+      data,
       statusCode: 201,
     }
   } catch (error) {

@@ -399,7 +399,6 @@ export const ModelName = {
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
   MilestoneRecord: 'MilestoneRecord',
-  Pitch: 'Pitch',
   Prompt: 'Prompt',
   Reaction: 'Reaction',
   Resource: 'Resource',
@@ -425,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1419,72 +1418,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Pitch: {
-      payload: Prisma.$PitchPayload<ExtArgs>
-      fields: Prisma.PitchFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.PitchFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.PitchFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload>
-        }
-        findFirst: {
-          args: Prisma.PitchFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.PitchFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload>
-        }
-        findMany: {
-          args: Prisma.PitchFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload>[]
-        }
-        create: {
-          args: Prisma.PitchCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload>
-        }
-        createMany: {
-          args: Prisma.PitchCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.PitchDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload>
-        }
-        update: {
-          args: Prisma.PitchUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload>
-        }
-        deleteMany: {
-          args: Prisma.PitchDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.PitchUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.PitchUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchPayload>
-        }
-        aggregate: {
-          args: Prisma.PitchAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePitch>
-        }
-        groupBy: {
-          args: Prisma.PitchGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PitchGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.PitchCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PitchCountAggregateOutputType> | number
-        }
-      }
-    }
     Prompt: {
       payload: Prisma.$PromptPayload<ExtArgs>
       fields: Prisma.PromptFieldRefs
@@ -2226,6 +2159,7 @@ export const ArtCollectionScalarFieldEnum = {
   label: 'label',
   isMature: 'isMature',
   isPublic: 'isPublic',
+  imagePath: 'imagePath',
   description: 'description',
   username: 'username',
   isActive: 'isActive',
@@ -2257,6 +2191,7 @@ export const BotScalarFieldEnum = {
   underConstruction: 'underConstruction',
   canDelete: 'canDelete',
   userId: 'userId',
+  imagePath: 'imagePath',
   designer: 'designer',
   serverId: 'serverId',
   serverName: 'serverName',
@@ -2424,15 +2359,14 @@ export const CompositionScalarFieldEnum = {
   characterId: 'characterId',
   dreamId: 'dreamId',
   scenarioId: 'scenarioId',
-  pitchId: 'pitchId',
   rewardId: 'rewardId',
   characterBlurb: 'characterBlurb',
   dreamBlurb: 'dreamBlurb',
   scenarioBlurb: 'scenarioBlurb',
-  pitchBlurb: 'pitchBlurb',
   rewardBlurb: 'rewardBlurb',
   narrativeText: 'narrativeText',
   artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
   userId: 'userId',
   artImageId: 'artImageId'
 } as const
@@ -2446,22 +2380,24 @@ export const DreamScalarFieldEnum = {
   updatedAt: 'updatedAt',
   title: 'title',
   slug: 'slug',
+  dreamType: 'dreamType',
   description: 'description',
-  currentVibe: 'currentVibe',
-  currentPrompt: 'currentPrompt',
+  pitch: 'pitch',
+  flavorText: 'flavorText',
+  examples: 'examples',
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  highlightImage: 'highlightImage',
+  icon: 'icon',
+  designer: 'designer',
+  creationSource: 'creationSource',
   userId: 'userId',
-  pitchId: 'pitchId',
-  artImageId: 'artImageId',
-  textServerId: 'textServerId',
-  artServerId: 'artServerId',
-  artCollectionId: 'artCollectionId',
-  scenarioId: 'scenarioId',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive',
-  accessMode: 'accessMode',
-  privacyCode: 'privacyCode',
-  artPrompt: 'artPrompt'
+  artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
+  scenarioId: 'scenarioId'
 } as const
 
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
@@ -2493,7 +2429,8 @@ export const MilestoneScalarFieldEnum = {
   isActive: 'isActive',
   isRepeatable: 'isRepeatable',
   artImageId: 'artImageId',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath'
 } as const
 
 export type MilestoneScalarFieldEnum = (typeof MilestoneScalarFieldEnum)[keyof typeof MilestoneScalarFieldEnum]
@@ -2529,45 +2466,20 @@ export const MilestoneRecordScalarFieldEnum = {
 export type MilestoneRecordScalarFieldEnum = (typeof MilestoneRecordScalarFieldEnum)[keyof typeof MilestoneRecordScalarFieldEnum]
 
 
-export const PitchScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  title: 'title',
-  pitch: 'pitch',
-  designer: 'designer',
-  flavorText: 'flavorText',
-  highlightImage: 'highlightImage',
-  PitchType: 'PitchType',
-  isMature: 'isMature',
-  isPublic: 'isPublic',
-  userId: 'userId',
-  description: 'description',
-  artImageId: 'artImageId',
-  examples: 'examples',
-  icon: 'icon',
-  creationSource: 'creationSource',
-  isActive: 'isActive',
-  artPrompt: 'artPrompt'
-} as const
-
-export type PitchScalarFieldEnum = (typeof PitchScalarFieldEnum)[keyof typeof PitchScalarFieldEnum]
-
-
 export const PromptScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   prompt: 'prompt',
   userId: 'userId',
-  pitchId: 'pitchId',
   botId: 'botId',
   artImageId: 'artImageId',
   creationSource: 'creationSource',
   isMature: 'isMature',
   isPublic: 'isPublic',
   isActive: 'isActive',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath'
 } as const
 
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
@@ -2579,7 +2491,6 @@ export const ReactionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   comment: 'comment',
   userId: 'userId',
-  pitchId: 'pitchId',
   componentId: 'componentId',
   reactionType: 'reactionType',
   reactionCategory: 'reactionCategory',
@@ -2881,6 +2792,7 @@ export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevance
 
 export const ArtCollectionOrderByRelevanceFieldEnum = {
   label: 'label',
+  imagePath: 'imagePath',
   description: 'description',
   username: 'username',
   artPrompt: 'artPrompt'
@@ -2904,6 +2816,7 @@ export const BotOrderByRelevanceFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
+  imagePath: 'imagePath',
   designer: 'designer',
   serverName: 'serverName',
   artPrompt: 'artPrompt'
@@ -3006,10 +2919,10 @@ export const CompositionOrderByRelevanceFieldEnum = {
   characterBlurb: 'characterBlurb',
   dreamBlurb: 'dreamBlurb',
   scenarioBlurb: 'scenarioBlurb',
-  pitchBlurb: 'pitchBlurb',
   rewardBlurb: 'rewardBlurb',
   narrativeText: 'narrativeText',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath'
 } as const
 
 export type CompositionOrderByRelevanceFieldEnum = (typeof CompositionOrderByRelevanceFieldEnum)[keyof typeof CompositionOrderByRelevanceFieldEnum]
@@ -3019,10 +2932,14 @@ export const DreamOrderByRelevanceFieldEnum = {
   title: 'title',
   slug: 'slug',
   description: 'description',
-  currentVibe: 'currentVibe',
-  currentPrompt: 'currentPrompt',
-  privacyCode: 'privacyCode',
-  artPrompt: 'artPrompt'
+  pitch: 'pitch',
+  flavorText: 'flavorText',
+  examples: 'examples',
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  highlightImage: 'highlightImage',
+  icon: 'icon',
+  designer: 'designer'
 } as const
 
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
@@ -3044,7 +2961,8 @@ export const MilestoneOrderByRelevanceFieldEnum = {
   subtleHint: 'subtleHint',
   triggerCode: 'triggerCode',
   tooltip: 'tooltip',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath'
 } as const
 
 export type MilestoneOrderByRelevanceFieldEnum = (typeof MilestoneOrderByRelevanceFieldEnum)[keyof typeof MilestoneOrderByRelevanceFieldEnum]
@@ -3066,24 +2984,10 @@ export const MilestoneRecordOrderByRelevanceFieldEnum = {
 export type MilestoneRecordOrderByRelevanceFieldEnum = (typeof MilestoneRecordOrderByRelevanceFieldEnum)[keyof typeof MilestoneRecordOrderByRelevanceFieldEnum]
 
 
-export const PitchOrderByRelevanceFieldEnum = {
-  title: 'title',
-  pitch: 'pitch',
-  designer: 'designer',
-  flavorText: 'flavorText',
-  highlightImage: 'highlightImage',
-  description: 'description',
-  examples: 'examples',
-  icon: 'icon',
-  artPrompt: 'artPrompt'
-} as const
-
-export type PitchOrderByRelevanceFieldEnum = (typeof PitchOrderByRelevanceFieldEnum)[keyof typeof PitchOrderByRelevanceFieldEnum]
-
-
 export const PromptOrderByRelevanceFieldEnum = {
   prompt: 'prompt',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath'
 } as const
 
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
@@ -3310,23 +3214,9 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
- * Reference to a field of type 'DreamAccessMode'
+ * Reference to a field of type 'DreamType'
  */
-export type EnumDreamAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamAccessMode'>
-    
-
-
-/**
- * Reference to a field of type 'ManaReason'
- */
-export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaReason'>
-    
-
-
-/**
- * Reference to a field of type 'PitchType'
- */
-export type EnumPitchTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PitchType'>
+export type EnumDreamTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamType'>
     
 
 
@@ -3334,6 +3224,13 @@ export type EnumPitchTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'CreationSource'
  */
 export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CreationSource'>
+    
+
+
+/**
+ * Reference to a field of type 'ManaReason'
+ */
+export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaReason'>
     
 
 
@@ -3545,7 +3442,6 @@ export type GlobalOmitConfig = {
   milestone?: Prisma.MilestoneOmit
   manaTransaction?: Prisma.ManaTransactionOmit
   milestoneRecord?: Prisma.MilestoneRecordOmit
-  pitch?: Prisma.PitchOmit
   prompt?: Prisma.PromptOmit
   reaction?: Prisma.ReactionOmit
   resource?: Prisma.ResourceOmit

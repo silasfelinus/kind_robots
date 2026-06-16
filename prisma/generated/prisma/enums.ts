@@ -9,16 +9,6 @@
 * 🟢 You can import this file directly.
 */
 
-export const DreamAccessMode = {
-  OPEN: 'OPEN',
-  CODE: 'CODE',
-  PRIVATE: 'PRIVATE',
-  SOLO: 'SOLO'
-} as const
-
-export type DreamAccessMode = (typeof DreamAccessMode)[keyof typeof DreamAccessMode]
-
-
 export const ManaReason = {
   SIGNUP_BONUS: 'SIGNUP_BONUS',
   CYCLE_REFILL: 'CYCLE_REFILL',
@@ -142,8 +132,8 @@ export const ChatType = {
 export type ChatType = (typeof ChatType)[keyof typeof ChatType]
 
 
-export const PitchType = {
-  ARTPITCH: 'ARTPITCH',
+export const DreamType = {
+  ARTDREAM: 'ARTDREAM',
   BRAINSTORM: 'BRAINSTORM',
   WEIRDLANDIA: 'WEIRDLANDIA',
   RANDOMLIST: 'RANDOMLIST',
@@ -151,15 +141,16 @@ export const PitchType = {
   VIBE: 'VIBE',
   BOT: 'BOT',
   INSPIRATION: 'INSPIRATION',
-  DREAM: 'DREAM',
   CHARACTER: 'CHARACTER',
   REWARD: 'REWARD',
   SCENARIO: 'SCENARIO',
   TEXT: 'TEXT',
-  LOCATION: 'LOCATION'
+  LOCATION: 'LOCATION',
+  PITCH: 'PITCH',
+  GENRE: 'GENRE'
 } as const
 
-export type PitchType = (typeof PitchType)[keyof typeof PitchType]
+export type DreamType = (typeof DreamType)[keyof typeof DreamType]
 
 
 export const Reaction_reactionCategory = {
@@ -173,7 +164,6 @@ export const Reaction_reactionCategory = {
   COMPOSITION: 'COMPOSITION',
   DREAM: 'DREAM',
   MESSAGE: 'MESSAGE',
-  PITCH: 'PITCH',
   POST: 'POST',
   PROMPT: 'PROMPT',
   RESOURCE: 'RESOURCE',

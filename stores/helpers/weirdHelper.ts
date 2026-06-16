@@ -123,5 +123,6 @@ export function fromSeedScenario(scenario: ScenarioSeedInput): ScenarioView {
     tier: scenario.tier ?? null,
     group: scenario.group ?? null,
     secretNotes: scenario.secretNotes ?? null,
+    cast: scenario.cast ?? null,
   }
 }

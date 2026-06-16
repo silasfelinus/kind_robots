@@ -4,7 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
-import { assertDreamAccess } from './index'
+import { assertDreamAccess } from '..'
 
 function getDreamId(event: H3Event): number {
   const id = Number(event.context.params?.id)

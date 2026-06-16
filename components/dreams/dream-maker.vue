@@ -1,28 +1,44 @@
 <!-- /components/dreams/dream-maker.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200">
+  <section
+    class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+  >
     <header class="shrink-0 border-b border-base-300 bg-base-100 p-4">
-      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div
+        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
+      >
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
             <Icon name="kind-icon:dream" class="h-7 w-7 text-primary" />
             <h1 class="text-2xl font-black text-primary">Dreammaker</h1>
-            <span v-if="dreamStore.dreamForm.id" class="badge badge-outline rounded-xl">
+            <span
+              v-if="dreamStore.dreamForm.id"
+              class="badge badge-outline rounded-xl"
+            >
               Editing #{{ dreamStore.dreamForm.id }}
             </span>
             <span v-else class="badge badge-success rounded-xl">New Dream</span>
           </div>
           <p class="mt-1 max-w-3xl text-sm text-base-content/65">
-            Create or edit the Dream seed: pitch, description, flavor, art prompt, and visibility.
+            Create or edit the Dream seed: pitch, description, flavor, art
+            prompt, and visibility.
           </p>
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button type="button" class="btn btn-ghost btn-sm rounded-2xl" @click="randomizeSeed">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-2xl"
+            @click="randomizeSeed"
+          >
             <Icon name="kind-icon:dice" class="h-4 w-4" />
             Random Seed
           </button>
-          <button type="button" class="btn btn-outline btn-sm rounded-2xl" @click="clearForm">
+          <button
+            type="button"
+            class="btn btn-outline btn-sm rounded-2xl"
+            @click="clearForm"
+          >
             <Icon name="kind-icon:x" class="h-4 w-4" />
             Clear
           </button>
@@ -32,7 +48,10 @@
             :disabled="dreamStore.isSaving || !canSave"
             @click="saveDream"
           >
-            <span v-if="dreamStore.isSaving" class="loading loading-spinner loading-xs" />
+            <span
+              v-if="dreamStore.isSaving"
+              class="loading loading-spinner loading-xs"
+            />
             <Icon v-else name="kind-icon:save" class="h-4 w-4" />
             {{ saveLabel }}
           </button>
@@ -42,7 +61,11 @@
       <div
         v-if="dreamStore.error || statusMessage"
         class="mt-3 rounded-2xl border p-3 text-sm"
-        :class="dreamStore.error || statusTone === 'error' ? 'border-error/40 bg-error/10 text-error' : 'border-success/40 bg-success/10 text-success'"
+        :class="
+          dreamStore.error || statusTone === 'error'
+            ? 'border-error/40 bg-error/10 text-error'
+            : 'border-success/40 bg-success/10 text-success'
+        "
       >
         {{ dreamStore.error || statusMessage }}
       </div>
@@ -55,7 +78,10 @@
             <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
               <label class="form-control">
                 <span class="label py-1">
-                  <span class="label-text text-xs font-bold uppercase tracking-wide">Title</span>
+                  <span
+                    class="label-text text-xs font-bold uppercase tracking-wide"
+                    >Title</span
+                  >
                 </span>
                 <input
                   v-model="dreamStore.dreamForm.title"
@@ -67,13 +93,20 @@
 
               <label class="form-control">
                 <span class="label py-1">
-                  <span class="label-text text-xs font-bold uppercase tracking-wide">Type</span>
+                  <span
+                    class="label-text text-xs font-bold uppercase tracking-wide"
+                    >Type</span
+                  >
                 </span>
                 <select
                   v-model="dreamStore.dreamForm.dreamType"
                   class="select select-bordered rounded-2xl bg-base-200"
                 >
-                  <option v-for="type in dreamStore.dreamTypes" :key="type" :value="type">
+                  <option
+                    v-for="type in dreamStore.dreamTypes"
+                    :key="type"
+                    :value="type"
+                  >
                     {{ dreamTypeLabel(type) }}
                   </option>
                 </select>
@@ -83,7 +116,10 @@
             <div class="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem]">
               <label class="form-control">
                 <span class="label py-1">
-                  <span class="label-text text-xs font-bold uppercase tracking-wide">Slug</span>
+                  <span
+                    class="label-text text-xs font-bold uppercase tracking-wide"
+                    >Slug</span
+                  >
                 </span>
                 <input
                   v-model="dreamStore.dreamForm.slug"
@@ -93,7 +129,11 @@
                 />
               </label>
 
-              <button type="button" class="btn btn-outline mt-auto rounded-2xl" @click="suggestSlug">
+              <button
+                type="button"
+                class="btn btn-outline mt-auto rounded-2xl"
+                @click="suggestSlug"
+              >
                 <Icon name="kind-icon:wand" class="h-4 w-4" />
                 Suggest Slug
               </button>
@@ -103,7 +143,10 @@
           <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
             <label class="form-control">
               <span class="label py-1">
-                <span class="label-text text-xs font-bold uppercase tracking-wide">Dream Pitch</span>
+                <span
+                  class="label-text text-xs font-bold uppercase tracking-wide"
+                  >Dream Pitch</span
+                >
               </span>
               <textarea
                 v-model="dreamStore.dreamForm.pitch"
@@ -114,7 +157,10 @@
 
             <label class="form-control mt-3">
               <span class="label py-1">
-                <span class="label-text text-xs font-bold uppercase tracking-wide">Description</span>
+                <span
+                  class="label-text text-xs font-bold uppercase tracking-wide"
+                  >Description</span
+                >
               </span>
               <textarea
                 v-model="dreamStore.dreamForm.description"
@@ -125,7 +171,10 @@
 
             <label class="form-control mt-3">
               <span class="label py-1">
-                <span class="label-text text-xs font-bold uppercase tracking-wide">Flavor Text</span>
+                <span
+                  class="label-text text-xs font-bold uppercase tracking-wide"
+                  >Flavor Text</span
+                >
               </span>
               <textarea
                 v-model="dreamStore.dreamForm.flavorText"
@@ -139,9 +188,15 @@
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 class="text-lg font-black">Art Prompt</h2>
-                <p class="text-sm text-base-content/60">Used by Interact when generating art around this Dream.</p>
+                <p class="text-sm text-base-content/60">
+                  Used by Interact when generating art around this Dream.
+                </p>
               </div>
-              <button type="button" class="btn btn-secondary btn-sm rounded-2xl" @click="copyPitchToArtPrompt">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm rounded-2xl"
+                @click="copyPitchToArtPrompt"
+              >
                 <Icon name="kind-icon:copy" class="h-4 w-4" />
                 Use Pitch
               </button>
@@ -157,7 +212,9 @@
           <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
             <div class="grid gap-3 md:grid-cols-3">
               <label class="form-control">
-                <span class="label py-1"><span class="label-text font-bold">Icon</span></span>
+                <span class="label py-1"
+                  ><span class="label-text font-bold">Icon</span></span
+                >
                 <input
                   v-model="dreamStore.dreamForm.icon"
                   class="input input-bordered rounded-2xl bg-base-200"
@@ -167,7 +224,9 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"><span class="label-text font-bold">Art Image ID</span></span>
+                <span class="label py-1"
+                  ><span class="label-text font-bold">Art Image ID</span></span
+                >
                 <input
                   v-model.number="dreamStore.dreamForm.artImageId"
                   class="input input-bordered rounded-2xl bg-base-200"
@@ -178,7 +237,11 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"><span class="label-text font-bold">Art Collection ID</span></span>
+                <span class="label py-1"
+                  ><span class="label-text font-bold"
+                    >Art Collection ID</span
+                  ></span
+                >
                 <input
                   v-model.number="dreamStore.dreamForm.artCollectionId"
                   class="input input-bordered rounded-2xl bg-base-200"
@@ -191,18 +254,9 @@
 
             <div class="mt-3 grid gap-3 md:grid-cols-2">
               <label class="form-control">
-                <span class="label py-1"><span class="label-text font-bold">Scenario ID</span></span>
-                <input
-                  v-model.number="dreamStore.dreamForm.scenarioId"
-                  class="input input-bordered rounded-2xl bg-base-200"
-                  type="number"
-                  min="1"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label py-1"><span class="label-text font-bold">Designer</span></span>
+                <span class="label py-1"
+                  ><span class="label-text font-bold">Designer</span></span
+                >
                 <input
                   v-model="dreamStore.dreamForm.designer"
                   class="input input-bordered rounded-2xl bg-base-200"
@@ -218,33 +272,62 @@
           <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
             <h2 class="text-lg font-black">Visibility</h2>
             <div class="mt-3 grid gap-2">
-              <label class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2">
+              <label
+                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+              >
                 <span class="label-text font-bold">Public</span>
-                <input v-model="dreamStore.dreamForm.isPublic" type="checkbox" class="toggle toggle-primary" />
+                <input
+                  v-model="dreamStore.dreamForm.isPublic"
+                  type="checkbox"
+                  class="toggle toggle-primary"
+                />
               </label>
 
-              <label class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2">
+              <label
+                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+              >
                 <span class="label-text font-bold">Mature</span>
-                <input v-model="dreamStore.dreamForm.isMature" type="checkbox" class="toggle toggle-warning" />
+                <input
+                  v-model="dreamStore.dreamForm.isMature"
+                  type="checkbox"
+                  class="toggle toggle-warning"
+                />
               </label>
 
-              <label class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2">
+              <label
+                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+              >
                 <span class="label-text font-bold">Active</span>
-                <input v-model="dreamStore.dreamForm.isActive" type="checkbox" class="toggle toggle-success" />
+                <input
+                  v-model="dreamStore.dreamForm.isActive"
+                  type="checkbox"
+                  class="toggle toggle-success"
+                />
               </label>
 
-              <label class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2">
+              <label
+                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+              >
                 <span class="label-text font-bold">Create art collection</span>
-                <input v-model="dreamStore.dreamForm.createCollection" type="checkbox" class="toggle toggle-secondary" />
+                <input
+                  v-model="dreamStore.dreamForm.createCollection"
+                  type="checkbox"
+                  class="toggle toggle-secondary"
+                />
               </label>
             </div>
           </section>
 
           <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
             <h2 class="text-lg font-black">Preview</h2>
-            <div class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div
+              class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            >
               <div class="flex items-start gap-3">
-                <Icon :name="dreamStore.dreamForm.icon || 'kind-icon:dream'" class="mt-1 h-6 w-6 text-primary" />
+                <Icon
+                  :name="dreamStore.dreamForm.icon || 'kind-icon:dream'"
+                  class="mt-1 h-6 w-6 text-primary"
+                />
                 <div class="min-w-0">
                   <p class="truncate text-xl font-black text-primary">
                     {{ dreamStore.dreamForm.title || 'Untitled Dream' }}
@@ -256,7 +339,11 @@
                 </div>
               </div>
               <p class="mt-3 whitespace-pre-wrap text-sm text-base-content/70">
-                {{ dreamStore.dreamForm.pitch || dreamStore.dreamForm.description || 'No pitch yet.' }}
+                {{
+                  dreamStore.dreamForm.pitch ||
+                  dreamStore.dreamForm.description ||
+                  'No pitch yet.'
+                }}
               </p>
             </div>
           </section>
@@ -264,7 +351,11 @@
           <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
             <h2 class="text-lg font-black">Checks</h2>
             <div class="mt-3 grid gap-2 text-sm">
-              <div v-for="check in checks" :key="check.label" class="flex items-center justify-between rounded-xl bg-base-200 px-3 py-2">
+              <div
+                v-for="check in checks"
+                :key="check.label"
+                class="flex items-center justify-between rounded-xl bg-base-200 px-3 py-2"
+              >
                 <span>{{ check.label }}</span>
                 <span :class="check.class">{{ check.value }}</span>
               </div>
@@ -292,7 +383,8 @@ const navStore = useNavStore()
 const canSave = computed(() => {
   return Boolean(
     dreamStore.dreamForm.title?.trim() &&
-      (dreamStore.dreamForm.pitch?.trim() || dreamStore.dreamForm.description?.trim()),
+    (dreamStore.dreamForm.pitch?.trim() ||
+      dreamStore.dreamForm.description?.trim()),
   )
 })
 
@@ -301,27 +393,36 @@ const saveLabel = computed(() => {
 })
 
 const statusMessage = computed(() => {
-  if (!canSave.value) return 'Dreams need a title and either a pitch or description.'
+  if (!canSave.value)
+    return 'Dreams need a title and either a pitch or description.'
   return ''
 })
 
-const statusTone = computed<'success' | 'error'>(() => (canSave.value ? 'success' : 'error'))
+const statusTone = computed<'success' | 'error'>(() =>
+  canSave.value ? 'success' : 'error',
+)
 
 const checks = computed(() => [
   {
     label: 'Title',
     value: dreamStore.dreamForm.title?.trim() ? 'Ready' : 'Missing',
-    class: dreamStore.dreamForm.title?.trim() ? 'text-success font-bold' : 'text-warning font-bold',
+    class: dreamStore.dreamForm.title?.trim()
+      ? 'text-success font-bold'
+      : 'text-warning font-bold',
   },
   {
     label: 'Pitch',
     value: dreamStore.dreamForm.pitch?.trim() ? 'Ready' : 'Missing',
-    class: dreamStore.dreamForm.pitch?.trim() ? 'text-success font-bold' : 'text-warning font-bold',
+    class: dreamStore.dreamForm.pitch?.trim()
+      ? 'text-success font-bold'
+      : 'text-warning font-bold',
   },
   {
     label: 'Art prompt',
     value: dreamStore.dreamForm.artPrompt?.trim() ? 'Ready' : 'Optional',
-    class: dreamStore.dreamForm.artPrompt?.trim() ? 'text-success font-bold' : 'text-base-content/50',
+    class: dreamStore.dreamForm.artPrompt?.trim()
+      ? 'text-success font-bold'
+      : 'text-base-content/50',
   },
   {
     label: 'Collection',
@@ -379,7 +480,8 @@ function createSlug(value: string) {
 }
 
 function suggestSlug() {
-  const title = dreamStore.dreamForm.title || dreamStore.dreamForm.pitch || 'dream'
+  const title =
+    dreamStore.dreamForm.title || dreamStore.dreamForm.pitch || 'dream'
   dreamStore.setDreamForm({ slug: createSlug(title) })
 }
 

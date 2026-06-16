@@ -14,7 +14,6 @@ import {
   deleteChatById,
   fetchChatsForUser,
   fetchHumanChatsForUser,
-  isHumanDirectChat,
   markChatAsRead,
   type AddChatInput,
 } from '@/stores/helpers/chatHelper'
@@ -193,6 +192,57 @@ function normalizeServerSearchText(server: Server): string {
     .toLowerCase()
 }
 
+function normalizeChatIdentity(value?: string | null): string {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+}
+
+function chatHasUserId(chat: Chat, userId: number): boolean {
+  return chat.userId === userId || chat.recipientId === userId
+}
+
+function chatHasUsername(chat: Chat, username?: string | null): boolean {
+  const cleanUsername = normalizeChatIdentity(username)
+
+  if (!cleanUsername) return false
+
+  return (
+    normalizeChatIdentity(chat.sender) === cleanUsername ||
+    normalizeChatIdentity(chat.recipient) === cleanUsername
+  )
+}
+
+function isWelcomeMessage(chat: Chat): boolean {
+  const haystack = [chat.sender, chat.recipient, chat.title, chat.content]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  return haystack.includes('welcome') || haystack.includes('kind robots')
+}
+
+function isInboxChat(
+  chat: Chat,
+  userId?: number | null,
+  username?: string | null,
+): boolean {
+  if (!chat || chat.isActive === false) return false
+
+  const id = Number(userId || 0)
+
+  if (id > 0 && chatHasUserId(chat, id)) return true
+  if (chatHasUsername(chat, username)) return true
+
+  return isWelcomeMessage(chat)
+}
+
+function isUnreadForRecipient(chat: Chat, recipientId: number): boolean {
+  if (chat.isRead) return false
+  if (chat.isActive === false) return false
+  return chat.recipientId === recipientId
+}
+
 function getServerLabel(server: Server): string {
   return server.label || server.title || `Server #${server.id}`
 }
@@ -297,11 +347,13 @@ export const useChatStore = defineStore('chatStore', () => {
     return chats.value.filter((chat) => chat.userId === uid)
   })
 
-  const humanChats = computed(() => {
+  const inboxChats = computed(() => {
     return chats.value.filter((chat) =>
-      isHumanDirectChat(chat, userStore.userId, userStore.username),
+      isInboxChat(chat, userStore.userId, userStore.username),
     )
   })
+
+  const humanChats = inboxChats
 
   const unreadCountByRecipient = (recipientId: number) =>
     unreadMessages.value.filter((chat) => chat.recipientId === recipientId)
@@ -1307,19 +1359,16 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   function refreshUnreadMessages(): void {
-    const currentUserId = userStore.user?.id
+    const currentUserId = userStore.user?.id || userStore.userId
 
     if (!currentUserId) {
       unreadMessages.value = []
       return
     }
 
-    unreadMessages.value = chats.value.filter((chat) => {
-      if (chat.isRead) return false
-      if (!isHumanDirectChat(chat, currentUserId, userStore.username))
-        return false
-      return chat.recipientId === currentUserId
-    })
+    unreadMessages.value = chats.value.filter((chat) =>
+      isUnreadForRecipient(chat, currentUserId),
+    )
   }
 
   async function initialize(): Promise<void> {
@@ -1357,9 +1406,9 @@ export const useChatStore = defineStore('chatStore', () => {
     if (found) selectedChat.value = found
   }
 
-  function markMessagesAsRead(recipientId: number): void {
-    const unread = unreadMessages.value.filter(
-      (chat) => chat.recipientId === recipientId,
+  function markMessagesAsRead(currentRecipientId: number): void {
+    const unread = unreadMessages.value.filter((chat) =>
+      isUnreadForRecipient(chat, currentRecipientId),
     )
 
     unread.forEach((chat) => {
@@ -1489,18 +1538,20 @@ export const useChatStore = defineStore('chatStore', () => {
     fetchHumanChatsPromise.value = (async () => {
       try {
         const data = await fetchHumanChatsForUser(userId)
-        const nonHumanChats = chats.value.filter(
-          (chat) => !isHumanDirectChat(chat, userId, userStore.username),
-        )
+        const fetchedIds = new Set(data.map((chat) => chat.id))
+        const preservedChats = chats.value.filter((chat) => {
+          if (fetchedIds.has(chat.id)) return false
+          return !isInboxChat(chat, userId, userStore.username)
+        })
 
-        chats.value = [...nonHumanChats, ...data]
+        chats.value = [...preservedChats, ...data]
         lastFetchedHumanUserId.value = userId
         refreshUnreadMessages()
         saveToLocalStorage()
       } catch (error) {
         handleError(
           ErrorType.NETWORK_ERROR,
-          `Failed to fetch human chats: ${error}`,
+          `Failed to fetch inbox chats: ${error}`,
         )
       } finally {
         fetchHumanChatsPromise.value = null
@@ -1631,6 +1682,7 @@ export const useChatStore = defineStore('chatStore', () => {
     fetchHumanChatsPromise,
     lastFetchedHumanUserId,
     humanChats,
+    inboxChats,
     fetchHumanChats,
     refreshHumanChatsForCurrentUser,
   }

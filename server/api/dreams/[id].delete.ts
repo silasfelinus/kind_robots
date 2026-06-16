@@ -4,7 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
-import { assertDreamAccess, redactDreamAccess } from './index'
+import { assertDreamAccess } from './index'
 
 function getDreamId(event: H3Event): number {
   const id = Number(event.context.params?.id)
@@ -67,8 +67,6 @@ export default defineEventHandler(async (event) => {
         isActive: true,
         isPublic: true,
         isMature: true,
-        accessMode: true,
-        privacyCode: true,
       },
     })
 
@@ -102,12 +100,12 @@ export default defineEventHandler(async (event) => {
               avatarImage: true,
             },
           },
-          Pitch: true,
           ArtImage: {
             select: {
               id: true,
               fileName: true,
               fileType: true,
+              imagePath: true,
               createdAt: true,
               updatedAt: true,
               userId: true,
@@ -147,27 +145,29 @@ export default defineEventHandler(async (event) => {
       return {
         success: true,
         message: `Dream "${dream.title}" archived successfully by ${actor}.`,
-        data: redactDreamAccess(data, true),
+        data,
         statusCode: 200,
       }
     }
 
     const data = await prisma.$transaction(async (tx) => {
+      // Detach chats from the dream before deletion (chats are kept).
+      await tx.chat.updateMany({
+        where: { dreamId: id },
+        data: { dreamId: null },
+      })
+
       await tx.reaction.deleteMany({
-        where: {
-          dreamId: id,
-        },
+        where: { dreamId: id },
       })
 
       await tx.dream.update({
         where: { id },
         data: {
-          Characters: {
-            set: [],
-          },
-          Rewards: {
-            set: [],
-          },
+          Characters: { set: [] },
+          Rewards: { set: [] },
+          ArtImages: { set: [] },
+          ArtCollections: { set: [] },
         },
       })
 
@@ -180,7 +180,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: `Dream "${dream.title}" permanently deleted by ${actor}.`,
-      data: redactDreamAccess(data, true),
+      data,
       statusCode: 200,
     }
   } catch (error) {

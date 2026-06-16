@@ -4,11 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
-import {
-  assertDreamAccess,
-  getProvidedDreamCode,
-  redactDreamAccess,
-} from './index'
+import { assertDreamAccess } from './index'
 
 function getDreamId(event: H3Event): number {
   const id = Number(event.context.params?.id)
@@ -32,7 +28,6 @@ export default defineEventHandler(async (event) => {
     const { isValid, user } = await validateApiKey(event)
     const userId = isValid && user ? user.id : null
     const userRole = isValid && user ? user.Role : null
-    const providedCode = getProvidedDreamCode(event)
 
     const data = await prisma.dream.findUnique({
       where: { id },
@@ -58,7 +53,19 @@ export default defineEventHandler(async (event) => {
             isMature: true,
           },
         },
-
+        ArtCollection: {
+          select: {
+            id: true,
+            label: true,
+            description: true,
+            imagePath: true,
+            isPublic: true,
+            isMature: true,
+            isActive: true,
+            artPrompt: true,
+          },
+        },
+        Scenario: true,
         Characters: {
           select: {
             id: true,
@@ -128,14 +135,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isOwner = data.userId === userId
-    const isAdmin = userRole === 'ADMIN'
-
     assertDreamAccess({
       dream: data,
       userId,
       userRole,
-      providedCode,
       action: 'view',
     })
 
@@ -144,7 +147,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dream fetched successfully.',
-      data: redactDreamAccess(data, isOwner || isAdmin),
+      data,
       statusCode: 200,
     }
   } catch (error) {

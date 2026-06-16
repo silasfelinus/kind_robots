@@ -73,7 +73,11 @@ export type Component = Prisma.ComponentModel
 export type Composition = Prisma.CompositionModel
 /**
  * Model Dream
- * 
+ * A Dream is the canonical "idea/vibe" that governs a generation. It absorbs
+ * the old Pitch concept: a single big-picture seed that fuels art assets, text
+ * assets, characters, rewards, and collections. Each Dream can own many
+ * ArtImages / ArtCollections / Characters / Rewards, while also designating a
+ * primary "main choice" for each via the singular FK fields.
  */
 export type Dream = Prisma.DreamModel
 /**
@@ -96,11 +100,6 @@ export type ManaTransaction = Prisma.ManaTransactionModel
  * the records of milestones earned. They record the date, username, id, etc. Users are given the option to clear their milestones so they can hunt fresh. I use this extensively in debugging.
  */
 export type MilestoneRecord = Prisma.MilestoneRecordModel
-/**
- * Model Pitch
- * A Pitch is a big picture tag system that is meant to be fuel for a project that can become art assets, text assets, and physical swag. It can be parents, siblings, or children with other pitches.
- */
-export type Pitch = Prisma.PitchModel
 /**
  * Model Prompt
  * this is an art or text prompt to an ai to generate new media

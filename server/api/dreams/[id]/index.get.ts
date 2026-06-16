@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
             artPrompt: true,
           },
         },
-        Scenario: true,
+        Scenarios: true,
         Characters: {
           select: {
             id: true,

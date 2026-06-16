@@ -462,12 +462,7 @@ export const CHATGPT_MODEL_REGISTRY = {
       'serverName',
       'artPrompt',
     ],
-    filterFields: [
-      'serverId',
-      'checkpointResourceId',
-      'designer',
-      'fileType',
-    ],
+    filterFields: ['serverId', 'checkpointResourceId', 'designer', 'fileType'],
     defaultOrderBy: {
       updatedAt: 'desc',
     },

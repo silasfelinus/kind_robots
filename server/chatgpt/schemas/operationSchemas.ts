@@ -13,7 +13,6 @@ export const ChatGptResourceSchema = z.enum([
   'reward',
   'scenario',
   'server',
-  'tag',
   'theme',
   'user',
 ])
@@ -46,7 +45,6 @@ export const ImageUploadDataSchema = z
     fileType: z.string().trim().min(1).optional(),
     promptString: z.string().trim().min(1).optional(),
     designer: z.string().trim().min(1).optional(),
-    tags: z.array(z.string().trim().min(1)).optional(),
     connectTo: z.array(ContentRefSchema).optional(),
   })
   .catchall(z.unknown())

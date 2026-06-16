@@ -1182,7 +1182,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
         isMature: false,
         isPublic: true,
         seed: null,
-        promptId: null,
         serverId: artStore.artForm.serverId ?? null,
         serverName: artStore.artForm.serverName ?? null,
       })

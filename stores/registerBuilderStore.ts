@@ -47,7 +47,11 @@ import {
   syncAdventureStatTiers,
 } from '@/stores/helpers/characterHelper'
 
-import type { Rarity, RewardType } from '~/prisma/generated/prisma/client'
+import type {
+  DreamType,
+  Rarity,
+  RewardType,
+} from '~/prisma/generated/prisma/client'
 
 // ───────────────────────────────────────────────────────────────────────────
 // Shared sheet readers — small helpers used by every builder config below.
@@ -449,7 +453,7 @@ function buildDreamConfig(): BuilderProjectConfig {
     dreamStore.setDreamForm({
       title: text('title'),
       description: text('description'),
-      dreamType: text('dreamType') || 'LOCATION',
+      dreamType: (text('dreamType') || 'LOCATION') as DreamType,
       pitch: text('pitch'),
       flavorText: text('flavorText'),
       artPrompt: text('artPrompt'),

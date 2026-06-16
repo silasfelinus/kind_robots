@@ -112,7 +112,7 @@ export default defineEventHandler(async (event) => {
             },
           },
           ArtCollection: true,
-          Scenario: true,
+          Scenarios: true,
           Characters: true,
           Rewards: true,
           _count: {

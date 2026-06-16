@@ -1,11 +1,5 @@
 // /server/api/chats/index.get.ts
-import {
-  defineEventHandler,
-  createError,
-  getHeader,
-  getQuery,
-  type H3Event,
-} from 'h3'
+import { defineEventHandler, createError, getHeader, getQuery, type H3Event } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
@@ -91,9 +85,7 @@ function normalizeText(value: unknown): string | undefined {
 function normalizeChatType(value: unknown): ChatType | undefined {
   const raw = normalizeText(value)
 
-  return raw && chatTypes.includes(raw as ChatType)
-    ? (raw as ChatType)
-    : undefined
+  return raw && chatTypes.includes(raw as ChatType) ? (raw as ChatType) : undefined
 }
 
 function isAdmin(role: string | null): boolean {
@@ -175,11 +167,9 @@ export default defineEventHandler(async (event) => {
     const type = normalizeChatType(query.type)
     const channel = normalizeText(query.channel)
     const includeInactive =
-      normalizeBoolean(query.includeInactive) ||
-      normalizeBoolean(query.showInactive)
+      normalizeBoolean(query.includeInactive) || normalizeBoolean(query.showInactive)
     const includeMature = normalizeBoolean(query.includeMature)
-    const mine =
-      normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
+    const mine = normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
 
     const where: Prisma.ChatWhereInput = {}
 

@@ -4,7 +4,11 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
-import type { CreationSource, DreamType, Prisma } from '~/prisma/generated/prisma/client'
+import type {
+  CreationSource,
+  DreamType,
+  Prisma,
+} from '~/prisma/generated/prisma/client'
 import { assertDreamAccess } from './index'
 
 type DreamPatchBody = {
@@ -24,6 +28,7 @@ type DreamPatchBody = {
   artImageId?: number | null
   artCollectionId?: number | null
   scenarioId?: number | null
+  scenarioIds?: number[]
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -106,6 +111,7 @@ const dreamInclude = {
       },
     },
   },
+  Scenarios: true,
   Characters: {
     select: {
       id: true,
@@ -156,6 +162,7 @@ const dreamInclude = {
     select: {
       Chats: true,
       Reactions: true,
+      Scenarios: true,
       Characters: true,
       Rewards: true,
     },
@@ -224,7 +231,6 @@ function normalizeCreationSource(value: unknown): CreationSource {
     : 'HUMAN'
 }
 
-/** Connect / disconnect a singular primary FK based on a nullable id. */
 function relationFromNullableId(
   value: unknown,
 ): { connect: { id: number } } | { disconnect: true } | undefined {
@@ -232,6 +238,36 @@ function relationFromNullableId(
 
   if (id === null) return { disconnect: true }
   if (id) return { connect: { id } }
+
+  return undefined
+}
+
+function scenariosRelationFromPatch(
+  body: DreamPatchBody,
+): Prisma.ScenarioUpdateManyWithoutDreamsNestedInput | undefined {
+  const scenarioIds = normalizeIdArray(body.scenarioIds)
+
+  if (scenarioIds !== undefined) {
+    return {
+      set: scenarioIds.map((scenarioId) => ({ id: scenarioId })),
+    }
+  }
+
+  if (body.scenarioId === undefined) return undefined
+
+  const scenarioId = normalizeNullableId(body.scenarioId)
+
+  if (scenarioId === null) {
+    return {
+      set: [],
+    }
+  }
+
+  if (scenarioId) {
+    return {
+      set: [{ id: scenarioId }],
+    }
+  }
 
   return undefined
 }
@@ -259,6 +295,9 @@ function getUpdateSummary(body: DreamPatchBody): string {
     body.artCollectionIds !== undefined
   ) {
     changes.push('collections')
+  }
+  if (body.scenarioId !== undefined || body.scenarioIds !== undefined) {
+    changes.push('scenarios')
   }
   if (body.characterIds !== undefined) changes.push('cast')
   if (body.rewardIds !== undefined) changes.push('items')
@@ -396,9 +435,10 @@ export default defineEventHandler(async (event) => {
       if (relation) dataInput.ArtCollection = relation
     }
 
-    if (body.scenarioId !== undefined) {
-      const relation = relationFromNullableId(body.scenarioId)
-      if (relation) dataInput.Scenario = relation
+    const scenariosRelation = scenariosRelationFromPatch(body)
+
+    if (scenariosRelation) {
+      dataInput.Scenarios = scenariosRelation
     }
 
     if (typeof body.isPublic === 'boolean') {

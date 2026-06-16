@@ -26,6 +26,8 @@ type DreamCreateBody = {
   artImageId?: number | null
   artCollectionId?: number | null
   scenarioId?: number | null
+  scenarioIds?: number[]
+  Scenarios?: number[]
   characterIds?: number[]
   rewardIds?: number[]
   artImageIds?: number[]
@@ -34,7 +36,6 @@ type DreamCreateBody = {
   isMature?: boolean
   isActive?: boolean
   createCollection?: boolean
-  scenarioIds?: number[]
 }
 
 const dreamTypes: DreamType[] = [
@@ -78,7 +79,7 @@ const dreamInclude = {
     },
   },
   ArtCollection: true,
-  Scenario: true,
+  Scenarios: true,
   Characters: true,
   Rewards: true,
 } satisfies Prisma.DreamInclude
@@ -88,6 +89,7 @@ function normalizeNullableId(value: unknown): number | null | undefined {
   if (value === undefined || value === '') return undefined
 
   const parsed = Number(value)
+
   if (!Number.isInteger(parsed) || parsed <= 0) return undefined
 
   return parsed
@@ -137,6 +139,22 @@ function normalizeOptionalText(value: unknown): string | null {
   return trimmed || null
 }
 
+function normalizeScenarioIds(body: DreamCreateBody): number[] | undefined {
+  const scenarioIds = normalizeIdArray(body.scenarioIds)
+
+  if (scenarioIds !== undefined) return scenarioIds
+
+  const legacyScenarios = normalizeIdArray(body.Scenarios)
+
+  if (legacyScenarios !== undefined) return legacyScenarios
+
+  const scenarioId = normalizeNullableId(body.scenarioId)
+
+  if (scenarioId) return [scenarioId]
+
+  return undefined
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
@@ -151,6 +169,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<DreamCreateBody>(event)
 
     const title = body.title?.trim()
+
     if (!title) {
       throw createError({
         statusCode: 400,
@@ -172,6 +191,7 @@ export default defineEventHandler(async (event) => {
     const isPublic = body.isPublic ?? true
     const isMature = body.isMature ?? false
 
+    const artImageId = normalizeNullableId(body.artImageId)
     let artCollectionId = normalizeNullableId(body.artCollectionId)
 
     if (body.createCollection && !artCollectionId) {
@@ -189,11 +209,11 @@ export default defineEventHandler(async (event) => {
       artCollectionId = collection.id
     }
 
+    const scenarioIds = normalizeScenarioIds(body)
     const characterIds = normalizeIdArray(body.characterIds)
     const rewardIds = normalizeIdArray(body.rewardIds)
     const artImageIds = normalizeIdArray(body.artImageIds)
     const artCollectionIds = normalizeIdArray(body.artCollectionIds)
-    const scenarioIds = normalizeIdArray(body.scenarioIds)
 
     const dataInput: Prisma.DreamCreateInput = {
       title,
@@ -215,38 +235,53 @@ export default defineEventHandler(async (event) => {
       User: {
         connect: { id: user.id },
       },
-      ...(normalizeNullableId(body.artImageId)
+      ...(artImageId
         ? {
             ArtImage: {
-              connect: { id: normalizeNullableId(body.artImageId)! },
+              connect: { id: artImageId },
             },
           }
         : {}),
       ...(artCollectionId
-        ? { ArtCollection: { connect: { id: artCollectionId } } }
-        : {}),
-      ...(normalizeNullableId(body.scenarioId)
         ? {
-            Scenario: {
-              connect: { id: normalizeNullableId(body.scenarioId)! },
+            ArtCollection: {
+              connect: { id: artCollectionId },
+            },
+          }
+        : {}),
+      ...(scenarioIds?.length
+        ? {
+            Scenarios: {
+              connect: scenarioIds.map((id) => ({ id })),
             },
           }
         : {}),
       ...(characterIds?.length
-        ? { Characters: { connect: characterIds.map((id) => ({ id })) } }
+        ? {
+            Characters: {
+              connect: characterIds.map((id) => ({ id })),
+            },
+          }
         : {}),
       ...(rewardIds?.length
-        ? { Rewards: { connect: rewardIds.map((id) => ({ id })) } }
-        : {}),
-      ...(scenarioIds?.length
-        ? { Scenarios: { connect: scenarioIds.map((id) => ({ id })) } }
+        ? {
+            Rewards: {
+              connect: rewardIds.map((id) => ({ id })),
+            },
+          }
         : {}),
       ...(artImageIds?.length
-        ? { ArtImages: { connect: artImageIds.map((id) => ({ id })) } }
+        ? {
+            ArtImages: {
+              connect: artImageIds.map((id) => ({ id })),
+            },
+          }
         : {}),
       ...(artCollectionIds?.length
         ? {
-            ArtCollections: { connect: artCollectionIds.map((id) => ({ id })) },
+            ArtCollections: {
+              connect: artCollectionIds.map((id) => ({ id })),
+            },
           }
         : {}),
     }
@@ -272,6 +307,7 @@ export default defineEventHandler(async (event) => {
     })
 
     event.node.res.statusCode = 201
+
     return {
       success: true,
       message: 'Dream created successfully.',

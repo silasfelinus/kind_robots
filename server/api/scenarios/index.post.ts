@@ -2,13 +2,19 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import prisma from '../../utils/prisma'
-import type { Prisma, Scenario } from '~/prisma/generated/prisma/client'
+import { Prisma } from '~/prisma/generated/prisma/client'
+import type {
+  Scenario,
+  ScenarioOutputType,
+} from '~/prisma/generated/prisma/client'
 
 type ScenarioPostInput = {
   title?: unknown
   description?: unknown
   intros?: unknown
+  outputType?: unknown // ← NEW
+  cast?: unknown // ← NEW
+  dreamIds?: unknown // ← NEW
   artImageId?: unknown
   imagePath?: unknown
   locations?: unknown
@@ -33,6 +39,34 @@ type SkippedScenario = {
 type FailedScenario = {
   title: string
   message: string
+}
+
+// ── NEW: outputType enum guard ──────────────────────────────────────────────
+const scenarioOutputTypes: ScenarioOutputType[] = [
+  'STORY',
+  'ART',
+  'CHARACTER',
+  'REWARD',
+  'DREAM',
+  'SCENARIO',
+  'MIXED',
+]
+
+function normalizeOutputType(value: unknown): ScenarioOutputType {
+  return scenarioOutputTypes.includes(value as ScenarioOutputType)
+    ? (value as ScenarioOutputType)
+    : 'STORY'
+}
+
+// ── NEW: dreamIds array guard (positive ints, deduped) ──────────────────────
+function normalizeIdArray(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+
+  const ids = value
+    .map((entry) => Number(entry))
+    .filter((entry) => Number.isInteger(entry) && entry > 0)
+
+  return [...new Set(ids)]
 }
 
 function normalizeRequiredString(
@@ -164,12 +198,21 @@ function buildScenarioCreateInput(
   const title = normalizeRequiredString(scenarioData.title, 'title')
   const artImageId = normalizeOptionalId(scenarioData.artImageId)
   const difficulty = normalizeNullableInteger(scenarioData.difficulty)
+  const dreamIds = normalizeIdArray(scenarioData.dreamIds) // ← NEW
 
   return {
     User: { connect: { id: authenticatedUserId } },
     title,
     description: normalizeString(scenarioData.description),
     intros: normalizeIntros(scenarioData.intros),
+    outputType: normalizeOutputType(scenarioData.outputType), // ← NEW
+    // cast is Json?: undefined leaves it unset; explicit null clears it.
+    cast:
+      scenarioData.cast === undefined
+        ? undefined
+        : scenarioData.cast === null
+          ? Prisma.JsonNull
+          : (scenarioData.cast as Prisma.InputJsonValue), // ← NEW
     imagePath: normalizeNullableString(scenarioData.imagePath),
     locations: normalizeNullableString(scenarioData.locations),
     artPrompt: normalizeNullableString(scenarioData.artPrompt),
@@ -183,6 +226,10 @@ function buildScenarioCreateInput(
     group: normalizeNullableString(scenarioData.group),
     secretNotes: normalizeNullableString(scenarioData.secretNotes),
     ArtImage: artImageId ? { connect: { id: artImageId } } : undefined,
+    // ← NEW: link Dreams from the scenario side (M2M "DreamToScenario")
+    ...(dreamIds.length
+      ? { Dreams: { connect: dreamIds.map((id) => ({ id })) } }
+      : {}),
   }
 }
 
@@ -266,6 +313,7 @@ export default defineEventHandler(async (event) => {
             },
             Characters: true,
             Compositions: true,
+            Dreams: true, // ← NEW: echo the linked Dreams in the response
           },
         })
 

@@ -3,12 +3,16 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import { Prisma } from '~/prisma/generated/prisma/client'
+import type { ScenarioOutputType } from '~/prisma/generated/prisma/client'
 
 type ScenarioPatchInput = {
   title?: unknown
   description?: unknown
   intros?: unknown
+  outputType?: unknown // ← NEW
+  cast?: unknown // ← NEW
+  dreamIds?: unknown // ← NEW
   artImageId?: unknown
   imagePath?: unknown
   locations?: unknown
@@ -24,6 +28,23 @@ type ScenarioPatchInput = {
   secretNotes?: unknown
   characterIds?: unknown
   compositionIds?: unknown
+}
+
+// ── NEW: outputType enum guard ──────────────────────────────────────────────
+const scenarioOutputTypes: ScenarioOutputType[] = [
+  'STORY',
+  'ART',
+  'CHARACTER',
+  'REWARD',
+  'DREAM',
+  'SCENARIO',
+  'MIXED',
+]
+
+function normalizeOutputType(value: unknown): ScenarioOutputType {
+  return scenarioOutputTypes.includes(value as ScenarioOutputType)
+    ? (value as ScenarioOutputType)
+    : 'STORY'
 }
 
 function normalizeRequiredString(
@@ -200,8 +221,9 @@ function normalizeArtImageRelation(
 async function assertRelatedRecordsExist(options: {
   characterIds: number[]
   compositionIds: number[]
+  dreamIds: number[] // ← NEW
 }) {
-  const { characterIds, compositionIds } = options
+  const { characterIds, compositionIds, dreamIds } = options
 
   if (characterIds.length) {
     const characters = await prisma.character.findMany({
@@ -236,6 +258,24 @@ async function assertRelatedRecordsExist(options: {
       })
     }
   }
+
+  // ← NEW: validate dream IDs exist before connecting
+  if (dreamIds.length) {
+    const dreams = await prisma.dream.findMany({
+      where: { id: { in: dreamIds } },
+      select: { id: true },
+    })
+
+    const foundIds = new Set(dreams.map((dream) => dream.id))
+    const missingIds = dreamIds.filter((id) => !foundIds.has(id))
+
+    if (missingIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `Dream IDs not found: ${missingIds.join(', ')}.`,
+      })
+    }
+  }
 }
 
 async function buildScenarioUpdateInput(
@@ -248,6 +288,20 @@ async function buildScenarioUpdateInput(
     data.description = normalizeString(body.description, 'description')
   }
   if ('intros' in body) data.intros = normalizeIntros(body.intros)
+
+  // ← NEW: outputType
+  if ('outputType' in body) {
+    data.outputType = normalizeOutputType(body.outputType)
+  }
+
+  // ← NEW: cast (Json?). Explicit null clears it; object/array sets it.
+  if ('cast' in body) {
+    data.cast =
+      body.cast === null
+        ? Prisma.JsonNull
+        : (body.cast as Prisma.InputJsonValue)
+  }
+
   if ('imagePath' in body) {
     data.imagePath = normalizeNullableString(body.imagePath, 'imagePath')
   }
@@ -295,10 +349,12 @@ async function buildScenarioUpdateInput(
     body.compositionIds,
     'compositionIds',
   )
+  const dreamIds = normalizePositiveIdArray(body.dreamIds, 'dreamIds') // ← NEW
 
   await assertRelatedRecordsExist({
     characterIds,
     compositionIds,
+    dreamIds, // ← NEW
   })
 
   if (characterIds.length) {
@@ -310,6 +366,13 @@ async function buildScenarioUpdateInput(
   if (compositionIds.length) {
     data.Compositions = {
       connect: compositionIds.map((id) => ({ id })),
+    }
+  }
+
+  // ← NEW: connect (append) Dreams, matching the characterIds/compositionIds pattern
+  if (dreamIds.length) {
+    data.Dreams = {
+      connect: dreamIds.map((id) => ({ id })),
     }
   }
 
@@ -391,6 +454,7 @@ export default defineEventHandler(async (event) => {
         },
         Characters: true,
         Compositions: true,
+        Dreams: true, // ← NEW: echo the linked Dreams in the response
       },
     })
 

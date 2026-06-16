@@ -681,9 +681,20 @@ model Scenario {
   User         User          @relation(fields: [userId], references: [id])
   Characters   Character[]   @relation("CharacterToScenario")
   Compositions Composition[]
+  outputType   ScenarioOutputType @default(STORY)
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")
+}
+
+enum ScenarioOutputType {
+  STORY      // branching narrative (the existing default)
+  ART        // produces an ArtImage
+  CHARACTER  // produces a Character
+  REWARD     // grants/produces a Reward
+  DREAM      // produces a Dream
+  SCENARIO   // produces a follow-on Scenario
+  MIXED      // choices spawn different types
 }
 
 model Server {

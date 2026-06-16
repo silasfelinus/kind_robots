@@ -101,7 +101,6 @@ function defaultPromptForm(userId?: number | null): PromptForm {
     userId: userId || 10,
     galleryId: 21,
     creationSource: 'HUMAN',
-    pitchId: null,
     botId: null,
     artImageId: null,
   } as PromptForm
@@ -164,12 +163,12 @@ export const usePromptStore = defineStore('promptStore', () => {
     return prompts.value.filter((prompt) => prompt.userId === userStore.userId)
   })
 
-  const pitchPrompts = computed(() => {
-    return prompts.value.filter((prompt) => typeof prompt.pitchId === 'number')
+  const ideaPrompts = computed(() => {
+    return prompts.value.filter((prompt) => prompt.prompt?.trim())
   })
 
   const loosePrompts = computed(() => {
-    return prompts.value.filter((prompt) => typeof prompt.pitchId !== 'number')
+    return prompts.value.filter((prompt) => typeof prompt.botId !== 'number')
   })
 
   const botPrompts = computed(() => {
@@ -701,13 +700,11 @@ export const usePromptStore = defineStore('promptStore', () => {
     newPrompt: string,
     userId = userStore.userId || 10,
     botId?: number | null,
-    pitchId?: number | null,
   ): Promise<Prompt | null> {
     const result = await createPrompt({
       prompt: newPrompt,
       userId,
       botId: botId ?? null,
-      pitchId: pitchId ?? null,
       creationSource: 'HUMAN',
     })
 
@@ -800,50 +797,49 @@ export const usePromptStore = defineStore('promptStore', () => {
     return result.success
   }
 
-  async function attachToPitch(promptId: number, pitchId: number) {
-    return await updatePrompt(promptId, { pitchId })
-  }
-
-  async function detachFromPitch(promptId: number) {
-    return await updatePrompt(promptId, { pitchId: null })
-  }
-
-  async function promoteToPitch(promptId?: number) {
+  async function promoteToDream(promptId?: number): Promise<PromptMutationResult> {
     const id = promptId ?? selectedPrompt.value?.id
 
     if (!id) {
-      return {
-        success: false,
-        message: 'No prompt selected',
-      }
+      return { success: false, message: 'Select a prompt first.' }
     }
 
     const prompt = await fetchPromptById(id)
 
     if (!prompt) {
+      return { success: false, message: 'Prompt not found.' }
+    }
+
+    const title = extractPitch(prompt.prompt) || prompt.prompt.slice(0, 80)
+    const { useDreamStore } = await import('./dreamStore')
+    const dreamStore = useDreamStore()
+
+    const result = await dreamStore.createDream({
+      title: title || 'Untitled Dream Pitch',
+      pitch: prompt.prompt,
+      description: prompt.prompt,
+      artPrompt: prompt.artPrompt || prompt.prompt,
+      dreamType: 'PITCH',
+      userId: prompt.userId ?? userStore.userId ?? 10,
+      artImageId: prompt.artImageId ?? undefined,
+      creationSource: prompt.creationSource ?? 'HUMAN',
+      isPublic: prompt.isPublic,
+      isMature: prompt.isMature,
+      isActive: true,
+    })
+
+    if (!result.success) {
       return {
         success: false,
-        message: 'Prompt not found',
+        message: result.message || 'Failed to promote prompt to Dream.',
       }
     }
 
-    const { usePitchStore, PitchType } = await import('./pitchStore')
-    const pitchStore = usePitchStore()
-
-    const result = await pitchStore.createPitch({
-      title: prompt.prompt.slice(0, 80),
-      pitch: prompt.prompt,
-      description: prompt.prompt.slice(0, 256),
-      PitchType: PitchType.ARTPITCH,
-      creationSource: 'HYBRID',
-      userId: prompt.userId ?? userStore.userId ?? 10,
-    })
-
-    if (result.success && result.data?.id) {
-      await attachToPitch(prompt.id, result.data.id)
+    return {
+      success: true,
+      message: 'Prompt promoted to a Dream pitch.',
+      data: prompt,
     }
-
-    return result
   }
 
   async function generateVariation(promptId?: number) {
@@ -1030,7 +1026,7 @@ export const usePromptStore = defineStore('promptStore', () => {
     finalPromptString,
     selectedPromptId,
     ownedPrompts,
-    pitchPrompts,
+    ideaPrompts,
     loosePrompts,
     botPrompts,
     visiblePrompts,
@@ -1083,9 +1079,7 @@ export const usePromptStore = defineStore('promptStore', () => {
     clearPromptField,
     clearLocalStorage,
 
-    attachToPitch,
-    detachFromPitch,
-    promoteToPitch,
+    promoteToDream,
     generateVariation,
     generateFields,
 

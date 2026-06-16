@@ -105,33 +105,6 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Pitch</span>
-              </span>
-
-              <select
-                v-model.number="pitchIdModel"
-                class="select select-bordered w-full bg-base-200"
-              >
-                <option :value="null">No pitch</option>
-
-                <option
-                  v-for="pitch in pitchStore.visiblePitches"
-                  :key="pitch.id"
-                  :value="pitch.id"
-                >
-                  {{ getPitchLabel(pitch) }}
-                </option>
-              </select>
-            </label>
-
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Gallery ID</span>
-              </span>
-            </label>
-
-            <label class="form-control">
-              <span class="label">
                 <span class="label-text font-bold">Bot ID</span>
               </span>
 
@@ -340,7 +313,7 @@
           @click="promotePrompt"
         >
           <Icon name="kind-icon:idea" class="h-4 w-4" />
-          Promote to Pitch
+          Promote to Dream
         </button>
 
         <button
@@ -362,8 +335,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import type { Pitch } from '~/prisma/generated/prisma/client'
-import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore, type PromptForm } from '@/stores/promptStore'
 import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
@@ -380,12 +351,11 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  saved: []
-  cancel: []
+  (event: 'saved'): void
+  (event: 'cancel'): void
 }>()
 
 const promptStore = usePromptStore()
-const pitchStore = usePitchStore()
 const uploadStore = useUploadStore()
 const userStore = useUserStore()
 
@@ -425,15 +395,6 @@ const basePromptText = computed(() => {
   )
 })
 
-const pitchIdModel = computed({
-  get: () => promptStore.promptForm.pitchId ?? null,
-  set: (value: number | null) => {
-    promptStore.setPromptForm({
-      pitchId: typeof value === 'number' && value > 0 ? value : null,
-    })
-  },
-})
-
 const botIdModel = computed({
   get: () => promptStore.promptForm.botId ?? null,
   set: (value: number | null) => {
@@ -465,12 +426,6 @@ const aiFields: Array<{
     icon: 'kind-icon:quote',
   },
   {
-    key: 'pitchId',
-    label: 'Pitch Link',
-    description: 'Protect or revise the parent pitch link.',
-    icon: 'kind-icon:idea',
-  },
-  {
     key: 'artImageId',
     label: 'Art Image Link',
     description: 'Protect or revise the attached image link.',
@@ -489,10 +444,6 @@ const fieldsToUpgrade = computed(() => {
 onMounted(async () => {
   await Promise.all([
     promptStore.initialize({
-      fetchRemote: true,
-      createBlankForm: true,
-    }),
-    pitchStore.initialize({
       fetchRemote: true,
       createBlankForm: true,
     }),
@@ -597,9 +548,6 @@ function handleKeepFieldChange(field: string) {
   }
 }
 
-function getPitchLabel(pitch: Pitch) {
-  return pitch.title || pitch.pitch || `Pitch ${pitch.id}`
-}
 
 function seedPrompt() {
   promptStore.setPromptForm({
@@ -690,16 +638,16 @@ async function generateSelectedFields() {
 }
 
 async function promotePrompt() {
-  const result = await promptStore.promoteToPitch()
+  const result = await promptStore.promoteToDream()
 
   if (!result.success) {
     statusTone.value = 'error'
-    statusMessage.value = result.message || 'Failed to promote prompt.'
+    statusMessage.value = result.message || 'Failed to promote prompt to Dream.'
     return
   }
 
   statusTone.value = 'success'
-  statusMessage.value = 'Prompt promoted to pitch.'
+  statusMessage.value = 'Prompt promoted to a Dream pitch.'
 }
 
 async function savePrompt() {

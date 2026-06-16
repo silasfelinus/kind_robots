@@ -2,7 +2,6 @@
 import { createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { generateSillyName } from './../../../utils/useRandomName'
-import type { PitchType } from '~/prisma/generated/prisma/client'
 
 export type RequestData = {
   path?: string | null
@@ -17,7 +16,6 @@ export type RequestData = {
   description?: string | null
   flavorText?: string | null
   highlightImage?: string | null
-  PitchType?: PitchType | null
   isMature?: boolean
   isPublic?: boolean
   promptString: string
@@ -25,14 +23,28 @@ export type RequestData = {
   promptId?: number | null
   userId?: number | null
   username?: string | null
-  pitchId?: number | null
   pitch?: string | null
   playerId?: number | null
   playerName?: string | null
+  dreamId?: number | null
+  dreamIds?: number[] | null
   artCollectionId?: number | null
   artCollectionLabel?: string | null
   collectionLabel?: string | null
   collection?: string | null
+}
+
+function cleanPositiveId(value: unknown): number | null {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
+}
+
+function cleanPositiveIds(values: unknown): number[] {
+  if (!Array.isArray(values)) return []
+
+  return [...new Set(values)]
+    .map((value) => Number(value))
+    .filter((value) => Number.isInteger(value) && value > 0)
 }
 
 export async function validateAndLoadUserId(
@@ -68,49 +80,40 @@ export async function validateAndLoadUserId(
   return 10
 }
 
-export async function validateAndLoadPitchId(
+export async function validateAndLoadDreamIds(
   data: RequestData,
-): Promise<number | null> {
-  if (data.pitchId) {
-    const existingPitch = await prisma.pitch.findUnique({
-      where: { id: data.pitchId },
-    })
+): Promise<number[]> {
+  const ids = [
+    ...cleanPositiveIds(data.dreamIds),
+    ...(cleanPositiveId(data.dreamId) ? [cleanPositiveId(data.dreamId) as number] : []),
+  ]
 
-    if (!existingPitch) {
-      throw createError({
-        statusCode: 400,
-        message: `Invalid pitchId: ${data.pitchId}. Pitch does not exist.`,
-      })
-    }
+  const uniqueIds = [...new Set(ids)]
 
-    return data.pitchId
-  }
+  if (!uniqueIds.length) return []
 
-  const pitchText = data.pitch?.trim()
-
-  if (!pitchText) return null
-
-  const existingPitch = await prisma.pitch.findFirst({
-    where: { pitch: pitchText },
-  })
-
-  if (existingPitch) return existingPitch.id
-
-  const newPitch = await prisma.pitch.create({
-    data: {
-      title: data.title || pitchText.slice(0, 80) || 'Untitled Pitch',
-      pitch: pitchText,
-      designer: data.designer,
-      flavorText: data.flavorText || '',
-      highlightImage: data.highlightImage || '',
-      PitchType: data.PitchType || 'ARTPITCH',
-      isMature: data.isMature || false,
-      isPublic: data.isPublic ?? true,
-      userId: data.userId || null,
+  const existingDreams = await prisma.dream.findMany({
+    where: {
+      id: {
+        in: uniqueIds,
+      },
+    },
+    select: {
+      id: true,
     },
   })
 
-  return newPitch.id
+  const existingIds = new Set(existingDreams.map((dream) => dream.id))
+  const missingIds = uniqueIds.filter((id) => !existingIds.has(id))
+
+  if (missingIds.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Invalid dreamId(s): ${missingIds.join(', ')}. Dream does not exist.`,
+    })
+  }
+
+  return uniqueIds
 }
 
 export async function validateAndLoadPromptId(
@@ -131,20 +134,7 @@ export async function validateAndLoadPromptId(
       where: { prompt: promptString },
     })
 
-    if (existingPrompt) {
-      if (data.pitchId) {
-        await prisma.prompt.update({
-          where: { id: existingPrompt.id },
-          data: {
-            Pitch: {
-              connect: { id: data.pitchId },
-            },
-          },
-        })
-      }
-
-      return existingPrompt.id
-    }
+    if (existingPrompt) return existingPrompt.id
 
     const newPrompt = await prisma.prompt.create({
       data: {

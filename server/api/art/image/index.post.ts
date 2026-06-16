@@ -35,7 +35,6 @@ type CreateArtImagePayload = {
   botId?: number | null
   componentId?: number | null
   milestoneId?: number | null
-  pitchId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
@@ -46,13 +45,13 @@ type CreateArtImagePayload = {
   botIds?: number[]
   componentIds?: number[]
   milestoneIds?: number[]
-  pitchIds?: number[]
   promptIds?: number[]
   resourceIds?: number[]
   rewardIds?: number[]
   chatIds?: number[]
   characterIds?: number[]
   butterflyIds?: number[]
+  dreamId?: number | null
   dreamIds?: number[]
   scenarioIds?: number[]
   reactionIds?: number[]
@@ -208,9 +207,6 @@ function buildCreateData(
     Milestones: connectMany(
       mergeIds(body.milestoneIds, body.milestoneId ? [body.milestoneId] : []),
     ),
-    Pitches: connectMany(
-      mergeIds(body.pitchIds, body.pitchId ? [body.pitchId] : []),
-    ),
     Prompts: connectMany(
       mergeIds(body.promptIds, body.promptId ? [body.promptId] : []),
     ),
@@ -226,7 +222,7 @@ function buildCreateData(
     Characters: connectMany(
       mergeIds(body.characterIds, body.characterId ? [body.characterId] : []),
     ),
-    Dreams: connectMany(body.dreamIds),
+    Dreams: connectMany(mergeIds(body.dreamIds, body.dreamId ? [body.dreamId] : [])),
     Scenarios: connectMany(body.scenarioIds),
     Reactions: connectMany(body.reactionIds),
     ArtCollections: connectMany(body.artCollectionIds),

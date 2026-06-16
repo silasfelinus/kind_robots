@@ -1,5 +1,5 @@
 // /stores/helpers/randomHelper.ts
-import type { Pitch } from '~/prisma/generated/prisma/client'
+import type { Dream } from '~/prisma/generated/prisma/client'
 import type { ArtListEntry } from '@/stores/seeds/artList'
 
 import { adjectiveList } from '@/stores/utils/randomAdjective'
@@ -24,12 +24,13 @@ import { useRandomEncounter } from '@/stores/utils/randomEncounter'
 export type RandomListItem = {
   id: number
   title: string
-  PitchType: 'RANDOMLIST'
+  dreamType: 'RANDOMLIST'
   isPublic: boolean
   isMature: boolean
   userId: number | null
   designer: string | null
   examplesJson: string
+  content: string[]
   source: 'preset' | 'user'
 }
 
@@ -54,14 +55,23 @@ function safeStringArray(value: unknown): string[] {
   )
 }
 
-function safeTitle(p: Pitch): string {
-  const t = (p.title ?? '').trim()
-  if (t) return t
 
-  const fallback = (p.pitch ?? '').trim()
+function parseJsonStringArray(value: string): string[] {
+  try {
+    return safeStringArray(JSON.parse(value || '[]'))
+  } catch {
+    return []
+  }
+}
+
+function safeTitle(dream: Dream): string {
+  const title = (dream.title ?? '').trim()
+  if (title) return title
+
+  const fallback = (dream.pitch ?? dream.description ?? '').trim()
   if (fallback) return fallback.slice(0, 80)
 
-  return `Random List #${p.id}`
+  return `Random List #${dream.id}`
 }
 
 export function artListToRandomListItem(entry: ArtListEntry): RandomListItem {
@@ -70,12 +80,13 @@ export function artListToRandomListItem(entry: ArtListEntry): RandomListItem {
   return {
     id: stableNegativeId(`preset:${key}`),
     title: entry.title,
-    PitchType: 'RANDOMLIST',
+    dreamType: 'RANDOMLIST',
     userId: null,
     isPublic: true,
     isMature: false,
     designer: 'system',
     examplesJson: JSON.stringify(entry.content),
+    content: [...entry.content],
     source: 'preset',
   }
 }
@@ -84,16 +95,24 @@ export function getAllPresetLists(entries: ArtListEntry[]): RandomListItem[] {
   return entries.map(artListToRandomListItem)
 }
 
-export function pitchToRandomListItem(p: Pitch): RandomListItem {
+export function dreamToRandomListItem(dream: Dream): RandomListItem {
+  const examplesJson =
+    typeof dream.examples === 'string'
+      ? dream.examples
+      : typeof dream.pitch === 'string'
+        ? dream.pitch
+        : '[]'
+
   return {
-    id: p.id,
-    title: safeTitle(p),
-    PitchType: 'RANDOMLIST',
-    userId: p.userId ?? null,
-    isPublic: p.isPublic ?? false,
-    isMature: p.isMature ?? false,
-    designer: null,
-    examplesJson: typeof p.pitch === 'string' ? p.pitch : '[]',
+    id: dream.id,
+    title: safeTitle(dream),
+    dreamType: 'RANDOMLIST',
+    userId: dream.userId ?? null,
+    isPublic: dream.isPublic ?? false,
+    isMature: dream.isMature ?? false,
+    designer: dream.designer ?? null,
+    examplesJson,
+    content: parseJsonStringArray(examplesJson),
     source: 'user',
   }
 }

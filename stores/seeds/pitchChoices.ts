@@ -4,7 +4,7 @@ import type { ChoiceEntry } from '@/stores/choiceStore'
 export const pitchChoices: ChoiceEntry[] = [
   {
     label: 'title',
-    model: 'Pitch',
+    model: 'Dream',
     options: [
       {
         text: 'The Moon is a Rented Timeshare',
@@ -32,7 +32,7 @@ export const pitchChoices: ChoiceEntry[] = [
   },
   {
     label: 'pitch',
-    model: 'Pitch',
+    model: 'Dream',
     options: [
       {
         text: 'A city built on the back of a sleeping god, whose dreams shape reality nightly.',
@@ -56,7 +56,7 @@ export const pitchChoices: ChoiceEntry[] = [
   },
   {
     label: 'PitchType',
-    model: 'Pitch',
+    model: 'Dream',
     options: [
       {
         text: 'ARTPITCH',
@@ -76,7 +76,7 @@ export const pitchChoices: ChoiceEntry[] = [
       {
         text: 'WEIRDLANDIA',
         icon: 'mdi:emoticon-confused-outline',
-        description: 'Absurd or chaotic pitches',
+        description: 'Absurd or chaotic ideas',
       },
     ],
     selected: null,
@@ -84,7 +84,7 @@ export const pitchChoices: ChoiceEntry[] = [
   },
   {
     label: 'flavorText',
-    model: 'Pitch',
+    model: 'Dream',
     options: [
       {
         text: 'This one smells like ozone and regret.',
@@ -108,7 +108,7 @@ export const pitchChoices: ChoiceEntry[] = [
   },
   {
     label: 'artPrompt',
-    model: 'Pitch',
+    model: 'Dream',
     options: [
       {
         text: 'foggy skyline with floating windows and pink constellations',

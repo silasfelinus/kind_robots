@@ -27,7 +27,8 @@ export type displayModeState =
   | 'user'
   | 'chat'
   | 'bot'
-  | 'pitch'
+  | 'brainstorm'
+  | 'dream'
   | 'art'
   | 'collection'
 
@@ -38,6 +39,8 @@ export type displayActionState =
   | 'edit'
   | 'generate'
   | 'interact'
+  | 'dreammaker'
+  | 'brainstorm'
 
 export type EffectId =
   | 'bubble-effect'

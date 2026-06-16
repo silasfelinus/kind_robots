@@ -214,7 +214,6 @@ type UserOwnedItem = {
   username?: string | null
   description?: string | null
   subtitle?: string | null
-  pitch?: string | null
   intro?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
@@ -401,7 +400,7 @@ function getItemTitle(item: UserOwnedItem): string {
 }
 
 function getItemSummary(item: UserOwnedItem): string {
-  return item.description || item.subtitle || item.pitch || item.intro || ''
+  return item.description || item.subtitle || item.intro || ''
 }
 
 function getItemVisibility(item: UserOwnedItem): string {

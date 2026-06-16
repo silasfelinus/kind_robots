@@ -25,7 +25,6 @@ export function buildPromptPayload(p: Partial<Prompt>): Partial<Prompt> {
   return {
     prompt: p.prompt?.trim() || '',
     userId: p.userId ?? 1,
-    pitchId: p.pitchId ?? null,
     botId: p.botId ?? null,
     artImageId: p.artImageId ?? null,
     creationSource: 'UNKNOWN',

@@ -42,7 +42,7 @@ export const BOT_TYPES: BotTypeOption[] = [
     value: 'composition',
     label: 'Composition Bot',
     subtext:
-      'Modular synthesis. Combines characters, dreams, scenarios, pitches, and rewards into cohesive output.',
+      'Modular synthesis. Combines characters, dreams, scenarios, dream seeds, and rewards into cohesive output.',
     image: '/images/bots/type/composition.webp',
   },
   {

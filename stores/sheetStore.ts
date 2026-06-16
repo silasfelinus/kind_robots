@@ -22,7 +22,6 @@ export type SheetSource =
   | 'character'
   | 'reward'
   | 'bot'
-  | 'pitch'
   | 'tab'
   | string
 

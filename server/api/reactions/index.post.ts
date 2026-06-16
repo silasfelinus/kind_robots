@@ -25,7 +25,6 @@ type ReactionBody = {
   componentId?: unknown
   compositionId?: unknown
   dreamId?: unknown
-  pitchId?: unknown
   promptId?: unknown
   resourceId?: unknown
   rewardId?: unknown
@@ -55,7 +54,6 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   COMPONENT: Reaction_reactionCategory.COMPONENT,
   COMPOSITION: Reaction_reactionCategory.COMPOSITION,
   DREAM: Reaction_reactionCategory.DREAM,
-  PITCH: Reaction_reactionCategory.PITCH,
   POST: Reaction_reactionCategory.POST,
   PROMPT: Reaction_reactionCategory.PROMPT,
   RESOURCE: Reaction_reactionCategory.RESOURCE,
@@ -130,7 +128,6 @@ function toRating(value: unknown): number {
 
 function toPositiveId(value: unknown): number | undefined {
   const parsed = Number(value)
-
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
@@ -145,7 +142,6 @@ function getTargetFields(body: ReactionBody) {
     componentId: toPositiveId(body.componentId),
     compositionId: toPositiveId(body.compositionId),
     dreamId: toPositiveId(body.dreamId),
-    pitchId: toPositiveId(body.pitchId),
     promptId: toPositiveId(body.promptId),
     resourceId: toPositiveId(body.resourceId),
     rewardId: toPositiveId(body.rewardId),
@@ -168,7 +164,6 @@ function getExpectedTargetField(category: Reaction_reactionCategory) {
     [Reaction_reactionCategory.COMPONENT]: 'componentId',
     [Reaction_reactionCategory.COMPOSITION]: 'compositionId',
     [Reaction_reactionCategory.DREAM]: 'dreamId',
-    [Reaction_reactionCategory.PITCH]: 'pitchId',
     [Reaction_reactionCategory.PROMPT]: 'promptId',
     [Reaction_reactionCategory.RESOURCE]: 'resourceId',
     [Reaction_reactionCategory.REWARD]: 'rewardId',
@@ -258,11 +253,6 @@ async function assertReactionTargetExists(
       }),
     dreamId: () =>
       prisma.dream.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    pitchId: () =>
-      prisma.pitch.findUnique({
         where: { id: targetId },
         select: { id: true },
       }),

@@ -21,7 +21,7 @@ export const userNavigation: navigationData[] = [
   {
     title: 'Art Challenge!',
     image: '/images/fantasycore/fantasycore-915.webp',
-    description: 'Create and share pitches for our community AI-Art generator.',
+    description: 'Create and share ideas for our community AI-Art generator.',
     path: '/addart',
   },
   {

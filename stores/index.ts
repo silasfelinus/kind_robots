@@ -33,11 +33,6 @@ export const loadDisplayStore = async () => {
   return useDisplayStore()
 }
 
-export const loadPitchStore = async () => {
-  const { usePitchStore } = await import('@/stores/pitchStore')
-  return usePitchStore()
-}
-
 export const loadContentStore = async () => {
   const { useContentStore } = await import('@/stores/contentStore')
   return useContentStore()

@@ -189,7 +189,7 @@ export default defineEventHandler(async (event) => {
         {
           role: 'system',
           content:
-            'You generate concise brainstorm ideas for Kind Robots. Return only structured data. Do not include introductions, explanations, markdown, numbering, or wrap-up text.',
+            'You generate concise Dream brainstorm ideas for Kind Robots. Return only structured data. Do not include introductions, explanations, markdown, numbering, or wrap-up text.',
         },
         {
           role: 'user',
@@ -198,7 +198,7 @@ export default defineEventHandler(async (event) => {
             topic: title,
             instructions:
               instructions ||
-              'Create punchy, specific, useful product launch ideas.',
+              'Create punchy, specific, useful Dream seeds with clear story pressure, emotional hooks, and weird specificity.',
             examples,
             output_rules: [
               'Each idea must have a short title.',

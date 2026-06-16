@@ -36,9 +36,6 @@ export default defineEventHandler(async (event) => {
         Scenario: {
           select: { id: true, title: true, artPrompt: true, description: true },
         },
-        Pitch: {
-          select: { id: true, title: true, pitch: true, flavorText: true },
-        },
         Reward: {
           select: {
             id: true,

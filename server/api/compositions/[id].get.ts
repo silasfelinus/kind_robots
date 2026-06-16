@@ -7,18 +7,18 @@ export default defineEventHandler(async (event) => {
   const modelName = 'composition'
   const paramName = 'id'
   let id = 0
-  let response
 
   try {
     id = Number(event.context.params?.[paramName])
-    if (isNaN(id) || id <= 0) {
+
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: `Invalid ${modelName} ID.`,
       })
     }
 
-    const data = await prisma[modelName].findUnique({
+    const data = await prisma.composition.findUnique({
       where: { id },
       include: {
         Character: {
@@ -37,9 +37,11 @@ export default defineEventHandler(async (event) => {
           select: {
             id: true,
             title: true,
+            dreamType: true,
+            pitch: true,
             artPrompt: true,
             description: true,
-            currentVibe: true,
+            flavorText: true,
           },
         },
         Scenario: {
@@ -50,15 +52,6 @@ export default defineEventHandler(async (event) => {
             description: true,
             intros: true,
             locations: true,
-          },
-        },
-        Pitch: {
-          select: {
-            id: true,
-            title: true,
-            pitch: true,
-            flavorText: true,
-            artPrompt: true,
           },
         },
         Reward: {
@@ -79,7 +72,12 @@ export default defineEventHandler(async (event) => {
           },
         },
         ArtImage: {
-          select: { id: true, imagePath: true, thumbnailData: true },
+          select: {
+            id: true,
+            imagePath: true,
+            fileName: true,
+            thumbnailData: true,
+          },
         },
       },
     })
@@ -91,23 +89,24 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
       message: `${modelName} fetched successfully.`,
       data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error) {
     const handled = errorHandler(error)
+
     console.error(`Error fetching ${modelName}:`, handled)
     event.node.res.statusCode = handled.statusCode || 500
-    response = {
+
+    return {
       success: false,
       message: handled.message || `Failed to fetch ${modelName} with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

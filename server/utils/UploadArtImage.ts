@@ -13,7 +13,7 @@ export type UploadedImageFile = {
 export type UploadArtImageDirectModel =
   | 'bot'
   | 'character'
-  | 'pitch'
+  | 'dream'
   | 'prompt'
   | 'resource'
   | 'reward'
@@ -44,7 +44,6 @@ export type UploadArtImageInput = {
   isMature?: boolean | null
   botId?: number | null
   characterId?: number | null
-  pitchId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
@@ -134,7 +133,6 @@ export async function uploadArtImage(
       isMature = false,
       botId = null,
       characterId = null,
-      pitchId = null,
       promptId = null,
       resourceId = null,
       rewardId = null,
@@ -203,7 +201,6 @@ export async function uploadArtImage(
       isMature: Boolean(isMature),
       User: connectById(userId),
       Characters: connectMany(characterId ? [characterId] : []),
-      Pitches: connectMany(pitchId ? [pitchId] : []),
       Prompts: connectMany(promptId ? [promptId] : []),
       Resources: connectMany(resourceId ? [resourceId] : []),
       Rewards: connectMany(rewardId ? [rewardId] : []),

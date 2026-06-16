@@ -347,7 +347,6 @@ import { handleError } from '@/stores/utils'
 
 type ArtCreatorPurpose =
   | 'user'
-  | 'pitch'
   | 'dream'
   | 'character'
   | 'reward'
@@ -502,16 +501,7 @@ const contextMap: Record<
     placeholder:
       'A friendly robot designer avatar with expressive eyes, butterfly accents, cozy sci-fi lighting...',
   },
-  pitch: {
-    label: 'Pitch',
-    icon: 'kind-icon:idea',
-    title: 'Create Pitch Art',
-    description:
-      'Create a cover or inspiration image for the big-picture pitch.',
-    role: 'cover',
-    hint: 'Sell the premise at a glance. Prioritize bold composition and clear genre signal.',
-    placeholder: 'A cinematic cover image for a surreal fantasy world where...',
-  },
+
   builder: {
     label: 'Builder',
     icon: 'kind-icon:hammer',

@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
       serverId: body.serverId ?? null,
     })
 
-    const pitchRequest = {
+    const titleRequest = {
       model,
       messages: [{ role: 'user', content }],
       temperature:
@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(pitchRequest),
+      body: JSON.stringify(titleRequest),
     })
 
     const responseData = (await response.json()) as OpenAIChatResponse
@@ -125,7 +125,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: message || 'Failed to generate pitches.',
+      message: message || 'Failed to generate title ideas.',
       data: null,
     }
   }

@@ -4,7 +4,7 @@ import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useChatStore } from '@/stores/chatStore'
-import { usePitchStore } from '@/stores/pitchStore'
+import { useDreamStore } from '@/stores/dreamStore'
 import { usePromptStore } from '@/stores/promptStore'
 import type {
   displayModeState,
@@ -46,6 +46,6 @@ export function applyQuerySelections(
   selectById(query.characterId, (id) => useCharacterStore().selectCharacter(id))
   selectById(query.scenarioId, (id) => useScenarioStore().selectScenario(id))
   selectById(query.chatId, (id) => useChatStore().selectChat(id))
-  selectById(query.pitchId, (id) => usePitchStore().selectPitch(id))
+  selectById(query.dreamId, (id) => useDreamStore().setSelectedDream(id))
   selectById(query.promptId, (id) => usePromptStore().selectPrompt(id))
 }

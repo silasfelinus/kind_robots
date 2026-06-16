@@ -25,7 +25,6 @@ function asOptionalBoolean(value: unknown): boolean | undefined {
 
 function asOptionalPositiveInt(value: unknown): number | undefined {
   const parsed = Number(value)
-
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
@@ -35,7 +34,6 @@ function relationUpdate(
   if (value === null) return { disconnect: true }
 
   const id = asOptionalPositiveInt(value)
-
   return id ? { connect: { id } } : undefined
 }
 
@@ -107,7 +105,6 @@ export default defineEventHandler(async (event) => {
       characterBlurb: asOptionalNullableString(body.characterBlurb),
       dreamBlurb: asOptionalNullableString(body.dreamBlurb),
       scenarioBlurb: asOptionalNullableString(body.scenarioBlurb),
-      pitchBlurb: asOptionalNullableString(body.pitchBlurb),
       rewardBlurb: asOptionalNullableString(body.rewardBlurb),
       narrativeText: asOptionalNullableString(body.narrativeText),
       artPrompt: asOptionalNullableString(body.artPrompt),
@@ -117,7 +114,6 @@ export default defineEventHandler(async (event) => {
       Character: relationUpdate(body.characterId),
       Dream: relationUpdate(body.dreamId),
       Scenario: relationUpdate(body.scenarioId),
-      Pitch: relationUpdate(body.pitchId),
       Reward: relationUpdate(body.rewardId),
       ArtImage: relationUpdate(body.artImageId),
     }
@@ -136,7 +132,6 @@ export default defineEventHandler(async (event) => {
         Character: true,
         Dream: true,
         Scenario: true,
-        Pitch: true,
         Reward: true,
         ArtImage: {
           select: {

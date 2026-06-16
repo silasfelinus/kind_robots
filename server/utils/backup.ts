@@ -4,7 +4,6 @@ import prisma from './prisma'
 
 const models = [
   'user',
-  'art',
   'artImage',
   'reaction',
   'prompt',
@@ -14,7 +13,7 @@ const models = [
   'component',
   'scenario',
   'reward',
-  'pitch',
+  'dream',
   'resource',
   'tag',
   'resonance',

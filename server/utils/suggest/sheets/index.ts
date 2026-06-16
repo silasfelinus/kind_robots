@@ -1,6 +1,5 @@
 // /server/utils/suggest/sheets/index.ts
 import adventureSuggest from './adventureSuggest'
-import pitchSuggest from './pitchSuggest'
 import stageSuggest from './stageSuggest'
 import botSuggest from './botSuggest'
 import scenarioSuggest from './scenarioSuggest'
@@ -10,7 +9,6 @@ import type { SuggestSheet } from '../suggestTypes'
 
 export const suggestSheets = [
   adventureSuggest,
-  pitchSuggest,
   stageSuggest,
   botSuggest,
   scenarioSuggest,

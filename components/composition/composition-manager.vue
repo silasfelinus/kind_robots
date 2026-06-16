@@ -95,7 +95,7 @@ const compositionStore = useCompositionStore()
 const navStore = useNavStore()
 
 const defaultDashboardKey = 'composition'
-const defaultTab: CompositionTab = 'overview'
+const defaultTab: CompositionTab = 'gallery'
 const validTabs: CompositionTab[] = ['overview', 'gallery', 'add', 'synthesize']
 
 const isLoading = ref(false)

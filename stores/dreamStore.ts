@@ -52,6 +52,14 @@ export interface DreamChatForm extends Partial<Chat> {
   updateDream?: boolean
   artId?: number | null
   addArtToCollection?: boolean
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  highlightImage?: string | null
+  updateNote?: string | null
 }
 
 export interface DreamWithRelations extends Dream {
@@ -253,10 +261,7 @@ function buildQuery(options: Record<string, unknown>) {
 
 function randomSeedDream(): string {
   const randomIndex = Math.floor(Math.random() * dreamSeeds.length)
-  return (
-    dreamSeeds[randomIndex] ??
-    'A shared Dream begins in a room full of impossible light.'
-  )
+  return dreamSeeds[randomIndex] ?? 'A shared Dream begins in a room full of impossible light.'
 }
 
 function fallbackDreamTitle(seed?: string | null) {
@@ -276,10 +281,7 @@ function normalizeDreamForm(input: Partial<DreamForm>): DreamForm {
   } as DreamForm
 }
 
-function defaultDreamForm(
-  userId?: number | null,
-  username?: string,
-): DreamForm {
+function defaultDreamForm(userId?: number | null, username?: string): DreamForm {
   return {
     title: '',
     slug: null,
@@ -356,12 +358,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchPromise = ref<Promise<DreamWithRelations[]> | null>(null)
   const fetchArtForDreamPromises = ref<Record<number, Promise<ArtImage[]>>>({})
-  const createDreamPromise = ref<Promise<
-    DreamResult<DreamWithRelations>
-  > | null>(null)
-  const updateDreamPromise = ref<
-    Record<number, Promise<DreamResult<DreamWithRelations>>>
-  >({})
+  const createDreamPromise = ref<Promise<DreamResult<DreamWithRelations>> | null>(null)
+  const updateDreamPromise = ref<Record<number, Promise<DreamResult<DreamWithRelations>>>>({})
 
   const numberOfRequests = ref(10)
   const temperature = ref(0.9)
@@ -371,22 +369,14 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
   const dreamTypes = DREAM_TYPES
 
-  const currentUserId = computed(
-    () => userStore.user?.id ?? userStore.userId ?? 10,
-  )
+  const currentUserId = computed(() => userStore.user?.id ?? userStore.userId ?? 10)
   const selectedDreamId = computed(() => selectedDream.value?.id ?? null)
   const selectedDreamChats = computed(() => dreamChats.value)
 
-  const activeDreams = computed(() =>
-    dreams.value.filter((dream) => dream.isActive),
-  )
-  const ownedDreams = computed(() =>
-    dreams.value.filter((dream) => dream.userId === currentUserId.value),
-  )
+  const activeDreams = computed(() => dreams.value.filter((dream) => dream.isActive))
+  const ownedDreams = computed(() => dreams.value.filter((dream) => dream.userId === currentUserId.value))
 
-  const publicDreams = computed(() =>
-    filterPublicDreams(dreams.value, currentUserId.value, userStore.isAdmin),
-  )
+  const publicDreams = computed(() => filterPublicDreams(dreams.value, currentUserId.value, userStore.isAdmin))
 
   const visibleDreams = computed(() =>
     filterVisibleDreams(
@@ -400,12 +390,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const artDreams = computed(() => filterDreamsByType('ARTDREAM', dreams.value))
   const pitchDreams = computed(() => filterDreamsByType('PITCH', dreams.value))
   const titles = computed(() => filterDreamsByType('TITLE', dreams.value))
-  const brainstormDreams = computed(() =>
-    filterDreamsByType('BRAINSTORM', dreams.value),
-  )
-  const randomListDreams = computed(() =>
-    filterDreamsByType('RANDOMLIST', dreams.value),
-  )
+  const brainstormDreams = computed(() => filterDreamsByType('BRAINSTORM', dreams.value))
+  const randomListDreams = computed(() => filterDreamsByType('RANDOMLIST', dreams.value))
   const dreamsByTitle = computed(() => groupDreamsByTitle(dreams.value))
 
   const selectedTitleDreams = computed(() => {
@@ -414,19 +400,14 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return dreams.value.filter((dream) => dream.title === title)
   })
 
-  const selectedDreamCast = computed(
-    () => selectedDream.value?.Characters ?? [],
-  )
+  const selectedDreamCast = computed(() => selectedDream.value?.Characters ?? [])
   const selectedDreamItems = computed(() => selectedDream.value?.Rewards ?? [])
 
   const selectedDreamCollectionArt = computed(() => {
     const attachedArt = selectedDream.value?.ArtImages ?? []
-    const primaryCollectionArt =
-      selectedDream.value?.ArtCollection?.ArtImages ?? []
+    const primaryCollectionArt = selectedDream.value?.ArtCollection?.ArtImages ?? []
     const extraCollectionArt =
-      selectedDream.value?.ArtCollections?.flatMap(
-        (collection) => collection.ArtImages ?? [],
-      ) ?? []
+      selectedDream.value?.ArtCollections?.flatMap((collection) => collection.ArtImages ?? []) ?? []
 
     return [...attachedArt, ...primaryCollectionArt, ...extraCollectionArt]
   })
@@ -454,17 +435,12 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return `${dream.title} is a ${parseDreamType(dream.dreamType).toLowerCase()} dream with ${castCount} cast member${castCount === 1 ? '' : 's'}, ${itemCount} item${itemCount === 1 ? '' : 's'}, and ${chatCount} note${chatCount === 1 ? '' : 's'}. ${seed}`
   })
 
-  const newestDreamsDisplay = computed(() =>
-    newestDreams.value.map((dream) => ({ ...dream, isNewest: true })),
-  )
+  const newestDreamsDisplay = computed(() => newestDreams.value.map((dream) => ({ ...dream, isNewest: true })))
   const latestDreamChat = computed(() => dreamChats.value.at(-1) ?? null)
   const hasSelectedDream = computed(() => Boolean(selectedDream.value?.id))
 
   const hasUnsavedChanges = computed(() => {
-    return (
-      JSON.stringify(selectedDream.value ?? {}) !==
-      JSON.stringify(dreamForm.value ?? {})
-    )
+    return JSON.stringify(selectedDream.value ?? {}) !== JSON.stringify(dreamForm.value ?? {})
   })
 
   function setError(message = '') {
@@ -506,38 +482,14 @@ export const useDreamStore = defineStore('dreamStore', () => {
   function saveStateToLocalStorage() {
     safeSetLocalStorage(storageKeys.dreams, JSON.stringify(dreams.value))
     safeSetLocalStorage(storageKeys.dreamForm, JSON.stringify(dreamForm.value))
-    safeSetLocalStorage(
-      storageKeys.selectedDreams,
-      JSON.stringify(selectedDreams.value),
-    )
-    safeSetLocalStorage(
-      storageKeys.selectedDreamType,
-      JSON.stringify(selectedDreamType.value),
-    )
-    safeSetLocalStorage(
-      storageKeys.selectedDream,
-      JSON.stringify(selectedDream.value),
-    )
-    safeSetLocalStorage(
-      storageKeys.selectedTitle,
-      JSON.stringify(selectedTitle.value),
-    )
-    safeSetLocalStorage(
-      storageKeys.dreamChats,
-      JSON.stringify(dreamChats.value),
-    )
-    safeSetLocalStorage(
-      storageKeys.galleryArt,
-      JSON.stringify(galleryArt.value),
-    )
-    safeSetLocalStorage(
-      storageKeys.newestDreams,
-      JSON.stringify(newestDreams.value),
-    )
-    safeSetLocalStorage(
-      storageKeys.numberOfRequests,
-      String(numberOfRequests.value),
-    )
+    safeSetLocalStorage(storageKeys.selectedDreams, JSON.stringify(selectedDreams.value))
+    safeSetLocalStorage(storageKeys.selectedDreamType, JSON.stringify(selectedDreamType.value))
+    safeSetLocalStorage(storageKeys.selectedDream, JSON.stringify(selectedDream.value))
+    safeSetLocalStorage(storageKeys.selectedTitle, JSON.stringify(selectedTitle.value))
+    safeSetLocalStorage(storageKeys.dreamChats, JSON.stringify(dreamChats.value))
+    safeSetLocalStorage(storageKeys.galleryArt, JSON.stringify(galleryArt.value))
+    safeSetLocalStorage(storageKeys.newestDreams, JSON.stringify(newestDreams.value))
+    safeSetLocalStorage(storageKeys.numberOfRequests, String(numberOfRequests.value))
     safeSetLocalStorage(storageKeys.temperature, String(temperature.value))
     safeSetLocalStorage(storageKeys.exampleString, exampleString.value)
     safeSetLocalStorage(storageKeys.apiResponse, apiResponse.value)
@@ -548,18 +500,88 @@ export const useDreamStore = defineStore('dreamStore', () => {
     saveStateToLocalStorage()
   }
 
-  function hydrateFromLocalStorage() {
-    dreams.value = safeParseArray<DreamWithRelations>(
-      safeGetLocalStorage(storageKeys.dreams),
+  function hydrateFromLegacyPitchStorage() {
+    const legacyPitches = safeParseArray<LegacyPitchRecord>(safeGetLocalStorage(legacyPitchStorageKeys.pitches))
+      .map(toLegacyDream)
+      .filter(Boolean) as DreamWithRelations[]
+
+    if (!dreams.value.length && legacyPitches.length) {
+      dreams.value = legacyPitches.map(normalizeDream).sort(sortDreamsByNewest)
+    }
+
+    if (Object.keys(dreamForm.value).length === 0) {
+      const legacyForm = safeParseObject<LegacyPitchRecord | null>(
+        safeGetLocalStorage(legacyPitchStorageKeys.pitchForm),
+        null,
+      )
+
+      if (legacyForm) {
+        dreamForm.value = normalizeDreamForm(legacyPitchToDreamPayload(legacyForm) as DreamForm)
+      }
+    }
+
+    const legacySelected = safeParseObject<LegacyPitchRecord | null>(
+      safeGetLocalStorage(legacyPitchStorageKeys.selectedPitch),
+      null,
     )
+
+    if (!selectedDream.value && legacySelected) {
+      selectedDream.value = toLegacyDream(legacySelected)
+    }
+
+    const legacyTitle = safeParseObject<LegacyPitchRecord | null>(
+      safeGetLocalStorage(legacyPitchStorageKeys.selectedTitle),
+      null,
+    )
+
+    if (!selectedTitle.value && legacyTitle) {
+      selectedTitle.value = toLegacyDream(legacyTitle)
+    }
+
+    const legacyType = safeGetLocalStorage(legacyPitchStorageKeys.selectedPitchType)
+    if (!selectedDreamType.value && legacyType && legacyType !== 'null') {
+      selectedDreamType.value = parseDreamType(JSON.parse(legacyType) as string)
+    }
+
+    if (!Object.keys(galleryArt.value).length) {
+      galleryArt.value = safeParseObject<Record<number, ArtImage[]>>(
+        safeGetLocalStorage(legacyPitchStorageKeys.galleryArt),
+        {},
+      )
+    }
+
+    if (!newestDreams.value.length) {
+      newestDreams.value = safeParseArray<LegacyPitchRecord>(
+        safeGetLocalStorage(legacyPitchStorageKeys.newestPitches),
+      )
+        .map(toLegacyDream)
+        .filter(Boolean) as DreamWithRelations[]
+    }
+
+    numberOfRequests.value = safeParseNumber(
+      safeGetLocalStorage(legacyPitchStorageKeys.numberOfRequests),
+      numberOfRequests.value,
+    )
+    temperature.value = safeParseNumber(
+      safeGetLocalStorage(legacyPitchStorageKeys.temperature),
+      temperature.value,
+    )
+    exampleString.value =
+      safeGetLocalStorage(legacyPitchStorageKeys.exampleString) ?? exampleString.value
+    apiResponse.value = safeGetLocalStorage(legacyPitchStorageKeys.apiResponse) ?? apiResponse.value
+    maxTokens.value = safeParseNumber(
+      safeGetLocalStorage(legacyPitchStorageKeys.maxTokens),
+      maxTokens.value,
+    )
+  }
+
+  function hydrateFromLocalStorage() {
+    dreams.value = safeParseArray<DreamWithRelations>(safeGetLocalStorage(storageKeys.dreams))
       .map(normalizeDream)
       .sort(sortDreamsByNewest)
 
     dreamForm.value = normalizeDreamForm(
-      safeParseObject<DreamForm>(
-        safeGetLocalStorage(storageKeys.dreamForm),
-        {},
-      ),
+      safeParseObject<DreamForm>(safeGetLocalStorage(storageKeys.dreamForm), {}),
     )
 
     selectedDreams.value = safeParseArray<DreamWithRelations>(
@@ -567,53 +589,32 @@ export const useDreamStore = defineStore('dreamStore', () => {
     ).map(normalizeDream)
 
     const storedType = safeGetLocalStorage(storageKeys.selectedDreamType)
-    selectedDreamType.value =
-      storedType && storedType !== 'null'
-        ? parseDreamType(JSON.parse(storedType) as string)
-        : null
+    selectedDreamType.value = storedType && storedType !== 'null' ? parseDreamType(JSON.parse(storedType) as string) : null
 
     selectedDream.value = safeParseObject<DreamWithRelations | null>(
       safeGetLocalStorage(storageKeys.selectedDream),
       null,
     )
 
-    if (selectedDream.value)
-      selectedDream.value = normalizeDream(selectedDream.value)
+    if (selectedDream.value) selectedDream.value = normalizeDream(selectedDream.value)
 
     selectedTitle.value = safeParseObject<DreamWithRelations | null>(
       safeGetLocalStorage(storageKeys.selectedTitle),
       null,
     )
 
-    if (selectedTitle.value)
-      selectedTitle.value = normalizeDream(selectedTitle.value)
+    if (selectedTitle.value) selectedTitle.value = normalizeDream(selectedTitle.value)
 
-    dreamChats.value = safeParseArray<DreamChatWithRelations>(
-      safeGetLocalStorage(storageKeys.dreamChats),
-    )
-    galleryArt.value = safeParseObject<Record<number, ArtImage[]>>(
-      safeGetLocalStorage(storageKeys.galleryArt),
-      {},
-    )
-    newestDreams.value = safeParseArray<DreamWithRelations>(
-      safeGetLocalStorage(storageKeys.newestDreams),
-    ).map(normalizeDream)
-    numberOfRequests.value = safeParseNumber(
-      safeGetLocalStorage(storageKeys.numberOfRequests),
-      10,
-    )
-    temperature.value = safeParseNumber(
-      safeGetLocalStorage(storageKeys.temperature),
-      0.9,
-    )
-    exampleString.value =
-      safeGetLocalStorage(storageKeys.exampleString) ?? exampleString.value
-    apiResponse.value =
-      safeGetLocalStorage(storageKeys.apiResponse) ?? apiResponse.value
-    maxTokens.value = safeParseNumber(
-      safeGetLocalStorage(storageKeys.maxTokens),
-      500,
-    )
+    dreamChats.value = safeParseArray<DreamChatWithRelations>(safeGetLocalStorage(storageKeys.dreamChats))
+    galleryArt.value = safeParseObject<Record<number, ArtImage[]>>(safeGetLocalStorage(storageKeys.galleryArt), {})
+    newestDreams.value = safeParseArray<DreamWithRelations>(safeGetLocalStorage(storageKeys.newestDreams)).map(normalizeDream)
+    numberOfRequests.value = safeParseNumber(safeGetLocalStorage(storageKeys.numberOfRequests), 10)
+    temperature.value = safeParseNumber(safeGetLocalStorage(storageKeys.temperature), 0.9)
+    exampleString.value = safeGetLocalStorage(storageKeys.exampleString) ?? exampleString.value
+    apiResponse.value = safeGetLocalStorage(storageKeys.apiResponse) ?? apiResponse.value
+    maxTokens.value = safeParseNumber(safeGetLocalStorage(storageKeys.maxTokens), 500)
+
+    hydrateFromLegacyPitchStorage()
   }
 
   function loadFromLocalStorage() {
@@ -688,15 +689,10 @@ export const useDreamStore = defineStore('dreamStore', () => {
       dreamChats.value = normalized.Chats ?? dreamChats.value
     }
 
-    if (selectedTitle.value?.id === normalized.id)
-      selectedTitle.value = normalized
+    if (selectedTitle.value?.id === normalized.id) selectedTitle.value = normalized
 
-    selectedDreams.value = selectedDreams.value.map((entry) =>
-      entry.id === normalized.id ? normalized : entry,
-    )
-    newestDreams.value = newestDreams.value.map((entry) =>
-      entry.id === normalized.id ? normalized : entry,
-    )
+    selectedDreams.value = selectedDreams.value.map((entry) => (entry.id === normalized.id ? normalized : entry))
+    newestDreams.value = newestDreams.value.map((entry) => (entry.id === normalized.id ? normalized : entry))
     saveStateToLocalStorage()
 
     return normalized
@@ -704,9 +700,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
   function removeDreamFromState(id: number) {
     dreams.value = dreams.value.filter((dream) => dream.id !== id)
-    selectedDreams.value = selectedDreams.value.filter(
-      (dream) => dream.id !== id,
-    )
+    selectedDreams.value = selectedDreams.value.filter((dream) => dream.id !== id)
     newestDreams.value = newestDreams.value.filter((dream) => dream.id !== id)
     delete galleryArt.value[id]
 
@@ -721,11 +715,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
     saveStateToLocalStorage()
   }
 
-  async function initialize(
-    options: DreamInitializeOptions | boolean = {},
-  ): Promise<void> {
-    const normalizedOptions =
-      typeof options === 'boolean' ? { force: options } : options
+  async function initialize(options: DreamInitializeOptions | boolean = {}): Promise<void> {
+    const normalizedOptions = typeof options === 'boolean' ? { force: options } : options
     const force = Boolean(normalizedOptions.force)
     const fetchRemote = normalizedOptions.fetchRemote ?? true
 
@@ -774,15 +765,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return initializePromise.value
   }
 
-  async function fetchDreams(
-    options: FetchDreamOptions = {},
-  ): Promise<DreamWithRelations[]> {
-    if (
-      !Object.keys(options).length &&
-      hasLoaded.value &&
-      dreams.value.length &&
-      fetchPromise.value
-    ) {
+  async function fetchDreams(options: FetchDreamOptions = {}): Promise<DreamWithRelations[]> {
+    if (!Object.keys(options).length && hasLoaded.value && dreams.value.length && fetchPromise.value) {
       return fetchPromise.value
     }
 
@@ -798,9 +782,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
           artCollectionId: options.artCollectionId,
           galleryId: options.galleryId,
           scenarioId: options.scenarioId,
-          dreamType: options.dreamType
-            ? parseDreamType(options.dreamType)
-            : undefined,
+          dreamType: options.dreamType ? parseDreamType(options.dreamType) : undefined,
           tagId: options.tagId,
           characterId: options.characterId,
           rewardId: options.rewardId,
@@ -811,8 +793,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
         const url = query ? `/api/dreams?${query}` : '/api/dreams'
         const res = await performFetch<DreamWithRelations[]>(url)
 
-        if (!res.success || !res.data)
-          throw new Error(res.message || 'Failed to fetch dreams.')
+        if (!res.success || !res.data) throw new Error(res.message || 'Failed to fetch dreams.')
 
         dreams.value = res.data.map(normalizeDream).sort(sortDreamsByNewest)
         hasLoaded.value = true
@@ -821,12 +802,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
         return dreams.value
       } catch (fetchError) {
         hasLoaded.value = false
-        reportError(
-          fetchError,
-          'fetching dreams',
-          'Failed to fetch dreams.',
-          ErrorType.NETWORK_ERROR,
-        )
+        reportError(fetchError, 'fetching dreams', 'Failed to fetch dreams.', ErrorType.NETWORK_ERROR)
         return dreams.value
       } finally {
         loading.value = false
@@ -842,10 +818,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return await fetchDreams({ userOnly: true })
   }
 
-  async function fetchDreamById(
-    id: number,
-    selectAfterFetch = false,
-  ): Promise<DreamWithRelations | null> {
+  async function fetchDreamById(id: number, selectAfterFetch = false): Promise<DreamWithRelations | null> {
     const dreamId = normalizeId(id)
 
     if (!dreamId) {
@@ -858,12 +831,9 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     try {
       const query = userStore.showMature ? '?includeMature=true' : ''
-      const res = await performFetch<DreamWithRelations>(
-        `/api/dreams/${dreamId}${query}`,
-      )
+      const res = await performFetch<DreamWithRelations>(`/api/dreams/${dreamId}${query}`)
 
-      if (!res.success || !res.data)
-        throw new Error(res.message || `Failed to fetch dream ${dreamId}.`)
+      if (!res.success || !res.data) throw new Error(res.message || `Failed to fetch dream ${dreamId}.`)
 
       const normalized = upsertDream(res.data)
 
@@ -893,16 +863,14 @@ export const useDreamStore = defineStore('dreamStore', () => {
     const id = normalizeId(dreamId)
     if (!id) return []
     if (galleryArt.value[id]) return galleryArt.value[id]
-    if (fetchArtForDreamPromises.value[id])
-      return fetchArtForDreamPromises.value[id]
+    if (fetchArtForDreamPromises.value[id]) return fetchArtForDreamPromises.value[id]
 
     fetchArtForDreamPromises.value[id] = (async () => {
       try {
         clearError()
         const res = await performFetch<ArtImage[]>(`/api/dreams/art/${id}`)
 
-        if (!res.success)
-          throw new Error(res.message || 'Failed to fetch art for dream.')
+        if (!res.success) throw new Error(res.message || 'Failed to fetch art for dream.')
 
         galleryArt.value[id] = res.data || []
         saveStateToLocalStorage()
@@ -946,9 +914,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function createDream(
-    payload: DreamForm,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function createDream(payload: DreamForm): Promise<DreamResult<DreamWithRelations>> {
     if (createDreamPromise.value) return createDreamPromise.value
 
     createDreamPromise.value = (async () => {
@@ -963,8 +929,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
           body: JSON.stringify(body),
         })
 
-        if (!res.success || !res.data)
-          throw new Error(res.message || 'Failed to create dream.')
+        if (!res.success || !res.data) throw new Error(res.message || 'Failed to create dream.')
 
         const created = upsertDream(res.data)
         selectedDream.value = created
@@ -996,10 +961,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return createDreamPromise.value
   }
 
-  async function updateDream(
-    id: number,
-    updates: DreamForm,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function updateDream(id: number, updates: DreamForm): Promise<DreamResult<DreamWithRelations>> {
     const dreamId = normalizeId(id)
 
     if (!dreamId) {
@@ -1008,8 +970,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
       return { success: false, message }
     }
 
-    if (updateDreamPromise.value[dreamId])
-      return updateDreamPromise.value[dreamId]
+    if (updateDreamPromise.value[dreamId]) return updateDreamPromise.value[dreamId]
 
     updateDreamPromise.value[dreamId] = (async () => {
       isSaving.value = true
@@ -1017,17 +978,13 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
       try {
         const body = buildMutationBody(updates)
-        const res = await performFetch<DreamWithRelations>(
-          `/api/dreams/${dreamId}`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-          },
-        )
+        const res = await performFetch<DreamWithRelations>(`/api/dreams/${dreamId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
 
-        if (!res.success || !res.data)
-          throw new Error(res.message || `Failed to update dream ${dreamId}.`)
+        if (!res.success || !res.data) throw new Error(res.message || `Failed to update dream ${dreamId}.`)
 
         const updated = upsertDream(res.data)
         selectedDream.value = updated
@@ -1064,14 +1021,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
       return { success: false, message }
     }
 
-    if (typeof dreamForm.value.id === 'number')
-      return await updateDream(dreamForm.value.id, dreamForm.value)
+    if (typeof dreamForm.value.id === 'number') return await updateDream(dreamForm.value.id, dreamForm.value)
     return await createDream(dreamForm.value)
   }
 
-  async function updateSelectedDream(
-    updates: DreamForm,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function updateSelectedDream(updates: DreamForm): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1081,10 +1035,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return await updateDream(selectedDream.value.id, updates)
   }
 
-  async function deleteDream(
-    id: number,
-    hardDelete = false,
-  ): Promise<DreamResult<DreamWithRelations | undefined>> {
+  async function deleteDream(id: number, hardDelete = false): Promise<DreamResult<DreamWithRelations | undefined>> {
     const dreamId = normalizeId(id)
 
     if (!dreamId) {
@@ -1098,15 +1049,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     try {
       const query = hardDelete ? '?hard=true' : ''
-      const res = await performFetch<DreamWithRelations>(
-        `/api/dreams/${dreamId}${query}`,
-        {
-          method: 'DELETE',
-        },
-      )
+      const res = await performFetch<DreamWithRelations>(`/api/dreams/${dreamId}${query}`, {
+        method: 'DELETE',
+      })
 
-      if (!res.success)
-        throw new Error(res.message || `Failed to delete dream ${dreamId}.`)
+      if (!res.success) throw new Error(res.message || `Failed to delete dream ${dreamId}.`)
 
       if (hardDelete) removeDreamFromState(dreamId)
       else if (res.data) upsertDream(res.data)
@@ -1114,9 +1061,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
       return {
         success: true,
         data: res.data,
-        message: hardDelete
-          ? `Dream #${dreamId} deleted.`
-          : `Dream #${dreamId} archived.`,
+        message: hardDelete ? `Dream #${dreamId} deleted.` : `Dream #${dreamId} archived.`,
       }
     } catch (deleteError) {
       const message = reportError(
@@ -1135,14 +1080,9 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return await deleteDream(dreamId)
   }
 
-  async function fetchDreamChats(
-    options: FetchDreamChatOptions | number = {},
-  ): Promise<DreamChatWithRelations[]> {
-    const normalizedOptions =
-      typeof options === 'number' ? { dreamId: options } : options
-    const dreamId = normalizeId(
-      normalizedOptions.dreamId ?? selectedDreamId.value,
-    )
+  async function fetchDreamChats(options: FetchDreamChatOptions | number = {}): Promise<DreamChatWithRelations[]> {
+    const normalizedOptions = typeof options === 'number' ? { dreamId: options } : options
+    const dreamId = normalizeId(normalizedOptions.dreamId ?? selectedDreamId.value)
 
     if (!dreamId) {
       setError('No dream selected.')
@@ -1161,20 +1101,12 @@ export const useDreamStore = defineStore('dreamStore', () => {
         characterId: normalizedOptions.characterId,
         botId: normalizedOptions.botId,
         type: normalizedOptions.type,
-        includeMature:
-          normalizedOptions.includeMature || userStore.showMature
-            ? 'true'
-            : undefined,
+        includeMature: normalizedOptions.includeMature || userStore.showMature ? 'true' : undefined,
       })
 
-      const res = await performFetch<DreamChatWithRelations[]>(
-        `/api/dreams/chats?${query}`,
-      )
+      const res = await performFetch<DreamChatWithRelations[]>(`/api/chats?${query}`)
 
-      if (!res.success || !res.data)
-        throw new Error(
-          res.message || `Failed to fetch chats for dream ${dreamId}.`,
-        )
+      if (!res.success || !res.data) throw new Error(res.message || `Failed to fetch chats for dream ${dreamId}.`)
 
       dreamChats.value = res.data
       saveStateToLocalStorage()
@@ -1214,27 +1146,46 @@ export const useDreamStore = defineStore('dreamStore', () => {
         userId: payload.userId ?? currentUserId.value,
         type: payload.type ?? 'Dream',
         sender: payload.sender || userStore.username || 'Dreamer',
+        channel: payload.channel || `dream-${normalizedDreamId}`,
         content: payload.content?.trim(),
       }
 
       if (!body.content) throw new Error('Dream chat content is required.')
 
-      const res = await performFetch<DreamChatWithRelations>(
-        '/api/dreams/chats',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        },
-      )
+      const res = await performFetch<DreamChatWithRelations>('/api/chats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
 
-      if (!res.success || !res.data)
-        throw new Error(res.message || 'Failed to create dream chat.')
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to create dream chat.')
 
       dreamChats.value.push(res.data)
 
-      if (payload.updateDream) await fetchDreamById(normalizedDreamId, true)
-      else saveStateToLocalStorage()
+      if (payload.updateDream) {
+        const dreamUpdates: DreamForm = {
+          description: payload.description ?? undefined,
+          pitch: payload.pitch ?? undefined,
+          flavorText: payload.flavorText ?? undefined,
+          examples: payload.examples ?? undefined,
+          artPrompt: payload.artPrompt ?? undefined,
+          imagePath: payload.imagePath ?? undefined,
+          highlightImage: payload.highlightImage ?? undefined,
+          artImageId: payload.artImageId ?? undefined,
+          updateNote:
+            payload.updateNote ??
+            (body.content ? `Dream chat update: ${body.content}` : undefined),
+        }
+
+        const hasDreamUpdates = Object.values(dreamUpdates).some(
+          (value) => value !== undefined,
+        )
+
+        if (hasDreamUpdates) await updateDream(normalizedDreamId, dreamUpdates)
+        else await fetchDreamById(normalizedDreamId, true)
+      } else {
+        saveStateToLocalStorage()
+      }
 
       return {
         success: true,
@@ -1318,9 +1269,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     saveStateToLocalStorage()
   }
 
-  async function submitChatForm(): Promise<
-    DreamResult<DreamChatWithRelations>
-  > {
+  async function submitChatForm(): Promise<DreamResult<DreamChatWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1346,9 +1295,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     saveStateToLocalStorage()
   }
 
-  async function startEditingDream(
-    id?: number,
-  ): Promise<DreamWithRelations | null> {
+  async function startEditingDream(id?: number): Promise<DreamWithRelations | null> {
     const dreamId = normalizeId(id ?? selectedDream.value?.id)
 
     if (!dreamId) {
@@ -1378,13 +1325,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return dream
   }
 
-  async function startCloningDream(
-    id: number,
-    overrides: DreamForm = {},
-  ): Promise<DreamForm | null> {
-    const source =
-      dreams.value.find((dream) => dream.id === id) ??
-      (await fetchDreamById(id))
+  async function startCloningDream(id: number, overrides: DreamForm = {}): Promise<DreamForm | null> {
+    const source = dreams.value.find((dream) => dream.id === id) ?? (await fetchDreamById(id))
 
     if (!source) return null
 
@@ -1445,8 +1387,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
   }
 
   function setSelectedTitle(dreamId: number) {
-    selectedTitle.value =
-      dreams.value.find((dream) => dream.id === dreamId) || null
+    selectedTitle.value = dreams.value.find((dream) => dream.id === dreamId) || null
     saveStateToLocalStorage()
   }
 
@@ -1457,10 +1398,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
   function getDreamsBySelectedType(): DreamWithRelations[] {
     if (!selectedDreamType.value) return dreams.value
-    return dreams.value.filter(
-      (dream) =>
-        parseDreamType(dream.dreamType as string) === selectedDreamType.value,
-    )
+    return dreams.value.filter((dream) => parseDreamType(dream.dreamType as string) === selectedDreamType.value)
   }
 
   function setRandomDreamSeed() {
@@ -1475,10 +1413,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return flavorText
   }
 
-  async function setCurrentArt(art: {
-    id: number
-    artImageId?: number | null
-  }): Promise<DreamResult<DreamWithRelations>> {
+  async function setCurrentArt(art: { id: number; artImageId?: number | null }): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1492,9 +1427,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setDreamPitch(
-    pitch: string,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setDreamPitch(pitch: string): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1507,15 +1440,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setCurrentPrompt(
-    currentPrompt: string,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setCurrentPrompt(currentPrompt: string): Promise<DreamResult<DreamWithRelations>> {
     return await setDreamPitch(currentPrompt)
   }
 
-  async function setCurrentVibe(
-    currentVibe: string,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setCurrentVibe(currentVibe: string): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1528,9 +1457,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setDreamDescription(
-    description: string,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setDreamDescription(description: string): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1543,9 +1470,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setDreamArtPrompt(
-    artPrompt: string,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setDreamArtPrompt(artPrompt: string): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1558,9 +1483,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setDreamType(
-    dreamType: DreamType | string,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setDreamType(dreamType: DreamType | string): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1573,9 +1496,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setDreamScenario(
-    scenarioId: number | null,
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setDreamScenario(scenarioId: number | null): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1584,15 +1505,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       scenarioId,
-      updateNote: scenarioId
-        ? 'Attached a Scenario to this Dream.'
-        : 'Removed the Scenario from this Dream.',
+      updateNote: scenarioId ? 'Attached a Scenario to this Dream.' : 'Removed the Scenario from this Dream.',
     })
   }
 
-  async function setDreamCast(
-    characterIds: number[],
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setDreamCast(characterIds: number[]): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1605,9 +1522,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setDreamItems(
-    rewardIds: number[],
-  ): Promise<DreamResult<DreamWithRelations>> {
+  async function setDreamItems(rewardIds: number[]): Promise<DreamResult<DreamWithRelations>> {
     if (!selectedDream.value?.id) {
       const message = 'No dream selected.'
       setError(message)
@@ -1620,15 +1535,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function addTitle({
-    title,
-    dreamType,
-    pitch,
-  }: {
-    title: string
-    dreamType?: DreamType | string
-    pitch?: string
-  }) {
+  async function addTitle({ title, dreamType, pitch }: { title: string; dreamType?: DreamType | string; pitch?: string }) {
     return await createDream({
       title,
       dreamType: parseDreamType(dreamType ?? 'TITLE'),
@@ -1691,11 +1598,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
         }),
       })
 
-      if (!res.success)
-        return {
-          success: false,
-          message: res.message || 'Brainstorm request failed',
-        }
+      if (!res.success) return { success: false, message: res.message || 'Brainstorm request failed' }
 
       apiResponse.value = normalizeBrainstormResponse(res.data)
       saveStateToLocalStorage()
@@ -1748,8 +1651,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
         }),
       })
 
-      if (!res.success)
-        throw new Error(res.message || 'Title storm request failed')
+      if (!res.success) throw new Error(res.message || 'Title storm request failed')
 
       apiResponse.value = res.data || 'No response'
 
@@ -1797,8 +1699,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
         }),
       })
 
-      if (!res.success || !res.data)
-        throw new Error(res.message || 'Failed to generate dream fields')
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to generate dream fields')
 
       setDreamForm(res.data as Partial<DreamForm>)
 
@@ -1855,9 +1756,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
   }
 
   function clearLegacyPitchLocalStorage() {
-    Object.values(legacyPitchStorageKeys).forEach((key) =>
-      safeRemoveLocalStorage(key),
-    )
+    Object.values(legacyPitchStorageKeys).forEach((key) => safeRemoveLocalStorage(key))
   }
 
   function resetInitialization() {
@@ -1942,6 +1841,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     resetInitialization,
     hydrateFromLocalStorage,
     loadFromLocalStorage,
+    hydrateFromLegacyPitchStorage,
     syncToLocalStorage,
     saveStateToLocalStorage,
 

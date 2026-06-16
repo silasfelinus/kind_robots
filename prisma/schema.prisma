@@ -390,12 +390,11 @@ model Dream {
   // ── Primary "main choice" FKs (one each) ──────────────────────────────────
   artImageId      Int?
   artCollectionId Int?
-  scenarioId      Int?
   // ── Relations ─────────────────────────────────────────────────────────────
   User            User           @relation(fields: [userId], references: [id])
   ArtImage        ArtImage?      @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
   ArtCollection   ArtCollection? @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
-  Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
+  Scenarios  Scenario[]  @relation("DreamToScenario")
   Reactions       Reaction[]
   Compositions    Composition[]
   Chats           Chat[]
@@ -411,7 +410,6 @@ model Dream {
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
-  @@index([scenarioId])
 }
 
 /// our woefully underutilized log function, but it's there.
@@ -676,7 +674,8 @@ model Scenario {
   tier         String?
   group        String?
   secretNotes  String?
-  Dream        Dream[]
+  cast  Json?
+  Dreams  Dream[]  @relation("DreamToScenario")
   Reactions    Reaction[]
   ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
   User         User          @relation(fields: [userId], references: [id])

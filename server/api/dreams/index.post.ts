@@ -3,7 +3,11 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { CreationSource, DreamType, Prisma } from '~/prisma/generated/prisma/client'
+import type {
+  CreationSource,
+  DreamType,
+  Prisma,
+} from '~/prisma/generated/prisma/client'
 
 type DreamCreateBody = {
   title?: string
@@ -30,6 +34,7 @@ type DreamCreateBody = {
   isMature?: boolean
   isActive?: boolean
   createCollection?: boolean
+  scenarioIds?: number[]
 }
 
 const dreamTypes: DreamType[] = [
@@ -188,6 +193,7 @@ export default defineEventHandler(async (event) => {
     const rewardIds = normalizeIdArray(body.rewardIds)
     const artImageIds = normalizeIdArray(body.artImageIds)
     const artCollectionIds = normalizeIdArray(body.artCollectionIds)
+    const scenarioIds = normalizeIdArray(body.scenarioIds)
 
     const dataInput: Prisma.DreamCreateInput = {
       title,
@@ -231,6 +237,9 @@ export default defineEventHandler(async (event) => {
         : {}),
       ...(rewardIds?.length
         ? { Rewards: { connect: rewardIds.map((id) => ({ id })) } }
+        : {}),
+      ...(scenarioIds?.length
+        ? { Scenarios: { connect: scenarioIds.map((id) => ({ id })) } }
         : {}),
       ...(artImageIds?.length
         ? { ArtImages: { connect: artImageIds.map((id) => ({ id })) } }

@@ -86,10 +86,14 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'prompts'"
+      v-else-if="activeTab === 'maker' || activeTab === 'prompts'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <dream-prompts class="h-full min-h-0 flex-1 overflow-hidden" />
+      <dream-maker
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+        @saved="onDreamMakerSaved"
+      />
     </section>
 
     <section
@@ -118,7 +122,7 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
-type DreamTab = 'overview' | 'dreams' | 'add' | 'interact' | 'prompts'
+type DreamTab = 'overview' | 'dreams' | 'add' | 'interact' | 'prompts' | 'maker'
 
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
@@ -137,6 +141,7 @@ const validTabs: DreamTab[] = [
   'add',
   'interact',
   'prompts',
+  'maker',
 ]
 
 const isLoadingManager = ref(false)
@@ -165,6 +170,16 @@ const managerSummary = computed(() => {
 
   return `${dreamStore.activeDreams.length}/${dreamStore.dreams.length} Dreams active. ${scenarioStore.scenarios.length} Scenarios loaded. Current dream: ${selected}.`
 })
+
+async function onDreamMakerSaved(ids: number[]) {
+  await refreshManagerData()
+
+  const [firstId] = ids
+
+  if (firstId) {
+    await dreamStore.selectDreamById(firstId)
+  }
+}
 
 function setupUploadTarget() {
   const dream = dreamStore.selectedDream

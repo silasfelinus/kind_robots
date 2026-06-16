@@ -20,7 +20,6 @@ import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useReactionStore } from '@/stores/reactionStore'
 import { useRewardStore } from '@/stores/rewardStore'
@@ -46,7 +45,6 @@ const checkpointStore = useCheckpointStore()
 const artStore = useArtStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
-const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 const rewardStore = useRewardStore()
@@ -175,7 +173,6 @@ async function initializeStores() {
     // Third wave: everything else.
     await runWave('remaining stores', [
       characterStore.initialize?.(),
-      pitchStore.initialize?.(),
       promptStore.initialize?.(),
       reactionStore.initialize?.(),
       rewardStore.initialize?.(),

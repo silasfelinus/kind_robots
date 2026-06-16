@@ -48,9 +48,7 @@ function safeParseStringArray(value: unknown): string[] {
 
 function stringifyExamples(values: string[]): string {
   return JSON.stringify(
-    values
-      .map((value) => value.trim())
-      .filter((value) => value.length > 0),
+    values.map((value) => value.trim()).filter((value) => value.length > 0),
   )
 }
 
@@ -229,11 +227,14 @@ export const useRandomStore = defineStore('randomStore', () => {
   }
 
   async function updateList(dream: RandomListDream) {
-    const res = (await performFetch<RandomListDream>(`/api/dreams/${dream.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(dream),
-      headers: { 'Content-Type': 'application/json' },
-    })) as PerformFetchResult<RandomListDream>
+    const res = (await performFetch<RandomListDream>(
+      `/api/dreams/${dream.id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(dream),
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )) as PerformFetchResult<RandomListDream>
 
     if (res.success && res.data) {
       const idx = randomLists.value.findIndex(
@@ -384,5 +385,6 @@ export const useRandomStore = defineStore('randomStore', () => {
     generateListItems,
     getExamplesForList,
     setExamplesForList,
+    randomSelections,
   }
 })

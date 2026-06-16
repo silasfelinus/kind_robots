@@ -400,30 +400,6 @@ function resolveScenario(): ResolvedIngredient | null {
   }
 }
 
-function resolvePitch(): ResolvedIngredient | null {
-  const p = (composition.value as any)?.Pitch
-  const blurb = composition.value?.pitchBlurb
-  if (!p && !blurb) return null
-  const label = p?.title || 'Custom concept'
-  const summary = blurb || p?.pitch?.slice(0, 80) || ''
-  const fragment = blurb
-    ? `CONCEPT: ${blurb}`
-    : [
-        `CONCEPT: ${p.title || p.pitch}`,
-        p.flavorText ? `Flavor: ${p.flavorText}` : '',
-        p.artPrompt ? `Visual: ${p.artPrompt}` : '',
-      ]
-        .filter(Boolean)
-        .join('\n')
-  return {
-    slot: 'pitch',
-    label,
-    summary,
-    icon: 'kind-icon:lightbulb',
-    promptFragment: fragment,
-  }
-}
-
 function resolveReward(): ResolvedIngredient | null {
   const r = (composition.value as any)?.Reward
   const blurb = composition.value?.rewardBlurb
@@ -454,7 +430,6 @@ const activeIngredients = computed((): ResolvedIngredient[] => {
     resolveCharacter(),
     resolveDream(),
     resolveScenario(),
-    resolvePitch(),
     resolveReward(),
   ].filter((i): i is ResolvedIngredient => i !== null)
 })

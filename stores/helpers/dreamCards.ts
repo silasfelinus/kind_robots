@@ -1,427 +1,216 @@
-// stores/helpers/dreamCards.ts
-//
-// Card definitions for the Dream Builder.
-// A Dream is a location, vibe, mood, or space — somewhere a story can happen.
-// Could be a physical place, a psychological state, an atmospheric condition,
-// or something harder to categorise.
+// /stores/helpers/dreamCards.ts
 import type {
   BuilderCard,
   BuilderChoice,
   BuilderStep,
 } from '@/stores/helpers/builderCards'
+import {
+  DREAM_TYPES,
+  dreamTypeLabel,
+  type DreamType,
+} from '@/stores/helpers/dreamHelper'
 
 export type DreamCard = BuilderCard
 export type DreamChoice = BuilderChoice
 export type DreamStep = BuilderStep
 
-// ── Atmosphere categories ──────────────────────────────────────────────────
-// Used as an optional vibe tag — not stored directly but informs the LLM
-// and helps users navigate the gallery. Written into description/vibeTag.
-
-export type AtmosphereTag = {
-  key: string
-  label: string
-  subtext: string
-  image?: string
+export type DreamTypeChoice = BuilderChoice & {
+  value: DreamType
 }
 
-export const ATMOSPHERE_TAGS: AtmosphereTag[] = [
-  // Physical — natural
-  {
-    key: 'forest',
-    label: 'Forest',
-    subtext: 'Something lives here that was here before you.',
-  },
-  { key: 'ocean', label: 'Ocean', subtext: 'The horizon goes all the way.' },
-  {
-    key: 'mountain',
-    label: 'Mountain',
-    subtext: 'The air is different up here. So is the thinking.',
-  },
-  {
-    key: 'cave',
-    label: 'Cave / Depth',
-    subtext: 'Dark in the way that means old.',
-  },
-  {
-    key: 'desert',
-    label: 'Desert',
-    subtext: 'The silence is not empty. It is very full of nothing.',
-  },
-  {
-    key: 'wetland',
-    label: 'Wetland / Bog',
-    subtext: 'Alive in ways that are difficult to categorise.',
-  },
-  {
-    key: 'sky',
-    label: 'Sky / Aerial',
-    subtext: 'The ground is a rumour from here.',
-  },
-  {
-    key: 'underground',
-    label: 'Underground',
-    subtext: 'Built, dug, or worn into being. Possibly all three.',
-  },
-  // Physical — built
-  {
-    key: 'city',
-    label: 'City',
-    subtext: 'Everyone here wants something and most of them are moving.',
-  },
-  {
-    key: 'village',
-    label: 'Village',
-    subtext:
-      'Small enough that everyone knows. Too small for that to be comfortable.',
-  },
-  {
-    key: 'ruin',
-    label: 'Ruin',
-    subtext: 'Was something. Still is, technically.',
-  },
-  {
-    key: 'interior',
-    label: 'Interior',
-    subtext:
-      'A room, a building, a place with a roof and opinions about who enters.',
-  },
-  {
-    key: 'tavern',
-    label: 'Tavern / Refuge',
-    subtext: 'The place people come to after the thing that happened.',
-  },
-  {
-    key: 'archive',
-    label: 'Archive / Library',
-    subtext: 'Answers live here. So do questions nobody thought to ask yet.',
-  },
-  {
-    key: 'workshop',
-    label: 'Workshop / Forge',
-    subtext: 'Something is always being made or unmade here.',
-  },
-  {
-    key: 'transit',
-    label: 'Transit / Road',
-    subtext: 'The point is the moving. The destination is just punctuation.',
-  },
-  // Atmospheric / abstract
-  {
-    key: 'liminal',
-    label: 'Liminal',
-    subtext: 'Between. Not here yet. No longer there. Fluorescent.',
-  },
-  {
-    key: 'cozy',
-    label: 'Cozy',
-    subtext: 'Something outside. Tea inside. The ratio is correct.',
-  },
-  {
-    key: 'threatening',
-    label: 'Threatening',
-    subtext: 'Not dangerous, exactly. But aware of you.',
-  },
-  {
-    key: 'ancient',
-    label: 'Ancient',
-    subtext: 'Has been here longer than the concept of being here.',
-  },
-  {
-    key: 'abandoned',
-    label: 'Abandoned',
-    subtext: 'Left, not empty. The things that were left are still here.',
-  },
-  {
-    key: 'sacred',
-    label: 'Sacred',
-    subtext: 'Something agreed this place matters. The agreement held.',
-  },
-  {
-    key: 'eldritch',
-    label: 'Eldritch',
-    subtext: 'The geometry is advisory. The angles are having a conversation.',
-  },
-  {
-    key: 'dreamlike',
-    label: 'Dreamlike',
-    subtext: "Internally consistent in a way that doesn't survive scrutiny.",
-  },
-  {
-    key: 'domestic',
-    label: 'Domestic',
-    subtext: 'Ordinary, which turns out to be its own kind of strange.',
-  },
-  {
-    key: 'industrial',
-    label: 'Industrial',
-    subtext: 'Built for a purpose. The purpose is ongoing or was.',
-  },
-  {
-    key: 'festive',
-    label: 'Festive',
-    subtext:
-      'Something is being celebrated. The celebrating may be compulsory.',
-  },
-  {
-    key: 'nautical',
-    label: 'Nautical',
-    subtext: 'The water is present in some capacity and has strong opinions.',
-  },
-  {
-    key: 'cosmic',
-    label: 'Cosmic',
-    subtext:
-      'Scale has broken down. Everything is either very large or very far away.',
-  },
-  {
-    key: 'infernal',
-    label: 'Infernal',
-    subtext: 'Hot in a way that implies intent.',
-  },
-  {
-    key: 'celestial',
-    label: 'Celestial',
-    subtext: 'The light here comes from somewhere that has not been named.',
-  },
-  {
-    key: 'temporal',
-    label: 'Temporal / Unstuck',
-    subtext: 'Time works here, but inconsistently.',
-  },
-]
+const DREAM_TYPE_SUBTEXT: Record<DreamType, string> = {
+  ARTDREAM:
+    'A visual seed for image generation, mood boards, covers, and weird little art goblins.',
+  BRAINSTORM: 'A container for generated idea lists and remix fodder.',
+  WEIRDLANDIA: 'A strange setting, rule, creature, phrase, or reality wrinkle.',
+  RANDOMLIST: 'A pipe-delimited list used as a random source.',
+  TITLE: 'A name bank for title storms and naming passes.',
+  VIBE: 'A mood, tone, aura, or emotional weather pattern.',
+  BOT: 'A bot concept, voice, role, or personality seed.',
+  INSPIRATION: 'Reference material, creative spark, or outside influence.',
+  CHARACTER:
+    'A person, creature, hero, villain, or emotionally suspicious raccoon.',
+  REWARD: 'An item, prize, artifact, badge, loot drop, or shiny temptation.',
+  SCENARIO: 'A situation with pressure, conflict, choices, and consequences.',
+  TEXT: 'A writing prompt, prose fragment, instruction, or reusable text block.',
+  LOCATION:
+    'A place where story can happen: physical, emotional, cosmic, or deeply cursed.',
+  PITCH:
+    'The classic one-sentence seed. Small enough to carry; dangerous enough to grow.',
+  GENRE: 'A genre, trope cluster, stylistic lane, or taste-map marker.',
+}
 
-// ── Access mode options ─────────────────────────────────────────────────────
-
-export const ACCESS_MODES: BuilderChoice[] = [
-  {
-    value: 'OPEN',
-    label: 'Open',
-    subtext: 'Anyone can enter. The door is always unlocked.',
-    image: '/images/dreams/access/open.webp',
-  },
-  {
-    value: 'PRIVATE',
-    label: 'Private',
-    subtext: 'Only you. The space is yours alone.',
-    image: '/images/dreams/access/private.webp',
-  },
-  {
-    value: 'CODE',
-    label: 'Code',
-    subtext: 'Anyone with the code can enter. The door has a specific answer.',
-    image: '/images/dreams/access/code.webp',
-  },
-]
-
-// ── Cards ──────────────────────────────────────────────────────────────────
+export const DREAM_TYPE_CHOICES: DreamTypeChoice[] = DREAM_TYPES.map(
+  (type) => ({
+    value: type,
+    label: dreamTypeLabel(type),
+    subtext: DREAM_TYPE_SUBTEXT[type],
+    image: `/images/dreams/type/${type.toLowerCase()}.webp`,
+  }),
+)
 
 export const DREAM_CARDS: BuilderCard[] = [
-  // ── Atmosphere ────────────────────────────────────────────────────────────
   {
-    key: 'atmosphere',
-    label: 'Atmosphere',
-    title: 'The quality of the space',
-    icon: 'kind-icon:cloud',
-    flourish: '◌',
-    deckImage: '/images/dreams/atmosphere.webp',
-    heroImage: '/images/dreams/atmosphere.webp',
-    tagline: "What kind of place is this. Even if it isn't a place.",
+    key: 'type',
+    label: 'Type',
+    title: 'What kind of dream is this?',
+    icon: 'kind-icon:layers',
+    flourish: '◈',
+    deckImage: '/images/dreams/type.webp',
+    heroImage: '/images/dreams/type.webp',
+    tagline: 'One model, many jobs. Pick the job before feeding the gremlin.',
     narrative:
-      'A Dream can be a forest, a city, a feeling, a specific quality of light at a certain time of day. The atmosphere is the first thing — the category the space belongs to before it has a name. Choose the one that fits. This shapes everything that follows.',
+      'Dreams now cover the old pitch duties: art seeds, title banks, random lists, brainstorms, locations, scenarios, characters, rewards, bots, and plain text sparks. The type tells the builder how to treat the seed.',
     required: true,
-    restoresFields: ['vibeTag'],
+    restoresFields: ['dreamType'],
     steps: [
       {
-        key: 'atmosphere',
-        title: 'Atmosphere',
+        key: 'dreamType',
+        title: 'Dream Type',
         narrative:
-          'What kind of space is this? Physical location, abstract mood, or somewhere between — pick the category that fits most closely. It will inform the name, description, and vibe.',
+          'What should this dream become? Pick the closest job. You can still remix it later; this just gives the idea a useful shape.',
         inputType: 'preset',
-        field: 'vibeTag',
-        choices: (
-          ATMOSPHERE_TAGS.map(
-            (tag): BuilderChoice => ({
-              value: tag.key,
-              label: tag.label,
-              subtext: tag.subtext,
-              image: `/images/dreams/atmosphere/${tag.key}.webp`,
-            }),
-          ) as BuilderChoice[]
-        ).concat([
-          {
-            value: '',
-            label: 'Something else',
-            subtext:
-              'A state, a concept, a temperature, a structural condition...',
-            opensCustom: true,
-          },
-        ]),
+        field: 'dreamType',
+        choices: DREAM_TYPE_CHOICES,
       },
     ],
   },
-
-  // ── Title ─────────────────────────────────────────────────────────────────
   {
-    key: 'title',
-    label: 'Title',
-    title: 'What it is called',
+    key: 'seed',
+    label: 'Seed',
+    title: 'The one sentence',
     icon: 'kind-icon:edit',
-    flourish: '✒',
-    deckImage: '/images/dreams/title.webp',
-    heroImage: '/images/dreams/title.webp',
-    tagline: 'The name. Short. The kind others repeat.',
+    flourish: '✍',
+    deckImage: '/images/dreams/seed.webp',
+    heroImage: '/images/dreams/seed.webp',
+    tagline: 'The smallest useful version of the idea.',
     narrative:
-      "A good dream name tells you what kind of thing it is before you know anything else about it. 'The Drowned Archive' is different from 'The Archive' in ways that matter immediately. Name it like it already exists somewhere, waiting.",
+      'This is the pitch job, moved into Dream where it belongs. One sentence, three words, or a whole tiny prophecy. The seed should make the next person immediately start having ideas.',
     required: true,
-    restoresFields: ['title'],
+    restoresFields: ['title', 'pitch'],
     steps: [
       {
         key: 'dreamTitle',
         title: 'Title',
         narrative:
-          'What is this place called? Two to five words is usually right. Specific enough to be recognisable, resonant enough to be remembered.',
+          'Give the idea a name. Short, findable, and specific enough that future-you knows what this thing was supposed to be.',
         inputType: 'text',
         field: 'title',
         placeholder:
-          "The Drowned Archive, Widow's Peak Station, The Room That Waits...",
+          'Tardigrades in Space, The Drowned Archive, Retired Supervillain Market Day...',
         inputLabel: 'Title',
         maxLength: 255,
         needsLLM: true,
       },
+      {
+        key: 'dreamPitch',
+        title: 'Seed / Pitch',
+        narrative:
+          'Say the core idea. This replaces the old Pitch builder field and feeds brainstorms, art prompts, title storms, and story setup.',
+        inputType: 'long',
+        field: 'pitch',
+        placeholder:
+          'A library that rearranges itself whenever someone lies. The last lighthouse keeper is also a forgotten god...',
+        inputLabel: 'Seed',
+        needsLLM: true,
+      },
     ],
   },
-
-  // ── Description ───────────────────────────────────────────────────────────
   {
     key: 'description',
-    label: 'Description',
-    title: 'What it is',
+    label: 'Details',
+    title: 'What this idea means',
     icon: 'kind-icon:book',
     flourish: '§',
     deckImage: '/images/dreams/description.webp',
     heroImage: '/images/dreams/description.webp',
-    tagline: 'The baseline. What it is when nothing is happening.',
+    tagline: 'Context, boundaries, useful texture.',
     narrative:
-      'The description is the permanent version of this place — what it is before anything happens in it, what it returns to when the visitors have left. Atmosphere, history, defining features. What someone would write in a guidebook if the guidebook were honest.',
-    required: true,
-    restoresFields: ['description'],
+      'The description explains how to use the seed. For a location, this is place texture. For a bot, it is behavior. For a reward, it is what makes the object tempting. For a random list, it explains the pattern.',
+    required: false,
+    restoresFields: ['description', 'flavorText'],
     steps: [
       {
         key: 'dreamDescription',
         title: 'Description',
         narrative:
-          'Describe this place as it exists when undisturbed. What does it look like, feel like, smell like? What is its history in the space between its walls or edges? What does it want?',
+          'Add enough context that the idea can be reused without archaeology. What is it, what does it do, why does it matter?',
         inputType: 'long',
         field: 'description',
         placeholder:
-          'A library built inside the ribcage of something enormous and long dead. The shelves are bones. The books are real...',
+          'A cozy but suspicious archive built inside the ribcage of something enormous. It collects unfinished promises...',
         inputLabel: 'Description',
         needsLLM: true,
       },
-    ],
-  },
-
-  // ── Current Vibe ──────────────────────────────────────────────────────────
-  {
-    key: 'vibe',
-    label: 'Vibe',
-    title: 'Right now',
-    icon: 'kind-icon:wave',
-    flourish: '〜',
-    deckImage: '/images/dreams/vibe.webp',
-    heroImage: '/images/dreams/vibe.webp',
-    tagline: 'The mood in this moment. Can change between sessions.',
-    narrative:
-      "The current vibe is the space's mood right now — not its permanent character, but its current condition. A forest can be peaceful or menacing depending on the season, the weather, what recently happened there. The vibe changes. The description doesn't.",
-    required: false,
-    restoresFields: ['currentVibe'],
-    steps: [
       {
-        key: 'currentVibe',
-        title: 'Current Vibe',
+        key: 'dreamFlavorText',
+        title: 'Flavor Text',
         narrative:
-          "What is the atmosphere of this space right now? This might be a weather state, a recent event's emotional residue, a seasonal quality, or a feeling that's settled into the walls. One or two sentences — something that sets the tone for a session.",
-        inputType: 'long',
-        field: 'currentVibe',
-        placeholder:
-          "Something is different today. The usual sounds are absent. The light comes from a direction it didn't yesterday...",
-        inputLabel: 'Current Vibe',
-        needsLLM: true,
-      },
-    ],
-  },
-
-  // ── Prompt ────────────────────────────────────────────────────────────────
-  {
-    key: 'prompt',
-    label: 'Prompt',
-    title: 'What happens here',
-    icon: 'kind-icon:bolt',
-    flourish: '⚡',
-    deckImage: '/images/dreams/prompt.webp',
-    heroImage: '/images/dreams/prompt.webp',
-    tagline: 'Optional. The inciting detail. What visitors encounter.',
-    narrative:
-      'The current prompt is the active element — the thing that is happening when someone arrives. Not the place itself, but the event, the condition, the thing that makes this particular visit interesting. It is what the space is doing right now.',
-    required: false,
-    restoresFields: ['currentPrompt'],
-    steps: [
-      {
-        key: 'currentPrompt',
-        title: 'Current Prompt',
-        narrative:
-          'What is this space currently presenting to anyone who enters? A discovery, a situation, an encounter, an unanswered question. One to three sentences. The thing that makes a session start here rather than anywhere else.',
-        inputType: 'long',
-        field: 'currentPrompt',
-        placeholder:
-          "There is a door here that wasn't here yesterday. It is made of the same material as everything else, which suggests it was always here...",
-        inputLabel: 'Current Prompt',
-        needsLLM: true,
-      },
-    ],
-  },
-
-  // ── Access ────────────────────────────────────────────────────────────────
-  {
-    key: 'access',
-    label: 'Access',
-    title: 'Who can enter',
-    icon: 'kind-icon:lock',
-    flourish: '⊘',
-    deckImage: '/images/dreams/access.webp',
-    heroImage: '/images/dreams/access.webp',
-    tagline: 'Optional. Open to all, private, or code-locked.',
-    narrative:
-      'Access determines who can enter this dream space. Open means anyone. Private means only you. Code means anyone who knows the word.',
-    required: false,
-    restoresFields: ['accessMode', 'privacyCode'],
-    steps: [
-      {
-        key: 'accessMode',
-        title: 'Access Mode',
-        narrative: 'How open is this space to others?',
-        inputType: 'preset',
-        field: 'accessMode',
-        optional: true,
-        choices: ACCESS_MODES,
-      },
-      {
-        key: 'privacyCode',
-        title: 'Access Code',
-        narrative:
-          'If code-locked, choose the word or phrase that opens the door. Keep it short and memorable.',
+          'Optional mood line. The quotable little garnish. Completely unnecessary, which is how you know it matters.',
         inputType: 'text',
-        field: 'privacyCode',
+        field: 'flavorText',
+        placeholder: 'The shelves remember what you were going to say.',
+        inputLabel: 'Flavor Text',
+        maxLength: 512,
         optional: true,
-        placeholder: 'whisper, old forest, the second moon...',
-        inputLabel: 'Access Code',
-        maxLength: 255,
+        needsLLM: true,
       },
     ],
   },
-
-  // ── Art ───────────────────────────────────────────────────────────────────
+  {
+    key: 'examples',
+    label: 'Examples',
+    title: 'Reusable outputs',
+    icon: 'kind-icon:list',
+    flourish: '≋',
+    deckImage: '/images/dreams/examples.webp',
+    heroImage: '/images/dreams/examples.webp',
+    tagline: 'For random lists, brainstorms, title storms, and remix banks.',
+    narrative:
+      'Examples are pipe-delimited reusable entries. This preserves the useful part of the pitch helper: random entries, title storms, brainstorm output, and lightweight idea banks.',
+    required: false,
+    restoresFields: ['examples'],
+    steps: [
+      {
+        key: 'dreamExamples',
+        title: 'Examples',
+        narrative:
+          'Add examples separated by pipes. For RANDOMLIST and TITLE dreams, these become direct source material.',
+        inputType: 'long',
+        field: 'examples',
+        placeholder:
+          'moss courier|glass fox|clockwork orchard|haunted vending machine|moonlit robot chapel',
+        inputLabel: 'Examples',
+        optional: true,
+        needsLLM: true,
+      },
+    ],
+  },
+  {
+    key: 'icon',
+    label: 'Icon',
+    title: 'The symbol',
+    icon: 'kind-icon:grid',
+    flourish: '✦',
+    deckImage: '/images/dreams/icon.webp',
+    heroImage: '/images/dreams/icon.webp',
+    tagline: 'A small visual handle for the idea.',
+    narrative:
+      'The icon is not the Dream. It is the little hook that makes the Dream scannable in a gallery. A tiny flag for the goblin filing cabinet.',
+    required: false,
+    restoresFields: ['icon'],
+    steps: [
+      {
+        key: 'dreamIcon',
+        title: 'Choose an Icon',
+        narrative:
+          'Pick a symbol that makes this dream easy to find. Literal, symbolic, sideways — all valid.',
+        inputType: 'icon',
+        field: 'icon',
+        optional: true,
+      },
+    ],
+  },
   {
     key: 'art',
     label: 'Art',
@@ -430,18 +219,18 @@ export const DREAM_CARDS: BuilderCard[] = [
     flourish: '▣',
     deckImage: '/images/dreams/art.webp',
     heroImage: '/images/dreams/art.webp',
-    tagline: 'Optional. Give the space a face.',
+    tagline: 'Optional cover art or generation prompt.',
     narrative:
-      "An image makes a dream real in a way description alone doesn't. Build the art prompt from the title, atmosphere, and description. Generate the image. The dream becomes a place someone can picture before they've read a word.",
+      'Art prompt generation now belongs here too. Use the seed, type, description, and flavor text to build a visual representation. Then attach the generated image as the Dream cover.',
     required: false,
-    restoresFields: ['artPrompt', 'artImageId'],
+    restoresFields: ['artPrompt', 'highlightImage', 'artImageId'],
     unlockCondition: 'coreComplete',
     steps: [
       {
-        key: 'dreamArt',
-        title: 'Build the Image',
+        key: 'dreamArtPrompt',
+        title: 'Art Prompt',
         narrative:
-          'Use the title, atmosphere, and description to build an image that captures this space. Location art, atmospheric illustration, sense of place. Refine the prompt, then generate.',
+          'Describe the image this dream should generate or wear as a cover. Specific viewpoint, subject, action, style, and mood beat. No mud soup.',
         inputType: 'art',
         field: 'artPrompt',
         optional: true,

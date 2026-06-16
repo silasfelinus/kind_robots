@@ -359,13 +359,6 @@ const bottomProjectChannels: ChannelRoute[] = [
     summary: 'Design and meet the cast of your world.',
   },
   {
-    key: 'brainstorm',
-    label: 'Brainstorm',
-    path: '/brainstorm',
-    icon: 'kind-icon:brain',
-    summary: 'Catch loose ideas before they escape into the walls.',
-  },
-  {
     key: 'wonderlab',
     label: 'Lab',
     path: '/memory',

@@ -334,7 +334,7 @@ const userOwnedSections = computed<UserOwnedSection[]>(() => {
       key: 'scenarios',
       label: 'Scenarios',
       icon: 'kind-icon:map',
-      to: '/scenarios',
+      to: '/stories',
       galleryComponent: galleryComponents.scenarios,
       items: scenarioItems.value,
     },

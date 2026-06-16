@@ -302,7 +302,7 @@ const charactersChannel: ChannelRoute = {
 const scenariosChannel: ChannelRoute = {
   key: 'scenarios',
   label: 'Scenarios',
-  path: '/scenarios',
+  path: '/stories',
   icon: 'kind-icon:story',
   summary: 'Create story situations, prompts, encounters, and playable scenes.',
 }

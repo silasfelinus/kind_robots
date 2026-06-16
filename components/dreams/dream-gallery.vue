@@ -1,278 +1,266 @@
 <!-- /components/dreams/dream-gallery.vue -->
 <template>
-  <section
-    class="flex min-h-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
-  >
+  <section class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden">
     <header
       v-if="showHeader"
-      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 shadow sm:flex-row sm:items-center sm:justify-between"
     >
-      <div>
-        <p class="text-xs font-bold uppercase tracking-wide text-primary">
+      <div class="min-w-0">
+        <p class="text-xs font-black uppercase tracking-wide text-primary">
           Dream Atlas
         </p>
-        <h2 class="text-2xl font-black text-base-content">Location Gallery</h2>
-        <p class="text-sm text-base-content/70">
-          Choose the place before choosing the trouble.
+        <h2 class="text-2xl font-black text-base-content">Dream Gallery</h2>
+        <p class="text-sm text-base-content/65">
+          Browse Dream seeds, choose a world, then open it for chat, art, and model play.
         </p>
       </div>
 
-      <button
-        class="btn btn-primary rounded-2xl"
-        type="button"
-        @click="startNewDream"
-      >
-        <Icon name="kind-icon:plus" class="h-5 w-5" />
-        New Dream
-      </button>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm rounded-2xl"
+          :disabled="dreamStore.loading"
+          @click="refresh"
+        >
+          <span v-if="dreamStore.loading" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+          Refresh
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary btn-sm rounded-2xl text-white"
+          @click="startNewDream"
+        >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          New Dream
+        </button>
+      </div>
     </header>
 
-    <div
+    <section
       v-if="showControls"
-      class="grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
     >
-      <label class="input input-bordered flex items-center gap-2 rounded-2xl">
-        <Icon name="kind-icon:search" class="h-5 w-5 opacity-60" />
-        <input
-          v-model="search"
-          class="grow"
-          type="search"
-          placeholder="Search locations"
-          @keyup.enter="refresh"
-        />
-      </label>
+      <div class="grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_10rem_10rem_auto]">
+        <label class="input input-bordered flex items-center gap-2 rounded-2xl bg-base-200">
+          <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
+          <input
+            v-model="search"
+            class="grow"
+            type="search"
+            placeholder="Search title, pitch, description, art prompt..."
+          />
+        </label>
 
+        <select
+          v-model="dreamTypeFilter"
+          class="select select-bordered rounded-2xl bg-base-200"
+        >
+          <option value="">All types</option>
+          <option v-for="type in dreamStore.dreamTypes" :key="type" :value="type">
+            {{ dreamTypeLabel(type) }}
+          </option>
+        </select>
+
+        <button
+          type="button"
+          class="btn rounded-2xl"
+          :class="showMine ? 'btn-secondary' : 'btn-outline'"
+          @click="showMine = !showMine"
+        >
+          <Icon name="kind-icon:user" class="h-4 w-4" />
+          Mine
+        </button>
+
+        <button
+          type="button"
+          class="btn rounded-2xl"
+          :class="showInactive ? 'btn-warning' : 'btn-outline'"
+          @click="showInactive = !showInactive"
+        >
+          <Icon name="kind-icon:archive" class="h-4 w-4" />
+          Archived
+        </button>
+
+        <select
+          v-model="displayMode"
+          class="select select-bordered rounded-2xl bg-base-200"
+        >
+          <option value="cards">Cards</option>
+          <option value="dropdown">Dropdown</option>
+        </select>
+      </div>
+    </section>
+
+    <section
+      v-if="displayMode === 'dropdown'"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
+    >
       <select
-        v-model="displayMode"
-        class="select select-bordered rounded-2xl bg-base-100"
-        aria-label="Dream gallery display mode"
-      >
-        <option value="cards">Cards</option>
-        <option value="dropdown">Dropdown</option>
-      </select>
-
-      <button
-        class="btn rounded-2xl"
-        :class="showMine ? 'btn-primary' : 'btn-ghost'"
-        type="button"
-        @click="toggleMine"
-      >
-        Mine
-      </button>
-
-      <button
-        class="btn rounded-2xl"
-        :class="showInactive ? 'btn-warning' : 'btn-ghost'"
-        type="button"
-        @click="toggleInactive"
-      >
-        Archived
-      </button>
-
-      <button
-        class="btn btn-secondary rounded-2xl"
-        type="button"
-        :disabled="dreamStore.loading"
-        @click="refresh"
-      >
-        <Icon name="kind-icon:refresh" class="h-5 w-5" />
-        Refresh
-      </button>
-    </div>
-
-    <div v-if="showDropdown" class="flex flex-col gap-3">
-      <select
-        class="select select-bordered rounded-2xl bg-base-100"
+        class="select select-bordered w-full rounded-2xl bg-base-200"
         :value="selectedDreamId"
         @change="selectFromDropdown"
       >
-        <option value="">Select a Dream location</option>
-        <option
-          v-for="dream in filteredDreams"
-          :key="dream.id"
-          :value="dream.id"
-        >
-          {{ dream.title }} · {{ dream.isPublic ? 'public' : 'private' }}
+        <option value="">Choose a Dream...</option>
+        <option v-for="dream in filteredDreams" :key="dream.id" :value="dream.id">
+          {{ dream.title }} · {{ dreamTypeLabel(dream.dreamType) }}
         </option>
       </select>
+    </section>
+
+    <section class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      <div
+        v-if="filteredDreams.length && displayMode === 'cards'"
+        class="grid grid-cols-1 gap-3 p-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+      >
+        <dream-card
+          v-for="dream in filteredDreams"
+          :key="dream.id"
+          :dream="dream"
+          :show-image="showImages"
+          :show-actions="showCardActions"
+          :show-stats="showStats"
+          :show-meta="showMeta"
+          :open-tab="openTab"
+          @opened="openDream"
+          @editing="editDream"
+        />
+      </div>
 
       <div
-        v-if="dreamStore.selectedDream"
-        class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
+        v-else-if="!filteredDreams.length"
+        class="flex min-h-96 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center text-base-content/55"
       >
-        <p class="font-black text-primary">
-          {{ dreamStore.selectedDream.title }}
-        </p>
-        <p class="line-clamp-2 text-sm text-base-content/70">
-          {{ dreamStore.selectedDream.currentVibe }}
-        </p>
-      </div>
-    </div>
-
-    <div
-      v-if="showCardGrid"
-      class="grid min-h-0 gap-3 overflow-y-auto pr-1"
-      :class="
-        compact ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'
-      "
-    >
-      <dream-card
-        v-for="dream in filteredDreams"
-        :key="dream.id"
-        :dream="dream"
-        :show-images="showImages"
-        :show-stats="showStats"
-        :show-actions="showCardActions"
-        :show-open-button="showOpenButton"
-      />
-
-      <button
-        class="group flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-4 text-center transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary/10 hover:shadow-lg"
-        type="button"
-        @click="startNewDream"
-      >
-        <div
-          class="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-content transition group-hover:scale-105"
-        >
-          <Icon name="kind-icon:plus" class="h-9 w-9" />
-        </div>
-
+        <Icon name="kind-icon:ghost" class="h-16 w-16 text-primary/60" />
         <div>
-          <h3 class="text-lg font-black text-primary">Add Dream</h3>
-          <p class="mt-1 text-sm text-base-content/60">
-            Start a new location. The atlas hungers.
-          </p>
+          <p class="text-xl font-black">No Dreams found.</p>
+          <p class="mt-1 text-sm">Create one in Dreammaker or loosen the filters.</p>
         </div>
-      </button>
-    </div>
-
-    <div
-      v-if="!dreamStore.loading && !filteredDreams.length"
-      class="rounded-2xl border border-dashed border-base-300 p-4 text-center text-sm text-base-content/60"
-    >
-      No Dream locations found. The atlas is blank. Dramatic, but unhelpful.
-    </div>
+        <button type="button" class="btn btn-primary rounded-2xl text-white" @click="startNewDream">
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Make a Dream
+        </button>
+      </div>
+    </section>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useDreamStore } from '@/stores/dreamStore'
+import { computed, onMounted, ref } from 'vue'
+import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
-
-type DreamGalleryVariant = 'dashboard' | 'dropdown'
-type DreamDisplayMode = 'cards' | 'dropdown'
-
-const dreamStore = useDreamStore()
-const navStore = useNavStore()
-const dashboardKey = 'dream' as const
 
 const props = withDefaults(
   defineProps<{
-    variant?: DreamGalleryVariant
     showHeader?: boolean
     showControls?: boolean
     showImages?: boolean
     showCardActions?: boolean
-    showOpenButton?: boolean
     showStats?: boolean
     showMeta?: boolean
-    compact?: boolean
+    variant?: 'dashboard' | 'compact' | 'dropdown'
+    openTab?: string
   }>(),
   {
-    variant: 'dashboard',
     showHeader: true,
     showControls: true,
     showImages: true,
     showCardActions: true,
-    showOpenButton: true,
     showStats: true,
     showMeta: true,
-    compact: false,
+    variant: 'dashboard',
+    openTab: 'dreams',
   },
 )
+
+const emit = defineEmits<{
+  (event: 'selected', dream: DreamWithRelations): void
+  (event: 'opened', dream: DreamWithRelations): void
+  (event: 'editing', dream: DreamWithRelations): void
+  (event: 'created'): void
+}>()
+
+const dreamStore = useDreamStore()
+const navStore = useNavStore()
 
 const search = ref('')
 const showMine = ref(false)
 const showInactive = ref(false)
-const displayMode = ref<DreamDisplayMode>(
+const dreamTypeFilter = ref('')
+const displayMode = ref<'cards' | 'dropdown'>(
   props.variant === 'dropdown' ? 'dropdown' : 'cards',
 )
 
 const selectedDreamId = computed(() => dreamStore.selectedDream?.id ?? '')
 
-const showDropdown = computed(() => displayMode.value === 'dropdown')
-const showCardGrid = computed(() => displayMode.value === 'cards')
+const dreamSource = computed(() => {
+  return showInactive.value ? dreamStore.dreams : dreamStore.visibleDreams
+})
 
 const filteredDreams = computed(() => {
   const term = search.value.trim().toLowerCase()
-  const source = showInactive.value
-    ? dreamStore.dreams
-    : dreamStore.activeDreams
 
-  return source.filter((dream) => {
-    const title = dream.title.toLowerCase()
-    const description = dream.description?.toLowerCase() ?? ''
-    const currentVibe = dream.currentVibe?.toLowerCase() ?? ''
-    const currentPrompt = dream.currentPrompt?.toLowerCase() ?? ''
+  return dreamSource.value.filter((dream: DreamWithRelations) => {
+    if (showMine.value && dream.userId !== dreamStore.currentUserId) return false
+    if (dreamTypeFilter.value && dream.dreamType !== dreamTypeFilter.value) return false
 
-    const ownershipMatch =
-      !showMine.value || dream.userId === dreamStore.currentUserId
+    if (!term) return true
 
-    const searchMatch =
-      !term ||
-      title.includes(term) ||
-      description.includes(term) ||
-      currentVibe.includes(term) ||
-      currentPrompt.includes(term)
+    const haystack = [
+      dream.title,
+      dream.pitch,
+      dream.description,
+      dream.flavorText,
+      dream.artPrompt,
+      dream.examples,
+      dream.designer,
+      dream.dreamType,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
 
-    return ownershipMatch && searchMatch
+    return haystack.includes(term)
   })
 })
-
-watch(
-  () => props.variant,
-  (variant) => {
-    displayMode.value = variant === 'dropdown' ? 'dropdown' : 'cards'
-  },
-)
 
 onMounted(async () => {
   await dreamStore.initialize()
 })
 
-function startNewDream() {
-  dreamStore.startAddingDream()
-  navStore.setDashboardTab(dashboardKey, 'add')
-}
-
-function toggleMine() {
-  showMine.value = !showMine.value
-  refresh()
-}
-
-function toggleInactive() {
-  showInactive.value = !showInactive.value
-  refresh()
+function dreamTypeLabel(type?: string | null) {
+  return String(type || 'PITCH')
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
 async function refresh() {
-  await dreamStore.fetchDreams({
-    userOnly: showMine.value,
-    showInactive: showInactive.value,
-    search: search.value,
-  })
+  await dreamStore.fetchDreams({ showInactive: showInactive.value })
+}
+
+function startNewDream() {
+  dreamStore.startAddingDream()
+  navStore.setDashboardTab?.('dream', 'dreammaker')
+  emit('created')
 }
 
 async function selectFromDropdown(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const id = Number(target.value)
+  const id = Number((event.target as HTMLSelectElement).value)
+  if (!Number.isInteger(id) || id <= 0) return
 
-  if (!Number.isInteger(id) || id <= 0) {
-    dreamStore.deselectDream()
-    return
-  }
+  const dream = await dreamStore.selectDreamById(id)
+  if (dream) emit('selected', dream)
+}
 
-  await dreamStore.selectDreamById(id)
+function openDream(dream: DreamWithRelations) {
+  navStore.setDashboardTab?.('dream', props.openTab)
+  emit('opened', dream)
+}
+
+function editDream(dream: DreamWithRelations) {
+  navStore.setDashboardTab?.('dream', 'dreammaker')
+  emit('editing', dream)
 }
 </script>

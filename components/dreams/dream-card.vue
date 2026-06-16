@@ -1,275 +1,251 @@
 <!-- /components/dreams/dream-card.vue -->
 <template>
   <article
-    class="cursor-pointer rounded-2xl border p-3 transition hover:-translate-y-0.5 hover:shadow-lg"
+    class="group flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
     :class="cardClass"
-    @click="selectDream"
   >
-    <div class="flex items-start gap-3">
-      <div
-        v-if="showImages"
-        class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
-      >
-        <img
-          v-if="previewImage"
-          :src="previewImage"
-          class="h-full w-full object-cover"
-          :alt="dream.title"
-        />
-
-        <Icon v-else name="kind-icon:door" class="h-10 w-10 text-primary" />
-      </div>
-
-      <div class="min-w-0 flex-1">
-        <div class="flex items-start justify-between gap-2">
-          <h3 class="line-clamp-2 text-lg font-black text-primary">
-            {{ dream.title }}
-          </h3>
-
-          <div class="flex shrink-0 flex-col gap-1 text-right">
-            <span v-if="!dream.isActive" class="badge badge-warning">
-              Archived
-            </span>
-
-            <span v-if="dream.isMature" class="badge badge-error">
-              Mature
-            </span>
-
-            <span v-if="!dream.isPublic" class="badge badge-secondary">
-              Private
-            </span>
-          </div>
-        </div>
-
-        <p class="mt-1 line-clamp-3 text-sm text-base-content/70">
-          {{ dream.description || dream.currentVibe }}
-        </p>
-
-        <p
-          v-if="collectionArtImages.length"
-          class="mt-2 flex items-center gap-1 text-xs font-bold text-accent"
-        >
-          <Icon name="kind-icon:image" class="h-3.5 w-3.5" />
-          {{ collectionArtImages.length }} collection image{{
-            collectionArtImages.length === 1 ? '' : 's'
-          }}
-        </p>
-      </div>
-    </div>
-
-    <div
-      v-if="showStats"
-      class="mt-3 grid grid-cols-3 gap-2 text-center text-xs"
+    <figure
+      v-if="showImage"
+      class="relative aspect-[16/10] overflow-hidden bg-base-300"
     >
-      <div class="rounded-2xl bg-base-200 p-2">
-        <div class="font-black text-secondary">
-          {{ dream._count?.Characters ?? dream.Characters?.length ?? 0 }}
-        </div>
-        <div class="text-base-content/60">Cast</div>
+      <img
+        v-if="previewImage"
+        :src="previewImage"
+        :alt="`${dream.title} preview`"
+        class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+        loading="lazy"
+      />
+
+      <div
+        v-else
+        class="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20 text-primary"
+      >
+        <Icon name="kind-icon:dream" class="h-16 w-16 opacity-70" />
       </div>
 
-      <div class="rounded-2xl bg-base-200 p-2">
-        <div class="font-black text-secondary">
-          {{ dream._count?.Rewards ?? dream.Rewards?.length ?? 0 }}
+      <div class="absolute left-3 top-3 flex flex-wrap gap-2">
+        <span class="badge badge-primary badge-sm rounded-xl">
+          {{ dreamTypeLabel(dream.dreamType) }}
+        </span>
+        <span
+          v-if="dream.isMature"
+          class="badge badge-warning badge-sm rounded-xl"
+        >
+          Mature
+        </span>
+      </div>
+    </figure>
+
+    <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
+      <header class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-lg font-black text-primary">
+            {{ dream.title || 'Untitled Dream' }}
+          </h3>
+          <p v-if="showMeta" class="mt-1 text-xs text-base-content/50">
+            #{{ dream.id }} · {{ dream.isPublic ? 'Public' : 'Private' }} ·
+            {{ dream.isActive ? 'Active' : 'Archived' }}
+          </p>
         </div>
-        <div class="text-base-content/60">Items</div>
+
+        <button
+          type="button"
+          class="btn btn-circle btn-ghost btn-sm shrink-0"
+          :disabled="isOpening"
+          title="Select Dream"
+          @click="selectDream"
+        >
+          <span v-if="isOpening" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:target" class="h-4 w-4" />
+        </button>
+      </header>
+
+      <p class="line-clamp-3 min-h-14 text-sm leading-relaxed text-base-content/70">
+        {{ dream.pitch || dream.description || dream.flavorText || 'No Dream pitch yet.' }}
+      </p>
+
+      <div v-if="showStats" class="grid grid-cols-4 gap-2 text-center text-xs">
+        <div class="rounded-xl bg-base-200 p-2">
+          <p class="font-black text-primary">{{ statCount('Characters') }}</p>
+          <p class="text-base-content/50">Cast</p>
+        </div>
+        <div class="rounded-xl bg-base-200 p-2">
+          <p class="font-black text-secondary">{{ statCount('Rewards') }}</p>
+          <p class="text-base-content/50">Items</p>
+        </div>
+        <div class="rounded-xl bg-base-200 p-2">
+          <p class="font-black text-accent">{{ artCount }}</p>
+          <p class="text-base-content/50">Art</p>
+        </div>
+        <div class="rounded-xl bg-base-200 p-2">
+          <p class="font-black text-info">{{ statCount('Chats') }}</p>
+          <p class="text-base-content/50">Chat</p>
+        </div>
       </div>
 
-      <div class="rounded-2xl bg-base-200 p-2">
-        <div class="font-black text-secondary">
-          {{ dream._count?.Chats ?? dream.Chats?.length ?? 0 }}
-        </div>
-        <div class="text-base-content/60">Notes</div>
-      </div>
-    </div>
+      <footer v-if="showActions" class="mt-auto flex flex-wrap gap-2 pt-1">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm flex-1 rounded-2xl text-white"
+          :disabled="isOpening"
+          @click="openDream"
+        >
+          <Icon name="kind-icon:chat" class="h-4 w-4" />
+          Open
+        </button>
 
-    <div v-if="showActions" class="mt-3 flex flex-wrap gap-2" @click.stop>
-      <button
-        v-if="showOpenButton"
-        class="btn btn-xs btn-primary rounded-2xl"
-        type="button"
-        :disabled="isOpening || dreamStore.loading"
-        @click="openDream"
-      >
-        <span v-if="isOpening" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:door" class="h-4 w-4" />
-        Open
-      </button>
+        <button
+          type="button"
+          class="btn btn-outline btn-sm rounded-2xl"
+          :disabled="isEditing"
+          @click="editDream"
+        >
+          <Icon name="kind-icon:edit" class="h-4 w-4" />
+          Edit
+        </button>
 
-      <button
-        class="btn btn-xs btn-secondary rounded-2xl"
-        type="button"
-        :disabled="isEditing || dreamStore.loading"
-        @click="editDream"
-      >
-        <span v-if="isEditing" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:edit" class="h-4 w-4" />
-        Edit
-      </button>
-
-      <button
-        class="btn btn-xs btn-warning rounded-2xl"
-        type="button"
-        :disabled="isArchiving || dreamStore.isDeleting"
-        @click="archiveDream"
-      >
-        <span v-if="isArchiving" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:book" class="h-4 w-4" />
-        Archive
-      </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm rounded-2xl text-error"
+          :disabled="isArchiving"
+          @click="archiveDream"
+        >
+          <Icon name="kind-icon:archive" class="h-4 w-4" />
+        </button>
+      </footer>
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
-// /components/dreams/dream-card.vue
 import { computed, ref } from 'vue'
-import type { DreamWithRelations } from '@/stores/dreamStore'
-import { useDreamStore } from '@/stores/dreamStore'
+import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
-
-const dreamStore = useDreamStore()
-const navStore = useNavStore()
-const dashboardKey = 'dream' as const
 
 const props = withDefaults(
   defineProps<{
     dream: DreamWithRelations
-    selected?: boolean
-    showImages?: boolean
-    showStats?: boolean
+    showImage?: boolean
     showActions?: boolean
-    showOpenButton?: boolean
+    showStats?: boolean
+    showMeta?: boolean
+    openTab?: string
   }>(),
   {
-    selected: false,
-    showImages: true,
-    showStats: true,
+    showImage: true,
     showActions: true,
-    showOpenButton: true,
+    showStats: true,
+    showMeta: true,
+    openTab: 'interact',
   },
 )
+
+const emit = defineEmits<{
+  (event: 'selected', dream: DreamWithRelations): void
+  (event: 'opened', dream: DreamWithRelations): void
+  (event: 'editing', dream: DreamWithRelations): void
+  (event: 'archived', id: number): void
+}>()
+
+const dreamStore = useDreamStore()
+const navStore = useNavStore()
 
 const isOpening = ref(false)
 const isEditing = ref(false)
 const isArchiving = ref(false)
 
-const isSelected = computed(() => {
-  return props.selected || dreamStore.selectedDream?.id === props.dream.id
-})
+const isSelected = computed(() => dreamStore.selectedDream?.id === props.dream.id)
 
-type DreamArtImagePreview = {
-  id?: number
-  imagePath?: string | null
-  path?: string | null
-  fileName?: string | null
-}
-
-type DreamArtCollectionPreview = {
-  ArtImages?: DreamArtImagePreview[] | null
-  artImages?: DreamArtImagePreview[] | null
-}
-
-const collectionArtImages = computed<DreamArtImagePreview[]>(() => {
+const collectionArt = computed(() => {
   const dream = props.dream as DreamWithRelations & {
-    ArtCollection?:
-      | DreamArtCollectionPreview
-      | DreamArtCollectionPreview[]
-      | null
-    ArtCollections?: DreamArtCollectionPreview[] | null
+    ArtCollection?: { ArtImages?: Array<{ imagePath?: string | null; path?: string | null; fileName?: string | null }> } | null
+    ArtCollections?: Array<{ ArtImages?: Array<{ imagePath?: string | null; path?: string | null; fileName?: string | null }> }>
   }
 
-  const collections = Array.isArray(dream.ArtCollections)
-    ? dream.ArtCollections
-    : Array.isArray(dream.ArtCollection)
-      ? dream.ArtCollection
-      : dream.ArtCollection
-        ? [dream.ArtCollection]
-        : []
-
-  return collections.flatMap((collection) => {
-    return collection.ArtImages ?? collection.artImages ?? []
-  })
-})
-
-const randomCollectionArtImage = computed(() => {
-  if (!collectionArtImages.value.length) return null
-
-  const index =
-    Math.abs(
-      props.dream.id +
-        props.dream.title.length +
-        collectionArtImages.value.length,
-    ) % collectionArtImages.value.length
-
-  return collectionArtImages.value[index] ?? null
+  return [
+    ...(dream.ArtImages ?? []),
+    ...(dream.ArtCollection?.ArtImages ?? []),
+    ...((dream.ArtCollections ?? []).flatMap((collection) => collection.ArtImages ?? [])),
+  ]
 })
 
 const previewImage = computed(() => {
   return (
-    randomCollectionArtImage.value?.imagePath ||
-    randomCollectionArtImage.value?.path ||
-    randomCollectionArtImage.value?.fileName ||
+    props.dream.imagePath ||
+    props.dream.highlightImage ||
     props.dream.ArtImage?.imagePath ||
     props.dream.ArtImage?.path ||
     props.dream.ArtImage?.fileName ||
+    collectionArt.value.find((art) => art.imagePath || art.path || art.fileName)
+      ?.imagePath ||
+    collectionArt.value.find((art) => art.imagePath || art.path || art.fileName)
+      ?.path ||
+    collectionArt.value.find((art) => art.imagePath || art.path || art.fileName)
+      ?.fileName ||
     ''
   )
 })
 
-const cardClass = computed(() => {
-  return isSelected.value
-    ? 'border-primary bg-primary/10 shadow'
-    : 'border-base-300 bg-base-100'
+const artCount = computed(() => {
+  return props.dream._count?.ArtImages ?? collectionArt.value.length ?? 0
 })
 
-async function selectDream() {
-  const dream = await dreamStore.selectDreamById(props.dream.id)
+const cardClass = computed(() => {
+  if (isSelected.value) return 'border-primary bg-primary/5 ring-2 ring-primary/20'
+  if (props.dream.isActive === false) return 'border-base-300 opacity-70'
+  return 'border-base-300'
+})
 
-  if (!dream) return
+function dreamTypeLabel(type?: string | null) {
+  return String(type || 'PITCH')
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-async function openDream() {
-  if (isOpening.value) return
+function statCount(key: 'Characters' | 'Rewards' | 'Chats') {
+  return props.dream._count?.[key] ?? props.dream[key]?.length ?? 0
+}
 
+async function selectDream() {
   isOpening.value = true
 
   try {
     const dream = await dreamStore.selectDreamById(props.dream.id)
-
-    if (!dream) return
-
-    navStore.setDashboardTab(dashboardKey, 'interact')
+    if (dream) emit('selected', dream)
   } finally {
     isOpening.value = false
   }
 }
 
-async function editDream() {
-  if (isEditing.value) return
+async function openDream() {
+  await selectDream()
+  if (!dreamStore.selectedDream) return
 
+  navStore.setDashboardTab?.('dream', props.openTab)
+  emit('opened', dreamStore.selectedDream)
+}
+
+async function editDream() {
   isEditing.value = true
 
   try {
     const dream = await dreamStore.startEditingDream(props.dream.id)
-
     if (!dream) return
 
-    navStore.setDashboardTab(dashboardKey, 'add')
+    navStore.setDashboardTab?.('dream', 'dreammaker')
+    emit('editing', dream)
   } finally {
     isEditing.value = false
   }
 }
 
 async function archiveDream() {
-  if (isArchiving.value) return
-
   isArchiving.value = true
 
   try {
     const result = await dreamStore.deleteDream(props.dream.id)
-
-    if (!result.success) return
+    if (result.success) emit('archived', props.dream.id)
   } finally {
     isArchiving.value = false
   }

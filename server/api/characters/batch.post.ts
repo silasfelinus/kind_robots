@@ -34,6 +34,19 @@ type BatchBody =
     }
 
 const fallbackRarity: Rarity = 'COMMON'
+const transactionMaxWaitMs = 10000
+const transactionTimeoutMs = 30000
+
+const characterInclude = {
+  ArtImage: true,
+  Rewards: true,
+  Scenarios: true,
+  Dreams: true,
+} satisfies Prisma.CharacterInclude
+
+type CreatedCharacter = Prisma.CharacterGetPayload<{
+  include: typeof characterInclude
+}>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -324,17 +337,24 @@ export default defineEventHandler(async (event) => {
     )
 
     const data = await prisma.$transaction(
-      createInputs.map((fullData) =>
-        prisma.character.create({
-          data: fullData,
-          include: {
-            ArtImage: true,
-            Rewards: true,
-            Scenarios: true,
-            Dreams: true,
-          },
-        }),
-      ),
+      async (tx) => {
+        const createdCharacters: CreatedCharacter[] = []
+
+        for (const fullData of createInputs) {
+          const createdCharacter = await tx.character.create({
+            data: fullData,
+            include: characterInclude,
+          })
+
+          createdCharacters.push(createdCharacter)
+        }
+
+        return createdCharacters
+      },
+      {
+        maxWait: transactionMaxWaitMs,
+        timeout: transactionTimeoutMs,
+      },
     )
 
     event.node.res.statusCode = 201

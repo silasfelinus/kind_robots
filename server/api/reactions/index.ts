@@ -1,121 +1,165 @@
-import { defineEventHandler, readBody } from 'h3'
+// /server/api/reactions/index.ts
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import {
+  ReactionType,
+  Reaction_reactionCategory,
+  type Prisma,
+} from '~/prisma/generated/prisma/client'
 
-// Define your enums directly in the code for validation
-enum ReactionType {
-  LOVED = 'LOVED',
-  CLAPPED = 'CLAPPED',
-  BOOED = 'BOOED',
-  HATED = 'HATED',
-  NEUTRAL = 'NEUTRAL',
-  FLAGGED = 'FLAGGED',
-}
-
-// Define the type for requestData
-interface RequestData {
+type RequestData = {
   userId: number
-  reactionType: string // Allow string input from client
+  reactionType: string
+  reactionCategory?: string
   artId?: number
+  artImageId?: number
   componentId?: number
-  pitchId?: number
+  dreamId?: number
   comment?: string
+  rating?: number
 }
 
-// Map string input to the ReactionType enum
+function toPositiveId(value: unknown): number | undefined {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
 function mapReactionType(type: string): ReactionType | undefined {
   const normalizedType = type.toUpperCase() as keyof typeof ReactionType
   return ReactionType[normalizedType]
 }
 
-// Route handler for creating or updating a reaction
+function normalizeCategory(
+  requestData: RequestData,
+): Reaction_reactionCategory {
+  const explicit = requestData.reactionCategory
+
+  if (typeof explicit === 'string') {
+    const key = explicit.trim().toUpperCase().replace(/[\s-]+/g, '_')
+    const aliases: Record<string, Reaction_reactionCategory> = {
+      ART: Reaction_reactionCategory.ART_IMAGE,
+      ARTIMAGE: Reaction_reactionCategory.ART_IMAGE,
+      ART_IMAGE: Reaction_reactionCategory.ART_IMAGE,
+      IMAGE: Reaction_reactionCategory.ART_IMAGE,
+      COMPONENT: Reaction_reactionCategory.COMPONENT,
+      DREAM: Reaction_reactionCategory.DREAM,
+    }
+
+    const aliased = aliases[key]
+    if (aliased) return aliased
+
+    if (
+      Object.values(Reaction_reactionCategory).includes(
+        key as Reaction_reactionCategory,
+      )
+    ) {
+      return key as Reaction_reactionCategory
+    }
+  }
+
+  if (toPositiveId(requestData.dreamId)) return Reaction_reactionCategory.DREAM
+  if (toPositiveId(requestData.componentId))
+    return Reaction_reactionCategory.COMPONENT
+
+  return Reaction_reactionCategory.ART_IMAGE
+}
+
+function buildTarget(requestData: RequestData) {
+  const artImageId = toPositiveId(requestData.artImageId ?? requestData.artId)
+  const componentId = toPositiveId(requestData.componentId)
+  const dreamId = toPositiveId(requestData.dreamId)
+
+  if (dreamId) return { field: 'dreamId' as const, id: dreamId }
+  if (componentId) return { field: 'componentId' as const, id: componentId }
+  if (artImageId) return { field: 'artImageId' as const, id: artImageId }
+
+  return null
+}
+
 export default defineEventHandler(async (event) => {
-  let requestData: RequestData | undefined
-
   try {
-    requestData = await readBody(event)
+    const requestData = await readBody<RequestData>(event)
 
-    // Ensure requestData is defined
-    if (!requestData) throw new Error('Invalid request data.')
-
-    const {
-      userId,
-      reactionType, // reactionType is a string to be normalized
-      artId,
-      componentId,
-      pitchId,
-      comment,
-    } = requestData
-
-    // Ensure required fields are present
-    if (!userId || !reactionType) {
-      throw new Error('Missing required fields: userId or reactionType.')
+    if (!requestData) {
+      throw createError({ statusCode: 400, message: 'Invalid request data.' })
     }
 
-    // Map reactionType string to the enum value
-    const mappedReactionType = mapReactionType(reactionType)
-    if (!mappedReactionType) throw new Error('Invalid reactionType provided.')
+    const userId = toPositiveId(requestData.userId)
 
-    // Define match condition based on reaction type
-    const matchCondition: { [key: string]: number | undefined } = {}
-    if (artId) {
-      matchCondition.artId = artId
-    } else if (componentId) {
-      matchCondition.componentId = componentId
-    } else if (pitchId) {
-      matchCondition.pitchId = pitchId
-    } else {
-      throw new Error('Invalid or missing identifier for reaction.')
+    if (!userId || !requestData.reactionType) {
+      throw createError({
+        statusCode: 400,
+        message: 'Missing required fields: userId or reactionType.',
+      })
     }
 
-    // Check if a reaction already exists for this user and reaction type
+    const reactionType = mapReactionType(requestData.reactionType)
+
+    if (!reactionType) {
+      throw createError({ statusCode: 400, message: 'Invalid reactionType.' })
+    }
+
+    const target = buildTarget(requestData)
+
+    if (!target) {
+      throw createError({
+        statusCode: 400,
+        message: 'A dreamId, componentId, artImageId, or artId is required.',
+      })
+    }
+
+    const reactionCategory = normalizeCategory(requestData)
+    const targetWhere = { [target.field]: target.id }
+
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         userId,
-        reactionType: mappedReactionType,
-        ...matchCondition,
+        reactionType,
+        reactionCategory,
+        ...targetWhere,
       },
     })
 
-    if (existingReaction) {
-      // Update the existing reaction
-      const updatedReaction = await prisma.reaction.update({
-        where: { id: existingReaction.id },
-        data: {
-          comment,
-          reactionType: mappedReactionType,
-        },
-      })
-      return {
-        success: true,
-        reaction: updatedReaction,
-        message: 'Reaction updated successfully',
-      }
-    } else {
-      // Create a new reaction
-      const newReaction = await prisma.reaction.create({
-        data: {
-          userId,
-          reactionType: mappedReactionType,
-          ...matchCondition,
-          comment,
-        },
-      })
-      return {
-        success: true,
-        reaction: newReaction,
-        message: 'Reaction created successfully',
-      }
+    const mutationData: Prisma.ReactionUncheckedCreateInput = {
+      userId,
+      reactionType,
+      reactionCategory,
+      [target.field]: target.id,
+      comment: requestData.comment,
+      rating: Number.isFinite(Number(requestData.rating))
+        ? Math.max(0, Math.min(5, Math.round(Number(requestData.rating))))
+        : 0,
+    }
+
+    const reaction = existingReaction
+      ? await prisma.reaction.update({
+          where: { id: existingReaction.id },
+          data: mutationData,
+        })
+      : await prisma.reaction.create({ data: mutationData })
+
+    event.node.res.statusCode = existingReaction ? 200 : 201
+
+    return {
+      success: true,
+      reaction,
+      data: reaction,
+      message: existingReaction
+        ? 'Reaction updated successfully.'
+        : 'Reaction created successfully.',
     }
   } catch (error) {
-    return errorHandler({
-      error,
-      context: 'Reaction Management - POST',
-    })
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+
+    return {
+      success: false,
+      message: handled.message || 'Failed to create/update reaction.',
+    }
   }
 })
 
-// Function to fetch all Reactions
 export async function fetchAllReactions() {
   try {
     return await prisma.reaction.findMany({})
@@ -124,7 +168,6 @@ export async function fetchAllReactions() {
   }
 }
 
-// Function to fetch a single Reaction by ID
 export async function fetchReactionById(id: number) {
   try {
     const reaction = await prisma.reaction.findUnique({

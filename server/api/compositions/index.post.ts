@@ -20,7 +20,6 @@ function asStringOrDefault(value: unknown, fallback: string): string {
 
 function asOptionalPositiveInt(value: unknown): number | undefined {
   const parsed = Number(value)
-
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
@@ -28,12 +27,10 @@ async function assertRelatedRecordsExist(options: {
   characterId?: number
   dreamId?: number
   scenarioId?: number
-  pitchId?: number
   rewardId?: number
   artImageId?: number
 }) {
-  const { characterId, dreamId, scenarioId, pitchId, rewardId, artImageId } =
-    options
+  const { characterId, dreamId, scenarioId, rewardId, artImageId } = options
 
   if (characterId) {
     const character = await prisma.character.findUnique({
@@ -73,20 +70,6 @@ async function assertRelatedRecordsExist(options: {
       throw createError({
         statusCode: 404,
         message: `Scenario ID not found: ${scenarioId}.`,
-      })
-    }
-  }
-
-  if (pitchId) {
-    const pitch = await prisma.pitch.findUnique({
-      where: { id: pitchId },
-      select: { id: true },
-    })
-
-    if (!pitch) {
-      throw createError({
-        statusCode: 404,
-        message: `Pitch ID not found: ${pitchId}.`,
       })
     }
   }
@@ -136,7 +119,6 @@ async function normalizeComposition(
   const characterId = asOptionalPositiveInt(entry.characterId)
   const dreamId = asOptionalPositiveInt(entry.dreamId)
   const scenarioId = asOptionalPositiveInt(entry.scenarioId)
-  const pitchId = asOptionalPositiveInt(entry.pitchId)
   const rewardId = asOptionalPositiveInt(entry.rewardId)
   const artImageId = asOptionalPositiveInt(entry.artImageId)
 
@@ -144,7 +126,6 @@ async function normalizeComposition(
     characterId,
     dreamId,
     scenarioId,
-    pitchId,
     rewardId,
     artImageId,
   })
@@ -161,7 +142,6 @@ async function normalizeComposition(
     characterBlurb: asNullableString(entry.characterBlurb),
     dreamBlurb: asNullableString(entry.dreamBlurb),
     scenarioBlurb: asNullableString(entry.scenarioBlurb),
-    pitchBlurb: asNullableString(entry.pitchBlurb),
     rewardBlurb: asNullableString(entry.rewardBlurb),
     narrativeText: asNullableString(entry.narrativeText),
     artPrompt: asNullableString(entry.artPrompt),
@@ -181,11 +161,6 @@ async function normalizeComposition(
     Scenario: scenarioId
       ? {
           connect: { id: scenarioId },
-        }
-      : undefined,
-    Pitch: pitchId
-      ? {
-          connect: { id: pitchId },
         }
       : undefined,
     Reward: rewardId
@@ -240,7 +215,6 @@ export default defineEventHandler(async (event) => {
               Character: true,
               Dream: true,
               Scenario: true,
-              Pitch: true,
               Reward: true,
               ArtImage: {
                 select: {
@@ -282,7 +256,6 @@ export default defineEventHandler(async (event) => {
         Character: true,
         Dream: true,
         Scenario: true,
-        Pitch: true,
         Reward: true,
         ArtImage: {
           select: {

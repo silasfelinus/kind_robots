@@ -14,7 +14,6 @@ export type ImageUploadModel =
   | 'Chat'
   | 'Component'
   | 'Dream'
-  | 'Pitch'
   | 'Prompt'
   | 'Reaction'
   | 'Resource'
@@ -28,7 +27,6 @@ export type ConnectableModel =
   | 'Bot'
   | 'Character'
   | 'Dream'
-  | 'Pitch'
   | 'Reward'
   | 'Scenario'
 

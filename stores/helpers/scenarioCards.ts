@@ -9,7 +9,7 @@
 
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
-// ── Genre + extended list (shared with adventure/pitch) ────────────────────
+// ── Genre + extended list (shared with adventure and dream builders) ──────
 
 const EXTENDED_GENRES: string[] = [
   'Bureaucratic Fantasy',

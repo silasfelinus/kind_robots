@@ -53,15 +53,30 @@ function formatEntityFields(
 }
 
 const CHARACTER_LABELS: Record<string, string> = {
-  name: 'Name', class: 'Class', species: 'Species',
-  personality: 'Personality', backstory: 'Backstory', drive: 'Drive',
-  quirks: 'Quirks', alignment: 'Alignment', role: 'Role',
-  title: 'Title', honorific: 'Honorific', gender: 'Gender',
-  genre: 'Genre', presentation: 'Presentation', achievements: 'Achievements',
+  name: 'Name',
+  class: 'Class',
+  species: 'Species',
+  personality: 'Personality',
+  backstory: 'Backstory',
+  drive: 'Drive',
+  quirks: 'Quirks',
+  alignment: 'Alignment',
+  role: 'Role',
+  title: 'Title',
+  honorific: 'Honorific',
+  gender: 'Gender',
+  genre: 'Genre',
+  presentation: 'Presentation',
+  achievements: 'Achievements',
 }
 
 const DEFAULT_CHARACTER_FIELDS = [
-  'name', 'class', 'species', 'personality', 'backstory', 'drive',
+  'name',
+  'class',
+  'species',
+  'personality',
+  'backstory',
+  'drive',
 ] as const
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -99,7 +114,11 @@ async function* iterateSSE(
       }
     }
   } finally {
-    try { reader.cancel() } catch { /* noop */ }
+    try {
+      reader.cancel()
+    } catch {
+      /* noop */
+    }
   }
 }
 
@@ -130,7 +149,11 @@ async function* iterateNDJSON(
       }
     }
   } finally {
-    try { reader.cancel() } catch { /* noop */ }
+    try {
+      reader.cancel()
+    } catch {
+      /* noop */
+    }
   }
 }
 
@@ -217,7 +240,9 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
           full += chunk
           ctx.onProgress?.('text', chunk, full)
         }
-      } catch { /* ignore malformed lines */ }
+      } catch {
+        /* ignore malformed lines */
+      }
     }
     return { text: { type: 'text', value: full } }
   },
@@ -249,7 +274,9 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
             ctx.onProgress?.('text', chunk, full)
           }
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     return { text: { type: 'text', value: full } }
   },
@@ -281,7 +308,9 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
           ctx.onProgress?.('text', chunk, full)
         }
         if (parsed?.done) break
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     return { text: { type: 'text', value: full } }
   },
@@ -323,15 +352,15 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
   },
 
   // Comfy variants — same shape, different workflow value.
-  'comfy-sdxl':     makeComfyExecutor('sdxl'),
-  'comfy-kombine':  makeComfyExecutor('kombine'),
-  'comfy-kontext':  makeComfyExecutor('kontext'),
-  'comfy-schnell':  makeComfyExecutor('schnell'),
-  'comfy-dev':      makeComfyExecutor('dev'),
+  'comfy-sdxl': makeComfyExecutor('sdxl'),
+  'comfy-kombine': makeComfyExecutor('kombine'),
+  'comfy-kontext': makeComfyExecutor('kontext'),
+  'comfy-schnell': makeComfyExecutor('schnell'),
+  'comfy-dev': makeComfyExecutor('dev'),
 
   // ─── Media ────────────────────────────────────────────────────────────────
 
-  'image2vid': async (inputs, values, ctx) => {
+  image2vid: async (inputs, values, ctx) => {
     const image = coerceToImageRef(inputs.image)
     if (!image) throw new Error('No image input')
     const prompt = coerceToText(inputs.prompt)
@@ -346,7 +375,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
     return { video: { type: 'video', value: data?.video ?? data?.data } }
   },
 
-  'text2vid': async (inputs, values, ctx) => {
+  text2vid: async (inputs, values, ctx) => {
     const prompt = coerceToText(inputs.prompt ?? inputs.text)
     const res = await fetch('/api/comfy/text2vid', {
       method: 'POST',
@@ -359,7 +388,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
     return { video: { type: 'video', value: data?.video ?? data?.data } }
   },
 
-  'img2model': async (inputs, values, ctx) => {
+  img2model: async (inputs, values, ctx) => {
     const image = coerceToImageRef(inputs.image)
     if (!image) throw new Error('No image input')
     const res = await fetch('/api/comfy/img2model', {
@@ -388,7 +417,10 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
     const includePortrait = values.includePortrait !== false
 
     const outputs: Record<string, CodePortValue> = {
-      text: { type: 'text', value: formatEntityFields(record, fields, CHARACTER_LABELS) },
+      text: {
+        type: 'text',
+        value: formatEntityFields(record, fields, CHARACTER_LABELS),
+      },
     }
     if (includePortrait && record?.ArtImage) {
       outputs.portrait = { type: 'image', value: record.ArtImage }
@@ -396,31 +428,20 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
     return outputs
   },
 
-  pitch: async (_inputs, values, ctx) => {
-    if (!values.targetId) throw new Error('No pitch selected')
-    const res = await fetch(`/api/pitches/${values.targetId}`, { signal: ctx.signal })
-    if (!res.ok) throw new Error(`Pitch fetch failed: ${res.status}`)
-    const data = await res.json()
-    const record = data?.data ?? data
-
-    const fields = (values.fields as string[]) ?? ['title', 'pitch', 'flavorText', 'description']
-    const outputs: Record<string, CodePortValue> = {
-      text: { type: 'text', value: formatEntityFields(record, fields) },
-    }
-    if (values.includeImage !== false && record?.ArtImage) {
-      outputs.image = { type: 'image', value: record.ArtImage }
-    }
-    return outputs
-  },
-
   dream: async (_inputs, values, ctx) => {
     if (!values.targetId) throw new Error('No dream selected')
-    const res = await fetch(`/api/dreams/${values.targetId}`, { signal: ctx.signal })
+    const res = await fetch(`/api/dreams/${values.targetId}`, {
+      signal: ctx.signal,
+    })
     if (!res.ok) throw new Error(`Dream fetch failed: ${res.status}`)
     const data = await res.json()
     const record = data?.data ?? data
 
-    const fields = (values.fields as string[]) ?? ['title', 'description', 'currentVibe']
+    const fields = (values.fields as string[]) ?? [
+      'title',
+      'description',
+      'currentVibe',
+    ]
     const outputs: Record<string, CodePortValue> = {
       text: { type: 'text', value: formatEntityFields(record, fields) },
     }
@@ -432,12 +453,19 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
 
   scenario: async (_inputs, values, ctx) => {
     if (!values.targetId) throw new Error('No scenario selected')
-    const res = await fetch(`/api/scenarios/${values.targetId}`, { signal: ctx.signal })
+    const res = await fetch(`/api/scenarios/${values.targetId}`, {
+      signal: ctx.signal,
+    })
     if (!res.ok) throw new Error(`Scenario fetch failed: ${res.status}`)
     const data = await res.json()
     const record = data?.data ?? data
 
-    const fields = (values.fields as string[]) ?? ['title', 'description', 'intros', 'locations']
+    const fields = (values.fields as string[]) ?? [
+      'title',
+      'description',
+      'intros',
+      'locations',
+    ]
     const outputs: Record<string, CodePortValue> = {
       text: { type: 'text', value: formatEntityFields(record, fields) },
     }
@@ -449,12 +477,19 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
 
   bot: async (_inputs, values, ctx) => {
     if (!values.targetId) throw new Error('No bot selected')
-    const res = await fetch(`/api/bots/${values.targetId}`, { signal: ctx.signal })
+    const res = await fetch(`/api/bots/${values.targetId}`, {
+      signal: ctx.signal,
+    })
     if (!res.ok) throw new Error(`Bot fetch failed: ${res.status}`)
     const data = await res.json()
     const record = data?.data ?? data
 
-    const fields = (values.fields as string[]) ?? ['name', 'botIntro', 'prompt', 'personality']
+    const fields = (values.fields as string[]) ?? [
+      'name',
+      'botIntro',
+      'prompt',
+      'personality',
+    ]
     const outputs: Record<string, CodePortValue> = {
       text: { type: 'text', value: formatEntityFields(record, fields) },
     }
@@ -466,12 +501,19 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
 
   reward: async (_inputs, values, ctx) => {
     if (!values.targetId) throw new Error('No reward selected')
-    const res = await fetch(`/api/rewards/${values.targetId}`, { signal: ctx.signal })
+    const res = await fetch(`/api/rewards/${values.targetId}`, {
+      signal: ctx.signal,
+    })
     if (!res.ok) throw new Error(`Reward fetch failed: ${res.status}`)
     const data = await res.json()
     const record = data?.data ?? data
 
-    const fields = (values.fields as string[]) ?? ['label', 'text', 'power', 'rarity']
+    const fields = (values.fields as string[]) ?? [
+      'label',
+      'text',
+      'power',
+      'rarity',
+    ]
     const outputs: Record<string, CodePortValue> = {
       text: { type: 'text', value: formatEntityFields(record, fields) },
     }
@@ -483,7 +525,9 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
 
   prompt: async (_inputs, values, ctx) => {
     if (!values.targetId) throw new Error('No prompt selected')
-    const res = await fetch(`/api/prompts/${values.targetId}`, { signal: ctx.signal })
+    const res = await fetch(`/api/prompts/${values.targetId}`, {
+      signal: ctx.signal,
+    })
     if (!res.ok) throw new Error(`Prompt fetch failed: ${res.status}`)
     const data = await res.json()
     const record = data?.data ?? data

@@ -7,7 +7,7 @@ import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
   validateAndLoadDesignerName,
-  validateAndLoadPitchId,
+  validateAndLoadDreamIds,
   validateAndLoadPromptId,
   validateAndLoadUserId,
   validateAndLoadArtCollectionId,
@@ -153,20 +153,15 @@ export default defineEventHandler(async (event) => {
       validatedData,
     )
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
-
-    const requestDataWithPitch = {
-      ...requestData,
-      pitchId: validatedData.pitchId,
-    }
+    validatedData.dreamIds = await validateAndLoadDreamIds(requestData)
 
     validatedData.promptId = await validateAndLoadPromptId(
-      requestDataWithPitch,
+      requestData,
       validatedData,
     )
 
     validatedData.artCollectionId =
-      await validateAndLoadArtCollectionId(requestDataWithPitch)
+      await validateAndLoadArtCollectionId(requestData)
 
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
@@ -258,11 +253,9 @@ export default defineEventHandler(async (event) => {
         serverId: server.id,
         serverName: server.title,
         serverUrl: getServerEndpoint(server),
-        Pitches: validatedData.pitchId
+        Dreams: validatedData.dreamIds?.length
           ? {
-              connect: {
-                id: validatedData.pitchId,
-              },
+              connect: validatedData.dreamIds.map((id) => ({ id })),
             }
           : undefined,
         Prompts: validatedData.promptId

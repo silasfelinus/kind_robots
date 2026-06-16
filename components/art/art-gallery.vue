@@ -1055,7 +1055,6 @@ async function refreshGallery() {
             force: true,
             includeImageData: false,
             includeThumbnailData: false,
-            includePitches: false,
           }),
     ])
 
@@ -1192,7 +1191,6 @@ async function fetchArtImagesSafely(force = false) {
     force: shouldForce,
     includeImageData: false,
     includeThumbnailData: false,
-    includePitches: false,
   })
 }
 

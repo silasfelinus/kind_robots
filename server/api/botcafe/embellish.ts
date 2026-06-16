@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
     if (!title || !pitch) {
       throw createError({
         statusCode: 400,
-        message: 'Missing title or pitch.',
+        message: 'Missing title or seed pitch.',
       })
     }
 
@@ -150,7 +150,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: message || 'Failed to embellish pitch.',
+      message: message || 'Failed to embellish dream pitch.',
     }
   }
 })

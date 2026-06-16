@@ -13,7 +13,7 @@ export type BuilderInputType =
   | 'collection-picker'
   | 'custom'
   // ── Model-specific step renderers ─────────────────────────────────────
-  | 'icon' //        dream / pitch / reward: icon picker
+  | 'icon' //        dream / reward: icon picker
   | 'intros' //      scenario: intro/opening-lines editor
   | 'personality' // bot: personality trait selector
   | 'modules' //     bot: module/capability multi-select
@@ -79,7 +79,6 @@ export type BuilderStep = {
 
 export type BuilderArtPurpose =
   | 'user'
-  | 'pitch'
   | 'dream'
   | 'character'
   | 'reward'

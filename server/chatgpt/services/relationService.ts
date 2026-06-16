@@ -45,16 +45,14 @@ const resourceDelegateMap = {
   character: 'character',
   chat: 'chat',
   dream: 'dream',
-  pitch: 'pitch',
   prompt: 'prompt',
   resource: 'resource',
   reward: 'reward',
   scenario: 'scenario',
   server: 'server',
-  tag: 'tag',
   theme: 'theme',
   user: 'user',
-} satisfies Record<ChatGptResource, string>
+} satisfies Partial<Record<ChatGptResource, string>>
 
 const ownerFieldByResource = {
   artImage: 'userId',
@@ -63,16 +61,14 @@ const ownerFieldByResource = {
   character: 'userId',
   chat: 'userId',
   dream: 'userId',
-  pitch: 'userId',
   prompt: 'userId',
   resource: 'userId',
   reward: 'userId',
   scenario: 'userId',
   server: 'userId',
-  tag: 'userId',
   theme: 'userId',
   user: 'id',
-} satisfies Record<ChatGptResource, string>
+} satisfies Partial<Record<ChatGptResource, string>>
 
 const activeFieldByResource = {
   artImage: 'isActive',
@@ -81,16 +77,14 @@ const activeFieldByResource = {
   character: 'isActive',
   chat: 'isActive',
   dream: 'isActive',
-  pitch: 'isActive',
   prompt: 'isActive',
   resource: 'isActive',
   reward: 'isActive',
   scenario: 'isActive',
   server: 'isActive',
-  tag: 'isActive',
   theme: 'isActive',
   user: 'isActive',
-} satisfies Record<ChatGptResource, string>
+} satisfies Partial<Record<ChatGptResource, string>>
 
 const publicFieldByResource = {
   artImage: 'isPublic',
@@ -99,65 +93,21 @@ const publicFieldByResource = {
   character: 'isPublic',
   chat: 'isPublic',
   dream: 'isPublic',
-  pitch: 'isPublic',
   prompt: 'isPublic',
   resource: 'isPublic',
   reward: 'isPublic',
   scenario: 'isPublic',
   server: 'isPublic',
-  tag: 'isPublic',
   theme: 'isPublic',
   user: 'isPublic',
-} satisfies Record<ChatGptResource, string>
+} satisfies Partial<Record<ChatGptResource, string>>
 
 const scalarRelationConfigs = [
   {
     mode: 'scalar',
     fromResource: 'artImage',
-    toResource: 'artCollection',
-    sourceField: 'galleryId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'artImage',
-    toResource: 'bot',
-    sourceField: 'botId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'artImage',
-    toResource: 'character',
-    sourceField: 'characterId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'artImage',
-    toResource: 'chat',
-    sourceField: 'chatId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'artImage',
-    toResource: 'pitch',
-    sourceField: 'pitchId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'artImage',
-    toResource: 'prompt',
-    sourceField: 'promptId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'artImage',
     toResource: 'resource',
-    sourceField: 'resourceId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'artImage',
-    toResource: 'reward',
-    sourceField: 'rewardId',
+    sourceField: 'checkpointResourceId',
   },
   {
     mode: 'scalar',
@@ -264,36 +214,12 @@ const scalarRelationConfigs = [
   {
     mode: 'scalar',
     fromResource: 'dream',
-    toResource: 'pitch',
-    sourceField: 'pitchId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'dream',
     toResource: 'scenario',
     sourceField: 'scenarioId',
   },
   {
     mode: 'scalar',
     fromResource: 'dream',
-    toResource: 'server',
-    sourceField: 'artServerId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'dream',
-    toResource: 'user',
-    sourceField: 'userId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'pitch',
-    toResource: 'artImage',
-    sourceField: 'artImageId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'pitch',
     toResource: 'user',
     sourceField: 'userId',
   },
@@ -308,12 +234,6 @@ const scalarRelationConfigs = [
     fromResource: 'prompt',
     toResource: 'bot',
     sourceField: 'botId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'prompt',
-    toResource: 'pitch',
-    sourceField: 'pitchId',
   },
   {
     mode: 'scalar',
@@ -365,18 +285,6 @@ const scalarRelationConfigs = [
   },
   {
     mode: 'scalar',
-    fromResource: 'tag',
-    toResource: 'artImage',
-    sourceField: 'artImageId',
-  },
-  {
-    mode: 'scalar',
-    fromResource: 'tag',
-    toResource: 'user',
-    sourceField: 'userId',
-  },
-  {
-    mode: 'scalar',
     fromResource: 'theme',
     toResource: 'user',
     sourceField: 'userId',
@@ -392,6 +300,12 @@ const manyToManyRelationConfigs = [
   },
   {
     mode: 'manyToMany',
+    fromResource: 'artCollection',
+    toResource: 'dream',
+    relationField: 'Dreams',
+  },
+  {
+    mode: 'manyToMany',
     fromResource: 'artImage',
     toResource: 'artCollection',
     relationField: 'ArtCollections',
@@ -399,8 +313,50 @@ const manyToManyRelationConfigs = [
   {
     mode: 'manyToMany',
     fromResource: 'artImage',
-    toResource: 'tag',
-    relationField: 'Tags',
+    toResource: 'bot',
+    relationField: 'Bots',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'artImage',
+    toResource: 'character',
+    relationField: 'Characters',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'artImage',
+    toResource: 'chat',
+    relationField: 'Chats',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'artImage',
+    toResource: 'dream',
+    relationField: 'Dreams',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'artImage',
+    toResource: 'prompt',
+    relationField: 'Prompts',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'artImage',
+    toResource: 'resource',
+    relationField: 'Resources',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'artImage',
+    toResource: 'reward',
+    relationField: 'Rewards',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'artImage',
+    toResource: 'scenario',
+    relationField: 'Scenarios',
   },
   {
     mode: 'manyToMany',
@@ -423,6 +379,18 @@ const manyToManyRelationConfigs = [
   {
     mode: 'manyToMany',
     fromResource: 'dream',
+    toResource: 'artImage',
+    relationField: 'ArtImages',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'dream',
+    toResource: 'artCollection',
+    relationField: 'ArtCollections',
+  },
+  {
+    mode: 'manyToMany',
+    fromResource: 'dream',
     toResource: 'character',
     relationField: 'Characters',
   },
@@ -434,15 +402,9 @@ const manyToManyRelationConfigs = [
   },
   {
     mode: 'manyToMany',
-    fromResource: 'dream',
-    toResource: 'tag',
-    relationField: 'Tags',
-  },
-  {
-    mode: 'manyToMany',
-    fromResource: 'pitch',
-    toResource: 'tag',
-    relationField: 'Tags',
+    fromResource: 'resource',
+    toResource: 'server',
+    relationField: 'Servers',
   },
   {
     mode: 'manyToMany',
@@ -464,21 +426,15 @@ const manyToManyRelationConfigs = [
   },
   {
     mode: 'manyToMany',
-    fromResource: 'tag',
-    toResource: 'artImage',
-    relationField: 'ArtImages',
-  },
-  {
-    mode: 'manyToMany',
-    fromResource: 'tag',
+    fromResource: 'scenario',
     toResource: 'dream',
-    relationField: 'Dreams',
+    relationField: 'Dream',
   },
   {
     mode: 'manyToMany',
-    fromResource: 'tag',
-    toResource: 'pitch',
-    relationField: 'Pitches',
+    fromResource: 'server',
+    toResource: 'resource',
+    relationField: 'Resources',
   },
 ] satisfies ManyToManyRelationConfig[]
 
@@ -497,6 +453,14 @@ function isAdminActor(actor: ChatGptActor): boolean {
 
 function getDelegate(resource: ChatGptResource): PrismaDelegate {
   const delegateName = resourceDelegateMap[resource]
+
+  if (!delegateName) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Resource not implemented for relations: ${resource}`,
+    })
+  }
+
   const delegate = (
     prisma as unknown as Record<string, PrismaDelegate | undefined>
   )[delegateName]
@@ -509,6 +473,45 @@ function getDelegate(resource: ChatGptResource): PrismaDelegate {
   }
 
   return delegate
+}
+
+function getOwnerField(resource: ChatGptResource): string {
+  const field = ownerFieldByResource[resource]
+
+  if (!field) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Resource not implemented for ownership checks: ${resource}`,
+    })
+  }
+
+  return field
+}
+
+function getActiveField(resource: ChatGptResource): string {
+  const field = activeFieldByResource[resource]
+
+  if (!field) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Resource not implemented for active checks: ${resource}`,
+    })
+  }
+
+  return field
+}
+
+function getPublicField(resource: ChatGptResource): string {
+  const field = publicFieldByResource[resource]
+
+  if (!field) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Resource not implemented for public checks: ${resource}`,
+    })
+  }
+
+  return field
 }
 
 function getRelationConfig({
@@ -537,9 +540,9 @@ function getRelationConfig({
 function buildRecordSelect(resource: ChatGptResource): Record<string, boolean> {
   return {
     id: true,
-    [ownerFieldByResource[resource]]: true,
-    [activeFieldByResource[resource]]: true,
-    [publicFieldByResource[resource]]: true,
+    [getOwnerField(resource)]: true,
+    [getActiveField(resource)]: true,
+    [getPublicField(resource)]: true,
   }
 }
 
@@ -548,8 +551,8 @@ function buildSafeMinimalSelect(
 ): Record<string, boolean> {
   return {
     id: true,
-    [activeFieldByResource[resource]]: true,
-    [publicFieldByResource[resource]]: true,
+    [getActiveField(resource)]: true,
+    [getPublicField(resource)]: true,
   }
 }
 
@@ -585,8 +588,8 @@ function assertReadableRecord({
 }) {
   if (isAdminActor(actor)) return
 
-  const ownerField = ownerFieldByResource[resource]
-  const publicField = publicFieldByResource[resource]
+  const ownerField = getOwnerField(resource)
+  const publicField = getPublicField(resource)
 
   if (record[ownerField] === getActorUserId(actor)) return
   if (record[publicField] === true) return
@@ -608,7 +611,7 @@ function assertWritableRecord({
 }) {
   if (isAdminActor(actor)) return
 
-  const ownerField = ownerFieldByResource[resource]
+  const ownerField = getOwnerField(resource)
 
   if (record[ownerField] === getActorUserId(actor)) return
 

@@ -402,16 +402,6 @@
               :allow-delete="false"
               :allow-refresh="false"
             />
-            <LazyPitchGallery
-              v-else-if="connectedModelType === 'Pitch'"
-              variant="dropdown"
-              :show-header="true"
-              :show-controls="false"
-              :allow-add="false"
-              :allow-edit="false"
-              :allow-delete="false"
-              :allow-refresh="false"
-            />
             <LazyRewardGallery
               v-else-if="connectedModelType === 'Reward'"
               variant="dropdown"
@@ -524,7 +514,6 @@ import type { ConnectableModel, UploadMetadata } from '@/stores/uploadStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
-import { usePitchStore } from '@/stores/pitchStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useCollectionStore } from '@/stores/collectionStore'
@@ -562,7 +551,6 @@ const uploadStore = useUploadStore()
 const botStore = useBotStore()
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
-const pitchStore = usePitchStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
 const collectionStore = useCollectionStore()
@@ -618,7 +606,6 @@ const connectableModels: ConnectableModel[] = [
   'Bot',
   'Character',
   'Dream',
-  'Pitch',
   'Reward',
   'Scenario',
 ]
@@ -642,8 +629,6 @@ const connectedModelId = computed<number | null>(() => {
       return characterStore.selectedCharacter?.id ?? null
     case 'Dream':
       return dreamStore.selectedDream?.id ?? null
-    case 'Pitch':
-      return pitchStore.selectedPitch?.id ?? null
     case 'Reward':
       return rewardStore.selectedReward?.id ?? null
     case 'Scenario':
@@ -670,7 +655,6 @@ function clearModelSelection() {
   botStore.deselectBot()
   characterStore.deselectCharacter()
   dreamStore.deselectDream()
-  pitchStore.deselectPitch()
   rewardStore.deselectReward()
   scenarioStore.deselectScenario()
 }

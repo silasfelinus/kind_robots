@@ -5,7 +5,7 @@
     :compact="compact"
     :show-reaction="showReaction"
     :target-id="composition.id"
-    target-type="resource"
+    target-type="composition"
     reaction-category="COMPOSITION"
     :target-title="compositionTitle"
     @select="selectComposition"
@@ -153,12 +153,10 @@ type CompositionItem = {
   characterId?: number | null
   dreamId?: number | null
   scenarioId?: number | null
-  pitchId?: number | null
   rewardId?: number | null
   characterBlurb?: string | null
   dreamBlurb?: string | null
   scenarioBlurb?: string | null
-  pitchBlurb?: string | null
   rewardBlurb?: string | null
 }
 
@@ -232,13 +230,6 @@ const activeSlots = computed((): SlotBadge[] => {
       label: 'Scenario',
       icon: 'kind-icon:scroll',
       class: 'badge-info',
-    })
-  if (c.pitchId || c.pitchBlurb)
-    slots.push({
-      key: 'pitch',
-      label: 'Concept',
-      icon: 'kind-icon:lightbulb',
-      class: 'badge-warning',
     })
   if (c.rewardId || c.rewardBlurb)
     slots.push({

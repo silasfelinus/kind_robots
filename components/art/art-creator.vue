@@ -226,7 +226,6 @@ function syncPromptToArtForm() {
   artStore.setArtForm({
     promptString: cleanPrompt.value,
     title: props.modelTitle || props.imageRole || props.purpose,
-    pitch: props.imageRole,
     ...props.overrides,
   })
 }
@@ -255,7 +254,6 @@ async function generateImage() {
     ...props.overrides,
     promptString: cleanPrompt.value,
     title: props.modelTitle || props.imageRole || props.purpose,
-    pitch: props.imageRole,
   })
 
   if (!result.success || !result.data) {

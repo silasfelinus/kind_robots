@@ -1,7 +1,7 @@
 // /stores/registerBuilderStore.ts
 //
 // Single owner for registering every builder project config into the
-// builderStore registry. Each model builder (user, pitch, dream, character,
+// builderStore registry. Each model builder (user, dream, character,
 // reward, scenario, bot) closes over its own model store, so the configs MUST
 // be constructed inside a Pinia-active scope — which a store provides.
 //
@@ -30,13 +30,11 @@ import { useDreamStore } from '@/stores/dreamStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
-import { usePitchStore } from '@/stores/pitchStore'
 
 import { BOT_CARDS } from '@/stores/helpers/botCards'
 import { DREAM_CARDS } from '@/stores/helpers/dreamCards'
 import { REWARD_CARDS } from '@/stores/helpers/rewardCards'
 import { SCENARIO_CARDS } from '@/stores/helpers/scenarioCards'
-import { PITCH_CARDS } from '@/stores/helpers/pitchCards'
 import {
   ADVENTURE_CARDS,
   ADVENTURE_SPLASH,
@@ -424,27 +422,16 @@ function buildDreamConfig(): BuilderProjectConfig {
 
   const startCard = 'atmosphere'
 
-  type DreamAccessMode = 'OPEN' | 'PRIVATE' | 'CODE'
-  function getAccessMode(): DreamAccessMode {
-    const value = text('accessMode')
-    if (value === 'PRIVATE' || value === 'CODE') return value
-    return 'OPEN'
-  }
-
   function defaultDreamSheet(): BuilderSheet {
     const form = dreamStore.dreamForm as Record<string, unknown>
     return {
       vibeTag: '',
       title: typeof form.title === 'string' ? form.title : '',
       description: typeof form.description === 'string' ? form.description : '',
-      currentVibe: typeof form.currentVibe === 'string' ? form.currentVibe : '',
-      currentPrompt:
-        typeof form.currentPrompt === 'string' ? form.currentPrompt : '',
-      accessMode:
-        form.accessMode === 'PRIVATE' || form.accessMode === 'CODE'
-          ? form.accessMode
-          : 'OPEN',
-      privacyCode: typeof form.privacyCode === 'string' ? form.privacyCode : '',
+      dreamType:
+        typeof form.dreamType === 'string' ? form.dreamType : 'LOCATION',
+      pitch: typeof form.pitch === 'string' ? form.pitch : '',
+      flavorText: typeof form.flavorText === 'string' ? form.flavorText : '',
       artPrompt: typeof form.artPrompt === 'string' ? form.artPrompt : '',
       artImageId: typeof form.artImageId === 'number' ? form.artImageId : null,
       userId:
@@ -457,16 +444,14 @@ function buildDreamConfig(): BuilderProjectConfig {
   }
 
   function syncSheetToDreamForm() {
-    const mode = getAccessMode()
     const resolvedUserId =
       num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
     dreamStore.setDreamForm({
       title: text('title'),
       description: text('description'),
-      currentVibe: text('currentVibe'),
-      currentPrompt: text('currentPrompt'),
-      accessMode: mode,
-      privacyCode: mode === 'CODE' ? text('privacyCode') : '',
+      dreamType: text('dreamType') || 'LOCATION',
+      pitch: text('pitch'),
+      flavorText: text('flavorText'),
       artPrompt: text('artPrompt'),
       artImageId: num('artImageId') ?? undefined,
       userId: resolvedUserId,
@@ -507,7 +492,7 @@ function buildDreamConfig(): BuilderProjectConfig {
       subtitle: 'Create a place, mood, or impossible location.',
       tagline: 'Give the story somewhere weird to stand.',
       description:
-        'Build a dream space one card at a time: atmosphere, title, description, current vibe, active prompt, access settings, and art.',
+        'Build a dream space one card at a time: atmosphere, title, pitch, description, flavor text, visibility, and art.',
       imagePath: '/images/dreams/splash.webp',
       ctaLabel: 'Start Dream',
       secondaryLabel: 'Surprise Me',
@@ -524,8 +509,6 @@ function buildDreamConfig(): BuilderProjectConfig {
     clearFieldDefaults: {
       vibeTag: '',
       artImageId: null,
-      accessMode: 'OPEN',
-      privacyCode: '',
       userId: 10,
       isPublic: true,
       isMature: false,
@@ -1049,127 +1032,6 @@ function buildScenarioConfig(): BuilderProjectConfig {
 }
 
 // ───────────────────────────────────────────────────────────────────────────
-// PITCH
-// ───────────────────────────────────────────────────────────────────────────
-
-function buildPitchConfig(): BuilderProjectConfig {
-  const builder = useBuilderStore()
-  const pitchStore = usePitchStore()
-  const userStore = useUserStore()
-  const { text, num, bool } = makeSheetReaders(builder)
-
-  const startCard = 'type'
-
-  type PitchBuilderType = 'ARTPITCH' | 'DREAM'
-  const getPitchType = (): PitchBuilderType =>
-    text('PitchType') === 'DREAM' ? 'DREAM' : 'ARTPITCH'
-
-  function defaultPitchSheet(): BuilderSheet {
-    const form = pitchStore.pitchForm as Record<string, unknown>
-    return {
-      PitchType:
-        form.PitchType === 'DREAM' || form.PitchType === 'ARTPITCH'
-          ? form.PitchType
-          : 'ARTPITCH',
-      title: typeof form.title === 'string' ? form.title : '',
-      pitch: typeof form.pitch === 'string' ? form.pitch : '',
-      description: typeof form.description === 'string' ? form.description : '',
-      artPrompt: typeof form.artPrompt === 'string' ? form.artPrompt : '',
-      artImageId: typeof form.artImageId === 'number' ? form.artImageId : null,
-      designer: typeof form.designer === 'string' ? form.designer : null,
-      userId:
-        typeof form.userId === 'number'
-          ? form.userId
-          : (userStore.userId ?? userStore.user?.id ?? 10),
-      isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
-      isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
-    }
-  }
-
-  function syncSheetToPitchForm() {
-    const resolvedUserId =
-      num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
-    pitchStore.setPitchForm({
-      PitchType: getPitchType(),
-      title: text('title'),
-      pitch: text('pitch'),
-      description: text('description'),
-      artPrompt: text('artPrompt'),
-      artImageId: num('artImageId') ?? undefined,
-      designer:
-        typeof builder.sheet.designer === 'string'
-          ? builder.sheet.designer
-          : undefined,
-      userId: resolvedUserId,
-      isPublic: bool('isPublic', true),
-      isMature: bool('isMature', false),
-    })
-  }
-
-  async function save(): Promise<BuilderSaveResult> {
-    builder.clearError()
-    syncSheetToPitchForm()
-    const result = await pitchStore.savePitch()
-    if (result.success && result.data) {
-      builder.setStatus('Pitch saved.')
-      return { success: true, message: 'Pitch saved.', data: result.data }
-    }
-    const message =
-      result.message || pitchStore.lastError || 'Failed to save pitch.'
-    builder.setLastError(new Error(message), message)
-    return { success: false, message, data: result.data ?? null }
-  }
-
-  function reset() {
-    pitchStore.startAddingPitch()
-    builder.resetBuilder(true)
-    builder.selectCard(startCard)
-  }
-
-  return {
-    key: 'pitch',
-    label: 'Pitch Builder',
-    title: 'Pitch Builder',
-    modelType: 'pitch',
-    storageKey: 'kindrobots.builder.pitch.v1',
-    cards: PITCH_CARDS,
-    splash: {
-      title: 'Pitch Builder',
-      subtitle: 'Fast seeds for images, dreams, and narrative weirdness.',
-      tagline: 'One good sentence. Many possible disasters.',
-      description:
-        'Build a pitch one card at a time: type, core sentence, supporting details, visibility, and optional art.',
-      imagePath: '/images/pitch/splash.webp',
-      ctaLabel: 'Start Pitch',
-      secondaryLabel: 'Surprise Me',
-    },
-    defaultSheet: defaultPitchSheet,
-    coreCardKeys: ['type', 'pitch'],
-    requiredCardKeys: ['type', 'pitch'],
-    finalCardKey: 'art',
-    artPurpose: 'pitch',
-    artImageRole: 'cover',
-    artTitle: 'Pitch Image Designer',
-    artDescription: 'Create, upload, select, or generate art for this pitch.',
-    clearFieldDefaults: {
-      artImageId: null,
-      userId: 10,
-      isPublic: true,
-      isMature: false,
-    },
-    persistActiveCard: true,
-    allowCompletedCardsInDeck: false,
-    suggestContext: {
-      builder: 'pitch',
-      tone: 'Concise, visual, strange, and immediately generative.',
-    },
-    startCardKey: startCard,
-    save,
-    reset,
-  }
-}
-
-// ───────────────────────────────────────────────────────────────────────────
 // The registration store
 // ───────────────────────────────────────────────────────────────────────────
 
@@ -1179,7 +1041,6 @@ type ConfigBuilder = () => BuilderProjectConfig
 
 const CONFIG_BUILDERS: ConfigBuilder[] = [
   buildUserConfig,
-  buildPitchConfig,
   buildDreamConfig,
   buildCharacterConfig,
   buildBotConfig,

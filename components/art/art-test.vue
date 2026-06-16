@@ -540,7 +540,6 @@ const artFormPatch = computed<Record<string, unknown>>(() => {
     promptString: builtPrompt.value,
     artPrompt: builtPrompt.value,
     title: `Art Test ${endpointDef.value.label}`,
-    pitch: endpointDef.value.mode,
     width: width.value,
     height: height.value,
     steps: steps.value,

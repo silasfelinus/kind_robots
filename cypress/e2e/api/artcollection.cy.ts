@@ -331,8 +331,6 @@ describe('ArtCollection API Tests', () => {
       expect(firstImage).to.not.have.property('imageData')
       expect(firstImage).to.not.have.property('thumbnailData')
       expect(firstImage).to.not.have.property('galleryId')
-      expect(firstImage).to.not.have.property('pitchId')
-      expect(firstImage).to.not.have.property('promptId')
       expect(firstImage).to.not.have.property('resourceId')
       expect(firstImage).to.not.have.property('rewardId')
       expect(firstImage).to.not.have.property('characterId')

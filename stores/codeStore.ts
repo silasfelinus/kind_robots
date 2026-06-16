@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
-import { usePitchStore } from '@/stores/pitchStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useRewardStore } from '@/stores/rewardStore'
@@ -24,7 +23,6 @@ export type CodeDataType =
   | 'video'
   | 'character'
   | 'dream'
-  | 'pitch'
   | 'prompt'
   | 'bot'
   | 'reward'
@@ -66,7 +64,6 @@ export type CodeKind =
   | 'img2model'
   | 'character'
   | 'dream'
-  | 'pitch'
   | 'prompt'
   | 'bot'
   | 'random-image'
@@ -83,7 +80,6 @@ export interface CodeValidationResult {
 }
 
 export type CodeActionKind =
-  | 'add-pitch'
   | 'add-dream'
   | 'add-character'
   | 'add-reward'
@@ -95,13 +91,7 @@ export type CodeActionKind =
   | 'add-treasure'
   | 'expand-concept'
 
-export type CodeModel =
-  | 'pitch'
-  | 'dream'
-  | 'character'
-  | 'reward'
-  | 'scenario'
-  | 'art'
+export type CodeModel = 'dream' | 'character' | 'reward' | 'scenario' | 'art'
 
 export type CodeDashboardKey =
   | 'art'
@@ -238,7 +228,6 @@ export interface CodeForm extends Omit<Partial<Code>, 'graph'> {
 }
 
 interface SelectableStore {
-  selectPitch?: (id: number) => Promise<unknown> | unknown
   selectDream?: (id: number) => Promise<unknown> | unknown
   selectCharacter?: (id: number) => Promise<unknown> | unknown
   selectReward?: (id: number) => Promise<unknown> | unknown
@@ -278,7 +267,6 @@ const roundZoom = (value: number) => {
 }
 
 const modelToDashboardKey = (model: CodeModel): CodeDashboardKey => {
-  if (model === 'pitch') return 'brainstorm'
   if (model === 'art') return 'art'
   return model
 }
@@ -768,37 +756,6 @@ const definitionSeeds: CodeDefinition[] = [
     ],
   },
   {
-    kind: 'pitch',
-    title: 'Pitch',
-    subtitle: 'Big idea fuel.',
-    description: 'Creates, selects, or updates a Pitch.',
-    icon: 'kind-icon:lightbulb',
-    category: 'Kind Models',
-    accent: 'info',
-    inputs: [
-      {
-        id: 'text',
-        label: 'Idea Text',
-        type: 'text',
-        direction: 'input',
-      },
-    ],
-    outputs: [
-      {
-        id: 'pitch',
-        label: 'Pitch',
-        type: 'pitch',
-        direction: 'output',
-      },
-      {
-        id: 'text',
-        label: 'Pitch Text',
-        type: 'text',
-        direction: 'output',
-      },
-    ],
-  },
-  {
     kind: 'prompt',
     title: 'Prompt',
     subtitle: 'Specific AI instruction.',
@@ -1167,7 +1124,7 @@ const templateSeeds: CodeTemplate[] = [
     id: 'concept-forge',
     title: 'Concept Forge',
     description:
-      'One spark of an idea fans out into a character, a pitch, and a scenario — three writers working in parallel.',
+      'One spark of an idea fans out into a character, a Dream seed, and a scenario — three writers working in parallel.',
     icon: 'kind-icon:sparkles',
     nodes: [
       {
@@ -1194,13 +1151,13 @@ const templateSeeds: CodeTemplate[] = [
       },
       {
         kind: 'anthropic-text',
-        title: 'Pitch',
+        title: 'Dream Seed',
         x: 460,
         y: 280,
         values: {
           system:
-            'You are a pitch writer. Take the concept and write a ' +
-            'one-paragraph high-concept pitch: title, hook, what makes it ' +
+            'You are a Dream seed writer. Take the concept and write a ' +
+            'one-paragraph high-concept Dream seed: title, hook, what makes it ' +
             'weird. No preamble.',
         },
       },
@@ -1356,7 +1313,6 @@ const templateSeeds: CodeTemplate[] = [
 
 export const useCodeStore = defineStore('codeStore', () => {
   const userStore = useUserStore()
-  const pitchStore = usePitchStore()
   const dreamStore = useDreamStore()
   const characterStore = useCharacterStore()
   const rewardStore = useRewardStore()
@@ -1619,14 +1575,6 @@ export const useCodeStore = defineStore('codeStore', () => {
   }
 
   const codeTargets = computed<CodeTarget[]>(() => {
-    const pitchTargets: CodeTarget[] = pitchStore.pitches
-      .filter((pitch) => pitch?.id)
-      .map((pitch) => ({
-        id: pitch.id,
-        title: pitch.title || pitch.pitch || `Pitch ${pitch.id}`,
-        model: 'pitch',
-      }))
-
     const dreamTargets: CodeTarget[] = dreamStore.dreams
       .filter((dream) => dream?.id)
       .map((dream) => ({
@@ -1660,7 +1608,6 @@ export const useCodeStore = defineStore('codeStore', () => {
       }))
 
     return [
-      ...pitchTargets,
       ...dreamTargets,
       ...characterTargets,
       ...rewardTargets,
@@ -1671,12 +1618,13 @@ export const useCodeStore = defineStore('codeStore', () => {
   const baseActionCards = computed<CodeActionCard[]>(() => [
     {
       id: makeId('action'),
-      title: 'Add Pitch',
-      subtitle: 'Start a new world seed',
-      description: 'Create the big strange idea everything else grows from.',
+      title: 'Brainstorm Dream',
+      subtitle: 'Start from a Dream pitch',
+      description:
+        'Create the big strange idea everything else grows from as a Dream seed.',
       icon: 'kind-icon:sparkles',
-      kind: 'add-pitch',
-      model: 'pitch',
+      kind: 'add-dream',
+      model: 'dream',
     },
     {
       id: makeId('action'),
@@ -2393,7 +2341,6 @@ export const useCodeStore = defineStore('codeStore', () => {
       video: 'accent',
       character: 'warning',
       dream: 'primary',
-      pitch: 'info',
       prompt: 'error',
       bot: 'primary',
       reward: 'warning',
@@ -2412,7 +2359,6 @@ export const useCodeStore = defineStore('codeStore', () => {
       video: 'stroke-accent',
       character: 'stroke-warning',
       dream: 'stroke-primary',
-      pitch: 'stroke-info',
       prompt: 'stroke-error',
       bot: 'stroke-primary',
       reward: 'stroke-warning',
@@ -2750,15 +2696,10 @@ export const useCodeStore = defineStore('codeStore', () => {
       return
     }
 
-    const pitchActions = pitchStore as SelectableStore
     const dreamActions = dreamStore as SelectableStore
     const characterActions = characterStore as SelectableStore
     const rewardActions = rewardStore as SelectableStore
     const scenarioActions = scenarioStore as SelectableStore
-
-    if (card.model === 'pitch' && pitchActions.selectPitch) {
-      await pitchActions.selectPitch(card.targetId)
-    }
 
     if (card.model === 'dream' && dreamActions.selectDream) {
       await dreamActions.selectDream(card.targetId)
@@ -3181,11 +3122,6 @@ export const useCodeStore = defineStore('codeStore', () => {
 
   async function playActionCard(card: CodeActionCard) {
     clearMessage()
-
-    if (card.kind === 'add-pitch') {
-      openAddAction('pitch')
-      addNode('pitch', 120, 140)
-    }
 
     if (card.kind === 'add-dream') {
       openAddAction('dream')

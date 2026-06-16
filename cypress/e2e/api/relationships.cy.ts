@@ -27,7 +27,6 @@ type EndpointKey =
   | 'log'
   | 'milestone'
   | 'milestoneRecord'
-  | 'pitch'
   | 'prompt'
   | 'reaction'
   | 'resource'
@@ -61,7 +60,6 @@ const endpointPaths: Record<EndpointKey, string> = {
   log: '/api/logs',
   milestone: '/api/milestones',
   milestoneRecord: '/api/milestones/records',
-  pitch: '/api/pitches',
   prompt: '/api/prompts',
   reaction: '/api/reactions',
   resource: '/api/resources',
@@ -87,7 +85,6 @@ const created: CreatedRegistry = {
   log: [],
   milestone: [],
   milestoneRecord: [],
-  pitch: [],
   prompt: [],
   reaction: [],
   resource: [],
@@ -509,27 +506,11 @@ describe('Relationship API Tests', () => {
             id('artImageA'),
             'character',
           )
-          return postRecord('pitch', {
-            title: `Cypress Pitch ${time}`,
-            pitch: `A relationship test pitch ${time}`,
-            designer: 'cypress',
-            userId: testUserId,
-            artImageId: id('artImageA'),
-            isPublic: false,
-            isActive: true,
-          })
-        })
-        .then((pitch) => {
-          ids.pitch = pitch.id
-          expectFieldEquals(pitch, 'userId', testUserId, 'pitch')
-          expectFieldEquals(pitch, 'artImageId', id('artImageA'), 'pitch')
-
           return postRecord('prompt', {
             prompt: `A relationship test prompt ${time}`,
             userId: testUserId,
             artImageId: id('artImageA'),
             botId: id('bot'),
-            pitchId: id('pitch'),
             isPublic: false,
             isActive: true,
           })
@@ -539,12 +520,12 @@ describe('Relationship API Tests', () => {
           expectFieldEquals(prompt, 'userId', testUserId, 'prompt')
           expectFieldEquals(prompt, 'artImageId', id('artImageA'), 'prompt')
           expectFieldEquals(prompt, 'botId', id('bot'), 'prompt')
-          expectFieldEquals(prompt, 'pitchId', id('pitch'), 'prompt')
 
           return postRecord('reward', {
-            label: `Cypress Reward ${time}`,
-            text: 'A reward for surviving relationship tests.',
-            power: 'Can detect missing include statements at ten paces.',
+            name: `Cypress Reward ${time}`,
+            description: 'A reward for surviving relationship tests.',
+            effect: 'Can detect missing include statements at ten paces.',
+            flavorText: 'A tiny bell rings whenever a relation include is missing.',
             collection: 'cypress',
             rarity: 'COMMON',
             rewardType: 'ITEM',
@@ -578,22 +559,21 @@ describe('Relationship API Tests', () => {
           return postRecord('dream', {
             title: `Cypress Dream ${time}`,
             slug: `cypress-dream-${time}`,
+            dreamType: 'LOCATION',
             description: 'A dream/location for relationship tests.',
-            currentVibe: 'cypress relationship test chamber',
+            pitch: 'cypress relationship test chamber',
+            artPrompt: 'cypress relationship test chamber, glowing relation graph',
             userId: testUserId,
-            pitchId: id('pitch'),
             artImageId: id('artImageA'),
             artCollectionId: id('artCollection'),
             scenarioId: id('scenario'),
             isPublic: false,
             isActive: true,
-            accessMode: 'PRIVATE',
           })
         })
         .then((dream) => {
           ids.dream = dream.id
           expectFieldEquals(dream, 'userId', testUserId, 'dream')
-          expectFieldEquals(dream, 'pitchId', id('pitch'), 'dream')
           expectFieldEquals(dream, 'artImageId', id('artImageA'), 'dream')
           expectFieldEquals(
             dream,
@@ -611,7 +591,6 @@ describe('Relationship API Tests', () => {
       expectStoredId('bot')
       expectStoredId('character')
       expectStoredId('dream')
-      expectStoredId('pitch')
       expectStoredId('prompt')
       expectStoredId('reward')
       expectStoredId('scenario')
@@ -668,7 +647,6 @@ describe('Relationship API Tests', () => {
             characterId: id('character'),
             dreamId: id('dream'),
             scenarioId: id('scenario'),
-            pitchId: id('pitch'),
             rewardId: id('reward'),
             isPublic: false,
             isActive: true,
@@ -681,7 +659,6 @@ describe('Relationship API Tests', () => {
           expectFieldEquals(composition, 'characterId', id('character'))
           expectFieldEquals(composition, 'dreamId', id('dream'))
           expectFieldEquals(composition, 'scenarioId', id('scenario'))
-          expectFieldEquals(composition, 'pitchId', id('pitch'))
           expectFieldEquals(composition, 'rewardId', id('reward'))
         })
     })
@@ -889,8 +866,6 @@ describe('Relationship API Tests', () => {
           expect(firstImage).to.not.have.property('imageData')
           expect(firstImage).to.not.have.property('thumbnailData')
           expect(firstImage).to.not.have.property('galleryId')
-          expect(firstImage).to.not.have.property('pitchId')
-          expect(firstImage).to.not.have.property('promptId')
           expect(firstImage).to.not.have.property('resourceId')
           expect(firstImage).to.not.have.property('rewardId')
           expect(firstImage).to.not.have.property('characterId')
@@ -1068,8 +1043,7 @@ describe('Relationship API Tests', () => {
         expectStoredId('character')
         expectStoredId('dream')
         expectStoredId('scenario')
-        expectStoredId('pitch')
-        expectStoredId('reward')
+          expectStoredId('reward')
 
         getRecord('composition', id('composition'), true).then(
           (composition) => {
@@ -1078,7 +1052,6 @@ describe('Relationship API Tests', () => {
             expectFieldEquals(composition, 'characterId', id('character'))
             expectFieldEquals(composition, 'dreamId', id('dream'))
             expectFieldEquals(composition, 'scenarioId', id('scenario'))
-            expectFieldEquals(composition, 'pitchId', id('pitch'))
             expectFieldEquals(composition, 'rewardId', id('reward'))
           },
         )
@@ -1088,14 +1061,12 @@ describe('Relationship API Tests', () => {
         expectStoredId('dream')
         expectStoredId('artCollection')
         expectStoredId('artImageA')
-        expectStoredId('pitch')
-        expectStoredId('scenario')
+          expectStoredId('scenario')
 
         getRecord('dream', id('dream'), true).then((dream) => {
           expectFieldEquals(dream, 'userId', testUserId)
           expectFieldEquals(dream, 'artCollectionId', id('artCollection'))
           expectFieldEquals(dream, 'artImageId', id('artImageA'))
-          expectFieldEquals(dream, 'pitchId', id('pitch'))
           expectFieldEquals(dream, 'scenarioId', id('scenario'))
         })
       })
@@ -1149,11 +1120,6 @@ describe('Relationship API Tests', () => {
       it('connects Reaction to Dream', () => {
         expectStoredId('dream')
         createReactionFor('dreamId', id('dream'), 'DREAM')
-      })
-
-      it('connects Reaction to Pitch', () => {
-        expectStoredId('pitch')
-        createReactionFor('pitchId', id('pitch'), 'PITCH')
       })
 
       it('connects Reaction to Prompt', () => {
@@ -1288,7 +1254,6 @@ describe('Relationship API Tests', () => {
           'reward',
           'character',
           'prompt',
-          'pitch',
           'bot',
           'component',
           'resource',

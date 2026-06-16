@@ -9,7 +9,7 @@ import {
   type RequestData,
   validateAndLoadArtCollectionId,
   validateAndLoadDesignerName,
-  validateAndLoadPitchId,
+  validateAndLoadDreamIds,
   validateAndLoadPromptId,
   validateAndLoadUserId,
 } from '../../../art'
@@ -115,20 +115,15 @@ export default defineEventHandler(async (event) => {
       validatedData,
     )
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
-
-    const requestDataWithPitch = {
-      ...requestData,
-      pitchId: validatedData.pitchId,
-    }
+    validatedData.dreamIds = await validateAndLoadDreamIds(requestData)
 
     validatedData.promptId = await validateAndLoadPromptId(
-      requestDataWithPitch,
+      requestData,
       validatedData,
     )
 
     validatedData.artCollectionId =
-      await validateAndLoadArtCollectionId(requestDataWithPitch)
+      await validateAndLoadArtCollectionId(requestData)
 
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
@@ -208,11 +203,9 @@ export default defineEventHandler(async (event) => {
         serverId: requestData.serverId ?? null,
         serverName: requestData.serverName || 'OpenAI Images',
         serverUrl: 'https://api.openai.com/v1/images/generations',
-        Pitches: validatedData.pitchId
+        Dreams: validatedData.dreamIds?.length
           ? {
-              connect: {
-                id: validatedData.pitchId,
-              },
+              connect: validatedData.dreamIds.map((id) => ({ id })),
             }
           : undefined,
         Prompts: validatedData.promptId

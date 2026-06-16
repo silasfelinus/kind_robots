@@ -68,7 +68,6 @@ import { useBuilderStore } from '@/stores/builderStore'
 
 type ArtDesignerPurpose =
   | 'user'
-  | 'pitch'
   | 'dream'
   | 'character'
   | 'reward'
@@ -130,7 +129,6 @@ const artPurpose = computed<ArtDesignerPurpose>(() => {
   if (activeConfig.value.modelType === 'character') return 'character'
   if (activeConfig.value.modelType === 'scenario') return 'scenario'
   if (activeConfig.value.modelType === 'reward') return 'reward'
-  if (activeConfig.value.modelType === 'pitch') return 'pitch'
   if (activeConfig.value.modelType === 'dream') return 'dream'
   return 'builder'
 })
@@ -141,7 +139,6 @@ const imageRole = computed(() => {
   if (artPurpose.value === 'character') return 'avatar'
   if (artPurpose.value === 'scenario') return 'scene'
   if (artPurpose.value === 'reward') return 'object'
-  if (artPurpose.value === 'pitch') return 'cover'
   if (artPurpose.value === 'dream') return 'world'
   return 'builder'
 })

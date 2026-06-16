@@ -9,11 +9,11 @@ tooltip: Welcome to Brainstorm's lair! From laughable RPG characters to unfortun
 amitip: Hey, Brainstorm's my cousin! Sure his humor is a little dark, but I'm a multifaceted hivemind built to save the world, he's a brain in a jar. It colors one's perspective. 🦋🤖😂
 sort: highlight
 dottitip: Brainstorm is my first robot, even before AMI! He's a little, well, let's just say we love him a lot.
-dashboardKey: brainstorm
-dashboardTab: overview
-cards: pitchCards
+dashboardKey: dreams
+dashboardTab: brainstorm
+cards: dreamCards
 loadingMessage: Loading brainstorm
 refreshLabel: Refresh Brainstorms
 ---
 
-:brainstorm-manager
+:dream-manager

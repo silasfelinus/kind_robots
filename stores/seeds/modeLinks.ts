@@ -47,11 +47,11 @@ export const modes: ModeInfo[] = [
     galleryRoute: '/bots',
   },
   {
-    name: 'pitch',
-    icon: 'kind-icon:pitch',
-    label: 'Pitches',
-    addRoute: '/brainstorm',
-    galleryRoute: '/brainstorm',
+    name: 'dream',
+    icon: 'kind-icon:moon',
+    label: 'Dreams',
+    addRoute: '/dreams',
+    galleryRoute: '/dreams',
   },
   {
     name: 'art',

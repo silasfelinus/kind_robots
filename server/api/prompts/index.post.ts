@@ -11,7 +11,6 @@ type PromptCreateBody = Partial<Prompt> & {
 
 function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
   const numericValue = Number(value)
-
   return Number.isInteger(numericValue) && numericValue > 0
     ? numericValue
     : undefined
@@ -19,11 +18,10 @@ function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
 
 async function assertRelatedRecordsExist(options: {
   userId: number
-  pitchId?: number
   botId?: number
   artImageId?: number
 }) {
-  const { userId, pitchId, botId, artImageId } = options
+  const { userId, botId, artImageId } = options
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -35,20 +33,6 @@ async function assertRelatedRecordsExist(options: {
       statusCode: 404,
       message: `User ID not found: ${userId}.`,
     })
-  }
-
-  if (pitchId) {
-    const pitch = await prisma.pitch.findUnique({
-      where: { id: pitchId },
-      select: { id: true },
-    })
-
-    if (!pitch) {
-      throw createError({
-        statusCode: 404,
-        message: `Pitch ID not found: ${pitchId}.`,
-      })
-    }
   }
 
   if (botId) {
@@ -122,13 +106,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const pitchId = getPositiveIntegerOrUndefined(promptData.pitchId)
     const botId = getPositiveIntegerOrUndefined(promptData.botId)
     const artImageId = getPositiveIntegerOrUndefined(promptData.artImageId)
 
     await assertRelatedRecordsExist({
       userId,
-      pitchId,
       botId,
       artImageId,
     })
@@ -139,17 +121,17 @@ export default defineEventHandler(async (event) => {
 
     const createData: Prisma.PromptCreateInput = {
       prompt: promptData.prompt.trim(),
+      artPrompt:
+        typeof promptData.artPrompt === 'string'
+          ? promptData.artPrompt.trim()
+          : undefined,
       creationSource: resolvedSource as any,
+      isMature: promptData.isMature ?? false,
       isPublic: promptData.isPublic ?? false,
       isActive: promptData.isActive ?? true,
       User: {
         connect: { id: userId },
       },
-      Pitch: pitchId
-        ? {
-            connect: { id: pitchId },
-          }
-        : undefined,
       Bot: botId
         ? {
             connect: { id: botId },
@@ -170,13 +152,6 @@ export default defineEventHandler(async (event) => {
             id: true,
             username: true,
             Role: true,
-          },
-        },
-        Pitch: {
-          select: {
-            id: true,
-            title: true,
-            pitch: true,
           },
         },
         Bot: {

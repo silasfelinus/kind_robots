@@ -76,14 +76,13 @@ export type TutorialChannel = {
 // Channels where user creations participate in the profit-share model: when
 // other people spend paid tokens interacting with your work, a share comes
 // back to you. Applies to scenarios, characters, locations (dreams), rewards,
-// bots, and pitches (brainstorm).
+// bots, and dreams (including brainstorm seeds).
 export const EARNING_CHANNELS = [
   'scenario',
   'character',
   'dream',
   'reward',
   'bot',
-  'brainstorm',
 ] as const satisfies readonly FooterKey[]
 
 export type EarningChannelKey = (typeof EARNING_CHANNELS)[number]
@@ -159,58 +158,33 @@ export const tutorialChannels = {
     ],
   },
 
-  brainstorm: {
-    key: 'brainstorm',
-    title: 'Brainstorm',
-    tagline: 'Catch loose ideas before they escape into the walls.',
-    overview:
-      'A text-based idea generator for fleshing out big-picture concepts. ' +
-      'Start with a pitch, run the brainstorm game to generate and refine ' +
-      'ideas from it, and keep your sharpest prompts in one place.',
-    earnings: CREATOR_EARNINGS_MESSAGE,
-    sections: [
-      {
-        key: 'pitches',
-        title: 'Pitch Gallery',
-        body: 'Catch big-picture ideas, then sort, edit, and grow them into worlds worth building. A pitch can join the profit share, so a popular one can earn you a cut of paid usage.',
-        image: tutorialImage('brainstorm', 'pitches'),
-      },
-      {
-        key: 'prompts',
-        title: 'Prompt Gallery',
-        body: 'Browse your own prompt history alongside prompts the community has shared publicly. A reusable library of language tools instead of a scattered sticky-note swamp.',
-        image: tutorialImage('brainstorm', 'prompts'),
-      },
-      {
-        key: 'brainstorm',
-        title: 'Brainstorm Game',
-        body: 'Start from a pitch and let the brainstorm engine generate ideas, then refine them turn by turn until the concept actually holds together.',
-        image: tutorialImage('brainstorm', 'brainstorm'),
-      },
-    ],
-  },
-
   dream: {
     key: 'dream',
-    title: 'Locations',
-    tagline: 'Explore imagined places and dreamscapes.',
+    title: 'Dreams',
+    tagline: 'Explore imagined places, dreamscapes, and story seeds.',
     overview:
-      'A location - internally, a dream - is a vibe: a setting that inspires ' +
-      'additional art and text. Browse the gallery, expand a world, or create ' +
-      'your own dreamscapes for stories to happen in.',
+      'Dreams are collaborative places, story seeds, and weird little worlds ' +
+      'that can inspire chat, art, scenarios, and future story material. Browse ' +
+      'the gallery, expand a world, or create your own dreamscapes.',
     earnings: CREATOR_EARNINGS_MESSAGE,
     sections: [
       {
         key: 'dreams',
-        title: 'Location Gallery',
-        body: 'Browse collaborative locations, pick a world to expand, clone an interesting seed, or quietly retire the portals that did not work out.',
+        title: 'Dream Gallery',
+        body: 'Browse collaborative dreams, pick a world to expand, chat inside it, generate art around it, clone an interesting seed, or quietly retire the portals that did not work out.',
         image: tutorialImage('dream', 'dreams'),
       },
       {
-        key: 'add',
-        title: 'Add / Edit',
-        body: 'Create a new location or revise an existing one with the right vibe, description, and coordinates. Locations join the profit share, so a place people keep building on can earn you a cut.',
+        key: 'dreammaker',
+        title: 'Dreammaker',
+        body: 'Create a new dream or revise an existing one with the right title, idea, description, art hooks, and story coordinates. Dreams join the profit share, so a place people keep building on can earn you a cut.',
         image: tutorialImage('dream', 'add'),
+      },
+      {
+        key: 'brainstorm',
+        title: 'Dream Brainstorm',
+        body: 'Start with an idea, generate riffs on the concept, accept the good ones, reject the goblins, and save the survivors as reusable dream seeds.',
+        image: tutorialImage('dream', 'brainstorm'),
       },
     ],
   },
@@ -391,7 +365,7 @@ export const tutorialChannels = {
     tagline: 'One flow to build everything.',
     overview:
       'The Builder is a single guided flow for creating all your building ' +
-      'blocks - pitches, dreams, characters, bots, rewards, scenarios, and ' +
+      'blocks - dream seeds, dreams, characters, bots, rewards, scenarios, and ' +
       'art - using the builder card system to move through each step in a ' +
       'simple GUI. Start small, stack boldly.',
     earnings: CREATOR_EARNINGS_MESSAGE,
@@ -399,7 +373,7 @@ export const tutorialChannels = {
       {
         key: 'builder',
         title: 'Builder Cards',
-        body: 'Move through a card-driven flow to create pitches, dreams, characters, bots, rewards, scenarios, and art - all from one place, no juggling required. Many of these creations can join the profit share once they are out in the world.',
+        body: 'Move through a card-driven flow to create dream seeds, dreams, characters, bots, rewards, scenarios, and art - all from one place, no juggling required. Many of these creations can join the profit share once they are out in the world.',
         image: tutorialImage('builder', 'builder'),
       },
     ],

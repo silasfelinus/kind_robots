@@ -13,7 +13,6 @@ type CharacterCreateBody = Partial<Character> & {
   rewardIds?: number[]
   scenarioIds?: number[]
   dreamIds?: number[]
-  pitchIds?: number[]
 }
 
 const fallbackRarity: Rarity = 'COMMON'

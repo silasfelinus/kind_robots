@@ -134,7 +134,6 @@ export default defineEventHandler(async (event) => {
       isMature: getBooleanField(form, 'isMature', false),
       botId: getNumberField(form, 'botId'),
       characterId: getNumberField(form, 'characterId'),
-      pitchId: getNumberField(form, 'pitchId'),
       promptId: getNumberField(form, 'promptId'),
       resourceId: getNumberField(form, 'resourceId'),
       rewardId: getNumberField(form, 'rewardId'),

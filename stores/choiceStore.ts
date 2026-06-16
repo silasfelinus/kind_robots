@@ -28,7 +28,7 @@ type SupportedModel =
   | 'Character'
   | 'Bot'
   | 'Scenario'
-  | 'Pitch'
+  | 'Dream'
   | 'Reward'
   | 'Chat'
   | 'Blueprint'

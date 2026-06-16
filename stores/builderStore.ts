@@ -244,10 +244,8 @@ export const useBuilderStore = defineStore('builderStore', () => {
             ? 'scenario'
             : config.modelType === 'reward'
               ? 'reward'
-              : config.modelType === 'pitch'
-                ? 'pitch'
-                : config.modelType === 'dream'
-                  ? 'dream'
+              : config.modelType === 'dream'
+                ? 'dream'
                   : 'builder')
 
     const artImageRole =
@@ -258,10 +256,8 @@ export const useBuilderStore = defineStore('builderStore', () => {
           ? 'scene'
           : artPurpose === 'reward'
             ? 'object'
-            : artPurpose === 'pitch'
-              ? 'cover'
-              : artPurpose === 'dream'
-                ? 'world'
+            : artPurpose === 'dream'
+              ? 'world'
                 : 'builder')
 
     return {

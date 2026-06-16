@@ -21,7 +21,6 @@ type ArtImageConnectionBody = {
   botId?: number | null
   componentId?: number | null
   milestoneId?: number | null
-  pitchId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
@@ -32,6 +31,7 @@ type ArtImageConnectionBody = {
   serverId?: number | null
   checkpointResourceId?: number | null
 
+  dreamId?: number | null
   dreamIds?: number[]
   scenarioIds?: number[]
   reactionIds?: number[]
@@ -40,13 +40,13 @@ type ArtImageConnectionBody = {
   botIds?: number[]
   componentIds?: number[]
   milestoneIds?: number[]
-  pitchIds?: number[]
   promptIds?: number[]
   resourceIds?: number[]
   rewardIds?: number[]
   chatIds?: number[]
   characterIds?: number[]
 
+  disconnectDreamId?: number | null
   disconnectDreamIds?: number[]
   disconnectScenarioIds?: number[]
   disconnectReactionIds?: number[]
@@ -55,7 +55,6 @@ type ArtImageConnectionBody = {
   disconnectBotIds?: number[]
   disconnectComponentIds?: number[]
   disconnectMilestoneIds?: number[]
-  disconnectPitchIds?: number[]
   disconnectPromptIds?: number[]
   disconnectResourceIds?: number[]
   disconnectRewardIds?: number[]
@@ -71,7 +70,6 @@ type ArtImageConnectionBody = {
   clearBots?: boolean
   clearComponents?: boolean
   clearMilestones?: boolean
-  clearPitches?: boolean
   clearPrompts?: boolean
   clearResources?: boolean
   clearRewards?: boolean
@@ -88,7 +86,6 @@ type ListConnectionKey =
   | 'Scenarios'
   | 'Dreams'
   | 'Reactions'
-  | 'Pitches'
   | 'Prompts'
   | 'Rewards'
   | 'Resources'
@@ -267,13 +264,6 @@ export default defineEventHandler(async (event) => {
       Boolean(body.clearMilestones),
     )
 
-    addListConnection(
-      data,
-      'Pitches',
-      mergeIds(body.pitchIds, body.pitchId ? [body.pitchId] : []),
-      cleanIds(body.disconnectPitchIds),
-      Boolean(body.clearPitches),
-    )
 
     addListConnection(
       data,
@@ -318,8 +308,8 @@ export default defineEventHandler(async (event) => {
     addListConnection(
       data,
       'Dreams',
-      cleanIds(body.dreamIds),
-      cleanIds(body.disconnectDreamIds),
+      mergeIds(body.dreamIds, body.dreamId ? [body.dreamId] : []),
+      mergeIds(body.disconnectDreamIds, body.disconnectDreamId ? [body.disconnectDreamId] : []),
       Boolean(body.clearDreams),
     )
 

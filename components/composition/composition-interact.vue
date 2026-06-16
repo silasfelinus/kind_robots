@@ -277,7 +277,7 @@ type CompositionMode = 'narrative' | 'art' | 'both'
 
 type StatusTone = 'success' | 'error'
 
-type IngredientSlot = 'character' | 'dream' | 'scenario' | 'pitch' | 'reward'
+type IngredientSlot = 'character' | 'dream' | 'scenario' | 'reward'
 
 const compositionStore = useCompositionStore()
 

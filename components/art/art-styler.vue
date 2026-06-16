@@ -1210,7 +1210,6 @@ watch(sourceTab, async (tab) => {
         force: false,
         includeImageData: false,
         includeThumbnailData: false,
-        includePitches: false,
       })
     } finally {
       isLoadingGallery.value = false

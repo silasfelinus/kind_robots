@@ -7,7 +7,7 @@ import {
   type RequestData,
   validateAndLoadArtCollectionId,
   validateAndLoadDesignerName,
-  validateAndLoadPitchId,
+  validateAndLoadDreamIds,
   validateAndLoadPromptId,
   validateAndLoadUserId,
 } from '.'
@@ -86,20 +86,15 @@ export default defineEventHandler(async (event) => {
       validatedData,
     )
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
-
-    const requestDataWithPitch = {
-      ...requestData,
-      pitchId: validatedData.pitchId,
-    }
-
     validatedData.promptId = await validateAndLoadPromptId(
-      requestDataWithPitch,
+      requestData,
       validatedData,
     )
 
     validatedData.artCollectionId =
-      await validateAndLoadArtCollectionId(requestDataWithPitch)
+      await validateAndLoadArtCollectionId(requestData)
+
+    const dreamIds = await validateAndLoadDreamIds(requestData)
 
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
@@ -111,11 +106,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!server.isActive) {
-  throw createError({
-    statusCode: 400,
-    message: `Server "${server.title}" is not active.`,
-  })
-}
+      throw createError({
+        statusCode: 400,
+        message: `Server "${server.title}" is not active.`,
+      })
+    }
     const rawCfg = Number(requestData.cfg)
 
     const cfgValue = calculateCfg(
@@ -176,11 +171,9 @@ export default defineEventHandler(async (event) => {
               },
             }
           : undefined,
-        Pitches: validatedData.pitchId
+        Dreams: dreamIds.length
           ? {
-              connect: {
-                id: validatedData.pitchId,
-              },
+              connect: dreamIds.map((id) => ({ id })),
             }
           : undefined,
       },

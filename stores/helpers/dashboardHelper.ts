@@ -175,18 +175,18 @@ export const dashboardConfigs = {
   brainstorm: {
     key: 'brainstorm',
     label: 'Brainstorm',
-    defaultTab: 'pitches',
+    defaultTab: 'brainstorm',
     tabs: [
       {
-        key: 'pitches',
-        label: 'Pitches',
-        icon: 'kind-icon:idea',
-        title: 'Pitch Gallery',
-        summary: 'Browse, select, add, edit, and delete big-picture ideas.',
-        image: tabImage('brainstorm', 'pitches'),
+        key: 'brainstorm',
+        label: 'Brainstorm!',
+        icon: 'kind-icon:brain',
+        title: 'Dream Brainstorm',
+        summary: 'Start with a pitch and generate riffs on the concept.',
+        image: tabImage('brainstorm', 'brainstorm'),
         narrative:
-          'Catch big-picture ideas before they escape into the walls, then sort, edit, and grow them into worlds worth building.',
-        route: '/brainstorm',
+          'Feed the text server a dream pitch, generate fresh riffs, accept the good ones, reject the goblins, and turn the survivors into reusable dream seeds.',
+        route: '/dreams',
       },
       {
         key: 'prompts',
@@ -207,20 +207,6 @@ export const dashboardConfigs = {
     label: 'Builder',
     defaultTab: 'character',
     tabs: [
-      {
-        key: 'pitch',
-        label: 'Pitch',
-        icon: 'kind-icon:idea',
-        title: 'Pitch Builder',
-        summary:
-          'Start with the big-picture idea. A pitch is the seed, not the whole haunted botanical garden.',
-        image: tabImage('builder', 'pitch'),
-        narrative:
-          'Shape the big-picture idea first. A pitch is the seed, not the whole haunted botanical garden, and seeds matter.',
-        modelType: 'pitch',
-        route: '/brainstorm',
-        requiredBeforeNext: ['title', 'pitch'],
-      },
       {
         key: 'dream',
         label: 'Dream',
@@ -447,7 +433,7 @@ export const dashboardConfigs = {
         flourish: '▣',
         tagline: 'Build people, places, bots, rewards, and story fuel.',
         narrative:
-          'Build the pieces of your world from reusable cards: profiles, pitches, dreams, characters, bots, rewards, scenarios, and art. Start small, stack boldly, and let the tiny construction goblins unionize later.',
+          'Build the pieces of your world from reusable cards: profiles, dream seeds, characters, bots, rewards, scenarios, and art. Start small, stack boldly, and let the tiny construction goblins unionize later.',
         route: '/builder',
       },
       {

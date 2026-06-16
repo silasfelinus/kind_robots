@@ -356,7 +356,6 @@ function portIcon(type: CodeDataType) {
     video: 'kind-icon:video',
     character: 'kind-icon:mask',
     dream: 'kind-icon:moon',
-    pitch: 'kind-icon:brain',
     prompt: 'kind-icon:prompt',
     bot: 'kind-icon:robot-color',
     reward: 'kind-icon:treasure',

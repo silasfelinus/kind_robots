@@ -8,7 +8,7 @@ import {
   type RequestData,
   validateAndLoadArtCollectionId,
   validateAndLoadDesignerName,
-  validateAndLoadPitchId,
+  validateAndLoadDreamIds,
   validateAndLoadPromptId,
   validateAndLoadUserId,
 } from '.'
@@ -115,20 +115,15 @@ export default defineEventHandler(async (event) => {
       validatedData,
     )
 
-    validatedData.pitchId = await validateAndLoadPitchId(normalizedRequestData)
-
-    const requestDataWithPitch = {
-      ...normalizedRequestData,
-      pitchId: validatedData.pitchId,
-    }
-
     validatedData.promptId = await validateAndLoadPromptId(
-      requestDataWithPitch,
+      normalizedRequestData,
       validatedData,
     )
 
     validatedData.artCollectionId =
-      await validateAndLoadArtCollectionId(requestDataWithPitch)
+      await validateAndLoadArtCollectionId(normalizedRequestData)
+
+    const dreamIds = await validateAndLoadDreamIds(normalizedRequestData)
 
     validatedData.designer = validateAndLoadDesignerName(normalizedRequestData)
 
@@ -216,6 +211,7 @@ export default defineEventHandler(async (event) => {
       imageId: savedImage.id,
       requestData: normalizedRequestData,
       validatedData,
+      dreamIds,
       server,
       cfgValue,
       steps,
@@ -305,6 +301,7 @@ async function updateGeneratedArtImage(input: {
   imageId: number
   requestData: ServerAwareRequestData
   validatedData: Partial<RequestData>
+  dreamIds: number[]
   server: Server
   cfgValue: number
   steps: number
@@ -323,6 +320,7 @@ async function updateGeneratedArtImage(input: {
     imageId,
     requestData,
     validatedData,
+    dreamIds,
     server,
     cfgValue,
     steps,
@@ -366,11 +364,9 @@ async function updateGeneratedArtImage(input: {
             },
           }
         : undefined,
-      Pitches: validatedData.pitchId
+      Dreams: dreamIds.length
         ? {
-            connect: {
-              id: validatedData.pitchId,
-            },
+            connect: dreamIds.map((id) => ({ id })),
           }
         : undefined,
       ArtCollections: validatedData.artCollectionId

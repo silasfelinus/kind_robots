@@ -82,7 +82,7 @@
 
         <p class="mt-2 max-w-md text-sm leading-relaxed text-base-content/60">
           Pick a builder tab to start shaping a character, bot, reward,
-          scenario, dream, pitch, or art project.
+          scenario, dream, or art project.
         </p>
       </div>
     </main>

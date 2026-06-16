@@ -174,38 +174,6 @@
             </label>
           </div>
 
-          <!-- Pitch / Concept -->
-          <div
-            class="ingredient-slot rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
-            <div class="mb-2 flex items-center gap-2">
-              <Icon name="kind-icon:lightbulb" class="h-5 w-5 text-primary" />
-              <span class="font-bold text-base-content">Concept (Pitch)</span>
-            </div>
-            <label class="form-control mb-2">
-              <span class="label-text text-xs text-base-content/60"
-                >Link a saved pitch</span
-              >
-              <input
-                v-model.number="compositionStore.form.pitchId"
-                type="number"
-                placeholder="Pitch ID (optional)"
-                class="input input-bordered input-sm w-full bg-base-100"
-                min="1"
-              />
-            </label>
-            <label class="form-control">
-              <span class="label-text text-xs text-base-content/60"
-                >Or describe freeform</span
-              >
-              <textarea
-                v-model="compositionStore.form.pitchBlurb"
-                placeholder="e.g. 'Folk-horror with a hopeful ending...'"
-                class="textarea textarea-bordered textarea-sm min-h-20 w-full bg-base-100 text-sm"
-              />
-            </label>
-          </div>
-
           <!-- Reward / Loot -->
           <div
             class="ingredient-slot rounded-2xl border border-base-300 bg-base-200 p-3 lg:col-span-2"
@@ -399,12 +367,10 @@ async function saveComposition() {
     compositionStore.form.characterId ||
     compositionStore.form.dreamId ||
     compositionStore.form.scenarioId ||
-    compositionStore.form.pitchId ||
     compositionStore.form.rewardId ||
     compositionStore.form.characterBlurb?.trim() ||
     compositionStore.form.dreamBlurb?.trim() ||
     compositionStore.form.scenarioBlurb?.trim() ||
-    compositionStore.form.pitchBlurb?.trim() ||
     compositionStore.form.rewardBlurb?.trim()
 
   if (!hasIngredient) {

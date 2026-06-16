@@ -30,7 +30,6 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'COMPONENT',
   'DREAM',
   'MESSAGE',
-  'PITCH',
   'POST',
   'PROMPT',
   'RESOURCE',
@@ -48,7 +47,6 @@ export type ReactionTargetType =
   | 'chat'
   | 'component'
   | 'dream'
-  | 'pitch'
   | 'prompt'
   | 'resource'
   | 'reward'
@@ -66,7 +64,6 @@ type ReactionTargetIdKey =
   | 'chatId'
   | 'componentId'
   | 'dreamId'
-  | 'pitchId'
   | 'promptId'
   | 'resourceId'
   | 'rewardId'
@@ -87,7 +84,6 @@ type AddReactionPayload = {
   chatId?: number | null
   componentId?: number | null
   dreamId?: number | null
-  pitchId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
@@ -110,7 +106,6 @@ const targetIdKeyMap: Record<ReactionTargetType, ReactionTargetIdKey> = {
   chat: 'chatId',
   component: 'componentId',
   dream: 'dreamId',
-  pitch: 'pitchId',
   prompt: 'promptId',
   resource: 'resourceId',
   reward: 'rewardId',

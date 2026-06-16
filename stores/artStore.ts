@@ -48,7 +48,7 @@ type ArtImageFetchOptions = {
   force?: boolean
   includeImageData?: boolean
   includeThumbnailData?: boolean
-  includePitches?: boolean
+  includeDreams?: boolean
 }
 
 interface ArtImageGenerationRoute {
@@ -109,8 +109,6 @@ export interface GenerateArtData {
   serverSelectionMode?: ArtServerSelectionMode
 
   userId?: number | null
-  promptId?: number | null
-  pitchId?: number | null
 
   checkpoint?: string
   sampler?: string
@@ -164,14 +162,12 @@ type ArtImageConnectionInput = {
   dreamIds?: number[]
   scenarioIds?: number[]
   reactionIds?: number[]
-  pitchIds?: number[]
   butterflyIds?: number[]
   artCollectionIds?: number[]
 
   disconnectDreamIds?: number[]
   disconnectScenarioIds?: number[]
   disconnectReactionIds?: number[]
-  disconnectPitchIds?: number[]
   disconnectButterflyIds?: number[]
   disconnectArtCollectionIds?: number[]
 
@@ -179,7 +175,6 @@ type ArtImageConnectionInput = {
   clearDreams?: boolean
   clearScenarios?: boolean
   clearReactions?: boolean
-  clearPitches?: boolean
   clearButterflies?: boolean
   clearArtCollections?: boolean
 }
@@ -347,8 +342,6 @@ export const useArtStore = defineStore('artStore', () => {
       isMature: false,
       isPublic: true,
       seed: null,
-      promptId: null,
-      pitchId: null,
       serverId: null,
       serverName: null,
       engine: undefined,
@@ -451,8 +444,6 @@ export const useArtStore = defineStore('artStore', () => {
         !record.botId &&
         !record.componentId &&
         !record.milestoneId &&
-        !record.pitchId &&
-        !record.promptId &&
         !record.resourceId &&
         !record.rewardId &&
         !record.chatId &&
@@ -792,8 +783,6 @@ export const useArtStore = defineStore('artStore', () => {
       isMature: false,
       isPublic: true,
       seed: null,
-      promptId: null,
-      pitchId: null,
       serverId: null,
       serverName: null,
       generationRequirement: undefined,
@@ -859,7 +848,7 @@ export const useArtStore = defineStore('artStore', () => {
             force: Boolean(options.force),
             includeImageData: false,
             includeThumbnailData: false,
-            includePitches: false,
+            includeDreams: false,
           })
         }
 
@@ -893,8 +882,8 @@ export const useArtStore = defineStore('artStore', () => {
       params.set('includeThumbnailData', 'true')
     }
 
-    if (options.includePitches) {
-      params.set('includePitches', 'true')
+    if (options.includeDreams) {
+      params.set('includeDreams', 'true')
     }
 
     const query = params.toString()
@@ -911,7 +900,7 @@ export const useArtStore = defineStore('artStore', () => {
     const withOptionalData = image as ArtImage & {
       imageData?: string | null
       thumbnailData?: string | null
-      Pitches?: unknown[]
+      Dreams?: unknown[]
     }
 
     if (options.includeImageData && !withOptionalData.imageData) return false
@@ -924,8 +913,8 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     if (
-      options.includePitches &&
-      typeof withOptionalData.Pitches === 'undefined'
+      options.includeDreams &&
+      typeof withOptionalData.Dreams === 'undefined'
     ) {
       return false
     }
@@ -940,7 +929,7 @@ export const useArtStore = defineStore('artStore', () => {
       force: options.force,
       includeImageData: false,
       includeThumbnailData: false,
-      includePitches: false,
+      includeDreams: false,
     }
 
     if (!listOptions.force && state.artImages.length) {
@@ -1357,20 +1346,20 @@ export const useArtStore = defineStore('artStore', () => {
     })
   }
 
-  async function fetchArtImageWithPitches(
+  async function fetchArtImageWithDreams(
     id: number,
   ): Promise<ArtImage | undefined> {
     return await getArtImageById(id, {
-      includePitches: true,
+      includeDreams: true,
     })
   }
 
-  async function updateArtImagePitches(
+  async function updateArtImageDreams(
     id: number,
-    pitchIds: number[],
+    dreamIds: number[],
   ): Promise<ApiResponse<ArtImage>> {
     return await updateArtImageConnections(id, {
-      pitchIds,
+      dreamIds,
     })
   }
 
@@ -2192,8 +2181,6 @@ export const useArtStore = defineStore('artStore', () => {
       isMature: artData?.isMature ?? state.artForm.isMature ?? false,
       isPublic: artData?.isPublic ?? state.artForm.isPublic ?? true,
       seed: artData?.seed ?? state.artForm.seed ?? null,
-      promptId: artData?.promptId ?? state.artForm.promptId ?? null,
-      pitchId: artData?.pitchId ?? state.artForm.pitchId ?? null,
       serverId: explicitServerIdProvided ? (artData?.serverId ?? null) : null,
 
       serverName: explicitServerNameProvided
@@ -2480,8 +2467,8 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtImageConnections,
     updateArtImage,
     createArtImage,
-    updateArtImagePitches,
-    fetchArtImageWithPitches,
+    updateArtImageDreams,
+    fetchArtImageWithDreams,
 
     showMature,
     generationServers,

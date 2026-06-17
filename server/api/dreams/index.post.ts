@@ -8,6 +8,16 @@ import type {
   DreamType,
   Prisma,
 } from '~/prisma/generated/prisma/client'
+import {
+  dreamInclude,
+  normalizeCreationSource,
+  normalizeDreamType,
+  normalizeIdArray,
+  normalizeNullableId,
+  normalizeOptionalText,
+  normalizeScenarioIds,
+  normalizeSlug,
+} from './index'
 
 type DreamCreateBody = {
   title?: string
@@ -38,123 +48,6 @@ type DreamCreateBody = {
   createCollection?: boolean
 }
 
-const dreamTypes: DreamType[] = [
-  'ARTDREAM',
-  'BRAINSTORM',
-  'WEIRDLANDIA',
-  'RANDOMLIST',
-  'TITLE',
-  'VIBE',
-  'BOT',
-  'INSPIRATION',
-  'CHARACTER',
-  'REWARD',
-  'SCENARIO',
-  'TEXT',
-  'LOCATION',
-  'PITCH',
-  'GENRE',
-]
-
-const dreamInclude = {
-  User: {
-    select: {
-      id: true,
-      username: true,
-      avatarImage: true,
-    },
-  },
-  ArtImage: {
-    select: {
-      id: true,
-      fileName: true,
-      fileType: true,
-      imagePath: true,
-      path: true,
-      artPrompt: true,
-      promptString: true,
-      userId: true,
-      isPublic: true,
-      isMature: true,
-    },
-  },
-  ArtCollection: true,
-  Scenarios: true,
-  Characters: true,
-  Rewards: true,
-} satisfies Prisma.DreamInclude
-
-function normalizeNullableId(value: unknown): number | null | undefined {
-  if (value === null) return null
-  if (value === undefined || value === '') return undefined
-
-  const parsed = Number(value)
-
-  if (!Number.isInteger(parsed) || parsed <= 0) return undefined
-
-  return parsed
-}
-
-function normalizeIdArray(value: unknown): number[] | undefined {
-  if (!Array.isArray(value)) return undefined
-
-  const ids = value.map(Number).filter((id) => Number.isInteger(id) && id > 0)
-
-  return Array.from(new Set(ids))
-}
-
-function normalizeDreamType(value: unknown): DreamType {
-  return dreamTypes.includes(value as DreamType)
-    ? (value as DreamType)
-    : 'ARTDREAM'
-}
-
-const creationSources: CreationSource[] = [
-  'HUMAN',
-  'AI',
-  'HYBRID',
-  'UPLOAD',
-  'UNKNOWN',
-]
-
-function normalizeCreationSource(value: unknown): CreationSource {
-  return creationSources.includes(value as CreationSource)
-    ? (value as CreationSource)
-    : 'HUMAN'
-}
-
-function normalizeSlug(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
-}
-
-function normalizeOptionalText(value: unknown): string | null {
-  if (typeof value !== 'string') return null
-
-  const trimmed = value.trim()
-
-  return trimmed || null
-}
-
-function normalizeScenarioIds(body: DreamCreateBody): number[] | undefined {
-  const scenarioIds = normalizeIdArray(body.scenarioIds)
-
-  if (scenarioIds !== undefined) return scenarioIds
-
-  const legacyScenarios = normalizeIdArray(body.Scenarios)
-
-  if (legacyScenarios !== undefined) return legacyScenarios
-
-  const scenarioId = normalizeNullableId(body.scenarioId)
-
-  if (scenarioId) return [scenarioId]
-
-  return undefined
-}
-
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
@@ -167,7 +60,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<DreamCreateBody>(event)
-
     const title = body.title?.trim()
 
     if (!title) {
@@ -183,13 +75,13 @@ export default defineEventHandler(async (event) => {
     })
 
     const sender = userRecord?.username || `User ${user.id}`
-
     const slug = body.slug?.trim()
       ? normalizeSlug(body.slug)
       : normalizeSlug(title)
 
     const isPublic = body.isPublic ?? true
     const isMature = body.isMature ?? false
+    const isActive = body.isActive ?? true
 
     const artImageId = normalizeNullableId(body.artImageId)
     let artCollectionId = normalizeNullableId(body.artCollectionId)
@@ -220,18 +112,18 @@ export default defineEventHandler(async (event) => {
       slug,
       dreamType: normalizeDreamType(body.dreamType),
       creationSource: normalizeCreationSource(body.creationSource),
-      description: normalizeOptionalText(body.description),
-      pitch: normalizeOptionalText(body.pitch),
-      flavorText: normalizeOptionalText(body.flavorText),
-      examples: normalizeOptionalText(body.examples),
-      artPrompt: normalizeOptionalText(body.artPrompt),
-      imagePath: normalizeOptionalText(body.imagePath),
-      highlightImage: normalizeOptionalText(body.highlightImage),
-      icon: normalizeOptionalText(body.icon),
+      description: normalizeOptionalText(body.description) ?? null,
+      pitch: normalizeOptionalText(body.pitch) ?? null,
+      flavorText: normalizeOptionalText(body.flavorText) ?? null,
+      examples: normalizeOptionalText(body.examples) ?? null,
+      artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
+      imagePath: normalizeOptionalText(body.imagePath) ?? null,
+      highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
+      icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
       designer: normalizeOptionalText(body.designer) ?? sender,
       isPublic,
       isMature,
-      isActive: body.isActive ?? true,
+      isActive,
       User: {
         connect: { id: user.id },
       },
@@ -291,6 +183,17 @@ export default defineEventHandler(async (event) => {
       include: dreamInclude,
     })
 
+    if (data.artImageId && data.artCollectionId) {
+      await prisma.artCollection.update({
+        where: { id: data.artCollectionId },
+        data: {
+          ArtImages: {
+            connect: { id: data.artImageId },
+          },
+        },
+      })
+    }
+
     await prisma.chat.create({
       data: {
         type: 'Dream',
@@ -316,13 +219,15 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
       message: handled.message || 'Failed to create dream.',
       data: null,
-      statusCode: event.node.res.statusCode,
+      statusCode,
     }
   }
 })

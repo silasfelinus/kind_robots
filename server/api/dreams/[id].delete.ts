@@ -3,24 +3,10 @@ import { defineEventHandler, createError, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { H3Event } from 'h3'
-import { assertDreamAccess } from './index'
-
-function getDreamId(event: H3Event): number {
-  const id = Number(event.context.params?.id)
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw createError({
-      statusCode: 400,
-      message: 'Invalid Dream ID. It must be a positive integer.',
-    })
-  }
-
-  return id
-}
+import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
 function parseBoolean(value: unknown): boolean {
-  return value === true || value === 'true'
+  return value === true || value === 'true' || value === '1'
 }
 
 export default defineEventHandler(async (event) => {
@@ -92,38 +78,7 @@ export default defineEventHandler(async (event) => {
         data: {
           isActive: false,
         },
-        include: {
-          User: {
-            select: {
-              id: true,
-              username: true,
-              avatarImage: true,
-            },
-          },
-          ArtImage: {
-            select: {
-              id: true,
-              fileName: true,
-              fileType: true,
-              imagePath: true,
-              createdAt: true,
-              updatedAt: true,
-              userId: true,
-            },
-          },
-          ArtCollection: true,
-          Scenarios: true,
-          Characters: true,
-          Rewards: true,
-          _count: {
-            select: {
-              Chats: true,
-              Reactions: true,
-              Characters: true,
-              Rewards: true,
-            },
-          },
-        },
+        include: dreamInclude,
       })
 
       await prisma.chat.create({
@@ -142,6 +97,7 @@ export default defineEventHandler(async (event) => {
       })
 
       event.node.res.statusCode = 200
+
       return {
         success: true,
         message: `Dream "${dream.title}" archived successfully by ${actor}.`,
@@ -151,7 +107,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const data = await prisma.$transaction(async (tx) => {
-      // Detach chats from the dream before deletion (chats are kept).
       await tx.chat.updateMany({
         where: { dreamId: id },
         data: { dreamId: null },
@@ -164,6 +119,7 @@ export default defineEventHandler(async (event) => {
       await tx.dream.update({
         where: { id },
         data: {
+          Scenarios: { set: [] },
           Characters: { set: [] },
           Rewards: { set: [] },
           ArtImages: { set: [] },
@@ -177,6 +133,7 @@ export default defineEventHandler(async (event) => {
     })
 
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: `Dream "${dream.title}" permanently deleted by ${actor}.`,
@@ -185,13 +142,15 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
       message: handled.message || `Failed to delete Dream with ID ${id}.`,
       data: null,
-      statusCode: event.node.res.statusCode,
+      statusCode,
     }
   }
 })

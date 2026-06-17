@@ -3,21 +3,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { H3Event } from 'h3'
-import { assertDreamAccess } from './index'
-
-function getDreamId(event: H3Event): number {
-  const id = Number(event.context.params?.id)
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw createError({
-      statusCode: 400,
-      message: 'Invalid Dream ID. It must be a positive integer.',
-    })
-  }
-
-  return id
-}
+import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
 export default defineEventHandler(async (event) => {
   let id = 0
@@ -31,101 +17,7 @@ export default defineEventHandler(async (event) => {
 
     const data = await prisma.dream.findUnique({
       where: { id },
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            avatarImage: true,
-          },
-        },
-        ArtImage: {
-          select: {
-            id: true,
-            fileName: true,
-            fileType: true,
-            imagePath: true,
-            path: true,
-            artPrompt: true,
-            promptString: true,
-            userId: true,
-            isPublic: true,
-            isMature: true,
-          },
-        },
-        ArtCollection: {
-          select: {
-            id: true,
-            label: true,
-            description: true,
-            imagePath: true,
-            isPublic: true,
-            isMature: true,
-            isActive: true,
-            artPrompt: true,
-          },
-        },
-        Scenarios: true,
-        Characters: {
-          select: {
-            id: true,
-            name: true,
-            honorific: true,
-            title: true,
-            role: true,
-            species: true,
-            class: true,
-            gender: true,
-            presentation: true,
-            alignment: true,
-            genre: true,
-            personality: true,
-            drive: true,
-            backstory: true,
-            quirks: true,
-            imagePath: true,
-            artImageId: true,
-            artPrompt: true,
-            isPublic: true,
-            isMature: true,
-            userId: true,
-          },
-          orderBy: {
-            updatedAt: 'desc',
-          },
-        },
-        Rewards: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            flavorText: true,
-            effect: true,
-            icon: true,
-            collection: true,
-            rarity: true,
-            rewardType: true,
-            userId: true,
-            artImageId: true,
-            imagePath: true,
-            artPrompt: true,
-            isPublic: true,
-            isMature: true,
-            isActive: true,
-          },
-          orderBy: {
-            updatedAt: 'desc',
-          },
-        },
-        _count: {
-          select: {
-            Chats: true,
-            Reactions: true,
-            Characters: true,
-            Rewards: true,
-          },
-        },
-      },
+      include: dreamInclude,
     })
 
     if (!data) {
@@ -152,13 +44,15 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
       message: handled.message || `Failed to fetch Dream with ID ${id}.`,
       data: null,
-      statusCode: event.node.res.statusCode,
+      statusCode,
     }
   }
 })

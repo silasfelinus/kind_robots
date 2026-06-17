@@ -362,6 +362,7 @@
           :allow-edit="allowEdit"
           :allow-clone="allowClone"
           :allow-delete="allowDelete"
+          image-fit="contain"
           @edit="startEditingCharacterById"
           @clone="cloneCharacterById"
           @delete="handleCharacterDeleted"
@@ -412,7 +413,7 @@ const props = withDefaults(
     showCardActions: true,
     showDescriptions: true,
     showMeta: true,
-    showStats: true,
+    showStats: false,
     showDebug: false,
     showModeButtons: false,
     allowAdd: true,
@@ -807,7 +808,7 @@ function handleCharacterDeleted(id: number) {
 <style scoped>
 .character-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 1rem;
 }
 

@@ -46,13 +46,14 @@
       v-if="showImage"
       :class="[
         'relative overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-        compact ? 'h-32 w-full' : 'h-44 w-full',
+        compact ? 'h-44 w-full' : 'h-72 w-full',
       ]"
     >
       <img
         :src="computedCharacterImage"
         :alt="displayName"
-        class="h-full w-full object-cover transition-transform group-hover:scale-105"
+        class="h-full w-full transition-transform group-hover:scale-[1.02]"
+        :class="imageFitClass"
         loading="lazy"
         @error="handleImageError"
       />
@@ -62,7 +63,7 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm"> Private </span>
+        <span v-else class="badge badge-warning badge-sm">Private</span>
 
         <span v-if="activeSelected" class="badge badge-primary badge-sm">
           Selected
@@ -82,7 +83,7 @@
         <h2
           :class="[
             'font-black leading-tight text-base-content',
-            compact ? 'line-clamp-1 text-base' : 'text-xl',
+            compact ? 'line-clamp-1 text-base' : 'line-clamp-2 text-xl',
           ]"
           :title="displayName"
         >
@@ -96,7 +97,12 @@
             compact ? 'line-clamp-2 text-sm' : 'line-clamp-3 text-sm',
           ]"
         >
-          {{ character.backstory || character.personality || 'No story yet.' }}
+          {{
+            character.presentation ||
+            character.personality ||
+            character.backstory ||
+            'No story yet.'
+          }}
         </p>
       </div>
 
@@ -112,10 +118,6 @@
         <span v-if="character.genre" class="badge badge-primary badge-sm">
           {{ character.genre }}
         </span>
-
-        <span v-if="character.userId" class="badge badge-secondary badge-sm">
-          User #{{ character.userId }}
-        </span>
       </div>
 
       <div
@@ -123,18 +125,18 @@
         class="grid grid-cols-3 gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
       >
         <div
-          v-for="index in statIndexes"
-          :key="`stat-${index}`"
+          v-for="stat in statRows"
+          :key="stat.key"
           class="rounded-xl border border-base-300 bg-base-200 p-2 text-center"
         >
           <div
             class="truncate text-[10px] font-bold uppercase text-base-content/60"
           >
-            {{ statName(index) }}
+            {{ stat.label }}
           </div>
 
-          <div class="text-lg font-black text-base-content">
-            {{ statValue(index) }}
+          <div class="truncate text-xs font-black text-primary">
+            {{ stat.value }}
           </div>
         </div>
       </div>
@@ -233,6 +235,7 @@ const props = withDefaults(
     allowClone?: boolean
     allowDelete?: boolean
     fallbackImage?: string
+    imageFit?: 'contain' | 'cover'
   }>(),
   {
     selected: false,
@@ -242,7 +245,7 @@ const props = withDefaults(
     showActions: true,
     showDescription: true,
     showMeta: true,
-    showStats: true,
+    showStats: false,
     showModeButtons: false,
     showInlineInteract: false,
     showReaction: true,
@@ -251,6 +254,7 @@ const props = withDefaults(
     allowClone: true,
     allowDelete: true,
     fallbackImage: '',
+    imageFit: 'contain',
   },
 )
 
@@ -270,8 +274,6 @@ const artImage = ref<ArtImage | null>(null)
 const activeMode = ref<CharacterMode | null>(null)
 const hasImageError = ref(false)
 
-const statIndexes = [1, 2, 3, 4, 5, 6]
-
 const activeSelected = computed(() => {
   return (
     props.selected ||
@@ -288,11 +290,14 @@ const canDelete = computed(() => {
 })
 
 const displayName = computed(() => {
-  if (!props.character.name) return 'Unnamed Hero'
+  const name = props.character.name?.trim()
+  const honorific = props.character.honorific?.trim()
 
-  return `${props.character.name} ${
-    props.character.honorific ? `the ${props.character.honorific}` : ''
-  }`.trim()
+  if (!name && !honorific) return 'Unnamed Hero'
+  if (!name) return honorific || 'Unnamed Hero'
+  if (!honorific) return name
+
+  return `${name} ${honorific}`.trim()
 })
 
 const rotatingFallbackImage = computed(() => {
@@ -304,6 +309,10 @@ const rotatingFallbackImage = computed(() => {
     : 0
 
   return CHARACTER_FALLBACK_IMAGES[stableIndex]
+})
+
+const imageFitClass = computed(() => {
+  return props.imageFit === 'cover' ? 'object-cover' : 'object-contain'
 })
 
 function normalizeImageMime(fileType?: string | null) {
@@ -330,22 +339,21 @@ const computedCharacterImage = computed(() => {
   return props.character.imagePath || rotatingFallbackImage.value
 })
 
+const statRows = computed(() => [
+  { key: 'charm', label: 'Charm', value: props.character.charm || 'COMMON' },
+  {
+    key: 'empathy',
+    label: 'Empathy',
+    value: props.character.empathy || 'COMMON',
+  },
+  { key: 'grace', label: 'Grace', value: props.character.grace || 'COMMON' },
+  { key: 'luck', label: 'Luck', value: props.character.luck || 'COMMON' },
+  { key: 'might', label: 'Might', value: props.character.might || 'COMMON' },
+  { key: 'wits', label: 'Wits', value: props.character.wits || 'COMMON' },
+])
+
 function handleImageError() {
   hasImageError.value = true
-}
-
-function statName(index: number) {
-  const key = `statName${index}` as keyof Character
-  const value = props.character[key]
-
-  return typeof value === 'string' && value.trim() ? value : `Stat ${index}`
-}
-
-function statValue(index: number) {
-  const key = `statValue${index}` as keyof Character
-  const value = props.character[key]
-
-  return typeof value === 'number' ? value : 0
 }
 
 async function selectCharacter() {

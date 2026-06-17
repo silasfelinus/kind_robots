@@ -39,11 +39,7 @@
       v-else-if="activeTab === 'adventure'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <adventure-builder
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-      />
+      <add-character />
     </section>
 
     <section

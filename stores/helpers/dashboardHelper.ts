@@ -409,7 +409,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:brain',
         title: 'Dream Brainstorm',
         summary: 'Start with a pitch and generate riffs on the concept.',
-        image: tabImage('brainstorm', 'brainstorm'),
+        image: tabImage('dream', 'brainstorm'),
         narrative:
           'Feed the text server a dream pitch, generate fresh riffs, accept the good ones, reject the goblins, and turn the survivors into reusable dream seeds.',
         route: '/dreams',

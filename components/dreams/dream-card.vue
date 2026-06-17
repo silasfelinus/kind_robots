@@ -6,42 +6,69 @@
   >
     <figure
       v-if="showImage"
-      class="relative aspect-[16/10] overflow-hidden bg-base-300"
+      class="relative aspect-4/5 overflow-hidden bg-base-300"
     >
       <img
         v-if="previewImage"
         :src="previewImage"
-        :alt="`${dream.title} preview`"
-        class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+        :alt="`${dream.title || 'Dream'} preview`"
+        class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
         loading="lazy"
       />
 
       <div
         v-else
-        class="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20 text-primary"
+        class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/20 via-secondary/10 to-accent/20 text-primary"
       >
-        <Icon name="kind-icon:dream" class="h-16 w-16 opacity-70" />
+        <Icon name="kind-icon:dream" class="h-20 w-20 opacity-70" />
       </div>
 
       <div class="absolute left-3 top-3 flex flex-wrap gap-2">
         <span class="badge badge-primary badge-sm rounded-xl">
           {{ dreamTypeLabel(dream.dreamType) }}
         </span>
+
         <span
           v-if="dream.isMature"
           class="badge badge-warning badge-sm rounded-xl"
         >
           Mature
         </span>
+
+        <span
+          v-if="scenarioCount"
+          class="badge badge-secondary badge-sm rounded-xl"
+        >
+          {{ scenarioCount }} Scenario{{ scenarioCount === 1 ? '' : 's' }}
+        </span>
+      </div>
+
+      <div
+        class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/70 to-transparent p-4"
+      >
+        <h3
+          class="line-clamp-2 text-2xl font-black leading-tight text-base-content"
+        >
+          {{ dream.title || 'Untitled Dream' }}
+        </h3>
+
+        <p
+          v-if="showMeta"
+          class="mt-1 text-xs font-semibold text-base-content/70"
+        >
+          #{{ dream.id }} · {{ dream.isPublic ? 'Public' : 'Private' }} ·
+          {{ dream.isActive ? 'Active' : 'Archived' }}
+        </p>
       </div>
     </figure>
 
     <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
-      <header class="flex items-start justify-between gap-3">
+      <header v-if="!showImage" class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <h3 class="truncate text-lg font-black text-primary">
             {{ dream.title || 'Untitled Dream' }}
           </h3>
+
           <p v-if="showMeta" class="mt-1 text-xs text-base-content/50">
             #{{ dream.id }} · {{ dream.isPublic ? 'Public' : 'Private' }} ·
             {{ dream.isActive ? 'Active' : 'Archived' }}
@@ -60,8 +87,16 @@
         </button>
       </header>
 
-      <p class="line-clamp-3 min-h-14 text-sm leading-relaxed text-base-content/70">
-        {{ dream.pitch || dream.description || dream.flavorText || 'No Dream pitch yet.' }}
+      <p
+        v-if="showDescription"
+        class="line-clamp-3 text-sm leading-relaxed text-base-content/70"
+      >
+        {{
+          dream.pitch ||
+          dream.description ||
+          dream.flavorText ||
+          'No Dream pitch yet.'
+        }}
       </p>
 
       <div v-if="showStats" class="grid grid-cols-4 gap-2 text-center text-xs">
@@ -69,19 +104,104 @@
           <p class="font-black text-primary">{{ statCount('Characters') }}</p>
           <p class="text-base-content/50">Cast</p>
         </div>
+
         <div class="rounded-xl bg-base-200 p-2">
           <p class="font-black text-secondary">{{ statCount('Rewards') }}</p>
           <p class="text-base-content/50">Items</p>
         </div>
+
         <div class="rounded-xl bg-base-200 p-2">
           <p class="font-black text-accent">{{ artCount }}</p>
           <p class="text-base-content/50">Art</p>
         </div>
+
         <div class="rounded-xl bg-base-200 p-2">
-          <p class="font-black text-info">{{ statCount('Chats') }}</p>
-          <p class="text-base-content/50">Chat</p>
+          <p class="font-black text-info">{{ scenarioCount }}</p>
+          <p class="text-base-content/50">Worlds</p>
         </div>
       </div>
+
+      <section
+        v-if="showScenarios && scenarioRows.length"
+        class="rounded-2xl border border-base-300 bg-base-200 p-2"
+      >
+        <div class="mb-2 flex items-center justify-between gap-2">
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            Scenario Branches
+          </p>
+
+          <span class="badge badge-ghost badge-sm">
+            {{ scenarioRows.length }}
+          </span>
+        </div>
+
+        <div class="grid gap-2">
+          <article
+            v-for="scenario in scenarioRows"
+            :key="scenario.id"
+            class="rounded-2xl border border-base-300 bg-base-100 p-2"
+          >
+            <div class="flex gap-2">
+              <div
+                class="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-300"
+              >
+                <img
+                  v-if="scenario.imagePath"
+                  :src="scenario.imagePath"
+                  :alt="scenario.title || 'Scenario image'"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+
+                <div
+                  v-else
+                  class="flex h-full w-full items-center justify-center text-primary/60"
+                >
+                  <Icon name="kind-icon:map" class="h-6 w-6" />
+                </div>
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <p class="line-clamp-1 text-sm font-black text-base-content">
+                  {{ scenario.title || `Scenario #${scenario.id}` }}
+                </p>
+
+                <p class="line-clamp-2 text-xs text-base-content/60">
+                  {{
+                    scenario.description ||
+                    scenario.genres ||
+                    'No scenario summary yet.'
+                  }}
+                </p>
+              </div>
+            </div>
+
+            <div
+              v-if="scenario.Characters?.length"
+              class="mt-2 flex flex-wrap gap-1"
+            >
+              <span
+                v-for="character in scenario.Characters.slice(0, 6)"
+                :key="character.id"
+                class="badge badge-outline badge-sm max-w-full rounded-xl"
+              >
+                {{
+                  character.name ||
+                  character.title ||
+                  `Character ${character.id}`
+                }}
+              </span>
+
+              <span
+                v-if="scenario.Characters.length > 6"
+                class="badge badge-ghost badge-sm rounded-xl"
+              >
+                +{{ scenario.Characters.length - 6 }}
+              </span>
+            </div>
+          </article>
+        </div>
+      </section>
 
       <footer v-if="showActions" class="mt-auto flex flex-wrap gap-2 pt-1">
         <button
@@ -119,8 +239,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type { Character, Scenario } from '~/prisma/generated/prisma/client'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
+
+type DreamScenarioWithCharacters = Scenario & {
+  Characters?: Partial<Character>[]
+}
 
 const props = withDefaults(
   defineProps<{
@@ -129,13 +254,17 @@ const props = withDefaults(
     showActions?: boolean
     showStats?: boolean
     showMeta?: boolean
+    showDescription?: boolean
+    showScenarios?: boolean
     openTab?: string
   }>(),
   {
     showImage: true,
     showActions: true,
-    showStats: true,
+    showStats: false,
     showMeta: true,
+    showDescription: true,
+    showScenarios: true,
     openTab: 'interact',
   },
 )
@@ -154,34 +283,51 @@ const isOpening = ref(false)
 const isEditing = ref(false)
 const isArchiving = ref(false)
 
-const isSelected = computed(() => dreamStore.selectedDream?.id === props.dream.id)
+const isSelected = computed(
+  () => dreamStore.selectedDream?.id === props.dream.id,
+)
 
 const collectionArt = computed(() => {
   const dream = props.dream as DreamWithRelations & {
-    ArtCollection?: { ArtImages?: Array<{ imagePath?: string | null; path?: string | null; fileName?: string | null }> } | null
-    ArtCollections?: Array<{ ArtImages?: Array<{ imagePath?: string | null; path?: string | null; fileName?: string | null }> }>
+    ArtCollection?: {
+      ArtImages?: Array<{
+        imagePath?: string | null
+        path?: string | null
+        fileName?: string | null
+      }>
+    } | null
+    ArtCollections?: Array<{
+      ArtImages?: Array<{
+        imagePath?: string | null
+        path?: string | null
+        fileName?: string | null
+      }>
+    }>
   }
 
   return [
     ...(dream.ArtImages ?? []),
     ...(dream.ArtCollection?.ArtImages ?? []),
-    ...((dream.ArtCollections ?? []).flatMap((collection) => collection.ArtImages ?? [])),
+    ...(dream.ArtCollections ?? []).flatMap(
+      (collection) => collection.ArtImages ?? [],
+    ),
   ]
 })
 
 const previewImage = computed(() => {
+  const firstCollectionImage = collectionArt.value.find(
+    (art) => art.imagePath || art.path || art.fileName,
+  )
+
   return (
     props.dream.imagePath ||
     props.dream.highlightImage ||
     props.dream.ArtImage?.imagePath ||
     props.dream.ArtImage?.path ||
     props.dream.ArtImage?.fileName ||
-    collectionArt.value.find((art) => art.imagePath || art.path || art.fileName)
-      ?.imagePath ||
-    collectionArt.value.find((art) => art.imagePath || art.path || art.fileName)
-      ?.path ||
-    collectionArt.value.find((art) => art.imagePath || art.path || art.fileName)
-      ?.fileName ||
+    firstCollectionImage?.imagePath ||
+    firstCollectionImage?.path ||
+    firstCollectionImage?.fileName ||
     ''
   )
 })
@@ -190,9 +336,21 @@ const artCount = computed(() => {
   return props.dream._count?.ArtImages ?? collectionArt.value.length ?? 0
 })
 
+const scenarioRows = computed<DreamScenarioWithCharacters[]>(() => {
+  return (
+    (props.dream.Scenarios ?? []) as DreamScenarioWithCharacters[]
+  ).filter((scenario) => scenario?.id)
+})
+
+const scenarioCount = computed(() => {
+  return props.dream._count?.Scenarios ?? scenarioRows.value.length
+})
+
 const cardClass = computed(() => {
-  if (isSelected.value) return 'border-primary bg-primary/5 ring-2 ring-primary/20'
+  if (isSelected.value)
+    return 'border-primary bg-primary/5 ring-2 ring-primary/20'
   if (props.dream.isActive === false) return 'border-base-300 opacity-70'
+
   return 'border-base-300'
 })
 

@@ -9,9 +9,13 @@
         <p class="text-xs font-black uppercase tracking-wide text-primary">
           Dream Atlas
         </p>
-        <h2 class="text-2xl font-black text-base-content">Dream Gallery</h2>
+
+        <h2 class="text-2xl font-black text-base-content">
+          {{ title }}
+        </h2>
+
         <p class="text-sm text-base-content/65">
-          Browse Dream seeds, choose a world, then open it for chat, art, and model play.
+          {{ subtitle }}
         </p>
       </div>
 
@@ -22,7 +26,10 @@
           :disabled="dreamStore.loading"
           @click="refresh"
         >
-          <span v-if="dreamStore.loading" class="loading loading-spinner loading-xs" />
+          <span
+            v-if="dreamStore.loading"
+            class="loading loading-spinner loading-xs"
+          />
           <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
           Refresh
         </button>
@@ -42,14 +49,19 @@
       v-if="showControls"
       class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
     >
-      <div class="grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_10rem_10rem_auto]">
-        <label class="input input-bordered flex items-center gap-2 rounded-2xl bg-base-200">
+      <div
+        class="grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_10rem_10rem_10rem_auto]"
+      >
+        <label
+          class="input input-bordered flex items-center gap-2 rounded-2xl bg-base-200"
+        >
           <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
+
           <input
             v-model="search"
             class="grow"
             type="search"
-            placeholder="Search title, pitch, description, art prompt..."
+            placeholder="Search dreams, scenarios, characters..."
           />
         </label>
 
@@ -58,7 +70,12 @@
           class="select select-bordered rounded-2xl bg-base-200"
         >
           <option value="">All types</option>
-          <option v-for="type in dreamStore.dreamTypes" :key="type" :value="type">
+
+          <option
+            v-for="type in dreamStore.dreamTypes"
+            :key="type"
+            :value="type"
+          >
             {{ dreamTypeLabel(type) }}
           </option>
         </select>
@@ -83,6 +100,16 @@
           Archived
         </button>
 
+        <button
+          type="button"
+          class="btn rounded-2xl"
+          :class="showScenarioBranches ? 'btn-accent' : 'btn-outline'"
+          @click="showScenarioBranches = !showScenarioBranches"
+        >
+          <Icon name="kind-icon:map" class="h-4 w-4" />
+          Branches
+        </button>
+
         <select
           v-model="displayMode"
           class="select select-bordered rounded-2xl bg-base-200"
@@ -103,7 +130,12 @@
         @change="selectFromDropdown"
       >
         <option value="">Choose a Dream...</option>
-        <option v-for="dream in filteredDreams" :key="dream.id" :value="dream.id">
+
+        <option
+          v-for="dream in filteredDreams"
+          :key="dream.id"
+          :value="dream.id"
+        >
           {{ dream.title }} · {{ dreamTypeLabel(dream.dreamType) }}
         </option>
       </select>
@@ -112,7 +144,7 @@
     <section class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
       <div
         v-if="filteredDreams.length && displayMode === 'cards'"
-        class="grid grid-cols-1 gap-3 p-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+        class="dream-grid p-1"
       >
         <dream-card
           v-for="dream in filteredDreams"
@@ -122,6 +154,8 @@
           :show-actions="showCardActions"
           :show-stats="showStats"
           :show-meta="showMeta"
+          :show-description="showDescriptions"
+          :show-scenarios="showScenarioBranches"
           :open-tab="openTab"
           @opened="openDream"
           @editing="editDream"
@@ -133,11 +167,20 @@
         class="flex min-h-96 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center text-base-content/55"
       >
         <Icon name="kind-icon:ghost" class="h-16 w-16 text-primary/60" />
+
         <div>
           <p class="text-xl font-black">No Dreams found.</p>
-          <p class="mt-1 text-sm">Create one in Dreammaker or loosen the filters.</p>
+
+          <p class="mt-1 text-sm">
+            Create one in Dreammaker or loosen the filters.
+          </p>
         </div>
-        <button type="button" class="btn btn-primary rounded-2xl text-white" @click="startNewDream">
+
+        <button
+          type="button"
+          class="btn btn-primary rounded-2xl text-white"
+          @click="startNewDream"
+        >
           <Icon name="kind-icon:plus" class="h-4 w-4" />
           Make a Dream
         </button>
@@ -148,27 +191,41 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { Character, Scenario } from '~/prisma/generated/prisma/client'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 
+type DreamScenarioWithCharacters = Scenario & {
+  Characters?: Partial<Character>[]
+}
+
 const props = withDefaults(
   defineProps<{
+    title?: string
+    subtitle?: string
     showHeader?: boolean
     showControls?: boolean
     showImages?: boolean
     showCardActions?: boolean
     showStats?: boolean
     showMeta?: boolean
+    showDescriptions?: boolean
+    showScenarios?: boolean
     variant?: 'dashboard' | 'compact' | 'dropdown'
     openTab?: string
   }>(),
   {
+    title: 'Dream Gallery',
+    subtitle:
+      'Browse Dream seeds, their scenario branches, and the characters attached to each world.',
     showHeader: true,
     showControls: true,
     showImages: true,
     showCardActions: true,
-    showStats: true,
+    showStats: false,
     showMeta: true,
+    showDescriptions: true,
+    showScenarios: true,
     variant: 'dashboard',
     openTab: 'dreams',
   },
@@ -188,6 +245,7 @@ const search = ref('')
 const showMine = ref(false)
 const showInactive = ref(false)
 const dreamTypeFilter = ref('')
+const showScenarioBranches = ref(props.showScenarios)
 const displayMode = ref<'cards' | 'dropdown'>(
   props.variant === 'dropdown' ? 'dropdown' : 'cards',
 )
@@ -202,10 +260,47 @@ const filteredDreams = computed(() => {
   const term = search.value.trim().toLowerCase()
 
   return dreamSource.value.filter((dream: DreamWithRelations) => {
-    if (showMine.value && dream.userId !== dreamStore.currentUserId) return false
-    if (dreamTypeFilter.value && dream.dreamType !== dreamTypeFilter.value) return false
+    if (showMine.value && dream.userId !== dreamStore.currentUserId) {
+      return false
+    }
+
+    if (dreamTypeFilter.value && dream.dreamType !== dreamTypeFilter.value) {
+      return false
+    }
 
     if (!term) return true
+
+    const scenarioText = (
+      (dream.Scenarios ?? []) as DreamScenarioWithCharacters[]
+    )
+      .map((scenario) => {
+        const characterText =
+          scenario.Characters?.map((character) =>
+            [
+              character.name,
+              character.honorific,
+              character.title,
+              character.role,
+              character.class,
+              character.species,
+              character.genre,
+            ]
+              .filter(Boolean)
+              .join(' '),
+          ).join(' ') ?? ''
+
+        return [
+          scenario.title,
+          scenario.description,
+          scenario.locations,
+          scenario.genres,
+          scenario.inspirations,
+          characterText,
+        ]
+          .filter(Boolean)
+          .join(' ')
+      })
+      .join(' ')
 
     const haystack = [
       dream.title,
@@ -216,6 +311,7 @@ const filteredDreams = computed(() => {
       dream.examples,
       dream.designer,
       dream.dreamType,
+      scenarioText,
     ]
       .filter(Boolean)
       .join(' ')
@@ -226,7 +322,9 @@ const filteredDreams = computed(() => {
 })
 
 onMounted(async () => {
-  await dreamStore.initialize()
+  await dreamStore.initialize({
+    fetchRemote: true,
+  })
 })
 
 function dreamTypeLabel(type?: string | null) {
@@ -248,9 +346,11 @@ function startNewDream() {
 
 async function selectFromDropdown(event: Event) {
   const id = Number((event.target as HTMLSelectElement).value)
+
   if (!Number.isInteger(id) || id <= 0) return
 
   const dream = await dreamStore.selectDreamById(id)
+
   if (dream) emit('selected', dream)
 }
 
@@ -264,3 +364,12 @@ function editDream(dream: DreamWithRelations) {
   emit('editing', dream)
 }
 </script>
+
+<style scoped>
+.dream-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+</style>

@@ -42,148 +42,73 @@
       :show-card-actions="true"
       :show-mode-buttons="false"
       :show-meta="true"
-      :show-stats="false"
+      :show-stats="true"
     />
 
-    <section
-      v-else
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(320px,440px)_minmax(0,1fr)]"
-    >
-      <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto">
-        <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
-          <div class="mb-3 flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <h2 class="truncate text-xl font-black text-base-content">
-                {{ selectedCharacterName }}
-              </h2>
-
-              <p class="truncate text-sm text-base-content/60">
-                Selected character cockpit.
-              </p>
-            </div>
-
-            <button
-              class="btn btn-ghost btn-sm rounded-xl"
-              type="button"
-              :disabled="isSendingChat"
-              @click="clearSelectedCharacter"
-            >
-              <Icon name="kind-icon:x" class="h-4 w-4" />
-              Clear
-            </button>
-          </div>
-
-          <CharacterFlipCard
-            v-if="characterStore.selectedCharacter"
-            :character="characterStore.selectedCharacter"
-            :show-stats="true"
-            image-fit="contain"
-          />
-
-          <div
-            v-else
-            class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning"
-          >
-            No character selected. Return to the gallery and pick a beautiful
-            little problem.
-          </div>
-        </section>
-
-        <section
-          v-if="characterStore.selectedCharacter"
-          class="rounded-2xl border border-base-300 bg-base-100 p-4"
+    <section v-else class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+      <div
+        class="flex shrink-0 flex-wrap gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
+      >
+        <button
+          v-for="tab in modeTabs"
+          :key="tab.key"
+          type="button"
+          class="btn btn-sm rounded-2xl"
+          :class="
+            activeMode === tab.key ? 'btn-primary text-white' : 'btn-ghost'
+          "
+          @click="setActiveMode(tab.key)"
         >
-          <h2 class="text-lg font-bold text-base-content">Stats</h2>
+          <Icon :name="tab.icon" class="h-4 w-4" />
+          {{ tab.label }}
+        </button>
 
-          <div class="mt-3 grid grid-cols-2 gap-2">
-            <div
-              v-for="stat in selectedCharacterStats"
-              :key="stat.key"
-              class="rounded-2xl border border-base-300 bg-base-200 p-3"
-            >
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                {{ stat.label }}
-              </p>
+        <button
+          class="btn btn-ghost btn-sm ml-auto rounded-xl"
+          type="button"
+          :disabled="isSendingChat"
+          @click="clearSelectedCharacter"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          Clear Character
+        </button>
+      </div>
 
-              <p class="mt-1 text-lg font-black text-primary">
-                {{ stat.value }}
-              </p>
-            </div>
-          </div>
-        </section>
+      <section
+        class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]"
+      >
+        <div class="flex min-h-0 min-w-0 flex-col gap-4 overflow-y-auto">
+          <article class="rounded-2xl border border-base-300 bg-base-100 p-4">
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-xl font-bold text-base-content">
+                  Selected Character
+                </h2>
 
-        <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="text-lg font-bold text-base-content">
-            Interaction Summary
-          </h2>
-
-          <div class="mt-3 grid gap-2 text-sm">
-            <div class="rounded-2xl bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                Character
-              </p>
-
-              <p class="mt-1 font-semibold">
-                {{ selectedCharacterName }}
-              </p>
+                <p class="text-sm text-base-content/60">
+                  Choose who gets interrogated by destiny.
+                </p>
+              </div>
             </div>
 
-            <div class="rounded-2xl bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                Scenario
-              </p>
-
-              <p class="mt-1 font-semibold">
-                {{ selectedScenarioTitle }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                Reward
-              </p>
-
-              <p class="mt-1 font-semibold">
-                {{ selectedRewardTitle }}
-              </p>
-            </div>
+            <character-card
+              v-if="characterStore.selectedCharacter"
+              :character="characterStore.selectedCharacter"
+              :selected="true"
+              :show-actions="false"
+              :show-mode-buttons="false"
+              :show-inline-interact="false"
+            />
 
             <div
-              v-if="selectedPrompt"
-              class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
+              v-else
+              class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning"
             >
-              <p class="text-xs font-bold uppercase text-primary">
-                Active Prompt
-              </p>
-
-              <p class="mt-1 text-sm text-base-content/80">
-                {{ selectedPrompt }}
-              </p>
+              No character selected. Return to the gallery and pick a beautiful
+              little problem.
             </div>
-          </div>
-        </section>
-      </aside>
+          </article>
 
-      <main class="flex min-h-0 min-w-0 flex-col gap-4 overflow-hidden">
-        <div
-          class="flex shrink-0 flex-wrap gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
-        >
-          <button
-            v-for="tab in modeTabs"
-            :key="tab.key"
-            type="button"
-            class="btn btn-sm rounded-2xl"
-            :class="
-              activeMode === tab.key ? 'btn-primary text-white' : 'btn-ghost'
-            "
-            @click="setActiveMode(tab.key)"
-          >
-            <Icon :name="tab.icon" class="h-4 w-4" />
-            {{ tab.label }}
-          </button>
-        </div>
-
-        <section class="min-h-0 flex-1 overflow-y-auto">
           <article
             v-if="activeMode === 'chat'"
             class="rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -277,47 +202,6 @@
                 {{ prompt }}
               </button>
             </div>
-
-            <details
-              class="mb-3 rounded-2xl border border-base-300 bg-base-200 p-3"
-            >
-              <summary
-                class="cursor-pointer text-sm font-bold text-base-content"
-              >
-                Getting To Know You Questions
-              </summary>
-
-              <div
-                class="mt-3 grid max-h-80 grid-cols-1 gap-2 overflow-y-auto md:grid-cols-2"
-              >
-                <button
-                  v-for="question in gettingToKnowYouQuestions"
-                  :key="question"
-                  class="rounded-2xl border p-3 text-left text-sm transition"
-                  :class="
-                    selectedGettingToKnowYouQuestion === question
-                      ? 'border-secondary bg-secondary text-secondary-content shadow-md'
-                      : 'border-base-300 bg-base-100 hover:border-primary hover:bg-primary hover:text-primary-content'
-                  "
-                  type="button"
-                  :disabled="!characterStore.selectedCharacter || isSendingChat"
-                  @click="selectGettingToKnowYouQuestion(question)"
-                >
-                  {{ question }}
-                </button>
-              </div>
-
-              <div class="mt-3 flex justify-end">
-                <button
-                  class="btn btn-ghost btn-xs rounded-xl"
-                  type="button"
-                  :disabled="!selectedGettingToKnowYouQuestion || isSendingChat"
-                  @click="clearSelectedPrompt"
-                >
-                  Clear Prompt
-                </button>
-              </div>
-            </details>
 
             <div
               v-if="selectedGettingToKnowYouQuestion"
@@ -428,20 +312,6 @@
                 Copy Prompt
               </button>
             </div>
-
-            <section
-              v-if="adventurePrompt"
-              class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-            >
-              <h2 class="mb-3 text-lg font-bold text-base-content">
-                Adventure Prompt Preview
-              </h2>
-
-              <pre
-                class="max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-100 p-3 text-sm text-base-content/75"
-                >{{ adventurePrompt }}</pre
-              >
-            </section>
           </article>
 
           <article
@@ -501,8 +371,116 @@
               }}</pre
             >
           </article>
-        </section>
-      </main>
+        </div>
+
+        <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
+          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+            <h2 class="text-lg font-bold text-base-content">
+              Interaction Summary
+            </h2>
+
+            <div class="mt-3 grid gap-2 text-sm">
+              <div class="rounded-2xl bg-base-200 p-3">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Character
+                </p>
+
+                <p class="mt-1 font-semibold">
+                  {{ selectedCharacterName }}
+                </p>
+              </div>
+
+              <div class="rounded-2xl bg-base-200 p-3">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Scenario
+                </p>
+
+                <p class="mt-1 font-semibold">
+                  {{ selectedScenarioTitle }}
+                </p>
+              </div>
+
+              <div class="rounded-2xl bg-base-200 p-3">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Reward
+                </p>
+
+                <p class="mt-1 font-semibold">
+                  {{ selectedRewardTitle }}
+                </p>
+              </div>
+
+              <div
+                v-if="selectedPrompt"
+                class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
+              >
+                <p class="text-xs font-bold uppercase text-primary">
+                  Active Prompt
+                </p>
+
+                <p class="mt-1 text-sm text-base-content/80">
+                  {{ selectedPrompt }}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-lg font-bold text-base-content">
+                  Getting To Know You Questions
+                </h2>
+
+                <p class="text-xs text-base-content/60">
+                  Pick one to load it into chat.
+                </p>
+              </div>
+
+              <button
+                class="btn btn-ghost btn-xs rounded-xl"
+                type="button"
+                :disabled="!selectedGettingToKnowYouQuestion || isSendingChat"
+                @click="clearSelectedPrompt"
+              >
+                Clear
+              </button>
+            </div>
+
+            <div class="flex max-h-80 flex-col gap-2 overflow-y-auto">
+              <button
+                v-for="question in gettingToKnowYouQuestions"
+                :key="question"
+                class="rounded-2xl border p-3 text-left text-sm transition"
+                :class="
+                  selectedGettingToKnowYouQuestion === question
+                    ? 'border-secondary bg-secondary text-secondary-content shadow-md'
+                    : 'border-base-300 bg-base-200 hover:border-primary hover:bg-primary hover:text-primary-content'
+                "
+                type="button"
+                :disabled="!characterStore.selectedCharacter || isSendingChat"
+                @click="selectGettingToKnowYouQuestion(question)"
+              >
+                {{ question }}
+              </button>
+            </div>
+          </section>
+
+          <section
+            v-if="adventurePrompt"
+            class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
+          >
+            <h2 class="mb-3 text-lg font-bold text-base-content">
+              Adventure Prompt Preview
+            </h2>
+
+            <pre
+              class="max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-sm text-base-content/75"
+              >{{ adventurePrompt }}</pre
+            >
+          </section>
+        </aside>
+      </section>
     </section>
   </section>
 </template>
@@ -602,19 +580,6 @@ const selectedCharacterName = computed(() => {
         character.honorific ? `the ${character.honorific}` : ''
       }`.trim()
     : 'Unnamed Character'
-})
-
-const selectedCharacterStats = computed(() => {
-  const character = characterStore.selectedCharacter
-
-  return [
-    { key: 'charm', label: 'Charm', value: character?.charm || 'COMMON' },
-    { key: 'empathy', label: 'Empathy', value: character?.empathy || 'COMMON' },
-    { key: 'grace', label: 'Grace', value: character?.grace || 'COMMON' },
-    { key: 'luck', label: 'Luck', value: character?.luck || 'COMMON' },
-    { key: 'might', label: 'Might', value: character?.might || 'COMMON' },
-    { key: 'wits', label: 'Wits', value: character?.wits || 'COMMON' },
-  ]
 })
 
 const selectedScenarioTitle = computed(() => {

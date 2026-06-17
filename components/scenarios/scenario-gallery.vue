@@ -1,7 +1,6 @@
 <!-- /components/scenarios/scenario-gallery.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-3">
-    <!-- ============ Header / controls ============ -->
     <header
       v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
@@ -77,7 +76,6 @@
       </div>
     </header>
 
-    <!-- ============ Add / edit form ============ -->
     <section
       v-if="showScenarioForm"
       class="min-h-0 shrink-0 overflow-y-auto rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
@@ -99,9 +97,7 @@
       <add-scenario :mode="formMode" @saved="handleScenarioSaved" />
     </section>
 
-    <!-- ============ Body ============ -->
     <section class="min-h-0 flex-1" :class="isRowMode ? '' : 'overflow-y-auto'">
-      <!-- Loading -->
       <div
         v-if="isLoading"
         class="flex h-full min-h-32 items-center justify-center"
@@ -109,7 +105,6 @@
         <span class="loading loading-spinner loading-lg text-primary" />
       </div>
 
-      <!-- Error -->
       <div
         v-else-if="errorMessage"
         class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-error/40 bg-error/10 p-6 text-center"
@@ -125,7 +120,6 @@
         </button>
       </div>
 
-      <!-- Dropdown variant -->
       <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
         <select
           class="select select-bordered w-full bg-base-100"
@@ -160,9 +154,37 @@
           :allow-clone="false"
           @edit="startEditingScenarioById"
         />
+
+        <section
+          v-if="showSelectedCharacterCards"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <h3 class="truncate text-base font-black text-base-content">
+                {{ selectedScenarioTitle }} Cast
+              </h3>
+
+              <p class="truncate text-sm text-base-content/60">
+                Character cards connected to this scenario.
+              </p>
+            </div>
+
+            <span class="badge badge-secondary">
+              {{ selectedScenarioCharacters.length }}
+            </span>
+          </div>
+
+          <div class="character-card-grid">
+            <CharacterFlipCard
+              v-for="character in selectedScenarioCharacters"
+              :key="character.id"
+              :character="character"
+            />
+          </div>
+        </section>
       </div>
 
-      <!-- Empty -->
       <div
         v-else-if="filteredScenarios.length === 0"
         class="flex h-full min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200/50 p-6 text-center text-base-content/60"
@@ -198,26 +220,56 @@
         </button>
       </div>
 
-      <!-- Grid / row of cards -->
-      <div v-else :class="layoutClass">
-        <ScenarioCard
-          v-for="scenario in filteredScenarios"
-          :key="scenario.id"
-          :scenario="scenario"
-          :selected="scenarioStore.selectedScenario?.id === scenario.id"
-          :show-image="showImages"
-          :compact="isCompact"
-          :show-actions="showCardActions"
-          :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :show-inspirations="showInspirations"
-          :allow-edit="allowEdit"
-          :allow-delete="allowDelete"
-          :allow-clone="allowClone"
-          @edit="startEditingScenarioById"
-          @clone="cloneScenarioById"
-          @delete="handleScenarioDeleted"
-        />
+      <div v-else class="flex min-h-0 flex-col gap-4">
+        <div :class="layoutClass">
+          <ScenarioCard
+            v-for="scenario in filteredScenarios"
+            :key="scenario.id"
+            :scenario="scenario"
+            :selected="scenarioStore.selectedScenario?.id === scenario.id"
+            :show-image="showImages"
+            :compact="isCompact"
+            :show-actions="showCardActions"
+            :show-description="showDescriptions"
+            :show-meta="showMeta"
+            :show-inspirations="showInspirations"
+            :allow-edit="allowEdit"
+            :allow-delete="allowDelete"
+            :allow-clone="allowClone"
+            @edit="startEditingScenarioById"
+            @clone="cloneScenarioById"
+            @delete="handleScenarioDeleted"
+          />
+        </div>
+
+        <section
+          v-if="showSelectedCharacterCards"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0">
+              <h3 class="truncate text-base font-black text-base-content">
+                {{ selectedScenarioTitle }} Cast
+              </h3>
+
+              <p class="truncate text-sm text-base-content/60">
+                Tap a card to flip between portrait and character data.
+              </p>
+            </div>
+
+            <span class="badge badge-secondary">
+              {{ selectedScenarioCharacters.length }}
+            </span>
+          </div>
+
+          <div class="character-card-grid">
+            <CharacterFlipCard
+              v-for="character in selectedScenarioCharacters"
+              :key="character.id"
+              :character="character"
+            />
+          </div>
+        </section>
       </div>
     </section>
   </section>
@@ -225,7 +277,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { Scenario } from '~/prisma/generated/prisma/client'
+import type { ScenarioWithRelations } from '@/stores/scenarioStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -243,6 +295,7 @@ const props = withDefaults(
     showDescriptions?: boolean
     showMeta?: boolean
     showInspirations?: boolean
+    showCharacters?: boolean
     allowAdd?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
@@ -262,6 +315,7 @@ const props = withDefaults(
     showDescriptions: true,
     showMeta: true,
     showInspirations: false,
+    showCharacters: true,
     allowAdd: true,
     allowEdit: true,
     allowDelete: true,
@@ -305,7 +359,7 @@ const showMature = computed({
   },
 })
 
-const galleryScenarios = computed<Scenario[]>(() => {
+const galleryScenarios = computed<ScenarioWithRelations[]>(() => {
   let scenarios = scenarioStore.scenarios
 
   if (!userStore.isAdmin) {
@@ -321,20 +375,54 @@ const galleryScenarios = computed<Scenario[]>(() => {
   return scenarios
 })
 
-const filteredScenarios = computed<Scenario[]>(() => {
+const filteredScenarios = computed<ScenarioWithRelations[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
   if (!query) return galleryScenarios.value
 
   return galleryScenarios.value.filter((scenario) => {
+    const dreamText =
+      scenario.Dreams?.map((dream) => dream.title || dream.slug || '').join(
+        ' ',
+      ) ?? ''
+
+    const characterText =
+      scenario.Characters?.map((character) =>
+        [
+          character.name,
+          character.honorific,
+          character.title,
+          character.role,
+          character.class,
+          character.species,
+          character.genre,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      ).join(' ') ?? ''
+
     return (
       (scenario.title || '').toLowerCase().includes(query) ||
       (scenario.description || '').toLowerCase().includes(query) ||
       (scenario.locations || '').toLowerCase().includes(query) ||
       (scenario.genres || '').toLowerCase().includes(query) ||
-      (scenario.inspirations || '').toLowerCase().includes(query)
+      (scenario.inspirations || '').toLowerCase().includes(query) ||
+      dreamText.toLowerCase().includes(query) ||
+      characterText.toLowerCase().includes(query)
     )
   })
+})
+
+const selectedScenarioCharacters = computed(() => {
+  return scenarioStore.selectedScenario?.Characters ?? []
+})
+
+const selectedScenarioTitle = computed(() => {
+  return scenarioStore.selectedScenario?.title || 'Selected Scenario'
+})
+
+const showSelectedCharacterCards = computed(() => {
+  return props.showCharacters && selectedScenarioCharacters.value.length > 0
 })
 
 onMounted(async () => {
@@ -468,5 +556,12 @@ function handleScenarioDeleted(id: number) {
   min-width: min(220px, 70vw);
   max-width: 280px;
   flex-shrink: 0;
+}
+
+.character-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 1rem;
+  align-items: stretch;
 }
 </style>

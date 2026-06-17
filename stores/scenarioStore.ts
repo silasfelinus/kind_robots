@@ -1,7 +1,11 @@
 // /stores/scenarioStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Scenario } from '~/prisma/generated/prisma/client'
+import type {
+  Character,
+  Dream,
+  Scenario,
+} from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useSheetStore } from '@/stores/sheetStore'
 import { scenarios as seedScenarios } from '@/utils/sceneChoices'
@@ -14,14 +18,71 @@ type ScenarioInitializeOptions = {
   includeSeeds?: boolean
 }
 
+type ScenarioDream = Pick<
+  Dream,
+  | 'id'
+  | 'title'
+  | 'slug'
+  | 'dreamType'
+  | 'imagePath'
+  | 'highlightImage'
+  | 'icon'
+>
+
+type ScenarioCharacter = Pick<
+  Character,
+  | 'id'
+  | 'name'
+  | 'honorific'
+  | 'title'
+  | 'role'
+  | 'class'
+  | 'species'
+  | 'gender'
+  | 'alignment'
+  | 'genre'
+  | 'backstory'
+  | 'drive'
+  | 'quirks'
+  | 'personality'
+  | 'presentation'
+  | 'artPrompt'
+  | 'imagePath'
+  | 'designer'
+  | 'isPublic'
+  | 'isMature'
+  | 'isActive'
+  | 'charm'
+  | 'empathy'
+  | 'grace'
+  | 'luck'
+  | 'might'
+  | 'wits'
+  | 'artImageId'
+>
+
+export interface ScenarioWithRelations extends Scenario {
+  Dreams?: ScenarioDream[]
+  Characters?: ScenarioCharacter[]
+  _count?: {
+    Dreams?: number
+    Characters?: number
+  }
+}
+
 const scenariosStorageKey = 'scenarios'
 const scenarioFormStorageKey = 'scenarioForm'
 const selectedScenarioStorageKey = 'selectedScenario'
 const currentChoiceStorageKey = 'currentChoice'
 const storyHistoryStorageKey = 'storyHistory'
 
-export interface ScenarioForm extends Omit<Partial<Scenario>, 'intros'> {
+export interface ScenarioForm extends Omit<
+  Partial<ScenarioWithRelations>,
+  'intros'
+> {
   intros?: string[] | string
+  dreamIds?: number[]
+  characterIds?: number[]
 }
 
 function safeGetLocalStorage(key: string): string | null {
@@ -128,21 +189,28 @@ function normalizeIntrosForSave(raw: unknown): string {
   return '[]'
 }
 
-function toScenarioForm(scenario: Scenario): ScenarioForm {
+function toScenarioForm(scenario: ScenarioWithRelations): ScenarioForm {
   return {
     ...scenario,
     intros: normalizeIntrosForForm(scenario.intros),
+    dreamIds: scenario.Dreams?.map((dream) => dream.id) ?? [],
+    characterIds: scenario.Characters?.map((character) => character.id) ?? [],
   }
 }
 
-function toScenarioPayload(form: ScenarioForm): Partial<Scenario> {
+function toScenarioPayload(form: ScenarioForm) {
+  const { Dreams, Characters, _count, ...payload } = form
+
   return {
-    ...form,
+    ...payload,
     intros: normalizeIntrosForSave(form.intros),
   }
 }
 
-function sortScenarios(a: Scenario, b: Scenario): number {
+function sortScenarios(
+  a: ScenarioWithRelations,
+  b: ScenarioWithRelations,
+): number {
   if (a.id < 0 && b.id > 0) return -1
   if (a.id > 0 && b.id < 0) return 1
 
@@ -153,8 +221,12 @@ function sortScenarios(a: Scenario, b: Scenario): number {
 }
 
 export const useScenarioStore = defineStore('scenarioStore', () => {
-  const scenarios = ref<Scenario[]>([])
-  const selectedScenario = ref<Scenario | null>(null)
+  const scenarios = ref<ScenarioWithRelations[]>([])
+  const selectedScenario = ref<ScenarioWithRelations | null>(null)
+  const fetchPromise = ref<Promise<ScenarioWithRelations[]> | null>(null)
+  const fetchScenarioByIdPromises = ref<
+    Record<number, Promise<ScenarioWithRelations | null>>
+  >({})
   const scenarioForm = ref<ScenarioForm>({})
   const isSaving = ref(false)
   const isInitialized = ref(false)
@@ -165,13 +237,44 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
   const storyHistory = ref<string[]>([])
 
   const initializePromise = ref<Promise<void> | null>(null)
-  const fetchPromise = ref<Promise<Scenario[]> | null>(null)
-  const fetchScenarioByIdPromises = ref<
-    Record<number, Promise<Scenario | null>>
-  >({})
+
   const hasLoaded = ref(false)
 
   const totalScenarios = computed(() => scenarios.value.length)
+
+  const scenarioDreams = computed(() => {
+    const map = new Map<number, ScenarioDream>()
+
+    for (const scenario of scenarios.value) {
+      for (const dream of scenario.Dreams ?? []) {
+        map.set(dream.id, dream)
+      }
+    }
+
+    return Array.from(map.values()).sort((a, b) =>
+      (a.title || '').localeCompare(b.title || ''),
+    )
+  })
+
+  const scenariosByDream = computed(() => {
+    const groups = new Map<number, ScenarioWithRelations[]>()
+
+    for (const dream of scenarioDreams.value) {
+      groups.set(dream.id, [])
+    }
+
+    for (const scenario of scenarios.value) {
+      for (const dream of scenario.Dreams ?? []) {
+        groups.get(dream.id)?.push(scenario)
+      }
+    }
+
+    return groups
+  })
+
+  function getScenariosForDream(dreamId: number): ScenarioWithRelations[] {
+    return scenariosByDream.value.get(dreamId) ?? []
+  }
 
   const hasUnsavedChanges = computed(
     () =>
@@ -215,18 +318,17 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
   }
 
   function loadFromLocalStorage() {
-    scenarios.value = safeParseArray<Scenario>(
+    scenarios.value = safeParseArray<ScenarioWithRelations>(
       safeGetLocalStorage(scenariosStorageKey),
     ).sort(sortScenarios)
 
+    selectedScenario.value = safeParseObject<ScenarioWithRelations>(
+      safeGetLocalStorage(selectedScenarioStorageKey),
+    )
     scenarioForm.value =
       safeParseObject<ScenarioForm>(
         safeGetLocalStorage(scenarioFormStorageKey),
       ) ?? {}
-
-    selectedScenario.value = safeParseObject<Scenario>(
-      safeGetLocalStorage(selectedScenarioStorageKey),
-    )
 
     currentChoice.value = safeGetLocalStorage(currentChoiceStorageKey) || ''
     storyHistory.value = safeParseArray<string>(
@@ -311,7 +413,9 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     return initializePromise.value
   }
 
-  async function fetchScenarios(force = false): Promise<Scenario[]> {
+  async function fetchScenarios(
+    force = false,
+  ): Promise<ScenarioWithRelations[]> {
     if (
       !force &&
       hasLoaded.value &&
@@ -330,7 +434,8 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       try {
         clearError()
 
-        const res = await performFetch<Scenario[]>('/api/scenarios')
+        const res =
+          await performFetch<ScenarioWithRelations[]>('/api/scenarios')
 
         if (!res.success || !res.data) {
           throw new Error(res.message || 'Failed to fetch scenarios.')
@@ -528,7 +633,9 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     }
   }
 
-  async function fetchScenarioById(id: number): Promise<Scenario | null> {
+  async function fetchScenarioById(
+    id: number,
+  ): Promise<ScenarioWithRelations | null> {
     const existing = scenarios.value.find((scenario) => scenario.id === id)
 
     if (existing) {
@@ -547,7 +654,9 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       try {
         clearError()
 
-        const res = await performFetch<Scenario>(`/api/scenarios/${id}`)
+        const res = await performFetch<ScenarioWithRelations>(
+          `/api/scenarios/${id}`,
+        )
 
         if (!res.success || !res.data) {
           throw new Error(res.message || 'Failed to fetch scenario.')
@@ -636,7 +745,10 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     normalizeIntrosForSave,
     toScenarioForm,
     toScenarioPayload,
+    scenarioDreams,
+    scenariosByDream,
+    getScenariosForDream,
   }
 })
 
-export type { Scenario }
+export type { Scenario, ScenarioCharacter, ScenarioDream }

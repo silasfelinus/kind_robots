@@ -308,6 +308,66 @@ const deleteRecord = (
   })
 }
 
+const cleanupOrder: EndpointKey[] = [
+  'reaction',
+  'chat',
+  'composition',
+  'milestoneRecord',
+  'milestone',
+  'butterflyRecord',
+  'butterfly',
+  'dream',
+  'scenario',
+  'reward',
+  'character',
+  'prompt',
+  'bot',
+  'component',
+  'resource',
+  'server',
+  'theme',
+  'smartIcon',
+  'code',
+  'log',
+  'artCollection',
+  'artImage',
+]
+
+const cleanupCreatedFixtures = () => {
+  cleanupOrder.forEach((key) => {
+    const uniqueIds = Array.from(new Set(created[key] || [])).filter(
+      (recordId): recordId is number =>
+        typeof recordId === 'number' &&
+        Number.isInteger(recordId) &&
+        recordId > 0,
+    )
+
+    uniqueIds.forEach((recordId) => {
+      const headers = key === 'butterfly' ? adminHeaders() : authHeaders()
+
+      deleteRecord(key, recordId, headers).then((response) => {
+        if (response.status !== 404) {
+          expect(
+            [200, 202, 204],
+            `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
+          ).to.include(response.status)
+
+          if (
+            response.body &&
+            Object.prototype.hasOwnProperty.call(response.body, 'success')
+          ) {
+            expect(response.body.success, `${key} ${recordId} cleanup`).to.eq(
+              true,
+            )
+          }
+        }
+
+        created[key] = (created[key] || []).filter((id) => id !== recordId)
+      })
+    })
+  })
+}
+
 const expectFieldEquals = (
   data: any,
   field: string,
@@ -350,6 +410,10 @@ describe('Relationship API Tests', () => {
       expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         .empty
     })
+  })
+
+  after(() => {
+    cleanupCreatedFixtures()
   })
 
   describe('Fixture setup', () => {
@@ -1261,67 +1325,6 @@ describe('Relationship API Tests', () => {
           },
           [400, 422],
         )
-      })
-    })
-
-    describe('Cleanup', () => {
-      it('deletes all relationship fixtures in dependency order', () => {
-        const cleanupOrder: EndpointKey[] = [
-          'reaction',
-          'chat',
-          'composition',
-          'milestoneRecord',
-          'milestone',
-          'butterflyRecord',
-          'butterfly',
-          'dream',
-          'scenario',
-          'reward',
-          'character',
-          'prompt',
-          'bot',
-          'component',
-          'resource',
-          'server',
-          'theme',
-          'smartIcon',
-          'code',
-          'log',
-          'artCollection',
-          'artImage',
-        ]
-
-        cleanupOrder.forEach((key) => {
-          const uniqueIds = Array.from(new Set(created[key] || [])).filter(
-            (recordId) =>
-              typeof recordId === 'number' &&
-              Number.isInteger(recordId) &&
-              recordId > 0,
-          )
-
-          uniqueIds.forEach((recordId) => {
-            const headers = key === 'butterfly' ? adminHeaders() : authHeaders()
-
-            deleteRecord(key, recordId, headers).then((response) => {
-              if (response.status !== 404) {
-                expect(
-                  [200, 202, 204],
-                  `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
-                ).to.include(response.status)
-
-                if (
-                  response.body &&
-                  Object.prototype.hasOwnProperty.call(response.body, 'success')
-                ) {
-                  expect(
-                    response.body.success,
-                    `${key} ${recordId} cleanup`,
-                  ).to.eq(true)
-                }
-              }
-            })
-          })
-        })
       })
     })
   })

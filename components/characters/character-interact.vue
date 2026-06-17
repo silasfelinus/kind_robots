@@ -3,21 +3,6 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
-    <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
-    >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">
-        Character Interact
-      </h1>
-
-      <p
-        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
-      >
-        Chat with a character, drop them into a scenario, hand them a reward, or
-        build a prompt for your next weird little adventure.
-      </p>
-    </header>
-
     <div
       v-if="statusMessage"
       class="rounded-2xl border p-3 text-sm"

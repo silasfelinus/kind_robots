@@ -3,13 +3,23 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { H3Event } from 'h3'
 import type {
   CreationSource,
   DreamType,
   Prisma,
 } from '~/prisma/generated/prisma/client'
-import { assertDreamAccess } from './index'
+import {
+  assertDreamAccess,
+  dreamInclude,
+  dreamTypes,
+  getDreamId,
+  normalizeCreationSource,
+  normalizeIdArray,
+  normalizeOptionalText,
+  normalizeSlug,
+  relationFromNullableId,
+  scenariosRelationFromPatch,
+} from './index'
 
 type DreamPatchBody = {
   title?: string
@@ -29,6 +39,7 @@ type DreamPatchBody = {
   artCollectionId?: number | null
   scenarioId?: number | null
   scenarioIds?: number[]
+  Scenarios?: number[]
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -40,236 +51,16 @@ type DreamPatchBody = {
   updateNote?: string | null
 }
 
-const dreamTypes: DreamType[] = [
-  'ARTDREAM',
-  'BRAINSTORM',
-  'WEIRDLANDIA',
-  'RANDOMLIST',
-  'TITLE',
-  'VIBE',
-  'BOT',
-  'INSPIRATION',
-  'CHARACTER',
-  'REWARD',
-  'SCENARIO',
-  'TEXT',
-  'LOCATION',
-  'PITCH',
-  'GENRE',
-]
-
-const dreamInclude = {
-  User: {
-    select: {
-      id: true,
-      username: true,
-      avatarImage: true,
-    },
-  },
-  ArtImage: {
-    select: {
-      id: true,
-      fileName: true,
-      fileType: true,
-      imagePath: true,
-      path: true,
-      artPrompt: true,
-      promptString: true,
-      userId: true,
-      isPublic: true,
-      isMature: true,
-    },
-  },
-  ArtCollection: {
-    select: {
-      id: true,
-      label: true,
-      description: true,
-      imagePath: true,
-      isPublic: true,
-      isMature: true,
-      isActive: true,
-      artPrompt: true,
-      ArtImages: {
-        take: 12,
-        orderBy: {
-          createdAt: 'desc',
-        },
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          fileName: true,
-          fileType: true,
-          path: true,
-          promptString: true,
-          imagePath: true,
-          userId: true,
-          isPublic: true,
-          isMature: true,
-        },
-      },
-    },
-  },
-  Scenarios: true,
-  Characters: {
-    select: {
-      id: true,
-      name: true,
-      honorific: true,
-      title: true,
-      role: true,
-      species: true,
-      class: true,
-      gender: true,
-      presentation: true,
-      alignment: true,
-      genre: true,
-      personality: true,
-      drive: true,
-      backstory: true,
-      quirks: true,
-      imagePath: true,
-      artImageId: true,
-      artPrompt: true,
-      isPublic: true,
-      isMature: true,
-      userId: true,
-    },
-  },
-  Rewards: {
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      flavorText: true,
-      effect: true,
-      icon: true,
-      collection: true,
-      rarity: true,
-      rewardType: true,
-      imagePath: true,
-      artImageId: true,
-      artPrompt: true,
-      isPublic: true,
-      isMature: true,
-      isActive: true,
-      userId: true,
-    },
-  },
-  _count: {
-    select: {
-      Chats: true,
-      Reactions: true,
-      Scenarios: true,
-      Characters: true,
-      Rewards: true,
-    },
-  },
-} satisfies Prisma.DreamInclude
-
-function getDreamId(event: H3Event): number {
-  const id = Number(event.context.params?.id)
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw createError({
-      statusCode: 400,
-      message: 'Invalid Dream ID. It must be a positive integer.',
-    })
-  }
-
-  return id
-}
-
-function normalizeNullableId(value: unknown): number | null | undefined {
-  if (value === null) return null
-  if (value === undefined || value === '') return undefined
-
-  const parsed = Number(value)
-
-  if (!Number.isInteger(parsed) || parsed <= 0) return undefined
-
-  return parsed
-}
-
-function normalizeIdArray(value: unknown): number[] | undefined {
-  if (!Array.isArray(value)) return undefined
-
-  const ids = value.map(Number).filter((id) => Number.isInteger(id) && id > 0)
-
-  return Array.from(new Set(ids))
-}
-
-function normalizeSlug(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
-}
-
-function normalizeOptionalText(value: unknown): string | null | undefined {
-  if (value === null) return null
-  if (value === undefined) return undefined
-  if (typeof value !== 'string') return undefined
-
-  return value.trim()
-}
-
-const creationSources: CreationSource[] = [
-  'HUMAN',
-  'AI',
-  'HYBRID',
-  'UPLOAD',
-  'UNKNOWN',
-]
-
-function normalizeCreationSource(value: unknown): CreationSource {
-  return creationSources.includes(value as CreationSource)
-    ? (value as CreationSource)
-    : 'HUMAN'
-}
-
-function relationFromNullableId(
+function setTextField<T extends keyof Prisma.DreamUpdateInput>(
+  dataInput: Prisma.DreamUpdateInput,
+  key: T,
   value: unknown,
-): { connect: { id: number } } | { disconnect: true } | undefined {
-  const id = normalizeNullableId(value)
+) {
+  const normalized = normalizeOptionalText(value)
 
-  if (id === null) return { disconnect: true }
-  if (id) return { connect: { id } }
-
-  return undefined
-}
-
-function scenariosRelationFromPatch(
-  body: DreamPatchBody,
-): Prisma.ScenarioUpdateManyWithoutDreamsNestedInput | undefined {
-  const scenarioIds = normalizeIdArray(body.scenarioIds)
-
-  if (scenarioIds !== undefined) {
-    return {
-      set: scenarioIds.map((scenarioId) => ({ id: scenarioId })),
-    }
+  if (normalized !== undefined) {
+    dataInput[key] = normalized as Prisma.DreamUpdateInput[T]
   }
-
-  if (body.scenarioId === undefined) return undefined
-
-  const scenarioId = normalizeNullableId(body.scenarioId)
-
-  if (scenarioId === null) {
-    return {
-      set: [],
-    }
-  }
-
-  if (scenarioId) {
-    return {
-      set: [{ id: scenarioId }],
-    }
-  }
-
-  return undefined
 }
 
 function getUpdateSummary(body: DreamPatchBody): string {
@@ -390,39 +181,39 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.description !== undefined) {
-      dataInput.description = normalizeOptionalText(body.description)
+      setTextField(dataInput, 'description', body.description)
     }
 
     if (body.pitch !== undefined) {
-      dataInput.pitch = normalizeOptionalText(body.pitch)
+      setTextField(dataInput, 'pitch', body.pitch)
     }
 
     if (body.flavorText !== undefined) {
-      dataInput.flavorText = normalizeOptionalText(body.flavorText)
+      setTextField(dataInput, 'flavorText', body.flavorText)
     }
 
     if (body.examples !== undefined) {
-      dataInput.examples = normalizeOptionalText(body.examples)
+      setTextField(dataInput, 'examples', body.examples)
     }
 
     if (body.artPrompt !== undefined) {
-      dataInput.artPrompt = normalizeOptionalText(body.artPrompt)
+      setTextField(dataInput, 'artPrompt', body.artPrompt)
     }
 
     if (body.imagePath !== undefined) {
-      dataInput.imagePath = normalizeOptionalText(body.imagePath)
+      setTextField(dataInput, 'imagePath', body.imagePath)
     }
 
     if (body.highlightImage !== undefined) {
-      dataInput.highlightImage = normalizeOptionalText(body.highlightImage)
+      setTextField(dataInput, 'highlightImage', body.highlightImage)
     }
 
     if (body.icon !== undefined) {
-      dataInput.icon = normalizeOptionalText(body.icon)
+      setTextField(dataInput, 'icon', body.icon)
     }
 
     if (body.designer !== undefined) {
-      dataInput.designer = normalizeOptionalText(body.designer)
+      setTextField(dataInput, 'designer', body.designer)
     }
 
     if (body.artImageId !== undefined) {
@@ -458,31 +249,31 @@ export default defineEventHandler(async (event) => {
     const artImageIds = normalizeIdArray(body.artImageIds)
     const artCollectionIds = normalizeIdArray(body.artCollectionIds)
 
-    if (characterIds) {
+    if (characterIds !== undefined) {
       dataInput.Characters = {
         set: characterIds.map((characterId) => ({ id: characterId })),
       }
     }
 
-    if (rewardIds) {
+    if (rewardIds !== undefined) {
       dataInput.Rewards = {
         set: rewardIds.map((rewardId) => ({ id: rewardId })),
       }
     }
 
-    if (artImageIds) {
+    if (artImageIds !== undefined) {
       dataInput.ArtImages = {
         set: artImageIds.map((artImageId) => ({ id: artImageId })),
       }
     }
 
-    if (artCollectionIds) {
+    if (artCollectionIds !== undefined) {
       dataInput.ArtCollections = {
         set: artCollectionIds.map((collectionId) => ({ id: collectionId })),
       }
     }
 
-    const data = await prisma.dream.update({
+    const updated = await prisma.dream.update({
       where: { id },
       data: dataInput,
       include: dreamInclude,
@@ -490,18 +281,24 @@ export default defineEventHandler(async (event) => {
 
     if (
       body.addArtImageToCollection &&
-      data.artImageId &&
-      data.artCollectionId
+      updated.artImageId &&
+      updated.artCollectionId
     ) {
       await prisma.artCollection.update({
-        where: { id: data.artCollectionId },
+        where: { id: updated.artCollectionId },
         data: {
           ArtImages: {
-            connect: { id: data.artImageId },
+            connect: { id: updated.artImageId },
           },
         },
       })
     }
+
+    const data =
+      (await prisma.dream.findUnique({
+        where: { id },
+        include: dreamInclude,
+      })) ?? updated
 
     const userRecord = await prisma.user.findUnique({
       where: { id: user.id },
@@ -537,13 +334,15 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
       message: handled.message || `Failed to update Dream with ID ${id}.`,
       data: null,
-      statusCode: event.node.res.statusCode,
+      statusCode,
     }
   }
 })

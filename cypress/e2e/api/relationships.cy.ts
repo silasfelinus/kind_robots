@@ -284,6 +284,16 @@ const getRecord = (key: EndpointKey, recordId: number, authorized = false) => {
   })
 }
 
+const deleteUrlFor = (key: EndpointKey, recordId: number) => {
+  const url = urlFor(key, recordId)
+
+  if (key === 'dream') {
+    return `${url}?hard=true`
+  }
+
+  return url
+}
+
 const deleteRecord = (
   key: EndpointKey,
   recordId: number,
@@ -293,7 +303,7 @@ const deleteRecord = (
 
   return cleanupRequest({
     method: 'DELETE',
-    url: urlFor(key, recordId),
+    url: deleteUrlFor(key, recordId),
     headers,
   })
 }

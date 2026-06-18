@@ -35,11 +35,11 @@
     <Transition name="narrator-panel">
       <section
         v-if="isOpen"
-        class="pointer-events-auto absolute z-110 flex max-h-[min(42rem,calc(100dvh-1.5rem))] flex-col overflow-hidden rounded-4xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
+        class="pointer-events-auto absolute z-110 flex flex-col overflow-hidden rounded-3xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
         :class="narratorPanelClass"
       >
         <header
-          class="relative overflow-hidden border-b border-base-300 bg-base-200/90 p-3"
+          class="relative shrink-0 overflow-hidden border-b border-base-300 bg-base-200/90 p-3"
         >
           <div
             class="absolute -right-12 -top-16 h-36 w-36 rounded-full bg-primary/20 blur-3xl"
@@ -51,7 +51,7 @@
           <div class="relative flex items-start justify-between gap-3">
             <div class="flex min-w-0 gap-3">
               <div
-                class="relative h-16 w-16 shrink-0 overflow-hidden rounded-3xl border border-primary/30 bg-base-300 shadow-lg"
+                class="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-primary/30 bg-base-300 shadow-lg sm:h-14 sm:w-14"
               >
                 <img
                   :src="narratorImage"
@@ -70,7 +70,7 @@
 
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                  <h2 class="truncate text-lg font-black text-base-content">
+                  <h2 class="truncate text-base font-black text-base-content">
                     {{ narratorName }}
                   </h2>
 
@@ -80,9 +80,9 @@
                 </div>
 
                 <p
-                  class="mt-1 line-clamp-2 text-xs leading-relaxed text-base-content/65"
+                  class="mt-1 line-clamp-1 text-xs leading-relaxed text-base-content/65 sm:line-clamp-2"
                 >
-                  {{ narratorSummary }}
+                  {{ narratorMenuSummary }}
                 </p>
               </div>
             </div>
@@ -109,10 +109,10 @@
             </div>
           </div>
 
-          <div class="relative mt-3 grid grid-cols-2 gap-2">
+          <div class="relative mt-3 grid grid-cols-2 gap-1.5">
             <button
               type="button"
-              class="btn btn-sm rounded-2xl"
+              class="btn btn-xs rounded-2xl sm:btn-sm"
               :class="screenButtonClass('narrator')"
               @click="setScreen('narrator')"
             >
@@ -122,7 +122,7 @@
 
             <button
               type="button"
-              class="btn btn-sm rounded-2xl"
+              class="btn btn-xs rounded-2xl sm:btn-sm"
               :class="screenButtonClass('scenarios')"
               @click="setScreen('scenarios')"
             >
@@ -160,7 +160,7 @@
                 </h3>
 
                 <p
-                  class="mt-1 line-clamp-3 text-sm leading-relaxed text-base-content/65"
+                  class="mt-1 line-clamp-2 text-sm leading-relaxed text-base-content/65 sm:line-clamp-3"
                 >
                   {{ activeDreamSummary }}
                 </p>
@@ -170,7 +170,7 @@
 
           <section v-if="activeScreen === 'narrator'" class="mt-3">
             <section
-              v-if="emotionOptions.length"
+              v-if="showMoodRing && emotionOptions.length"
               class="rounded-3xl border border-base-300 bg-base-200/80 p-3"
             >
               <div class="flex flex-wrap items-center justify-between gap-2">
@@ -215,7 +215,7 @@
             <section
               v-if="narratorSession.length"
               ref="chatLogRef"
-              class="mt-3 max-h-64 overflow-y-auto rounded-3xl border border-base-300 bg-base-200/80 p-3"
+              class="mt-3 max-h-56 overflow-y-auto rounded-3xl border border-base-300 bg-base-200/80 p-3 sm:max-h-64"
             >
               <div class="grid gap-3">
                 <article
@@ -284,28 +284,52 @@
               />
 
               <div class="flex flex-wrap justify-between gap-2">
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-sm rounded-2xl"
-                  :disabled="isNarratorResponding"
-                  @click="clearSession"
-                >
-                  Clear
-                </button>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm rounded-2xl"
+                    :disabled="!activeDream"
+                    @click="prepareBuildPrompt"
+                  >
+                    <Icon name="kind-icon:wand" class="h-4 w-4" />
+                    Build
+                  </button>
 
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm rounded-2xl text-white"
-                  :disabled="!canSendNarrator"
-                  @click="sendNarratorMessage"
-                >
-                  <span
-                    v-if="isNarratorResponding"
-                    class="loading loading-spinner loading-xs"
-                  />
-                  <Icon v-else name="kind-icon:send" class="h-4 w-4" />
-                  Ask Narrator
-                </button>
+                  <button
+                    type="button"
+                    class="btn btn-accent btn-sm rounded-2xl"
+                    :disabled="!activeDream"
+                    @click="prepareStoryPrompt"
+                  >
+                    <Icon name="kind-icon:book" class="h-4 w-4" />
+                    Story
+                  </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-sm rounded-2xl"
+                    :disabled="isNarratorResponding"
+                    @click="clearSession"
+                  >
+                    Clear
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm rounded-2xl text-white"
+                    :disabled="!canSendNarrator"
+                    @click="sendNarratorMessage"
+                  >
+                    <span
+                      v-if="isNarratorResponding"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    <Icon v-else name="kind-icon:send" class="h-4 w-4" />
+                    Ask
+                  </button>
+                </div>
               </div>
             </section>
           </section>
@@ -315,13 +339,36 @@
               v-if="activeDream && dreamScenarios.length"
               class="grid gap-3"
             >
+              <div class="grid gap-1.5">
+                <label
+                  for="workspace-narrator-scenario"
+                  class="px-1 text-xs font-black uppercase tracking-wide text-primary"
+                >
+                  Scenario
+                </label>
+
+                <select
+                  id="workspace-narrator-scenario"
+                  v-model="selectedScenarioKey"
+                  class="select select-bordered select-sm w-full rounded-2xl bg-base-100"
+                >
+                  <option
+                    v-for="(scenario, index) in dreamScenarios"
+                    :key="scenarioKey(scenario, index)"
+                    :value="scenarioKey(scenario, index)"
+                  >
+                    {{ scenarioTitle(scenario) }}
+                  </option>
+                </select>
+              </div>
+
               <article
                 v-if="selectedScenario"
                 class="overflow-hidden rounded-3xl border border-primary/25 bg-base-100 shadow-lg"
               >
                 <div
                   v-if="scenarioImage(selectedScenario)"
-                  class="relative h-36 overflow-hidden bg-base-300"
+                  class="relative h-32 overflow-hidden bg-base-300 sm:h-36"
                 >
                   <img
                     :src="scenarioImage(selectedScenario)"
@@ -382,7 +429,7 @@
                 </div>
               </article>
 
-              <div class="grid gap-2">
+              <div class="hidden gap-2 sm:grid">
                 <button
                   v-for="(scenario, index) in dreamScenarios"
                   :key="scenarioKey(scenario, index)"
@@ -433,7 +480,7 @@
 
             <section
               v-else-if="activeDream"
-              class="rounded-3xler border-dashed border-base-300 bg-base-200/70 p-4 text-center"
+              class="rounded-3xl border border-dashed border-base-300 bg-base-200/70 p-4 text-center"
             >
               <Icon name="kind-icon:map" class="mx-auto h-8 w-8 text-primary" />
 
@@ -498,11 +545,39 @@
     </Transition>
 
     <section
-      class="pointer-events-auto relative z-100 h-full w-full overflow-visible"
+      class="pointer-events-auto relative z-100 grid h-full w-full grid-cols-[minmax(0,1fr)_auto] items-end gap-2 overflow-visible rounded-4xl border border-primary/25 bg-base-100/90 p-2 shadow-2xl backdrop-blur transition-transform duration-300 md:rounded-[2.5rem] md:p-3 md:hover:scale-[1.04]"
     >
+      <div class="flex min-w-0 flex-col justify-end gap-1 pb-1">
+        <button
+          type="button"
+          class="max-w-full self-start rounded-full border border-base-300/80 bg-base-100/95 px-3 py-1.5 text-left shadow-lg backdrop-blur transition hover:border-primary/40 hover:bg-primary/10"
+          title="Mood easter egg"
+          aria-label="Change narrator mood"
+          @click.stop="cycleEmotion"
+        >
+          <span
+            class="block max-w-32 truncate text-sm font-black leading-tight text-primary md:max-w-44 md:text-base"
+          >
+            {{ narratorName }}
+          </span>
+
+          <span
+            class="block max-w-32 truncate text-[0.7rem] font-bold leading-tight text-base-content/70 md:max-w-44 md:text-xs"
+          >
+            {{ currentEmotionLabel }}
+          </span>
+        </button>
+
+        <p
+          class="hidden max-w-44 rounded-2xl bg-base-100/85 px-3 py-2 text-xs leading-relaxed text-base-content/70 shadow backdrop-blur sm:line-clamp-3 md:block"
+        >
+          {{ narratorSummary }}
+        </p>
+      </div>
+
       <button
         type="button"
-        class="group relative h-full w-full overflow-hidden rounded-3xl border border-primary/30 bg-base-100 shadow-2xl transition hover:-translate-y-1 hover:scale-[1.03] md:rounded-[2.35rem]"
+        class="group relative h-full min-h-24 w-20 overflow-hidden rounded-[1.75rem] border border-primary/30 bg-base-300 shadow-xl transition hover:scale-105 md:w-[calc(var(--hand-h,9rem)*0.78)] md:rounded-[2.25rem]"
         :aria-expanded="isOpen"
         :title="isOpen ? 'Close narrator' : 'Open narrator'"
         @click="togglePanel"
@@ -518,79 +593,12 @@
           loading="lazy"
         />
 
-        <div
-          class="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-base-100 via-base-100/45 to-transparent"
-        />
-
-        <div
-          class="absolute inset-x-1 bottom-1 rounded-full border border-base-300/70 bg-base-100/90 px-1.5 py-1 text-center shadow-xl backdrop-blur md:inset-x-2 md:bottom-2 md:px-2 md:py-1.5"
-        >
-          <p
-            class="truncate text-[0.58rem] font-black leading-tight text-primary md:text-[0.68rem]"
-          >
-            {{ narratorName }}
-          </p>
-
-          <p
-            class="truncate text-[0.5rem] leading-tight text-base-content/60 md:text-[0.58rem]"
-          >
-            {{ currentEmotionLabel }}
-          </p>
-        </div>
-
         <span
           v-if="currentEmotionRow?.emoticon"
-          class="absolute -right-1 -top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-lg shadow"
+          class="absolute right-1 top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-base shadow md:text-lg"
         >
           {{ currentEmotionRow.emoticon }}
         </span>
-      </button>
-
-      <div class="absolute left-2 top-2 z-20 flex flex-col gap-1.5">
-        <button
-          type="button"
-          class="btn btn-secondary btn-xs btn-circle shadow-xl"
-          :disabled="!activeDream"
-          title="Build"
-          aria-label="Build with narrator"
-          @click.stop="prepareBuildPrompt"
-        >
-          <Icon name="kind-icon:wand" class="h-3.5 w-3.5" />
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-accent btn-xs btn-circle shadow-xl"
-          :disabled="!activeDream"
-          title="Story"
-          aria-label="Start story with narrator"
-          @click.stop="prepareStoryPrompt"
-        >
-          <Icon name="kind-icon:book" class="h-3.5 w-3.5" />
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-info btn-xs btn-circle shadow-xl"
-          title="Mood"
-          aria-label="Change narrator mood"
-          @click.stop="cycleEmotion"
-        >
-          <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      <button
-        type="button"
-        class="btn btn-primary btn-xs btn-circle absolute right-2 top-2 z-20 text-white shadow-xl"
-        :title="isOpen ? 'Close navigator' : 'Open navigator'"
-        :aria-label="isOpen ? 'Close navigator' : 'Open navigator'"
-        @click.stop="togglePanel"
-      >
-        <Icon
-          :name="isOpen ? 'kind-icon:close' : 'kind-icon:chevron-left'"
-          class="h-3.5 w-3.5"
-        />
       </button>
     </section>
   </div>
@@ -718,6 +726,7 @@ const bubblesEnabled = ref(true)
 const activeScreen = ref<NarratorScreen>('narrator')
 const selectedScenarioKey = ref('')
 const currentEmotion = ref<NarratorEmotion>('NEUTRAL')
+const showMoodRing = ref(false)
 const activeBubble = ref('')
 const narratorMessage = ref('')
 const statusMessage = ref('')
@@ -738,33 +747,50 @@ const shouldRender = computed(() => {
 const narratorFrameClass = computed(() => {
   if (props.railMode && !props.chromeMinimized) {
     return [
-      'fixed bottom-3 right-3 h-24 w-16 min-w-16 max-w-16',
+      'fixed bottom-3 right-3 h-28 w-56 max-w-[calc(100vw-1.5rem)]',
+      'transition-[height,width,transform] duration-300 ease-out',
+      isOpen.value ? 'h-32 w-[min(24rem,calc(100vw-1.5rem))]' : '',
       'md:relative md:bottom-auto md:right-auto',
-      'md:h-[calc(var(--hand-h,9rem)*1.78)] md:w-[calc(var(--hand-h,9rem)*0.82)]',
-      'md:max-h-[72dvh] md:min-h-44 md:min-w-28 md:max-w-none',
-    ].join(' ')
+      'md:h-[calc(var(--hand-h,9rem)*1.95)] md:w-[calc(var(--hand-h,9rem)*1.38)]',
+      'md:max-h-[76dvh] md:min-h-52 md:min-w-44 md:max-w-none',
+      isOpen.value
+        ? 'md:h-[calc(var(--hand-h,9rem)*2.45)] md:w-[calc(var(--hand-h,9rem)*1.72)]'
+        : 'md:hover:h-[calc(var(--hand-h,9rem)*2.55)] md:hover:w-[calc(var(--hand-h,9rem)*1.78)]',
+    ]
+      .filter(Boolean)
+      .join(' ')
   }
 
   return [
-    'fixed bottom-3 right-3 h-24 w-16 min-w-16 max-w-16',
-    'sm:bottom-4 sm:right-4 sm:h-[calc(var(--hand-h,9rem)*1.35)] sm:w-[calc(var(--hand-h,9rem)*0.72)]',
-    'sm:max-h-[70dvh] sm:min-h-40 sm:min-w-24 sm:max-w-none',
-  ].join(' ')
+    'fixed bottom-3 right-3 h-28 w-56 max-w-[calc(100vw-1.5rem)]',
+    'transition-[height,width,transform] duration-300 ease-out',
+    isOpen.value ? 'h-32 w-[min(24rem,calc(100vw-1.5rem))]' : '',
+    'sm:bottom-4 sm:right-4',
+    'md:h-[calc(var(--hand-h,9rem)*1.7)] md:w-[calc(var(--hand-h,9rem)*1.18)]',
+    'md:max-h-[72dvh] md:min-h-48 md:min-w-40 md:max-w-none',
+    isOpen.value
+      ? 'md:h-[calc(var(--hand-h,9rem)*2.25)] md:w-[calc(var(--hand-h,9rem)*1.52)]'
+      : 'md:hover:h-[calc(var(--hand-h,9rem)*2.35)] md:hover:w-[calc(var(--hand-h,9rem)*1.6)]',
+  ]
+    .filter(Boolean)
+    .join(' ')
 })
 
 const narratorPanelClass = computed(() => {
   if (props.railMode && !props.chromeMinimized) {
     return [
-      'fixed inset-x-3 bottom-20 w-auto max-h-[calc(100dvh-6rem)]',
-      'md:absolute md:inset-x-auto md:bottom-0 md:right-[calc(100%+0.75rem)]',
-      'md:w-[min(34rem,calc(100vw-8.75rem))] md:max-h-[min(42rem,calc(100dvh-1.5rem))]',
+      'fixed inset-x-3 bottom-36 w-auto max-h-[calc(100dvh-9.75rem)]',
+      'md:absolute md:inset-x-auto md:bottom-0 md:right-[calc(100%+1rem)]',
+      'md:w-[min(30rem,calc(100vw-9.5rem))] md:max-h-[min(38rem,calc(100dvh-2rem))]',
+      'xl:w-[28rem]',
     ].join(' ')
   }
 
   return [
-    'fixed inset-x-3 bottom-20 w-auto max-h-[calc(100dvh-6rem)]',
-    'sm:absolute sm:inset-x-auto sm:bottom-[calc(100%+0.75rem)] sm:right-0',
-    'sm:w-[min(calc(100vw-1.5rem),32rem)] sm:max-h-[min(42rem,calc(100dvh-1.5rem))]',
+    'fixed inset-x-3 bottom-36 w-auto max-h-[calc(100dvh-9.75rem)]',
+    'sm:absolute sm:inset-x-auto sm:bottom-[calc(100%+1rem)] sm:right-0',
+    'sm:w-[min(calc(100vw-1.5rem),30rem)] sm:max-h-[min(38rem,calc(100dvh-2rem))]',
+    'xl:w-[28rem]',
   ].join(' ')
 })
 
@@ -792,16 +818,17 @@ const dreamScenarios = computed<DreamScenario[]>(() => {
 })
 
 const selectedScenario = computed<DreamScenario | null>(() => {
-  if (!dreamScenarios.value.length) return null
+  const scenarios = dreamScenarios.value
 
-  return (
-    dreamScenarios.value.find(
-      (scenario, index) =>
-        scenarioKey(scenario, index) === selectedScenarioKey.value,
-    ) ??
-    dreamScenarios.value[0] ??
-    null
+  if (!scenarios.length) return null
+
+  const match = scenarios.find(
+    (scenario, index) =>
+      scenarioKey(scenario, index) === selectedScenarioKey.value,
   )
+  const firstScenario = scenarios[0]
+
+  return match ?? firstScenario ?? null
 })
 
 const narratorBot = computed<DreamNarratorBot | null>(() => {
@@ -847,14 +874,21 @@ const currentEmotionRow = computed(() => {
 const narratorName = computed(() => narratorBot.value?.name || 'Narrator')
 
 const narratorSummary = computed(() => {
-  const bot = narratorBot.value
+  return cleanPublicNarratorText(
+    narratorBot.value?.subtitle ||
+      narratorBot.value?.tagline ||
+      narratorBot.value?.description ||
+      narratorBot.value?.personality ||
+      'Dream guide, scene starter, and chaos translator.',
+  )
+})
 
-  return (
-    bot?.description ||
-    bot?.subtitle ||
-    bot?.tagline ||
-    bot?.personality ||
-    'A Dream-facing guide for building elements, starting scenes, and adding flavor.'
+const narratorMenuSummary = computed(() => {
+  return cleanPublicNarratorText(
+    narratorBot.value?.subtitle ||
+      narratorBot.value?.tagline ||
+      narratorBot.value?.description ||
+      'A Dream-facing guide for building elements, starting scenes, and adding flavor.',
   )
 })
 
@@ -987,6 +1021,7 @@ watch(
     narratorMessage.value = ''
     statusMessage.value = ''
     selectedScenarioKey.value = ''
+    showMoodRing.value = false
     setEmotion('NEUTRAL', false)
 
     await nextTick()
@@ -1018,6 +1053,14 @@ watch(
 )
 
 watch([isOpen, pinOpen, bubblesEnabled, activeScreen], saveSettings)
+
+watch(
+  isOpen,
+  (value) => {
+    emit('panel-open-change', value)
+  },
+  { immediate: true },
+)
 
 onMounted(async () => {
   loadSettings()
@@ -1091,6 +1134,8 @@ function setEmotion(emotion: NarratorEmotion, showBubble = true) {
 }
 
 function cycleEmotion() {
+  showMoodRing.value = true
+
   const options = emotionOptions.value.length
     ? emotionOptions.value
     : fallbackEmotions
@@ -1379,6 +1424,26 @@ function scenarioImage(scenario?: DreamScenario | null) {
     collectionImage?.fileName ||
     ''
   )
+}
+
+function cleanPublicNarratorText(value: unknown) {
+  const text = String(value || '').trim()
+
+  if (!text) return ''
+
+  const instructionPatterns = [
+    /^you are\b/i,
+    /^act as\b/i,
+    /^system:/i,
+    /^assistant:/i,
+    /^your role\b/i,
+  ]
+
+  if (instructionPatterns.some((pattern) => pattern.test(text))) {
+    return 'Dream guide, scene starter, and chaos translator.'
+  }
+
+  return text
 }
 
 function openFallbackEntry(entry: FallbackNavigationEntry) {
@@ -1674,14 +1739,6 @@ async function sendNarratorMessage() {
     )
   }
 }
-
-watch(
-  isOpen,
-  (value) => {
-    emit('panel-open-change', value)
-  },
-  { immediate: true },
-)
 </script>
 
 <style scoped>

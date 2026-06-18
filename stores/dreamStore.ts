@@ -469,11 +469,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
   const selectedDreamCurrentImage = computed(() => {
     return (
-      selectedDream.value?.imagePath ??
-      selectedDream.value?.highlightImage ??
       selectedDream.value?.ArtImage?.imagePath ??
       selectedDream.value?.ArtImage?.path ??
       selectedDream.value?.ArtImage?.fileName ??
+      selectedDream.value?.highlightImage ??
+      selectedDream.value?.imagePath ??
       ''
     )
   })
@@ -1047,25 +1047,33 @@ export const useDreamStore = defineStore('dreamStore', () => {
     return fetchArtForDreamPromises.value[id]
   }
 
-  function buildMutationBody(payload: DreamForm): DreamForm {
-    const built = buildDreamPayload({
+  function buildMutationBody(
+    payload: DreamForm,
+    existingDream: DreamWithRelations | null = null,
+  ): DreamForm {
+    const source = normalizeDreamForm({
+      ...(existingDream ? toDreamForm(existingDream) : {}),
       ...payload,
-      userId: payload.userId ?? currentUserId.value,
-      designer: payload.designer || userStore.username || 'Kind Designer',
+    })
+
+    const built = buildDreamPayload({
+      ...source,
+      userId: source.userId ?? currentUserId.value,
+      designer: source.designer || userStore.username || 'Kind Designer',
     }) as DreamForm
 
     return normalizeDreamForm({
-      ...payload,
+      ...source,
       ...built,
-      title: built.title || fallbackDreamTitle(built.pitch),
-      pitch: built.pitch || payload.description || built.title,
-      artImageId: payload.artImageId ?? null,
-      artCollectionId: payload.artCollectionId ?? null,
-      tagIds: normalizeIds(payload.tagIds),
-      characterIds: normalizeIds(payload.characterIds),
-      rewardIds: normalizeIds(payload.rewardIds),
-      createCollection: payload.createCollection ?? true,
-      addArtToCollection: payload.addArtToCollection ?? true,
+      title: built.title || source.title || fallbackDreamTitle(built.pitch),
+      pitch: built.pitch || source.pitch || source.description || built.title,
+      artImageId: source.artImageId ?? null,
+      artCollectionId: source.artCollectionId ?? null,
+      tagIds: normalizeIds(source.tagIds),
+      characterIds: normalizeIds(source.characterIds),
+      rewardIds: normalizeIds(source.rewardIds),
+      createCollection: source.createCollection ?? !existingDream,
+      addArtToCollection: source.addArtToCollection ?? !existingDream,
     })
   }
 
@@ -1139,7 +1147,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
       clearError()
 
       try {
-        const body = buildMutationBody(updates)
+        const existingDream =
+          selectedDream.value?.id === dreamId
+            ? selectedDream.value
+            : dreams.value.find((dream) => dream.id === dreamId) ?? null
+        const body = buildMutationBody(updates, existingDream)
         const res = await performFetch<DreamWithRelations>(
           `/api/dreams/${dreamId}`,
           {

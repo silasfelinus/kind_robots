@@ -1,89 +1,41 @@
 <!-- /components/dreams/dream-manager.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
-    <header
-      class="mb-3 flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow md:flex-row md:items-center md:justify-between"
+    <div
+      v-if="isLoadingManager || managerError"
+      class="mb-2 flex shrink-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs shadow-sm"
+      :class="managerError ? 'border-error/40 bg-error/10 text-error' : 'text-base-content/60'"
     >
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
-          <Icon name="kind-icon:dream" class="h-6 w-6 text-primary" />
-          <h1 class="text-xl font-black text-primary">Dreams</h1>
-          <span class="badge badge-outline rounded-xl">{{ activeLabel }}</span>
-        </div>
-
-        <p
-          class="mt-1 text-sm text-base-content/65"
-          :class="managerError ? 'text-error' : ''"
-        >
-          {{ managerError || managerSummary }}
-        </p>
-      </div>
-
-      <div class="flex flex-wrap gap-2">
-        <button
-          v-for="tab in visibleTabs"
-          :key="tab.key"
-          type="button"
-          class="btn btn-sm rounded-2xl"
-          :class="
-            activeTab === tab.key ? 'btn-primary text-white' : 'btn-ghost'
-          "
-          @click="setTab(tab.key)"
-        >
-          <Icon :name="tab.icon" class="h-4 w-4" />
-          {{ tab.label }}
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-sm rounded-2xl"
-          :class="managerError ? 'btn-error' : 'btn-outline'"
-          :disabled="isLoadingManager"
-          @click="refreshManagerData"
-        >
-          <span
-            v-if="isLoadingManager"
-            class="loading loading-spinner loading-xs"
-          />
-          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
-    </header>
-
-    <section
-      v-if="activeTab === 'dreams'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        :show-header="false"
-        :show-controls="true"
-        :show-images="true"
-        :show-card-actions="true"
-        :show-stats="true"
-        :show-meta="true"
-        :show-descriptions="false"
-        :allow-add="true"
-        :allow-edit="true"
-        :allow-delete="false"
-        :allow-refresh="true"
-        @selected="onDreamSelected"
-        @opened="onDreamOpened"
-        @editing="onDreamEditing"
+      <span
+        v-if="isLoadingManager"
+        class="loading loading-spinner loading-xs text-primary"
       />
-    </section>
+
+      <Icon
+        v-else
+        name="kind-icon:warning"
+        class="h-4 w-4 shrink-0 text-error"
+      />
+
+      <p class="min-w-0 flex-1 truncate">
+        {{ managerError || managerSummary }}
+      </p>
+
+      <button
+        type="button"
+        class="btn btn-ghost btn-xs tooltip tooltip-left shrink-0 rounded-xl"
+        :class="managerError ? 'text-error' : ''"
+        :disabled="isLoadingManager"
+        data-tip="Refresh Dream workspace"
+        aria-label="Refresh Dream workspace"
+        @click="refreshManagerData"
+      >
+        <Icon name="kind-icon:refresh" class="h-4 w-4" />
+      </button>
+    </div>
 
     <section
-      v-else-if="activeTab === 'interact'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'dreammaker'"
+      v-if="activeTab === 'dreammaker'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
       <dream-maker
@@ -94,21 +46,39 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'brainstorm'"
+      v-else-if="activeTab === 'interact' && dreamStore.selectedDream"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <dream-brainstorm
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        @saved="onBrainstormSaved"
-      />
+      <dream-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
-    <div
+    <section
       v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      Unknown Dream tab: {{ activeTab }}
-    </div>
+      <dream-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        title="Dreams"
+        subtitle="Search, filter, and select a Dream. Selection opens the workspace."
+        :show-header="true"
+        :show-controls="true"
+        :show-images="true"
+        :show-card-actions="true"
+        :show-stats="true"
+        :show-meta="true"
+        :show-descriptions="false"
+        :allow-add="true"
+        :allow-edit="true"
+        :allow-delete="false"
+        :allow-refresh="true"
+        :open-on-select="true"
+        @selected="onDreamSelected"
+        @opened="onDreamOpened"
+        @editing="onDreamEditing"
+        @created="onDreamCreated"
+      />
+    </section>
   </section>
 </template>
 
@@ -123,7 +93,7 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
-type DreamTab = 'dreams' | 'interact' | 'dreammaker' | 'brainstorm'
+type DreamTab = 'dreams' | 'interact' | 'dreammaker'
 type LegacyDreamTab =
   | DreamTab
   | 'overview'
@@ -131,6 +101,7 @@ type LegacyDreamTab =
   | 'add'
   | 'maker'
   | 'prompts'
+  | 'brainstorm'
 
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
@@ -147,45 +118,30 @@ const defaultTab: DreamTab = 'dreams'
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const visibleTabs: { key: DreamTab; label: string; icon: string }[] = [
-  { key: 'dreams', label: 'Dreams', icon: 'kind-icon:grid' },
-  { key: 'interact', label: 'Interact', icon: 'kind-icon:chat' },
-  { key: 'dreammaker', label: 'Dreammaker', icon: 'kind-icon:wand' },
-  { key: 'brainstorm', label: 'Brainstorm', icon: 'kind-icon:sparkles' },
-]
-
 const activeTab = computed<DreamTab>(() => {
   const selectedTab = navStore.getDashboardTab(dashboardKey) as LegacyDreamTab
-  return normalizeTab(selectedTab)
-})
+  const normalized = normalizeTab(selectedTab)
 
-const activeLabel = computed(() => {
-  return (
-    visibleTabs.find((tab) => tab.key === activeTab.value)?.label ?? 'Dreams'
-  )
+  if (normalized === 'interact' && !dreamStore.selectedDream) {
+    return 'dreams'
+  }
+
+  return normalized
 })
 
 const managerSummary = computed(() => {
   const selected = dreamStore.selectedDream?.title || 'no Dream selected'
 
-  return `${dreamStore.activeDreams.length}/${dreamStore.dreams.length} Dreams active. ${scenarioStore.scenarios.length} Scenarios loaded. Current Dream: ${selected}.`
+  return `${dreamStore.activeDreams.length}/${dreamStore.dreams.length} active Dreams • ${scenarioStore.scenarios.length} Scenarios • ${selected}`
 })
 
 function normalizeTab(tab?: LegacyDreamTab | string | null): DreamTab {
-  if (tab === 'overview' || tab === 'gallery' || tab === 'dreams') {
-    return 'dreams'
-  }
-
   if (tab === 'interact') {
     return 'interact'
   }
 
   if (tab === 'add' || tab === 'maker' || tab === 'dreammaker') {
     return 'dreammaker'
-  }
-
-  if (tab === 'prompts' || tab === 'brainstorm') {
-    return 'brainstorm'
   }
 
   return defaultTab
@@ -209,31 +165,26 @@ function onDreamEditing() {
   setTab('dreammaker')
 }
 
-async function onDreamSaved(id: number | number[] | DreamWithRelations) {
+function onDreamCreated() {
+  setTab('dreammaker')
+}
+
+async function onDreamSaved(id?: number | number[] | DreamWithRelations) {
   await loadManagerData(true)
 
   const selectedId = resolveSavedDreamId(id)
 
   if (selectedId) {
     await dreamStore.selectDreamById(selectedId)
+    setupUploadTarget()
+    setTab('interact')
+    return
   }
 
   setTab('dreams')
 }
 
-async function onBrainstormSaved(ids: number[]) {
-  await loadManagerData(true)
-
-  const [firstId] = ids
-
-  if (firstId) {
-    await dreamStore.selectDreamById(firstId)
-  }
-
-  setTab('dreams')
-}
-
-function resolveSavedDreamId(value: number | number[] | DreamWithRelations) {
+function resolveSavedDreamId(value?: number | number[] | DreamWithRelations) {
   if (typeof value === 'number') return value
 
   if (Array.isArray(value)) {
@@ -292,6 +243,10 @@ async function loadManagerData(force = false) {
         force,
         hydrateImages: false,
         initializeServerStore: false,
+      }),
+      collectionStore.fetchCollections(force, {
+        includeImages: true,
+        imageLimit: 80,
       }),
       ...(force || !serverStore.hasLoaded
         ? [serverStore.initialize({ force, fetchRemote: true })]

@@ -39,9 +39,11 @@
           <Icon name="kind-icon:question" class="h-4 w-4" />
         </button>
 
-        <main class="relative z-10 flex h-full min-h-0 overflow-hidden">
+        <main
+          class="relative z-10 flex h-full min-h-0 overflow-x-visible overflow-y-hidden md:overflow-hidden"
+        >
           <div
-            class="relative z-10 flex min-h-0 flex-1 overflow-hidden md:flex-row md:gap-3"
+            class="relative z-10 flex min-h-0 flex-1 overflow-x-visible overflow-y-hidden md:flex-row md:gap-3 md:overflow-hidden"
             :class="chromeMinimized ? 'pb-10' : 'pb-(--hand-h)'"
           >
             <Transition name="workspace-sheet-slide">
@@ -110,34 +112,34 @@
     </section>
 
     <ClientOnly>
-<section
-  v-if="!chromeMinimized"
-  class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end justify-end gap-2 px-2 sm:px-3"
-  style="height: var(--hand-h)"
->
-  <div
-    class="relative min-w-0 flex-1 md:block"
-    :class="narratorPanelOpen ? 'hidden' : 'block'"
-  >
-    <Transition name="workspace-hand-slide">
-      <workspace-hand />
-    </Transition>
-  </div>
+      <section
+        v-if="!chromeMinimized"
+        class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end justify-end gap-2 px-2 sm:px-3"
+        style="height: var(--hand-h)"
+      >
+        <div
+          class="relative min-w-0 flex-1 md:block"
+          :class="narratorPanelOpen ? 'hidden' : 'block'"
+        >
+          <Transition name="workspace-hand-slide">
+            <workspace-hand />
+          </Transition>
+        </div>
 
-  <div class="relative z-100 flex shrink-0 items-end justify-end">
-    <workspace-narrator
-      rail-mode
-      @panel-open-change="setNarratorPanelOpen"
-    />
-  </div>
-</section>
+        <div class="relative z-100 flex shrink-0 items-end justify-end">
+          <workspace-narrator
+            rail-mode
+            @panel-open-change="setNarratorPanelOpen"
+          />
+        </div>
+      </section>
 
-<workspace-narrator
-  v-else
-  :chrome-minimized="chromeMinimized"
-  rail-mode
-  @panel-open-change="setNarratorPanelOpen"
-/>
+      <workspace-narrator
+        v-else
+        :chrome-minimized="chromeMinimized"
+        rail-mode
+        @panel-open-change="setNarratorPanelOpen"
+      />
 
       <template #fallback>
         <div

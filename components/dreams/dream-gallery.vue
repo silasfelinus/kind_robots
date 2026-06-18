@@ -331,11 +331,13 @@
 
     <div
       v-if="pendingDream"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-neutral/70 p-4 backdrop-blur-sm"
+      class="fixed inset-x-0 top-0 z-50 flex items-start justify-center bg-neutral/70 p-3 pt-6 backdrop-blur-sm sm:p-4 sm:pt-8"
+      style="bottom: var(--hand-h, 9rem)"
       @click.self="closeDreamPreview"
     >
       <section
-        class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+        class="flex w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+        style="max-height: calc(100dvh - var(--hand-h, 9rem) - 2rem)"
       >
         <header
           class="flex flex-wrap items-start justify-between gap-3 border-b border-base-300 bg-base-200 p-4"
@@ -389,7 +391,7 @@
         </header>
 
         <section
-          class="grid max-h-[60vh] gap-3 overflow-y-auto p-4 md:grid-cols-[12rem_minmax(0,1fr)]"
+          class="grid min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain p-4 md:grid-cols-[12rem_minmax(0,1fr)]"
         >
           <figure
             v-if="showImages"

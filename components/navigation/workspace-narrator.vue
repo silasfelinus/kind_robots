@@ -2,7 +2,8 @@
 <template>
   <div
     v-if="shouldRender"
-    class="pointer-events-none fixed bottom-3 right-3 z-100 flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 sm:bottom-4 sm:right-4"
+    class="pointer-events-none z-100 flex flex-col items-end gap-2"
+    :class="narratorFrameClass"
   >
     <Transition name="narrator-bubble">
       <aside
@@ -415,15 +416,6 @@ type ChatRuntimeInput = Parameters<
   ReturnType<typeof useChatStore>['addChat']
 >[0]
 
-const props = withDefaults(
-  defineProps<{
-    chromeMinimized?: boolean
-  }>(),
-  {
-    chromeMinimized: false,
-  },
-)
-
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
 const chatStore = useChatStore()
@@ -459,7 +451,6 @@ const isDreamWorkspace = computed(() => {
 })
 
 const shouldRender = computed(() => {
-  if (props.chromeMinimized) return false
   return Boolean(isDreamWorkspace.value || dreamStore.selectedDream)
 })
 
@@ -1000,6 +991,14 @@ function buildNarratorMessages(nextUserMessage: string): BotCafeMessage[] {
   ]
 }
 
+const narratorFrameClass = computed(() => {
+  if (props.railMode && !props.chromeMinimized) {
+    return 'relative max-w-[min(28rem,42vw)]'
+  }
+
+  return 'fixed bottom-3 right-3 max-w-[calc(100vw-1.5rem)] sm:bottom-4 sm:right-4'
+})
+
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message
   statusTone.value = tone
@@ -1080,6 +1079,17 @@ async function sendNarratorMessage() {
     )
   }
 }
+
+const props = withDefaults(
+  defineProps<{
+    chromeMinimized?: boolean
+    railMode?: boolean
+  }>(),
+  {
+    chromeMinimized: false,
+    railMode: false,
+  },
+)
 </script>
 
 <style scoped>

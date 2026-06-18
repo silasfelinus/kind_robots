@@ -1,8 +1,9 @@
 <!-- /components/dreams/dream-card.vue -->
 <template>
   <article
-    class="group flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+    class="group flex h-full min-h-0 cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
     :class="cardClass"
+    @click="$emit('choose', dream)"
   >
     <figure
       v-if="showImage"
@@ -54,16 +55,6 @@
             {{ dream.isActive ? 'Active' : 'Archived' }}
           </p>
         </div>
-
-        <button
-          v-if="!showActions"
-          type="button"
-          class="btn btn-circle btn-ghost btn-sm shrink-0"
-          title="Choose Dream"
-          @click="$emit('choose', dream)"
-        >
-          <Icon name="kind-icon:target" class="h-4 w-4" />
-        </button>
       </header>
 
       <p
@@ -123,16 +114,11 @@
         </span>
       </div>
 
-      <footer v-if="showActions" class="mt-auto flex flex-wrap gap-2 pt-1">
-        <button
-          type="button"
-          class="btn btn-primary btn-sm flex-1 rounded-2xl text-white"
-          @click="$emit('choose', dream)"
-        >
-          <Icon name="kind-icon:target" class="h-4 w-4" />
-          Choose
-        </button>
-
+      <footer
+        v-if="showActions && (allowEdit || allowDelete)"
+        class="mt-auto flex flex-wrap justify-end gap-2 pt-1"
+        @click.stop
+      >
         <button
           v-if="allowEdit"
           type="button"
@@ -156,6 +142,7 @@
       <details
         v-if="showDebug"
         class="rounded-2xl border border-base-300 bg-base-200 p-2 text-xs"
+        @click.stop
       >
         <summary class="cursor-pointer font-bold text-primary">Debug</summary>
         <pre class="mt-2 max-h-40 overflow-auto whitespace-pre-wrap">{{

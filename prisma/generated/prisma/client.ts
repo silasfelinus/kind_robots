@@ -105,6 +105,11 @@ export type Composition = Prisma.CompositionModel
  */
 export type Dream = Prisma.DreamModel
 /**
+ * Model EmotionImage
+ * 
+ */
+export type EmotionImage = Prisma.EmotionImageModel
+/**
  * Model Log
  * our woefully underutilized log function, but it's there.
  */

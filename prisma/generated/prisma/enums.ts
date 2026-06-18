@@ -9,6 +9,20 @@
 * 🟢 You can import this file directly.
 */
 
+export const Emotion = {
+  NEUTRAL: 'NEUTRAL',
+  HAPPY: 'HAPPY',
+  SAD: 'SAD',
+  EXCITED: 'EXCITED',
+  NERVOUS: 'NERVOUS',
+  ANGRY: 'ANGRY',
+  CONFUSED: 'CONFUSED',
+  PROUD: 'PROUD'
+} as const
+
+export type Emotion = (typeof Emotion)[keyof typeof Emotion]
+
+
 export const ManaReason = {
   SIGNUP_BONUS: 'SIGNUP_BONUS',
   CYCLE_REFILL: 'CYCLE_REFILL',

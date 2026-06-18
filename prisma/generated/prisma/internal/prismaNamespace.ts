@@ -395,6 +395,7 @@ export const ModelName = {
   Component: 'Component',
   Composition: 'Composition',
   Dream: 'Dream',
+  EmotionImage: 'EmotionImage',
   Log: 'Log',
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "emotionImage" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1151,6 +1152,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DreamCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DreamCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmotionImage: {
+      payload: Prisma.$EmotionImagePayload<ExtArgs>
+      fields: Prisma.EmotionImageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmotionImageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmotionImageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+        }
+        findFirst: {
+          args: Prisma.EmotionImageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmotionImageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+        }
+        findMany: {
+          args: Prisma.EmotionImageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>[]
+        }
+        create: {
+          args: Prisma.EmotionImageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+        }
+        createMany: {
+          args: Prisma.EmotionImageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.EmotionImageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+        }
+        update: {
+          args: Prisma.EmotionImageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+        }
+        deleteMany: {
+          args: Prisma.EmotionImageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmotionImageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.EmotionImageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+        }
+        aggregate: {
+          args: Prisma.EmotionImageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmotionImage>
+        }
+        groupBy: {
+          args: Prisma.EmotionImageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmotionImageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmotionImageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmotionImageCountAggregateOutputType> | number
         }
       }
     }
@@ -2404,6 +2471,27 @@ export const DreamScalarFieldEnum = {
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
 
 
+export const EmotionImageScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  emotion: 'emotion',
+  label: 'label',
+  emoticon: 'emoticon',
+  imagePath: 'imagePath',
+  artImageId: 'artImageId',
+  botId: 'botId',
+  characterId: 'characterId',
+  message: 'message',
+  additionalPhrases: 'additionalPhrases',
+  isActive: 'isActive',
+  designer: 'designer',
+  artPrompt: 'artPrompt'
+} as const
+
+export type EmotionImageScalarFieldEnum = (typeof EmotionImageScalarFieldEnum)[keyof typeof EmotionImageScalarFieldEnum]
+
+
 export const LogScalarFieldEnum = {
   id: 'id',
   message: 'message',
@@ -2958,6 +3046,18 @@ export const DreamOrderByRelevanceFieldEnum = {
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
 
 
+export const EmotionImageOrderByRelevanceFieldEnum = {
+  label: 'label',
+  emoticon: 'emoticon',
+  imagePath: 'imagePath',
+  message: 'message',
+  designer: 'designer',
+  artPrompt: 'artPrompt'
+} as const
+
+export type EmotionImageOrderByRelevanceFieldEnum = (typeof EmotionImageOrderByRelevanceFieldEnum)[keyof typeof EmotionImageOrderByRelevanceFieldEnum]
+
+
 export const LogOrderByRelevanceFieldEnum = {
   message: 'message',
   username: 'username'
@@ -3241,6 +3341,13 @@ export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'Emotion'
+ */
+export type EnumEmotionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Emotion'>
+    
+
+
+/**
  * Reference to a field of type 'ManaReason'
  */
 export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaReason'>
@@ -3458,6 +3565,7 @@ export type GlobalOmitConfig = {
   component?: Prisma.ComponentOmit
   composition?: Prisma.CompositionOmit
   dream?: Prisma.DreamOmit
+  emotionImage?: Prisma.EmotionImageOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit
   manaTransaction?: Prisma.ManaTransactionOmit

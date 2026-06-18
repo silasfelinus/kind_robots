@@ -1298,8 +1298,13 @@ function uniqueById<T extends { id?: number | null }>(items: T[]) {
 <style scoped>
 .dream-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
   gap: 1rem;
+  align-items: stretch;
+}
+
+.dream-grid > * {
+  min-height: 20rem;
 }
 
 .dream-row {
@@ -1310,7 +1315,8 @@ function uniqueById<T extends { id?: number | null }>(items: T[]) {
 }
 
 .dream-row > * {
-  min-width: min(240px, 85vw);
-  max-width: 360px;
+  min-width: min(220px, 78vw);
+  max-width: 320px;
+  min-height: 18rem;
 }
 </style>

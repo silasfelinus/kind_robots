@@ -27,9 +27,11 @@ import {
 import type {
   ArtCollection,
   ArtImage,
+  Bot,
   Character,
   Chat,
   Dream,
+  EmotionImage,
   Prompt,
   Reaction,
   Reward,
@@ -63,6 +65,16 @@ export interface DreamChatForm extends Partial<Chat> {
   updateNote?: string | null
 }
 
+export interface DreamNarratorEmotionImage extends EmotionImage {
+  ArtImage?: Partial<ArtImage> | null
+}
+
+export interface DreamNarratorBot extends Partial<Bot> {
+  id: number
+  name: string
+  EmotionImages?: DreamNarratorEmotionImage[]
+}
+
 export interface DreamWithRelations extends Dream {
   User?: Pick<User, 'id' | 'username' | 'avatarImage'> | null
   ArtImage?: Partial<ArtImage> | null
@@ -74,6 +86,7 @@ export interface DreamWithRelations extends Dream {
   Characters?: Character[]
   Rewards?: Reward[]
   Chats?: DreamChatWithRelations[]
+  Bots?: DreamNarratorBot[]
   Reactions?: Reaction[]
   _count?: {
     Chats?: number

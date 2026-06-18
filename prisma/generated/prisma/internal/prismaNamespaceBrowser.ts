@@ -62,6 +62,7 @@ export const ModelName = {
   Component: 'Component',
   Composition: 'Composition',
   Dream: 'Dream',
+  EmotionImage: 'EmotionImage',
   Log: 'Log',
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
@@ -379,6 +380,27 @@ export const DreamScalarFieldEnum = {
 } as const
 
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
+
+
+export const EmotionImageScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  emotion: 'emotion',
+  label: 'label',
+  emoticon: 'emoticon',
+  imagePath: 'imagePath',
+  artImageId: 'artImageId',
+  botId: 'botId',
+  characterId: 'characterId',
+  message: 'message',
+  additionalPhrases: 'additionalPhrases',
+  isActive: 'isActive',
+  designer: 'designer',
+  artPrompt: 'artPrompt'
+} as const
+
+export type EmotionImageScalarFieldEnum = (typeof EmotionImageScalarFieldEnum)[keyof typeof EmotionImageScalarFieldEnum]
 
 
 export const LogScalarFieldEnum = {
@@ -933,6 +955,18 @@ export const DreamOrderByRelevanceFieldEnum = {
 } as const
 
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
+
+
+export const EmotionImageOrderByRelevanceFieldEnum = {
+  label: 'label',
+  emoticon: 'emoticon',
+  imagePath: 'imagePath',
+  message: 'message',
+  designer: 'designer',
+  artPrompt: 'artPrompt'
+} as const
+
+export type EmotionImageOrderByRelevanceFieldEnum = (typeof EmotionImageOrderByRelevanceFieldEnum)[keyof typeof EmotionImageOrderByRelevanceFieldEnum]
 
 
 export const LogOrderByRelevanceFieldEnum = {

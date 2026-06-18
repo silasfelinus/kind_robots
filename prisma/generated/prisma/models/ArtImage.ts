@@ -424,6 +424,7 @@ export type ArtImageWhereInput = {
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isActive?: Prisma.BoolFilter<"ArtImage"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  EmotionImage?: Prisma.XOR<Prisma.EmotionImageNullableScalarRelationFilter, Prisma.EmotionImageWhereInput> | null
   CheckpointResource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -474,6 +475,7 @@ export type ArtImageOrderByWithRelationInput = {
   thumbnailData?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  EmotionImage?: Prisma.EmotionImageOrderByWithRelationInput
   CheckpointResource?: Prisma.ResourceOrderByWithRelationInput
   Server?: Prisma.ServerOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
@@ -528,6 +530,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isActive?: Prisma.BoolFilter<"ArtImage"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  EmotionImage?: Prisma.XOR<Prisma.EmotionImageNullableScalarRelationFilter, Prisma.EmotionImageWhereInput> | null
   CheckpointResource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -644,6 +647,7 @@ export type ArtImageCreateInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -694,6 +698,7 @@ export type ArtImageUncheckedCreateInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -737,6 +742,7 @@ export type ArtImageUpdateInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -787,6 +793,7 @@ export type ArtImageUncheckedUpdateInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -1240,6 +1247,22 @@ export type ArtImageUncheckedUpdateManyWithoutDreamsNestedInput = {
   deleteMany?: Prisma.ArtImageScalarWhereInput | Prisma.ArtImageScalarWhereInput[]
 }
 
+export type ArtImageCreateNestedOneWithoutEmotionImageInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutEmotionImageInput, Prisma.ArtImageUncheckedCreateWithoutEmotionImageInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutEmotionImageInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneWithoutEmotionImageNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutEmotionImageInput, Prisma.ArtImageUncheckedCreateWithoutEmotionImageInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutEmotionImageInput
+  upsert?: Prisma.ArtImageUpsertWithoutEmotionImageInput
+  disconnect?: Prisma.ArtImageWhereInput | boolean
+  delete?: Prisma.ArtImageWhereInput | boolean
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutEmotionImageInput, Prisma.ArtImageUpdateWithoutEmotionImageInput>, Prisma.ArtImageUncheckedUpdateWithoutEmotionImageInput>
+}
+
 export type ArtImageCreateNestedOneWithoutMilestonesInput = {
   create?: Prisma.XOR<Prisma.ArtImageCreateWithoutMilestonesInput, Prisma.ArtImageUncheckedCreateWithoutMilestonesInput>
   connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutMilestonesInput
@@ -1541,6 +1564,7 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -1590,6 +1614,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -1687,6 +1712,7 @@ export type ArtImageCreateWithoutBotsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -1736,6 +1762,7 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
@@ -1794,6 +1821,7 @@ export type ArtImageUpdateWithoutBotsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -1843,6 +1871,7 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
@@ -1885,6 +1914,7 @@ export type ArtImageCreateWithoutCharactersInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -1934,6 +1964,7 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
@@ -1992,6 +2023,7 @@ export type ArtImageUpdateWithoutCharactersInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -2041,6 +2073,7 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2083,6 +2116,7 @@ export type ArtImageCreateWithoutChatsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -2132,6 +2166,7 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
@@ -2190,6 +2225,7 @@ export type ArtImageUpdateWithoutChatsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -2239,6 +2275,7 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2281,6 +2318,7 @@ export type ArtImageCreateWithoutComponentsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -2330,6 +2368,7 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -2388,6 +2427,7 @@ export type ArtImageUpdateWithoutComponentsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -2437,6 +2477,7 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2479,6 +2520,7 @@ export type ArtImageCreateWithoutCompositionsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -2528,6 +2570,7 @@ export type ArtImageUncheckedCreateWithoutCompositionsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -2586,6 +2629,7 @@ export type ArtImageUpdateWithoutCompositionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -2635,6 +2679,7 @@ export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2677,6 +2722,7 @@ export type ArtImageCreateWithoutDreamsPrimaryInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -2726,6 +2772,7 @@ export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -2773,6 +2820,7 @@ export type ArtImageCreateWithoutDreamsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -2822,6 +2870,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -2880,6 +2929,7 @@ export type ArtImageUpdateWithoutDreamsPrimaryInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -2929,6 +2979,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2962,6 +3013,208 @@ export type ArtImageUpdateManyWithWhereWithoutDreamsInput = {
   data: Prisma.XOR<Prisma.ArtImageUpdateManyMutationInput, Prisma.ArtImageUncheckedUpdateManyWithoutDreamsInput>
 }
 
+export type ArtImageCreateWithoutEmotionImageInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  thumbnailData?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageUncheckedCreateWithoutEmotionImageInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  thumbnailData?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageCreateOrConnectWithoutEmotionImageInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutEmotionImageInput, Prisma.ArtImageUncheckedCreateWithoutEmotionImageInput>
+}
+
+export type ArtImageUpsertWithoutEmotionImageInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutEmotionImageInput, Prisma.ArtImageUncheckedUpdateWithoutEmotionImageInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutEmotionImageInput, Prisma.ArtImageUncheckedCreateWithoutEmotionImageInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutEmotionImageInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutEmotionImageInput, Prisma.ArtImageUncheckedUpdateWithoutEmotionImageInput>
+}
+
+export type ArtImageUpdateWithoutEmotionImageInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutEmotionImageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+}
+
 export type ArtImageCreateWithoutMilestonesInput = {
   imageData?: string | null
   createdAt?: Date | string
@@ -2987,6 +3240,7 @@ export type ArtImageCreateWithoutMilestonesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -3036,6 +3290,7 @@ export type ArtImageUncheckedCreateWithoutMilestonesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -3094,6 +3349,7 @@ export type ArtImageUpdateWithoutMilestonesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -3143,6 +3399,7 @@ export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3185,6 +3442,7 @@ export type ArtImageCreateWithoutPromptsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -3234,6 +3492,7 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -3292,6 +3551,7 @@ export type ArtImageUpdateWithoutPromptsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -3341,6 +3601,7 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3383,6 +3644,7 @@ export type ArtImageCreateWithoutReactionsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -3432,6 +3694,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -3490,6 +3753,7 @@ export type ArtImageUpdateWithoutReactionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -3539,6 +3803,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3581,6 +3846,7 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
   Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
@@ -3629,6 +3895,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -3682,6 +3949,7 @@ export type ArtImageCreateWithoutLoraResourcesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -3731,6 +3999,7 @@ export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -3778,6 +4047,7 @@ export type ArtImageCreateWithoutResourcesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -3827,6 +4097,7 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -3917,6 +4188,7 @@ export type ArtImageUpdateWithoutResourcesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -3966,6 +4238,7 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4008,6 +4281,7 @@ export type ArtImageCreateWithoutRewardsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -4057,6 +4331,7 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -4115,6 +4390,7 @@ export type ArtImageUpdateWithoutRewardsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -4164,6 +4440,7 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4206,6 +4483,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -4255,6 +4533,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -4313,6 +4592,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -4362,6 +4642,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4404,6 +4685,7 @@ export type ArtImageCreateWithoutServerInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
   Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
@@ -4452,6 +4734,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -4521,6 +4804,7 @@ export type ArtImageCreateWithoutUserInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
@@ -4569,6 +4853,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -4622,6 +4907,7 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageCreateNestedOneWithoutArtImageInput
   CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
@@ -4671,6 +4957,7 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   thumbnailData?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedCreateNestedOneWithoutArtImageInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
@@ -4745,6 +5032,7 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -4794,6 +5082,7 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4836,6 +5125,7 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -4885,6 +5175,7 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4958,6 +5249,7 @@ export type ArtImageUpdateWithoutDreamsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -5007,6 +5299,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5110,6 +5403,7 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
   Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
@@ -5158,6 +5452,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5231,6 +5526,7 @@ export type ArtImageUpdateWithoutLoraResourcesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
@@ -5280,6 +5576,7 @@ export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5383,6 +5680,7 @@ export type ArtImageUpdateWithoutServerInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
   Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
@@ -5431,6 +5729,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5534,6 +5833,7 @@ export type ArtImageUpdateWithoutUserInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUpdateOneWithoutArtImageNestedInput
   CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
   Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
@@ -5582,6 +5882,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmotionImage?: Prisma.EmotionImageUncheckedUpdateOneWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5825,6 +6126,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   thumbnailData?: boolean
   isActive?: boolean
   artPrompt?: boolean
+  EmotionImage?: boolean | Prisma.ArtImage$EmotionImageArgs<ExtArgs>
   CheckpointResource?: boolean | Prisma.ArtImage$CheckpointResourceArgs<ExtArgs>
   Server?: boolean | Prisma.ArtImage$ServerArgs<ExtArgs>
   User?: boolean | Prisma.ArtImage$UserArgs<ExtArgs>
@@ -5882,6 +6184,7 @@ export type ArtImageSelectScalar = {
 
 export type ArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "imageData" | "createdAt" | "updatedAt" | "userId" | "fileName" | "fileType" | "cfg" | "cfgHalf" | "checkpoint" | "checkpointResourceId" | "designer" | "genres" | "imagePath" | "isMature" | "isPublic" | "negativePrompt" | "path" | "promptString" | "sampler" | "seed" | "serverId" | "serverName" | "serverUrl" | "steps" | "thumbnailData" | "isActive" | "artPrompt", ExtArgs["result"]["artImage"]>
 export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  EmotionImage?: boolean | Prisma.ArtImage$EmotionImageArgs<ExtArgs>
   CheckpointResource?: boolean | Prisma.ArtImage$CheckpointResourceArgs<ExtArgs>
   Server?: boolean | Prisma.ArtImage$ServerArgs<ExtArgs>
   User?: boolean | Prisma.ArtImage$UserArgs<ExtArgs>
@@ -5907,6 +6210,7 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ArtImage"
   objects: {
+    EmotionImage: Prisma.$EmotionImagePayload<ExtArgs> | null
     CheckpointResource: Prisma.$ResourcePayload<ExtArgs> | null
     Server: Prisma.$ServerPayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
@@ -6296,6 +6600,7 @@ readonly fields: ArtImageFieldRefs;
  */
 export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  EmotionImage<T extends Prisma.ArtImage$EmotionImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$EmotionImageArgs<ExtArgs>>): Prisma.Prisma__EmotionImageClient<runtime.Types.Result.GetResult<Prisma.$EmotionImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   CheckpointResource<T extends Prisma.ArtImage$CheckpointResourceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$CheckpointResourceArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Server<T extends Prisma.ArtImage$ServerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ServerArgs<ExtArgs>>): Prisma.Prisma__ServerClient<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.ArtImage$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -6717,6 +7022,25 @@ export type ArtImageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many ArtImages to delete.
    */
   limit?: number
+}
+
+/**
+ * ArtImage.EmotionImage
+ */
+export type ArtImage$EmotionImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmotionImage
+   */
+  select?: Prisma.EmotionImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmotionImage
+   */
+  omit?: Prisma.EmotionImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmotionImageInclude<ExtArgs> | null
+  where?: Prisma.EmotionImageWhereInput
 }
 
 /**

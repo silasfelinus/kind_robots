@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="shouldRender"
-    class="pointer-events-none z-100 flex flex-col items-end gap-2"
+    class="pointer-events-none z-100 flex flex-col items-end gap-2 overflow-visible"
     :class="narratorFrameClass"
   >
     <Transition name="narrator-bubble">
@@ -89,7 +89,7 @@
         </header>
 
         <div
-          class="max-h-[calc(100dvh-13rem)] overflow-y-auto overscroll-contain p-3"
+          class="max-h-[calc(100dvh-var(--hand-h,9rem)-8rem)] overflow-y-auto overscroll-contain p-3"
         >
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <div class="flex items-start gap-3">
@@ -99,9 +99,7 @@
               />
 
               <div class="min-w-0">
-                <p
-                  class="text-xs font-black uppercase tracking-wide text-primary"
-                >
+                <p class="text-xs font-black uppercase tracking-wide text-primary">
                   Active Dream
                 </p>
 
@@ -154,18 +152,14 @@
             class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3"
           >
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <p
-                class="text-xs font-black uppercase tracking-wide text-primary"
-              >
+              <p class="text-xs font-black uppercase tracking-wide text-primary">
                 Emotions
               </p>
 
               <button
                 type="button"
                 class="btn btn-ghost btn-xs rounded-xl"
-                :class="
-                  bubblesEnabled ? 'text-success' : 'text-base-content/40'
-                "
+                :class="bubblesEnabled ? 'text-success' : 'text-base-content/40'"
                 @click="toggleBubbles"
               >
                 <Icon
@@ -229,7 +223,10 @@
                       <span class="narrator-dot delay-300" />
                     </span>
 
-                    <p v-else class="whitespace-pre-wrap text-base-content/80">
+                    <p
+                      v-else
+                      class="whitespace-pre-wrap text-base-content/80"
+                    >
                       {{ chat.botResponse }}
                     </p>
                   </div>
@@ -289,9 +286,12 @@
       </section>
     </Transition>
 
-    <section class="pointer-events-auto flex items-end gap-2">
+    <section class="pointer-events-auto flex items-end gap-2 overflow-visible">
       <Transition name="narrator-actions">
-        <div v-if="!isOpen" class="mb-2 hidden flex-col gap-1 sm:flex">
+        <div
+          v-if="!isOpen"
+          class="mb-2 hidden flex-col gap-1 sm:flex"
+        >
           <button
             type="button"
             class="btn btn-secondary btn-xs rounded-xl shadow-lg"
@@ -322,7 +322,7 @@
 
       <button
         type="button"
-        class="group relative h-28 w-24 overflow-visible rounded-2xl border border-primary/30 bg-base-100 shadow-2xl transition hover:-translate-y-1 hover:scale-105 sm:h-32 sm:w-28"
+        class="group relative h-[calc(var(--hand-h,9rem)*1.75)] w-[calc(var(--hand-h,9rem)*0.78)] max-h-[70dvh] min-h-44 min-w-24 overflow-visible rounded-2xl border border-primary/30 bg-base-100 shadow-2xl transition hover:-translate-y-1 hover:scale-105"
         :aria-expanded="isOpen"
         :title="isOpen ? 'Close narrator' : 'Open narrator'"
         @click="togglePanel"
@@ -416,6 +416,17 @@ type ChatRuntimeInput = Parameters<
   ReturnType<typeof useChatStore>['addChat']
 >[0]
 
+const props = withDefaults(
+  defineProps<{
+    chromeMinimized?: boolean
+    railMode?: boolean
+  }>(),
+  {
+    chromeMinimized: false,
+    railMode: false,
+  },
+)
+
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
 const chatStore = useChatStore()
@@ -454,6 +465,14 @@ const shouldRender = computed(() => {
   return Boolean(isDreamWorkspace.value || dreamStore.selectedDream)
 })
 
+const narratorFrameClass = computed(() => {
+  if (props.railMode && !props.chromeMinimized) {
+    return 'relative max-w-[min(32rem,46vw)] overflow-visible'
+  }
+
+  return 'fixed bottom-3 right-3 max-w-[calc(100vw-1.5rem)] overflow-visible sm:bottom-4 sm:right-4'
+})
+
 const activeDream = computed(() => {
   return (dreamStore.selectedDream as DreamWithNarrator | null) ?? null
 })
@@ -480,6 +499,7 @@ const emotionRows = computed(() => {
 
 const emotionOptions = computed<NarratorEmotion[]>(() => {
   const fromRows = emotionRows.value.map((row) => normalizeEmotion(row.emotion))
+
   return Array.from(
     new Set<NarratorEmotion>(['NEUTRAL', ...fromRows, ...fallbackEmotions]),
   )
@@ -593,8 +613,8 @@ const canUseNarrator = computed(() => {
 const canSendNarrator = computed(() => {
   return Boolean(
     canUseNarrator.value &&
-    narratorMessage.value.trim() &&
-    !isNarratorResponding.value,
+      narratorMessage.value.trim() &&
+      !isNarratorResponding.value,
   )
 })
 
@@ -602,7 +622,9 @@ const narratorPlaceholder = computed(() => {
   if (!activeDream.value) return 'Choose a Dream first.'
   if (!narratorBot.value) return 'Attach a NARRATOR bot to this Dream first.'
 
-  return `Ask ${narratorName.value} about ${activeDream.value.title || 'this Dream'}...`
+  return `Ask ${narratorName.value} about ${
+    activeDream.value.title || 'this Dream'
+  }...`
 })
 
 watch(
@@ -677,9 +699,7 @@ function emotionLabel(emotion: NarratorEmotion) {
 }
 
 function emotionButtonClass(emotion: NarratorEmotion) {
-  return currentEmotion.value === emotion
-    ? 'btn-primary text-white'
-    : 'btn-outline'
+  return currentEmotion.value === emotion ? 'btn-primary text-white' : 'btn-outline'
 }
 
 function setEmotion(emotion: NarratorEmotion, showBubble = true) {
@@ -694,6 +714,7 @@ function cycleEmotion() {
   const options = emotionOptions.value.length
     ? emotionOptions.value
     : fallbackEmotions
+
   const currentIndex = options.indexOf(currentEmotion.value)
   const nextEmotion = options[(currentIndex + 1) % options.length] ?? 'NEUTRAL'
 
@@ -991,14 +1012,6 @@ function buildNarratorMessages(nextUserMessage: string): BotCafeMessage[] {
   ]
 }
 
-const narratorFrameClass = computed(() => {
-  if (props.railMode && !props.chromeMinimized) {
-    return 'relative max-w-[min(28rem,42vw)]'
-  }
-
-  return 'fixed bottom-3 right-3 max-w-[calc(100vw-1.5rem)] sm:bottom-4 sm:right-4'
-})
-
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message
   statusTone.value = tone
@@ -1049,6 +1062,10 @@ async function sendNarratorMessage() {
     const messages = buildNarratorMessages(content)
     const newChat = await chatStore.addChat(payload)
 
+    if (!newChat?.id) {
+      throw new Error('Failed to create Narrator message.')
+    }
+
     narratorSessionIds.value.push(newChat.id)
     narratorMessage.value = ''
 
@@ -1079,17 +1096,6 @@ async function sendNarratorMessage() {
     )
   }
 }
-
-const props = withDefaults(
-  defineProps<{
-    chromeMinimized?: boolean
-    railMode?: boolean
-  }>(),
-  {
-    chromeMinimized: false,
-    railMode: false,
-  },
-)
 </script>
 
 <style scoped>

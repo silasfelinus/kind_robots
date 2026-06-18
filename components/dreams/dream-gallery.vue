@@ -715,7 +715,6 @@
                       >
                         {{
                           character.backstory ||
-                          character.description ||
                           character.personality ||
                           character.artPrompt ||
                           'No character notes yet.'
@@ -1460,8 +1459,10 @@ onMounted(async () => {
       : [serverStore.initialize({ fetchRemote: true })]),
   ])
 
-  if (!selectedDream.value && filteredDreams.value.length) {
-    await selectDream(filteredDreams.value[0].id)
+  const firstDream = filteredDreams.value.at(0)
+
+  if (!selectedDream.value && firstDream) {
+    await selectDream(firstDream.id)
   }
 })
 
@@ -1648,13 +1649,7 @@ function dreamSearchText(dream: DreamWithRelations) {
 
   const rewardText = (dream.Rewards ?? [])
     .map((reward) =>
-      [
-        reward.name,
-        reward.label,
-        reward.description,
-        reward.rarity,
-        reward.rewardType,
-      ]
+      [reward.name, reward.description, reward.rarity, reward.rewardType]
         .filter(Boolean)
         .join(' '),
     )

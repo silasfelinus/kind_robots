@@ -519,7 +519,7 @@
         />
 
         <div
-          class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-base-100 via-base-100/45 to-transparent"
+          class="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-base-100 via-base-100/45 to-transparent"
         />
 
         <div
@@ -1292,18 +1292,21 @@ function scenarioKey(scenario: DreamScenario, index = 0) {
 }
 
 function selectFirstScenario() {
-  if (!dreamScenarios.value.length) {
+  const scenarios = dreamScenarios.value
+  const firstScenario = scenarios[0]
+
+  if (!firstScenario) {
     selectedScenarioKey.value = ''
     return
   }
 
-  const currentExists = dreamScenarios.value.some(
+  const currentExists = scenarios.some(
     (scenario, index) =>
       scenarioKey(scenario, index) === selectedScenarioKey.value,
   )
 
   if (!currentExists) {
-    selectedScenarioKey.value = scenarioKey(dreamScenarios.value[0], 0)
+    selectedScenarioKey.value = scenarioKey(firstScenario, 0)
   }
 }
 

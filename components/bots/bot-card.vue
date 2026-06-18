@@ -16,7 +16,7 @@
           v-if="
             showActions && allowEdit && canEdit && (activeSelected || compact)
           "
-          class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
+          class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
           type="button"
           title="Edit Bot"
           @click.stop="startEditing"
@@ -26,7 +26,7 @@
 
         <button
           v-if="showActions && allowClone && (activeSelected || compact)"
-          class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
+          class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
           type="button"
           title="Clone Bot"
           @click.stop="startCloning"
@@ -36,7 +36,7 @@
 
         <button
           v-if="showActions && canDelete && (activeSelected || compact)"
-          class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
+          class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
           type="button"
           title="Delete Bot"
           @click.stop="deleteBot"
@@ -48,53 +48,61 @@
       <div
         v-if="showImage"
         :class="[
-          'relative overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-          compact ? 'h-32 w-full' : 'h-44 w-full',
+          'relative min-h-0 w-full flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-300',
+          compact ? 'h-52' : 'h-80',
         ]"
       >
         <img
           :src="resolvedBotImage"
           :alt="botTitle"
-          class="h-full w-full object-cover transition-transform group-hover:scale-105"
+          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           loading="lazy"
+        />
+
+        <div
+          class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-300/95 via-base-300/25 to-base-300/5"
         />
 
         <div class="absolute left-2 top-2 flex flex-wrap gap-1">
           <span
-            class="badge badge-sm"
+            class="badge badge-sm rounded-xl shadow"
             :class="bot.isPublic ? 'badge-success' : 'badge-warning'"
           >
             {{ bot.isPublic ? 'Public' : 'Private' }}
           </span>
 
-          <span v-if="bot.underConstruction" class="badge badge-error badge-sm">
+          <span
+            v-if="bot.underConstruction"
+            class="badge badge-error badge-sm rounded-xl shadow"
+          >
             Building
           </span>
 
-          <span v-if="bot.BotType" class="badge badge-primary badge-sm">
+          <span
+            v-if="bot.BotType"
+            class="badge badge-primary badge-sm rounded-xl bg-primary/90 shadow"
+          >
             {{ bot.BotType }}
           </span>
 
-          <span v-if="activeSelected" class="badge badge-accent badge-sm">
+          <span
+            v-if="activeSelected"
+            class="badge badge-accent badge-sm rounded-xl shadow"
+          >
             Selected
           </span>
         </div>
 
         <div
           v-if="activeSelected"
-          class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+          class="absolute right-2 top-2 rounded-full bg-primary p-2 text-primary-content shadow"
         >
           <Icon name="kind-icon:check" class="h-4 w-4" />
         </div>
-      </div>
 
-      <div class="flex min-w-0 flex-1 flex-col gap-2">
-        <div class="min-w-0">
+        <footer class="absolute inset-x-0 bottom-0 p-3">
           <h2
-            :class="[
-              'font-black leading-tight text-base-content',
-              compact ? 'line-clamp-1 text-base' : 'text-xl',
-            ]"
+            class="line-clamp-2 text-xl font-black leading-tight text-base-content drop-shadow"
             :title="botTitle"
           >
             {{ botTitle }}
@@ -102,26 +110,56 @@
 
           <p
             v-if="bot.subtitle"
-            class="mt-1 line-clamp-1 text-sm font-semibold italic text-base-content/55"
+            class="mt-1 line-clamp-1 text-sm font-semibold italic text-base-content/70"
           >
             {{ bot.subtitle }}
           </p>
 
-          <p
-            v-if="showDescription"
-            :class="[
-              'mt-1 text-base-content/70',
-              compact ? 'line-clamp-2 text-sm' : 'line-clamp-3 text-sm',
-            ]"
-          >
-            {{
-              bot.description || bot.personality || 'No bot description yet.'
-            }}
-          </p>
-        </div>
+          <div v-if="showMeta" class="mt-2 flex flex-wrap gap-1">
+            <span
+              v-if="bot.theme"
+              class="badge badge-ghost badge-sm rounded-xl bg-base-100/85 shadow backdrop-blur"
+            >
+              {{ bot.theme }}
+            </span>
 
-        <div v-if="showMeta" class="flex flex-wrap gap-2">
-          <span v-if="bot.BotType" class="badge badge-outline badge-sm">
+            <span
+              v-if="bot.designer"
+              class="badge badge-outline badge-sm rounded-xl border-base-content/30 bg-base-100/85 shadow backdrop-blur"
+            >
+              {{ bot.designer }}
+            </span>
+
+            <span
+              v-if="bot.serverName"
+              class="badge badge-info badge-sm rounded-xl bg-info/90 shadow"
+            >
+              {{ bot.serverName }}
+            </span>
+          </div>
+        </footer>
+      </div>
+
+      <div
+        v-else
+        class="flex min-h-56 flex-1 flex-col justify-end rounded-2xl border border-base-300 bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3"
+      >
+        <h2
+          class="line-clamp-2 text-xl font-black leading-tight text-base-content"
+          :title="botTitle"
+        >
+          {{ botTitle }}
+        </h2>
+
+        <p
+          v-if="bot.subtitle"
+          class="mt-1 line-clamp-1 text-sm font-semibold italic text-base-content/55"
+        >
+          {{ bot.subtitle }}
+        </p>
+
+        <div v-if="showMeta" class="mt-2 flex flex-wrap gap-1">
+          <span v-if="bot.BotType" class="badge badge-primary badge-sm">
             {{ bot.BotType }}
           </span>
 
@@ -129,18 +167,32 @@
             {{ bot.theme }}
           </span>
 
-          <span v-if="bot.designer" class="badge badge-primary badge-sm">
+          <span v-if="bot.designer" class="badge badge-outline badge-sm">
             {{ bot.designer }}
           </span>
-
-          <span v-if="bot.userId" class="badge badge-secondary badge-sm">
-            User {{ bot.userId }}
-          </span>
-
-          <span v-if="bot.serverName" class="badge badge-info badge-sm">
-            {{ bot.serverName }}
-          </span>
         </div>
+      </div>
+
+      <section
+        v-if="
+          activeSelected &&
+          !compact &&
+          (showDescription ||
+            showPersonality ||
+            showPromptPreview ||
+            showLaunchButton ||
+            statusMessage ||
+            showDebug)
+        "
+        class="mt-2 grid gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3"
+        @click.stop
+      >
+        <p
+          v-if="showDescription"
+          class="line-clamp-3 text-sm leading-relaxed text-base-content/70"
+        >
+          {{ bot.description || bot.personality || 'No bot description yet.' }}
+        </p>
 
         <div
           v-if="showPersonality && bot.personality"
@@ -166,10 +218,7 @@
           </p>
         </div>
 
-        <div
-          v-if="showLaunchButton"
-          class="mt-auto grid grid-cols-2 gap-2 pt-1"
-        >
+        <div v-if="showLaunchButton" class="grid grid-cols-2 gap-2 pt-1">
           <button
             class="btn btn-sm btn-primary rounded-xl text-primary-content"
             type="button"
@@ -217,7 +266,7 @@
             >{{ JSON.stringify(bot, null, 2) }}</pre
           >
         </details>
-      </div>
+      </section>
     </reactable-card>
   </div>
 </template>
@@ -414,4 +463,8 @@ watch(
     await loadBotImage()
   },
 )
+
+onMounted(async () => {
+  await loadBotImage()
+})
 </script>

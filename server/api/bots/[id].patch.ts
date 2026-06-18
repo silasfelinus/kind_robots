@@ -11,6 +11,28 @@ function getStringOrUndefined(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
 }
 
+function getDreamRelationUpdate(
+  body: any,
+): Prisma.DreamUpdateManyWithoutBotsNestedInput | undefined {
+  const toIds = (v: unknown) =>
+    Array.isArray(v)
+      ? v
+          .map((x: any) => (typeof x === 'object' ? Number(x.id) : Number(x)))
+          .filter((n) => Number.isInteger(n) && n > 0)
+          .map((id) => ({ id }))
+      : []
+
+  const set = body.dreamIds !== undefined ? toIds(body.dreamIds) : undefined
+  const connect = toIds(body.addDreamIds)
+  const disconnect = toIds(body.removeDreamIds)
+
+  const op: any = {}
+  if (set !== undefined) op.set = set
+  if (connect.length) op.connect = connect
+  if (disconnect.length) op.disconnect = disconnect
+  return Object.keys(op).length ? op : undefined
+}
+
 function getBooleanOrUndefined(value: unknown): boolean | undefined {
   return typeof value === 'boolean' ? value : undefined
 }
@@ -164,6 +186,8 @@ export default defineEventHandler(async (event) => {
       modules: getStringOrUndefined(body.modules),
       sampleResponse: getStringOrUndefined(body.sampleResponse),
       tagline: getStringOrUndefined(body.tagline),
+      narrativeVoice: getStringOrUndefined(body.narrativeVoice), // ADD
+      forgeIntro: getStringOrUndefined(body.forgeIntro), // ADD
       designer: getStringOrUndefined(body.designer),
       serverName: getStringOrUndefined(body.serverName),
       artPrompt: getStringOrUndefined(body.artPrompt),
@@ -189,6 +213,7 @@ export default defineEventHandler(async (event) => {
           : artImageId
             ? { connect: { id: artImageId } }
             : undefined,
+      Dreams: getDreamRelationUpdate(body), // ADD
     }
 
     if (!hasUpdateData(updateData as Record<string, unknown>)) {
@@ -215,7 +240,6 @@ export default defineEventHandler(async (event) => {
             title: true,
             label: true,
             serverType: true,
-            
           },
         },
         ArtImage: {

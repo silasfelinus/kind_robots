@@ -184,6 +184,7 @@ export const dreamInclude = {
   ArtImage: {
     select: dreamArtImageSelect,
   },
+
   ArtImages: {
     take: 12,
     orderBy: {
@@ -228,6 +229,19 @@ export const dreamInclude = {
       Rewards: true,
       ArtImages: true,
       ArtCollections: true,
+    },
+  },
+  Bots: {
+    where: { BotType: 'NARRATOR', isActive: true },
+    select: {
+      id: true,
+      name: true,
+      subtitle: true,
+      tagline: true,
+      personality: true,
+      avatarImage: true,
+      narrativeVoice: true,
+      forgeIntro: true,
     },
   },
 } satisfies Prisma.DreamInclude

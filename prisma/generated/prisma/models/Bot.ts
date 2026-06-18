@@ -51,6 +51,8 @@ export type BotMinAggregateOutputType = {
   avatarImage: string | null
   botIntro: string | null
   userIntro: string | null
+  narrativeVoice: string | null
+  forgeIntro: string | null
   prompt: string | null
   trainingPath: string | null
   theme: string | null
@@ -83,6 +85,8 @@ export type BotMaxAggregateOutputType = {
   avatarImage: string | null
   botIntro: string | null
   userIntro: string | null
+  narrativeVoice: string | null
+  forgeIntro: string | null
   prompt: string | null
   trainingPath: string | null
   theme: string | null
@@ -115,6 +119,8 @@ export type BotCountAggregateOutputType = {
   avatarImage: number
   botIntro: number
   userIntro: number
+  narrativeVoice: number
+  forgeIntro: number
   prompt: number
   trainingPath: number
   theme: number
@@ -163,6 +169,8 @@ export type BotMinAggregateInputType = {
   avatarImage?: true
   botIntro?: true
   userIntro?: true
+  narrativeVoice?: true
+  forgeIntro?: true
   prompt?: true
   trainingPath?: true
   theme?: true
@@ -195,6 +203,8 @@ export type BotMaxAggregateInputType = {
   avatarImage?: true
   botIntro?: true
   userIntro?: true
+  narrativeVoice?: true
+  forgeIntro?: true
   prompt?: true
   trainingPath?: true
   theme?: true
@@ -227,6 +237,8 @@ export type BotCountAggregateInputType = {
   avatarImage?: true
   botIntro?: true
   userIntro?: true
+  narrativeVoice?: true
+  forgeIntro?: true
   prompt?: true
   trainingPath?: true
   theme?: true
@@ -346,6 +358,8 @@ export type BotGroupByOutputType = {
   avatarImage: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice: string | null
+  forgeIntro: string | null
   prompt: string
   trainingPath: string | null
   theme: string | null
@@ -401,6 +415,8 @@ export type BotWhereInput = {
   avatarImage?: Prisma.StringNullableFilter<"Bot"> | string | null
   botIntro?: Prisma.StringFilter<"Bot"> | string
   userIntro?: Prisma.StringFilter<"Bot"> | string
+  narrativeVoice?: Prisma.StringNullableFilter<"Bot"> | string | null
+  forgeIntro?: Prisma.StringNullableFilter<"Bot"> | string | null
   prompt?: Prisma.StringFilter<"Bot"> | string
   trainingPath?: Prisma.StringNullableFilter<"Bot"> | string | null
   theme?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -426,6 +442,7 @@ export type BotWhereInput = {
   Chats?: Prisma.ChatListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  Dreams?: Prisma.DreamListRelationFilter
 }
 
 export type BotOrderByWithRelationInput = {
@@ -439,6 +456,8 @@ export type BotOrderByWithRelationInput = {
   avatarImage?: Prisma.SortOrderInput | Prisma.SortOrder
   botIntro?: Prisma.SortOrder
   userIntro?: Prisma.SortOrder
+  narrativeVoice?: Prisma.SortOrderInput | Prisma.SortOrder
+  forgeIntro?: Prisma.SortOrderInput | Prisma.SortOrder
   prompt?: Prisma.SortOrder
   trainingPath?: Prisma.SortOrderInput | Prisma.SortOrder
   theme?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -464,23 +483,26 @@ export type BotOrderByWithRelationInput = {
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
+  Dreams?: Prisma.DreamOrderByRelationAggregateInput
   _relevance?: Prisma.BotOrderByRelevanceInput
 }
 
 export type BotWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  name?: string
   AND?: Prisma.BotWhereInput | Prisma.BotWhereInput[]
   OR?: Prisma.BotWhereInput[]
   NOT?: Prisma.BotWhereInput | Prisma.BotWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"Bot"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Bot"> | Date | string | null
   BotType?: Prisma.StringFilter<"Bot"> | string
+  name?: Prisma.StringFilter<"Bot"> | string
   subtitle?: Prisma.StringNullableFilter<"Bot"> | string | null
   description?: Prisma.StringNullableFilter<"Bot"> | string | null
   avatarImage?: Prisma.StringNullableFilter<"Bot"> | string | null
   botIntro?: Prisma.StringFilter<"Bot"> | string
   userIntro?: Prisma.StringFilter<"Bot"> | string
+  narrativeVoice?: Prisma.StringNullableFilter<"Bot"> | string | null
+  forgeIntro?: Prisma.StringNullableFilter<"Bot"> | string | null
   prompt?: Prisma.StringFilter<"Bot"> | string
   trainingPath?: Prisma.StringNullableFilter<"Bot"> | string | null
   theme?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -506,7 +528,8 @@ export type BotWhereUniqueInput = Prisma.AtLeast<{
   Chats?: Prisma.ChatListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
-}, "id" | "name">
+  Dreams?: Prisma.DreamListRelationFilter
+}, "id">
 
 export type BotOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -519,6 +542,8 @@ export type BotOrderByWithAggregationInput = {
   avatarImage?: Prisma.SortOrderInput | Prisma.SortOrder
   botIntro?: Prisma.SortOrder
   userIntro?: Prisma.SortOrder
+  narrativeVoice?: Prisma.SortOrderInput | Prisma.SortOrder
+  forgeIntro?: Prisma.SortOrderInput | Prisma.SortOrder
   prompt?: Prisma.SortOrder
   trainingPath?: Prisma.SortOrderInput | Prisma.SortOrder
   theme?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -559,6 +584,8 @@ export type BotScalarWhereWithAggregatesInput = {
   avatarImage?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   botIntro?: Prisma.StringWithAggregatesFilter<"Bot"> | string
   userIntro?: Prisma.StringWithAggregatesFilter<"Bot"> | string
+  narrativeVoice?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
+  forgeIntro?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   prompt?: Prisma.StringWithAggregatesFilter<"Bot"> | string
   trainingPath?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   theme?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
@@ -590,6 +617,8 @@ export type BotCreateInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -612,6 +641,7 @@ export type BotCreateInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
 }
 
 export type BotUncheckedCreateInput = {
@@ -625,6 +655,8 @@ export type BotUncheckedCreateInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -647,6 +679,7 @@ export type BotUncheckedCreateInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
 }
 
 export type BotUpdateInput = {
@@ -659,6 +692,8 @@ export type BotUpdateInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -681,6 +716,7 @@ export type BotUpdateInput = {
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateInput = {
@@ -694,6 +730,8 @@ export type BotUncheckedUpdateInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -716,6 +754,7 @@ export type BotUncheckedUpdateInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
 }
 
 export type BotCreateManyInput = {
@@ -729,6 +768,8 @@ export type BotCreateManyInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -760,6 +801,8 @@ export type BotUpdateManyMutationInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -789,6 +832,8 @@ export type BotUncheckedUpdateManyInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -837,6 +882,8 @@ export type BotCountOrderByAggregateInput = {
   avatarImage?: Prisma.SortOrder
   botIntro?: Prisma.SortOrder
   userIntro?: Prisma.SortOrder
+  narrativeVoice?: Prisma.SortOrder
+  forgeIntro?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   trainingPath?: Prisma.SortOrder
   theme?: Prisma.SortOrder
@@ -876,6 +923,8 @@ export type BotMaxOrderByAggregateInput = {
   avatarImage?: Prisma.SortOrder
   botIntro?: Prisma.SortOrder
   userIntro?: Prisma.SortOrder
+  narrativeVoice?: Prisma.SortOrder
+  forgeIntro?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   trainingPath?: Prisma.SortOrder
   theme?: Prisma.SortOrder
@@ -908,6 +957,8 @@ export type BotMinOrderByAggregateInput = {
   avatarImage?: Prisma.SortOrder
   botIntro?: Prisma.SortOrder
   userIntro?: Prisma.SortOrder
+  narrativeVoice?: Prisma.SortOrder
+  forgeIntro?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   trainingPath?: Prisma.SortOrder
   theme?: Prisma.SortOrder
@@ -997,6 +1048,44 @@ export type BotUpdateOneWithoutChatsNestedInput = {
   delete?: Prisma.BotWhereInput | boolean
   connect?: Prisma.BotWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.BotUpdateToOneWithWhereWithoutChatsInput, Prisma.BotUpdateWithoutChatsInput>, Prisma.BotUncheckedUpdateWithoutChatsInput>
+}
+
+export type BotCreateNestedManyWithoutDreamsInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutDreamsInput, Prisma.BotUncheckedCreateWithoutDreamsInput> | Prisma.BotCreateWithoutDreamsInput[] | Prisma.BotUncheckedCreateWithoutDreamsInput[]
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutDreamsInput | Prisma.BotCreateOrConnectWithoutDreamsInput[]
+  connect?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+}
+
+export type BotUncheckedCreateNestedManyWithoutDreamsInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutDreamsInput, Prisma.BotUncheckedCreateWithoutDreamsInput> | Prisma.BotCreateWithoutDreamsInput[] | Prisma.BotUncheckedCreateWithoutDreamsInput[]
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutDreamsInput | Prisma.BotCreateOrConnectWithoutDreamsInput[]
+  connect?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+}
+
+export type BotUpdateManyWithoutDreamsNestedInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutDreamsInput, Prisma.BotUncheckedCreateWithoutDreamsInput> | Prisma.BotCreateWithoutDreamsInput[] | Prisma.BotUncheckedCreateWithoutDreamsInput[]
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutDreamsInput | Prisma.BotCreateOrConnectWithoutDreamsInput[]
+  upsert?: Prisma.BotUpsertWithWhereUniqueWithoutDreamsInput | Prisma.BotUpsertWithWhereUniqueWithoutDreamsInput[]
+  set?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  disconnect?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  delete?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  connect?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  update?: Prisma.BotUpdateWithWhereUniqueWithoutDreamsInput | Prisma.BotUpdateWithWhereUniqueWithoutDreamsInput[]
+  updateMany?: Prisma.BotUpdateManyWithWhereWithoutDreamsInput | Prisma.BotUpdateManyWithWhereWithoutDreamsInput[]
+  deleteMany?: Prisma.BotScalarWhereInput | Prisma.BotScalarWhereInput[]
+}
+
+export type BotUncheckedUpdateManyWithoutDreamsNestedInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutDreamsInput, Prisma.BotUncheckedCreateWithoutDreamsInput> | Prisma.BotCreateWithoutDreamsInput[] | Prisma.BotUncheckedCreateWithoutDreamsInput[]
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutDreamsInput | Prisma.BotCreateOrConnectWithoutDreamsInput[]
+  upsert?: Prisma.BotUpsertWithWhereUniqueWithoutDreamsInput | Prisma.BotUpsertWithWhereUniqueWithoutDreamsInput[]
+  set?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  disconnect?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  delete?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  connect?: Prisma.BotWhereUniqueInput | Prisma.BotWhereUniqueInput[]
+  update?: Prisma.BotUpdateWithWhereUniqueWithoutDreamsInput | Prisma.BotUpdateWithWhereUniqueWithoutDreamsInput[]
+  updateMany?: Prisma.BotUpdateManyWithWhereWithoutDreamsInput | Prisma.BotUpdateManyWithWhereWithoutDreamsInput[]
+  deleteMany?: Prisma.BotScalarWhereInput | Prisma.BotScalarWhereInput[]
 }
 
 export type BotCreateNestedOneWithoutPromptsInput = {
@@ -1125,6 +1214,8 @@ export type BotCreateWithoutArtImageInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1146,6 +1237,7 @@ export type BotCreateWithoutArtImageInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
 }
 
 export type BotUncheckedCreateWithoutArtImageInput = {
@@ -1159,6 +1251,8 @@ export type BotUncheckedCreateWithoutArtImageInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1180,6 +1274,7 @@ export type BotUncheckedCreateWithoutArtImageInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
 }
 
 export type BotCreateOrConnectWithoutArtImageInput = {
@@ -1222,6 +1317,8 @@ export type BotScalarWhereInput = {
   avatarImage?: Prisma.StringNullableFilter<"Bot"> | string | null
   botIntro?: Prisma.StringFilter<"Bot"> | string
   userIntro?: Prisma.StringFilter<"Bot"> | string
+  narrativeVoice?: Prisma.StringNullableFilter<"Bot"> | string | null
+  forgeIntro?: Prisma.StringNullableFilter<"Bot"> | string | null
   prompt?: Prisma.StringFilter<"Bot"> | string
   trainingPath?: Prisma.StringNullableFilter<"Bot"> | string | null
   theme?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -1253,6 +1350,8 @@ export type BotCreateWithoutChatsInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1274,6 +1373,7 @@ export type BotCreateWithoutChatsInput = {
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
 }
 
 export type BotUncheckedCreateWithoutChatsInput = {
@@ -1287,6 +1387,8 @@ export type BotUncheckedCreateWithoutChatsInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1308,6 +1410,7 @@ export type BotUncheckedCreateWithoutChatsInput = {
   artPrompt?: string | null
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
 }
 
 export type BotCreateOrConnectWithoutChatsInput = {
@@ -1336,6 +1439,8 @@ export type BotUpdateWithoutChatsInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1357,6 +1462,7 @@ export type BotUpdateWithoutChatsInput = {
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateWithoutChatsInput = {
@@ -1370,6 +1476,8 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1391,6 +1499,101 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+}
+
+export type BotCreateWithoutDreamsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  BotType: string
+  name: string
+  subtitle?: string | null
+  description?: string | null
+  avatarImage?: string | null
+  botIntro: string
+  userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
+  prompt: string
+  trainingPath?: string | null
+  theme?: string | null
+  personality?: string | null
+  modules?: string | null
+  sampleResponse?: string | null
+  tagline?: string | null
+  isPublic?: boolean
+  underConstruction?: boolean
+  canDelete?: boolean
+  imagePath?: string | null
+  designer?: string
+  serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
+  User?: Prisma.UserCreateNestedOneWithoutBotsInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+}
+
+export type BotUncheckedCreateWithoutDreamsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  BotType: string
+  name: string
+  subtitle?: string | null
+  description?: string | null
+  avatarImage?: string | null
+  botIntro: string
+  userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
+  prompt: string
+  trainingPath?: string | null
+  theme?: string | null
+  personality?: string | null
+  modules?: string | null
+  sampleResponse?: string | null
+  tagline?: string | null
+  isPublic?: boolean
+  underConstruction?: boolean
+  canDelete?: boolean
+  userId?: number | null
+  imagePath?: string | null
+  designer?: string
+  serverId?: number | null
+  serverName?: string | null
+  artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+}
+
+export type BotCreateOrConnectWithoutDreamsInput = {
+  where: Prisma.BotWhereUniqueInput
+  create: Prisma.XOR<Prisma.BotCreateWithoutDreamsInput, Prisma.BotUncheckedCreateWithoutDreamsInput>
+}
+
+export type BotUpsertWithWhereUniqueWithoutDreamsInput = {
+  where: Prisma.BotWhereUniqueInput
+  update: Prisma.XOR<Prisma.BotUpdateWithoutDreamsInput, Prisma.BotUncheckedUpdateWithoutDreamsInput>
+  create: Prisma.XOR<Prisma.BotCreateWithoutDreamsInput, Prisma.BotUncheckedCreateWithoutDreamsInput>
+}
+
+export type BotUpdateWithWhereUniqueWithoutDreamsInput = {
+  where: Prisma.BotWhereUniqueInput
+  data: Prisma.XOR<Prisma.BotUpdateWithoutDreamsInput, Prisma.BotUncheckedUpdateWithoutDreamsInput>
+}
+
+export type BotUpdateManyWithWhereWithoutDreamsInput = {
+  where: Prisma.BotScalarWhereInput
+  data: Prisma.XOR<Prisma.BotUpdateManyMutationInput, Prisma.BotUncheckedUpdateManyWithoutDreamsInput>
 }
 
 export type BotCreateWithoutPromptsInput = {
@@ -1403,6 +1606,8 @@ export type BotCreateWithoutPromptsInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1424,6 +1629,7 @@ export type BotCreateWithoutPromptsInput = {
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
 }
 
 export type BotUncheckedCreateWithoutPromptsInput = {
@@ -1437,6 +1643,8 @@ export type BotUncheckedCreateWithoutPromptsInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1458,6 +1666,7 @@ export type BotUncheckedCreateWithoutPromptsInput = {
   artPrompt?: string | null
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
 }
 
 export type BotCreateOrConnectWithoutPromptsInput = {
@@ -1486,6 +1695,8 @@ export type BotUpdateWithoutPromptsInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1507,6 +1718,7 @@ export type BotUpdateWithoutPromptsInput = {
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateWithoutPromptsInput = {
@@ -1520,6 +1732,8 @@ export type BotUncheckedUpdateWithoutPromptsInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1541,6 +1755,7 @@ export type BotUncheckedUpdateWithoutPromptsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
 }
 
 export type BotCreateWithoutReactionsInput = {
@@ -1553,6 +1768,8 @@ export type BotCreateWithoutReactionsInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1574,6 +1791,7 @@ export type BotCreateWithoutReactionsInput = {
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
 }
 
 export type BotUncheckedCreateWithoutReactionsInput = {
@@ -1587,6 +1805,8 @@ export type BotUncheckedCreateWithoutReactionsInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1608,6 +1828,7 @@ export type BotUncheckedCreateWithoutReactionsInput = {
   artPrompt?: string | null
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
 }
 
 export type BotCreateOrConnectWithoutReactionsInput = {
@@ -1636,6 +1857,8 @@ export type BotUpdateWithoutReactionsInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1657,6 +1880,7 @@ export type BotUpdateWithoutReactionsInput = {
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateWithoutReactionsInput = {
@@ -1670,6 +1894,8 @@ export type BotUncheckedUpdateWithoutReactionsInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1691,6 +1917,7 @@ export type BotUncheckedUpdateWithoutReactionsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
 }
 
 export type BotCreateWithoutServerInput = {
@@ -1703,6 +1930,8 @@ export type BotCreateWithoutServerInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1724,6 +1953,7 @@ export type BotCreateWithoutServerInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
 }
 
 export type BotUncheckedCreateWithoutServerInput = {
@@ -1737,6 +1967,8 @@ export type BotUncheckedCreateWithoutServerInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1758,6 +1990,7 @@ export type BotUncheckedCreateWithoutServerInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
 }
 
 export type BotCreateOrConnectWithoutServerInput = {
@@ -1796,6 +2029,8 @@ export type BotCreateWithoutUserInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1817,6 +2052,7 @@ export type BotCreateWithoutUserInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
 }
 
 export type BotUncheckedCreateWithoutUserInput = {
@@ -1830,6 +2066,8 @@ export type BotUncheckedCreateWithoutUserInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1851,6 +2089,7 @@ export type BotUncheckedCreateWithoutUserInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
 }
 
 export type BotCreateOrConnectWithoutUserInput = {
@@ -1890,6 +2129,8 @@ export type BotCreateManyArtImageInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -1920,6 +2161,8 @@ export type BotUpdateWithoutArtImageInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1941,6 +2184,7 @@ export type BotUpdateWithoutArtImageInput = {
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateWithoutArtImageInput = {
@@ -1954,6 +2198,8 @@ export type BotUncheckedUpdateWithoutArtImageInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1975,6 +2221,7 @@ export type BotUncheckedUpdateWithoutArtImageInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutArtImageInput = {
@@ -1988,6 +2235,8 @@ export type BotUncheckedUpdateManyWithoutArtImageInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2008,6 +2257,113 @@ export type BotUncheckedUpdateManyWithoutArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
+export type BotUpdateWithoutDreamsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  BotType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.StringFieldUpdateOperationsInput | string
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
+  User?: Prisma.UserUpdateOneWithoutBotsNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+}
+
+export type BotUncheckedUpdateWithoutDreamsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  BotType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.StringFieldUpdateOperationsInput | string
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+}
+
+export type BotUncheckedUpdateManyWithoutDreamsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  BotType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.StringFieldUpdateOperationsInput | string
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
 export type BotCreateManyServerInput = {
   id?: number
   createdAt?: Date | string
@@ -2019,6 +2375,8 @@ export type BotCreateManyServerInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -2049,6 +2407,8 @@ export type BotUpdateWithoutServerInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2070,6 +2430,7 @@ export type BotUpdateWithoutServerInput = {
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateWithoutServerInput = {
@@ -2083,6 +2444,8 @@ export type BotUncheckedUpdateWithoutServerInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2104,6 +2467,7 @@ export type BotUncheckedUpdateWithoutServerInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutServerInput = {
@@ -2117,6 +2481,8 @@ export type BotUncheckedUpdateManyWithoutServerInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2148,6 +2514,8 @@ export type BotCreateManyUserInput = {
   avatarImage?: string | null
   botIntro: string
   userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
   prompt: string
   trainingPath?: string | null
   theme?: string | null
@@ -2178,6 +2546,8 @@ export type BotUpdateWithoutUserInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2199,6 +2569,7 @@ export type BotUpdateWithoutUserInput = {
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateWithoutUserInput = {
@@ -2212,6 +2583,8 @@ export type BotUncheckedUpdateWithoutUserInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2233,6 +2606,7 @@ export type BotUncheckedUpdateWithoutUserInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutUserInput = {
@@ -2246,6 +2620,8 @@ export type BotUncheckedUpdateManyWithoutUserInput = {
   avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botIntro?: Prisma.StringFieldUpdateOperationsInput | string
   userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2275,12 +2651,14 @@ export type BotCountOutputType = {
   Chats: number
   Prompts: number
   Reactions: number
+  Dreams: number
 }
 
 export type BotCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Chats?: boolean | BotCountOutputTypeCountChatsArgs
   Prompts?: boolean | BotCountOutputTypeCountPromptsArgs
   Reactions?: boolean | BotCountOutputTypeCountReactionsArgs
+  Dreams?: boolean | BotCountOutputTypeCountDreamsArgs
 }
 
 /**
@@ -2314,6 +2692,13 @@ export type BotCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.ReactionWhereInput
 }
 
+/**
+ * BotCountOutputType without action
+ */
+export type BotCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DreamWhereInput
+}
+
 
 export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2326,6 +2711,8 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   avatarImage?: boolean
   botIntro?: boolean
   userIntro?: boolean
+  narrativeVoice?: boolean
+  forgeIntro?: boolean
   prompt?: boolean
   trainingPath?: boolean
   theme?: boolean
@@ -2351,6 +2738,7 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   Chats?: boolean | Prisma.Bot$ChatsArgs<ExtArgs>
   Prompts?: boolean | Prisma.Bot$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
+  Dreams?: boolean | Prisma.Bot$DreamsArgs<ExtArgs>
   _count?: boolean | Prisma.BotCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bot"]>
 
@@ -2367,6 +2755,8 @@ export type BotSelectScalar = {
   avatarImage?: boolean
   botIntro?: boolean
   userIntro?: boolean
+  narrativeVoice?: boolean
+  forgeIntro?: boolean
   prompt?: boolean
   trainingPath?: boolean
   theme?: boolean
@@ -2388,7 +2778,7 @@ export type BotSelectScalar = {
   artPrompt?: boolean
 }
 
-export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "isPublic" | "underConstruction" | "canDelete" | "userId" | "imagePath" | "designer" | "serverId" | "serverName" | "artImageId" | "isMature" | "isActive" | "artPrompt", ExtArgs["result"]["bot"]>
+export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "narrativeVoice" | "forgeIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "isPublic" | "underConstruction" | "canDelete" | "userId" | "imagePath" | "designer" | "serverId" | "serverName" | "artImageId" | "isMature" | "isActive" | "artPrompt", ExtArgs["result"]["bot"]>
 export type BotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Bot$ArtImageArgs<ExtArgs>
   Server?: boolean | Prisma.Bot$ServerArgs<ExtArgs>
@@ -2396,6 +2786,7 @@ export type BotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Chats?: boolean | Prisma.Bot$ChatsArgs<ExtArgs>
   Prompts?: boolean | Prisma.Bot$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
+  Dreams?: boolean | Prisma.Bot$DreamsArgs<ExtArgs>
   _count?: boolean | Prisma.BotCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2408,6 +2799,7 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
+    Dreams: Prisma.$DreamPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2420,6 +2812,8 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     avatarImage: string | null
     botIntro: string
     userIntro: string
+    narrativeVoice: string | null
+    forgeIntro: string | null
     prompt: string
     trainingPath: string | null
     theme: string | null
@@ -2785,6 +3179,7 @@ export interface Prisma__BotClient<T, Null = never, ExtArgs extends runtime.Type
   Chats<T extends Prisma.Bot$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Prompts<T extends Prisma.Bot$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Bot$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Dreams<T extends Prisma.Bot$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2824,6 +3219,8 @@ export interface BotFieldRefs {
   readonly avatarImage: Prisma.FieldRef<"Bot", 'String'>
   readonly botIntro: Prisma.FieldRef<"Bot", 'String'>
   readonly userIntro: Prisma.FieldRef<"Bot", 'String'>
+  readonly narrativeVoice: Prisma.FieldRef<"Bot", 'String'>
+  readonly forgeIntro: Prisma.FieldRef<"Bot", 'String'>
   readonly prompt: Prisma.FieldRef<"Bot", 'String'>
   readonly trainingPath: Prisma.FieldRef<"Bot", 'String'>
   readonly theme: Prisma.FieldRef<"Bot", 'String'>
@@ -3317,6 +3714,30 @@ export type Bot$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
+}
+
+/**
+ * Bot.Dreams
+ */
+export type Bot$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dream
+   */
+  select?: Prisma.DreamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dream
+   */
+  omit?: Prisma.DreamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DreamInclude<ExtArgs> | null
+  where?: Prisma.DreamWhereInput
+  orderBy?: Prisma.DreamOrderByWithRelationInput | Prisma.DreamOrderByWithRelationInput[]
+  cursor?: Prisma.DreamWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DreamScalarFieldEnum | Prisma.DreamScalarFieldEnum[]
 }
 
 /**

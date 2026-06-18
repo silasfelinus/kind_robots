@@ -5,7 +5,10 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 
-type BotCreateBody = Partial<Bot>
+type BotCreateBody = Partial<Bot> & {
+  Dreams?: { connect?: { id: number }[] } | { id: number }[]
+  dreamIds?: number[]
+}
 
 function getStringOrDefault(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback
@@ -17,6 +20,18 @@ function getStringOrNull(value: unknown): string | null {
 
 function getBooleanOrDefault(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback
+}
+
+function getDreamConnect(
+  value: unknown,
+): { connect: { id: number }[] } | undefined {
+  // accept body.Dreams = { connect: [{id}] }  OR  body.dreamIds = [1,2,3]
+  const raw = (value as any)?.connect ?? value
+  if (!Array.isArray(raw)) return undefined
+  const ids = raw
+    .map((x: any) => (typeof x === 'object' ? Number(x.id) : Number(x)))
+    .filter((n) => Number.isInteger(n) && n > 0)
+  return ids.length ? { connect: ids.map((id) => ({ id })) } : undefined
 }
 
 function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
@@ -145,6 +160,8 @@ export default defineEventHandler(async (event) => {
       modules: getStringOrNull(botData.modules),
       sampleResponse: getStringOrNull(botData.sampleResponse),
       tagline: getStringOrNull(botData.tagline),
+      narrativeVoice: getStringOrNull(botData.narrativeVoice),
+      forgeIntro: getStringOrNull(botData.forgeIntro),
       designer: getStringOrDefault(botData.designer, 'silasfelinus'),
       serverName: getStringOrNull(botData.serverName),
       artPrompt: getStringOrNull(botData.artPrompt),
@@ -166,6 +183,7 @@ export default defineEventHandler(async (event) => {
             connect: { id: artImageId },
           }
         : undefined,
+      Dreams: getDreamConnect(botData.Dreams ?? (botData as any).dreamIds), // ADD
     }
 
     const bot = await prisma.bot.create({
@@ -184,7 +202,6 @@ export default defineEventHandler(async (event) => {
             title: true,
             label: true,
             serverType: true,
-            
           },
         },
         ArtImage: {

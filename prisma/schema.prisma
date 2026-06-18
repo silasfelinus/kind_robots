@@ -89,12 +89,14 @@ model Bot {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime?  @default(now()) @updatedAt
   BotType           String     @db.VarChar(764)
-  name              String     @unique(map: "Bot_id_key", length: 200) @db.VarChar(256)
+  name              String     @db.VarChar(256)
   subtitle          String?    @db.VarChar(764)
   description       String?    @db.VarChar(764)
   avatarImage       String?    @db.VarChar(764)
   botIntro          String     @db.VarChar(3000)
   userIntro         String     @db.VarChar(764)
+  narrativeVoice    String?    @db.Text
+  forgeIntro        String?    @db.Text
   prompt            String     @db.VarChar(764)
   trainingPath      String?    @db.VarChar(764)
   theme             String?    @db.VarChar(764)
@@ -106,7 +108,7 @@ model Bot {
   underConstruction Boolean    @default(false)
   canDelete         Boolean    @default(false)
   userId            Int?       @default(1)
-  imagePath    String?       @db.VarChar(764)
+  imagePath         String?     @db.VarChar(764)
   designer          String     @default("silasfelinus")
   serverId          Int?
   serverName        String?    @db.VarChar(256)
@@ -120,6 +122,7 @@ model Bot {
   Chats             Chat[]
   Prompts           Prompt[]
   Reactions         Reaction[]
+  Dreams            Dream[]
 
   @@index([userId], map: "Bot_userId_fkey")
   @@index([serverId], map: "Bot_serverId_fkey")
@@ -403,6 +406,7 @@ model Dream {
   ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
   Characters      Character[]    @relation("CharacterToDream")
   Rewards         Reward[]       @relation("DreamToReward")
+  Bots            Bot[]
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])

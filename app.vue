@@ -44,7 +44,7 @@
         >
           <div
             class="relative z-10 flex min-h-0 flex-1 overflow-x-visible overflow-y-hidden md:flex-row md:gap-3 md:overflow-hidden"
-            :class="chromeMinimized ? 'pb-10' : 'pb-(--hand-h)'"
+            :class="chromeMinimized ? 'pb-10' : 'pb-20 md:pb-(--hand-h)'"
           >
             <Transition name="workspace-sheet-slide">
               <aside
@@ -100,7 +100,7 @@
                 <fx-region region="page" />
 
                 <main
-                  class="relative z-10 h-full min-h-0 w-full overflow-y-auto overscroll-contain"
+                  class="relative z-10 h-full min-h-0 w-full overflow-x-visible overflow-y-auto overscroll-y-contain"
                 >
                   <NuxtPage />
                 </main>
@@ -114,30 +114,61 @@
     <ClientOnly>
       <section
         v-if="!chromeMinimized"
-        class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end justify-end gap-2 px-2 sm:px-3"
-        style="height: var(--hand-h)"
+        class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end justify-end gap-2 px-2 sm:px-3 md:h-(--hand-h)"
       >
-        <div
-          class="relative min-w-0 flex-1 md:block"
-          :class="narratorPanelOpen ? 'hidden' : 'block'"
-        >
+        <div class="hidden min-w-0 flex-1 md:block">
           <Transition name="workspace-hand-slide">
             <workspace-hand />
           </Transition>
         </div>
 
-        <div class="relative z-100 flex shrink-0 items-end justify-end">
+        <div class="hidden shrink-0 items-end justify-end md:flex">
           <workspace-narrator
             rail-mode
+            :close-signal="narratorCloseSignal"
             @panel-open-change="setNarratorPanelOpen"
           />
         </div>
-      </section>
 
+        <Transition name="workspace-hand-slide">
+          <div
+            v-if="workspaceHandOpen && !narratorPanelOpen"
+            class="pointer-events-auto fixed inset-x-2 bottom-14 z-90 md:hidden"
+            style="height: var(--hand-h)"
+          >
+            <workspace-hand />
+          </div>
+        </Transition>
+
+        <div
+          class="pointer-events-auto fixed bottom-3 left-3 z-120 flex flex-col items-start gap-2 md:hidden"
+        >
+          <workspace-narrator
+            rail-mode
+            mobile-toggle
+            :close-signal="narratorCloseSignal"
+            @panel-open-change="setNarratorPanelOpen"
+          />
+
+          <button
+            type="button"
+            class="btn btn-primary btn-circle btn-sm shadow-2xl"
+            :class="workspaceHandOpen && !narratorPanelOpen ? 'btn-active' : ''"
+            :aria-expanded="workspaceHandOpen && !narratorPanelOpen"
+            aria-label="Toggle workspace hand"
+            title="Toggle workspace hand"
+            @click="toggleWorkspaceHand"
+          >
+            <Icon name="kind-icon:card" class="h-5 w-5" />
+          </button>
+        </div>
+      </section>
       <workspace-narrator
         v-else
         :chrome-minimized="chromeMinimized"
         rail-mode
+        mobile-toggle
+        :close-signal="narratorCloseSignal"
         @panel-open-change="setNarratorPanelOpen"
       />
 
@@ -201,16 +232,32 @@ function handlePageReady(): void {
   }
 }
 
+const narratorCloseSignal = ref(0)
+
+const narratorPanelOpen = ref(false)
+const workspaceHandOpen = ref(true)
+
+function setNarratorPanelOpen(value: boolean): void {
+  narratorPanelOpen.value = value
+
+  if (value) {
+    workspaceHandOpen.value = false
+  }
+}
+
+function toggleWorkspaceHand(): void {
+  workspaceHandOpen.value = !workspaceHandOpen.value
+
+  if (workspaceHandOpen.value) {
+    narratorPanelOpen.value = false
+    narratorCloseSignal.value += 1
+  }
+}
+
 function persist(key: string, value: boolean): void {
   if (!import.meta.client) return
 
   window.localStorage.setItem(key, value ? 'true' : 'false')
-}
-
-const narratorPanelOpen = ref(false)
-
-function setNarratorPanelOpen(value: boolean): void {
-  narratorPanelOpen.value = value
 }
 
 function minimizeChrome(): void {

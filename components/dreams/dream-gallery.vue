@@ -1,105 +1,104 @@
 <!-- /components/dreams/dream-gallery.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden">
-    <header
-      v-if="showHeader"
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 shadow md:flex-row md:items-center md:justify-between"
-    >
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
-          <Icon name="kind-icon:dream" class="h-7 w-7 text-primary" />
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
-            Vibe Gallery
-          </p>
-          <span class="badge badge-outline rounded-xl">
-            {{ filteredDreams.length }} Dream{{
-              filteredDreams.length === 1 ? '' : 's'
-            }}
-          </span>
-        </div>
-
-        <h2 class="mt-1 text-2xl font-black text-base-content">
-          {{ title }}
-        </h2>
-
-        <p class="mt-1 max-w-4xl text-sm text-base-content/65">
-          {{ subtitle }}
-        </p>
-      </div>
-
-      <div class="flex flex-wrap gap-2">
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm rounded-2xl"
-          :disabled="dreamStore.loading"
-          @click="refresh"
-        >
-          <span
-            v-if="dreamStore.loading"
-            class="loading loading-spinner loading-xs"
-          />
-          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-primary btn-sm rounded-2xl text-white"
-          @click="startNewDream"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          New Dream
-        </button>
-      </div>
-    </header>
-
+  <section
+    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
     <section
-      v-if="showControls"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
+      v-if="showHeader"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
     >
       <div
-        class="grid gap-2 lg:grid-cols-[minmax(0,1fr)_12rem_10rem_auto] lg:items-center"
+        class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
       >
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <Icon name="kind-icon:dream" class="h-6 w-6 text-primary" />
+            <h2 class="truncate text-xl font-black text-primary">
+              {{ title }}
+            </h2>
+
+            <span class="badge badge-outline rounded-xl">
+              {{ filteredDreams.length }} Dream{{
+                filteredDreams.length === 1 ? '' : 's'
+              }}
+            </span>
+          </div>
+
+          <p class="mt-1 text-sm text-base-content/60">
+            {{ subtitle }}
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-if="allowRefresh"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isLoading || dreamStore.loading"
+            @click="refreshDreams(true)"
+          >
+            <span
+              v-if="isLoading || dreamStore.loading"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            Refresh
+          </button>
+
+          <button
+            v-if="allowAdd"
+            class="btn btn-primary btn-sm rounded-xl text-white"
+            type="button"
+            @click="startAddingDream"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            New Dream
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section
+      v-if="showControls && !isDropdownMode"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
+    >
+      <div class="grid gap-2 lg:grid-cols-[minmax(0,1fr)_12rem_10rem_auto]">
         <label
-          class="input input-bordered input-sm flex items-center gap-2 rounded-2xl bg-base-100"
+          class="input input-bordered input-sm flex items-center gap-2 rounded-2xl bg-base-200"
         >
           <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
           <input
-            v-model="search"
+            v-model="searchQuery"
             class="grow"
             type="search"
-            placeholder="Search vibes, pitches, locations..."
+            placeholder="Search Dreams, vibes, scenarios, cast..."
           />
         </label>
 
         <select
-          v-model="dreamTypeFilter"
-          class="select select-bordered select-sm rounded-2xl bg-base-100"
+          v-model="selectedType"
+          class="select select-bordered select-sm rounded-2xl bg-base-200"
         >
-          <option value="">All types</option>
-          <option
-            v-for="type in dreamStore.dreamTypes"
-            :key="type"
-            :value="type"
-          >
+          <option value="all">All types</option>
+          <option v-for="type in dreamTypes" :key="type" :value="type">
             {{ dreamTypeLabel(type) }}
           </option>
         </select>
 
         <select
-          v-model="displayMode"
-          class="select select-bordered select-sm rounded-2xl bg-base-100"
+          v-model="layoutMode"
+          class="select select-bordered select-sm rounded-2xl bg-base-200"
         >
-          <option value="cards">Cards</option>
-          <option value="dropdown">Dropdown</option>
+          <option value="grid">Grid</option>
+          <option value="row">Row</option>
         </select>
 
         <div class="grid grid-cols-2 gap-2">
           <button
             type="button"
             class="btn btn-sm rounded-2xl"
-            :class="showMine ? 'btn-secondary' : 'btn-outline'"
-            @click="showMine = !showMine"
+            :class="showMineOnly ? 'btn-secondary' : 'btn-outline'"
+            @click="showMineOnly = !showMineOnly"
           >
             <Icon name="kind-icon:user" class="h-4 w-4" />
             Mine
@@ -108,8 +107,8 @@
           <button
             type="button"
             class="btn btn-sm rounded-2xl"
-            :class="showInactive ? 'btn-warning' : 'btn-outline'"
-            @click="showInactive = !showInactive"
+            :class="showArchived ? 'btn-warning' : 'btn-outline'"
+            @click="showArchived = !showArchived"
           >
             <Icon name="kind-icon:archive" class="h-4 w-4" />
             Archived
@@ -118,189 +117,217 @@
       </div>
     </section>
 
-    <section
-      v-if="displayMode === 'dropdown'"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
-    >
-      <select
-        class="select select-bordered w-full rounded-2xl bg-base-200"
-        :value="selectedDreamId"
-        @change="previewFromDropdown"
-      >
-        <option value="">Choose a Dream...</option>
-        <option
-          v-for="dream in filteredDreams"
-          :key="dream.id"
-          :value="dream.id"
-        >
-          {{ dream.title || `Dream #${dream.id}` }} ·
-          {{ dreamTypeLabel(dream.dreamType) }}
-        </option>
-      </select>
-    </section>
-
-    <main
-      class="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
-    >
+    <section class="min-h-0 flex-1 overflow-auto">
       <div
-        v-if="filteredDreams.length && displayMode === 'cards'"
-        class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
+        v-if="isLoading || dreamStore.loading"
+        class="flex h-full items-center justify-center py-12"
       >
-        <article
-          v-for="dream in filteredDreams"
-          :key="dream.id"
-          class="group flex min-h-52 cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition hover:-translate-y-0.5 hover:border-primary hover:shadow"
-          :class="dreamCardClass(dream)"
-          @click="previewDream(dream)"
-        >
-          <figure
-            v-if="showImages"
-            class="relative h-36 overflow-hidden border-b border-base-300 bg-base-300"
-          >
-            <img
-              v-if="previewImage(dream)"
-              :src="previewImage(dream)"
-              :alt="`${dream.title || 'Dream'} preview`"
-              class="h-full w-full object-cover transition group-hover:scale-[1.03]"
-              loading="lazy"
-            />
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
 
-            <div
-              v-else
-              class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/20 via-secondary/10 to-accent/20 text-primary"
-            >
-              <Icon name="kind-icon:dream" class="h-14 w-14 opacity-70" />
+      <div
+        v-else-if="dreamStore.error"
+        class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
+      >
+        <p class="text-lg font-bold">
+          {{ dreamStore.error }}
+        </p>
+      </div>
+
+      <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
+              >
+                <Icon name="kind-icon:dream" class="h-6 w-6 text-primary" />
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Dream
+                </p>
+
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ selectedDreamTitle }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ selectedDreamSubtitle }}
+                </p>
+              </div>
             </div>
 
-            <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-              <span class="badge badge-primary badge-sm rounded-xl">
-                {{ dreamTypeLabel(dream.dreamType) }}
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                v-if="canEditSelected"
+                class="btn btn-secondary btn-sm rounded-xl"
+                type="button"
+                @click="startEditingSelectedDream"
+              >
+                <Icon name="kind-icon:pencil" class="h-4 w-4" />
+                <span class="hidden sm:inline">Edit</span>
+              </button>
+            </div>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-200"
+            :value="dreamStore.selectedDream?.id ?? ''"
+            aria-label="Select Dream"
+            @change="selectDreamFromEvent"
+          >
+            <option value="">Choose a Dream</option>
+
+            <option
+              v-for="dream in filteredDreams"
+              :key="dream.id"
+              :value="dream.id"
+            >
+              {{ getDreamTitle(dream) }}
+            </option>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Dream</option>
+          </select>
+
+          <div
+            v-if="dreamStore.selectedDream"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p class="line-clamp-3">
+              {{ selectedDreamDescription }}
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-if="dreamStore.selectedDream.isPublic"
+                class="badge badge-info badge-sm"
+              >
+                Public
               </span>
 
+              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+
               <span
-                v-if="dream.isMature"
-                class="badge badge-warning badge-sm rounded-xl"
+                v-if="dreamStore.selectedDream.isMature"
+                class="badge badge-warning badge-sm"
               >
                 Mature
               </span>
-            </div>
-          </figure>
-
-          <section class="flex min-h-0 flex-1 flex-col gap-2 p-3">
-            <div class="min-w-0">
-              <h3
-                class="line-clamp-2 text-lg font-black leading-tight text-base-content"
-              >
-                {{ dream.title || 'Untitled Dream' }}
-              </h3>
-
-              <p
-                v-if="showMeta"
-                class="mt-1 text-xs font-medium text-base-content/45"
-              >
-                #{{ dream.id }}
-                <span v-if="dream.designer"> · {{ dream.designer }}</span>
-              </p>
-            </div>
-
-            <p
-              v-if="showDescriptions"
-              class="line-clamp-2 text-sm leading-relaxed text-base-content/65"
-            >
-              {{
-                dream.pitch ||
-                dream.description ||
-                dream.flavorText ||
-                'No Dream pitch yet.'
-              }}
-            </p>
-
-            <div class="mt-auto flex flex-wrap gap-1">
-              <span
-                v-if="scenarioCount(dream)"
-                class="badge badge-secondary badge-sm rounded-xl"
-              >
-                {{ scenarioCount(dream) }} Scenario{{
-                  scenarioCount(dream) === 1 ? '' : 's'
-                }}
-              </span>
 
               <span
-                v-if="characterCount(dream)"
-                class="badge badge-accent badge-sm rounded-xl"
+                v-if="dreamStore.selectedDream.dreamType"
+                class="badge badge-outline badge-sm"
               >
-                {{ characterCount(dream) }} Cast
-              </span>
-
-              <span
-                v-if="artCount(dream)"
-                class="badge badge-info badge-sm rounded-xl"
-              >
-                {{ artCount(dream) }} Art
+                {{ dreamTypeLabel(dreamStore.selectedDream.dreamType) }}
               </span>
             </div>
-          </section>
-
-          <footer
-            v-if="showCardActions"
-            class="flex flex-wrap justify-end gap-2 border-t border-base-300 bg-base-100 p-2"
-            @click.stop
-          >
-            <button
-              type="button"
-              class="btn btn-primary btn-xs rounded-xl text-white"
-              :disabled="dreamStore.loading"
-              @click="previewDream(dream)"
-            >
-              <Icon name="kind-icon:target" class="h-3 w-3" />
-              Choose
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-outline btn-xs rounded-xl"
-              @click="editDream(dream)"
-            >
-              <Icon name="kind-icon:edit" class="h-3 w-3" />
-              Edit
-            </button>
-          </footer>
-        </article>
+          </div>
+        </div>
       </div>
 
       <div
-        v-else-if="!filteredDreams.length"
-        class="flex min-h-96 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center text-base-content/55"
+        v-else-if="filteredDreams.length === 0"
+        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
       >
-        <Icon name="kind-icon:ghost" class="h-14 w-14 text-primary/60" />
-        <div>
-          <p class="text-lg font-black">No Dreams found.</p>
-          <p class="mt-1 text-sm">
-            Make a vibe, loosen the filters, or gently bully the sorting goblin.
+        <Icon name="kind-icon:dream" class="h-12 w-12 text-primary" />
+
+        <div class="max-w-2xl">
+          <p class="text-lg font-bold">
+            {{ emptyStateTitle }}
           </p>
+
+          <div class="mt-3 flex flex-col gap-2 text-sm">
+            <p
+              v-for="reason in emptyStateDetails"
+              :key="reason"
+              class="rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-left"
+            >
+              {{ reason }}
+            </p>
+          </div>
+
+          <div
+            v-if="dreamStore.dreams.length > 0"
+            class="mt-3 flex flex-wrap justify-center gap-2 text-xs"
+          >
+            <span class="badge badge-ghost">
+              Loaded: {{ exclusionSummary.total }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenByOwnership"
+              class="badge badge-warning"
+            >
+              Private: {{ exclusionSummary.hiddenByOwnership }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenByMature"
+              class="badge badge-warning"
+            >
+              Mature: {{ exclusionSummary.hiddenByMature }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenByArchived"
+              class="badge badge-warning"
+            >
+              Archived: {{ exclusionSummary.hiddenByArchived }}
+            </span>
+
+            <span v-if="exclusionSummary.hiddenByType" class="badge badge-info">
+              Type: {{ exclusionSummary.hiddenByType }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenBySearch"
+              class="badge badge-secondary"
+            >
+              Search: {{ exclusionSummary.hiddenBySearch }}
+            </span>
+          </div>
         </div>
 
         <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl text-white"
           type="button"
-          class="btn btn-primary btn-sm rounded-2xl text-white"
-          @click="startNewDream"
+          @click="startAddingDream"
         >
           <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Make a Dream
+          Make the first vibe
         </button>
       </div>
 
-      <div
-        v-else
-        class="flex min-h-80 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center text-base-content/55"
-      >
-        <Icon name="kind-icon:list" class="h-14 w-14 text-primary/60" />
-        <div>
-          <p class="text-lg font-black">Dropdown mode active.</p>
-          <p class="mt-1 text-sm">Choose a Dream from the dropdown above.</p>
-        </div>
+      <div v-else :class="layoutClass">
+        <dream-card
+          v-for="dream in filteredDreams"
+          :key="dream.id"
+          :dream="dream"
+          :selected="dreamStore.selectedDream?.id === dream.id"
+          :is-selected="dreamStore.selectedDream?.id === dream.id"
+          :compact="isCompact"
+          :show-image="showImages"
+          :show-actions="showCardActions"
+          :show-description="showDescriptions"
+          :show-meta="showMeta"
+          :show-stats="showStats"
+          :show-debug="showDebug"
+          :allow-edit="allowEdit"
+          :allow-delete="allowDelete"
+          image-fit="cover"
+          @choose="previewDream"
+          @edit="startEditingDreamById"
+          @delete="handleDreamDeleted"
+        />
       </div>
-    </main>
+    </section>
 
     <div
       v-if="pendingDream"
@@ -342,18 +369,13 @@
             </div>
 
             <h2 class="mt-2 text-2xl font-black text-base-content">
-              {{ pendingDream.title || 'Untitled Dream' }}
+              {{ getDreamTitle(pendingDream) }}
             </h2>
 
             <p
               class="mt-2 line-clamp-4 text-sm leading-relaxed text-base-content/70"
             >
-              {{
-                pendingDream.pitch ||
-                pendingDream.description ||
-                pendingDream.flavorText ||
-                'No Dream summary yet.'
-              }}
+              {{ getDreamDescription(pendingDream) }}
             </p>
           </div>
 
@@ -376,7 +398,7 @@
             <img
               v-if="previewImage(pendingDream)"
               :src="previewImage(pendingDream)"
-              :alt="`${pendingDream.title || 'Dream'} preview`"
+              :alt="`${getDreamTitle(pendingDream)} preview`"
               class="h-full w-full object-cover"
               loading="lazy"
             />
@@ -404,7 +426,7 @@
                 class="rounded-2xl border border-base-300 bg-base-200 p-3 text-center"
               >
                 <p class="text-2xl font-black text-secondary">
-                  {{ pendingScenarioCount }}
+                  {{ pendingScenarioRows.length }}
                 </p>
                 <p class="text-xs text-base-content/55">Scenarios</p>
               </div>
@@ -413,7 +435,7 @@
                 class="rounded-2xl border border-base-300 bg-base-200 p-3 text-center"
               >
                 <p class="text-2xl font-black text-accent">
-                  {{ pendingCharacterCount }}
+                  {{ pendingCharacterRows.length }}
                 </p>
                 <p class="text-xs text-base-content/55">Characters</p>
               </div>
@@ -445,7 +467,7 @@
                   :key="`related-${dream.id}`"
                   class="badge badge-outline rounded-xl"
                 >
-                  {{ dream.title || `Dream #${dream.id}` }}
+                  {{ getDreamTitle(dream) }}
                 </span>
               </div>
             </section>
@@ -499,8 +521,9 @@
             >
               <h3 class="font-black text-primary">Confirm Selection</h3>
               <p class="mt-1 text-sm leading-relaxed text-base-content/65">
-                Selecting this Dream will load it as the active experience and
-                move you to the Interact screen.
+                Selecting this Dream loads it as the active experience. The
+                workspace Narrator updates to this Dream, and the manager moves
+                to the Interact screen.
               </p>
             </section>
           </div>
@@ -546,6 +569,9 @@ import type {
 } from '~/prisma/generated/prisma/client'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
+import { useUserStore } from '@/stores/userStore'
+
+type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
 type DreamScenarioWithCharacters = Scenario & {
   Characters?: Partial<Character>[]
@@ -553,33 +579,43 @@ type DreamScenarioWithCharacters = Scenario & {
 
 const props = withDefaults(
   defineProps<{
+    variant?: GalleryVariant
     title?: string
     subtitle?: string
     showHeader?: boolean
-    showControls?: boolean
     showImages?: boolean
+    showControls?: boolean
     showCardActions?: boolean
-    showStats?: boolean
-    showMeta?: boolean
     showDescriptions?: boolean
-    showScenarios?: boolean
-    variant?: 'dashboard' | 'compact' | 'dropdown'
-    openTab?: string
+    showMeta?: boolean
+    showStats?: boolean
+    showDebug?: boolean
+    allowAdd?: boolean
+    allowEdit?: boolean
+    allowDelete?: boolean
+    allowRefresh?: boolean
+    compact?: boolean
+    autoLoad?: boolean
   }>(),
   {
-    title: 'Dream Gallery',
-    subtitle:
-      'Browse Dreams as vibes, then choose one to load the connected experience.',
-    showHeader: true,
-    showControls: true,
-    showImages: true,
-    showCardActions: true,
-    showStats: true,
-    showMeta: true,
-    showDescriptions: false,
-    showScenarios: true,
     variant: 'dashboard',
-    openTab: 'dreams',
+    title: 'Dreams',
+    subtitle:
+      'Choose a Dream vibe, confirm the connected elements, then open the experience.',
+    showHeader: true,
+    showImages: true,
+    showControls: true,
+    showCardActions: true,
+    showDescriptions: false,
+    showMeta: true,
+    showStats: true,
+    showDebug: false,
+    allowAdd: true,
+    allowEdit: true,
+    allowDelete: false,
+    allowRefresh: true,
+    compact: false,
+    autoLoad: true,
   },
 )
 
@@ -592,38 +628,133 @@ const emit = defineEmits<{
 
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
+const userStore = useUserStore()
 
-const search = ref('')
-const showMine = ref(false)
-const showInactive = ref(false)
-const dreamTypeFilter = ref('')
-const displayMode = ref<'cards' | 'dropdown'>(
-  props.variant === 'dropdown' ? 'dropdown' : 'cards',
-)
+const selectedType = ref('all')
+const searchQuery = ref('')
+const showMineOnly = ref(false)
+const showArchived = ref(false)
+const isLoading = ref(false)
 const pendingDream = ref<DreamWithRelations | null>(null)
+const layoutMode = ref<'grid' | 'row'>(props.variant === 'row' ? 'row' : 'grid')
 
-const selectedDreamId = computed(() => dreamStore.selectedDream?.id ?? '')
+const isDropdownMode = computed(() => props.variant === 'dropdown')
 
-const dreamSource = computed(() => {
-  return showInactive.value ? dreamStore.dreams : dreamStore.visibleDreams
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || isDropdownMode.value
 })
 
-const filteredDreams = computed(() => {
-  const term = search.value.trim().toLowerCase()
+const layoutClass = computed(() => {
+  return layoutMode.value === 'row' || props.variant === 'row'
+    ? 'dream-row'
+    : 'dream-grid'
+})
 
-  return dreamSource.value.filter((dream: DreamWithRelations) => {
-    if (showMine.value && dream.userId !== dreamStore.currentUserId) {
-      return false
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const showMature = computed(() => {
+  return userStore.user?.showMature ?? userStore.showMature ?? false
+})
+
+const selectedDream = computed(() => {
+  return dreamStore.selectedDream
+})
+
+const selectedDreamTitle = computed(() => {
+  return selectedDream.value
+    ? getDreamTitle(selectedDream.value)
+    : 'No Dream selected'
+})
+
+const selectedDreamSubtitle = computed(() => {
+  const dream = selectedDream.value
+
+  if (!dream) return 'Choose a Dream to load the workspace.'
+
+  return (
+    [
+      dreamTypeLabel(dream.dreamType),
+      dream.isPublic ? 'Public' : 'Private',
+      dream.isActive ? 'Active' : 'Archived',
+    ]
+      .filter(Boolean)
+      .join(' / ') || 'Dream selected.'
+  )
+})
+
+const selectedDreamDescription = computed(() => {
+  const dream = selectedDream.value
+
+  if (!dream) return 'No Dream selected.'
+
+  return getDreamDescription(dream)
+})
+
+const canEditSelected = computed(() => {
+  const dream = selectedDream.value
+
+  if (!props.allowEdit || !dream?.id) return false
+  if (userStore.isAdmin) return true
+
+  return dream.userId === currentUserId.value
+})
+
+const galleryDreams = computed<DreamWithRelations[]>(() => {
+  let dreams = dreamStore.dreams ?? []
+
+  if (!showArchived.value) {
+    dreams = dreams.filter((dream) => dream.isActive !== false)
+  }
+
+  if (!userStore.isAdmin && currentUserId.value !== null) {
+    dreams = dreams.filter((dream) => {
+      return dream.isPublic || dream.userId === currentUserId.value
+    })
+  }
+
+  if (!showMature.value) {
+    dreams = dreams.filter((dream) => !dream.isMature)
+  }
+
+  if (showMineOnly.value) {
+    dreams = dreams.filter((dream) => dream.userId === currentUserId.value)
+  }
+
+  return dreams
+})
+
+const dreamTypes = computed(() => {
+  const set = new Set<string>()
+
+  for (const dream of galleryDreams.value) {
+    const type = dream.dreamType?.trim()
+
+    if (type) {
+      set.add(type)
     }
+  }
 
-    if (dreamTypeFilter.value && dream.dreamType !== dreamTypeFilter.value) {
-      return false
-    }
+  return Array.from(set).sort()
+})
 
-    if (!term) return true
+const filteredDreams = computed<DreamWithRelations[]>(() => {
+  let dreams = galleryDreams.value
 
-    return dreamSearchText(dream).toLowerCase().includes(term)
-  })
+  if (selectedType.value !== 'all') {
+    dreams = dreams.filter((dream) => dream.dreamType === selectedType.value)
+  }
+
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (query) {
+    dreams = dreams.filter((dream) => {
+      return dreamMatchesSearch(dream, query)
+    })
+  }
+
+  return dreams
 })
 
 const pendingScenarioRows = computed(() => {
@@ -644,7 +775,7 @@ const pendingRelatedDreams = computed(() => {
   const dream = pendingDream.value
   if (!dream) return []
 
-  return dreamSource.value
+  return galleryDreams.value
     .filter((candidate) => candidate.id !== dream.id)
     .map((candidate) => ({
       dream: candidate,
@@ -656,20 +787,6 @@ const pendingRelatedDreams = computed(() => {
     .map((entry) => entry.dream)
 })
 
-const pendingScenarioCount = computed(() => {
-  const dream = pendingDream.value
-  if (!dream) return 0
-
-  return scenarioCount(dream)
-})
-
-const pendingCharacterCount = computed(() => {
-  const dream = pendingDream.value
-  if (!dream) return 0
-
-  return characterCount(dream)
-})
-
 const pendingArtCount = computed(() => {
   const dream = pendingDream.value
   if (!dream) return 0
@@ -678,12 +795,161 @@ const pendingArtCount = computed(() => {
 })
 
 const pendingRewardCount = computed(() => {
-  return pendingDream.value?.Rewards?.length ?? 0
+  return (
+    pendingDream.value?._count?.Rewards ??
+    pendingDream.value?.Rewards?.length ??
+    0
+  )
+})
+
+const exclusionSummary = computed(() => {
+  const allDreams = dreamStore.dreams ?? []
+  const currentId = currentUserId.value
+  const query = searchQuery.value.trim().toLowerCase()
+
+  const counts = {
+    total: allDreams.length,
+    hiddenByOwnership: 0,
+    hiddenByMature: 0,
+    hiddenByArchived: 0,
+    hiddenByMineOnly: 0,
+    hiddenByType: 0,
+    hiddenBySearch: 0,
+  }
+
+  for (const dream of allDreams) {
+    const hiddenByArchived = !showArchived.value && dream.isActive === false
+
+    if (hiddenByArchived) {
+      counts.hiddenByArchived++
+      continue
+    }
+
+    const hiddenByOwnership =
+      !userStore.isAdmin &&
+      currentId !== null &&
+      !dream.isPublic &&
+      dream.userId !== currentId
+
+    if (hiddenByOwnership) {
+      counts.hiddenByOwnership++
+      continue
+    }
+
+    const hiddenByMature = !showMature.value && dream.isMature
+
+    if (hiddenByMature) {
+      counts.hiddenByMature++
+      continue
+    }
+
+    const hiddenByMineOnly = showMineOnly.value && dream.userId !== currentId
+
+    if (hiddenByMineOnly) {
+      counts.hiddenByMineOnly++
+      continue
+    }
+
+    const hiddenByType =
+      selectedType.value !== 'all' && dream.dreamType !== selectedType.value
+
+    if (hiddenByType) {
+      counts.hiddenByType++
+      continue
+    }
+
+    if (query && !dreamMatchesSearch(dream, query)) {
+      counts.hiddenBySearch++
+    }
+  }
+
+  return counts
+})
+
+const emptyStateTitle = computed(() => {
+  if (dreamStore.dreams.length === 0) {
+    return 'No Dreams loaded.'
+  }
+
+  return `${dreamStore.dreams.length} Dreams loaded, but none match this gallery.`
+})
+
+const emptyStateDetails = computed(() => {
+  const summary = exclusionSummary.value
+  const reasons: string[] = []
+
+  if (summary.hiddenByArchived > 0) {
+    reasons.push(
+      `${summary.hiddenByArchived} hidden because archived Dreams are off.`,
+    )
+  }
+
+  if (summary.hiddenByOwnership > 0) {
+    reasons.push(
+      `${summary.hiddenByOwnership} hidden because they are private and not owned by the current user.`,
+    )
+  }
+
+  if (summary.hiddenByMature > 0) {
+    reasons.push(
+      `${summary.hiddenByMature} hidden because mature content is turned off.`,
+    )
+  }
+
+  if (summary.hiddenByMineOnly > 0) {
+    reasons.push(`${summary.hiddenByMineOnly} hidden by the Mine filter.`)
+  }
+
+  if (summary.hiddenByType > 0) {
+    reasons.push(
+      `${summary.hiddenByType} hidden by the selected type filter: ${selectedType.value}.`,
+    )
+  }
+
+  if (summary.hiddenBySearch > 0) {
+    reasons.push(
+      `${summary.hiddenBySearch} hidden because they do not match the search: "${searchQuery.value.trim()}".`,
+    )
+  }
+
+  if (!currentUserId.value && !userStore.isAdmin) {
+    reasons.push(
+      'The current user is not loaded yet, so owned private Dreams may be unavailable.',
+    )
+  }
+
+  if (reasons.length === 0 && dreamStore.dreams.length > 0) {
+    reasons.push(
+      'Dreams are loaded, but the visible list is empty. Check isPublic, isMature, isActive, dreamType, or userId values.',
+    )
+  }
+
+  return reasons
 })
 
 onMounted(async () => {
-  await dreamStore.initialize({ fetchRemote: true })
+  if (props.autoLoad) {
+    await refreshDreams()
+  }
 })
+
+function dreamMatchesSearch(dream: DreamWithRelations, query: string) {
+  return dreamSearchText(dream).toLowerCase().includes(query)
+}
+
+function getDreamTitle(dream: DreamWithRelations) {
+  return dream.title || dream.slug || `Dream ${dream.id}`
+}
+
+function getDreamDescription(dream: DreamWithRelations) {
+  return (
+    dream.pitch ||
+    dream.description ||
+    dream.flavorText ||
+    dream.artPrompt ||
+    'No Dream summary yet.'
+  )
+}
 
 function dreamTypeLabel(type?: string | null) {
   return String(type || 'PITCH')
@@ -692,14 +958,63 @@ function dreamTypeLabel(type?: string | null) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-async function refresh() {
-  await dreamStore.fetchDreams({ showInactive: showInactive.value })
+async function refreshDreams(force = false) {
+  isLoading.value = true
+
+  try {
+    const shouldForceFetch = force || dreamStore.dreams.length === 0
+
+    await dreamStore.initialize({
+      force: shouldForceFetch,
+      fetchRemote: true,
+    })
+  } finally {
+    isLoading.value = false
+  }
 }
 
-function startNewDream() {
+function selectDreamFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    startAddingDream()
+    return
+  }
+
+  const id = Number(target.value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    pendingDream.value = null
+    return
+  }
+
+  const dream = filteredDreams.value.find((item) => item.id === id)
+  if (!dream) return
+
+  previewDream(dream)
+}
+
+function startAddingDream() {
   dreamStore.startAddingDream()
   navStore.setDashboardTab?.('dream', 'dreammaker')
   emit('created')
+}
+
+async function startEditingSelectedDream() {
+  const id = dreamStore.selectedDream?.id
+
+  if (!id) return
+
+  await startEditingDreamById(id)
+}
+
+async function startEditingDreamById(id: number) {
+  const dream = await dreamStore.startEditingDream(id)
+
+  if (!dream) return
+
+  navStore.setDashboardTab?.('dream', 'dreammaker')
+  emit('editing', dream)
 }
 
 function previewDream(dream: DreamWithRelations) {
@@ -708,16 +1023,6 @@ function previewDream(dream: DreamWithRelations) {
 
 function closeDreamPreview() {
   pendingDream.value = null
-}
-
-function previewFromDropdown(event: Event) {
-  const id = Number((event.target as HTMLSelectElement).value)
-  if (!Number.isInteger(id) || id <= 0) return
-
-  const dream = filteredDreams.value.find((item) => item.id === id)
-  if (!dream) return
-
-  previewDream(dream)
 }
 
 async function confirmDreamSelection() {
@@ -735,38 +1040,14 @@ async function confirmDreamSelection() {
   emit('opened', selected)
 }
 
-async function editDream(dream: DreamWithRelations) {
-  const editing = await dreamStore.startEditingDream(dream.id)
-  if (!editing) return
+async function handleDreamDeleted(id: number) {
+  const result = await dreamStore.deleteDream(id)
 
-  navStore.setDashboardTab?.('dream', 'dreammaker')
-  emit('editing', editing)
-}
-
-function dreamCardClass(dream: DreamWithRelations) {
-  if (dreamStore.selectedDream?.id === dream.id) {
-    return 'border-primary bg-primary/10 ring-2 ring-primary/20'
+  if (result.success && dreamStore.selectedDream?.id === id) {
+    dreamStore.deselectDream?.()
   }
 
-  if (dream.isActive === false) return 'border-base-300 opacity-70'
-
-  return 'border-base-300'
-}
-
-function scenarioCount(dream: DreamWithRelations) {
-  return (
-    dream._count?.Scenarios ??
-    dream.Scenarios?.length ??
-    (dream.Scenario ? 1 : 0)
-  )
-}
-
-function characterCount(dream: DreamWithRelations) {
-  return dream._count?.Characters ?? dream.Characters?.length ?? 0
-}
-
-function artCount(dream: DreamWithRelations) {
-  return dream._count?.ArtImages ?? collectionArt(dream).length ?? 0
+  await refreshDreams(true)
 }
 
 function scenarioRowsForDream(dream: DreamWithRelations) {
@@ -794,7 +1075,11 @@ function collectionArt(dream: DreamWithRelations) {
     ...(dream.ArtCollections ?? []).flatMap(
       (collection) => collection.ArtImages ?? [],
     ),
-  ] as ArtImage[]
+  ] as Partial<ArtImage>[]
+}
+
+function artCount(dream: DreamWithRelations) {
+  return dream._count?.ArtImages ?? collectionArt(dream).length ?? 0
 }
 
 function previewImage(dream: DreamWithRelations) {
@@ -1007,3 +1292,23 @@ function uniqueById<T extends { id?: number | null }>(items: T[]) {
   return unique
 }
 </script>
+
+<style scoped>
+.dream-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.dream-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.dream-row > * {
+  min-width: min(240px, 85vw);
+  max-width: 360px;
+}
+</style>

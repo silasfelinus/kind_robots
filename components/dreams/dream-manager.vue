@@ -10,6 +10,7 @@
           <h1 class="text-xl font-black text-primary">Dreams</h1>
           <span class="badge badge-outline rounded-xl">{{ activeLabel }}</span>
         </div>
+
         <p
           class="mt-1 text-sm text-base-content/65"
           :class="managerError ? 'text-error' : ''"
@@ -24,7 +25,9 @@
           :key="tab.key"
           type="button"
           class="btn btn-sm rounded-2xl"
-          :class="activeTab === tab.key ? 'btn-primary text-white' : 'btn-ghost'"
+          :class="
+            activeTab === tab.key ? 'btn-primary text-white' : 'btn-ghost'
+          "
           @click="setTab(tab.key)"
         >
           <Icon :name="tab.icon" class="h-4 w-4" />
@@ -50,33 +53,33 @@
 
     <section
       v-if="activeTab === 'dreams'"
-      class="grid h-full min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(18rem,0.9fr)_minmax(0,1.25fr)]"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <dream-gallery
-          class="h-full min-h-0 flex-1 overflow-hidden p-3"
-          variant="dashboard"
-          open-tab="dreams"
-          :show-header="false"
-          :show-controls="true"
-          :show-images="true"
-          :show-card-actions="true"
-          :show-stats="true"
-          :show-meta="true"
-          @selected="onDreamSelected"
-          @opened="onDreamOpened"
-          @editing="onDreamEditing"
-          @created="setTab('dreammaker')"
-        />
-      </section>
+      <dream-gallery
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        variant="dashboard"
+        :show-header="false"
+        :show-controls="true"
+        :show-images="true"
+        :show-card-actions="true"
+        :show-stats="true"
+        :show-meta="true"
+        :show-descriptions="false"
+        :allow-add="true"
+        :allow-edit="true"
+        :allow-delete="false"
+        :allow-refresh="true"
+        @selected="onDreamSelected"
+        @opened="onDreamOpened"
+        @editing="onDreamEditing"
+      />
+    </section>
 
-      <section
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <dream-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
+    <section
+      v-else-if="activeTab === 'interact'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <dream-interact class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <section
@@ -120,12 +123,11 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
-type DreamTab = 'dreams' | 'dreammaker' | 'brainstorm'
+type DreamTab = 'dreams' | 'interact' | 'dreammaker' | 'brainstorm'
 type LegacyDreamTab =
   | DreamTab
   | 'overview'
   | 'gallery'
-  | 'interact'
   | 'add'
   | 'maker'
   | 'prompts'
@@ -141,11 +143,13 @@ const artStore = useArtStore()
 
 const dashboardKey = 'dream'
 const defaultTab: DreamTab = 'dreams'
+
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
 const visibleTabs: { key: DreamTab; label: string; icon: string }[] = [
   { key: 'dreams', label: 'Dreams', icon: 'kind-icon:grid' },
+  { key: 'interact', label: 'Interact', icon: 'kind-icon:chat' },
   { key: 'dreammaker', label: 'Dreammaker', icon: 'kind-icon:wand' },
   { key: 'brainstorm', label: 'Brainstorm', icon: 'kind-icon:sparkles' },
 ]
@@ -156,22 +160,24 @@ const activeTab = computed<DreamTab>(() => {
 })
 
 const activeLabel = computed(() => {
-  return visibleTabs.find((tab) => tab.key === activeTab.value)?.label ?? 'Dreams'
+  return (
+    visibleTabs.find((tab) => tab.key === activeTab.value)?.label ?? 'Dreams'
+  )
 })
 
 const managerSummary = computed(() => {
   const selected = dreamStore.selectedDream?.title || 'no Dream selected'
+
   return `${dreamStore.activeDreams.length}/${dreamStore.dreams.length} Dreams active. ${scenarioStore.scenarios.length} Scenarios loaded. Current Dream: ${selected}.`
 })
 
 function normalizeTab(tab?: LegacyDreamTab | string | null): DreamTab {
-  if (
-    tab === 'overview' ||
-    tab === 'gallery' ||
-    tab === 'interact' ||
-    tab === 'dreams'
-  ) {
+  if (tab === 'overview' || tab === 'gallery' || tab === 'dreams') {
     return 'dreams'
+  }
+
+  if (tab === 'interact') {
+    return 'interact'
   }
 
   if (tab === 'add' || tab === 'maker' || tab === 'dreammaker') {
@@ -195,7 +201,7 @@ function onDreamSelected() {
 
 function onDreamOpened() {
   setupUploadTarget()
-  setTab('dreams')
+  setTab('interact')
 }
 
 function onDreamEditing() {
@@ -203,11 +209,14 @@ function onDreamEditing() {
   setTab('dreammaker')
 }
 
-async function onDreamSaved(id: number | number[]) {
+async function onDreamSaved(id: number | number[] | DreamWithRelations) {
   await loadManagerData(true)
 
-  const selectedId = Array.isArray(id) ? id[0] : id
-  if (selectedId) await dreamStore.selectDreamById(selectedId)
+  const selectedId = resolveSavedDreamId(id)
+
+  if (selectedId) {
+    await dreamStore.selectDreamById(selectedId)
+  }
 
   setTab('dreams')
 }
@@ -216,9 +225,23 @@ async function onBrainstormSaved(ids: number[]) {
   await loadManagerData(true)
 
   const [firstId] = ids
-  if (firstId) await dreamStore.selectDreamById(firstId)
+
+  if (firstId) {
+    await dreamStore.selectDreamById(firstId)
+  }
 
   setTab('dreams')
+}
+
+function resolveSavedDreamId(value: number | number[] | DreamWithRelations) {
+  if (typeof value === 'number') return value
+
+  if (Array.isArray(value)) {
+    const [firstId] = value
+    return typeof firstId === 'number' ? firstId : null
+  }
+
+  return typeof value?.id === 'number' ? value.id : null
 }
 
 function setupUploadTarget() {
@@ -234,7 +257,11 @@ function setupUploadTarget() {
     collectionLabel,
     buttonLabel: 'Upload to Dream',
     icon: 'kind-icon:camera',
-    applyCollection: async ({ collectionLabel: label }: { collectionLabel: string }) => {
+    applyCollection: async ({
+      collectionLabel: label,
+    }: {
+      collectionLabel: string
+    }) => {
       await collectionStore.fetchCollections?.()
 
       const collection = collectionStore.collections.find(
@@ -256,7 +283,11 @@ async function loadManagerData(force = false) {
     await Promise.all([
       dreamStore.initialize({ force, fetchRemote: true }),
       promptStore.initialize?.(),
-      scenarioStore.initialize({ force, fetchRemote: true, includeSeeds: true }),
+      scenarioStore.initialize({
+        force,
+        fetchRemote: true,
+        includeSeeds: true,
+      }),
       artStore.initialize?.({
         force,
         hydrateImages: false,

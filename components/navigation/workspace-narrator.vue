@@ -543,62 +543,82 @@
         </div>
       </section>
     </Transition>
-
     <section
-      class="pointer-events-auto relative z-100 grid h-full w-full grid-cols-[minmax(0,1fr)_auto] items-end gap-2 overflow-visible rounded-4xl border border-primary/25 bg-base-100/90 p-2 shadow-2xl backdrop-blur transition-transform duration-300 md:rounded-[2.5rem] md:p-3 md:hover:scale-[1.04]"
+      class="pointer-events-auto relative z-100 h-full w-full overflow-visible"
     >
-      <div class="flex min-w-0 flex-col justify-end gap-1 pb-1">
+      <div
+        v-if="!props.mobileToggle"
+        class="grid h-full w-full grid-cols-[minmax(0,1fr)_auto] items-end gap-2 rounded-4xl border border-primary/25 bg-base-100/90 p-2 shadow-2xl backdrop-blur transition-transform duration-300 md:rounded-[2.5rem] md:p-3 md:hover:scale-[1.04]"
+      >
+        <div class="flex min-w-0 flex-col justify-end gap-1 pb-1">
+          <button
+            type="button"
+            class="max-w-full self-start rounded-full border border-base-300/80 bg-base-100/95 px-3 py-1.5 text-left shadow-lg backdrop-blur transition hover:border-primary/40 hover:bg-primary/10"
+            title="Mood easter egg"
+            aria-label="Change narrator mood"
+            @click.stop="cycleEmotion"
+          >
+            <span
+              class="block max-w-32 truncate text-sm font-black leading-tight text-primary md:max-w-44 md:text-base"
+            >
+              {{ narratorName }}
+            </span>
+
+            <span
+              class="block max-w-32 truncate text-[0.7rem] font-bold leading-tight text-base-content/70 md:max-w-44 md:text-xs"
+            >
+              {{ currentEmotionLabel }}
+            </span>
+          </button>
+
+          <p
+            class="hidden max-w-44 rounded-2xl bg-base-100/85 px-3 py-2 text-xs leading-relaxed text-base-content/70 shadow backdrop-blur sm:line-clamp-3 md:block"
+          >
+            {{ narratorSummary }}
+          </p>
+        </div>
+
         <button
           type="button"
-          class="max-w-full self-start rounded-full border border-base-300/80 bg-base-100/95 px-3 py-1.5 text-left shadow-lg backdrop-blur transition hover:border-primary/40 hover:bg-primary/10"
-          title="Mood easter egg"
-          aria-label="Change narrator mood"
-          @click.stop="cycleEmotion"
+          class="group relative h-full min-h-24 w-20 overflow-hidden rounded-[1.75rem] border border-primary/30 bg-base-300 shadow-xl transition hover:scale-105 md:w-[calc(var(--hand-h,9rem)*0.78)] md:rounded-[2.25rem]"
+          :aria-expanded="isOpen"
+          :title="isOpen ? 'Close narrator' : 'Open narrator'"
+          @click="togglePanel"
         >
-          <span
-            class="block max-w-32 truncate text-sm font-black leading-tight text-primary md:max-w-44 md:text-base"
-          >
-            {{ narratorName }}
-          </span>
+          <div
+            class="absolute -inset-1 rounded-[2.5rem] bg-primary/20 opacity-0 blur-lg transition group-hover:opacity-100"
+          />
+
+          <img
+            :src="narratorImage"
+            :alt="narratorName"
+            class="relative h-full w-full object-cover"
+            loading="lazy"
+          />
 
           <span
-            class="block max-w-32 truncate text-[0.7rem] font-bold leading-tight text-base-content/70 md:max-w-44 md:text-xs"
+            v-if="currentEmotionRow?.emoticon"
+            class="absolute right-1 top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-base shadow md:text-lg"
           >
-            {{ currentEmotionLabel }}
+            {{ currentEmotionRow.emoticon }}
           </span>
         </button>
-
-        <p
-          class="hidden max-w-44 rounded-2xl bg-base-100/85 px-3 py-2 text-xs leading-relaxed text-base-content/70 shadow backdrop-blur sm:line-clamp-3 md:block"
-        >
-          {{ narratorSummary }}
-        </p>
       </div>
 
       <button
+        v-else
         type="button"
-        class="group relative h-full min-h-24 w-20 overflow-hidden rounded-[1.75rem] border border-primary/30 bg-base-300 shadow-xl transition hover:scale-105 md:w-[calc(var(--hand-h,9rem)*0.78)] md:rounded-[2.25rem]"
+        class="btn btn-secondary btn-circle btn-sm shadow-2xl"
+        :class="isOpen ? 'btn-active' : ''"
         :aria-expanded="isOpen"
+        :aria-label="isOpen ? 'Close narrator' : 'Open narrator'"
         :title="isOpen ? 'Close narrator' : 'Open narrator'"
         @click="togglePanel"
       >
-        <div
-          class="absolute -inset-1 rounded-[2.5rem] bg-primary/20 opacity-0 blur-lg transition group-hover:opacity-100"
+        <Icon
+          :name="isOpen ? 'kind-icon:close' : 'kind-icon:bot'"
+          class="h-5 w-5"
         />
-
-        <img
-          :src="narratorImage"
-          :alt="narratorName"
-          class="relative h-full w-full object-cover"
-          loading="lazy"
-        />
-
-        <span
-          v-if="currentEmotionRow?.emoticon"
-          class="absolute right-1 top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-base shadow md:text-lg"
-        >
-          {{ currentEmotionRow.emoticon }}
-        </span>
       </button>
     </section>
   </div>
@@ -692,10 +712,21 @@ const props = withDefaults(
   defineProps<{
     chromeMinimized?: boolean
     railMode?: boolean
+    mobileToggle?: boolean
+    closeSignal?: number
   }>(),
   {
     chromeMinimized: false,
     railMode: false,
+    mobileToggle: false,
+    closeSignal: 0,
+  },
+)
+
+watch(
+  () => props.closeSignal,
+  () => {
+    isOpen.value = false
   },
 )
 
@@ -745,6 +776,16 @@ const shouldRender = computed(() => {
 })
 
 const narratorFrameClass = computed(() => {
+  if (props.mobileToggle) {
+    return [
+      'relative h-12 w-12',
+      'transition-transform duration-300 ease-out',
+      isOpen.value ? 'scale-100' : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+  }
+
   if (props.railMode && !props.chromeMinimized) {
     return [
       'fixed bottom-3 right-3 h-28 w-56 max-w-[calc(100vw-1.5rem)]',
@@ -777,6 +818,13 @@ const narratorFrameClass = computed(() => {
 })
 
 const narratorPanelClass = computed(() => {
+  if (props.mobileToggle) {
+    return [
+      'fixed left-3 right-3 bottom-24 w-auto',
+      'max-h-[calc(100dvh-7.5rem)]',
+    ].join(' ')
+  }
+
   if (props.railMode && !props.chromeMinimized) {
     return [
       'fixed inset-x-3 bottom-36 w-auto max-h-[calc(100dvh-9.75rem)]',
@@ -795,6 +843,10 @@ const narratorPanelClass = computed(() => {
 })
 
 const bubbleFrameClass = computed(() => {
+  if (props.mobileToggle) {
+    return 'bottom-[calc(100%+0.5rem)] left-0'
+  }
+
   if (props.railMode && !props.chromeMinimized) {
     return [
       'bottom-[calc(100%+0.75rem)] right-0',

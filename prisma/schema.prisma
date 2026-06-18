@@ -420,14 +420,18 @@ model Dream {
   @@index([artCollectionId])
 }
 
+/// One row per (owner, expression). Holds both emotions (face-only edits) and
+/// actions (pose/state edits), discriminated by `kind`. Shares one table so the
+/// frontend can pull a full set for a bot/character in a single query.
 model EmotionImage {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime? @default(now()) @updatedAt
 
-  emotion  Emotion @default(NEUTRAL)
-  label    String? @db.VarChar(256) // display name for flavor, e.g. "Big Grin"
-  emoticon String? @db.VarChar(32)  // e.g. ":D" or an emoji
+  expression Expression     @default(NEUTRAL) // the specific face/pose
+  kind       ExpressionKind @default(EMOTION) // EMOTION (face) vs ACTION (pose/state)
+  label      String?        @db.VarChar(256)  // flavorful display name, e.g. "Sparrow's Sly Grin"
+  emoticon   String?        @db.VarChar(32)   // e.g. ":D" or an emoji
 
   // dual image source — mirrors your ArtImage pattern
   imagePath  String?   @db.VarChar(764)
@@ -448,23 +452,45 @@ model EmotionImage {
   designer  String? @db.VarChar(256)
   artPrompt String? @db.Text
 
-  @@unique([botId, emotion])
-  @@unique([characterId, emotion])
+  @@unique([botId, expression])
+  @@unique([characterId, expression])
   @@index([artImageId])
   @@index([botId])
   @@index([characterId])
+  @@index([kind])
 }
 
-enum Emotion {
+enum ExpressionKind {
+  EMOTION // face-only: expression changes, body/framing locked
+  ACTION  // pose/state: laughing, crying, sleeping, etc.
+}
+
+/// Holds both emotions and actions. EMOTION values cover McCloud's six primaries
+/// (joy, surprise, fear, disgust, anger, sadness) plus high-value social compounds.
+/// ACTION values are narrator stage-directions / beats.
+enum Expression {
+  // ── Emotions (face-only) ──
   NEUTRAL
-  HAPPY
-  SAD
-  EXCITED
-  NERVOUS
-  ANGRY
-  CONFUSED
+  JOYFUL
+  SORROWFUL
+  AFRAID
+  DISGUSTED
+  ENRAGED
+  SURPRISED
+  ANXIOUS
   PROUD
-  // extend freely
+  LOVING
+  // ── Actions (pose/state) ──
+  LAUGHING
+  CRYING
+  SLEEPING
+  THINKING
+  SHRUGGING
+  WINKING
+  FACEPALMING
+  CHEERING
+  WHISPERING
+  SHOUTING
 }
 
 /// our woefully underutilized log function, but it's there.

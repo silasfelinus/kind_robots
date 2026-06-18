@@ -1,51 +1,123 @@
 <!-- /components/dreams/dream-interact.vue -->
 <template>
-  <section class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200">
+  <section
+    class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+  >
     <div
       v-if="wallpaperUrl"
       class="pointer-events-none absolute inset-0 opacity-20 blur-[1px]"
-      :style="{ backgroundImage: `url(${wallpaperUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }"
+      :style="{
+        backgroundImage: `url(${wallpaperUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }"
     />
 
-    <header class="relative z-10 shrink-0 border-b border-base-300 bg-base-100/95 p-4 backdrop-blur">
-      <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-2">
-            <Icon name="kind-icon:dream" class="h-7 w-7 text-primary" />
-            <h1 class="truncate text-2xl font-black text-primary">{{ dreamTitle }}</h1>
-            <span v-if="dreamStore.selectedDream" class="badge badge-outline rounded-xl">
-              #{{ dreamStore.selectedDream.id }}
-            </span>
-            <span class="badge rounded-xl" :class="dreamStore.selectedDream?.isPublic ? 'badge-primary' : 'badge-ghost'">
-              {{ dreamStore.selectedDream?.isPublic ? 'Public Dream' : 'Private Dream' }}
-            </span>
+    <header
+      class="relative z-10 shrink-0 border-b border-base-300 bg-base-100/95 px-2 py-2 backdrop-blur"
+    >
+      <div class="flex min-w-0 items-center justify-between gap-2">
+        <div class="flex min-w-0 items-center gap-2">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm shrink-0 rounded-xl"
+            title="Back to all Dreams"
+            @click="backToGallery"
+          >
+            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            <span class="hidden sm:inline">All Dreams</span>
+          </button>
+
+          <div
+            class="hidden h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-300 sm:block"
+          >
+            <img
+              v-if="wallpaperUrl"
+              :src="wallpaperUrl"
+              :alt="dreamTitle"
+              class="h-full w-full object-cover"
+            />
+
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center text-primary"
+            >
+              <Icon name="kind-icon:dream" class="h-5 w-5" />
+            </div>
           </div>
-          <p class="mt-1 max-w-4xl text-sm text-base-content/65">
-            {{ selectedSummary }}
-          </p>
+
+          <div class="min-w-0">
+            <div class="flex min-w-0 items-center gap-1.5">
+              <h1 class="truncate text-base font-black text-primary sm:text-lg">
+                {{ dreamTitle }}
+              </h1>
+
+              <span
+                v-if="dreamStore.selectedDream"
+                class="badge badge-outline badge-sm shrink-0 rounded-xl"
+              >
+                #{{ dreamStore.selectedDream.id }}
+              </span>
+
+              <span
+                v-if="dreamStore.selectedDream"
+                class="badge badge-sm shrink-0 rounded-xl"
+                :class="
+                  dreamStore.selectedDream.isPublic
+                    ? 'badge-primary'
+                    : 'badge-ghost'
+                "
+              >
+                {{ dreamStore.selectedDream.isPublic ? 'Public' : 'Private' }}
+              </span>
+            </div>
+
+            <p class="max-w-[70vw] truncate text-xs text-base-content/60">
+              {{ selectedSummary }}
+            </p>
+          </div>
         </div>
 
-        <div class="flex flex-wrap gap-2">
-          <button type="button" class="btn btn-ghost btn-sm rounded-2xl" :disabled="!dreamStore.selectedDreamId || dreamStore.loading" @click="refreshDream">
-            <span v-if="dreamStore.loading" class="loading loading-spinner loading-xs" />
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm tooltip tooltip-bottom rounded-xl"
+            :disabled="!dreamStore.selectedDreamId || dreamStore.loading"
+            data-tip="Refresh Dream"
+            aria-label="Refresh Dream"
+            @click="refreshDream"
+          >
+            <span
+              v-if="dreamStore.loading"
+              class="loading loading-spinner loading-xs"
+            />
             <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-            Refresh
           </button>
-          <button type="button" class="btn btn-outline btn-sm rounded-2xl" :disabled="!dreamStore.selectedDreamId" @click="editDream">
+
+          <button
+            type="button"
+            class="btn btn-outline btn-sm tooltip tooltip-bottom rounded-xl"
+            :disabled="!dreamStore.selectedDreamId"
+            data-tip="Edit Dream"
+            aria-label="Edit Dream"
+            @click="editDream"
+          >
             <Icon name="kind-icon:edit" class="h-4 w-4" />
-            Edit
-          </button>
-          <button type="button" class="btn btn-primary btn-sm rounded-2xl text-white" @click="goToGallery">
-            <Icon name="kind-icon:grid" class="h-4 w-4" />
-            Gallery
           </button>
         </div>
       </div>
     </header>
 
-    <main v-if="dreamStore.selectedDream" class="relative z-10 grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[minmax(0,1fr)_24rem]">
-      <section class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100">
-        <nav class="flex shrink-0 flex-wrap gap-2 border-b border-base-300 bg-base-200 p-3">
+    <main
+      v-if="dreamStore.selectedDream"
+      class="relative z-10 grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[minmax(0,1fr)_24rem]"
+    >
+      <section
+        class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
+        <nav
+          class="flex shrink-0 flex-wrap gap-2 border-b border-base-300 bg-base-200 p-3"
+        >
           <button
             v-for="panel in panels"
             :key="panel.key"
@@ -61,13 +133,16 @@
 
         <section class="min-h-0 overflow-y-auto p-3">
           <div v-if="activePanel === 'chat'" class="flex min-h-full flex-col gap-3">
-            <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div
+              class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
+            >
               <div>
                 <h2 class="font-black">Dream Chat</h2>
                 <p class="text-xs text-base-content/60">
                   Start a public or private chatroom-style thread attached to this Dream.
                 </p>
               </div>
+
               <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -77,6 +152,7 @@
                 >
                   Public
                 </button>
+
                 <button
                   type="button"
                   class="btn btn-xs rounded-2xl"
@@ -85,13 +161,22 @@
                 >
                   Private
                 </button>
-                <button type="button" class="btn btn-xs btn-outline rounded-2xl" :disabled="dreamStore.chatsLoading" @click="refreshChats">
+
+                <button
+                  type="button"
+                  class="btn btn-xs btn-outline rounded-2xl"
+                  :disabled="dreamStore.chatsLoading"
+                  @click="refreshChats"
+                >
                   Load
                 </button>
               </div>
             </div>
 
-            <div ref="chatScrollRef" class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div
+              ref="chatScrollRef"
+              class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
+            >
               <div v-if="dreamStore.selectedDreamChats.length" class="grid gap-2">
                 <article
                   v-for="chat in dreamStore.selectedDreamChats"
@@ -100,23 +185,39 @@
                   :class="chat.type === 'BotResponse' ? 'border-info/40 bg-info/10' : 'border-base-300 bg-base-100'"
                 >
                   <div class="flex flex-wrap items-center justify-between gap-2">
-                    <p class="font-bold text-primary">{{ chat.sender || chat.User?.username || 'Dreamer' }}</p>
+                    <p class="font-bold text-primary">
+                      {{ chat.sender || chat.User?.username || 'Dreamer' }}
+                    </p>
+
                     <div class="flex flex-wrap gap-1">
                       <span class="badge badge-xs rounded-xl">{{ chat.type }}</span>
-                      <span v-if="chat.isPublic === false" class="badge badge-secondary badge-xs rounded-xl">Private</span>
+                      <span
+                        v-if="chat.isPublic === false"
+                        class="badge badge-secondary badge-xs rounded-xl"
+                      >
+                        Private
+                      </span>
                     </div>
                   </div>
-                  <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{{ chat.content || chat.botResponse }}</p>
+
+                  <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+                    {{ chat.content || chat.botResponse }}
+                  </p>
                 </article>
               </div>
 
-              <div v-else class="flex min-h-64 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-base-content/50">
+              <div
+                v-else
+                class="flex min-h-64 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-base-content/50"
+              >
                 No chat yet. Start the room with a first message.
               </div>
             </div>
           </div>
 
           <div v-else-if="activePanel === 'art'" class="grid gap-3">
+            <dream-art-chooser />
+
             <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <div class="flex flex-wrap items-start justify-between gap-2">
                 <div>
@@ -125,13 +226,17 @@
                     Generate art around the selected Dream concept using the art store.
                   </p>
                 </div>
+
                 <button
                   type="button"
                   class="btn btn-primary btn-sm rounded-2xl text-white"
                   :disabled="isGeneratingArt || !artPrompt.trim()"
                   @click="generateArtImage"
                 >
-                  <span v-if="isGeneratingArt" class="loading loading-spinner loading-xs" />
+                  <span
+                    v-if="isGeneratingArt"
+                    class="loading loading-spinner loading-xs"
+                  />
                   <Icon v-else name="kind-icon:image" class="h-4 w-4" />
                   Generate Art
                 </button>
@@ -144,11 +249,21 @@
               />
 
               <div class="mt-3 flex flex-wrap gap-2">
-                <button type="button" class="btn btn-sm btn-outline rounded-2xl" @click="useDreamAsArtPrompt">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline rounded-2xl"
+                  @click="useDreamAsArtPrompt"
+                >
                   <Icon name="kind-icon:copy" class="h-4 w-4" />
                   Use Dream
                 </button>
-                <button type="button" class="btn btn-sm btn-secondary rounded-2xl" :disabled="!artPrompt.trim()" @click="saveArtPrompt">
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-secondary rounded-2xl"
+                  :disabled="!artPrompt.trim()"
+                  @click="saveArtPrompt"
+                >
                   <Icon name="kind-icon:save" class="h-4 w-4" />
                   Save Prompt
                 </button>
@@ -165,12 +280,15 @@
                 Cast, rewards, scenario hooks, and generated art that orbit this Dream.
               </p>
             </section>
+
             <dream-list list-type="cast" view-mode="grid" :show-refresh="false" />
             <dream-list list-type="items" view-mode="grid" :show-refresh="false" />
           </div>
         </section>
 
-        <footer class="grid shrink-0 gap-2 border-t border-base-300 bg-base-100 p-3 md:grid-cols-[minmax(0,1fr)_auto]">
+        <footer
+          class="grid shrink-0 gap-2 border-t border-base-300 bg-base-100 p-3 md:grid-cols-[minmax(0,1fr)_auto]"
+        >
           <textarea
             v-model="message"
             class="textarea textarea-bordered min-h-16 resize-none rounded-2xl bg-base-200"
@@ -178,20 +296,26 @@
             @keydown.ctrl.enter.prevent="submitMessage"
             @keydown.meta.enter.prevent="submitMessage"
           />
+
           <button
             type="button"
             class="btn btn-primary rounded-2xl text-white"
             :disabled="dreamStore.isSaving || !canSubmit"
             @click="submitMessage"
           >
-            <span v-if="dreamStore.isSaving" class="loading loading-spinner loading-xs" />
+            <span
+              v-if="dreamStore.isSaving"
+              class="loading loading-spinner loading-xs"
+            />
             <Icon v-else name="kind-icon:send" class="h-4 w-4" />
             Send
           </button>
         </footer>
       </section>
 
-      <aside class="grid min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] gap-3 overflow-hidden">
+      <aside
+        class="grid min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] gap-3 overflow-hidden"
+      >
         <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <h2 class="text-lg font-black text-primary">Concept</h2>
           <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-base-content/70">
@@ -206,16 +330,25 @@
               <p class="font-black text-info">{{ serverCount }}</p>
               <p class="text-xs text-base-content/50">Servers</p>
             </div>
+
             <div class="rounded-xl bg-base-200 p-2">
-              <p class="font-black text-accent">{{ dreamStore.selectedDreamCollectionArt.length }}</p>
+              <p class="font-black text-accent">
+                {{ dreamStore.selectedDreamCollectionArt.length }}
+              </p>
               <p class="text-xs text-base-content/50">Art</p>
             </div>
+
             <div class="rounded-xl bg-base-200 p-2">
-              <p class="font-black text-secondary">{{ dreamStore.selectedDreamCast.length }}</p>
+              <p class="font-black text-secondary">
+                {{ dreamStore.selectedDreamCast.length }}
+              </p>
               <p class="text-xs text-base-content/50">Cast</p>
             </div>
+
             <div class="rounded-xl bg-base-200 p-2">
-              <p class="font-black text-primary">{{ dreamStore.selectedDreamItems.length }}</p>
+              <p class="font-black text-primary">
+                {{ dreamStore.selectedDreamItems.length }}
+              </p>
               <p class="text-xs text-base-content/50">Items</p>
             </div>
           </div>
@@ -225,16 +358,35 @@
       </aside>
     </main>
 
-    <div v-else class="relative z-10 flex min-h-0 flex-1 items-center justify-center p-6">
-      <div class="max-w-lg rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center shadow">
+    <div
+      v-else
+      class="relative z-10 flex min-h-0 flex-1 items-center justify-center p-6"
+    >
+      <div
+        class="max-w-lg rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center shadow"
+      >
         <Icon name="kind-icon:dream" class="mx-auto h-16 w-16 text-primary/60" />
         <h2 class="mt-3 text-2xl font-black">No Dream selected</h2>
         <p class="mt-2 text-base-content/60">
           Pick a Dream from the gallery, or make a new one in Dreammaker.
         </p>
+
         <div class="mt-4 flex flex-wrap justify-center gap-2">
-          <button type="button" class="btn btn-primary rounded-2xl text-white" @click="goToGallery">Gallery</button>
-          <button type="button" class="btn btn-secondary rounded-2xl" @click="goToDreammaker">Dreammaker</button>
+          <button
+            type="button"
+            class="btn btn-primary rounded-2xl text-white"
+            @click="backToGallery"
+          >
+            All Dreams
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary rounded-2xl"
+            @click="goToDreammaker"
+          >
+            Dreammaker
+          </button>
         </div>
       </div>
     </div>
@@ -278,17 +430,39 @@ const panels: { key: PanelKey; label: string; icon: string }[] = [
   { key: 'assets', label: 'Assets', icon: 'kind-icon:inventory' },
 ]
 
-const dreamTitle = computed(() => dreamStore.selectedDream?.title || 'No Dream Selected')
-const selectedSummary = computed(() => dreamStore.selectedDreamSummary)
-const canSubmit = computed(() => Boolean(dreamStore.selectedDreamId && message.value.trim()))
+const dreamTitle = computed(() => {
+  return dreamStore.selectedDream?.title || 'No Dream Selected'
+})
+
+const selectedSummary = computed(() => {
+  return dreamStore.selectedDreamSummary
+})
+
+const canSubmit = computed(() => {
+  return Boolean(dreamStore.selectedDreamId && message.value.trim())
+})
 
 const wallpaperUrl = computed(() => {
-  return dreamStore.selectedDreamCurrentImage || dreamStore.selectedDreamCollectionArt.find((art) => art.imagePath || art.path || art.fileName)?.imagePath || ''
+  const firstCollectionImage = dreamStore.selectedDreamCollectionArt.find((art) => {
+    return art.imagePath || art.path || art.fileName
+  })
+
+  return (
+    dreamStore.selectedDreamCurrentImage ||
+    firstCollectionImage?.imagePath ||
+    firstCollectionImage?.path ||
+    firstCollectionImage?.fileName ||
+    ''
+  )
 })
 
 const serverCount = computed(() => {
   const store = serverStore as unknown as ServerStoreLike
-  return (store.servers?.length ?? 0) + (store.textServers?.length ?? 0) + (store.artServers?.length ?? 0)
+  return (
+    (store.servers?.length ?? 0) +
+    (store.textServers?.length ?? 0) +
+    (store.artServers?.length ?? 0)
+  )
 })
 
 watch(
@@ -322,18 +496,24 @@ function syncFromSelectedDream() {
 function requireSelectedDream() {
   if (dreamStore.selectedDreamId) return true
 
-  dreamStore.reportError(new Error('No Dream selected.'), 'using Dream interact', 'Select a Dream first.')
+  dreamStore.reportError(
+    new Error('No Dream selected.'),
+    'using Dream interact',
+    'Select a Dream first.',
+  )
   return false
 }
 
 async function refreshDream() {
   if (!dreamStore.selectedDreamId) return
+
   await dreamStore.fetchDreamById(dreamStore.selectedDreamId, true)
   syncFromSelectedDream()
 }
 
 async function refreshChats() {
   if (!dreamStore.selectedDreamId) return
+
   await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
   await nextTick()
   scrollChatToBottom()
@@ -341,6 +521,7 @@ async function refreshChats() {
 
 function scrollChatToBottom() {
   if (!chatScrollRef.value) return
+
   chatScrollRef.value.scrollTop = chatScrollRef.value.scrollHeight
 }
 
@@ -367,7 +548,12 @@ function useDreamAsArtPrompt() {
   const dream = dreamStore.selectedDream
   if (!dream) return
 
-  artPrompt.value = [dream.artPrompt, dream.pitch, dream.description, dream.flavorText]
+  artPrompt.value = [
+    dream.artPrompt,
+    dream.pitch,
+    dream.description,
+    dream.flavorText,
+  ]
     .filter(Boolean)
     .join('\n\n')
 }
@@ -412,6 +598,7 @@ async function generateArtImage() {
     await dreamStore.updateSelectedDream({
       artPrompt: prompt,
       artImageId: Number.isInteger(artImageId) && artImageId > 0 ? artImageId : undefined,
+      artCollectionId: dreamStore.selectedDream?.artCollectionId ?? null,
       addArtToCollection: true,
       updateNote: 'Generated Dream art.',
     })
@@ -433,12 +620,14 @@ async function generateArtImage() {
 
 async function editDream() {
   if (!dreamStore.selectedDreamId) return
+
   await dreamStore.startEditingDream(dreamStore.selectedDreamId)
   navStore.setDashboardTab?.('dream', 'dreammaker')
 }
 
-function goToGallery() {
-  navStore.setDashboardTab?.('dream', 'gallery')
+function backToGallery() {
+  dreamStore.deselectDream?.()
+  navStore.setDashboardTab?.('dream', 'dreams')
 }
 
 function goToDreammaker() {

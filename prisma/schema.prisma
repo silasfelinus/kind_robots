@@ -9,53 +9,55 @@ datasource db {
 
 /// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
 model ArtImage {
-  id                   Int             @id @default(autoincrement())
-  imageData            String?         @db.LongText
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime?       @default(now()) @updatedAt
-  userId               Int?            @default(10)
-  fileName             String?         @db.VarChar(764)
-  fileType             String          @default("png")
-  cfg                  Int?            @default(3)
-  cfgHalf              Boolean?        @default(false)
-  checkpoint           String?         @db.VarChar(256)
+  id                   Int           @id @default(autoincrement())
+  imageData            String?       @db.LongText
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime?     @default(now()) @updatedAt
+  userId               Int?          @default(10)
+  fileName             String?       @db.VarChar(764)
+  fileType             String        @default("png")
+  cfg                  Int?          @default(3)
+  cfgHalf              Boolean?      @default(false)
+  checkpoint           String?       @db.VarChar(256)
   checkpointResourceId Int?
-  designer             String?         @db.VarChar(764)
+  designer             String?       @db.VarChar(764)
   genres               String?
   imagePath            String?
-  isMature             Boolean?        @default(false)
-  isPublic             Boolean?        @default(false)
-  negativePrompt       String?         @db.Text
-  path                 String?         @db.VarChar(764)
-  promptString         String?         @db.Text
-  sampler              String?         @db.VarChar(764)
-  seed                 Int?            @default(-1)
+  isMature             Boolean?      @default(false)
+  isPublic             Boolean?      @default(false)
+  negativePrompt       String?       @db.Text
+  path                 String?       @db.VarChar(764)
+  promptString         String?       @db.Text
+  sampler              String?       @db.VarChar(764)
+  seed                 Int?          @default(-1)
   serverId             Int?
-  serverName           String?         @db.VarChar(256)
-  serverUrl            String?         @db.VarChar(764)
+  serverName           String?       @db.VarChar(256)
+  serverUrl            String?       @db.VarChar(764)
   steps                Int?
-  thumbnailData        String?         @db.MediumText
-  isActive             Boolean         @default(true)
-  artPrompt            String?         @db.Text
-  CheckpointResource   Resource?       @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
-  Server               Server?         @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
-  User                 User?           @relation("ArtImageCreator", fields: [userId], references: [id])
-  Bots                 Bot[]
-  Characters           Character[]
-  Chats                Chat[]
-  Components           Component[]
-  DreamsPrimary        Dream[]         @relation("DreamPrimaryArtImage")
-  Dreams               Dream[]         @relation("DreamToArtImage")
-  Milestones           Milestone[]
-  Prompts              Prompt[]
-  Reactions            Reaction[]
-  Resources            Resource[]      @relation("ResourcePreviewImage")
-  LoraResources        Resource[]      @relation("ArtImageLoraResources")
-  Rewards              Reward[]
-  Scenarios            Scenario[]
-  UserProfiles         User[]          @relation("UserProfileImage")
-  ArtCollections       ArtCollection[] @relation("ArtCollectionToArtImage")
-  Compositions         Composition[]
+  thumbnailData        String?       @db.MediumText
+  isActive             Boolean       @default(true)
+  artPrompt            String?       @db.Text
+  EmotionImage         EmotionImage?
+  CheckpointResource   Resource?     @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
+  Server               Server?       @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
+
+  User           User?           @relation("ArtImageCreator", fields: [userId], references: [id])
+  Bots           Bot[]
+  Characters     Character[]
+  Chats          Chat[]
+  Components     Component[]
+  DreamsPrimary  Dream[]         @relation("DreamPrimaryArtImage")
+  Dreams         Dream[]         @relation("DreamToArtImage")
+  Milestones     Milestone[]
+  Prompts        Prompt[]
+  Reactions      Reaction[]
+  Resources      Resource[]      @relation("ResourcePreviewImage")
+  LoraResources  Resource[]      @relation("ArtImageLoraResources")
+  Rewards        Reward[]
+  Scenarios      Scenario[]
+  UserProfiles   User[]          @relation("UserProfileImage")
+  ArtCollections ArtCollection[] @relation("ArtCollectionToArtImage")
+  Compositions   Composition[]
 
   @@index([userId], map: "ArtImage_userId_fkey")
   @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
@@ -63,66 +65,67 @@ model ArtImage {
 }
 
 model ArtCollection {
-  id          Int        @id @default(autoincrement())
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime?  @default(now()) @updatedAt
-  userId      Int        @default(10)
-  label       String?
-  isMature    Boolean    @default(false)
-  isPublic    Boolean    @default(true)
-  imagePath    String?       @db.VarChar(764)
-  description String?
-  username    String?
-  isActive    Boolean    @default(true)
-  artPrompt   String?    @db.Text
-  User        User       @relation(fields: [userId], references: [id])
-  DreamsPrimary Dream[]  @relation("DreamPrimaryArtCollection")
-  Dreams      Dream[]    @relation("DreamToArtCollection")
-  Reactions   Reaction[]
-  ArtImages   ArtImage[] @relation("ArtCollectionToArtImage")
+  id            Int        @id @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @default(now()) @updatedAt
+  userId        Int        @default(10)
+  label         String?
+  isMature      Boolean    @default(false)
+  isPublic      Boolean    @default(true)
+  imagePath     String?    @db.VarChar(764)
+  description   String?
+  username      String?
+  isActive      Boolean    @default(true)
+  artPrompt     String?    @db.Text
+  User          User       @relation(fields: [userId], references: [id])
+  DreamsPrimary Dream[]    @relation("DreamPrimaryArtCollection")
+  Dreams        Dream[]    @relation("DreamToArtCollection")
+  Reactions     Reaction[]
+  ArtImages     ArtImage[] @relation("ArtCollectionToArtImage")
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }
 
 model Bot {
-  id                Int        @id @default(autoincrement())
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime?  @default(now()) @updatedAt
-  BotType           String     @db.VarChar(764)
-  name              String     @db.VarChar(256)
-  subtitle          String?    @db.VarChar(764)
-  description       String?    @db.VarChar(764)
-  avatarImage       String?    @db.VarChar(764)
-  botIntro          String     @db.VarChar(3000)
-  userIntro         String     @db.VarChar(764)
-  narrativeVoice    String?    @db.Text
-  forgeIntro        String?    @db.Text
-  prompt            String     @db.VarChar(764)
-  trainingPath      String?    @db.VarChar(764)
-  theme             String?    @db.VarChar(764)
-  personality       String?    @db.VarChar(764)
-  modules           String?    @db.VarChar(764)
-  sampleResponse    String?    @db.VarChar(764)
-  tagline           String?    @db.VarChar(764)
-  isPublic          Boolean    @default(true)
-  underConstruction Boolean    @default(false)
-  canDelete         Boolean    @default(false)
-  userId            Int?       @default(1)
-  imagePath         String?     @db.VarChar(764)
-  designer          String     @default("silasfelinus")
+  id                Int            @id @default(autoincrement())
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime?      @default(now()) @updatedAt
+  BotType           String         @db.VarChar(764)
+  name              String         @db.VarChar(256)
+  subtitle          String?        @db.VarChar(764)
+  description       String?        @db.VarChar(764)
+  avatarImage       String?        @db.VarChar(764)
+  botIntro          String         @db.VarChar(3000)
+  userIntro         String         @db.VarChar(764)
+  narrativeVoice    String?        @db.Text
+  forgeIntro        String?        @db.Text
+  prompt            String         @db.VarChar(764)
+  trainingPath      String?        @db.VarChar(764)
+  theme             String?        @db.VarChar(764)
+  personality       String?        @db.VarChar(764)
+  modules           String?        @db.VarChar(764)
+  sampleResponse    String?        @db.VarChar(764)
+  tagline           String?        @db.VarChar(764)
+  isPublic          Boolean        @default(true)
+  underConstruction Boolean        @default(false)
+  canDelete         Boolean        @default(false)
+  userId            Int?           @default(1)
+  imagePath         String?        @db.VarChar(764)
+  designer          String         @default("silasfelinus")
   serverId          Int?
-  serverName        String?    @db.VarChar(256)
+  serverName        String?        @db.VarChar(256)
   artImageId        Int?
-  isMature          Boolean    @default(false)
-  isActive          Boolean    @default(true)
-  artPrompt         String?    @db.Text
-  ArtImage          ArtImage?  @relation(fields: [artImageId], references: [id])
-  Server            Server?    @relation(fields: [serverId], references: [id])
-  User              User?      @relation(fields: [userId], references: [id])
+  isMature          Boolean        @default(false)
+  isActive          Boolean        @default(true)
+  artPrompt         String?        @db.Text
+  ArtImage          ArtImage?      @relation(fields: [artImageId], references: [id])
+  Server            Server?        @relation(fields: [serverId], references: [id])
+  User              User?          @relation(fields: [userId], references: [id])
   Chats             Chat[]
   Prompts           Prompt[]
   Reactions         Reaction[]
   Dreams            Dream[]
+  EmotionImages     EmotionImage[]
 
   @@index([userId], map: "Bot_userId_fkey")
   @@index([serverId], map: "Bot_serverId_fkey")
@@ -171,48 +174,49 @@ model ButterflyRecord {
 }
 
 model Character {
-  id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime?     @default(now()) @updatedAt
-  name         String        @db.VarChar(256)
-  achievements String?       @db.VarChar(764)
-  alignment    String?       @db.VarChar(256)
-  experience   Int           @default(0)
-  level        Int           @default(1)
-  class        String?       @db.VarChar(764)
-  species      String?       @db.VarChar(764)
-  backstory    String?       @db.Text
-  drive        String?       @db.VarChar(764)
-  quirks       String?       @db.Text
-  genre        String?       @db.VarChar(256)
-  artImageId   Int?
-  isPublic     Boolean       @default(true)
-  userId       Int           @default(10)
-  artPrompt    String?       @db.Text
-  honorific    String?       @default("adventurer") @db.VarChar(256)
-  imagePath    String?       @db.VarChar(764)
-  designer     String?       @db.VarChar(256)
-  personality  String?       @db.Text
-  isMature     Boolean       @default(false)
-  isActive     Boolean       @default(true)
-  charm        Rarity        @default(COMMON)
-  empathy      Rarity        @default(COMMON)
-  grace        Rarity        @default(COMMON)
-  luck         Rarity        @default(COMMON)
-  might        Rarity        @default(COMMON)
-  presentation String?       @db.VarChar(764)
-  role         String?       @db.VarChar(256)
-  title        String?       @db.VarChar(256)
-  wits         Rarity        @default(COMMON)
-  gender       String?       @db.VarChar(256)
-  ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
-  User         User          @relation(fields: [userId], references: [id])
-  Chats        Chat[]
-  Reactions    Reaction[]
-  Dreams       Dream[]       @relation("CharacterToDream")
-  Rewards      Reward[]      @relation("CharacterToReward")
-  Scenarios    Scenario[]    @relation("CharacterToScenario")
-  Compositions Composition[]
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime?      @default(now()) @updatedAt
+  name          String         @db.VarChar(256)
+  achievements  String?        @db.VarChar(764)
+  alignment     String?        @db.VarChar(256)
+  experience    Int            @default(0)
+  level         Int            @default(1)
+  class         String?        @db.VarChar(764)
+  species       String?        @db.VarChar(764)
+  backstory     String?        @db.Text
+  drive         String?        @db.VarChar(764)
+  quirks        String?        @db.Text
+  genre         String?        @db.VarChar(256)
+  artImageId    Int?
+  isPublic      Boolean        @default(true)
+  userId        Int            @default(10)
+  artPrompt     String?        @db.Text
+  honorific     String?        @default("adventurer") @db.VarChar(256)
+  imagePath     String?        @db.VarChar(764)
+  designer      String?        @db.VarChar(256)
+  personality   String?        @db.Text
+  isMature      Boolean        @default(false)
+  isActive      Boolean        @default(true)
+  charm         Rarity         @default(COMMON)
+  empathy       Rarity         @default(COMMON)
+  grace         Rarity         @default(COMMON)
+  luck          Rarity         @default(COMMON)
+  might         Rarity         @default(COMMON)
+  presentation  String?        @db.VarChar(764)
+  role          String?        @db.VarChar(256)
+  title         String?        @db.VarChar(256)
+  wits          Rarity         @default(COMMON)
+  gender        String?        @db.VarChar(256)
+  ArtImage      ArtImage?      @relation(fields: [artImageId], references: [id])
+  User          User           @relation(fields: [userId], references: [id])
+  Chats         Chat[]
+  Reactions     Reaction[]
+  Dreams        Dream[]        @relation("CharacterToDream")
+  Rewards       Reward[]       @relation("CharacterToReward")
+  Scenarios     Scenario[]     @relation("CharacterToScenario")
+  Compositions  Composition[]
+  EmotionImages EmotionImage[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -342,7 +346,7 @@ model Composition {
   // ── Outputs ───────────────────────────────────────────────────────────────
   narrativeText  String?    @db.Text
   artPrompt      String?    @db.Text
-  imagePath      String?       @db.VarChar(764)
+  imagePath      String?    @db.VarChar(764)
   // ── Relations ─────────────────────────────────────────────────────────────
   userId         Int?
   User           User?      @relation(fields: [userId], references: [id])
@@ -368,44 +372,44 @@ model Composition {
 /// ArtImages / ArtCollections / Characters / Rewards, while also designating a
 /// primary "main choice" for each via the singular FK fields.
 model Dream {
-  id              Int            @id @default(autoincrement())
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime?      @default(now()) @updatedAt
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime?       @default(now()) @updatedAt
   // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────
-  title           String         @db.VarChar(255)
-  slug            String?        @unique @db.VarChar(255)
-  dreamType       DreamType      @default(ARTDREAM)
-  description     String?        @db.Text
-  pitch           String?        @db.Text
-  flavorText      String?        @db.VarChar(512)
-  examples        String?        @db.LongText
-  artPrompt       String?        @db.VarChar(764)
-  imagePath       String?        @db.Text
-  highlightImage  String?        @db.VarChar(256)
+  title           String          @db.VarChar(255)
+  slug            String?         @unique @db.VarChar(255)
+  dreamType       DreamType       @default(ARTDREAM)
+  description     String?         @db.Text
+  pitch           String?         @db.Text
+  flavorText      String?         @db.VarChar(512)
+  examples        String?         @db.LongText
+  artPrompt       String?         @db.VarChar(764)
+  imagePath       String?         @db.Text
+  highlightImage  String?         @db.VarChar(256)
   icon            String?
-  designer        String?        @db.VarChar(256)
-  creationSource  CreationSource @default(HUMAN)
+  designer        String?         @db.VarChar(256)
+  creationSource  CreationSource  @default(HUMAN)
   // ── Flags ─────────────────────────────────────────────────────────────────
-  userId          Int            @default(10)
-  isPublic        Boolean        @default(true)
-  isMature        Boolean        @default(false)
-  isActive        Boolean        @default(true)
+  userId          Int             @default(10)
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
+  isActive        Boolean         @default(true)
   // ── Primary "main choice" FKs (one each) ──────────────────────────────────
   artImageId      Int?
   artCollectionId Int?
   // ── Relations ─────────────────────────────────────────────────────────────
-  User            User           @relation(fields: [userId], references: [id])
-  ArtImage        ArtImage?      @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
-  ArtCollection   ArtCollection? @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
-  Scenarios  Scenario[]  @relation("DreamToScenario")
+  User            User            @relation(fields: [userId], references: [id])
+  ArtImage        ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
+  ArtCollection   ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
+  Scenarios       Scenario[]      @relation("DreamToScenario")
   Reactions       Reaction[]
   Compositions    Composition[]
   Chats           Chat[]
   // ── Many-relations (a Dream can govern many of each) ──────────────────────
-  ArtImages       ArtImage[]     @relation("DreamToArtImage")
+  ArtImages       ArtImage[]      @relation("DreamToArtImage")
   ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
-  Characters      Character[]    @relation("CharacterToDream")
-  Rewards         Reward[]       @relation("DreamToReward")
+  Characters      Character[]     @relation("CharacterToDream")
+  Rewards         Reward[]        @relation("DreamToReward")
   Bots            Bot[]
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
@@ -414,6 +418,53 @@ model Dream {
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
+}
+
+model EmotionImage {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  emotion  Emotion @default(NEUTRAL)
+  label    String? @db.VarChar(256) // display name for flavor, e.g. "Big Grin"
+  emoticon String? @db.VarChar(32)  // e.g. ":D" or an emoji
+
+  // dual image source — mirrors your ArtImage pattern
+  imagePath  String?   @db.VarChar(764)
+  artImageId Int?      @unique
+  botId       Int?
+  characterId Int?
+  Bot         Bot?       @relation(fields: [botId], references: [id])
+  Character   Character? @relation(fields: [characterId], references: [id])
+  ArtImage   ArtImage? @relation(fields: [artImageId], references: [id])
+
+  // primary line ("___ feels happy"), optional, templated with personality
+  message String? @db.Text
+  // extra flavor lines; combine with message and pick one at random at runtime
+  // shape: string[]  e.g. ["___ grins wide.", "___ can't stop smiling."]
+  additionalPhrases Json?
+
+  isActive  Boolean @default(true)
+  designer  String? @db.VarChar(256)
+  artPrompt String? @db.Text
+
+  @@unique([botId, emotion])
+  @@unique([characterId, emotion])
+  @@index([artImageId])
+  @@index([botId])
+  @@index([characterId])
+}
+
+enum Emotion {
+  NEUTRAL
+  HAPPY
+  SAD
+  EXCITED
+  NERVOUS
+  ANGRY
+  CONFUSED
+  PROUD
+  // extend freely
 }
 
 /// our woefully underutilized log function, but it's there.
@@ -445,7 +496,7 @@ model Milestone {
   isRepeatable     Boolean           @default(true)
   artImageId       Int?
   artPrompt        String?           @db.Text
-  imagePath    String?       @db.VarChar(764)
+  imagePath        String?           @db.VarChar(764)
   ArtImage         ArtImage?         @relation(fields: [artImageId], references: [id])
   MilestoneRecords MilestoneRecord[]
 
@@ -515,7 +566,7 @@ model Prompt {
   isPublic       Boolean        @default(true)
   isActive       Boolean        @default(true)
   artPrompt      String?        @db.Text
-  imagePath    String?       @db.VarChar(764)
+  imagePath      String?        @db.VarChar(764)
   Chats          Chat[]
   ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
   Bot            Bot?           @relation(fields: [botId], references: [id])
@@ -655,35 +706,34 @@ model Reward {
   @@index([artImageId], map: "Reward_artImageId_fkey")
 }
 
-
 /// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, ArtImage, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
 model Scenario {
-  id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime?     @default(now()) @updatedAt
+  id           Int                @id @default(autoincrement())
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime?          @default(now()) @updatedAt
   title        String
-  description  String        @db.Text
-  intros       String        @db.Text
+  description  String             @db.Text
+  intros       String             @db.Text
   userId       Int
   artImageId   Int?
   imagePath    String?
-  locations    String?       @db.Text
-  artPrompt    String?       @db.Text
+  locations    String?            @db.Text
+  artPrompt    String?            @db.Text
   genres       String?
-  inspirations String?       @db.Text
-  isMature     Boolean       @default(false)
-  isPublic     Boolean       @default(true)
-  isActive     Boolean       @default(true)
+  inspirations String?            @db.Text
+  isMature     Boolean            @default(false)
+  isPublic     Boolean            @default(true)
+  isActive     Boolean            @default(true)
   difficulty   Int?
   tier         String?
   group        String?
   secretNotes  String?
-  cast  Json?
-  Dreams  Dream[]  @relation("DreamToScenario")
+  cast         Json?
+  Dreams       Dream[]            @relation("DreamToScenario")
   Reactions    Reaction[]
-  ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
-  User         User          @relation(fields: [userId], references: [id])
-  Characters   Character[]   @relation("CharacterToScenario")
+  ArtImage     ArtImage?          @relation(fields: [artImageId], references: [id])
+  User         User               @relation(fields: [userId], references: [id])
+  Characters   Character[]        @relation("CharacterToScenario")
   Compositions Composition[]
   outputType   ScenarioOutputType @default(STORY)
 
@@ -692,13 +742,13 @@ model Scenario {
 }
 
 enum ScenarioOutputType {
-  STORY      // branching narrative (the existing default)
-  ART        // produces an ArtImage
-  CHARACTER  // produces a Character
-  REWARD     // grants/produces a Reward
-  DREAM      // produces a Dream
-  SCENARIO   // produces a follow-on Scenario
-  MIXED      // choices spawn different types
+  STORY // branching narrative (the existing default)
+  ART // produces an ArtImage
+  CHARACTER // produces a Character
+  REWARD // grants/produces a Reward
+  DREAM // produces a Dream
+  SCENARIO // produces a follow-on Scenario
+  MIXED // choices spawn different types
 }
 
 model Server {
@@ -882,14 +932,11 @@ model User {
   Codes                 Code[]
   Compositions          Composition[]
 
-  RelationsOwned        UserRelation[]    @relation("UserRelationOwner")
-  RelationsReceived     UserRelation[]    @relation("UserRelationTarget")
-
+  RelationsOwned    UserRelation[] @relation("UserRelationOwner")
+  RelationsReceived UserRelation[] @relation("UserRelationTarget")
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }
-
-
 
 enum RelationType {
   FRIEND
@@ -911,15 +958,15 @@ enum RelationStatus {
 /// Follows the ButterflyRecord/MilestoneRecord pattern (explicit join model,
 /// not implicit M2M) so we can attach status + timestamps + future metadata.
 model UserRelation {
-  id             Int            @id @default(autoincrement())
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime?      @default(now()) @updatedAt
-  userId         Int
-  relatedUserId  Int
-  type           RelationType
-  status         RelationStatus @default(PENDING)
-  note           String?        @db.Text
-  pairId    Int?
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime?      @default(now()) @updatedAt
+  userId        Int
+  relatedUserId Int
+  type          RelationType
+  status        RelationStatus @default(PENDING)
+  note          String?        @db.Text
+  pairId        Int?
 
   User        User @relation("UserRelationOwner", fields: [userId], references: [id])
   RelatedUser User @relation("UserRelationTarget", fields: [relatedUserId], references: [id])

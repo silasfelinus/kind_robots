@@ -114,6 +114,8 @@
         <workspace-hand v-if="!chromeMinimized" />
       </Transition>
 
+      <workspace-narrator :chrome-minimized="chromeMinimized" />
+
       <template #fallback>
         <div
           class="fixed inset-x-0 bottom-0 z-60 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"

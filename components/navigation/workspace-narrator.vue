@@ -689,6 +689,10 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  'panel-open-change': [value: boolean]
+}>()
+
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
 const chatStore = useChatStore()
@@ -1648,6 +1652,14 @@ async function sendNarratorMessage() {
     )
   }
 }
+
+watch(
+  isOpen,
+  (value) => {
+    emit('panel-open-change', value)
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>

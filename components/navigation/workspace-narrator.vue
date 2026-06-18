@@ -502,7 +502,7 @@
     >
       <button
         type="button"
-        class="group relative h-full w-full overflow-hidden rounded-[2.35rem] border border-primary/30 bg-base-100 shadow-2xl transition hover:-translate-y-1 hover:scale-[1.03]"
+        class="group relative h-full w-full overflow-hidden rounded-3xl border border-primary/30 bg-base-100 shadow-2xl transition hover:-translate-y-1 hover:scale-[1.03] md:rounded-[2.35rem]"
         :aria-expanded="isOpen"
         :title="isOpen ? 'Close narrator' : 'Open narrator'"
         @click="togglePanel"
@@ -523,15 +523,17 @@
         />
 
         <div
-          class="absolute inset-x-2 bottom-2 rounded-full border border-base-300/70 bg-base-100/90 px-2 py-1.5 text-center shadow-xl backdrop-blur"
+          class="absolute inset-x-1 bottom-1 rounded-full border border-base-300/70 bg-base-100/90 px-1.5 py-1 text-center shadow-xl backdrop-blur md:inset-x-2 md:bottom-2 md:px-2 md:py-1.5"
         >
           <p
-            class="truncate text-[0.68rem] font-black leading-tight text-primary"
+            class="truncate text-[0.58rem] font-black leading-tight text-primary md:text-[0.68rem]"
           >
             {{ narratorName }}
           </p>
 
-          <p class="truncate text-[0.58rem] leading-tight text-base-content/60">
+          <p
+            class="truncate text-[0.5rem] leading-tight text-base-content/60 md:text-[0.58rem]"
+          >
             {{ currentEmotionLabel }}
           </p>
         </div>
@@ -735,23 +737,43 @@ const shouldRender = computed(() => {
 
 const narratorFrameClass = computed(() => {
   if (props.railMode && !props.chromeMinimized) {
-    return 'relative h-[calc(var(--hand-h,9rem)*1.78)] w-[calc(var(--hand-h,9rem)*0.82)] max-h-[72dvh] min-h-44 min-w-28'
+    return [
+      'fixed bottom-3 right-3 h-24 w-16 min-w-16 max-w-16',
+      'md:relative md:bottom-auto md:right-auto',
+      'md:h-[calc(var(--hand-h,9rem)*1.78)] md:w-[calc(var(--hand-h,9rem)*0.82)]',
+      'md:max-h-[72dvh] md:min-h-44 md:min-w-28 md:max-w-none',
+    ].join(' ')
   }
 
-  return 'fixed bottom-3 right-3 h-[calc(var(--hand-h,9rem)*1.55)] w-[calc(var(--hand-h,9rem)*0.78)] max-h-[70dvh] min-h-40 min-w-24 sm:bottom-4 sm:right-4'
+  return [
+    'fixed bottom-3 right-3 h-24 w-16 min-w-16 max-w-16',
+    'sm:bottom-4 sm:right-4 sm:h-[calc(var(--hand-h,9rem)*1.35)] sm:w-[calc(var(--hand-h,9rem)*0.72)]',
+    'sm:max-h-[70dvh] sm:min-h-40 sm:min-w-24 sm:max-w-none',
+  ].join(' ')
 })
 
 const narratorPanelClass = computed(() => {
   if (props.railMode && !props.chromeMinimized) {
-    return 'bottom-0 right-[calc(100%+0.75rem)] w-[min(34rem,calc(100vw-8.75rem))]'
+    return [
+      'fixed inset-x-3 bottom-20 w-auto max-h-[calc(100dvh-6rem)]',
+      'md:absolute md:inset-x-auto md:bottom-0 md:right-[calc(100%+0.75rem)]',
+      'md:w-[min(34rem,calc(100vw-8.75rem))] md:max-h-[min(42rem,calc(100dvh-1.5rem))]',
+    ].join(' ')
   }
 
-  return 'bottom-[calc(100%+0.75rem)] right-0 w-[min(calc(100vw-1.5rem),32rem)]'
+  return [
+    'fixed inset-x-3 bottom-20 w-auto max-h-[calc(100dvh-6rem)]',
+    'sm:absolute sm:inset-x-auto sm:bottom-[calc(100%+0.75rem)] sm:right-0',
+    'sm:w-[min(calc(100vw-1.5rem),32rem)] sm:max-h-[min(42rem,calc(100dvh-1.5rem))]',
+  ].join(' ')
 })
 
 const bubbleFrameClass = computed(() => {
   if (props.railMode && !props.chromeMinimized) {
-    return 'bottom-6 right-[calc(100%+0.75rem)]'
+    return [
+      'bottom-[calc(100%+0.75rem)] right-0',
+      'md:bottom-6 md:right-[calc(100%+0.75rem)]',
+    ].join(' ')
   }
 
   return 'bottom-[calc(100%+0.75rem)] right-0'

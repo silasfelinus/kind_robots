@@ -2,16 +2,17 @@
 <template>
   <div
     v-if="shouldRender"
-    class="pointer-events-none z-100 flex flex-col items-end gap-2 overflow-visible"
+    class="pointer-events-none z-100 overflow-visible"
     :class="narratorFrameClass"
   >
     <Transition name="narrator-bubble">
       <aside
-        v-if="activeBubble && bubblesEnabled"
-        class="pointer-events-auto max-w-[18rem] rounded-2xl border border-primary/30 bg-base-100/95 p-3 text-sm leading-relaxed text-base-content shadow-2xl backdrop-blur"
+        v-if="activeBubble && bubblesEnabled && !isOpen"
+        class="narrator-speech pointer-events-auto absolute z-120 w-[min(calc(100vw-1.5rem),20rem)] rounded-[1.75rem] border-2 border-primary/30 bg-base-100/95 p-3 text-sm leading-relaxed text-base-content shadow-2xl backdrop-blur"
+        :class="bubbleFrameClass"
       >
         <div class="flex items-start gap-2">
-          <span class="text-lg leading-none">
+          <span class="text-xl leading-none">
             {{ currentEmotionRow?.emoticon || fallbackEmotionIcon }}
           </span>
 
@@ -34,64 +35,113 @@
     <Transition name="narrator-panel">
       <section
         v-if="isOpen"
-        class="pointer-events-auto w-[min(calc(100vw-1.5rem),28rem)] overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 shadow-2xl backdrop-blur"
+        class="pointer-events-auto absolute z-110 flex max-h-[min(42rem,calc(100dvh-1.5rem))] flex-col overflow-hidden rounded-4xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
+        :class="narratorPanelClass"
       >
         <header
-          class="flex items-start justify-between gap-3 border-b border-base-300 bg-base-200/90 p-3"
+          class="relative overflow-hidden border-b border-base-300 bg-base-200/90 p-3"
         >
-          <div class="flex min-w-0 gap-3">
-            <img
-              :src="narratorImage"
-              :alt="narratorName"
-              class="h-14 w-14 shrink-0 rounded-2xl border border-base-300 bg-base-300 object-cover"
-              loading="lazy"
-            />
+          <div
+            class="absolute -right-12 -top-16 h-36 w-36 rounded-full bg-primary/20 blur-3xl"
+          />
+          <div
+            class="absolute -bottom-20 left-8 h-32 w-32 rounded-full bg-secondary/20 blur-3xl"
+          />
 
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <h2 class="truncate font-black text-base-content">
-                  {{ narratorName }}
-                </h2>
+          <div class="relative flex items-start justify-between gap-3">
+            <div class="flex min-w-0 gap-3">
+              <div
+                class="relative h-16 w-16 shrink-0 overflow-hidden rounded-3xl border border-primary/30 bg-base-300 shadow-lg"
+              >
+                <img
+                  :src="narratorImage"
+                  :alt="narratorName"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
 
-                <span class="badge badge-primary badge-sm rounded-xl">
-                  {{ currentEmotionLabel }}
+                <span
+                  v-if="currentEmotionRow?.emoticon"
+                  class="absolute -right-1 -top-1 rounded-full border border-base-300 bg-base-100 px-1.5 py-0.5 text-sm shadow"
+                >
+                  {{ currentEmotionRow.emoticon }}
                 </span>
               </div>
 
-              <p
-                class="mt-1 line-clamp-2 text-xs leading-relaxed text-base-content/60"
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="truncate text-lg font-black text-base-content">
+                    {{ narratorName }}
+                  </h2>
+
+                  <span class="badge badge-primary badge-sm rounded-xl">
+                    {{ currentEmotionLabel }}
+                  </span>
+                </div>
+
+                <p
+                  class="mt-1 line-clamp-2 text-xs leading-relaxed text-base-content/65"
+                >
+                  {{ narratorSummary }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 gap-1">
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs btn-circle"
+                :class="pinOpen ? 'text-primary' : ''"
+                :title="pinOpen ? 'Narrator pinned open' : 'Pin narrator open'"
+                @click="togglePin"
               >
-                {{ narratorSummary }}
-              </p>
+                <Icon name="kind-icon:pin" class="h-3.5 w-3.5" />
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs btn-circle"
+                aria-label="Close narrator"
+                @click="closePanel"
+              >
+                <Icon name="kind-icon:close" class="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
 
-          <div class="flex shrink-0 gap-1">
+          <div class="relative mt-3 grid grid-cols-2 gap-2">
             <button
               type="button"
-              class="btn btn-ghost btn-xs btn-circle"
-              :class="pinOpen ? 'text-primary' : ''"
-              :title="pinOpen ? 'Narrator pinned open' : 'Pin narrator open'"
-              @click="togglePin"
+              class="btn btn-sm rounded-2xl"
+              :class="screenButtonClass('narrator')"
+              @click="setScreen('narrator')"
             >
-              <Icon name="kind-icon:pin" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:message" class="h-4 w-4" />
+              Narrator
             </button>
 
             <button
               type="button"
-              class="btn btn-ghost btn-xs btn-circle"
-              aria-label="Close narrator"
-              @click="closePanel"
+              class="btn btn-sm rounded-2xl"
+              :class="screenButtonClass('scenarios')"
+              @click="setScreen('scenarios')"
             >
-              <Icon name="kind-icon:close" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:map" class="h-4 w-4" />
+              Scenarios
+              <span
+                v-if="dreamScenarios.length"
+                class="badge badge-xs rounded-full"
+              >
+                {{ dreamScenarios.length }}
+              </span>
             </button>
           </div>
         </header>
 
-        <div
-          class="max-h-[calc(100dvh-var(--hand-h,9rem)-8rem)] overflow-y-auto overscroll-contain p-3"
-        >
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+          <section
+            class="rounded-3xl border border-base-300 bg-base-200/80 p-3 shadow-inner"
+          >
             <div class="flex items-start gap-3">
               <Icon
                 name="kind-icon:dream"
@@ -99,7 +149,9 @@
               />
 
               <div class="min-w-0">
-                <p class="text-xs font-black uppercase tracking-wide text-primary">
+                <p
+                  class="text-xs font-black uppercase tracking-wide text-primary"
+                >
                   Active Dream
                 </p>
 
@@ -116,248 +168,427 @@
             </div>
           </section>
 
-          <section class="mt-3 grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              class="btn btn-secondary btn-sm rounded-2xl"
-              :disabled="!activeDream"
-              @click="prepareBuildPrompt"
+          <section v-if="activeScreen === 'narrator'" class="mt-3">
+            <section
+              v-if="emotionOptions.length"
+              class="rounded-3xl border border-base-300 bg-base-200/80 p-3"
             >
-              <Icon name="kind-icon:wand" class="h-4 w-4" />
-              Build
-            </button>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p
+                  class="text-xs font-black uppercase tracking-wide text-primary"
+                >
+                  Mood Ring
+                </p>
 
-            <button
-              type="button"
-              class="btn btn-accent btn-sm rounded-2xl"
-              :disabled="!activeDream"
-              @click="prepareStoryPrompt"
-            >
-              <Icon name="kind-icon:book" class="h-4 w-4" />
-              Story
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-info btn-sm rounded-2xl"
-              @click="cycleEmotion"
-            >
-              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              Mood
-            </button>
-          </section>
-
-          <section
-            v-if="emotionOptions.length"
-            class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <p class="text-xs font-black uppercase tracking-wide text-primary">
-                Emotions
-              </p>
-
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs rounded-xl"
-                :class="bubblesEnabled ? 'text-success' : 'text-base-content/40'"
-                @click="toggleBubbles"
-              >
-                <Icon
-                  :name="
-                    bubblesEnabled ? 'kind-icon:message' : 'kind-icon:mute'
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-xl"
+                  :class="
+                    bubblesEnabled ? 'text-success' : 'text-base-content/40'
                   "
-                  class="h-3.5 w-3.5"
-                />
-                Bubbles
-              </button>
-            </div>
+                  @click="toggleBubbles"
+                >
+                  <Icon
+                    :name="
+                      bubblesEnabled ? 'kind-icon:message' : 'kind-icon:mute'
+                    "
+                    class="h-3.5 w-3.5"
+                  />
+                  Bubbles
+                </button>
+              </div>
 
-            <div class="mt-2 flex flex-wrap gap-2">
-              <button
-                v-for="emotion in emotionOptions"
-                :key="emotion"
-                type="button"
-                class="btn btn-xs rounded-xl"
-                :class="emotionButtonClass(emotion)"
-                @click="setEmotion(emotion)"
-              >
-                {{ emotionLabel(emotion) }}
-              </button>
-            </div>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <button
+                  v-for="emotion in emotionOptions"
+                  :key="emotion"
+                  type="button"
+                  class="btn btn-xs rounded-xl"
+                  :class="emotionButtonClass(emotion)"
+                  @click="setEmotion(emotion)"
+                >
+                  {{ emotionLabel(emotion) }}
+                </button>
+              </div>
+            </section>
+
+            <section
+              v-if="narratorSession.length"
+              ref="chatLogRef"
+              class="mt-3 max-h-64 overflow-y-auto rounded-3xl border border-base-300 bg-base-200/80 p-3"
+            >
+              <div class="grid gap-3">
+                <article
+                  v-for="chat in narratorSession"
+                  :key="chat.id"
+                  class="grid gap-2"
+                >
+                  <div
+                    class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm leading-relaxed text-primary-content"
+                  >
+                    <p class="whitespace-pre-wrap">{{ chat.content }}</p>
+                  </div>
+
+                  <div class="flex max-w-[90%] gap-2">
+                    <img
+                      :src="narratorImage"
+                      :alt="narratorName"
+                      class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
+                      loading="lazy"
+                    />
+
+                    <div
+                      class="rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed shadow-sm"
+                    >
+                      <span
+                        v-if="!chat.botResponse"
+                        class="flex items-center gap-1 py-1 text-base-content/60"
+                      >
+                        <span class="narrator-dot" />
+                        <span class="narrator-dot delay-150" />
+                        <span class="narrator-dot delay-300" />
+                      </span>
+
+                      <p
+                        v-else
+                        class="whitespace-pre-wrap text-base-content/80"
+                      >
+                        {{ chat.botResponse }}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section
+              v-if="statusMessage"
+              class="mt-3 rounded-2xl border p-3 text-sm"
+              :class="
+                statusTone === 'error'
+                  ? 'border-error/40 bg-error/10 text-error'
+                  : 'border-success/40 bg-success/10 text-success'
+              "
+            >
+              {{ statusMessage }}
+            </section>
+
+            <section class="mt-3 grid gap-2">
+              <textarea
+                v-model="narratorMessage"
+                class="textarea textarea-bordered min-h-24 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
+                :placeholder="narratorPlaceholder"
+                :disabled="!canUseNarrator || isNarratorResponding"
+                @keydown.ctrl.enter.prevent="sendNarratorMessage"
+                @keydown.meta.enter.prevent="sendNarratorMessage"
+              />
+
+              <div class="flex flex-wrap justify-between gap-2">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm rounded-2xl"
+                  :disabled="isNarratorResponding"
+                  @click="clearSession"
+                >
+                  Clear
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm rounded-2xl text-white"
+                  :disabled="!canSendNarrator"
+                  @click="sendNarratorMessage"
+                >
+                  <span
+                    v-if="isNarratorResponding"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  <Icon v-else name="kind-icon:send" class="h-4 w-4" />
+                  Ask Narrator
+                </button>
+              </div>
+            </section>
           </section>
 
-          <section
-            v-if="narratorSession.length"
-            ref="chatLogRef"
-            class="mt-3 max-h-64 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
-            <div class="grid gap-3">
+          <section v-else class="mt-3 grid gap-3">
+            <section
+              v-if="activeDream && dreamScenarios.length"
+              class="grid gap-3"
+            >
               <article
-                v-for="chat in narratorSession"
-                :key="chat.id"
-                class="grid gap-2"
+                v-if="selectedScenario"
+                class="overflow-hidden rounded-3xl border border-primary/25 bg-base-100 shadow-lg"
               >
                 <div
-                  class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm leading-relaxed text-primary-content"
+                  v-if="scenarioImage(selectedScenario)"
+                  class="relative h-36 overflow-hidden bg-base-300"
                 >
-                  <p class="whitespace-pre-wrap">{{ chat.content }}</p>
-                </div>
-
-                <div class="flex max-w-[90%] gap-2">
                   <img
-                    :src="narratorImage"
-                    :alt="narratorName"
-                    class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
+                    :src="scenarioImage(selectedScenario)"
+                    :alt="scenarioTitle(selectedScenario)"
+                    class="h-full w-full object-cover"
                     loading="lazy"
                   />
 
                   <div
-                    class="rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed shadow-sm"
-                  >
-                    <span
-                      v-if="!chat.botResponse"
-                      class="flex items-center gap-1 py-1 text-base-content/60"
-                    >
-                      <span class="narrator-dot" />
-                      <span class="narrator-dot delay-150" />
-                      <span class="narrator-dot delay-300" />
-                    </span>
+                    class="absolute inset-0 bg-linear-to-t from-base-100 via-base-100/20 to-transparent"
+                  />
+                </div>
 
-                    <p
-                      v-else
-                      class="whitespace-pre-wrap text-base-content/80"
+                <div class="p-3">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <p
+                        class="text-xs font-black uppercase tracking-wide text-primary"
+                      >
+                        Selected Scenario
+                      </p>
+
+                      <h3 class="mt-1 line-clamp-1 font-black">
+                        {{ scenarioTitle(selectedScenario) }}
+                      </h3>
+                    </div>
+
+                    <span class="badge badge-secondary badge-sm rounded-xl">
+                      Ready
+                    </span>
+                  </div>
+
+                  <p
+                    class="mt-2 line-clamp-4 text-sm leading-relaxed text-base-content/70"
+                  >
+                    {{ scenarioSummary(selectedScenario) }}
+                  </p>
+
+                  <div class="mt-3 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm rounded-2xl text-white"
+                      @click="prepareScenarioStoryPrompt"
                     >
-                      {{ chat.botResponse }}
-                    </p>
+                      <Icon name="kind-icon:play" class="h-4 w-4" />
+                      Start
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-secondary btn-sm rounded-2xl"
+                      @click="prepareScenarioBuildPrompt"
+                    >
+                      <Icon name="kind-icon:wand" class="h-4 w-4" />
+                      Remix
+                    </button>
                   </div>
                 </div>
               </article>
-            </div>
-          </section>
 
-          <section
-            v-if="statusMessage"
-            class="mt-3 rounded-2xl border p-3 text-sm"
-            :class="
-              statusTone === 'error'
-                ? 'border-error/40 bg-error/10 text-error'
-                : 'border-success/40 bg-success/10 text-success'
-            "
-          >
-            {{ statusMessage }}
-          </section>
+              <div class="grid gap-2">
+                <button
+                  v-for="(scenario, index) in dreamScenarios"
+                  :key="scenarioKey(scenario, index)"
+                  type="button"
+                  class="group flex items-center gap-3 rounded-[1.35rem] border bg-base-100 p-2 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                  :class="scenarioButtonClass(scenario, index)"
+                  @click="selectScenario(scenario, index)"
+                >
+                  <div
+                    class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+                  >
+                    <img
+                      v-if="scenarioImage(scenario)"
+                      :src="scenarioImage(scenario)"
+                      :alt="scenarioTitle(scenario)"
+                      class="h-full w-full object-cover"
+                      loading="lazy"
+                    />
 
-          <section class="mt-3 grid gap-2">
-            <textarea
-              v-model="narratorMessage"
-              class="textarea textarea-bordered min-h-24 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
-              :placeholder="narratorPlaceholder"
-              :disabled="!canUseNarrator || isNarratorResponding"
-              @keydown.ctrl.enter.prevent="sendNarratorMessage"
-              @keydown.meta.enter.prevent="sendNarratorMessage"
-            />
+                    <Icon
+                      v-else
+                      name="kind-icon:map"
+                      class="h-5 w-5 text-primary"
+                    />
+                  </div>
 
-            <div class="flex flex-wrap justify-between gap-2">
+                  <div class="min-w-0 flex-1">
+                    <h4
+                      class="line-clamp-1 text-sm font-black text-base-content"
+                    >
+                      {{ scenarioTitle(scenario) }}
+                    </h4>
+
+                    <p
+                      class="mt-0.5 line-clamp-2 text-xs leading-relaxed text-base-content/60"
+                    >
+                      {{ scenarioSummary(scenario) }}
+                    </p>
+                  </div>
+
+                  <Icon
+                    name="kind-icon:chevron-right"
+                    class="h-4 w-4 shrink-0 text-base-content/35 transition group-hover:text-primary"
+                  />
+                </button>
+              </div>
+            </section>
+
+            <section
+              v-else-if="activeDream"
+              class="rounded-3xler border-dashed border-base-300 bg-base-200/70 p-4 text-center"
+            >
+              <Icon name="kind-icon:map" class="mx-auto h-8 w-8 text-primary" />
+
+              <h3 class="mt-2 font-black text-base-content">
+                No scenarios connected yet
+              </h3>
+
+              <p class="mt-1 text-sm leading-relaxed text-base-content/65">
+                This Dream has the vibe. It just needs places to get weird in.
+              </p>
+
               <button
                 type="button"
-                class="btn btn-ghost btn-sm rounded-2xl"
-                :disabled="isNarratorResponding"
-                @click="clearSession"
+                class="btn btn-primary btn-sm mt-3 rounded-2xl text-white"
+                @click="prepareScenarioSeedPrompt"
               >
-                Clear
+                <Icon name="kind-icon:wand" class="h-4 w-4" />
+                Draft scenario ideas
               </button>
+            </section>
+
+            <section v-else class="grid gap-2">
+              <p
+                class="px-1 text-xs font-black uppercase tracking-wide text-primary"
+              >
+                Website Guide
+              </p>
 
               <button
+                v-for="entry in fallbackNavigationEntries"
+                :key="entry.key"
                 type="button"
-                class="btn btn-primary btn-sm rounded-2xl text-white"
-                :disabled="!canSendNarrator"
-                @click="sendNarratorMessage"
+                class="group flex items-center gap-3 rounded-[1.35rem] border border-base-300 bg-base-100 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                @click="openFallbackEntry(entry)"
               >
                 <span
-                  v-if="isNarratorResponding"
-                  class="loading loading-spinner loading-xs"
-                />
-                <Icon v-else name="kind-icon:send" class="h-4 w-4" />
-                Ask Narrator
+                  class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary"
+                >
+                  <Icon :name="entry.icon" class="h-5 w-5" />
+                </span>
+
+                <span class="min-w-0 flex-1">
+                  <span class="block font-black text-base-content">
+                    {{ entry.title }}
+                  </span>
+
+                  <span
+                    class="mt-0.5 line-clamp-2 block text-sm leading-relaxed text-base-content/65"
+                  >
+                    {{ entry.description }}
+                  </span>
+                </span>
+
+                <span class="badge badge-outline rounded-xl">
+                  {{ entry.badge }}
+                </span>
               </button>
-            </div>
+            </section>
           </section>
         </div>
       </section>
     </Transition>
 
-    <section class="pointer-events-auto flex items-end gap-2 overflow-visible">
-      <Transition name="narrator-actions">
-        <div
-          v-if="!isOpen"
-          class="mb-2 hidden flex-col gap-1 sm:flex"
-        >
-          <button
-            type="button"
-            class="btn btn-secondary btn-xs rounded-xl shadow-lg"
-            :disabled="!activeDream"
-            @click="prepareBuildPrompt"
-          >
-            Build
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-accent btn-xs rounded-xl shadow-lg"
-            :disabled="!activeDream"
-            @click="prepareStoryPrompt"
-          >
-            Story
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-info btn-xs rounded-xl shadow-lg"
-            @click="cycleEmotion"
-          >
-            Mood
-          </button>
-        </div>
-      </Transition>
-
+    <section
+      class="pointer-events-auto relative z-100 h-full w-full overflow-visible"
+    >
       <button
         type="button"
-        class="group relative h-[calc(var(--hand-h,9rem)*1.75)] w-[calc(var(--hand-h,9rem)*0.78)] max-h-[70dvh] min-h-44 min-w-24 overflow-visible rounded-2xl border border-primary/30 bg-base-100 shadow-2xl transition hover:-translate-y-1 hover:scale-105"
+        class="group relative h-full w-full overflow-hidden rounded-[2.35rem] border border-primary/30 bg-base-100 shadow-2xl transition hover:-translate-y-1 hover:scale-[1.03]"
         :aria-expanded="isOpen"
         :title="isOpen ? 'Close narrator' : 'Open narrator'"
         @click="togglePanel"
       >
         <div
-          class="absolute -inset-1 rounded-2xl bg-primary/20 opacity-0 blur-lg transition group-hover:opacity-100"
+          class="absolute -inset-1 rounded-[2.5rem] bg-primary/20 opacity-0 blur-lg transition group-hover:opacity-100"
         />
 
         <img
           :src="narratorImage"
           :alt="narratorName"
-          class="relative h-full w-full rounded-2xl object-cover"
+          class="relative h-full w-full object-cover"
           loading="lazy"
         />
 
         <div
-          class="absolute inset-x-1 bottom-1 rounded-xl bg-base-100/90 px-2 py-1 text-center shadow backdrop-blur"
+          class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-base-100 via-base-100/45 to-transparent"
+        />
+
+        <div
+          class="absolute inset-x-2 bottom-2 rounded-full border border-base-300/70 bg-base-100/90 px-2 py-1.5 text-center shadow-xl backdrop-blur"
         >
           <p
-            class="truncate text-[0.65rem] font-black leading-tight text-primary"
+            class="truncate text-[0.68rem] font-black leading-tight text-primary"
           >
             {{ narratorName }}
           </p>
 
-          <p class="truncate text-[0.6rem] leading-tight text-base-content/60">
+          <p class="truncate text-[0.58rem] leading-tight text-base-content/60">
             {{ currentEmotionLabel }}
           </p>
         </div>
 
         <span
           v-if="currentEmotionRow?.emoticon"
-          class="absolute -right-2 -top-2 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-lg shadow"
+          class="absolute -right-1 -top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-lg shadow"
         >
           {{ currentEmotionRow.emoticon }}
         </span>
+      </button>
+
+      <div class="absolute left-2 top-2 z-20 flex flex-col gap-1.5">
+        <button
+          type="button"
+          class="btn btn-secondary btn-xs btn-circle shadow-xl"
+          :disabled="!activeDream"
+          title="Build"
+          aria-label="Build with narrator"
+          @click.stop="prepareBuildPrompt"
+        >
+          <Icon name="kind-icon:wand" class="h-3.5 w-3.5" />
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-accent btn-xs btn-circle shadow-xl"
+          :disabled="!activeDream"
+          title="Story"
+          aria-label="Start story with narrator"
+          @click.stop="prepareStoryPrompt"
+        >
+          <Icon name="kind-icon:book" class="h-3.5 w-3.5" />
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-info btn-xs btn-circle shadow-xl"
+          title="Mood"
+          aria-label="Change narrator mood"
+          @click.stop="cycleEmotion"
+        >
+          <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-primary btn-xs btn-circle absolute right-2 top-2 z-20 text-white shadow-xl"
+        :title="isOpen ? 'Close navigator' : 'Open navigator'"
+        :aria-label="isOpen ? 'Close navigator' : 'Open navigator'"
+        @click.stop="togglePanel"
+      >
+        <Icon
+          :name="isOpen ? 'kind-icon:close' : 'kind-icon:chevron-left'"
+          class="h-3.5 w-3.5"
+        />
       </button>
     </section>
   </div>
@@ -389,6 +620,8 @@ type NarratorEmotion =
   | 'CONFUSED'
   | 'PROUD'
 
+type NarratorScreen = 'narrator' | 'scenarios'
+
 type BotCafeMessage = {
   role: 'system' | 'user' | 'assistant'
   content: string
@@ -404,8 +637,28 @@ type DreamNarratorBot = Partial<Bot> & {
   EmotionImages?: NarratorEmotionImage[]
 }
 
+type DreamScenario = {
+  id?: number | null
+  slug?: string | null
+  title?: string | null
+  name?: string | null
+  description?: string | null
+  summary?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  highlightImage?: string | null
+  icon?: string | null
+  ArtImage?: Partial<ArtImage> | null
+  ArtCollection?: {
+    ArtImages?: Partial<ArtImage>[]
+  } | null
+}
+
 type DreamWithNarrator = DreamWithRelations & {
   Bots?: DreamNarratorBot[]
+  Scenarios?: DreamScenario[]
 }
 
 type NarratorChat = Chat & {
@@ -415,6 +668,15 @@ type NarratorChat = Chat & {
 type ChatRuntimeInput = Parameters<
   ReturnType<typeof useChatStore>['addChat']
 >[0]
+
+type FallbackNavigationEntry = {
+  key: string
+  title: string
+  description: string
+  badge: string
+  icon: string
+  tab: string
+}
 
 const props = withDefaults(
   defineProps<{
@@ -447,6 +709,8 @@ const fallbackEmotions: NarratorEmotion[] = [
 const isOpen = ref(false)
 const pinOpen = ref(false)
 const bubblesEnabled = ref(true)
+const activeScreen = ref<NarratorScreen>('narrator')
+const selectedScenarioKey = ref('')
 const currentEmotion = ref<NarratorEmotion>('NEUTRAL')
 const activeBubble = ref('')
 const narratorMessage = ref('')
@@ -467,10 +731,26 @@ const shouldRender = computed(() => {
 
 const narratorFrameClass = computed(() => {
   if (props.railMode && !props.chromeMinimized) {
-    return 'relative max-w-[min(32rem,46vw)] overflow-visible'
+    return 'relative h-[calc(var(--hand-h,9rem)*1.78)] w-[calc(var(--hand-h,9rem)*0.82)] max-h-[72dvh] min-h-44 min-w-28'
   }
 
-  return 'fixed bottom-3 right-3 max-w-[calc(100vw-1.5rem)] overflow-visible sm:bottom-4 sm:right-4'
+  return 'fixed bottom-3 right-3 h-[calc(var(--hand-h,9rem)*1.55)] w-[calc(var(--hand-h,9rem)*0.78)] max-h-[70dvh] min-h-40 min-w-24 sm:bottom-4 sm:right-4'
+})
+
+const narratorPanelClass = computed(() => {
+  if (props.railMode && !props.chromeMinimized) {
+    return 'bottom-0 right-[calc(100%+0.75rem)] w-[min(34rem,calc(100vw-8.75rem))]'
+  }
+
+  return 'bottom-[calc(100%+0.75rem)] right-0 w-[min(calc(100vw-1.5rem),32rem)]'
+})
+
+const bubbleFrameClass = computed(() => {
+  if (props.railMode && !props.chromeMinimized) {
+    return 'bottom-6 right-[calc(100%+0.75rem)]'
+  }
+
+  return 'bottom-[calc(100%+0.75rem)] right-0'
 })
 
 const activeDream = computed(() => {
@@ -479,6 +759,23 @@ const activeDream = computed(() => {
 
 const dreamNarrators = computed(() => {
   return activeDream.value?.Bots ?? []
+})
+
+const dreamScenarios = computed<DreamScenario[]>(() => {
+  return activeDream.value?.Scenarios ?? []
+})
+
+const selectedScenario = computed<DreamScenario | null>(() => {
+  if (!dreamScenarios.value.length) return null
+
+  return (
+    dreamScenarios.value.find(
+      (scenario, index) =>
+        scenarioKey(scenario, index) === selectedScenarioKey.value,
+    ) ??
+    dreamScenarios.value[0] ??
+    null
+  )
 })
 
 const narratorBot = computed<DreamNarratorBot | null>(() => {
@@ -613,8 +910,8 @@ const canUseNarrator = computed(() => {
 const canSendNarrator = computed(() => {
   return Boolean(
     canUseNarrator.value &&
-      narratorMessage.value.trim() &&
-      !isNarratorResponding.value,
+    narratorMessage.value.trim() &&
+    !isNarratorResponding.value,
   )
 })
 
@@ -627,19 +924,62 @@ const narratorPlaceholder = computed(() => {
   }...`
 })
 
+const fallbackNavigationEntries = computed<FallbackNavigationEntry[]>(() => [
+  {
+    key: 'dreams',
+    title: 'Pick a Dream',
+    description:
+      'Start with a vibe, then the narrator can help turn it into scenes and choices.',
+    badge: 'Dreams',
+    icon: 'kind-icon:dream',
+    tab: 'gallery',
+  },
+  {
+    key: 'builder',
+    title: 'Build Something',
+    description:
+      'Open the maker space when you want new pieces, expansions, and weird little sparks.',
+    badge: 'Maker',
+    icon: 'kind-icon:wand',
+    tab: 'dreammaker',
+  },
+  {
+    key: 'interact',
+    title: 'Play a Scene',
+    description:
+      'Jump into interact mode when a Dream is ready to become a tiny living story.',
+    badge: 'Play',
+    icon: 'kind-icon:book',
+    tab: 'interact',
+  },
+])
+
 watch(
   () => activeDream.value?.id,
   async () => {
     narratorSessionIds.value = []
     narratorMessage.value = ''
     statusMessage.value = ''
+    selectedScenarioKey.value = ''
     setEmotion('NEUTRAL', false)
 
     await nextTick()
 
+    selectFirstScenario()
+
     if (bubblesEnabled.value) {
       showBubbleForEmotion('NEUTRAL')
     }
+  },
+)
+
+watch(
+  () =>
+    dreamScenarios.value
+      .map((scenario, index) => scenarioKey(scenario, index))
+      .join('|'),
+  () => {
+    selectFirstScenario()
   },
 )
 
@@ -651,7 +991,7 @@ watch(
   },
 )
 
-watch([isOpen, pinOpen, bubblesEnabled], saveSettings)
+watch([isOpen, pinOpen, bubblesEnabled, activeScreen], saveSettings)
 
 onMounted(async () => {
   loadSettings()
@@ -663,6 +1003,8 @@ onMounted(async () => {
       ? []
       : [serverStore.initialize({ fetchRemote: true })]),
   ])
+
+  selectFirstScenario()
 
   if (bubblesEnabled.value) {
     showBubbleForEmotion(currentEmotion.value)
@@ -699,7 +1041,19 @@ function emotionLabel(emotion: NarratorEmotion) {
 }
 
 function emotionButtonClass(emotion: NarratorEmotion) {
-  return currentEmotion.value === emotion ? 'btn-primary text-white' : 'btn-outline'
+  return currentEmotion.value === emotion
+    ? 'btn-primary text-white'
+    : 'btn-outline'
+}
+
+function screenButtonClass(screen: NarratorScreen) {
+  return activeScreen.value === screen
+    ? 'btn-primary text-white'
+    : 'btn-ghost bg-base-100/70'
+}
+
+function setScreen(screen: NarratorScreen) {
+  activeScreen.value = screen
 }
 
 function setEmotion(emotion: NarratorEmotion, showBubble = true) {
@@ -725,12 +1079,18 @@ function togglePanel() {
   isOpen.value = !isOpen.value
 
   if (isOpen.value) {
+    clearBubble()
+  } else {
     showBubbleForEmotion(currentEmotion.value)
   }
 }
 
 function closePanel() {
   isOpen.value = false
+
+  if (bubblesEnabled.value) {
+    showBubbleForEmotion(currentEmotion.value)
+  }
 }
 
 function togglePin() {
@@ -738,6 +1098,7 @@ function togglePin() {
 
   if (pinOpen.value) {
     isOpen.value = true
+    clearBubble()
   }
 }
 
@@ -764,12 +1125,20 @@ function loadSettings() {
       pinOpen?: boolean
       bubblesEnabled?: boolean
       currentEmotion?: NarratorEmotion
+      activeScreen?: NarratorScreen
     }
 
     pinOpen.value = Boolean(parsed.pinOpen)
     isOpen.value = Boolean(parsed.isOpen || parsed.pinOpen)
     bubblesEnabled.value = parsed.bubblesEnabled !== false
     currentEmotion.value = normalizeEmotion(parsed.currentEmotion)
+
+    if (
+      parsed.activeScreen === 'narrator' ||
+      parsed.activeScreen === 'scenarios'
+    ) {
+      activeScreen.value = parsed.activeScreen
+    }
   } catch {}
 }
 
@@ -784,6 +1153,7 @@ function saveSettings() {
         pinOpen: pinOpen.value,
         bubblesEnabled: bubblesEnabled.value,
         currentEmotion: currentEmotion.value,
+        activeScreen: activeScreen.value,
       }),
     )
   } catch {}
@@ -799,7 +1169,7 @@ function clearBubble() {
 }
 
 function showBubbleForEmotion(emotion: NarratorEmotion) {
-  if (!bubblesEnabled.value) return
+  if (!bubblesEnabled.value || isOpen.value) return
 
   const row = emotionRows.value.find(
     (entry) => normalizeEmotion(entry.emotion) === emotion,
@@ -911,11 +1281,98 @@ function dreamImage(dream?: DreamWithNarrator | null) {
   )
 }
 
+function scenarioKey(scenario: DreamScenario, index = 0) {
+  return String(
+    scenario.id ??
+      scenario.slug ??
+      scenario.title ??
+      scenario.name ??
+      `scenario-${index}`,
+  )
+}
+
+function selectFirstScenario() {
+  if (!dreamScenarios.value.length) {
+    selectedScenarioKey.value = ''
+    return
+  }
+
+  const currentExists = dreamScenarios.value.some(
+    (scenario, index) =>
+      scenarioKey(scenario, index) === selectedScenarioKey.value,
+  )
+
+  if (!currentExists) {
+    selectedScenarioKey.value = scenarioKey(dreamScenarios.value[0], 0)
+  }
+}
+
+function selectScenario(scenario: DreamScenario, index = 0) {
+  selectedScenarioKey.value = scenarioKey(scenario, index)
+}
+
+function scenarioButtonClass(scenario: DreamScenario, index = 0) {
+  return scenarioKey(scenario, index) === selectedScenarioKey.value
+    ? 'border-primary/50 bg-primary/10'
+    : 'border-base-300 hover:bg-base-200'
+}
+
+function scenarioTitle(scenario?: DreamScenario | null) {
+  return scenario?.title || scenario?.name || 'Untitled Scenario'
+}
+
+function scenarioSummary(scenario?: DreamScenario | null) {
+  if (!scenario) return 'No scenario selected.'
+
+  return (
+    scenario.summary ||
+    scenario.pitch ||
+    scenario.description ||
+    scenario.flavorText ||
+    scenario.artPrompt ||
+    'No summary yet. Mysterious, but legally still a scenario.'
+  )
+}
+
+function scenarioImage(scenario?: DreamScenario | null) {
+  if (!scenario) return ''
+
+  const collectionImage = scenario.ArtCollection?.ArtImages?.[0]
+
+  return (
+    scenario.imagePath ||
+    scenario.highlightImage ||
+    scenario.ArtImage?.imagePath ||
+    scenario.ArtImage?.path ||
+    scenario.ArtImage?.fileName ||
+    collectionImage?.imagePath ||
+    collectionImage?.path ||
+    collectionImage?.fileName ||
+    ''
+  )
+}
+
+function openFallbackEntry(entry: FallbackNavigationEntry) {
+  navStore.setDashboardTab(
+    'dream',
+    entry.tab,
+    `workspace narrator ${entry.key}`,
+  )
+  activeScreen.value = 'scenarios'
+  isOpen.value = true
+}
+
 function prepareBuildPrompt() {
-  if (!activeDream.value) return
+  if (!activeDream.value) {
+    activeScreen.value = 'scenarios'
+    isOpen.value = true
+    return
+  }
 
   navStore.setDashboardTab('dream', 'dreammaker', 'workspace narrator build')
+  activeScreen.value = 'narrator'
   isOpen.value = true
+  clearBubble()
   setEmotion('EXCITED')
 
   narratorMessage.value = [
@@ -926,10 +1383,16 @@ function prepareBuildPrompt() {
 }
 
 function prepareStoryPrompt() {
-  if (!activeDream.value) return
+  if (!activeDream.value) {
+    activeScreen.value = 'scenarios'
+    isOpen.value = true
+    return
+  }
 
   navStore.setDashboardTab('dream', 'interact', 'workspace narrator story')
+  activeScreen.value = 'narrator'
   isOpen.value = true
+  clearBubble()
   setEmotion('PROUD')
 
   narratorMessage.value = [
@@ -937,6 +1400,82 @@ function prepareStoryPrompt() {
     'Use the connected characters and scenarios if they exist.',
     'End with 2 or 3 choices for the user.',
   ].join('\n')
+}
+
+function prepareScenarioSeedPrompt() {
+  if (!activeDream.value) {
+    activeScreen.value = 'scenarios'
+    isOpen.value = true
+    return
+  }
+
+  navStore.setDashboardTab(
+    'dream',
+    'dreammaker',
+    'workspace narrator scenario seed',
+  )
+  activeScreen.value = 'narrator'
+  isOpen.value = true
+  clearBubble()
+  setEmotion('EXCITED')
+
+  narratorMessage.value = [
+    `Create 3 scenario options for the Dream "${activeDream.value.title}".`,
+    'Each scenario should include a title, a playable location, a central tension, and one visual hook.',
+    'Make them distinct, immediately usable, and weird in a good way.',
+  ].join('\n')
+}
+
+function prepareScenarioStoryPrompt() {
+  const dream = activeDream.value
+  const scenario = selectedScenario.value
+
+  if (!dream || !scenario) return
+
+  navStore.setDashboardTab(
+    'dream',
+    'interact',
+    'workspace narrator scenario play',
+  )
+  activeScreen.value = 'narrator'
+  isOpen.value = true
+  clearBubble()
+  setEmotion('PROUD')
+
+  narratorMessage.value = [
+    `Start an interactive scene for the Dream "${dream.title}".`,
+    `Scenario: ${scenarioTitle(scenario)}`,
+    scenarioSummary(scenario),
+    'Use a vivid opening beat and end with 2 or 3 choices.',
+  ]
+    .filter(Boolean)
+    .join('\n')
+}
+
+function prepareScenarioBuildPrompt() {
+  const dream = activeDream.value
+  const scenario = selectedScenario.value
+
+  if (!dream || !scenario) return
+
+  navStore.setDashboardTab(
+    'dream',
+    'dreammaker',
+    'workspace narrator scenario remix',
+  )
+  activeScreen.value = 'narrator'
+  isOpen.value = true
+  clearBubble()
+  setEmotion('EXCITED')
+
+  narratorMessage.value = [
+    `Remix and expand this scenario for the Dream "${dream.title}".`,
+    `Scenario: ${scenarioTitle(scenario)}`,
+    scenarioSummary(scenario),
+    'Give me one stronger conflict, one strange NPC or character seed, one environmental twist, and one art direction.',
+  ]
+    .filter(Boolean)
+    .join('\n')
 }
 
 function buildNarratorSystemPrompt() {
@@ -956,7 +1495,9 @@ function buildNarratorSystemPrompt() {
           dream.dreamType ? `Dream type: ${dream.dreamType}` : '',
           dream.pitch || dream.description || dream.flavorText || '',
           dream.Scenarios?.length
-            ? `Scenarios: ${dream.Scenarios.map((scenario) => scenario.title)
+            ? `Scenarios: ${dream.Scenarios.map((scenario) =>
+                scenarioTitle(scenario),
+              )
                 .filter(Boolean)
                 .join(', ')}`
             : '',
@@ -970,6 +1511,14 @@ function buildNarratorSystemPrompt() {
                 .filter(Boolean)
                 .join(', ')}`
             : '',
+        ]
+          .filter(Boolean)
+          .join('\n')
+      : '',
+    selectedScenario.value
+      ? [
+          `Selected scenario: ${scenarioTitle(selectedScenario.value)}`,
+          scenarioSummary(selectedScenario.value),
         ]
           .filter(Boolean)
           .join('\n')
@@ -1099,6 +1648,23 @@ async function sendNarratorMessage() {
 </script>
 
 <style scoped>
+.narrator-speech::after {
+  position: absolute;
+  right: -0.45rem;
+  bottom: 1.5rem;
+  height: 0.9rem;
+  width: 0.9rem;
+  transform: rotate(45deg);
+  border-top: 2px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-right: 2px solid color-mix(in srgb, currentColor 20%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--fallback-b1, oklch(var(--b1))) 95%,
+    transparent
+  );
+  content: '';
+}
+
 .narrator-dot {
   display: inline-block;
   height: 0.375rem;
@@ -1119,9 +1685,7 @@ async function sendNarratorMessage() {
 .narrator-panel-enter-active,
 .narrator-panel-leave-active,
 .narrator-bubble-enter-active,
-.narrator-bubble-leave-active,
-.narrator-actions-enter-active,
-.narrator-actions-leave-active {
+.narrator-bubble-leave-active {
   transition:
     opacity 180ms ease,
     transform 180ms ease;
@@ -1130,19 +1694,13 @@ async function sendNarratorMessage() {
 .narrator-panel-enter-from,
 .narrator-panel-leave-to {
   opacity: 0;
-  transform: translateY(1rem) scale(0.98);
+  transform: translateX(1rem) translateY(0.5rem) scale(0.98);
 }
 
 .narrator-bubble-enter-from,
 .narrator-bubble-leave-to {
   opacity: 0;
-  transform: translateY(0.5rem) scale(0.98);
-}
-
-.narrator-actions-enter-from,
-.narrator-actions-leave-to {
-  opacity: 0;
-  transform: translateX(0.5rem);
+  transform: translateX(0.75rem) scale(0.98);
 }
 
 @keyframes narrator-bounce {

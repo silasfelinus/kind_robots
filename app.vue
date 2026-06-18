@@ -110,17 +110,33 @@
     </section>
 
     <ClientOnly>
-      <Transition name="workspace-hand-slide">
-        <workspace-hand v-if="!chromeMinimized" />
-      </Transition>
+      <section
+        v-if="!chromeMinimized"
+        class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end gap-2 px-2 sm:px-3"
+        style="height: var(--hand-h)"
+      >
+        <div class="relative min-w-0 flex-1">
+          <Transition name="workspace-hand-slide">
+            <workspace-hand />
+          </Transition>
+        </div>
 
-      <workspace-narrator :chrome-minimized="chromeMinimized" />
+        <div class="relative z-100 flex shrink-0 items-end justify-end">
+          <workspace-narrator rail-mode />
+        </div>
+      </section>
+
+      <workspace-narrator
+        v-else
+        :chrome-minimized="chromeMinimized"
+        rail-mode
+      />
 
       <template #fallback>
         <div
           class="fixed inset-x-0 bottom-0 z-60 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
         >
-          Loading workspace hand...
+          Loading workspace tools...
         </div>
       </template>
     </ClientOnly>

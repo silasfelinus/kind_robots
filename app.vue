@@ -110,27 +110,34 @@
     </section>
 
     <ClientOnly>
-      <section
-        v-if="!chromeMinimized"
-        class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end gap-2 px-2 sm:px-3"
-        style="height: var(--hand-h)"
-      >
-        <div class="relative min-w-0 flex-1">
-          <Transition name="workspace-hand-slide">
-            <workspace-hand />
-          </Transition>
-        </div>
+<section
+  v-if="!chromeMinimized"
+  class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end justify-end gap-2 px-2 sm:px-3"
+  style="height: var(--hand-h)"
+>
+  <div
+    class="relative min-w-0 flex-1 md:block"
+    :class="narratorPanelOpen ? 'hidden' : 'block'"
+  >
+    <Transition name="workspace-hand-slide">
+      <workspace-hand />
+    </Transition>
+  </div>
 
-        <div class="relative z-100 flex shrink-0 items-end justify-end">
-          <workspace-narrator rail-mode />
-        </div>
-      </section>
+  <div class="relative z-100 flex shrink-0 items-end justify-end">
+    <workspace-narrator
+      rail-mode
+      @panel-open-change="setNarratorPanelOpen"
+    />
+  </div>
+</section>
 
-      <workspace-narrator
-        v-else
-        :chrome-minimized="chromeMinimized"
-        rail-mode
-      />
+<workspace-narrator
+  v-else
+  :chrome-minimized="chromeMinimized"
+  rail-mode
+  @panel-open-change="setNarratorPanelOpen"
+/>
 
       <template #fallback>
         <div
@@ -196,6 +203,12 @@ function persist(key: string, value: boolean): void {
   if (!import.meta.client) return
 
   window.localStorage.setItem(key, value ? 'true' : 'false')
+}
+
+const narratorPanelOpen = ref(false)
+
+function setNarratorPanelOpen(value: boolean): void {
+  narratorPanelOpen.value = value
 }
 
 function minimizeChrome(): void {

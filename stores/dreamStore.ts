@@ -31,7 +31,7 @@ import type {
   Character,
   Chat,
   Dream,
-  EmotionImage,
+  ExpressionMedia,
   Prompt,
   Reaction,
   Reward,
@@ -65,7 +65,7 @@ export interface DreamChatForm extends Partial<Chat> {
   updateNote?: string | null
 }
 
-export interface DreamNarratorEmotionImage extends EmotionImage {
+export interface DreamNarratorEmotionImage extends ExpressionMedia {
   ArtImage?: Partial<ArtImage> | null
 }
 
@@ -1150,7 +1150,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
         const existingDream =
           selectedDream.value?.id === dreamId
             ? selectedDream.value
-            : dreams.value.find((dream) => dream.id === dreamId) ?? null
+            : (dreams.value.find((dream) => dream.id === dreamId) ?? null)
         const body = buildMutationBody(updates, existingDream)
         const res = await performFetch<DreamWithRelations>(
           `/api/dreams/${dreamId}`,

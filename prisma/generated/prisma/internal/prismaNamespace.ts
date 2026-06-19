@@ -2475,7 +2475,8 @@ export const EmotionImageScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  emotion: 'emotion',
+  expression: 'expression',
+  kind: 'kind',
   label: 'label',
   emoticon: 'emoticon',
   imagePath: 'imagePath',
@@ -3341,9 +3342,16 @@ export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'Emotion'
+ * Reference to a field of type 'Expression'
  */
-export type EnumEmotionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Emotion'>
+export type EnumExpressionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Expression'>
+    
+
+
+/**
+ * Reference to a field of type 'ExpressionKind'
+ */
+export type EnumExpressionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExpressionKind'>
     
 
 

@@ -82,7 +82,9 @@ export type Composition = Prisma.CompositionModel
 export type Dream = Prisma.DreamModel
 /**
  * Model EmotionImage
- * 
+ * One row per (owner, expression). Holds both emotions (face-only edits) and
+ * actions (pose/state edits), discriminated by `kind`. Shares one table so the
+ * frontend can pull a full set for a bot/character in a single query.
  */
 export type EmotionImage = Prisma.EmotionImageModel
 /**

@@ -35,3 +35,5 @@ CREATE UNIQUE INDEX `EmotionImage_characterId_expression_key` ON `EmotionImage`(
 -- AddForeignKey
 ALTER TABLE `EmotionImage` ADD CONSTRAINT `EmotionImage_characterId_fkey` FOREIGN KEY (`characterId`) REFERENCES `Character`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- AddForeignKey
+ALTER TABLE `EmotionImage` ADD CONSTRAINT `EmotionImage_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

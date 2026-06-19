@@ -7,7 +7,7 @@
     <Transition name="narrator-bubble">
       <aside
         v-if="activeBubble && bubblesEnabled && !isOpen"
-        class="narrator-speech pointer-events-auto absolute z-120 w-[min(calc(100vw-1.5rem),20rem)] rounded-[1.75rem] border-2 border-primary/30 bg-base-100/95 p-3 text-sm leading-relaxed text-base-content shadow-2xl backdrop-blur"
+        class="narrator-speech pointer-events-auto absolute z-120 w-[min(calc(100vw-1.5rem),20rem)] rounded-[1.75rem] border-2 border-primary/30 bg-base-100/95 p-3 text-sm md:text-md lg:text-lg xl:text-xl leading-relaxed text-base-content shadow-2xl backdrop-blur"
         :class="bubbleFrameClass"
       >
         <div class="flex items-start gap-2">
@@ -69,7 +69,9 @@
 
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                  <h2 class="truncate text-base font-black text-base-content">
+                  <h2
+                    class="truncate text-base lg:text-md xl:text-lg font-black text-base-content"
+                  >
                     {{ narratorName }}
                   </h2>
 
@@ -187,7 +189,9 @@
                     {{ narratorName }}
                   </p>
 
-                  <p class="mt-1 text-sm leading-relaxed text-base-content/75">
+                  <p
+                    class="mt-1 text-sm md:text-md lg:text-lg xl:text-xl leading-relaxed text-base-content/75"
+                  >
                     {{ narratorIntro }}
                   </p>
                 </div>
@@ -208,12 +212,14 @@
                   </span>
 
                   <span class="min-w-0 flex-1">
-                    <span class="block text-sm font-black text-base-content">
+                    <span
+                      class="block text-sm md:text-md lg:text-lg xl:text-xl font-black text-base-content"
+                    >
                       {{ starter.title }}
                     </span>
 
                     <span
-                      class="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-base-content/60"
+                      class="mt-0.5 line-clamp-2 block text-xs md:text-sm lg:text-md xl:text-lg leading-relaxed text-base-content/60"
                     >
                       {{ starter.description }}
                     </span>

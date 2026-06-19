@@ -223,6 +223,7 @@ model Character {
   @@index([isActive])
   @@index([name])
   @@index([artImageId], map: "Character_artImageId_fkey")
+  
 }
 
 /// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
@@ -273,6 +274,8 @@ model Chat {
   @@index([userId], map: "Chat_userId_fkey")
   @@index([dreamId], map: "Chat_dreamId_fkey")
   @@index([artImageId], map: "Chat_artImageId_fkey")
+  @@index([originId, createdAt])
+  @@index([recipientId])
 }
 
 /// programmatic blueprints to call one or more art or text servers
@@ -420,32 +423,31 @@ model Dream {
   @@index([artCollectionId])
 }
 
-/// One row per (owner, expression). Holds both emotions (face-only edits) and
-/// actions (pose/state edits), discriminated by `kind`. Shares one table so the
-/// frontend can pull a full set for a bot/character in a single query.
+/// One row per (owner, expression). Holds both emotions (face-only edits)
+/// and actions (pose/state edits), discriminated by `kind`.
+/// `NEUTRAL` is the canonical generated narrator avatar.
+/// The owner's `artImageId` remains the original portrait / identity anchor.
 model EmotionImage {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime? @default(now()) @updatedAt
 
-  expression Expression     @default(NEUTRAL) // the specific face/pose
-  kind       ExpressionKind @default(EMOTION) // EMOTION (face) vs ACTION (pose/state)
-  label      String?        @db.VarChar(256)  // flavorful display name, e.g. "Sparrow's Sly Grin"
-  emoticon   String?        @db.VarChar(32)   // e.g. ":D" or an emoji
+  expression Expression     @default(NEUTRAL)
+  kind       ExpressionKind @default(EMOTION)
+  label      String?        @db.VarChar(256)
+  emoticon   String?        @db.VarChar(32)
 
-  // dual image source — mirrors your ArtImage pattern
-  imagePath  String?   @db.VarChar(764)
-  artImageId Int?      @unique
+  imagePath  String? @db.VarChar(764)
+  artImageId Int?    @unique
+
   botId       Int?
   characterId Int?
-  Bot         Bot?       @relation(fields: [botId], references: [id])
-  Character   Character? @relation(fields: [characterId], references: [id])
-  ArtImage   ArtImage? @relation(fields: [artImageId], references: [id])
 
-  // primary line ("___ feels happy"), optional, templated with personality
-  message String? @db.Text
-  // extra flavor lines; combine with message and pick one at random at runtime
-  // shape: string[]  e.g. ["___ grins wide.", "___ can't stop smiling."]
+  Bot       Bot?       @relation(fields: [botId], references: [id])
+  Character Character? @relation(fields: [characterId], references: [id])
+  ArtImage  ArtImage?  @relation(fields: [artImageId], references: [id])
+
+  message           String? @db.Text
   additionalPhrases Json?
 
   isActive  Boolean @default(true)
@@ -454,10 +456,15 @@ model EmotionImage {
 
   @@unique([botId, expression])
   @@unique([characterId, expression])
+
   @@index([artImageId])
   @@index([botId])
   @@index([characterId])
   @@index([kind])
+  @@index([botId, kind])
+  @@index([characterId, kind])
+  @@index([botId, isActive])
+  @@index([characterId, isActive])
 }
 
 enum ExpressionKind {

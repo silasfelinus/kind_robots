@@ -1,4 +1,3 @@
-<!-- /components/navigation/workspace-narrator.vue -->
 <template>
   <div
     v-if="shouldRender"
@@ -102,7 +101,7 @@
                 type="button"
                 class="btn btn-ghost btn-xs btn-circle"
                 aria-label="Close narrator"
-                @click="closePanel"
+                @click="closePanel()"
               >
                 <Icon name="kind-icon:close" class="h-3.5 w-3.5" />
               </button>
@@ -170,8 +169,67 @@
 
           <section v-if="activeScreen === 'narrator'" class="mt-3">
             <section
+              v-if="!narratorSession.length"
+              class="rounded-3xl border border-primary/20 bg-primary/5 p-3"
+            >
+              <div class="flex items-start gap-3">
+                <img
+                  :src="narratorImage"
+                  :alt="narratorName"
+                  class="h-10 w-10 shrink-0 rounded-2xl border border-primary/30 bg-base-300 object-cover shadow"
+                  loading="lazy"
+                />
+
+                <div class="min-w-0 flex-1">
+                  <p
+                    class="text-xs font-black uppercase tracking-wide text-primary"
+                  >
+                    {{ narratorName }}
+                  </p>
+
+                  <p class="mt-1 text-sm leading-relaxed text-base-content/75">
+                    {{ narratorIntro }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-3 grid gap-2">
+                <button
+                  v-for="starter in narratorStarterPrompts"
+                  :key="starter.key"
+                  type="button"
+                  class="group flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-2 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                  @click="applyStarterPrompt(starter)"
+                >
+                  <span
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary"
+                  >
+                    <Icon :name="starter.icon" class="h-5 w-5" />
+                  </span>
+
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-sm font-black text-base-content">
+                      {{ starter.title }}
+                    </span>
+
+                    <span
+                      class="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-base-content/60"
+                    >
+                      {{ starter.description }}
+                    </span>
+                  </span>
+
+                  <Icon
+                    name="kind-icon:chevron-right"
+                    class="h-4 w-4 shrink-0 text-base-content/35 transition group-hover:text-primary"
+                  />
+                </button>
+              </div>
+            </section>
+
+            <section
               v-if="showMoodRing && emotionOptions.length"
-              class="rounded-3xl border border-base-300 bg-base-200/80 p-3"
+              class="mt-3 rounded-3xl border border-base-300 bg-base-200/80 p-3"
             >
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <p
@@ -510,32 +568,32 @@
               </p>
 
               <button
-                v-for="entry in fallbackNavigationEntries"
-                :key="entry.key"
+                v-for="starter in narratorStarterPrompts"
+                :key="starter.key"
                 type="button"
                 class="group flex items-center gap-3 rounded-[1.35rem] border border-base-300 bg-base-100 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
-                @click="openFallbackEntry(entry)"
+                @click="applyStarterPrompt(starter)"
               >
                 <span
                   class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary"
                 >
-                  <Icon :name="entry.icon" class="h-5 w-5" />
+                  <Icon :name="starter.icon" class="h-5 w-5" />
                 </span>
 
                 <span class="min-w-0 flex-1">
                   <span class="block font-black text-base-content">
-                    {{ entry.title }}
+                    {{ starter.title }}
                   </span>
 
                   <span
                     class="mt-0.5 line-clamp-2 block text-sm leading-relaxed text-base-content/65"
                   >
-                    {{ entry.description }}
+                    {{ starter.description }}
                   </span>
                 </span>
 
                 <span class="badge badge-outline rounded-xl">
-                  {{ entry.badge }}
+                  {{ starter.path || 'Guide' }}
                 </span>
               </button>
             </section>
@@ -543,67 +601,50 @@
         </div>
       </section>
     </Transition>
+
     <section
       class="pointer-events-auto relative z-100 h-full w-full overflow-visible"
     >
-      <div
-        v-if="!props.mobileToggle"
-        class="grid h-full w-full grid-cols-[minmax(0,1fr)_auto] items-end gap-2 rounded-4xl border border-primary/25 bg-base-100/90 p-2 shadow-2xl backdrop-blur transition-transform duration-300 md:rounded-[2.5rem] md:p-3 md:hover:scale-[1.04]"
+      <button
+        v-if="!mobileToggle"
+        type="button"
+        class="group relative h-full w-full overflow-hidden rounded-4xl border border-primary/30 bg-base-300 shadow-2xl transition-transform duration-300 hover:scale-105 md:rounded-[2.5rem]"
+        :aria-expanded="isOpen"
+        :title="narratorHoverTitle"
+        @click="togglePanel"
       >
-        <div class="flex min-w-0 flex-col justify-end gap-1 pb-1">
-          <button
-            type="button"
-            class="max-w-full self-start rounded-full border border-base-300/80 bg-base-100/95 px-3 py-1.5 text-left shadow-lg backdrop-blur transition hover:border-primary/40 hover:bg-primary/10"
-            title="Mood easter egg"
-            aria-label="Change narrator mood"
-            @click.stop="cycleEmotion"
-          >
-            <span
-              class="block max-w-32 truncate text-sm font-black leading-tight text-primary md:max-w-44 md:text-base"
-            >
-              {{ narratorName }}
-            </span>
+        <div
+          class="absolute -inset-1 rounded-[2.75rem] bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
+        />
 
-            <span
-              class="block max-w-32 truncate text-[0.7rem] font-bold leading-tight text-base-content/70 md:max-w-44 md:text-xs"
-            >
-              {{ currentEmotionLabel }}
-            </span>
-          </button>
+        <img
+          :src="narratorImage"
+          :alt="narratorName"
+          class="relative h-full w-full object-cover"
+          loading="lazy"
+        />
 
-          <p
-            class="hidden max-w-44 rounded-2xl bg-base-100/85 px-3 py-2 text-xs leading-relaxed text-base-content/70 shadow backdrop-blur sm:line-clamp-3 md:block"
-          >
-            {{ narratorSummary }}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          class="group relative h-full min-h-24 w-20 overflow-hidden rounded-[1.75rem] border border-primary/30 bg-base-300 shadow-xl transition hover:scale-105 md:w-[calc(var(--hand-h,9rem)*0.78)] md:rounded-[2.25rem]"
-          :aria-expanded="isOpen"
-          :title="isOpen ? 'Close narrator' : 'Open narrator'"
-          @click="togglePanel"
+        <div
+          class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-100 via-base-100/75 to-transparent px-2 pb-2 pt-8 text-center"
         >
           <div
-            class="absolute -inset-1 rounded-[2.5rem] bg-primary/20 opacity-0 blur-lg transition group-hover:opacity-100"
-          />
-
-          <img
-            :src="narratorImage"
-            :alt="narratorName"
-            class="relative h-full w-full object-cover"
-            loading="lazy"
-          />
-
-          <span
-            v-if="currentEmotionRow?.emoticon"
-            class="absolute right-1 top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-base shadow md:text-lg"
+            class="mx-auto max-w-[92%] rounded-full border border-base-300/80 bg-base-100/90 px-3 py-1.5 shadow-xl backdrop-blur"
           >
-            {{ currentEmotionRow.emoticon }}
-          </span>
-        </button>
-      </div>
+            <p
+              class="truncate text-sm font-black leading-tight text-primary md:text-base"
+            >
+              {{ narratorName }}
+            </p>
+          </div>
+        </div>
+
+        <span
+          v-if="currentEmotionRow?.emoticon"
+          class="absolute right-2 top-2 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-base shadow md:text-lg"
+        >
+          {{ currentEmotionRow.emoticon }}
+        </span>
+      </button>
 
       <button
         v-else
@@ -626,87 +667,17 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import type {
-  ArtImage,
-  Bot,
-  Chat,
-  EmotionImage,
-  Server,
-} from '~/prisma/generated/prisma/client'
-import { useChatStore } from '@/stores/chatStore'
-import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
-import { useNavStore } from '@/stores/navStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useServerStore } from '@/stores/serverStore'
-import { useUserStore } from '@/stores/userStore'
-
-type NarratorEmotion =
-  | 'NEUTRAL'
-  | 'HAPPY'
-  | 'SAD'
-  | 'EXCITED'
-  | 'NERVOUS'
-  | 'ANGRY'
-  | 'CONFUSED'
-  | 'PROUD'
-
-type NarratorScreen = 'narrator' | 'scenarios'
-
-type BotCafeMessage = {
-  role: 'system' | 'user' | 'assistant'
-  content: string
-}
-
-type NarratorEmotionImage = EmotionImage & {
-  ArtImage?: Partial<ArtImage> | null
-}
-
-type DreamNarratorBot = Partial<Bot> & {
-  id: number
-  name: string
-  EmotionImages?: NarratorEmotionImage[]
-}
-
-type DreamScenario = {
-  id?: number | null
-  slug?: string | null
-  title?: string | null
-  name?: string | null
-  description?: string | null
-  summary?: string | null
-  pitch?: string | null
-  flavorText?: string | null
-  artPrompt?: string | null
-  imagePath?: string | null
-  highlightImage?: string | null
-  icon?: string | null
-  ArtImage?: Partial<ArtImage> | null
-  ArtCollection?: {
-    ArtImages?: Partial<ArtImage>[]
-  } | null
-}
-
-type DreamWithNarrator = DreamWithRelations & {
-  Bots?: DreamNarratorBot[]
-  Scenarios?: DreamScenario[]
-}
-
-type NarratorChat = Chat & {
-  botResponse?: string | null
-}
-
-type ChatRuntimeInput = Parameters<
-  ReturnType<typeof useChatStore>['addChat']
->[0]
-
-type FallbackNavigationEntry = {
-  key: string
-  title: string
-  description: string
-  badge: string
-  icon: string
-  tab: string
-}
+import { storeToRefs } from 'pinia'
+import {
+  emotionLabel,
+  scenarioImage,
+  scenarioKey,
+  scenarioSummary,
+  scenarioTitle,
+  type NarratorEmotion,
+  type NarratorScreen,
+} from '@/stores/helpers/narratorHelper'
+import { useNarratorStore } from '@/stores/narratorStore'
 
 const props = withDefaults(
   defineProps<{
@@ -723,95 +694,80 @@ const props = withDefaults(
   },
 )
 
-watch(
-  () => props.closeSignal,
-  () => {
-    isOpen.value = false
-  },
-)
-
 const emit = defineEmits<{
   'panel-open-change': [value: boolean]
 }>()
 
-const dreamStore = useDreamStore()
-const navStore = useNavStore()
-const chatStore = useChatStore()
-const serverStore = useServerStore()
-const userStore = useUserStore()
-const promptStore = usePromptStore()
+const narratorStore = useNarratorStore()
 
-const narratorStorageKey = 'kindrobots:workspace-narrator'
+const {
+  isOpen,
+  pinOpen,
+  bubblesEnabled,
+  activeScreen,
+  selectedScenarioKey,
+  showMoodRing,
+  activeBubble,
+  narratorMessage,
+  statusMessage,
+  statusTone,
+  shouldRender,
+  activeDream,
+  dreamScenarios,
+  selectedScenario,
+  emotionOptions,
+  currentEmotionRow,
+  narratorName,
+  narratorMenuSummary,
+  narratorHoverTitle,
+  narratorImage,
+  currentEmotionLabel,
+  fallbackEmotionIcon,
+  activeDreamSummary,
+  narratorIntro,
+  narratorStarterPrompts,
+  narratorSession,
+  isNarratorResponding,
+  canUseNarrator,
+  canSendNarrator,
+  narratorPlaceholder,
+} = storeToRefs(narratorStore)
 
-const fallbackEmotions: NarratorEmotion[] = [
-  'NEUTRAL',
-  'HAPPY',
-  'EXCITED',
-  'CONFUSED',
-  'PROUD',
-]
-
-const isOpen = ref(false)
-const pinOpen = ref(false)
-const bubblesEnabled = ref(true)
-const activeScreen = ref<NarratorScreen>('narrator')
-const selectedScenarioKey = ref('')
-const currentEmotion = ref<NarratorEmotion>('NEUTRAL')
-const showMoodRing = ref(false)
-const activeBubble = ref('')
-const narratorMessage = ref('')
-const statusMessage = ref('')
-const statusTone = ref<'success' | 'error'>('success')
-const narratorSessionIds = ref<number[]>([])
 const chatLogRef = ref<HTMLElement | null>(null)
 
-let bubbleTimer: ReturnType<typeof setTimeout> | null = null
-
-const isDreamWorkspace = computed(() => {
-  return navStore.dashboardShell.dashboardKey === 'dream'
-})
-
-const shouldRender = computed(() => {
-  return Boolean(isDreamWorkspace.value || dreamStore.selectedDream)
-})
+const mobileToggle = computed(() => props.mobileToggle)
 
 const narratorFrameClass = computed(() => {
   if (props.mobileToggle) {
-    return [
-      'relative h-12 w-12',
-      'transition-transform duration-300 ease-out',
-      isOpen.value ? 'scale-100' : '',
-    ]
-      .filter(Boolean)
-      .join(' ')
+    return 'relative h-12 w-12 transition-transform duration-300 ease-out'
   }
 
   if (props.railMode && !props.chromeMinimized) {
     return [
-      'fixed bottom-3 right-3 h-28 w-56 max-w-[calc(100vw-1.5rem)]',
+      'fixed bottom-3 right-3 h-36 w-24 max-w-[calc(100vw-1.5rem)]',
       'transition-[height,width,transform] duration-300 ease-out',
-      isOpen.value ? 'h-32 w-[min(24rem,calc(100vw-1.5rem))]' : '',
+      isOpen.value ? 'h-40 w-28' : '',
       'md:relative md:bottom-auto md:right-auto',
-      'md:h-[calc(var(--hand-h,9rem)*1.95)] md:w-[calc(var(--hand-h,9rem)*1.38)]',
-      'md:max-h-[76dvh] md:min-h-52 md:min-w-44 md:max-w-none',
+      'md:h-[calc(var(--hand-h,9rem)*2.05)] md:w-[calc(var(--hand-h,9rem)*0.86)]',
+      'md:max-h-[76dvh] md:min-h-52 md:min-w-28 md:max-w-none',
       isOpen.value
-        ? 'md:h-[calc(var(--hand-h,9rem)*2.45)] md:w-[calc(var(--hand-h,9rem)*1.72)]'
-        : 'md:hover:h-[calc(var(--hand-h,9rem)*2.55)] md:hover:w-[calc(var(--hand-h,9rem)*1.78)]',
+        ? 'md:h-[calc(var(--hand-h,9rem)*2.55)] md:w-[calc(var(--hand-h,9rem)*1.08)]'
+        : 'md:hover:h-[calc(var(--hand-h,9rem)*2.65)] md:hover:w-[calc(var(--hand-h,9rem)*1.12)]',
     ]
       .filter(Boolean)
       .join(' ')
   }
 
   return [
-    'fixed bottom-3 right-3 h-28 w-56 max-w-[calc(100vw-1.5rem)]',
+    'fixed bottom-3 right-3 h-36 w-24 max-w-[calc(100vw-1.5rem)]',
     'transition-[height,width,transform] duration-300 ease-out',
-    isOpen.value ? 'h-32 w-[min(24rem,calc(100vw-1.5rem))]' : '',
+    isOpen.value ? 'h-40 w-28' : '',
     'sm:bottom-4 sm:right-4',
-    'md:h-[calc(var(--hand-h,9rem)*1.7)] md:w-[calc(var(--hand-h,9rem)*1.18)]',
-    'md:max-h-[72dvh] md:min-h-48 md:min-w-40 md:max-w-none',
+    'md:h-[calc(var(--hand-h,9rem)*1.85)] md:w-[calc(var(--hand-h,9rem)*0.78)]',
+    'md:max-h-[72dvh] md:min-h-48 md:min-w-28 md:max-w-none',
     isOpen.value
-      ? 'md:h-[calc(var(--hand-h,9rem)*2.25)] md:w-[calc(var(--hand-h,9rem)*1.52)]'
-      : 'md:hover:h-[calc(var(--hand-h,9rem)*2.35)] md:hover:w-[calc(var(--hand-h,9rem)*1.6)]',
+      ? 'md:h-[calc(var(--hand-h,9rem)*2.35)] md:w-[calc(var(--hand-h,9rem)*1)]'
+      : 'md:hover:h-[calc(var(--hand-h,9rem)*2.45)] md:hover:w-[calc(var(--hand-h,9rem)*1.04)]',
   ]
     .filter(Boolean)
     .join(' ')
@@ -857,243 +813,41 @@ const bubbleFrameClass = computed(() => {
   return 'bottom-[calc(100%+0.75rem)] right-0'
 })
 
-const activeDream = computed(() => {
-  return (dreamStore.selectedDream as DreamWithNarrator | null) ?? null
-})
-
-const dreamNarrators = computed(() => {
-  return activeDream.value?.Bots ?? []
-})
-
-const dreamScenarios = computed<DreamScenario[]>(() => {
-  return activeDream.value?.Scenarios ?? []
-})
-
-const selectedScenario = computed<DreamScenario | null>(() => {
-  const scenarios = dreamScenarios.value
-
-  if (!scenarios.length) return null
-
-  const match = scenarios.find(
-    (scenario, index) =>
-      scenarioKey(scenario, index) === selectedScenarioKey.value,
-  )
-  const firstScenario = scenarios[0]
-
-  return match ?? firstScenario ?? null
-})
-
-const narratorBot = computed<DreamNarratorBot | null>(() => {
-  return (
-    dreamNarrators.value.find(
-      (bot) => String(bot.BotType || '').toUpperCase() === 'NARRATOR',
-    ) ??
-    dreamNarrators.value[0] ??
-    null
-  )
-})
-
-const emotionRows = computed(() => {
-  return (narratorBot.value?.EmotionImages ?? []).filter(
-    (emotion) => emotion.isActive !== false,
-  )
-})
-
-const emotionOptions = computed<NarratorEmotion[]>(() => {
-  const fromRows = emotionRows.value.map((row) => normalizeEmotion(row.emotion))
-
-  return Array.from(
-    new Set<NarratorEmotion>(['NEUTRAL', ...fromRows, ...fallbackEmotions]),
-  )
-})
-
-const currentEmotionRow = computed(() => {
-  const exact = emotionRows.value.find(
-    (row) => normalizeEmotion(row.emotion) === currentEmotion.value,
-  )
-
-  if (exact) return exact
-
-  return (
-    emotionRows.value.find(
-      (row) => normalizeEmotion(row.emotion) === 'NEUTRAL',
-    ) ??
-    emotionRows.value[0] ??
-    null
-  )
-})
-
-const narratorName = computed(() => narratorBot.value?.name || 'Narrator')
-
-const narratorSummary = computed(() => {
-  return cleanPublicNarratorText(
-    narratorBot.value?.subtitle ||
-      narratorBot.value?.tagline ||
-      narratorBot.value?.description ||
-      narratorBot.value?.personality ||
-      'Dream guide, scene starter, and chaos translator.',
-  )
-})
-
-const narratorMenuSummary = computed(() => {
-  return cleanPublicNarratorText(
-    narratorBot.value?.subtitle ||
-      narratorBot.value?.tagline ||
-      narratorBot.value?.description ||
-      'A Dream-facing guide for building elements, starting scenes, and adding flavor.',
-  )
-})
-
-const narratorImage = computed(() => {
-  const emotionImage = readEmotionImage(currentEmotionRow.value)
-
-  return (
-    emotionImage ||
-    narratorBot.value?.avatarImage ||
-    narratorBot.value?.imagePath ||
-    dreamImage(activeDream.value) ||
-    '/images/bot.webp'
-  )
-})
-
-const currentEmotionLabel = computed(() => {
-  return currentEmotionRow.value?.label || emotionLabel(currentEmotion.value)
-})
-
-const fallbackEmotionIcon = computed(() => {
-  const lookup: Record<NarratorEmotion, string> = {
-    NEUTRAL: '✨',
-    HAPPY: '😊',
-    SAD: '🌧️',
-    EXCITED: '⚡',
-    NERVOUS: '🌀',
-    ANGRY: '🔥',
-    CONFUSED: '❔',
-    PROUD: '🌟',
-  }
-
-  return lookup[currentEmotion.value] ?? '✨'
-})
-
-const activeDreamSummary = computed(() => {
-  const dream = activeDream.value
-
-  if (!dream) {
-    return 'Choose a Dream from the gallery and I can help turn that vibe into playable pieces.'
-  }
-
-  return (
-    dream.pitch ||
-    dream.description ||
-    dream.flavorText ||
-    dream.artPrompt ||
-    'No Dream summary yet. Deliciously mysterious, mildly inconvenient.'
-  )
-})
-
-const runtimeTextServer = computed<Server | null>(() => {
-  const botServerId = narratorBot.value?.serverId
-
-  if (typeof botServerId === 'number') {
-    return (
-      serverStore.getServerById(botServerId) ??
-      serverStore.activeTextServer ??
-      null
-    )
-  }
-
-  return serverStore.activeTextServer ?? null
-})
-
-const narratorSession = computed<NarratorChat[]>(() => {
-  return chatStore.chats.filter((chat) =>
-    narratorSessionIds.value.includes(chat.id),
-  ) as NarratorChat[]
-})
-
-const isNarratorResponding = computed(() => {
-  return narratorSession.value.some((chat) => !chat.botResponse)
-})
-
-const canUseNarrator = computed(() => {
-  return Boolean(activeDream.value && narratorBot.value)
-})
-
-const canSendNarrator = computed(() => {
-  return Boolean(
-    canUseNarrator.value &&
-    narratorMessage.value.trim() &&
-    !isNarratorResponding.value,
-  )
-})
-
-const narratorPlaceholder = computed(() => {
-  if (!activeDream.value) return 'Choose a Dream first.'
-  if (!narratorBot.value) return 'Attach a NARRATOR bot to this Dream first.'
-
-  return `Ask ${narratorName.value} about ${
-    activeDream.value.title || 'this Dream'
-  }...`
-})
-
-const fallbackNavigationEntries = computed<FallbackNavigationEntry[]>(() => [
-  {
-    key: 'dreams',
-    title: 'Pick a Dream',
-    description:
-      'Start with a vibe, then the narrator can help turn it into scenes and choices.',
-    badge: 'Dreams',
-    icon: 'kind-icon:dream',
-    tab: 'gallery',
-  },
-  {
-    key: 'builder',
-    title: 'Build Something',
-    description:
-      'Open the maker space when you want new pieces, expansions, and weird little sparks.',
-    badge: 'Maker',
-    icon: 'kind-icon:wand',
-    tab: 'dreammaker',
-  },
-  {
-    key: 'interact',
-    title: 'Play a Scene',
-    description:
-      'Jump into interact mode when a Dream is ready to become a tiny living story.',
-    badge: 'Play',
-    icon: 'kind-icon:book',
-    tab: 'interact',
-  },
-])
+const {
+  initialize,
+  disposeTimers,
+  clearBubble,
+  togglePanel,
+  closePanel,
+  togglePin,
+  toggleBubbles,
+  setScreen,
+  setEmotion,
+  selectScenario,
+  scenarioButtonClass,
+  applyStarterPrompt,
+  prepareBuildPrompt,
+  prepareStoryPrompt,
+  prepareScenarioSeedPrompt,
+  prepareScenarioStoryPrompt,
+  prepareScenarioBuildPrompt,
+  clearSession,
+  sendNarratorMessage,
+} = narratorStore
 
 watch(
-  () => activeDream.value?.id,
-  async () => {
-    narratorSessionIds.value = []
-    narratorMessage.value = ''
-    statusMessage.value = ''
-    selectedScenarioKey.value = ''
-    showMoodRing.value = false
-    setEmotion('NEUTRAL', false)
-
-    await nextTick()
-
-    selectFirstScenario()
-
-    if (bubblesEnabled.value) {
-      showBubbleForEmotion('NEUTRAL')
-    }
+  () => props.closeSignal,
+  () => {
+    closePanel(false)
   },
 )
 
 watch(
-  () =>
-    dreamScenarios.value
-      .map((scenario, index) => scenarioKey(scenario, index))
-      .join('|'),
-  () => {
-    selectFirstScenario()
+  isOpen,
+  (value) => {
+    emit('panel-open-change', value)
   },
+  { immediate: true },
 )
 
 watch(
@@ -1104,68 +858,13 @@ watch(
   },
 )
 
-watch([isOpen, pinOpen, bubblesEnabled, activeScreen], saveSettings)
-
-watch(
-  isOpen,
-  (value) => {
-    emit('panel-open-change', value)
-  },
-  { immediate: true },
-)
-
 onMounted(async () => {
-  loadSettings()
-
-  await Promise.all([
-    dreamStore.initialize({ fetchRemote: true }),
-    chatStore.initialize(),
-    ...(serverStore.hasLoaded
-      ? []
-      : [serverStore.initialize({ fetchRemote: true })]),
-  ])
-
-  selectFirstScenario()
-
-  if (bubblesEnabled.value) {
-    showBubbleForEmotion(currentEmotion.value)
-  }
+  await initialize()
 })
 
 onBeforeUnmount(() => {
-  if (bubbleTimer) clearTimeout(bubbleTimer)
+  disposeTimers()
 })
-
-function normalizeEmotion(value: unknown): NarratorEmotion {
-  const normalized = String(value || 'NEUTRAL').toUpperCase()
-
-  if (
-    normalized === 'HAPPY' ||
-    normalized === 'SAD' ||
-    normalized === 'EXCITED' ||
-    normalized === 'NERVOUS' ||
-    normalized === 'ANGRY' ||
-    normalized === 'CONFUSED' ||
-    normalized === 'PROUD'
-  ) {
-    return normalized
-  }
-
-  return 'NEUTRAL'
-}
-
-function emotionLabel(emotion: NarratorEmotion) {
-  return emotion
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
-
-function emotionButtonClass(emotion: NarratorEmotion) {
-  return currentEmotion.value === emotion
-    ? 'btn-primary text-white'
-    : 'btn-outline'
-}
 
 function screenButtonClass(screen: NarratorScreen) {
   return activeScreen.value === screen
@@ -1173,549 +872,10 @@ function screenButtonClass(screen: NarratorScreen) {
     : 'btn-ghost bg-base-100/70'
 }
 
-function setScreen(screen: NarratorScreen) {
-  activeScreen.value = screen
-}
-
-function setEmotion(emotion: NarratorEmotion, showBubble = true) {
-  currentEmotion.value = emotion
-
-  if (showBubble) {
-    showBubbleForEmotion(emotion)
-  }
-}
-
-function cycleEmotion() {
-  showMoodRing.value = true
-
-  const options = emotionOptions.value.length
-    ? emotionOptions.value
-    : fallbackEmotions
-
-  const currentIndex = options.indexOf(currentEmotion.value)
-  const nextEmotion = options[(currentIndex + 1) % options.length] ?? 'NEUTRAL'
-
-  setEmotion(nextEmotion)
-}
-
-function togglePanel() {
-  isOpen.value = !isOpen.value
-
-  if (isOpen.value) {
-    clearBubble()
-  } else {
-    showBubbleForEmotion(currentEmotion.value)
-  }
-}
-
-function closePanel() {
-  isOpen.value = false
-
-  if (bubblesEnabled.value) {
-    showBubbleForEmotion(currentEmotion.value)
-  }
-}
-
-function togglePin() {
-  pinOpen.value = !pinOpen.value
-
-  if (pinOpen.value) {
-    isOpen.value = true
-    clearBubble()
-  }
-}
-
-function toggleBubbles() {
-  bubblesEnabled.value = !bubblesEnabled.value
-
-  if (!bubblesEnabled.value) {
-    clearBubble()
-    return
-  }
-
-  showBubbleForEmotion(currentEmotion.value)
-}
-
-function loadSettings() {
-  if (!import.meta.client) return
-
-  try {
-    const raw = window.localStorage.getItem(narratorStorageKey)
-    if (!raw) return
-
-    const parsed = JSON.parse(raw) as {
-      isOpen?: boolean
-      pinOpen?: boolean
-      bubblesEnabled?: boolean
-      currentEmotion?: NarratorEmotion
-      activeScreen?: NarratorScreen
-    }
-
-    pinOpen.value = Boolean(parsed.pinOpen)
-    isOpen.value = Boolean(parsed.isOpen || parsed.pinOpen)
-    bubblesEnabled.value = parsed.bubblesEnabled !== false
-    currentEmotion.value = normalizeEmotion(parsed.currentEmotion)
-
-    if (
-      parsed.activeScreen === 'narrator' ||
-      parsed.activeScreen === 'scenarios'
-    ) {
-      activeScreen.value = parsed.activeScreen
-    }
-  } catch {}
-}
-
-function saveSettings() {
-  if (!import.meta.client) return
-
-  try {
-    window.localStorage.setItem(
-      narratorStorageKey,
-      JSON.stringify({
-        isOpen: isOpen.value,
-        pinOpen: pinOpen.value,
-        bubblesEnabled: bubblesEnabled.value,
-        currentEmotion: currentEmotion.value,
-        activeScreen: activeScreen.value,
-      }),
-    )
-  } catch {}
-}
-
-function clearBubble() {
-  activeBubble.value = ''
-
-  if (bubbleTimer) {
-    clearTimeout(bubbleTimer)
-    bubbleTimer = null
-  }
-}
-
-function showBubbleForEmotion(emotion: NarratorEmotion) {
-  if (!bubblesEnabled.value || isOpen.value) return
-
-  const row = emotionRows.value.find(
-    (entry) => normalizeEmotion(entry.emotion) === emotion,
-  )
-  const message = pickEmotionPhrase(row)
-
-  if (!message) return
-
-  activeBubble.value = message
-
-  if (bubbleTimer) clearTimeout(bubbleTimer)
-
-  bubbleTimer = setTimeout(() => {
-    activeBubble.value = ''
-    bubbleTimer = null
-  }, 7000)
-}
-
-function pickEmotionPhrase(row?: NarratorEmotionImage | null) {
-  const phrases = [
-    row?.message,
-    ...readAdditionalPhrases(row?.additionalPhrases),
-  ]
-    .filter((phrase): phrase is string => typeof phrase === 'string')
-    .map((phrase) => phrase.trim())
-    .filter(Boolean)
-
-  const fallback = fallbackPhraseForEmotion(currentEmotion.value)
-  const selected = phrases.length
-    ? phrases[Math.floor(Math.random() * phrases.length)]
-    : fallback
-
-  return applyNarratorTemplate(selected || '')
-}
-
-function fallbackPhraseForEmotion(emotion: NarratorEmotion) {
-  const dreamTitle = activeDream.value?.title || 'this Dream'
-
-  const phrases: Record<NarratorEmotion, string> = {
-    NEUTRAL: `___ is watching ${dreamTitle} take shape.`,
-    HAPPY: `___ likes where ${dreamTitle} is going.`,
-    SAD: `___ sees a tender shadow inside ${dreamTitle}.`,
-    EXCITED: `___ has three extremely suspicious ideas for ${dreamTitle}.`,
-    NERVOUS: `___ thinks ${dreamTitle} is powerful, but needs rails.`,
-    ANGRY: `___ wants sharper stakes for ${dreamTitle}.`,
-    CONFUSED: `___ is untangling the weird little knot inside ${dreamTitle}.`,
-    PROUD: `___ thinks ${dreamTitle} has main-character energy.`,
-  }
-
-  return phrases[emotion]
-}
-
-function applyNarratorTemplate(text: string) {
-  const dreamTitle = activeDream.value?.title || 'this Dream'
-
-  return text
-    .replace(/___/g, narratorName.value)
-    .replace(/\{name\}/g, narratorName.value)
-    .replace(/\{bot\}/g, narratorName.value)
-    .replace(/\{dream\}/g, dreamTitle)
-}
-
-function readAdditionalPhrases(value: unknown) {
-  if (Array.isArray(value)) {
-    return value
-      .filter((entry): entry is string => typeof entry === 'string')
-      .map((entry) => entry.trim())
-      .filter(Boolean)
-  }
-
-  if (value && typeof value === 'object') {
-    return Object.values(value)
-      .filter((entry): entry is string => typeof entry === 'string')
-      .map((entry) => entry.trim())
-      .filter(Boolean)
-  }
-
-  return []
-}
-
-function readEmotionImage(row?: NarratorEmotionImage | null) {
-  if (!row) return ''
-
-  return (
-    row.imagePath ||
-    row.ArtImage?.imagePath ||
-    row.ArtImage?.path ||
-    row.ArtImage?.fileName ||
-    ''
-  )
-}
-
-function dreamImage(dream?: DreamWithNarrator | null) {
-  if (!dream) return ''
-
-  const artImage = dream.ArtImage
-  const collectionImage = dream.ArtCollection?.ArtImages?.[0]
-
-  return (
-    dream.imagePath ||
-    dream.highlightImage ||
-    artImage?.imagePath ||
-    artImage?.path ||
-    artImage?.fileName ||
-    collectionImage?.imagePath ||
-    collectionImage?.path ||
-    collectionImage?.fileName ||
-    ''
-  )
-}
-
-function scenarioKey(scenario: DreamScenario, index = 0) {
-  return String(
-    scenario.id ??
-      scenario.slug ??
-      scenario.title ??
-      scenario.name ??
-      `scenario-${index}`,
-  )
-}
-
-function selectFirstScenario() {
-  const scenarios = dreamScenarios.value
-  const firstScenario = scenarios[0]
-
-  if (!firstScenario) {
-    selectedScenarioKey.value = ''
-    return
-  }
-
-  const currentExists = scenarios.some(
-    (scenario, index) =>
-      scenarioKey(scenario, index) === selectedScenarioKey.value,
-  )
-
-  if (!currentExists) {
-    selectedScenarioKey.value = scenarioKey(firstScenario, 0)
-  }
-}
-
-function selectScenario(scenario: DreamScenario, index = 0) {
-  selectedScenarioKey.value = scenarioKey(scenario, index)
-}
-
-function scenarioButtonClass(scenario: DreamScenario, index = 0) {
-  return scenarioKey(scenario, index) === selectedScenarioKey.value
-    ? 'border-primary/50 bg-primary/10'
-    : 'border-base-300 hover:bg-base-200'
-}
-
-function scenarioTitle(scenario?: DreamScenario | null) {
-  return scenario?.title || scenario?.name || 'Untitled Scenario'
-}
-
-function scenarioSummary(scenario?: DreamScenario | null) {
-  if (!scenario) return 'No scenario selected.'
-
-  return (
-    scenario.summary ||
-    scenario.pitch ||
-    scenario.description ||
-    scenario.flavorText ||
-    scenario.artPrompt ||
-    'No summary yet. Mysterious, but legally still a scenario.'
-  )
-}
-
-function scenarioImage(scenario?: DreamScenario | null) {
-  if (!scenario) return ''
-
-  const collectionImage = scenario.ArtCollection?.ArtImages?.[0]
-
-  return (
-    scenario.imagePath ||
-    scenario.highlightImage ||
-    scenario.ArtImage?.imagePath ||
-    scenario.ArtImage?.path ||
-    scenario.ArtImage?.fileName ||
-    collectionImage?.imagePath ||
-    collectionImage?.path ||
-    collectionImage?.fileName ||
-    ''
-  )
-}
-
-function cleanPublicNarratorText(value: unknown) {
-  const text = String(value || '').trim()
-
-  if (!text) return ''
-
-  const instructionPatterns = [
-    /^you are\b/i,
-    /^act as\b/i,
-    /^system:/i,
-    /^assistant:/i,
-    /^your role\b/i,
-  ]
-
-  if (instructionPatterns.some((pattern) => pattern.test(text))) {
-    return 'Dream guide, scene starter, and chaos translator.'
-  }
-
-  return text
-}
-
-function openFallbackEntry(entry: FallbackNavigationEntry) {
-  navStore.setDashboardTab(
-    'dream',
-    entry.tab,
-    `workspace narrator ${entry.key}`,
-  )
-  activeScreen.value = 'scenarios'
-  isOpen.value = true
-}
-
-function prepareBuildPrompt() {
-  if (!activeDream.value) {
-    activeScreen.value = 'scenarios'
-    isOpen.value = true
-    return
-  }
-
-  navStore.setDashboardTab('dream', 'dreammaker', 'workspace narrator build')
-  activeScreen.value = 'narrator'
-  isOpen.value = true
-  clearBubble()
-  setEmotion('EXCITED')
-
-  narratorMessage.value = [
-    `Help me expand the Dream "${activeDream.value.title}".`,
-    'Suggest one character, one scenario/location, one related Dream, and one art direction.',
-    'Keep it punchy and immediately usable.',
-  ].join('\n')
-}
-
-function prepareStoryPrompt() {
-  if (!activeDream.value) {
-    activeScreen.value = 'scenarios'
-    isOpen.value = true
-    return
-  }
-
-  navStore.setDashboardTab('dream', 'interact', 'workspace narrator story')
-  activeScreen.value = 'narrator'
-  isOpen.value = true
-  clearBubble()
-  setEmotion('PROUD')
-
-  narratorMessage.value = [
-    `Start an interactive opening scene for the Dream "${activeDream.value.title}".`,
-    'Use the connected characters and scenarios if they exist.',
-    'End with 2 or 3 choices for the user.',
-  ].join('\n')
-}
-
-function prepareScenarioSeedPrompt() {
-  if (!activeDream.value) {
-    activeScreen.value = 'scenarios'
-    isOpen.value = true
-    return
-  }
-
-  navStore.setDashboardTab(
-    'dream',
-    'dreammaker',
-    'workspace narrator scenario seed',
-  )
-  activeScreen.value = 'narrator'
-  isOpen.value = true
-  clearBubble()
-  setEmotion('EXCITED')
-
-  narratorMessage.value = [
-    `Create 3 scenario options for the Dream "${activeDream.value.title}".`,
-    'Each scenario should include a title, a playable location, a central tension, and one visual hook.',
-    'Make them distinct, immediately usable, and weird in a good way.',
-  ].join('\n')
-}
-
-function prepareScenarioStoryPrompt() {
-  const dream = activeDream.value
-  const scenario = selectedScenario.value
-
-  if (!dream || !scenario) return
-
-  navStore.setDashboardTab(
-    'dream',
-    'interact',
-    'workspace narrator scenario play',
-  )
-  activeScreen.value = 'narrator'
-  isOpen.value = true
-  clearBubble()
-  setEmotion('PROUD')
-
-  narratorMessage.value = [
-    `Start an interactive scene for the Dream "${dream.title}".`,
-    `Scenario: ${scenarioTitle(scenario)}`,
-    scenarioSummary(scenario),
-    'Use a vivid opening beat and end with 2 or 3 choices.',
-  ]
-    .filter(Boolean)
-    .join('\n')
-}
-
-function prepareScenarioBuildPrompt() {
-  const dream = activeDream.value
-  const scenario = selectedScenario.value
-
-  if (!dream || !scenario) return
-
-  navStore.setDashboardTab(
-    'dream',
-    'dreammaker',
-    'workspace narrator scenario remix',
-  )
-  activeScreen.value = 'narrator'
-  isOpen.value = true
-  clearBubble()
-  setEmotion('EXCITED')
-
-  narratorMessage.value = [
-    `Remix and expand this scenario for the Dream "${dream.title}".`,
-    `Scenario: ${scenarioTitle(scenario)}`,
-    scenarioSummary(scenario),
-    'Give me one stronger conflict, one strange NPC or character seed, one environmental twist, and one art direction.',
-  ]
-    .filter(Boolean)
-    .join('\n')
-}
-
-function buildNarratorSystemPrompt() {
-  const dream = activeDream.value
-  const bot = narratorBot.value
-
-  return [
-    bot?.prompt ||
-      'You are the workspace Narrator, a focused assistant for building and playing Dream experiences.',
-    bot?.personality ? `Personality: ${bot.personality}` : '',
-    bot?.narrativeVoice ? `Narrative voice: ${bot.narrativeVoice}` : '',
-    bot?.forgeIntro ? `Forge guidance: ${bot.forgeIntro}` : '',
-    bot?.botIntro ? `Bot intro: ${bot.botIntro}` : '',
-    dream
-      ? [
-          `Active Dream: ${dream.title}`,
-          dream.dreamType ? `Dream type: ${dream.dreamType}` : '',
-          dream.pitch || dream.description || dream.flavorText || '',
-          dream.Scenarios?.length
-            ? `Scenarios: ${dream.Scenarios.map((scenario) =>
-                scenarioTitle(scenario),
-              )
-                .filter(Boolean)
-                .join(', ')}`
-            : '',
-          dream.Characters?.length
-            ? `Characters: ${dream.Characters.map((character) => character.name)
-                .filter(Boolean)
-                .join(', ')}`
-            : '',
-          dream.Rewards?.length
-            ? `Rewards: ${dream.Rewards.map((reward) => reward.name)
-                .filter(Boolean)
-                .join(', ')}`
-            : '',
-        ]
-          .filter(Boolean)
-          .join('\n')
-      : '',
-    selectedScenario.value
-      ? [
-          `Selected scenario: ${scenarioTitle(selectedScenario.value)}`,
-          scenarioSummary(selectedScenario.value),
-        ]
-          .filter(Boolean)
-          .join('\n')
-      : '',
-    'Help build more elements, start stories, and add vivid flavor. Stay scoped to the active Dream. Do not act like a public chatroom.',
-  ]
-    .filter(Boolean)
-    .join('\n\n')
-}
-
-function buildNarratorMessages(nextUserMessage: string): BotCafeMessage[] {
-  const previousMessages = narratorSession.value.flatMap((chat) => {
-    const messages: BotCafeMessage[] = [
-      {
-        role: 'user',
-        content: chat.content,
-      },
-    ]
-
-    if (chat.botResponse) {
-      messages.push({
-        role: 'assistant',
-        content: chat.botResponse,
-      })
-    }
-
-    return messages
-  })
-
-  return [
-    {
-      role: 'system',
-      content: buildNarratorSystemPrompt(),
-    },
-    ...previousMessages,
-    {
-      role: 'user',
-      content: nextUserMessage,
-    },
-  ]
-}
-
-function setStatus(message: string, tone: 'success' | 'error' = 'success') {
-  statusMessage.value = message
-  statusTone.value = tone
-}
-
-function clearSession() {
-  narratorSessionIds.value = []
-  narratorMessage.value = ''
-  statusMessage.value = ''
+function emotionButtonClass(emotion: NarratorEmotion) {
+  return narratorStore.currentEmotion === emotion
+    ? 'btn-primary text-white'
+    : 'btn-outline'
 }
 
 function scrollChatToBottom() {
@@ -1723,73 +883,6 @@ function scrollChatToBottom() {
   if (!element) return
 
   element.scrollTop = element.scrollHeight
-}
-
-async function sendNarratorMessage() {
-  const dream = activeDream.value
-  const bot = narratorBot.value
-  const content = narratorMessage.value.trim()
-
-  if (!dream || !bot || !content || isNarratorResponding.value) return
-
-  statusMessage.value = ''
-  promptStore.currentPrompt = content
-  setEmotion('EXCITED', false)
-
-  try {
-    const server = runtimeTextServer.value
-    const userId = userStore.userId ?? userStore.user?.id ?? 10
-
-    const payload: ChatRuntimeInput = {
-      botId: bot.id,
-      botName: bot.name,
-      dreamId: dream.id,
-      content,
-      isPublic: false,
-      userId,
-      type: 'ToBot',
-      recipientId: bot.id,
-      characterId: null,
-      serverId: server?.id ?? null,
-      serverName: server?.title ?? server?.label ?? null,
-    } as ChatRuntimeInput
-
-    const messages = buildNarratorMessages(content)
-    const newChat = await chatStore.addChat(payload)
-
-    if (!newChat?.id) {
-      throw new Error('Failed to create Narrator message.')
-    }
-
-    narratorSessionIds.value.push(newChat.id)
-    narratorMessage.value = ''
-
-    await nextTick()
-    scrollChatToBottom()
-
-    await chatStore.streamResponse(newChat.id, {
-      model: server?.model || 'gpt-4o-mini',
-      temperature: 0.82,
-      maxTokens: 1400,
-      serverId: server?.id ?? null,
-      serverName: server?.title ?? server?.label ?? null,
-      serverSelectionMode: server ? 'specific' : 'default',
-      messages,
-      stream: true,
-    })
-
-    setEmotion('HAPPY')
-    await nextTick()
-    scrollChatToBottom()
-  } catch (error) {
-    setEmotion('CONFUSED')
-    setStatus(
-      error instanceof Error
-        ? error.message
-        : 'Narrator request failed. Check Dream narrator bot and text server settings.',
-      'error',
-    )
-  }
 }
 </script>
 

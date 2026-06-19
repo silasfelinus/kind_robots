@@ -112,6 +112,11 @@ export default defineEventHandler(async (event) => {
         data: { dreamId: null },
       })
 
+      await tx.composition.updateMany({
+        where: { dreamId: id },
+        data: { dreamId: null },
+      })
+
       await tx.reaction.deleteMany({
         where: { dreamId: id },
       })

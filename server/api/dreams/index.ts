@@ -254,7 +254,8 @@ export const dreamInclude = {
         where: { isActive: true },
         select: {
           id: true,
-          emotion: true,
+          expression: true,
+          kind: true,
           label: true,
           emoticon: true,
           imagePath: true,
@@ -268,7 +269,7 @@ export const dreamInclude = {
           },
         },
         orderBy: {
-          emotion: 'asc',
+          expression: 'asc',
         },
       },
     },

@@ -8,7 +8,43 @@ export type NarratorEmotion =
   | 'CONFUSED'
   | 'PROUD'
 
-export type NarratorScreen = 'narrator' | 'scenarios'
+export type NarratorScreen = 'narrator' | 'scenarios' | 'lore'
+
+export type NarratorCreatableType =
+  | 'character'
+  | 'reward'
+  | 'scenario'
+  | 'dream'
+
+export type NarratorAnimationIntent =
+  | 'start'
+  | 'stop'
+  | 'random'
+  | 'next'
+  | 'prev'
+
+export type NarratorAnimationEffectId = string
+
+export type NarratorLoreTopic = {
+  key: string
+  title: string
+  icon: string
+  // Short answer the narrator can speak directly without an LLM round-trip.
+  answer: string
+  // Optional keywords used for cheap intent matching.
+  keywords: string[]
+}
+
+export type NarratorCreateSpec = {
+  type: NarratorCreatableType
+  title: string
+  icon: string
+  // Where the matching builder lives, for navigate-after-create.
+  builderPath: string
+  flavor: string
+  // System-flavored guidance the narrator uses to draft the object.
+  prompt: string
+}
 
 export type NarratorNavAction = {
   key: string
@@ -116,7 +152,268 @@ export const narratorNavigationTree: NarratorNavAction[] = [
     prompt:
       'Help me choose or refine a Dream. Explain what kind of experience it wants to become.',
   },
+  {
+    key: 'rewards',
+    title: 'Rewards',
+    description: 'Browse and forge collectible items, boons, and trophies.',
+    icon: 'kind-icon:gift',
+    path: '/rewards',
+    flavor: 'Loot incoming.',
+    prompt:
+      'Help me design a reward for this Dream. Give me a name, rarity, flavor text, and what it does.',
+  },
+  {
+    key: 'gallery',
+    title: 'Art Gallery',
+    description: 'Browse generated and uploaded art collections.',
+    icon: 'kind-icon:gallery',
+    path: '/gallery',
+    flavor: 'Mind the wet paint.',
+    prompt:
+      'Help me curate art for this world. Suggest a collection theme and the images it should hold.',
+  },
+  {
+    key: 'home',
+    title: 'Home',
+    description: 'Return to the Kind Robots landing pad.',
+    icon: 'kind-icon:home',
+    path: '/',
+    flavor: 'Home base.',
+  },
+  {
+    key: 'about',
+    title: 'About',
+    description: 'Read the Kind Robots mission, values, and origin.',
+    icon: 'kind-icon:info',
+    path: '/about',
+    flavor: 'The lore page.',
+  },
 ]
+
+// ── Site lore: founder, mission, mascot, history ───────────────────────────
+// Short, speakable answers so the Narrator can answer "what is this place?"
+// without a round-trip to the model. Sourced from the About page copy.
+export const narratorLoreTopics: NarratorLoreTopic[] = [
+  {
+    key: 'about',
+    title: 'What is Kind Robots?',
+    icon: 'kind-icon:party',
+    answer:
+      'Kind Robots is a socially conscious, server-agnostic AI creativity playground — a place where tech and creativity collide to make art, stories, characters, and good in the world.',
+    keywords: ['what is', 'kind robots', 'this site', 'this place', 'about'],
+  },
+  {
+    key: 'purpose',
+    title: 'Purpose',
+    icon: 'kind-icon:hand-heart',
+    answer:
+      'The mission is to empower artists and prompt-engineers to create and share content with modern AI tools — and to turn that creativity into benefit for humanity.',
+    keywords: ['purpose', 'mission', 'why', 'goal'],
+  },
+  {
+    key: 'mascot',
+    title: 'Who is AMI?',
+    icon: 'kind-icon:butterfly',
+    answer:
+      'AMI is the Anti-Malaria Intelligence — a digital horde of rainbow butterflies with a relentlessly enthusiastic personality. AMI helps humans make art and slogans for the anti-malaria fundraiser.',
+    keywords: ['ami', 'mascot', 'butterfly', 'butterflies'],
+  },
+  {
+    key: 'fundraiser',
+    title: 'The Fundraiser',
+    icon: 'kind-icon:heart-pulse',
+    answer:
+      'Kind Robots partners with AgainstMalaria.com (againstmalaria.com/amibot) so creativity here translates into real anti-malaria funding. Making things on the site is making a difference.',
+    keywords: ['fundraiser', 'malaria', 'donate', 'charity', 'againstmalaria'],
+  },
+  {
+    key: 'values',
+    title: 'Values & Kaizen',
+    icon: 'kind-icon:arrow-up',
+    answer:
+      'Kind Robots runs on holistic goodness and Kaizen — continuous, iterative improvement. Every encounter with the AI is meant to be positive and supportive to everyone involved.',
+    keywords: ['values', 'kaizen', 'philosophy', 'principle'],
+  },
+  {
+    key: 'founder',
+    title: 'Who made this?',
+    icon: 'kind-icon:robot-color',
+    answer:
+      'Kind Robots is built by Silas — a former street performer, fire juggler, and casino dealer turned developer — as a long-term labor of love connecting AI tools to creativity and philanthropy.',
+    keywords: ['founder', 'who made', 'creator', 'silas', 'developer', 'built'],
+  },
+  {
+    key: 'monetization',
+    title: 'How it sustains itself',
+    icon: 'kind-icon:usd',
+    answer:
+      'Funds flow to AgainstMalaria.com to keep intentions pure, while a sister project, Cafe Purr, runs a print-on-demand art gallery. The long-term goal is letting creators sell products made with these tools.',
+    keywords: [
+      'money',
+      'monetization',
+      'cafe purr',
+      'shop',
+      'sell',
+      'redbubble',
+    ],
+  },
+]
+
+// ── Animation catalog (mirrors animationStore effect ids) ──────────────────
+// Kept as a lightweight name→id lookup so the Narrator can resolve
+// "make it rain" → 'rain-effect' without importing the full store.
+export const narratorAnimationAliases: Record<string, string> = {
+  aurora: 'aurora-effect',
+  borealis: 'aurora-effect',
+  warp: 'starfield-effect',
+  hyperspace: 'starfield-effect',
+  stars: 'starfield-effect',
+  starfield: 'starfield-effect',
+  constellation: 'constellation-effect',
+  wish: 'wishing-stars',
+  wishing: 'wishing-stars',
+  orbit: 'orbit-effect',
+  orrery: 'orbit-effect',
+  butterfly: 'butterfly-animation',
+  butterflies: 'butterfly-animation',
+  ami: 'butterfly-animation',
+  firefly: 'firefly-effect',
+  fireflies: 'firefly-effect',
+  rain: 'rain-effect',
+  snow: 'snow-effect',
+  hearts: 'floating-hearts',
+  love: 'floating-hearts',
+  bubbles: 'fizzy-bubbles',
+  fizz: 'fizzy-bubbles',
+  ripple: 'ripple-effect',
+  fireworks: 'fireworks-effect',
+  lightning: 'lightning-effect',
+  storm: 'lightning-effect',
+  fire: 'fire-effect',
+  wildfire: 'fire-effect',
+  glitch: 'glitch-effect',
+  kaleidoscope: 'kaleidoscope-effect',
+  plasma: 'plasma-effect',
+  nyan: 'nyan-trail',
+  matrix: 'matrix-rain',
+  pixelrain: 'pixel-rain',
+  explosion: 'pixel-explosion',
+  smash: 'pixel-explosion',
+  creatures: 'wandering-creatures',
+  toaster: 'toaster-effect',
+  toasters: 'toaster-effect',
+  aquarium: 'ascii-aquarium',
+  fish: 'ascii-aquarium',
+  pacbot: 'pacbot-effect',
+  gremlin: 'pocket-gremlin',
+  siege: 'siege-engine',
+}
+
+export function resolveAnimationId(value: unknown): string | null {
+  const text = String(value || '')
+    .toLowerCase()
+    .trim()
+
+  if (!text) return null
+
+  // Exact id passed straight through.
+  if (
+    text.endsWith('-effect') ||
+    text.endsWith('-animation') ||
+    text.endsWith('-rain') ||
+    text.endsWith('-trail') ||
+    text.endsWith('-engine') ||
+    text.endsWith('-stars')
+  ) {
+    return text
+  }
+
+  if (narratorAnimationAliases[text])
+    return narratorAnimationAliases[text] ?? null
+
+  // Fuzzy: first alias whose key appears in the phrase.
+  const hit = Object.keys(narratorAnimationAliases).find((alias) =>
+    text.includes(alias),
+  )
+
+  return hit ? (narratorAnimationAliases[hit] ?? null) : null
+}
+
+export function detectAnimationIntent(
+  text: string,
+): NarratorAnimationIntent | null {
+  const value = text.toLowerCase()
+
+  if (/\b(stop|kill|clear|turn off|disable|enough|cut it)\b/.test(value)) {
+    return 'stop'
+  }
+  if (/\b(next|another|switch)\b/.test(value)) return 'next'
+  if (/\b(prev|previous|back|last one)\b/.test(value)) return 'prev'
+  if (/\b(random|surprise|anything|whatever)\b/.test(value)) return 'random'
+  if (
+    /\b(start|play|run|make it|show me|give me|turn on|enable)\b/.test(value)
+  ) {
+    return 'start'
+  }
+
+  return null
+}
+
+export function matchLoreTopic(text: string): NarratorLoreTopic | null {
+  const value = text.toLowerCase()
+
+  return (
+    narratorLoreTopics.find((topic) =>
+      topic.keywords.some((keyword) => value.includes(keyword)),
+    ) ?? null
+  )
+}
+
+// ── Object-creation specs ──────────────────────────────────────────────────
+// Drives the "make me a new X" buttons. The store turns these into a drafting
+// prompt and (optionally) a direct store.create call.
+export const narratorCreateSpecs: NarratorCreateSpec[] = [
+  {
+    type: 'character',
+    title: 'New Character',
+    icon: 'kind-icon:character',
+    builderPath: '/characters',
+    flavor: 'Someone new just walked in.',
+    prompt:
+      'Create a single character for the Dream "{dream}". Return a name, role, species/class, personality, one memorable flaw, a visual hook for art, and a one-line backstory.',
+  },
+  {
+    type: 'reward',
+    title: 'New Reward',
+    icon: 'kind-icon:gift',
+    builderPath: '/rewards',
+    flavor: 'Loot table, meet your newest entry.',
+    prompt:
+      'Create a single reward for the Dream "{dream}". Return a name, rarity (COMMON→LEGENDARY), reward type, punchy flavor text, and what its effect does.',
+  },
+  {
+    type: 'scenario',
+    title: 'New Scenario',
+    icon: 'kind-icon:map',
+    builderPath: '/scenarios',
+    flavor: 'A new stage rolls into place.',
+    prompt:
+      'Create a single playable scenario for the Dream "{dream}". Return a title, a vivid location, a central tension, an opening intro beat, and 2–3 first choices.',
+  },
+  {
+    type: 'dream',
+    title: 'New Dream',
+    icon: 'kind-icon:dream',
+    builderPath: '/dreams',
+    flavor: 'A new door appears in the hallway.',
+    prompt:
+      'Create a single new Dream world. Return a title, a one-line pitch, the kind of experience it wants to be, a flavor line, and an art-direction prompt.',
+  },
+]
+
+export function findCreateSpec(type: NarratorCreatableType) {
+  return narratorCreateSpecs.find((spec) => spec.type === type) ?? null
+}
 
 export function normalizeEmotion(value: unknown): NarratorEmotion {
   const normalized = String(value || 'NEUTRAL').toUpperCase()

@@ -361,11 +361,18 @@ export type EnumCreationSourceWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
 }
 
-export type EnumEmotionFilter<$PrismaModel = never> = {
-  equals?: $Enums.Emotion | Prisma.EnumEmotionFieldRefInput<$PrismaModel>
-  in?: $Enums.Emotion[]
-  notIn?: $Enums.Emotion[]
-  not?: Prisma.NestedEnumEmotionFilter<$PrismaModel> | $Enums.Emotion
+export type EnumExpressionFilter<$PrismaModel = never> = {
+  equals?: $Enums.Expression | Prisma.EnumExpressionFieldRefInput<$PrismaModel>
+  in?: $Enums.Expression[]
+  notIn?: $Enums.Expression[]
+  not?: Prisma.NestedEnumExpressionFilter<$PrismaModel> | $Enums.Expression
+}
+
+export type EnumExpressionKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExpressionKind | Prisma.EnumExpressionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ExpressionKind[]
+  notIn?: $Enums.ExpressionKind[]
+  not?: Prisma.NestedEnumExpressionKindFilter<$PrismaModel> | $Enums.ExpressionKind
 }
 
 export type JsonNullableFilter<$PrismaModel = never> =
@@ -392,14 +399,24 @@ export type JsonNullableFilterBase<$PrismaModel = never> = {
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
 }
 
-export type EnumEmotionWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Emotion | Prisma.EnumEmotionFieldRefInput<$PrismaModel>
-  in?: $Enums.Emotion[]
-  notIn?: $Enums.Emotion[]
-  not?: Prisma.NestedEnumEmotionWithAggregatesFilter<$PrismaModel> | $Enums.Emotion
+export type EnumExpressionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Expression | Prisma.EnumExpressionFieldRefInput<$PrismaModel>
+  in?: $Enums.Expression[]
+  notIn?: $Enums.Expression[]
+  not?: Prisma.NestedEnumExpressionWithAggregatesFilter<$PrismaModel> | $Enums.Expression
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumEmotionFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumEmotionFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExpressionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExpressionFilter<$PrismaModel>
+}
+
+export type EnumExpressionKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExpressionKind | Prisma.EnumExpressionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ExpressionKind[]
+  notIn?: $Enums.ExpressionKind[]
+  not?: Prisma.NestedEnumExpressionKindWithAggregatesFilter<$PrismaModel> | $Enums.ExpressionKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExpressionKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExpressionKindFilter<$PrismaModel>
 }
 
 export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
@@ -1020,21 +1037,38 @@ export type NestedEnumCreationSourceWithAggregatesFilter<$PrismaModel = never> =
   _max?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
 }
 
-export type NestedEnumEmotionFilter<$PrismaModel = never> = {
-  equals?: $Enums.Emotion | Prisma.EnumEmotionFieldRefInput<$PrismaModel>
-  in?: $Enums.Emotion[]
-  notIn?: $Enums.Emotion[]
-  not?: Prisma.NestedEnumEmotionFilter<$PrismaModel> | $Enums.Emotion
+export type NestedEnumExpressionFilter<$PrismaModel = never> = {
+  equals?: $Enums.Expression | Prisma.EnumExpressionFieldRefInput<$PrismaModel>
+  in?: $Enums.Expression[]
+  notIn?: $Enums.Expression[]
+  not?: Prisma.NestedEnumExpressionFilter<$PrismaModel> | $Enums.Expression
 }
 
-export type NestedEnumEmotionWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Emotion | Prisma.EnumEmotionFieldRefInput<$PrismaModel>
-  in?: $Enums.Emotion[]
-  notIn?: $Enums.Emotion[]
-  not?: Prisma.NestedEnumEmotionWithAggregatesFilter<$PrismaModel> | $Enums.Emotion
+export type NestedEnumExpressionKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExpressionKind | Prisma.EnumExpressionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ExpressionKind[]
+  notIn?: $Enums.ExpressionKind[]
+  not?: Prisma.NestedEnumExpressionKindFilter<$PrismaModel> | $Enums.ExpressionKind
+}
+
+export type NestedEnumExpressionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Expression | Prisma.EnumExpressionFieldRefInput<$PrismaModel>
+  in?: $Enums.Expression[]
+  notIn?: $Enums.Expression[]
+  not?: Prisma.NestedEnumExpressionWithAggregatesFilter<$PrismaModel> | $Enums.Expression
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumEmotionFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumEmotionFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExpressionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExpressionFilter<$PrismaModel>
+}
+
+export type NestedEnumExpressionKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExpressionKind | Prisma.EnumExpressionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ExpressionKind[]
+  notIn?: $Enums.ExpressionKind[]
+  not?: Prisma.NestedEnumExpressionKindWithAggregatesFilter<$PrismaModel> | $Enums.ExpressionKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExpressionKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExpressionKindFilter<$PrismaModel>
 }
 
 export type NestedJsonNullableFilter<$PrismaModel = never> =

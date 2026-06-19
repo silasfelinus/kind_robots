@@ -76,96 +76,7 @@ script setup
 daisyui components, tailwind styling
 https://content.nuxtjs.org/guide/writing/mdc/#yaml-method //yaml method for markdown
 
-[STRUCTURE]
-/assets/tailwind.css
-/components/content/_.vue
-/utils/useRandomColor.ts
-/content/_.md
-/layouts/_.vue
-/pages/[...slug].vue
-/prisma/schema.prisma
-/public/images/_.[webp/jpg/png]
-/scripts/image_prep.sh
-/server/api/
-.env
-.gitignore
-app.vue
-nuxt.config.ts
-package.json
-README.md
-tailwind.config.js
-tsconfig.json
 
-[PAGES CONTENT]
-Catch-all pages slug displays <NuxtPage> routes for md json and yaml files in our content directory. <NuxtLayout> assigns a layout matched to our layout/ vues read from the markdown front matter. Double colons can be used to pass props in yaml syntax for better readability.
-
-[COMPONENTS]
-all components in components/content are accessible within markdown files using :butterfly-swarm syntax.
-
-[PROPS]
-Props can be passed by using a key=value syntax.
-:butterfly-swarm{count=100 pattern="random"}
-
-[DIRECTORY - Outdated]
-acrocatranch - Acrocat Rescue About Us
-amibot - AMI interface and social network hub
-botcafe - Chatgpt prompt interfaces & Games Arcade
-cafepurr - multimedia art gallery & public content creator
-kindrobots - Welcome Page & Mission Statement
-mermaids - giftshop & redbubble
-wildcards - stable diffusion art generation with wildcard prompts
-wonderforge - github code showcase and projects in development
-
-[SCHEMA]
-Art: [id, galleryId, path, prompt, promptId, userId, pitchId, createdAt, updatedAt, boos, claps, cfg, checkpoint, sampler, seed, steps, pitch, channelId, isOrphan, isPublic, isMature, designer, Reaction]
-Prompt: [id, createdAt, updatedAt, userId, prompt, galleryId, pitch, pitchId, DB_ROW_HASH_1]
-Reaction: [id, createdAt, updatedAt, userId, artId, claps, boos, title, comment, reaction, pitchId, Art, Pitch, User]
-Bot: [id, createdAt, updatedAt, BotType, name, isPublic, underConstruction, canDelete, subtitle, description, avatarImage, botIntro, userIntro, prompt, trainingPath, theme, personality, modules, userId, sampleResponse, tagline, Slogan]
-Channel: [id, createdAt, updatedAt, userId, label, description, tagId, title, pitchId]
-ChatExchange: [id, createdAt, updatedAt, botId, botName, userId, username, userPrompt, botResponse, liked, hated, loved, flagged, previousEntryId]
-Gallery: [id, createdAt, updatedAt, name, description, mediaId, url, custodian, userId, content, highlightImage, imagePaths, isMature]
-Game: [id, createdAt, updatedAt, content, category, isFinished, userId, reward, icon, points, isPrivate, User]
-Log: [id, message, timestamp, username]
-Message: [id, createdAt, updatedAt, sender, recipient, content, channelId, botId, userId]
-Milestone: [id, label, message, icon, karma, isRepeatable, createdAt, updatedAt, triggerCode, tooltip, isActive, pageHint, subtleHint]
-MilestoneRecord: [id, createdAt, updatedAt, milestoneId, userId, username]
-Pitch: [id, createdAt, updatedAt, title, pitch, userId, isPublic, claps, boos, channelId, designer, flavorText, isOrphan, creatorId, highlightImage, isMature, Reaction]
-Cart: [id, createdAt, updatedAt, customerId, Customer, items]
-CartItem: [id, cartId, productId, quantity, Cart, Product]
-Customer: [id, createdAt, updatedAt, email, name, userId, Carts, User]
-RandomList: [id, title, items, userId]
-Post: [id, createdAt, updatedAt, userId, username, content, title, label, imagePath, artId, pitchId, pitchname, sloganContent, sloganId, botId, botname, channelId, likes, dislikes, hates, loves, jellybeanClaps, isFavorite]
-Product: [id, createdAt, updatedAt, title, category, flavorText, description, costInPennies, userId, passcode, imagePath, CartItem]
-Resource: [id, createdAt, updatedAt, userId, name, customLabel, MediaPath, customUrl, civitaiUrl, huggingUrl, localPath, description, resourceType, isMature, galleryCount]
-Reward: [id, createdAt, updatedAt, icon, text, power, collection, rarity, label, Todo]
-Slogan: [id, contentType, purpose, url, characterLimit, content, likes, dislikes, hates, loves, isLiked, isLoved, wasKept, wasDiscarded, username, userId, model, kindRobot, botId, createdAt, updatedAt, Bot, User]
-Tag: [id, createdAt, updatedAt, label, title, userId, isPublic, channelId, flavorText, pitch, isMature, sloganId]
-Todo: [id, task, category, completed, createdAt, userId, rewardId, updatedAt, Reward, User]
-User: [id, createdAt, updatedAt, Role, username, email, questPoints, emailVerified, name, address1, address2, avatarImage, bio, birthday, city, country, discordUrl, facebookUrl, instagramUrl, kindrobotsUrl, languages, phone, state, timezone, twitterUrl, apiKey, password, spotifyAccessToken, spotifyID, spotifyRefreshToken, karma, mana, clickRecord, matchRecord, Reaction, Customer, Game, Slogan, Todo]
-
-ReactionToTag: [A, B]
-ArtToProduct: [A, B]
-ArtToTag: [A, B]
-MilestoneToUser: [A, B]
-RewardToUser: [A, B]
-
-Enums:
-Role: [SYSTEM, USER, ASSISTANT, ADMIN, GUEST, BOT, DESIGNER, CHILD]
-ResourceType: [CHECKPOINT, EMBEDDING, LORA, LYCORIS, HYPERNETWORK, CONTROLNET, URL, API]
-
-[TODOS]
-
-**DONE** Fix database corruption errors in prisma
-**DONE** milestone records are no longer in proper datetime format
-**DONE** add navigation button accessible in mobile
-**DONE** clean up / rebuild home page on mobile
-**DONE** art datetime corruption fixed/removed
-easier to see loading icon
-**DONE** art modeller doesn't generate
-**DONE** fix workshop directory searching by letter instead of full name
-**DONE** LINT DIRECTORY NOT FOUND
-**DONE** lint errors fixed
-brainstorm not loading second brainstorm
 
 [Commands]
 Install files:
@@ -237,3 +148,4 @@ npx prisma generate
 npx prisma migrate status --schema=prisma/schema.prisma
 
 **********
+

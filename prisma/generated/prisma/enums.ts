@@ -9,18 +9,38 @@
 * 🟢 You can import this file directly.
 */
 
-export const Emotion = {
-  NEUTRAL: 'NEUTRAL',
-  HAPPY: 'HAPPY',
-  SAD: 'SAD',
-  EXCITED: 'EXCITED',
-  NERVOUS: 'NERVOUS',
-  ANGRY: 'ANGRY',
-  CONFUSED: 'CONFUSED',
-  PROUD: 'PROUD'
+export const ExpressionKind = {
+  EMOTION: 'EMOTION',
+  ACTION: 'ACTION'
 } as const
 
-export type Emotion = (typeof Emotion)[keyof typeof Emotion]
+export type ExpressionKind = (typeof ExpressionKind)[keyof typeof ExpressionKind]
+
+
+export const Expression = {
+  NEUTRAL: 'NEUTRAL',
+  JOYFUL: 'JOYFUL',
+  SORROWFUL: 'SORROWFUL',
+  AFRAID: 'AFRAID',
+  DISGUSTED: 'DISGUSTED',
+  ENRAGED: 'ENRAGED',
+  SURPRISED: 'SURPRISED',
+  ANXIOUS: 'ANXIOUS',
+  PROUD: 'PROUD',
+  LOVING: 'LOVING',
+  LAUGHING: 'LAUGHING',
+  CRYING: 'CRYING',
+  SLEEPING: 'SLEEPING',
+  THINKING: 'THINKING',
+  SHRUGGING: 'SHRUGGING',
+  WINKING: 'WINKING',
+  FACEPALMING: 'FACEPALMING',
+  CHEERING: 'CHEERING',
+  WHISPERING: 'WHISPERING',
+  SHOUTING: 'SHOUTING'
+} as const
+
+export type Expression = (typeof Expression)[keyof typeof Expression]
 
 
 export const ManaReason = {

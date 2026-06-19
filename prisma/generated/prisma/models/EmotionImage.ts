@@ -14,7 +14,9 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model EmotionImage
- * 
+ * One row per (owner, expression). Holds both emotions (face-only edits) and
+ * actions (pose/state edits), discriminated by `kind`. Shares one table so the
+ * frontend can pull a full set for a bot/character in a single query.
  */
 export type EmotionImageModel = runtime.Types.Result.DefaultSelection<Prisma.$EmotionImagePayload>
 
@@ -44,7 +46,8 @@ export type EmotionImageMinAggregateOutputType = {
   id: number | null
   createdAt: Date | null
   updatedAt: Date | null
-  emotion: $Enums.Emotion | null
+  expression: $Enums.Expression | null
+  kind: $Enums.ExpressionKind | null
   label: string | null
   emoticon: string | null
   imagePath: string | null
@@ -61,7 +64,8 @@ export type EmotionImageMaxAggregateOutputType = {
   id: number | null
   createdAt: Date | null
   updatedAt: Date | null
-  emotion: $Enums.Emotion | null
+  expression: $Enums.Expression | null
+  kind: $Enums.ExpressionKind | null
   label: string | null
   emoticon: string | null
   imagePath: string | null
@@ -78,7 +82,8 @@ export type EmotionImageCountAggregateOutputType = {
   id: number
   createdAt: number
   updatedAt: number
-  emotion: number
+  expression: number
+  kind: number
   label: number
   emoticon: number
   imagePath: number
@@ -112,7 +117,8 @@ export type EmotionImageMinAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
-  emotion?: true
+  expression?: true
+  kind?: true
   label?: true
   emoticon?: true
   imagePath?: true
@@ -129,7 +135,8 @@ export type EmotionImageMaxAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
-  emotion?: true
+  expression?: true
+  kind?: true
   label?: true
   emoticon?: true
   imagePath?: true
@@ -146,7 +153,8 @@ export type EmotionImageCountAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
-  emotion?: true
+  expression?: true
+  kind?: true
   label?: true
   emoticon?: true
   imagePath?: true
@@ -251,7 +259,8 @@ export type EmotionImageGroupByOutputType = {
   id: number
   createdAt: Date
   updatedAt: Date | null
-  emotion: $Enums.Emotion
+  expression: $Enums.Expression
+  kind: $Enums.ExpressionKind
   label: string | null
   emoticon: string | null
   imagePath: string | null
@@ -292,7 +301,8 @@ export type EmotionImageWhereInput = {
   id?: Prisma.IntFilter<"EmotionImage"> | number
   createdAt?: Prisma.DateTimeFilter<"EmotionImage"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"EmotionImage"> | Date | string | null
-  emotion?: Prisma.EnumEmotionFilter<"EmotionImage"> | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFilter<"EmotionImage"> | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFilter<"EmotionImage"> | $Enums.ExpressionKind
   label?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
   emoticon?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
@@ -313,7 +323,8 @@ export type EmotionImageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  emotion?: Prisma.SortOrder
+  expression?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   emoticon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -334,14 +345,15 @@ export type EmotionImageOrderByWithRelationInput = {
 export type EmotionImageWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   artImageId?: number
-  botId_emotion?: Prisma.EmotionImageBotIdEmotionCompoundUniqueInput
-  characterId_emotion?: Prisma.EmotionImageCharacterIdEmotionCompoundUniqueInput
+  botId_expression?: Prisma.EmotionImageBotIdExpressionCompoundUniqueInput
+  characterId_expression?: Prisma.EmotionImageCharacterIdExpressionCompoundUniqueInput
   AND?: Prisma.EmotionImageWhereInput | Prisma.EmotionImageWhereInput[]
   OR?: Prisma.EmotionImageWhereInput[]
   NOT?: Prisma.EmotionImageWhereInput | Prisma.EmotionImageWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"EmotionImage"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"EmotionImage"> | Date | string | null
-  emotion?: Prisma.EnumEmotionFilter<"EmotionImage"> | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFilter<"EmotionImage"> | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFilter<"EmotionImage"> | $Enums.ExpressionKind
   label?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
   emoticon?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
@@ -355,13 +367,14 @@ export type EmotionImageWhereUniqueInput = Prisma.AtLeast<{
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-}, "id" | "artImageId" | "botId_emotion" | "characterId_emotion">
+}, "id" | "artImageId" | "botId_expression" | "characterId_expression">
 
 export type EmotionImageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  emotion?: Prisma.SortOrder
+  expression?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   emoticon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -387,7 +400,8 @@ export type EmotionImageScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"EmotionImage"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"EmotionImage"> | Date | string
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"EmotionImage"> | Date | string | null
-  emotion?: Prisma.EnumEmotionWithAggregatesFilter<"EmotionImage"> | $Enums.Emotion
+  expression?: Prisma.EnumExpressionWithAggregatesFilter<"EmotionImage"> | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindWithAggregatesFilter<"EmotionImage"> | $Enums.ExpressionKind
   label?: Prisma.StringNullableWithAggregatesFilter<"EmotionImage"> | string | null
   emoticon?: Prisma.StringNullableWithAggregatesFilter<"EmotionImage"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"EmotionImage"> | string | null
@@ -404,7 +418,8 @@ export type EmotionImageScalarWhereWithAggregatesInput = {
 export type EmotionImageCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -422,7 +437,8 @@ export type EmotionImageUncheckedCreateInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -439,7 +455,8 @@ export type EmotionImageUncheckedCreateInput = {
 export type EmotionImageUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -457,7 +474,8 @@ export type EmotionImageUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -475,7 +493,8 @@ export type EmotionImageCreateManyInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -492,7 +511,8 @@ export type EmotionImageCreateManyInput = {
 export type EmotionImageUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -507,7 +527,8 @@ export type EmotionImageUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -542,21 +563,22 @@ export type EmotionImageOrderByRelevanceInput = {
   search: string
 }
 
-export type EmotionImageBotIdEmotionCompoundUniqueInput = {
+export type EmotionImageBotIdExpressionCompoundUniqueInput = {
   botId: number
-  emotion: $Enums.Emotion
+  expression: $Enums.Expression
 }
 
-export type EmotionImageCharacterIdEmotionCompoundUniqueInput = {
+export type EmotionImageCharacterIdExpressionCompoundUniqueInput = {
   characterId: number
-  emotion: $Enums.Emotion
+  expression: $Enums.Expression
 }
 
 export type EmotionImageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  emotion?: Prisma.SortOrder
+  expression?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   label?: Prisma.SortOrder
   emoticon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -581,7 +603,8 @@ export type EmotionImageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  emotion?: Prisma.SortOrder
+  expression?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   label?: Prisma.SortOrder
   emoticon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -598,7 +621,8 @@ export type EmotionImageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  emotion?: Prisma.SortOrder
+  expression?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   label?: Prisma.SortOrder
   emoticon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -734,14 +758,19 @@ export type EmotionImageUncheckedUpdateManyWithoutCharacterNestedInput = {
   deleteMany?: Prisma.EmotionImageScalarWhereInput | Prisma.EmotionImageScalarWhereInput[]
 }
 
-export type EnumEmotionFieldUpdateOperationsInput = {
-  set?: $Enums.Emotion
+export type EnumExpressionFieldUpdateOperationsInput = {
+  set?: $Enums.Expression
+}
+
+export type EnumExpressionKindFieldUpdateOperationsInput = {
+  set?: $Enums.ExpressionKind
 }
 
 export type EmotionImageCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -758,7 +787,8 @@ export type EmotionImageUncheckedCreateWithoutArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -790,7 +820,8 @@ export type EmotionImageUpdateToOneWithWhereWithoutArtImageInput = {
 export type EmotionImageUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -807,7 +838,8 @@ export type EmotionImageUncheckedUpdateWithoutArtImageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -823,7 +855,8 @@ export type EmotionImageUncheckedUpdateWithoutArtImageInput = {
 export type EmotionImageCreateWithoutBotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -840,7 +873,8 @@ export type EmotionImageUncheckedCreateWithoutBotInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -886,7 +920,8 @@ export type EmotionImageScalarWhereInput = {
   id?: Prisma.IntFilter<"EmotionImage"> | number
   createdAt?: Prisma.DateTimeFilter<"EmotionImage"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"EmotionImage"> | Date | string | null
-  emotion?: Prisma.EnumEmotionFilter<"EmotionImage"> | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFilter<"EmotionImage"> | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFilter<"EmotionImage"> | $Enums.ExpressionKind
   label?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
   emoticon?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"EmotionImage"> | string | null
@@ -903,7 +938,8 @@ export type EmotionImageScalarWhereInput = {
 export type EmotionImageCreateWithoutCharacterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -920,7 +956,8 @@ export type EmotionImageUncheckedCreateWithoutCharacterInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -963,7 +1000,8 @@ export type EmotionImageCreateManyBotInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -979,7 +1017,8 @@ export type EmotionImageCreateManyBotInput = {
 export type EmotionImageUpdateWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -996,7 +1035,8 @@ export type EmotionImageUncheckedUpdateWithoutBotInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1013,7 +1053,8 @@ export type EmotionImageUncheckedUpdateManyWithoutBotInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1030,7 +1071,8 @@ export type EmotionImageCreateManyCharacterInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  emotion?: $Enums.Emotion
+  expression?: $Enums.Expression
+  kind?: $Enums.ExpressionKind
   label?: string | null
   emoticon?: string | null
   imagePath?: string | null
@@ -1046,7 +1088,8 @@ export type EmotionImageCreateManyCharacterInput = {
 export type EmotionImageUpdateWithoutCharacterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1063,7 +1106,8 @@ export type EmotionImageUncheckedUpdateWithoutCharacterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1080,7 +1124,8 @@ export type EmotionImageUncheckedUpdateManyWithoutCharacterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emotion?: Prisma.EnumEmotionFieldUpdateOperationsInput | $Enums.Emotion
+  expression?: Prisma.EnumExpressionFieldUpdateOperationsInput | $Enums.Expression
+  kind?: Prisma.EnumExpressionKindFieldUpdateOperationsInput | $Enums.ExpressionKind
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emoticon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1099,7 +1144,8 @@ export type EmotionImageSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  emotion?: boolean
+  expression?: boolean
+  kind?: boolean
   label?: boolean
   emoticon?: boolean
   imagePath?: boolean
@@ -1122,7 +1168,8 @@ export type EmotionImageSelectScalar = {
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  emotion?: boolean
+  expression?: boolean
+  kind?: boolean
   label?: boolean
   emoticon?: boolean
   imagePath?: boolean
@@ -1136,7 +1183,7 @@ export type EmotionImageSelectScalar = {
   artPrompt?: boolean
 }
 
-export type EmotionImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "emotion" | "label" | "emoticon" | "imagePath" | "artImageId" | "botId" | "characterId" | "message" | "additionalPhrases" | "isActive" | "designer" | "artPrompt", ExtArgs["result"]["emotionImage"]>
+export type EmotionImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "expression" | "kind" | "label" | "emoticon" | "imagePath" | "artImageId" | "botId" | "characterId" | "message" | "additionalPhrases" | "isActive" | "designer" | "artPrompt", ExtArgs["result"]["emotionImage"]>
 export type EmotionImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Bot?: boolean | Prisma.EmotionImage$BotArgs<ExtArgs>
   Character?: boolean | Prisma.EmotionImage$CharacterArgs<ExtArgs>
@@ -1154,7 +1201,8 @@ export type $EmotionImagePayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: number
     createdAt: Date
     updatedAt: Date | null
-    emotion: $Enums.Emotion
+    expression: $Enums.Expression
+    kind: $Enums.ExpressionKind
     label: string | null
     emoticon: string | null
     imagePath: string | null
@@ -1541,7 +1589,8 @@ export interface EmotionImageFieldRefs {
   readonly id: Prisma.FieldRef<"EmotionImage", 'Int'>
   readonly createdAt: Prisma.FieldRef<"EmotionImage", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"EmotionImage", 'DateTime'>
-  readonly emotion: Prisma.FieldRef<"EmotionImage", 'Emotion'>
+  readonly expression: Prisma.FieldRef<"EmotionImage", 'Expression'>
+  readonly kind: Prisma.FieldRef<"EmotionImage", 'ExpressionKind'>
   readonly label: Prisma.FieldRef<"EmotionImage", 'String'>
   readonly emoticon: Prisma.FieldRef<"EmotionImage", 'String'>
   readonly imagePath: Prisma.FieldRef<"EmotionImage", 'String'>

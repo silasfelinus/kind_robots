@@ -5,7 +5,7 @@ import type {
   ArtImage,
   Bot,
   Chat,
-  EmotionImage,
+  ExpressionMedia,
   Server,
 } from '~/prisma/generated/prisma/client'
 import {
@@ -51,15 +51,20 @@ type ArtImageLike = Partial<ArtImage> & {
   fileName?: string | null
 }
 
-type NarratorEmotionImage = EmotionImage & {
+type NarratorExpressionMedia = ExpressionMedia & {
+  // tolerate old + new field shapes during migration
   emotion?: string | null
+  expression?: string | null
+  expressionKey?: string | null
+  videoPath?: string | null
   ArtImage?: ArtImageLike | null
 }
 
 type DreamNarratorBot = Partial<Bot> & {
   id: number
   name: string
-  EmotionImages?: NarratorEmotionImage[]
+  slug?: string | null
+  ExpressionMedia?: NarratorExpressionMedia[]
 }
 
 type DreamScenario = {
@@ -171,8 +176,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     )
   })
 
-  const emotionRows = computed<NarratorEmotionImage[]>(() => {
-    return (narratorBot.value?.EmotionImages ?? []).filter(
+  const emotionRows = computed<NarratorExpressionMedia[]>(() => {
+    return (narratorBot.value?.ExpressionMedia ?? []).filter(
       (emotion) => emotion.isActive !== false,
     )
   })
@@ -191,7 +196,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     )
   })
 
-  const currentEmotionRow = computed<NarratorEmotionImage | null>(() => {
+  const currentEmotionRow = computed<NarratorExpressionMedia | null>(() => {
+    // Match on the normalized expression first (covers all canonical values).
     const exact = emotionRows.value.find(
       (row) =>
         normalizeEmotion(readExpressionValue(row)) === currentEmotion.value,
@@ -207,6 +213,17 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       null
     )
   })
+
+  // Resolve a specific row by its expressionKey (needed for CUSTOM actions,
+  // where multiple rows share expression = CUSTOM but differ by key).
+  function rowByExpressionKey(key: string) {
+    const wanted = String(key || '').toLowerCase()
+    return (
+      emotionRows.value.find(
+        (row) => String(row.expressionKey || '').toLowerCase() === wanted,
+      ) ?? null
+    )
+  }
 
   const narratorName = computed(() => narratorBot.value?.name || 'Narrator')
 
@@ -239,9 +256,15 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       emotionImage ||
       narratorBot.value?.avatarImage ||
       narratorBot.value?.imagePath ||
+      avatarPathForSlug(narratorBot.value?.slug) ||
       dreamImage(activeDream.value) ||
       '/images/bot.webp'
     )
+  })
+
+  // Reaction loop for the current expression, if one exists (else empty -> UI shows still).
+  const narratorVideo = computed(() => {
+    return readEmotionVideo(currentEmotionRow.value)
   })
 
   const currentEmotionLabel = computed(() => {
@@ -249,15 +272,28 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   })
 
   const fallbackEmotionIcon = computed(() => {
-    const lookup: Record<NarratorEmotion, string> = {
+    const lookup: Partial<Record<NarratorEmotion, string>> = {
       NEUTRAL: '✨',
-      HAPPY: '😊',
-      SAD: '🌧️',
-      EXCITED: '⚡',
-      NERVOUS: '🌀',
-      ANGRY: '🔥',
-      CONFUSED: '❔',
+      JOYFUL: '😊',
+      SORROWFUL: '🌧️',
+      AFRAID: '😨',
+      DISGUSTED: '🤢',
+      ENRAGED: '🔥',
+      SURPRISED: '😮',
+      ANXIOUS: '🌀',
       PROUD: '🌟',
+      LOVING: '💗',
+      LAUGHING: '😂',
+      CRYING: '😭',
+      SLEEPING: '😴',
+      THINKING: '🤔',
+      SHRUGGING: '🤷',
+      WINKING: '😉',
+      FACEPALMING: '🤦',
+      CHEERING: '🎉',
+      WHISPERING: '🤫',
+      SHOUTING: '📣',
+      CUSTOM: '✨',
     }
 
     return lookup[currentEmotion.value] ?? '✨'
@@ -528,7 +564,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     }, 7000)
   }
 
-  function pickEmotionPhrase(row?: NarratorEmotionImage | null) {
+  function pickEmotionPhrase(row?: NarratorExpressionMedia | null) {
     const phrases = [
       row?.message,
       ...readStringArray(row?.additionalPhrases),
@@ -594,7 +630,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     if (starter.key === 'scenario') {
       setEmotion('PROUD')
     } else {
-      setEmotion('EXCITED')
+      setEmotion('CHEERING')
     }
 
     if (starter.flavor) {
@@ -651,7 +687,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeScreen.value = 'narrator'
     isOpen.value = true
     clearBubble()
-    setEmotion('EXCITED')
+    setEmotion('CHEERING')
 
     narratorMessage.value = [
       `Help me expand the Dream "${activeDream.value.title}".`,
@@ -689,7 +725,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeScreen.value = 'narrator'
     isOpen.value = true
     clearBubble()
-    setEmotion('EXCITED')
+    setEmotion('CHEERING')
 
     narratorMessage.value = [
       `Create 3 scenario options for the Dream "${activeDream.value.title}".`,
@@ -728,7 +764,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeScreen.value = 'narrator'
     isOpen.value = true
     clearBubble()
-    setEmotion('EXCITED')
+    setEmotion('CHEERING')
 
     narratorMessage.value = [
       `Remix and expand this scenario for the Dream "${dream.title}".`,
@@ -749,7 +785,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     isOpen.value = true
     activeScreen.value = 'lore'
     clearBubble()
-    setEmotion('HAPPY', false)
+    setEmotion('JOYFUL', false)
     narratorMessage.value = ''
     setStatus(`${topic.title}: ${topic.answer}`, 'success')
     activeBubble.value = applyNarratorTemplate(topic.answer, {
@@ -780,7 +816,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       effectId: (effectId as never) || undefined,
       durationMs,
     })
-    setEmotion('EXCITED', false)
+    setEmotion('CHEERING', false)
     activeBubble.value = effectId
       ? `Lights up: ${animationStore.activeEffect?.label ?? effectId}.`
       : 'Surprise effect, incoming.'
@@ -795,7 +831,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   function randomAnimation() {
     animationStore.start({ durationMs: null })
-    setEmotion('EXCITED', false)
+    setEmotion('CHEERING', false)
     activeBubble.value = `Rolling the dice: ${
       animationStore.activeEffect?.label ?? 'something fun'
     }.`
@@ -854,7 +890,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeScreen.value = 'narrator'
     isOpen.value = true
     clearBubble()
-    setEmotion('EXCITED')
+    setEmotion('CHEERING')
 
     narratorMessage.value = applyNarratorTemplate(spec.prompt, {
       narratorName: narratorName.value,
@@ -929,7 +965,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
       return created
     } catch (error) {
-      setEmotion('CONFUSED')
+      setEmotion('THINKING')
       setStatus(
         error instanceof Error ? error.message : `Could not create ${type}.`,
         'error',
@@ -1081,7 +1117,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
     statusMessage.value = ''
     promptStore.currentPrompt = content
-    setEmotion('EXCITED', false)
+    setEmotion('CHEERING', false)
 
     try {
       const server = runtimeTextServer.value
@@ -1122,9 +1158,9 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         stream: true,
       })
 
-      setEmotion('HAPPY')
+      setEmotion('JOYFUL')
     } catch (error) {
-      setEmotion('CONFUSED')
+      setEmotion('THINKING')
       setStatus(
         error instanceof Error
           ? error.message
@@ -1141,14 +1177,46 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     }
   }
 
-  function readEmotionImage(row?: NarratorEmotionImage | null) {
+  // Slug-based path conventions (files live under /images/bots/<kind>/<slug>/...).
+  // Avatars: /images/bots/avatars/<slug>.webp
+  // Emotions/actions stills: /images/bots/emotions/<slug>/<key>.webp
+  // Reaction loops:          /images/bots/reactions/<slug>/<key>.webp
+  function avatarPathForSlug(slug?: string | null) {
+    if (!slug) return ''
+    return `/images/bots/avatars/${slug}.webp`
+  }
+
+  function expressionKeyOf(row?: NarratorExpressionMedia | null) {
     if (!row) return ''
+    return String(
+      row.expressionKey || row.expression || row.emotion || 'neutral',
+    ).toLowerCase()
+  }
+
+  // Reaction video for the current expression row, if one exists or can be derived.
+  function readEmotionVideo(row?: NarratorExpressionMedia | null) {
+    if (!row) return ''
+    if (row.videoPath) return row.videoPath
+    const slug = narratorBot.value?.slug
+    const key = expressionKeyOf(row)
+    if (slug && key) return `/images/bots/reactions/${slug}/${key}.webp`
+    return ''
+  }
+
+  function readEmotionImage(row?: NarratorExpressionMedia | null) {
+    if (!row) return ''
+
+    const slug = narratorBot.value?.slug
+    const key = expressionKeyOf(row)
+    const derived =
+      slug && key ? `/images/bots/emotions/${slug}/${key}.webp` : ''
 
     return (
       row.imagePath ||
       row.ArtImage?.imagePath ||
       row.ArtImage?.path ||
       row.ArtImage?.fileName ||
+      derived ||
       ''
     )
   }
@@ -1204,6 +1272,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     narratorExtraTexts,
     narratorHoverTitle,
     narratorImage,
+    narratorVideo,
+    rowByExpressionKey,
     currentEmotionLabel,
     fallbackEmotionIcon,
     activeDreamSummary,

@@ -105,13 +105,13 @@ export type Composition = Prisma.CompositionModel
  */
 export type Dream = Prisma.DreamModel
 /**
- * Model EmotionImage
- * One row per (owner, expression). Holds both emotions (face-only edits)
+ * Model ExpressionMedia
+ * One row per (owner, expression). Holds stills AND reaction videos. Holds both emotions (face-only edits)
  * and actions (pose/state edits), discriminated by `kind`.
  * `NEUTRAL` is the canonical generated narrator avatar.
  * The owner's `artImageId` remains the original portrait / identity anchor.
  */
-export type EmotionImage = Prisma.EmotionImageModel
+export type ExpressionMedia = Prisma.ExpressionMediaModel
 /**
  * Model Log
  * our woefully underutilized log function, but it's there.

@@ -62,7 +62,7 @@ export const ModelName = {
   Component: 'Component',
   Composition: 'Composition',
   Dream: 'Dream',
-  EmotionImage: 'EmotionImage',
+  ExpressionMedia: 'ExpressionMedia',
   Log: 'Log',
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
@@ -153,6 +153,7 @@ export const BotScalarFieldEnum = {
   updatedAt: 'updatedAt',
   BotType: 'BotType',
   name: 'name',
+  slug: 'slug',
   subtitle: 'subtitle',
   description: 'description',
   avatarImage: 'avatarImage',
@@ -220,6 +221,7 @@ export const CharacterScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   name: 'name',
+  slug: 'slug',
   achievements: 'achievements',
   alignment: 'alignment',
   experience: 'experience',
@@ -382,7 +384,7 @@ export const DreamScalarFieldEnum = {
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
 
 
-export const EmotionImageScalarFieldEnum = {
+export const ExpressionMediaScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -390,7 +392,9 @@ export const EmotionImageScalarFieldEnum = {
   kind: 'kind',
   label: 'label',
   emoticon: 'emoticon',
+  expressionKey: 'expressionKey',
   imagePath: 'imagePath',
+  videoPath: 'videoPath',
   artImageId: 'artImageId',
   botId: 'botId',
   characterId: 'characterId',
@@ -401,7 +405,7 @@ export const EmotionImageScalarFieldEnum = {
   artPrompt: 'artPrompt'
 } as const
 
-export type EmotionImageScalarFieldEnum = (typeof EmotionImageScalarFieldEnum)[keyof typeof EmotionImageScalarFieldEnum]
+export type ExpressionMediaScalarFieldEnum = (typeof ExpressionMediaScalarFieldEnum)[keyof typeof ExpressionMediaScalarFieldEnum]
 
 
 export const LogScalarFieldEnum = {
@@ -815,6 +819,7 @@ export type ArtCollectionOrderByRelevanceFieldEnum = (typeof ArtCollectionOrderB
 export const BotOrderByRelevanceFieldEnum = {
   BotType: 'BotType',
   name: 'name',
+  slug: 'slug',
   subtitle: 'subtitle',
   description: 'description',
   avatarImage: 'avatarImage',
@@ -851,6 +856,7 @@ export type ButterflyOrderByRelevanceFieldEnum = (typeof ButterflyOrderByRelevan
 
 export const CharacterOrderByRelevanceFieldEnum = {
   name: 'name',
+  slug: 'slug',
   achievements: 'achievements',
   alignment: 'alignment',
   class: 'class',
@@ -958,16 +964,18 @@ export const DreamOrderByRelevanceFieldEnum = {
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
 
 
-export const EmotionImageOrderByRelevanceFieldEnum = {
+export const ExpressionMediaOrderByRelevanceFieldEnum = {
   label: 'label',
   emoticon: 'emoticon',
+  expressionKey: 'expressionKey',
   imagePath: 'imagePath',
+  videoPath: 'videoPath',
   message: 'message',
   designer: 'designer',
   artPrompt: 'artPrompt'
 } as const
 
-export type EmotionImageOrderByRelevanceFieldEnum = (typeof EmotionImageOrderByRelevanceFieldEnum)[keyof typeof EmotionImageOrderByRelevanceFieldEnum]
+export type ExpressionMediaOrderByRelevanceFieldEnum = (typeof ExpressionMediaOrderByRelevanceFieldEnum)[keyof typeof ExpressionMediaOrderByRelevanceFieldEnum]
 
 
 export const LogOrderByRelevanceFieldEnum = {

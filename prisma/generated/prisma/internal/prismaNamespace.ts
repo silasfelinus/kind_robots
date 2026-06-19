@@ -395,7 +395,7 @@ export const ModelName = {
   Component: 'Component',
   Composition: 'Composition',
   Dream: 'Dream',
-  EmotionImage: 'EmotionImage',
+  ExpressionMedia: 'ExpressionMedia',
   Log: 'Log',
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
@@ -425,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "emotionImage" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1155,69 +1155,69 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    EmotionImage: {
-      payload: Prisma.$EmotionImagePayload<ExtArgs>
-      fields: Prisma.EmotionImageFieldRefs
+    ExpressionMedia: {
+      payload: Prisma.$ExpressionMediaPayload<ExtArgs>
+      fields: Prisma.ExpressionMediaFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.EmotionImageFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload> | null
+          args: Prisma.ExpressionMediaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.EmotionImageFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+          args: Prisma.ExpressionMediaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload>
         }
         findFirst: {
-          args: Prisma.EmotionImageFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload> | null
+          args: Prisma.ExpressionMediaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.EmotionImageFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+          args: Prisma.ExpressionMediaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload>
         }
         findMany: {
-          args: Prisma.EmotionImageFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>[]
+          args: Prisma.ExpressionMediaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload>[]
         }
         create: {
-          args: Prisma.EmotionImageCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+          args: Prisma.ExpressionMediaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload>
         }
         createMany: {
-          args: Prisma.EmotionImageCreateManyArgs<ExtArgs>
+          args: Prisma.ExpressionMediaCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         delete: {
-          args: Prisma.EmotionImageDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+          args: Prisma.ExpressionMediaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload>
         }
         update: {
-          args: Prisma.EmotionImageUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+          args: Prisma.ExpressionMediaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload>
         }
         deleteMany: {
-          args: Prisma.EmotionImageDeleteManyArgs<ExtArgs>
+          args: Prisma.ExpressionMediaDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.EmotionImageUpdateManyArgs<ExtArgs>
+          args: Prisma.ExpressionMediaUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         upsert: {
-          args: Prisma.EmotionImageUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmotionImagePayload>
+          args: Prisma.ExpressionMediaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionMediaPayload>
         }
         aggregate: {
-          args: Prisma.EmotionImageAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateEmotionImage>
+          args: Prisma.ExpressionMediaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExpressionMedia>
         }
         groupBy: {
-          args: Prisma.EmotionImageGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EmotionImageGroupByOutputType>[]
+          args: Prisma.ExpressionMediaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpressionMediaGroupByOutputType>[]
         }
         count: {
-          args: Prisma.EmotionImageCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EmotionImageCountAggregateOutputType> | number
+          args: Prisma.ExpressionMediaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpressionMediaCountAggregateOutputType> | number
         }
       }
     }
@@ -2242,6 +2242,7 @@ export const BotScalarFieldEnum = {
   updatedAt: 'updatedAt',
   BotType: 'BotType',
   name: 'name',
+  slug: 'slug',
   subtitle: 'subtitle',
   description: 'description',
   avatarImage: 'avatarImage',
@@ -2309,6 +2310,7 @@ export const CharacterScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   name: 'name',
+  slug: 'slug',
   achievements: 'achievements',
   alignment: 'alignment',
   experience: 'experience',
@@ -2471,7 +2473,7 @@ export const DreamScalarFieldEnum = {
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
 
 
-export const EmotionImageScalarFieldEnum = {
+export const ExpressionMediaScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -2479,7 +2481,9 @@ export const EmotionImageScalarFieldEnum = {
   kind: 'kind',
   label: 'label',
   emoticon: 'emoticon',
+  expressionKey: 'expressionKey',
   imagePath: 'imagePath',
+  videoPath: 'videoPath',
   artImageId: 'artImageId',
   botId: 'botId',
   characterId: 'characterId',
@@ -2490,7 +2494,7 @@ export const EmotionImageScalarFieldEnum = {
   artPrompt: 'artPrompt'
 } as const
 
-export type EmotionImageScalarFieldEnum = (typeof EmotionImageScalarFieldEnum)[keyof typeof EmotionImageScalarFieldEnum]
+export type ExpressionMediaScalarFieldEnum = (typeof ExpressionMediaScalarFieldEnum)[keyof typeof ExpressionMediaScalarFieldEnum]
 
 
 export const LogScalarFieldEnum = {
@@ -2904,6 +2908,7 @@ export type ArtCollectionOrderByRelevanceFieldEnum = (typeof ArtCollectionOrderB
 export const BotOrderByRelevanceFieldEnum = {
   BotType: 'BotType',
   name: 'name',
+  slug: 'slug',
   subtitle: 'subtitle',
   description: 'description',
   avatarImage: 'avatarImage',
@@ -2940,6 +2945,7 @@ export type ButterflyOrderByRelevanceFieldEnum = (typeof ButterflyOrderByRelevan
 
 export const CharacterOrderByRelevanceFieldEnum = {
   name: 'name',
+  slug: 'slug',
   achievements: 'achievements',
   alignment: 'alignment',
   class: 'class',
@@ -3047,16 +3053,18 @@ export const DreamOrderByRelevanceFieldEnum = {
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
 
 
-export const EmotionImageOrderByRelevanceFieldEnum = {
+export const ExpressionMediaOrderByRelevanceFieldEnum = {
   label: 'label',
   emoticon: 'emoticon',
+  expressionKey: 'expressionKey',
   imagePath: 'imagePath',
+  videoPath: 'videoPath',
   message: 'message',
   designer: 'designer',
   artPrompt: 'artPrompt'
 } as const
 
-export type EmotionImageOrderByRelevanceFieldEnum = (typeof EmotionImageOrderByRelevanceFieldEnum)[keyof typeof EmotionImageOrderByRelevanceFieldEnum]
+export type ExpressionMediaOrderByRelevanceFieldEnum = (typeof ExpressionMediaOrderByRelevanceFieldEnum)[keyof typeof ExpressionMediaOrderByRelevanceFieldEnum]
 
 
 export const LogOrderByRelevanceFieldEnum = {
@@ -3573,7 +3581,7 @@ export type GlobalOmitConfig = {
   component?: Prisma.ComponentOmit
   composition?: Prisma.CompositionOmit
   dream?: Prisma.DreamOmit
-  emotionImage?: Prisma.EmotionImageOmit
+  expressionMedia?: Prisma.ExpressionMediaOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit
   manaTransaction?: Prisma.ManaTransactionOmit

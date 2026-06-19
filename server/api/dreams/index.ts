@@ -250,7 +250,7 @@ export const dreamInclude = {
       prompt: true,
       serverId: true,
       serverName: true,
-      EmotionImages: {
+      ExpressionMedia: {
         where: { isActive: true },
         select: {
           id: true,

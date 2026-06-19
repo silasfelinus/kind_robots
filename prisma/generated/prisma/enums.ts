@@ -37,7 +37,8 @@ export const Expression = {
   FACEPALMING: 'FACEPALMING',
   CHEERING: 'CHEERING',
   WHISPERING: 'WHISPERING',
-  SHOUTING: 'SHOUTING'
+  SHOUTING: 'SHOUTING',
+  CUSTOM: 'CUSTOM'
 } as const
 
 export type Expression = (typeof Expression)[keyof typeof Expression]

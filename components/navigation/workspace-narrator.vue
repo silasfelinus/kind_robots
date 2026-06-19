@@ -623,7 +623,16 @@
           class="absolute -inset-1 rounded-[2.75rem] bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
         />
 
+        <!-- Reaction loop (animated webp) when available, else the still portrait -->
         <img
+          v-if="narratorVideo"
+          :src="narratorVideo"
+          :alt="narratorName"
+          class="relative h-full w-full object-cover"
+          loading="lazy"
+        />
+        <img
+          v-else
           :src="narratorImage"
           :alt="narratorName"
           class="relative h-full w-full object-cover"
@@ -727,6 +736,7 @@ const {
   narratorMenuSummary,
   narratorHoverTitle,
   narratorImage,
+  narratorVideo,
   currentEmotionLabel,
   fallbackEmotionIcon,
   activeDreamSummary,

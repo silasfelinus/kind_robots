@@ -1,12 +1,51 @@
+// Canonical emotion values (face-only) — matches Prisma Expression enum.
+export const NARRATOR_EMOTIONS = [
+  'NEUTRAL',
+  'JOYFUL',
+  'SORROWFUL',
+  'AFRAID',
+  'DISGUSTED',
+  'ENRAGED',
+  'SURPRISED',
+  'ANXIOUS',
+  'PROUD',
+  'LOVING',
+] as const
+
+// Canonical action values (pose/state) — matches Prisma Expression enum.
+export const NARRATOR_ACTIONS = [
+  'LAUGHING',
+  'CRYING',
+  'SLEEPING',
+  'THINKING',
+  'SHRUGGING',
+  'WINKING',
+  'FACEPALMING',
+  'CHEERING',
+  'WHISPERING',
+  'SHOUTING',
+] as const
+
 export type NarratorEmotion =
-  | 'NEUTRAL'
-  | 'HAPPY'
-  | 'SAD'
-  | 'EXCITED'
-  | 'NERVOUS'
-  | 'ANGRY'
-  | 'CONFUSED'
-  | 'PROUD'
+  | (typeof NARRATOR_EMOTIONS)[number]
+  | (typeof NARRATOR_ACTIONS)[number]
+  | 'CUSTOM'
+
+// All known (non-custom) expression values, emotions first then actions.
+export const NARRATOR_EXPRESSIONS = [
+  ...NARRATOR_EMOTIONS,
+  ...NARRATOR_ACTIONS,
+] as const
+
+export type NarratorExpressionKind = 'EMOTION' | 'ACTION'
+
+export function expressionKindOf(
+  value: NarratorEmotion,
+): NarratorExpressionKind {
+  return (NARRATOR_ACTIONS as readonly string[]).includes(value)
+    ? 'ACTION'
+    : 'EMOTION'
+}
 
 export type NarratorScreen = 'narrator' | 'scenarios' | 'lore'
 
@@ -84,10 +123,10 @@ export type NarratorTextSource = {
 
 export const fallbackNarratorEmotions: NarratorEmotion[] = [
   'NEUTRAL',
-  'HAPPY',
-  'EXCITED',
-  'CONFUSED',
+  'JOYFUL',
+  'SURPRISED',
   'PROUD',
+  'LOVING',
 ]
 
 export const narratorNavigationTree: NarratorNavAction[] = [
@@ -416,64 +455,28 @@ export function findCreateSpec(type: NarratorCreatableType) {
 }
 
 export function normalizeEmotion(value: unknown): NarratorEmotion {
-  const normalized = String(value || 'NEUTRAL').toUpperCase()
+  const normalized = String(value || 'NEUTRAL')
+    .trim()
+    .toUpperCase()
 
-  if (
-    normalized === 'HAPPY' ||
-    normalized === 'JOYFUL' ||
-    normalized === 'LOVING'
-  ) {
-    return 'HAPPY'
+  // Exact match against the known emotion/action vocabulary.
+  if ((NARRATOR_EXPRESSIONS as readonly string[]).includes(normalized)) {
+    return normalized as NarratorEmotion
   }
 
-  if (
-    normalized === 'SAD' ||
-    normalized === 'SORROWFUL' ||
-    normalized === 'CRYING'
-  ) {
-    return 'SAD'
+  // Back-compat: fold legacy 8-bucket names into the new vocabulary.
+  const legacy: Record<string, NarratorEmotion> = {
+    HAPPY: 'JOYFUL',
+    SAD: 'SORROWFUL',
+    EXCITED: 'SURPRISED',
+    NERVOUS: 'ANXIOUS',
+    ANGRY: 'ENRAGED',
+    CONFUSED: 'THINKING',
   }
+  if (legacy[normalized]) return legacy[normalized]
 
-  if (
-    normalized === 'EXCITED' ||
-    normalized === 'SURPRISED' ||
-    normalized === 'CHEERING' ||
-    normalized === 'LAUGHING'
-  ) {
-    return 'EXCITED'
-  }
-
-  if (
-    normalized === 'NERVOUS' ||
-    normalized === 'ANXIOUS' ||
-    normalized === 'AFRAID'
-  ) {
-    return 'NERVOUS'
-  }
-
-  if (
-    normalized === 'ANGRY' ||
-    normalized === 'ENRAGED' ||
-    normalized === 'DISGUSTED' ||
-    normalized === 'SHOUTING'
-  ) {
-    return 'ANGRY'
-  }
-
-  if (
-    normalized === 'CONFUSED' ||
-    normalized === 'THINKING' ||
-    normalized === 'SHRUGGING' ||
-    normalized === 'FACEPALMING'
-  ) {
-    return 'CONFUSED'
-  }
-
-  if (normalized === 'PROUD') {
-    return 'PROUD'
-  }
-
-  return 'NEUTRAL'
+  // Anything else is a custom expression.
+  return 'CUSTOM'
 }
 
 export function emotionLabel(emotion: NarratorEmotion) {
@@ -488,10 +491,14 @@ export function readExpressionValue(row: unknown) {
 
   const record = row as {
     expression?: unknown
+    expressionKey?: unknown
     emotion?: unknown
   }
 
-  return record.expression ?? record.emotion ?? 'NEUTRAL'
+  // Prefer the canonical enum value; fall back to the key, then legacy emotion.
+  return (
+    record.expression ?? record.expressionKey ?? record.emotion ?? 'NEUTRAL'
+  )
 }
 
 export function readStringArray(value: unknown) {
@@ -618,18 +625,33 @@ export function fallbackEmotionPhrase(options: {
 }) {
   const dreamTitle = options.dreamTitle || 'this Dream'
 
-  const phrases: Record<NarratorEmotion, string> = {
+  const phrases: Partial<Record<NarratorEmotion, string>> = {
     NEUTRAL: `___ is watching ${dreamTitle} take shape.`,
-    HAPPY: `___ likes where ${dreamTitle} is going.`,
-    SAD: `___ sees a tender shadow inside ${dreamTitle}.`,
-    EXCITED: `___ has three extremely suspicious ideas for ${dreamTitle}.`,
-    NERVOUS: `___ thinks ${dreamTitle} is powerful, but needs rails.`,
-    ANGRY: `___ wants sharper stakes for ${dreamTitle}.`,
-    CONFUSED: `___ is untangling the weird little knot inside ${dreamTitle}.`,
+    JOYFUL: `___ likes where ${dreamTitle} is going.`,
+    SORROWFUL: `___ sees a tender shadow inside ${dreamTitle}.`,
+    AFRAID: `___ is a little spooked by what ${dreamTitle} could become.`,
+    DISGUSTED: `___ is not sold on this part of ${dreamTitle}.`,
+    ENRAGED: `___ wants sharper stakes for ${dreamTitle}.`,
+    SURPRISED: `___ did not see that twist in ${dreamTitle} coming.`,
+    ANXIOUS: `___ thinks ${dreamTitle} is powerful, but needs rails.`,
     PROUD: `___ thinks ${dreamTitle} has main-character energy.`,
+    LOVING: `___ has real affection for ${dreamTitle}.`,
+    LAUGHING: `___ cannot stop laughing at ${dreamTitle}.`,
+    CRYING: `___ is genuinely moved by ${dreamTitle}.`,
+    SLEEPING: `___ is resting up before the next pass on ${dreamTitle}.`,
+    THINKING: `___ is untangling the weird little knot inside ${dreamTitle}.`,
+    SHRUGGING: `___ is not sure where ${dreamTitle} goes next.`,
+    WINKING: `___ has a sly idea for ${dreamTitle}.`,
+    FACEPALMING: `___ just spotted the obvious flaw in ${dreamTitle}.`,
+    CHEERING: `___ is hyped about ${dreamTitle}.`,
+    WHISPERING: `___ has a secret to share about ${dreamTitle}.`,
+    SHOUTING: `___ has THOUGHTS about ${dreamTitle}.`,
+    CUSTOM: `___ is reacting to ${dreamTitle}.`,
   }
 
-  return applyNarratorTemplate(phrases[options.emotion], {
+  const phrase = phrases[options.emotion] || `___ is reacting to ${dreamTitle}.`
+
+  return applyNarratorTemplate(phrase, {
     narratorName: options.narratorName,
     dreamTitle,
   })

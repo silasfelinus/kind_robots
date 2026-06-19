@@ -37,7 +37,7 @@ model ArtImage {
   thumbnailData        String?       @db.MediumText
   isActive             Boolean       @default(true)
   artPrompt            String?       @db.Text
-  EmotionImage         EmotionImage?
+  ExpressionMedia      ExpressionMedia?
   CheckpointResource   Resource?     @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
   Server               Server?       @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
 
@@ -92,6 +92,7 @@ model Bot {
   updatedAt         DateTime?      @default(now()) @updatedAt
   BotType           String         @db.VarChar(764)
   name              String         @db.VarChar(256)
+  slug              String?        @unique @db.VarChar(255)
   subtitle          String?        @db.VarChar(764)
   description       String?        @db.VarChar(764)
   avatarImage       String?        @db.VarChar(764)
@@ -125,7 +126,7 @@ model Bot {
   Prompts           Prompt[]
   Reactions         Reaction[]
   Dreams            Dream[]
-  EmotionImages     EmotionImage[]
+  ExpressionMedia   ExpressionMedia[]
 
   @@index([userId], map: "Bot_userId_fkey")
   @@index([serverId], map: "Bot_serverId_fkey")
@@ -178,6 +179,7 @@ model Character {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime?      @default(now()) @updatedAt
   name          String         @db.VarChar(256)
+  slug         String?       @unique @db.VarChar(255)
   achievements  String?        @db.VarChar(764)
   alignment     String?        @db.VarChar(256)
   experience    Int            @default(0)
@@ -216,7 +218,7 @@ model Character {
   Rewards       Reward[]       @relation("CharacterToReward")
   Scenarios     Scenario[]     @relation("CharacterToScenario")
   Compositions  Composition[]
-  EmotionImages EmotionImage[]
+  ExpressionMedia ExpressionMedia[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -423,11 +425,11 @@ model Dream {
   @@index([artCollectionId])
 }
 
-/// One row per (owner, expression). Holds both emotions (face-only edits)
+/// One row per (owner, expression). Holds stills AND reaction videos. Holds both emotions (face-only edits)
 /// and actions (pose/state edits), discriminated by `kind`.
 /// `NEUTRAL` is the canonical generated narrator avatar.
 /// The owner's `artImageId` remains the original portrait / identity anchor.
-model EmotionImage {
+model ExpressionMedia {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime? @default(now()) @updatedAt
@@ -436,8 +438,10 @@ model EmotionImage {
   kind       ExpressionKind @default(EMOTION)
   label      String?        @db.VarChar(256)
   emoticon   String?        @db.VarChar(32)
+  expressionKey String      @db.VarChar(128) // canonical: lowercase enum ("laughing"); custom: freeform slug ("backflip"). Always set; matches filename.
 
-  imagePath  String? @db.VarChar(764)
+  imagePath  String? @db.VarChar(764) // still image (emotion/action portrait)
+  videoPath  String? @db.VarChar(764) // looping reaction video (animated webp/mp4)
   artImageId Int?    @unique
 
   botId       Int?
@@ -454,13 +458,16 @@ model EmotionImage {
   designer  String? @db.VarChar(256)
   artPrompt String? @db.Text
 
-  @@unique([botId, expression])
-  @@unique([characterId, expression])
+  // expressionKey is always populated (never null), so uniqueness is clean
+  // for both canonical and custom rows. One media row per (owner, key).
+  @@unique([botId, expressionKey])
+  @@unique([characterId, expressionKey])
 
   @@index([artImageId])
   @@index([botId])
   @@index([characterId])
   @@index([kind])
+  @@index([expressionKey])
   @@index([botId, kind])
   @@index([characterId, kind])
   @@index([botId, isActive])
@@ -498,6 +505,8 @@ enum Expression {
   CHEERING
   WHISPERING
   SHOUTING
+  // ── Custom escape hatch ──
+  CUSTOM // freeform action; read customName instead
 }
 
 /// our woefully underutilized log function, but it's there.

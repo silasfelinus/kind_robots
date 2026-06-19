@@ -12,26 +12,33 @@ import {
   applyNarratorTemplate,
   buildNarratorStarterPrompts,
   cleanPublicNarratorText,
+  detectAnimationIntent,
   dreamSummary,
   emotionLabel,
   fallbackEmotionPhrase,
   fallbackNarratorEmotions,
+  findCreateSpec,
   findNarratorNavAction,
+  matchLoreTopic,
   narratorDisplaySummary,
   narratorIntroMessage,
+  narratorLoreTopics,
   narratorMenuSummary,
   normalizeEmotion,
   readAdditionalNarratorTexts,
   readExpressionValue,
   readStringArray,
+  resolveAnimationId,
   scenarioKey,
   scenarioSummary,
   scenarioTitle,
+  type NarratorCreatableType,
   type NarratorEmotion,
   type NarratorNavAction,
   type NarratorScreen,
   type NarratorStarterPrompt,
 } from './helpers/narratorHelper'
+import { useAnimationStore } from '@/stores/animationStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
@@ -102,6 +109,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   const serverStore = useServerStore()
   const userStore = useUserStore()
   const promptStore = usePromptStore()
+  const animationStore = useAnimationStore()
 
   const isOpen = ref(false)
   const pinOpen = ref(false)
@@ -274,6 +282,14 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     })
   })
 
+  const loreTopics = computed(() => narratorLoreTopics)
+
+  const availableAnimations = computed(() => animationStore.effects)
+
+  const activeAnimation = computed(() => animationStore.activeEffect)
+
+  const isAnimating = computed(() => animationStore.isActive)
+
   const runtimeTextServer = computed<Server | null>(() => {
     const botServerId = narratorBot.value?.serverId
 
@@ -394,7 +410,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
       if (
         parsed.activeScreen === 'narrator' ||
-        parsed.activeScreen === 'scenarios'
+        parsed.activeScreen === 'scenarios' ||
+        parsed.activeScreen === 'lore'
       ) {
         activeScreen.value = parsed.activeScreen
       }
@@ -723,6 +740,238 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       .join('\n')
   }
 
+  // ── Site lore / founder Q&A ───────────────────────────────────────────────
+  function answerLore(query: string): boolean {
+    const topic = matchLoreTopic(query)
+
+    if (!topic) return false
+
+    isOpen.value = true
+    activeScreen.value = 'lore'
+    clearBubble()
+    setEmotion('HAPPY', false)
+    narratorMessage.value = ''
+    setStatus(`${topic.title}: ${topic.answer}`, 'success')
+    activeBubble.value = applyNarratorTemplate(topic.answer, {
+      narratorName: narratorName.value,
+      dreamTitle: activeDream.value?.title,
+    })
+
+    return true
+  }
+
+  function speakLore(topicKey: string) {
+    const topic = narratorLoreTopics.find((entry) => entry.key === topicKey)
+
+    if (!topic) return
+
+    isOpen.value = true
+    activeScreen.value = 'lore'
+    setEmotion('PROUD', false)
+    setStatus(`${topic.title}: ${topic.answer}`, 'success')
+    activeBubble.value = topic.answer
+  }
+
+  // ── Animation control ─────────────────────────────────────────────────────
+  function startAnimation(effect?: string, durationMs: number | null = null) {
+    const effectId = effect ? resolveAnimationId(effect) : null
+
+    animationStore.start({
+      effectId: (effectId as never) || undefined,
+      durationMs,
+    })
+    setEmotion('EXCITED', false)
+    activeBubble.value = effectId
+      ? `Lights up: ${animationStore.activeEffect?.label ?? effectId}.`
+      : 'Surprise effect, incoming.'
+  }
+
+  function stopAnimation() {
+    animationStore.stop()
+    animationStore.clearScreenEffects()
+    setEmotion('NEUTRAL', false)
+    activeBubble.value = 'Effects off. Back to a calm canvas.'
+  }
+
+  function randomAnimation() {
+    animationStore.start({ durationMs: null })
+    setEmotion('EXCITED', false)
+    activeBubble.value = `Rolling the dice: ${
+      animationStore.activeEffect?.label ?? 'something fun'
+    }.`
+  }
+
+  function cycleAnimation(direction: 'next' | 'prev' = 'next') {
+    if (!animationStore.isActive) {
+      animationStore.start({ durationMs: null })
+    } else if (direction === 'prev') {
+      animationStore.prevEffect()
+    } else {
+      animationStore.nextEffect()
+    }
+
+    activeBubble.value = `Now showing: ${
+      animationStore.activeEffect?.label ?? 'an effect'
+    }.`
+  }
+
+  function handleAnimationRequest(text: string): boolean {
+    const intent = detectAnimationIntent(text)
+
+    if (!intent) return false
+
+    if (intent === 'stop') {
+      stopAnimation()
+      return true
+    }
+    if (intent === 'random') {
+      randomAnimation()
+      return true
+    }
+    if (intent === 'next' || intent === 'prev') {
+      cycleAnimation(intent)
+      return true
+    }
+
+    // 'start' — try to resolve a named effect from the phrase.
+    const effectId = resolveAnimationId(text)
+    startAnimation(effectId || undefined)
+
+    return true
+  }
+
+  // ── Object creation ───────────────────────────────────────────────────────
+  // Stages a drafting prompt for the given type and routes to its builder.
+  // Set sendNow to also fire the Narrator chat request immediately.
+  async function prepareCreate(
+    type: NarratorCreatableType,
+    options: { navigate?: boolean; sendNow?: boolean } = {},
+  ) {
+    const spec = findCreateSpec(type)
+
+    if (!spec) return
+
+    activeScreen.value = 'narrator'
+    isOpen.value = true
+    clearBubble()
+    setEmotion('EXCITED')
+
+    narratorMessage.value = applyNarratorTemplate(spec.prompt, {
+      narratorName: narratorName.value,
+      dreamTitle: activeDream.value?.title,
+    })
+
+    if (options.navigate) {
+      await navigateTo(spec.builderPath)
+    }
+
+    if (options.sendNow) {
+      await sendNarratorMessage()
+    }
+  }
+
+  // Direct create path. Wire these to your real store methods.
+  // Each store method is expected to accept a partial payload and return the
+  // created record (with an id). Adjust names to match your stores.
+  async function quickCreate(
+    type: NarratorCreatableType,
+    payload: Record<string, unknown> = {},
+  ) {
+    const dream = activeDream.value
+    const userId = userStore.userId ?? userStore.user?.id ?? 10
+
+    const base = {
+      userId,
+      ...(dream ? { dreamId: dream.id } : {}),
+      ...payload,
+    }
+
+    try {
+      let created: { id?: number } | null = null
+
+      switch (type) {
+        case 'character': {
+          // e.g. characterStore.createCharacter(base)
+          created = await callStoreCreate(
+            'characterStore',
+            'createCharacter',
+            base,
+          )
+          break
+        }
+        case 'reward': {
+          // e.g. rewardStore.createReward(base)
+          created = await callStoreCreate('rewardStore', 'createReward', base)
+          break
+        }
+        case 'scenario': {
+          // e.g. scenarioStore.createScenario(base)
+          created = await callStoreCreate(
+            'scenarioStore',
+            'createScenario',
+            base,
+          )
+          break
+        }
+        case 'dream': {
+          // e.g. dreamStore.createDream(base)
+          created = await callStoreCreate('dreamStore', 'createDream', base)
+          break
+        }
+      }
+
+      if (created?.id) {
+        setEmotion('PROUD')
+        setStatus(`Created a new ${type}.`, 'success')
+      } else {
+        setStatus(`Staged a ${type}, but no record came back.`, 'error')
+      }
+
+      return created
+    } catch (error) {
+      setEmotion('CONFUSED')
+      setStatus(
+        error instanceof Error ? error.message : `Could not create ${type}.`,
+        'error',
+      )
+      return null
+    }
+  }
+
+  // Thin indirection so wiring stays in one place. Replace the body with
+  // direct imports/calls to your real stores when ready.
+  async function callStoreCreate(
+    _storeName: string,
+    _method: string,
+    _payload: Record<string, unknown>,
+  ): Promise<{ id?: number } | null> {
+    // TODO(silas): wire to real store create methods, e.g.:
+    //   const store = useCharacterStore()
+    //   return store.createCharacter(_payload)
+    throw new Error(
+      `Wire ${_storeName}.${_method}() into callStoreCreate to enable direct creation.`,
+    )
+  }
+
+  // ── Unified intent router ─────────────────────────────────────────────────
+  // Lets a single user line trigger lore answers or animation control before
+  // falling back to a normal Narrator chat turn.
+  async function routeNarratorInput(
+    text: string,
+  ): Promise<'lore' | 'animation' | 'chat'> {
+    const trimmed = text.trim()
+
+    if (!trimmed) return 'chat'
+
+    if (handleAnimationRequest(trimmed)) return 'animation'
+    if (answerLore(trimmed)) return 'lore'
+
+    narratorMessage.value = trimmed
+    await sendNarratorMessage()
+
+    return 'chat'
+  }
+
   function buildNarratorSystemPrompt() {
     const dream = activeDream.value
     const bot = narratorBot.value
@@ -770,7 +1019,11 @@ export const useNarratorStore = defineStore('narratorStore', () => {
             .filter(Boolean)
             .join('\n')
         : '',
-      'Help build more elements, start stories, and add vivid flavor. Stay scoped to the active Dream. Do not act like a public chatroom.',
+      'Site context: Kind Robots is a socially conscious, server-agnostic AI creativity playground. Its mascot is AMI, the Anti-Malaria Intelligence — a horde of rainbow butterflies. Creativity here supports an anti-malaria fundraiser (againstmalaria.com/amibot). Built by Silas. You may answer questions about the site, its mission, mascot, and founder.',
+      `Available screen effects you can describe or suggest the user trigger: ${availableAnimations.value
+        .map((effect) => effect.label)
+        .join(', ')}.`,
+      'You can build elements (characters, rewards, scenarios, dreams), start stories, navigate the site, answer site lore, and trigger fun screen animations. Stay scoped to the active Dream for story work. Do not act like a public chatroom.',
     ]
       .filter(Boolean)
       .join('\n\n')
@@ -956,6 +1209,10 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeDreamSummary,
     narratorIntro,
     narratorStarterPrompts,
+    loreTopics,
+    availableAnimations,
+    activeAnimation,
+    isAnimating,
     runtimeTextServer,
     narratorSession,
     isNarratorResponding,
@@ -990,6 +1247,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     setStatus,
     clearSession,
     sendNarratorMessage,
+    answerLore,
+    speakLore,
+    startAnimation,
+    stopAnimation,
+    randomAnimation,
+    cycleAnimation,
+    handleAnimationRequest,
+    prepareCreate,
+    quickCreate,
+    routeNarratorInput,
     disposeTimers,
   }
 })

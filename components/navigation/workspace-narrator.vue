@@ -51,6 +51,7 @@
             <div class="flex min-w-0 gap-3">
               <div
                 class="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-primary/30 bg-base-300 shadow-lg sm:h-14 sm:w-14"
+                :class="portraitFlipping ? 'is-portrait-flipping' : ''"
               >
                 <img
                   :src="narratorImage"
@@ -233,95 +234,133 @@
               </div>
             </section>
 
+            <!--
+              CONSOLE WINDOW
+              Mood ring + chat log live together inside one framed console so
+              the narrator's "notes" read as a single stylish surface rather
+              than stacked loose cards.
+            -->
             <section
-              v-if="showMoodRing && emotionOptions.length"
-              class="mt-3 rounded-3xl border border-base-300 bg-base-200/80 p-3"
+              v-if="
+                (showMoodRing && emotionOptions.length) ||
+                narratorSession.length
+              "
+              class="narrator-console mt-3 overflow-hidden rounded-3xl border border-primary/25 bg-base-200/70 shadow-lg"
             >
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <p
-                  class="text-xs font-black uppercase tracking-wide text-primary"
-                >
-                  Mood Ring
-                </p>
-
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-xl"
-                  :class="
-                    bubblesEnabled ? 'text-success' : 'text-base-content/40'
-                  "
-                  @click="toggleBubbles"
-                >
-                  <Icon
-                    :name="
-                      bubblesEnabled ? 'kind-icon:message' : 'kind-icon:mute'
-                    "
-                    class="h-3.5 w-3.5"
-                  />
-                  Bubbles
-                </button>
-              </div>
-
-              <div class="mt-2 flex flex-wrap gap-2">
-                <button
-                  v-for="emotion in emotionOptions"
-                  :key="emotion"
-                  type="button"
-                  class="btn btn-xs rounded-xl"
-                  :class="emotionButtonClass(emotion)"
-                  @click="setEmotion(emotion)"
-                >
-                  {{ emotionLabel(emotion) }}
-                </button>
-              </div>
-            </section>
-
-            <section
-              v-if="narratorSession.length"
-              ref="chatLogRef"
-              class="mt-3 max-h-56 overflow-y-auto rounded-3xl border border-base-300 bg-base-200/80 p-3 sm:max-h-64"
-            >
-              <div class="grid gap-3">
-                <article
-                  v-for="chat in narratorSession"
-                  :key="chat.id"
-                  class="grid gap-2"
-                >
-                  <div
-                    class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm leading-relaxed text-primary-content"
+              <div
+                class="flex items-center justify-between gap-2 border-b border-base-300/70 bg-base-100/60 px-3 py-2"
+              >
+                <div class="flex items-center gap-2">
+                  <span
+                    class="flex h-6 w-6 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary"
                   >
-                    <p class="whitespace-pre-wrap">{{ chat.content }}</p>
-                  </div>
+                    <Icon name="kind-icon:dream" class="h-3.5 w-3.5" />
+                  </span>
 
-                  <div class="flex max-w-[90%] gap-2">
-                    <img
-                      :src="narratorImage"
-                      :alt="narratorName"
-                      class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
-                      loading="lazy"
+                  <p
+                    class="text-xs font-black uppercase tracking-wide text-primary"
+                  >
+                    Narrator Console
+                  </p>
+                </div>
+
+                <span class="flex items-center gap-1">
+                  <span class="narrator-console-dot bg-error/70" />
+                  <span class="narrator-console-dot bg-warning/70" />
+                  <span class="narrator-console-dot bg-success/70" />
+                </span>
+              </div>
+
+              <div
+                v-if="showMoodRing && emotionOptions.length"
+                class="border-b border-base-300/70 bg-base-100/40 p-3"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <p
+                    class="text-xs font-black uppercase tracking-wide text-base-content/60"
+                  >
+                    Mood Ring
+                  </p>
+
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-xl"
+                    :class="
+                      bubblesEnabled ? 'text-success' : 'text-base-content/40'
+                    "
+                    @click="toggleBubbles"
+                  >
+                    <Icon
+                      :name="
+                        bubblesEnabled ? 'kind-icon:message' : 'kind-icon:mute'
+                      "
+                      class="h-3.5 w-3.5"
                     />
+                    Bubbles
+                  </button>
+                </div>
 
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <button
+                    v-for="emotion in emotionOptions"
+                    :key="emotion"
+                    type="button"
+                    class="btn btn-xs rounded-xl"
+                    :class="emotionButtonClass(emotion)"
+                    @click="setEmotion(emotion)"
+                  >
+                    {{ emotionLabel(emotion) }}
+                  </button>
+                </div>
+              </div>
+
+              <div
+                v-if="narratorSession.length"
+                ref="chatLogRef"
+                class="max-h-64 overflow-y-auto overscroll-contain bg-base-200/40 p-3 sm:max-h-72"
+              >
+                <div class="grid gap-3">
+                  <article
+                    v-for="chat in narratorSession"
+                    :key="chat.id"
+                    class="grid gap-2"
+                  >
                     <div
-                      class="rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed shadow-sm"
+                      class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm leading-relaxed text-primary-content"
                     >
-                      <span
-                        v-if="!chat.botResponse"
-                        class="flex items-center gap-1 py-1 text-base-content/60"
-                      >
-                        <span class="narrator-dot" />
-                        <span class="narrator-dot delay-150" />
-                        <span class="narrator-dot delay-300" />
-                      </span>
-
-                      <p
-                        v-else
-                        class="whitespace-pre-wrap text-base-content/80"
-                      >
-                        {{ chat.botResponse }}
-                      </p>
+                      <p class="whitespace-pre-wrap">{{ chat.content }}</p>
                     </div>
-                  </div>
-                </article>
+
+                    <div class="flex max-w-[90%] gap-2">
+                      <img
+                        :src="narratorImage"
+                        :alt="narratorName"
+                        class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
+                        loading="lazy"
+                      />
+
+                      <div
+                        class="rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed shadow-sm"
+                      >
+                        <span
+                          v-if="!chat.botResponse"
+                          class="flex items-center gap-1 py-1 text-base-content/60"
+                        >
+                          <span class="narrator-dot" />
+                          <span class="narrator-dot delay-150" />
+                          <span class="narrator-dot delay-300" />
+                        </span>
+
+                        <p
+                          v-else
+                          class="whitespace-pre-wrap text-base-content/80"
+                        >
+                          {{ chat.botResponse }}
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                </div>
               </div>
             </section>
 
@@ -615,6 +654,7 @@
         v-if="!mobileToggle"
         type="button"
         class="group relative h-full w-full overflow-hidden rounded-4xl border border-primary/30 bg-base-300 shadow-2xl transition-transform duration-300 hover:scale-105 md:rounded-[2.5rem]"
+        :class="portraitFlipping ? 'is-portrait-flipping' : ''"
         :aria-expanded="isOpen"
         :title="narratorHoverTitle"
         @click="togglePanel"
@@ -756,37 +796,68 @@ const chatLogRef = ref<HTMLElement | null>(null)
 
 const mobileToggle = computed(() => props.mobileToggle)
 
+// ---------------------------------------------------------------------------
+// Portrait card-spin
+// Mirrors the workspace-hand flip: whenever the displayed portrait or reaction
+// source changes (emotion swap, reaction loop, character change), spin the
+// frame once. Reduced-motion is honored in the stylesheet.
+// ---------------------------------------------------------------------------
+const portraitFlipping = ref(false)
+const PORTRAIT_FLIP_MS = 650
+let portraitFlipTimer: ReturnType<typeof setTimeout> | null = null
+
+function triggerPortraitFlip(): void {
+  if (portraitFlipTimer) clearTimeout(portraitFlipTimer)
+
+  portraitFlipping.value = true
+
+  portraitFlipTimer = setTimeout(() => {
+    portraitFlipping.value = false
+    portraitFlipTimer = null
+  }, PORTRAIT_FLIP_MS)
+}
+
+watch(
+  () => [narratorImage.value, narratorVideo.value],
+  ([nextImage, nextVideo], [prevImage, prevVideo]) => {
+    if (nextImage !== prevImage || nextVideo !== prevVideo) {
+      triggerPortraitFlip()
+    }
+  },
+)
+
 const narratorFrameClass = computed(() => {
   if (props.mobileToggle) {
     return 'relative h-12 w-12 transition-transform duration-300 ease-out'
   }
 
+  // Taller resting frame + bigger growth on hover/open than before.
   if (props.railMode && !props.chromeMinimized) {
     return [
-      'fixed bottom-3 right-3 h-36 w-24 max-w-[calc(100vw-1.5rem)]',
+      'fixed bottom-3 right-3 h-44 w-28 max-w-[calc(100vw-1.5rem)]',
       'transition-[height,width,transform] duration-300 ease-out',
-      isOpen.value ? 'h-40 w-28' : '',
+      isOpen.value ? 'h-52 w-32' : '',
       'md:relative md:bottom-auto md:right-auto',
-      'md:h-[calc(var(--hand-h,9rem)*2.05)] md:w-[calc(var(--hand-h,9rem)*0.86)]',
-      'md:max-h-[76dvh] md:min-h-52 md:min-w-28 md:max-w-none',
+      'md:h-[calc(var(--hand-h,9rem)*2.45)] md:w-[calc(var(--hand-h,9rem)*0.98)]',
+      'md:max-h-[82dvh] md:min-h-64 md:min-w-32 md:max-w-none',
       isOpen.value
-        ? 'md:h-[calc(var(--hand-h,9rem)*2.55)] md:w-[calc(var(--hand-h,9rem)*1.08)]'
-        : 'md:hover:h-[calc(var(--hand-h,9rem)*2.65)] md:hover:w-[calc(var(--hand-h,9rem)*1.12)]',
+        ? 'md:h-[calc(var(--hand-h,9rem)*3.05)] md:w-[calc(var(--hand-h,9rem)*1.24)]'
+        : 'md:hover:h-[calc(var(--hand-h,9rem)*3.2)] md:hover:w-[calc(var(--hand-h,9rem)*1.3)]',
     ]
       .filter(Boolean)
       .join(' ')
   }
 
   return [
-    'fixed bottom-3 right-3 h-36 w-24 max-w-[calc(100vw-1.5rem)]',
+    'fixed bottom-3 right-3 h-44 w-28 max-w-[calc(100vw-1.5rem)]',
     'transition-[height,width,transform] duration-300 ease-out',
-    isOpen.value ? 'h-40 w-28' : '',
+    isOpen.value ? 'h-52 w-32' : '',
     'sm:bottom-4 sm:right-4',
-    'md:h-[calc(var(--hand-h,9rem)*1.85)] md:w-[calc(var(--hand-h,9rem)*0.78)]',
-    'md:max-h-[72dvh] md:min-h-48 md:min-w-28 md:max-w-none',
+    'md:h-[calc(var(--hand-h,9rem)*2.2)] md:w-[calc(var(--hand-h,9rem)*0.9)]',
+    'md:max-h-[80dvh] md:min-h-60 md:min-w-32 md:max-w-none',
     isOpen.value
-      ? 'md:h-[calc(var(--hand-h,9rem)*2.35)] md:w-[calc(var(--hand-h,9rem)*1)]'
-      : 'md:hover:h-[calc(var(--hand-h,9rem)*2.45)] md:hover:w-[calc(var(--hand-h,9rem)*1.04)]',
+      ? 'md:h-[calc(var(--hand-h,9rem)*2.8)] md:w-[calc(var(--hand-h,9rem)*1.16)]'
+      : 'md:hover:h-[calc(var(--hand-h,9rem)*2.95)] md:hover:w-[calc(var(--hand-h,9rem)*1.2)]',
   ]
     .filter(Boolean)
     .join(' ')
@@ -804,7 +875,7 @@ const narratorPanelClass = computed(() => {
     return [
       'fixed inset-x-3 bottom-36 w-auto max-h-[calc(100dvh-9.75rem)]',
       'md:absolute md:inset-x-auto md:bottom-0 md:right-[calc(100%+1rem)]',
-      'md:w-[min(30rem,calc(100vw-9.5rem))] md:max-h-[min(38rem,calc(100dvh-2rem))]',
+      'md:w-[min(30rem,calc(100vw-9.5rem))] md:max-h-[min(40rem,calc(100dvh-2rem))]',
       'xl:w-[28rem]',
     ].join(' ')
   }
@@ -812,7 +883,7 @@ const narratorPanelClass = computed(() => {
   return [
     'fixed inset-x-3 bottom-36 w-auto max-h-[calc(100dvh-9.75rem)]',
     'sm:absolute sm:inset-x-auto sm:bottom-[calc(100%+1rem)] sm:right-0',
-    'sm:w-[min(calc(100vw-1.5rem),30rem)] sm:max-h-[min(38rem,calc(100dvh-2rem))]',
+    'sm:w-[min(calc(100vw-1.5rem),30rem)] sm:max-h-[min(40rem,calc(100dvh-2rem))]',
     'xl:w-[28rem]',
   ].join(' ')
 })
@@ -886,6 +957,8 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   disposeTimers()
   teardownLiveness()
+
+  if (portraitFlipTimer) clearTimeout(portraitFlipTimer)
 })
 
 function screenButtonClass(screen: NarratorScreen) {
@@ -926,6 +999,13 @@ function scrollChatToBottom() {
   content: '';
 }
 
+.narrator-console-dot {
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+}
+
 .narrator-dot {
   display: inline-block;
   height: 0.375rem;
@@ -941,6 +1021,26 @@ function scrollChatToBottom() {
 
 .delay-300 {
   animation-delay: 300ms;
+}
+
+/* Portrait card-spin — mirrors workspace-hand's flip keyframes. */
+.is-portrait-flipping {
+  animation: narrator-portrait-spin 650ms cubic-bezier(0.4, 0.1, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+@keyframes narrator-portrait-spin {
+  0% {
+    transform: rotateY(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotateY(180deg) scale(1.06);
+  }
+
+  100% {
+    transform: rotateY(360deg) scale(1);
+  }
 }
 
 .narrator-panel-enter-active,
@@ -975,6 +1075,12 @@ function scrollChatToBottom() {
   40% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-portrait-flipping {
+    animation: none;
   }
 }
 </style>

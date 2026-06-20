@@ -623,20 +623,23 @@
           class="absolute -inset-1 rounded-[2.75rem] bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
         />
 
-        <!-- Reaction loop (animated webp) when available, else the still portrait -->
+        <!-- Reaction loop (animated webp) while playing, else the still portrait.
+             Clicking the portrait plays a reaction without toggling the panel. -->
         <img
           v-if="narratorVideo"
           :src="narratorVideo"
           :alt="narratorName"
-          class="relative h-full w-full object-cover"
+          class="relative h-full w-full cursor-pointer object-cover"
           loading="lazy"
+          @click.stop="playReactionOnClick"
         />
         <img
           v-else
           :src="narratorImage"
           :alt="narratorName"
-          class="relative h-full w-full object-cover"
+          class="relative h-full w-full cursor-pointer object-cover"
           loading="lazy"
+          @click.stop="playReactionOnClick"
         />
 
         <div
@@ -849,6 +852,8 @@ const {
   prepareScenarioBuildPrompt,
   clearSession,
   sendNarratorMessage,
+  playReactionOnClick,
+  teardownLiveness,
 } = narratorStore
 
 watch(
@@ -880,6 +885,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   disposeTimers()
+  teardownLiveness()
 })
 
 function screenButtonClass(screen: NarratorScreen) {

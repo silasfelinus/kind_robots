@@ -132,6 +132,31 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   let bubbleTimer: ReturnType<typeof setTimeout> | null = null
 
+  // ── Liveness system: ambient mood drift + occasional reaction videos ──
+  // Global toggle (persisted with other settings).
+  const livenessEnabled = ref(true)
+
+  // Tunable config — adjust to taste. All times in milliseconds.
+  const livenessConfig = ref({
+    // Idle heartbeat window: next event fires somewhere in [min, max].
+    minIdleMs: 18000,
+    maxIdleMs: 42000,
+    // Of each heartbeat, chance (0..1) it's a VIDEO reaction vs a mood drift.
+    videoChance: 0.35,
+    // How long a reaction video plays before settling back to the still.
+    videoDurationMs: 4500,
+    // Pause liveness for this long after any manual interaction.
+    settleAfterInteractionMs: 12000,
+  })
+
+  // True while a reaction loop is actively shown in the hero portrait.
+  const playingVideo = ref(false)
+
+  let livenessTimer: ReturnType<typeof setTimeout> | null = null
+  let videoStopTimer: ReturnType<typeof setTimeout> | null = null
+  let livenessPausedUntil = 0
+  let tabHidden = false
+
   const isDreamWorkspace = computed(() => {
     return navStore.dashboardShell.dashboardKey === 'dream'
   })
@@ -264,6 +289,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   // Reaction loop for the current expression, if one exists (else empty -> UI shows still).
   const narratorVideo = computed(() => {
+    // Only surface the loop while actively playing (click or ambient beat).
+    if (!playingVideo.value) return ''
     return readEmotionVideo(currentEmotionRow.value)
   })
 
@@ -401,7 +428,10 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     },
   )
 
-  watch([isOpen, pinOpen, bubblesEnabled, activeScreen], saveSettings)
+  watch(
+    [isOpen, pinOpen, bubblesEnabled, livenessEnabled, activeScreen],
+    saveSettings,
+  )
 
   async function initialize() {
     if (hasInitialized.value) return
@@ -422,6 +452,25 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     if (bubblesEnabled.value) {
       showBubbleForEmotion(currentEmotion.value)
     }
+
+    if (import.meta.client) {
+      document.addEventListener('visibilitychange', handleVisibility)
+      tabHidden = document.visibilityState === 'hidden'
+      if (livenessEnabled.value && !tabHidden) startLiveness()
+    }
+  }
+
+  // Tear down timers + listeners (call from component onUnmounted/onScopeDispose).
+  function teardownLiveness() {
+    stopLiveness()
+    if (videoStopTimer) {
+      clearTimeout(videoStopTimer)
+      videoStopTimer = null
+    }
+    playingVideo.value = false
+    if (import.meta.client) {
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }
 
   function loadSettings() {
@@ -435,6 +484,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         isOpen?: boolean
         pinOpen?: boolean
         bubblesEnabled?: boolean
+        livenessEnabled?: boolean
         currentEmotion?: NarratorEmotion
         activeScreen?: NarratorScreen
       }
@@ -442,6 +492,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       pinOpen.value = Boolean(parsed.pinOpen)
       isOpen.value = Boolean(parsed.isOpen || parsed.pinOpen)
       bubblesEnabled.value = parsed.bubblesEnabled !== false
+      livenessEnabled.value = parsed.livenessEnabled !== false
       currentEmotion.value = normalizeEmotion(parsed.currentEmotion)
 
       if (
@@ -464,6 +515,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
           isOpen: isOpen.value,
           pinOpen: pinOpen.value,
           bubblesEnabled: bubblesEnabled.value,
+          livenessEnabled: livenessEnabled.value,
           currentEmotion: currentEmotion.value,
           activeScreen: activeScreen.value,
         }),
@@ -495,6 +547,138 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       options[(currentIndex + 1) % options.length] ?? 'NEUTRAL'
 
     setEmotion(nextEmotion)
+  }
+
+  // ── Liveness engine ───────────────────────────────────────────────────────
+
+  function randBetween(min: number, max: number) {
+    return min + Math.random() * (max - min)
+  }
+
+  // Rows that actually have a playable reaction video.
+  const videoRows = computed(() =>
+    emotionRows.value.filter((row) => Boolean(readEmotionVideo(row))),
+  )
+
+  // Pick a mood to drift to. Prefers the bot's known expressions, falls back
+  // to the full emotion list (image gracefully falls back to neutral if absent).
+  function pickDriftEmotion(): NarratorEmotion {
+    const pool = emotionOptions.value.filter(
+      (e) => e !== currentEmotion.value && e !== 'CUSTOM',
+    )
+    const source = pool.length ? pool : fallbackNarratorEmotions
+    return source[Math.floor(Math.random() * source.length)] ?? 'NEUTRAL'
+  }
+
+  // Drift to a new mood (swaps the still image to that mood if available).
+  function driftMood() {
+    const next = pickDriftEmotion()
+    setEmotion(next, bubblesEnabled.value)
+    showMoodRing.value = true
+    setTimeout(() => (showMoodRing.value = false), 1200)
+  }
+
+  // Play a reaction video for the current (or a random video-having) expression,
+  // then settle back to the still.
+  function playReaction(row?: NarratorExpressionMedia | null) {
+    const target =
+      row ||
+      (readEmotionVideo(currentEmotionRow.value)
+        ? currentEmotionRow.value
+        : videoRows.value[Math.floor(Math.random() * videoRows.value.length)])
+
+    if (!target || !readEmotionVideo(target)) {
+      // No video to play — drift instead so the beat isn't wasted.
+      driftMood()
+      return
+    }
+
+    // Align current emotion to the row so the hero shows the right loop.
+    const rowEmotion = normalizeEmotion(readExpressionValue(target))
+    if (rowEmotion !== 'CUSTOM') setEmotion(rowEmotion, false)
+
+    playingVideo.value = true
+    if (videoStopTimer) clearTimeout(videoStopTimer)
+    videoStopTimer = setTimeout(() => {
+      playingVideo.value = false
+      videoStopTimer = null
+    }, livenessConfig.value.videoDurationMs)
+  }
+
+  // One heartbeat: decide drift vs video, then schedule the next.
+  function livenessBeat() {
+    const now = Date.now()
+    const canRun =
+      livenessEnabled.value &&
+      !tabHidden &&
+      now >= livenessPausedUntil &&
+      shouldRender.value
+
+    if (canRun) {
+      const wantVideo =
+        videoRows.value.length > 0 &&
+        Math.random() < livenessConfig.value.videoChance
+      if (wantVideo) playReaction()
+      else driftMood()
+    }
+
+    scheduleLiveness()
+  }
+
+  function scheduleLiveness() {
+    if (livenessTimer) clearTimeout(livenessTimer)
+    const delay = randBetween(
+      livenessConfig.value.minIdleMs,
+      livenessConfig.value.maxIdleMs,
+    )
+    livenessTimer = setTimeout(livenessBeat, delay)
+  }
+
+  function startLiveness() {
+    stopLiveness()
+    scheduleLiveness()
+  }
+
+  function stopLiveness() {
+    if (livenessTimer) {
+      clearTimeout(livenessTimer)
+      livenessTimer = null
+    }
+  }
+
+  // Manual interaction: pause ambient drift briefly so it doesn't fight the user.
+  function nudgeLiveness() {
+    livenessPausedUntil =
+      Date.now() + livenessConfig.value.settleAfterInteractionMs
+  }
+
+  function toggleLiveness() {
+    livenessEnabled.value = !livenessEnabled.value
+    if (livenessEnabled.value) startLiveness()
+    else {
+      stopLiveness()
+      playingVideo.value = false
+      if (videoStopTimer) {
+        clearTimeout(videoStopTimer)
+        videoStopTimer = null
+      }
+    }
+  }
+
+  // Click the portrait -> play its reaction now (and settle ambient timing).
+  function playReactionOnClick() {
+    nudgeLiveness()
+    playReaction(currentEmotionRow.value)
+  }
+
+  // Tab visibility: pause when hidden, resume when shown.
+  function handleVisibility() {
+    tabHidden = document.visibilityState === 'hidden'
+    if (tabHidden) {
+      stopLiveness()
+    } else if (livenessEnabled.value) {
+      startLiveness()
+    }
   }
 
   function togglePanel() {
@@ -1274,6 +1458,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     narratorImage,
     narratorVideo,
     rowByExpressionKey,
+    // liveness system
+    livenessEnabled,
+    livenessConfig,
+    playingVideo,
+    startLiveness,
+    stopLiveness,
+    toggleLiveness,
+    playReactionOnClick,
+    nudgeLiveness,
+    teardownLiveness,
     currentEmotionLabel,
     fallbackEmotionIcon,
     activeDreamSummary,

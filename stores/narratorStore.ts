@@ -45,6 +45,9 @@ import { useNavStore } from '@/stores/navStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+import { useCharacterStore } from '@/stores/characterStore'
+import { useRewardStore } from '@/stores/rewardStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
 
 type ArtImageLike = Partial<ArtImage> & {
   path?: string | null
@@ -115,6 +118,9 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   const userStore = useUserStore()
   const promptStore = usePromptStore()
   const animationStore = useAnimationStore()
+  const characterStore = useCharacterStore()
+  const rewardStore = useRewardStore()
+  const scenarioStore = useScenarioStore()
 
   const isOpen = ref(false)
   const pinOpen = ref(false)
@@ -1093,6 +1099,32 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   // Direct create path. Wire these to your real store methods.
   // Each store method is expected to accept a partial payload and return the
   // created record (with an id). Adjust names to match your stores.
+  // Normalizes the four stores' differing return shapes to { id } | null.
+  // - createCharacter / createScenario → record | null
+  // - createReward → { success, data } | { success, message }
+  // - createDream  → { success, data, message }
+  function readCreatedRecord(result: unknown): { id?: number } | null {
+    if (!result || typeof result !== 'object') return null
+
+    const record = result as {
+      id?: number
+      success?: boolean
+      data?: { id?: number } | null
+      message?: string
+    }
+
+    // Wrapped result shape (reward, dream).
+    if ('success' in record) {
+      if (record.success && record.data?.id) return record.data
+      throw new Error(record.message || 'Create failed.')
+    }
+
+    // Direct record shape (character, scenario).
+    if (record.id) return record
+
+    return null
+  }
+
   async function quickCreate(
     type: NarratorCreatableType,
     payload: Record<string, unknown> = {},
@@ -1100,45 +1132,45 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     const dream = activeDream.value
     const userId = userStore.userId ?? userStore.user?.id ?? 10
 
-    const base = {
-      userId,
-      ...(dream ? { dreamId: dream.id } : {}),
-      ...payload,
-    }
-
     try {
-      let created: { id?: number } | null = null
+      let result: unknown = null
 
       switch (type) {
         case 'character': {
-          // e.g. characterStore.createCharacter(base)
-          created = await callStoreCreate(
-            'characterStore',
-            'createCharacter',
-            base,
-          )
+          result = await characterStore.createCharacter({
+            userId,
+            ...payload,
+          })
           break
         }
         case 'reward': {
-          // e.g. rewardStore.createReward(base)
-          created = await callStoreCreate('rewardStore', 'createReward', base)
+          result = await rewardStore.createReward({
+            userId,
+            ...payload,
+          })
           break
         }
         case 'scenario': {
-          // e.g. scenarioStore.createScenario(base)
-          created = await callStoreCreate(
-            'scenarioStore',
-            'createScenario',
-            base,
-          )
+          // Scenarios link to Dreams via dreamIds (M2M), not a scalar dreamId.
+          result = await scenarioStore.createScenario({
+            userId,
+            ...(dream ? { dreamIds: [dream.id] } : {}),
+            ...payload,
+          })
           break
         }
         case 'dream': {
-          // e.g. dreamStore.createDream(base)
-          created = await callStoreCreate('dreamStore', 'createDream', base)
+          // Dreams need a full DreamForm; build defaults then overlay overrides.
+          const form = dreamStore.createDefaultDreamForm({
+            userId,
+            ...payload,
+          })
+          result = await dreamStore.createDream(form)
           break
         }
       }
+
+      const created = readCreatedRecord(result)
 
       if (created?.id) {
         setEmotion('PROUD')
@@ -1156,21 +1188,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       )
       return null
     }
-  }
-
-  // Thin indirection so wiring stays in one place. Replace the body with
-  // direct imports/calls to your real stores when ready.
-  async function callStoreCreate(
-    _storeName: string,
-    _method: string,
-    _payload: Record<string, unknown>,
-  ): Promise<{ id?: number } | null> {
-    // TODO(silas): wire to real store create methods, e.g.:
-    //   const store = useCharacterStore()
-    //   return store.createCharacter(_payload)
-    throw new Error(
-      `Wire ${_storeName}.${_method}() into callStoreCreate to enable direct creation.`,
-    )
   }
 
   // ── Unified intent router ─────────────────────────────────────────────────

@@ -1,22 +1,182 @@
 <!-- /components/content/navigation/workspace-header.vue -->
 <template>
   <div class="relative z-90 shrink-0 overflow-visible">
+    <!--
+      COMPACT HEADER
+      A single minimal row: small page image, tab dropdown, channel dropdown,
+      the rail controls (server / login / mana), and the expand toggle.
+      Default below xl; also what the full header collapses into.
+    -->
     <transition name="header-toggle">
-      <button
-        v-if="chromeMinimized"
-        class="absolute left-1 top-1 z-30 flex items-center gap-1.5 rounded-xl bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
-        type="button"
-        title="Show header and footer"
-        @click="toggleChrome"
+      <header
+        v-if="compact"
+        class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl bg-base-100 shadow-sm"
       >
-        <Icon name="kind-icon:expand" class="h-3.5 w-3.5" />
-        <span>Show</span>
-      </button>
+        <fx-region region="header" />
+
+        <div
+          class="flex min-h-14 min-w-0 items-center gap-2 p-1.5 sm:gap-3 sm:p-2"
+        >
+          <!-- Small page image opens the full header -->
+          <button
+            type="button"
+            title="Expand header"
+            aria-label="Expand header"
+            class="group relative size-11 shrink-0 overflow-hidden rounded-xl ring-1 ring-base-300 sm:size-12"
+            @click="expandHeader"
+          >
+            <page-image
+              class="h-full w-full rounded-xl object-cover transition-opacity group-hover:opacity-60"
+            />
+
+            <span
+              class="absolute inset-0 flex items-center justify-center rounded-xl bg-base-content/0 opacity-0 transition-all group-hover:bg-base-content/15 group-hover:opacity-100"
+            >
+              <Icon
+                name="kind-icon:expand"
+                class="h-4 w-4 text-base-content drop-shadow"
+              />
+            </span>
+          </button>
+
+          <!-- Tab dropdown (reuses the same control as the lg-hidden full view) -->
+          <div v-if="resolvedTabs.length" class="dropdown min-w-0 flex-1">
+            <button
+              tabindex="0"
+              type="button"
+              class="btn flex h-11 min-h-11 w-full max-w-full items-center justify-between gap-2 rounded-xl bg-base-100 px-2 shadow-sm"
+            >
+              <span class="flex min-w-0 items-center gap-2">
+                <span
+                  class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg"
+                >
+                  <img
+                    v-if="activeTabConfig.image"
+                    :src="activeTabConfig.image"
+                    :alt="activeTabConfig.title || activeTabConfig.label"
+                    class="h-full w-full object-cover"
+                  />
+
+                  <span
+                    class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+                  >
+                    <Icon
+                      :name="activeTabConfig.icon || fallbackIcon"
+                      class="h-4 w-4 text-base-100 drop-shadow"
+                    />
+                  </span>
+                </span>
+
+                <span class="min-w-0 truncate text-sm font-black">
+                  {{ activeTitle }}
+                </span>
+              </span>
+
+              <Icon
+                name="kind-icon:chevron-down"
+                class="h-4 w-4 shrink-0 opacity-80"
+              />
+            </button>
+
+            <ul
+              tabindex="0"
+              class="menu dropdown-content z-110 mt-2 max-h-80 w-[min(22rem,calc(100vw-2rem))] flex-nowrap overflow-y-auto rounded-2xl bg-base-100 p-2 shadow-xl"
+            >
+              <li v-for="tab in resolvedTabs" :key="tab.key">
+                <button
+                  type="button"
+                  class="flex min-h-12 items-center gap-2 rounded-xl"
+                  :class="
+                    activeTabKey === tab.key
+                      ? 'active bg-primary text-primary-content'
+                      : ''
+                  "
+                  @click="selectTabFromDropdown(tab.key)"
+                >
+                  <span
+                    class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-base-200"
+                  >
+                    <img
+                      v-if="tab.image"
+                      :src="tab.image"
+                      :alt="tab.title || tab.label"
+                      class="h-full w-full object-cover"
+                    />
+
+                    <span
+                      class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+                    >
+                      <Icon
+                        :name="tab.icon || fallbackIcon"
+                        class="h-4 w-4 text-base-100 drop-shadow"
+                      />
+                    </span>
+                  </span>
+
+                  <span class="flex min-w-0 flex-col items-start">
+                    <span class="min-w-0 truncate text-sm font-black">
+                      {{ tab.label }}
+                    </span>
+
+                    <span
+                      v-if="tab.summary"
+                      class="line-clamp-1 text-xs font-medium opacity-70"
+                    >
+                      {{ tab.summary }}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- No tabs: show the title inline so the row is never empty -->
+          <div v-else class="flex min-w-0 flex-1 flex-col justify-center">
+            <p
+              v-if="shellTitle"
+              class="truncate text-[0.6rem] font-black uppercase tracking-wide text-primary/70"
+            >
+              {{ shellTitle }}
+            </p>
+
+            <h1 class="truncate text-base font-black leading-tight">
+              {{ activeTitle }}
+            </h1>
+          </div>
+
+          <!-- Channel dropdown + rail controls, condensed -->
+          <div
+            class="header-control-compact flex shrink-0 items-center gap-1 sm:gap-1.5"
+          >
+            <channel-select class="min-w-0" />
+            <server-selector class="min-w-0" />
+            <login-switcher class="min-w-0" />
+            <mana-widget class="min-w-0" />
+          </div>
+
+          <!-- Expand toggle -->
+          <button
+            type="button"
+            title="Expand header"
+            aria-label="Expand header"
+            class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl"
+            @click="expandHeader"
+          >
+            <Icon name="kind-icon:chevron-down" class="h-4 w-4" />
+          </button>
+        </div>
+      </header>
     </transition>
 
+    <!--
+      FULL HEADER
+      The rich layout: page image, title block, tab nav, control rail.
+      Default at xl. The image button (and a collapse affordance) drop back
+      to compact.
+    -->
     <transition name="header-slide">
       <header
-        v-if="!chromeMinimized"
+        v-if="!compact"
         class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl bg-base-100 shadow-sm"
       >
         <fx-region region="header" />
@@ -26,9 +186,10 @@
         >
           <button
             type="button"
-            title="Hide header and footer"
+            title="Collapse header"
+            aria-label="Collapse header"
             class="group relative size-14 shrink-0 self-center overflow-hidden rounded-2xl ring-1 ring-base-300 sm:size-20 lg:size-32 xl:size-36"
-            @click="toggleChrome"
+            @click="collapseHeader"
           >
             <page-image
               class="h-full w-full rounded-2xl object-cover transition-opacity group-hover:opacity-60"
@@ -75,7 +236,7 @@
             <button
               tabindex="0"
               type="button"
-              class="btn flex h-14 min-h-14 w-full max-w-full items-center justify-between gap-2 rounded-2xlbg-base-100 px-2 shadow-sm"
+              class="btn flex h-14 min-h-14 w-full max-w-full items-center justify-between gap-2 rounded-2xl bg-base-100 px-2 shadow-sm"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <span
@@ -274,7 +435,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   isDashboardKey,
   type DashboardKey,
@@ -283,23 +444,53 @@ import {
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
-const props = withDefaults(
-  defineProps<{
-    chromeMinimized?: boolean
-  }>(),
-  {
-    chromeMinimized: false,
-  },
-)
-
-const emit = defineEmits<{
-  toggleChrome: []
-}>()
-
 const fallbackIcon = 'kind-icon:sparkles'
 
 const navStore = useNavStore()
 const pageStore = usePageStore()
+
+// ---------------------------------------------------------------------------
+// Header density (full vs compact)
+//
+// - Default full at xl, compact below xl.
+// - The image button and the chevron toggle flip between the two, in both
+//   directions, at every breakpoint.
+// - This state is the header's OWN concern. It does NOT touch the workspace
+//   hand or its toggle.
+// - A user choice (collapse/expand) sticks; we only auto-seed from the
+//   breakpoint until the user has expressed a preference.
+// ---------------------------------------------------------------------------
+const HEADER_COMPACT_KEY = 'kindrobots:header-compact'
+
+const compact = ref(true)
+const userTouched = ref(false)
+
+let xlMedia: MediaQueryList | null = null
+
+function applyBreakpointDefault(): void {
+  if (userTouched.value) return
+  // Full at xl, compact below.
+  compact.value = !(xlMedia?.matches ?? false)
+}
+
+function persistCompact(value: boolean): void {
+  if (!import.meta.client) return
+  window.localStorage.setItem(HEADER_COMPACT_KEY, value ? 'true' : 'false')
+}
+
+function setCompact(value: boolean): void {
+  compact.value = value
+  userTouched.value = true
+  persistCompact(value)
+}
+
+function collapseHeader(): void {
+  setCompact(true)
+}
+
+function expandHeader(): void {
+  setCompact(false)
+}
 
 const shellTitle = computed(
   () => pageStore.room || pageStore.title || 'Kind Robots',
@@ -447,9 +638,25 @@ function setTab(tabKey: string): void {
   navStore.setDashboardTab(key, tabKey, 'dashboard-header tab button')
 }
 
-function toggleChrome(): void {
-  emit('toggleChrome')
-}
+onMounted(() => {
+  if (!import.meta.client) return
+
+  // Restore an explicit user preference first; otherwise seed from breakpoint.
+  const stored = window.localStorage.getItem(HEADER_COMPACT_KEY)
+
+  if (stored === 'true' || stored === 'false') {
+    compact.value = stored === 'true'
+    userTouched.value = true
+  }
+
+  xlMedia = window.matchMedia('(min-width: 1280px)')
+  applyBreakpointDefault()
+  xlMedia.addEventListener('change', applyBreakpointDefault)
+})
+
+onBeforeUnmount(() => {
+  xlMedia?.removeEventListener('change', applyBreakpointDefault)
+})
 </script>
 
 <style scoped>
@@ -497,6 +704,29 @@ function toggleChrome(): void {
 .header-toggle-leave-from {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Compact control row: keep the rail widgets square and tight. */
+.header-control-compact :deep(.btn) {
+  min-height: 2.25rem;
+  height: 2.25rem;
+  min-width: 2.25rem;
+  width: 2.25rem;
+  padding-left: 0;
+  padding-right: 0;
+  gap: 0;
+}
+
+.header-control-compact :deep(.btn .control-label),
+.header-control-compact :deep(.btn > .badge) {
+  display: none;
+}
+
+.header-control-compact :deep(.mana-icon),
+.header-control-compact :deep(.iconify),
+.header-control-compact :deep(svg) {
+  display: inline-flex;
+  flex-shrink: 0;
 }
 
 .header-control-grid :deep(.btn) {

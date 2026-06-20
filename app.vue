@@ -21,11 +21,11 @@
     <section
       class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl p-3 sm:p-4"
     >
-      <workspace-header
-        class="relative z-90"
-        :chrome-minimized="chromeMinimized"
-        @toggle-chrome="toggleChrome"
-      />
+      <!--
+        Header owns its own full/compact density (xl-default-full) and toggles
+        itself. The header toggle and the hand toggle are fully independent.
+      -->
+      <workspace-header class="relative z-90" />
 
       <section class="relative z-10 min-h-0 flex-1 overflow-hidden">
         <button
@@ -43,8 +43,7 @@
           class="relative z-10 flex h-full min-h-0 overflow-x-visible overflow-y-hidden md:overflow-hidden"
         >
           <div
-            class="relative z-10 flex min-h-0 flex-1 overflow-x-visible overflow-y-hidden md:flex-row md:gap-3 md:overflow-hidden"
-            :class="chromeMinimized ? 'pb-10' : 'pb-20 md:pb-(--hand-h)'"
+            class="relative z-10 flex min-h-0 flex-1 overflow-x-visible overflow-y-hidden pb-20 md:flex-row md:gap-3 md:overflow-hidden md:pb-(--hand-h)"
           >
             <Transition name="workspace-sheet-slide">
               <aside
@@ -113,35 +112,52 @@
 
     <ClientOnly>
       <section
-        v-if="!chromeMinimized"
-        class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end justify-end gap-2 px-2 sm:px-3 md:h-(--hand-h)"
+        class="pointer-events-none fixed inset-x-0 bottom-0 z-90 flex items-end justify-between gap-2 px-2 sm:px-3 md:h-(--hand-h)"
       >
-        <div class="hidden min-w-0 flex-1 md:block">
-          <Transition name="workspace-hand-slide">
+        <!--
+          HAND
+          - Hidden by default (handOpen starts false).
+          - Revealed by the bottom-left card toggle.
+          - At < xl, opening the hand closes the narrator panel (mutually
+            exclusive). At xl, hand + narrator may coexist.
+        -->
+        <Transition name="workspace-hand-slide">
+          <div
+            v-if="handOpen"
+            class="pointer-events-auto min-w-0 flex-1"
+            :style="{ height: 'var(--hand-h)' }"
+          >
             <workspace-hand />
-          </Transition>
-        </div>
+          </div>
+          <div v-else class="min-w-0 flex-1" />
+        </Transition>
 
-        <div class="hidden shrink-0 items-end justify-end md:flex">
+        <!--
+          NARRATOR (lg/xl rail, bottom-right)
+          On lg and up this sits in the bottom-right of the footer rail.
+          Its small portrait button is always tappable; opening the panel
+          lets the narrator borrow the footer space.
+        -->
+        <div class="hidden shrink-0 items-end justify-end lg:flex">
           <workspace-narrator
             rail-mode
             :close-signal="narratorCloseSignal"
             @panel-open-change="setNarratorPanelOpen"
           />
         </div>
+      </section>
 
-        <Transition name="workspace-hand-slide">
-          <div
-            v-if="workspaceHandOpen && !narratorPanelOpen"
-            class="pointer-events-auto fixed inset-x-2 bottom-14 z-90 md:hidden"
-            style="height: var(--hand-h)"
-          >
-            <workspace-hand />
-          </div>
-        </Transition>
-
+      <!--
+        MOBILE / sm-md CONTROLS
+        Card toggle: bottom-left (all sizes via this block on < lg).
+        Narrator toggle: right side, just above the hand region.
+      -->
+      <section
+        class="pointer-events-none fixed inset-x-0 bottom-0 z-100 lg:hidden"
+      >
+        <!-- Narrator toggle + panel: bottom-right, above the hand -->
         <div
-          class="pointer-events-auto fixed bottom-3 left-3 z-120 flex flex-col items-start gap-2 md:hidden"
+          class="pointer-events-auto fixed bottom-[calc(var(--hand-h)+0.75rem)] right-3 z-100"
         >
           <workspace-narrator
             rail-mode
@@ -149,28 +165,44 @@
             :close-signal="narratorCloseSignal"
             @panel-open-change="setNarratorPanelOpen"
           />
+        </div>
 
+        <!-- Card toggle: bottom-left -->
+        <div class="pointer-events-auto fixed bottom-3 left-3 z-120">
           <button
             type="button"
             class="btn btn-primary btn-circle btn-sm shadow-2xl"
-            :class="workspaceHandOpen && !narratorPanelOpen ? 'btn-active' : ''"
-            :aria-expanded="workspaceHandOpen && !narratorPanelOpen"
+            :class="handOpen ? 'btn-active' : ''"
+            :aria-expanded="handOpen"
             aria-label="Toggle workspace hand"
             title="Toggle workspace hand"
-            @click="toggleWorkspaceHand"
+            @click="toggleHand"
           >
             <Icon name="kind-icon:card" class="h-5 w-5" />
           </button>
         </div>
       </section>
-      <workspace-narrator
-        v-else
-        :chrome-minimized="chromeMinimized"
-        rail-mode
-        mobile-toggle
-        :close-signal="narratorCloseSignal"
-        @panel-open-change="setNarratorPanelOpen"
-      />
+
+      <!--
+        DESKTOP (lg+) card toggle: bottom-left.
+        Kept separate from the narrator rail so the two toggles are
+        positioned independently per the breakpoint rules.
+      -->
+      <div
+        class="pointer-events-auto fixed bottom-3 left-3 z-120 hidden lg:block"
+      >
+        <button
+          type="button"
+          class="btn btn-primary btn-circle btn-sm shadow-2xl"
+          :class="handOpen ? 'btn-active' : ''"
+          :aria-expanded="handOpen"
+          aria-label="Toggle workspace hand"
+          title="Toggle workspace hand"
+          @click="toggleHand"
+        >
+          <Icon name="kind-icon:card" class="h-5 w-5" />
+        </button>
+      </div>
 
       <template #fallback>
         <div
@@ -180,33 +212,11 @@
         </div>
       </template>
     </ClientOnly>
-
-    <button
-      type="button"
-      class="btn btn-sm btn-circle fixed left-1/2 z-100 -translate-x-1/2 shadow-xl transition-all duration-300"
-      :class="
-        chromeMinimized ? 'bottom-3' : 'bottom-[calc(var(--hand-h)+0.5rem)]'
-      "
-      :aria-label="
-        chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'
-      "
-      :title="
-        chromeMinimized ? 'Restore header and footer' : 'Hide header and footer'
-      "
-      @click="toggleChrome"
-    >
-      <Icon
-        :name="
-          chromeMinimized ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-        "
-        class="h-5 w-5"
-      />
-    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -219,7 +229,6 @@ const { workspaceSheetOpen } = storeToRefs(navStore)
 // Start TRUE so the first paint (SSR + initial client frame, pre-hydration)
 // renders bg-black on the root. handlePageReady flips it off.
 const showLoader = ref(true)
-const chromeMinimized = ref(false)
 
 let failsafeTimeoutId: ReturnType<typeof setTimeout> | null = null
 
@@ -232,47 +241,52 @@ function handlePageReady(): void {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Hand / Narrator toggle orchestration
+//
+// Rules:
+//  - Hand is hidden by default.
+//  - Each toggle flips ONLY its own panel, so turning the active one off
+//    (while the other is already off) reaches the "both off" state.
+//  - Below xl, the two are mutually exclusive: opening one closes the other.
+//  - At xl, they may coexist, so opening one leaves the other untouched.
+// ---------------------------------------------------------------------------
+
+const handOpen = ref(false)
+const narratorPanelOpen = ref(false)
 const narratorCloseSignal = ref(0)
 
-const narratorPanelOpen = ref(false)
-const workspaceHandOpen = ref(true)
+// xl breakpoint (>= 1280px) governs whether the two panels coexist.
+const isXl = ref(false)
+let xlMedia: MediaQueryList | null = null
+
+function syncIsXl(): void {
+  if (xlMedia) isXl.value = xlMedia.matches
+}
+
+function closeNarrator(): void {
+  // narratorPanelOpen will follow via the child's panel-open-change emit,
+  // but we also bump the close signal to drive the child's closePanel().
+  narratorCloseSignal.value += 1
+}
+
+function toggleHand(): void {
+  const next = !handOpen.value
+  handOpen.value = next
+
+  // Below xl, an open hand and an open narrator can't coexist.
+  if (next && !isXl.value && narratorPanelOpen.value) {
+    closeNarrator()
+  }
+}
 
 function setNarratorPanelOpen(value: boolean): void {
   narratorPanelOpen.value = value
 
-  if (value) {
-    workspaceHandOpen.value = false
+  // Below xl, opening the narrator hides the hand.
+  if (value && !isXl.value) {
+    handOpen.value = false
   }
-}
-
-function toggleWorkspaceHand(): void {
-  workspaceHandOpen.value = !workspaceHandOpen.value
-
-  if (workspaceHandOpen.value) {
-    narratorPanelOpen.value = false
-    narratorCloseSignal.value += 1
-  }
-}
-
-function persist(key: string, value: boolean): void {
-  if (!import.meta.client) return
-
-  window.localStorage.setItem(key, value ? 'true' : 'false')
-}
-
-function minimizeChrome(): void {
-  chromeMinimized.value = true
-  persist('kindrobots:chrome-minimized', true)
-}
-
-function restoreChrome(): void {
-  chromeMinimized.value = false
-  persist('kindrobots:chrome-minimized', false)
-}
-
-function toggleChrome(): void {
-  if (chromeMinimized.value) restoreChrome()
-  else minimizeChrome()
 }
 
 function setWorkspaceSheetOpen(value: boolean): void {
@@ -294,12 +308,15 @@ onMounted(async () => {
 
   await navStore.initialize()
 
-  const storedChromeMinimized = window.localStorage.getItem(
-    'kindrobots:chrome-minimized',
-  )
+  // Wire up xl breakpoint tracking.
+  xlMedia = window.matchMedia('(min-width: 1280px)')
+  syncIsXl()
+  xlMedia.addEventListener('change', syncIsXl)
 
-  if (storedChromeMinimized) {
-    chromeMinimized.value = storedChromeMinimized === 'true'
+  // At xl the hand can default open alongside the narrator; below xl it
+  // stays hidden until the card toggle reveals it.
+  if (isXl.value) {
+    handOpen.value = true
   }
 
   // Failsafe so a hung store init never traps the user on black forever.
@@ -307,5 +324,9 @@ onMounted(async () => {
     showLoader.value = false
     failsafeTimeoutId = null
   }, 8000)
+})
+
+onBeforeUnmount(() => {
+  xlMedia?.removeEventListener('change', syncIsXl)
 })
 </script>

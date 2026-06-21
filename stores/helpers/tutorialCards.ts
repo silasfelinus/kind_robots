@@ -333,6 +333,13 @@ export const tutorialChannels = {
         underConstruction: true,
       },
       {
+        key: 'community',
+        title: 'Community Broadcasts',
+        body: 'Compose one post, generate platform-ready versions, and share updates to Discord, Reddit, Facebook, Instagram, Bluesky, Mastodon, RSS, and the wider Kind Robots community. Automatic publishers handle the friendly platforms, while copy-ready blocks keep the goblin platforms fast and painless.',
+        image: tutorialImage('sanctuary', 'community'),
+        underConstruction: true,
+      },
+      {
         key: 'forum',
         title: 'Forum',
         body: 'Talk with other members of the community: comment, compare notes, and share the beautiful nonsense you have been building.',

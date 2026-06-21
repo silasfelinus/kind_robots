@@ -5,6 +5,11 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import type { ExpressionMedia, Prisma } from '~/prisma/generated/prisma/client'
 
+// Allow up to 60s on Vercel (Pro). Harmless on platforms that ignore it.
+export const config = {
+  maxDuration: 60,
+}
+
 const EXPRESSIONS = [
   // ── Emotions (face-only) ──
   'NEUTRAL',
@@ -37,6 +42,10 @@ const EXPRESSION_SET = new Set<string>(EXPRESSIONS)
 const KINDS = ['EMOTION', 'ACTION'] as const
 type KindValue = (typeof KINDS)[number]
 const KIND_SET = new Set<string>(KINDS)
+
+// How many upserts to run per interactive transaction. Keeps any single
+// transaction well under both Prisma's and the platform's timeouts.
+const CHUNK_SIZE = 25
 
 type ExpressionBatchRow = Partial<ExpressionMedia> & {
   botId?: number
@@ -298,7 +307,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // ── Upsert each row by its compound unique key. Re-runnable. ──
+    // ── Build one upsert arg per row, keyed on its compound unique. ──
     const select = {
       id: true,
       botId: true,
@@ -313,71 +322,103 @@ export default defineEventHandler(async (event) => {
       updatedAt: true,
     } satisfies Prisma.ExpressionMediaSelect
 
-    const data = await prisma.$transaction(
-      normalized.map((n) => {
-        const where: Prisma.ExpressionMediaWhereUniqueInput = n.botId
-          ? {
-              botId_expressionKey: {
-                botId: n.botId,
-                expressionKey: n.expressionKey,
-              },
-            }
-          : {
-              characterId_expressionKey: {
-                characterId: n.characterId as number,
-                expressionKey: n.expressionKey,
-              },
-            }
+    const buildUpsertArgs = (n: Normalized) => {
+      const where: Prisma.ExpressionMediaWhereUniqueInput = n.botId
+        ? {
+            botId_expressionKey: {
+              botId: n.botId,
+              expressionKey: n.expressionKey,
+            },
+          }
+        : {
+            characterId_expressionKey: {
+              characterId: n.characterId as number,
+              expressionKey: n.expressionKey,
+            },
+          }
 
-        const owner = n.botId
-          ? { Bot: { connect: { id: n.botId } } }
-          : { Character: { connect: { id: n.characterId as number } } }
+      const owner = n.botId
+        ? { Bot: { connect: { id: n.botId } } }
+        : { Character: { connect: { id: n.characterId as number } } }
 
-        // expression/kind are guaranteed defined past validation.
-        const create: Prisma.ExpressionMediaCreateInput = {
-          expressionKey: n.expressionKey,
-          expression: n.data.expression!,
-          kind: n.data.kind!,
-          label: n.data.label,
-          emoticon: n.data.emoticon,
-          imagePath: n.data.imagePath,
-          videoPath: n.data.videoPath,
-          message: n.data.message,
-          designer: n.data.designer,
-          artPrompt: n.data.artPrompt,
-          isActive: n.data.isActive ?? true,
-          additionalPhrases: n.data.additionalPhrases,
-          ...owner,
-          ...(n.data.ArtImage && 'connect' in n.data.ArtImage
-            ? { ArtImage: n.data.ArtImage }
-            : {}),
-        }
+      // expression/kind are guaranteed defined past validation.
+      const create: Prisma.ExpressionMediaCreateInput = {
+        expressionKey: n.expressionKey,
+        expression: n.data.expression!,
+        kind: n.data.kind!,
+        label: n.data.label,
+        emoticon: n.data.emoticon,
+        imagePath: n.data.imagePath,
+        videoPath: n.data.videoPath,
+        message: n.data.message,
+        designer: n.data.designer,
+        artPrompt: n.data.artPrompt,
+        isActive: n.data.isActive ?? true,
+        additionalPhrases: n.data.additionalPhrases,
+        ...owner,
+        ...(n.data.ArtImage && 'connect' in n.data.ArtImage
+          ? { ArtImage: n.data.ArtImage }
+          : {}),
+      }
 
-        const update: Prisma.ExpressionMediaUpdateInput = {
-          expression: n.data.expression,
-          kind: n.data.kind,
-          label: n.data.label,
-          emoticon: n.data.emoticon,
-          imagePath: n.data.imagePath,
-          videoPath: n.data.videoPath,
-          message: n.data.message,
-          designer: n.data.designer,
-          artPrompt: n.data.artPrompt,
-          isActive: n.data.isActive,
-          additionalPhrases: n.data.additionalPhrases,
-          ArtImage: n.data.ArtImage,
-        }
+      const update: Prisma.ExpressionMediaUpdateInput = {
+        expression: n.data.expression,
+        kind: n.data.kind,
+        label: n.data.label,
+        emoticon: n.data.emoticon,
+        imagePath: n.data.imagePath,
+        videoPath: n.data.videoPath,
+        message: n.data.message,
+        designer: n.data.designer,
+        artPrompt: n.data.artPrompt,
+        isActive: n.data.isActive,
+        additionalPhrases: n.data.additionalPhrases,
+        ArtImage: n.data.ArtImage,
+      }
 
-        return prisma.expressionMedia.upsert({ where, create, update, select })
-      }),
-      { timeout: 60000 },
-    )
+      return { where, create, update, select }
+    }
+
+    // ── Upsert in chunks. Each chunk is its own transaction, so no single
+    //    transaction can outlast the timeout. Upserts are idempotent, so a
+    //    failure mid-run leaves prior chunks committed and is safely resumable
+    //    by re-sending the same payload. ──
+    type UpsertResult = Prisma.ExpressionMediaGetPayload<{
+      select: typeof select
+    }>
+    const results: UpsertResult[] = []
+    let committedChunks = 0
+
+    try {
+      for (let start = 0; start < normalized.length; start += CHUNK_SIZE) {
+        const slice = normalized.slice(start, start + CHUNK_SIZE)
+
+        const chunkResults = await prisma.$transaction(
+          slice.map((n) => prisma.expressionMedia.upsert(buildUpsertArgs(n))),
+          { timeout: 30000 },
+        )
+
+        results.push(...chunkResults)
+        committedChunks += 1
+      }
+    } catch (chunkError) {
+      // Surface partial progress so the caller knows how much landed.
+      const { message, statusCode } = errorHandler(chunkError)
+      event.node.res.statusCode = statusCode || 500
+
+      return {
+        success: false,
+        message: `Failed after committing ${results.length}/${normalized.length} rows (${committedChunks} chunk(s)). Re-send the same payload to resume — upserts are idempotent. Cause: ${message}`,
+        data: results,
+        statusCode: event.node.res.statusCode,
+      }
+    }
 
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: `Upserted ${data.length} expression media rows successfully.`,
-      data,
+      message: `Upserted ${results.length} expression media rows successfully (${committedChunks} chunk(s) of up to ${CHUNK_SIZE}).`,
+      data: results,
       statusCode: 200,
     }
   } catch (error) {

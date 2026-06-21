@@ -30,11 +30,11 @@
         </template>
       </div>
       <!-- Subtle Hint -->
-      <div class="text-md mb-2">
+      <div class="text-base mb-2">
         {{ milestone.subtleHint }}
       </div>
       <!-- Tooltip -->
-      <div class="text-md italic">
+      <div class="text-base italic">
         {{ milestone.tooltip }}
       </div>
       <!-- Earned Date -->

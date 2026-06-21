@@ -13,7 +13,7 @@
       >
         <Icon
           :name="link.icon"
-          class="text-sm md:text-md lg:text-4xl xl:text-5xl transition-transform hover:scale-110 duration-300 ease-in-out"
+          class="text-sm md:text-base lg:text-4xl xl:text-5xl transition-transform hover:scale-110 duration-300 ease-in-out"
         />
         <div
           v-if="!compact"

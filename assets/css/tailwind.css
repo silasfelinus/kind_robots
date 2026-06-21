@@ -31,7 +31,7 @@ body,
 
 @layer base {
   body {
-    @apply text-sm md:text-md lg:text-lg xl:text-xl;
+    @apply text-sm md:text-base lg:text-lg xl:text-xl;
   }
 
   button,
@@ -45,7 +45,7 @@ body,
 
 @layer components {
   .text-smart {
-    @apply text-sm md:text-md lg:text-lg xl:text-xl;
+    @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }
 
   .text-smart-compact {

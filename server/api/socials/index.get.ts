@@ -1,17 +1,30 @@
 // /server/api/socials/index.get.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import type { Prisma, PostAudience } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
     const includeUserData = isValid && user && typeof user.id === 'number'
 
-    const whereClause = includeUserData
+    // Optional ?audience=WORK filter.
+    const query = getQuery(event)
+    const audience = (query.audience as PostAudience | undefined) || undefined
+
+    const visibility: Prisma.SocialPostWhereInput = includeUserData
       ? { OR: [{ isPublic: true }, { userId: user.id }] }
       : { isPublic: true }
+
+    const whereClause: Prisma.SocialPostWhereInput = {
+      AND: [
+        visibility,
+        { isActive: true }, // hide soft-deleted, matches every other gallery
+        ...(audience ? [{ audience }] : []),
+      ],
+    }
 
     const data = await prisma.socialPost.findMany({
       where: whereClause,

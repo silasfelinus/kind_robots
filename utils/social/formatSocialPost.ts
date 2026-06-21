@@ -1,4 +1,4 @@
-// /server/utils/formatSocialPost.ts
+// /utils/social/formatSocialPost.ts
 //
 // Pure, dependency-free platform formatter. No secrets, no API clients —
 // safe to import in both the browser (publisher preview) and the server
@@ -160,9 +160,7 @@ function formatMastodon(src: SocialSource): SocialVariant {
     const budget = SAFE - plainTitle.length - tail.length - 2
     const trimmed = plainBody.slice(0, Math.max(0, budget)).trimEnd() + '…'
     body = `${plainTitle}${trimmed}\n${tail}`.trim()
-    warnings.push(
-      `Trimmed body to stay under ~${SAFE} (Mastodon cap ${LIMIT}).`,
-    )
+    warnings.push(`Trimmed body to stay under ~${SAFE} (Mastodon cap ${LIMIT}).`)
   }
   return {
     platform: 'MASTODON' as SocialPlatform,

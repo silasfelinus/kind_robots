@@ -1107,6 +1107,7 @@ enum DreamType {
   LOCATION
   PITCH
   GENRE
+  CONCEPT
 }
 
 enum Reaction_reactionCategory {

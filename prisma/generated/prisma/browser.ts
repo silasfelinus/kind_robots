@@ -147,6 +147,16 @@ export type Server = Prisma.ServerModel
  */
 export type SmartIcon = Prisma.SmartIconModel
 /**
+ * Model SocialPost
+ * 
+ */
+export type SocialPost = Prisma.SocialPostModel
+/**
+ * Model SocialTarget
+ * 
+ */
+export type SocialTarget = Prisma.SocialTargetModel
+/**
  * Model Theme
  * 
  */

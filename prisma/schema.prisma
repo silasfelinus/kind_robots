@@ -873,6 +873,83 @@ model SmartIcon {
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
 
+enum SocialPlatform { 
+  DISCORD 
+  MASTODON 
+  BLUESKY 
+  REDDIT 
+  FACEBOOK 
+  INSTAGRAM 
+  RSS 
+  }
+
+  enum PostAudience {
+  PUBLIC    // anyone
+  SOCIAL    // followers / general social
+  WORK      // professional / dev-log
+  FRIENDS   // friends only
+  FAMILY    // matches your existing Role.FAMILY
+  PRIVATE   // just you (draft-ish)
+}
+
+
+enum PostStatus     { 
+  DRAFT 
+  SCHEDULED 
+  PUBLISHING 
+  PUBLISHED 
+  FAILED 
+  }
+enum TargetStatus   { 
+  PENDING 
+  SENT 
+  FAILED 
+  SKIPPED 
+  COPIED 
+  }
+
+model SocialPost {
+  id          Int            @id @default(autoincrement())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  designer    String?        @db.VarChar(256)
+  title       String         @db.VarChar(255)
+  body        String         @db.Text
+  mediaUrls   Json?          
+  status      PostStatus     @default(DRAFT)
+  sourceType  String?     
+  sourceId    Int?
+  scheduledAt DateTime?
+  isPublic    Boolean        @default(false)
+  userId      Int
+  User        User           @relation(fields: [userId], references: [id])
+  targets     SocialTarget[]
+  isActive    Boolean          @default(true) 
+  isMature    Boolean          @default(false)
+  audience    PostAudience  @default(SOCIAL)
+
+
+  @@index([userId])                    
+  @@index([status])
+  @@index([audience])
+}
+
+model SocialTarget {
+  id           Int            @id @default(autoincrement())
+  postId       Int
+  Post         SocialPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  platform     SocialPlatform
+  status       TargetStatus   @default(PENDING)
+  remoteId     String?
+  remoteUrl    String?
+  errorMessage String?
+  sentAt       DateTime?
+  @@unique([postId, platform])
+  @@index([postId])
+  @@index([platform])
+  @@index([status])
+}
+
 model Theme {
   id          Int        @id @default(autoincrement())
   name        String     @unique
@@ -976,6 +1053,8 @@ model User {
 
   RelationsOwned    UserRelation[] @relation("UserRelationOwner")
   RelationsReceived UserRelation[] @relation("UserRelationTarget")
+
+  SocialPosts   SocialPost[]
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }

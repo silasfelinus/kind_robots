@@ -27,232 +27,44 @@ body,
   overflow-x: hidden;
 }
 
-/* ✨ Keyframe Animations */
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
+
+
+@layer base {
+  body {
+    @apply text-sm md:text-md lg:text-lg xl:text-xl;
   }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
-/* ✨ Reusable animation class */
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-.full-page {
-  width: 100%;
-  min-height: 100dvh;
-  will-change: transform, opacity;
-  transform: translateZ(0);
-}
-
-/* 🎬 Vue Transitions */
-
-/* Slide in from left (NuxtPage) */
-.slide-in-left-enter-from {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-.slide-in-left-enter-active,
-.slide-in-left-leave-active {
-  transition:
-    transform 0.4s ease,
-    opacity 0.3s ease;
-}
-.slide-in-left-enter-to,
-.slide-in-left-leave-from {
-  transform: translateX(0);
-  opacity: 1;
-}
-.slide-in-left-leave-to {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-
-/* Slide in from right (Splash Tutorial) */
-.slide-in-right-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
-}
-.slide-in-right-enter-active,
-.slide-in-right-leave-active {
-  transition:
-    transform 0.4s ease,
-    opacity 0.3s ease;
-}
-.slide-in-right-enter-to,
-.slide-in-right-leave-from {
-  transform: translateX(0);
-  opacity: 1;
-}
-.slide-in-right-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-/* Fade Transition */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/*
-  picker-styles.css
-  ─────────────────
-  Shared structural CSS for all *-picker.vue components.
-
-  Import once in your Nuxt/Vite entry (e.g. assets/css/main.css):
-    @import './picker-styles.css';
-
-  Every picker uses these classes.  Tailwind base/DaisyUI must be loaded
-  before this file so the oklch() color variables resolve.
-*/
-
-/* ── Root wrapper ────────────────────────────────────────────────────────── */
-.picker-root {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
-  min-height: 0;
-}
-
-/* ── Control row: stacks by default, goes inline when space allows ────────── */
-.picker-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-@media (min-width: 480px) {
-  .picker-controls {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font: inherit;
   }
 }
 
-/* ── Scrollable list ─────────────────────────────────────────────────────── */
-.picker-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;           /* hairline divider via gap rather than borders */
-}
+@layer components {
+  .text-smart {
+    @apply text-sm md:text-md lg:text-lg xl:text-xl;
+  }
 
-/* ── Individual row ──────────────────────────────────────────────────────── */
-.picker-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.1s ease;
-  min-width: 0;
-}
+  .text-smart-compact {
+    @apply text-xs md:text-base lg:text-base xl:text-lg;
+  }
 
-.picker-row:hover {
-  background: oklch(var(--b2));
-}
+  .text-smart-caption {
+    @apply text-xs md:text-sm lg:text-sm xl:text-base;
+  }
 
-.picker-row--active {
-  background: oklch(var(--p) / 0.12);
-}
+  .text-smart-heading {
+    @apply text-lg md:text-xl lg:text-xl xl:text-2xl;
+  }
 
-.picker-row--active:hover {
-  background: oklch(var(--p) / 0.18);
-}
+  .text-smart-title {
+    @apply text-xl md:text-2xl lg:text-2xl xl:text-3xl;
+  }
 
-/* ── Avatar (small square image) ────────────────────────────────────────── */
-.picker-avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-/* ── Emoji / icon placeholder (same footprint as avatar) ────────────────── */
-.picker-icon {
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
-/* ── Text label column ───────────────────────────────────────────────────── */
-.picker-label {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  gap: 0.05rem;
-}
-
-.picker-name {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: oklch(var(--bc));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
-}
-
-.picker-sub {
-  font-size: 0.68rem;
-  color: oklch(var(--bc) / 0.5);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-}
-
-/* ── Action button (right-side, compact) ─────────────────────────────────── */
-.picker-action {
-  flex-shrink: 0;
-  /* Piggyback DaisyUI btn sizing; add class variants in template */
-  @apply btn btn-xs rounded-lg;
-  min-width: 3.5rem;
-  font-size: 0.7rem;
-}
-
-/* ── Loading / empty / error states ─────────────────────────────────────── */
-.picker-loading {
-  display: flex;
-  justify-content: center;
-  padding: 1.5rem 0;
-}
-
-.picker-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 1.5rem 0;
-  font-size: 0.8rem;
-  color: oklch(var(--bc) / 0.45);
-}
-
-.picker-error {
-  font-size: 0.75rem;
-  color: oklch(var(--er));
-  padding: 0.25rem 0.5rem;
-  background: oklch(var(--er) / 0.08);
-  border-radius: 0.375rem;
+  .text-smart-button {
+    @apply text-sm md:text-base lg:text-lg xl:text-lg;
+  }
 }

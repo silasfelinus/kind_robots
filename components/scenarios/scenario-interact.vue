@@ -1,9 +1,9 @@
 <!-- /components/content/weird/scenario-interact.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3">
+  <section class="flex h-full min-h-0 w-full flex-col gap-3 text-smart">
     <div
       v-if="storyStore.statusMessage"
-      class="shrink-0 rounded-2xl border p-3 text-sm"
+      class="shrink-0 rounded-2xl border p-3 text-smart"
       :class="
         storyStore.statusTone === 'error'
           ? 'border-error/40 bg-error/10 text-error'
@@ -31,7 +31,7 @@
       >
         <div class="flex min-w-0 items-center gap-1">
           <button
-            class="btn btn-ghost btn-sm gap-1.5 rounded-xl"
+            class="btn btn-ghost btn-sm gap-1.5 rounded-xl text-smart-button"
             type="button"
             @click="storyStore.backToBrowse"
           >
@@ -41,14 +41,14 @@
 
           <div class="min-w-0">
             <h1
-              class="truncate text-lg font-black leading-tight text-base-content"
+              class="truncate text-smart-title font-black leading-tight text-base-content"
             >
               {{ selectedScenarioTitle }}
             </h1>
 
             <p
               v-if="selectedScenario?.genres"
-              class="truncate text-xs text-base-content/60"
+              class="truncate text-smart-caption text-base-content/60"
             >
               {{ selectedScenario.genres }}
             </p>
@@ -58,13 +58,13 @@
         <div class="flex shrink-0 items-center gap-1.5">
           <span
             v-if="selectedScenario?.isMature"
-            class="badge badge-warning badge-sm"
+            class="badge badge-warning badge-sm text-smart-caption"
           >
             Mature
           </span>
 
           <button
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="btn btn-ghost btn-sm rounded-xl text-smart-button"
             type="button"
             title="Show or hide scenario details"
             @click="sheetStore.toggleSheet"
@@ -79,9 +79,11 @@
         v-if="introChoices.length"
         class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
       >
-        <h2 class="text-lg font-black text-base-content">How does it begin?</h2>
+        <h2 class="text-smart-heading font-black text-base-content">
+          How does it begin?
+        </h2>
 
-        <p class="mt-0.5 text-sm text-base-content/60">
+        <p class="mt-0.5 text-smart text-base-content/60">
           Pick an opening, or write your own direction below.
         </p>
 
@@ -90,7 +92,7 @@
             v-for="(intro, index) in introChoices"
             :key="`${intro.label}-${index}`"
             type="button"
-            class="group flex flex-col gap-1 rounded-2xl border p-4 text-left transition"
+            class="group flex flex-col gap-1 rounded-2xl border p-4 text-left text-smart transition"
             :class="
               scenarioStore.currentChoice === intro.raw
                 ? 'border-primary bg-primary/10 ring-2 ring-primary'
@@ -100,7 +102,7 @@
           >
             <span
               v-if="intro.label"
-              class="text-xs font-black uppercase tracking-widest"
+              class="text-smart-caption font-black uppercase tracking-widest"
               :class="
                 scenarioStore.currentChoice === intro.raw
                   ? 'text-primary'
@@ -110,7 +112,7 @@
               {{ intro.label }}
             </span>
 
-            <span class="text-sm leading-relaxed text-base-content/80">
+            <span class="text-smart leading-relaxed text-base-content/80">
               {{ intro.body }}
             </span>
           </button>
@@ -120,22 +122,30 @@
       <article
         class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
       >
-        <h2 class="text-lg font-black text-base-content">Direction</h2>
+        <h2 class="text-smart-heading font-black text-base-content">
+          Direction
+        </h2>
 
-        <p class="mt-0.5 text-sm text-base-content/60">
+        <p class="mt-0.5 text-smart text-base-content/60">
           Add an optional tone, goal, complication, question, or narrative
           twist.
         </p>
 
         <label class="form-control mt-3">
           <span class="label">
-            <span class="label-text font-bold">Custom direction</span>
-            <span class="label-text-alt text-base-content/50">Optional</span>
+            <span class="label-text text-smart-caption font-bold">
+              Custom direction
+            </span>
+            <span
+              class="label-text-alt text-smart-caption text-base-content/50"
+            >
+              Optional
+            </span>
           </span>
 
           <textarea
             :value="storyStore.customDirection"
-            class="textarea textarea-bordered min-h-28 w-full resize-none rounded-2xl bg-base-200"
+            class="textarea textarea-bordered min-h-28 w-full resize-none rounded-2xl bg-base-200 text-smart"
             placeholder="Add a tone, goal, complication, question, or narrative twist..."
             :disabled="storyStore.isBusy"
             @input="
@@ -149,7 +159,7 @@
 
       <div class="shrink-0 pb-2">
         <button
-          class="btn btn-success min-h-14 w-full rounded-2xl text-base"
+          class="btn btn-success min-h-14 w-full rounded-2xl text-smart-button"
           type="button"
           :disabled="!canLaunchScenario"
           @click="storyStore.submitStoryTurn"
@@ -164,14 +174,14 @@
 
         <p
           v-if="!canLaunchScenario && !storyStore.isBusy"
-          class="mt-2 text-center text-sm text-base-content/60"
+          class="mt-2 text-center text-smart text-base-content/60"
         >
           Pick an opening or write a direction to launch.
         </p>
 
         <div class="mt-2 flex items-center justify-between gap-2 px-1">
           <button
-            class="btn btn-ghost btn-xs rounded-xl"
+            class="btn btn-ghost btn-xs rounded-xl text-smart-caption"
             type="button"
             :disabled="!storyStore.storyPromptPreview"
             @click="copyPrompt"
@@ -179,7 +189,7 @@
             Copy Full Prompt
           </button>
 
-          <span class="text-xs text-base-content/50">
+          <span class="text-smart-caption text-base-content/50">
             {{ activeServerLabel }}
           </span>
         </div>
@@ -205,11 +215,13 @@
           </div>
 
           <div class="min-w-0">
-            <h2 class="truncate text-base font-black text-base-content">
+            <h2
+              class="truncate text-smart-heading font-black text-base-content"
+            >
               {{ selectedScenarioTitle }}
             </h2>
 
-            <p class="truncate text-xs text-base-content/60">
+            <p class="truncate text-smart-caption text-base-content/60">
               Scenario session · {{ activeServerLabel }}
             </p>
           </div>
@@ -217,7 +229,7 @@
 
         <div class="flex shrink-0 items-center gap-1.5">
           <button
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="btn btn-ghost btn-sm rounded-xl text-smart-button"
             type="button"
             :disabled="storyStore.isBusy"
             title="Start over with the same scenario"
@@ -228,7 +240,7 @@
           </button>
 
           <button
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="btn btn-ghost btn-sm rounded-xl text-smart-button"
             type="button"
             :disabled="storyStore.isBusy"
             title="End the story and browse scenarios"
@@ -252,9 +264,9 @@
           >
             <div class="flex flex-row-reverse">
               <div
-                class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm leading-relaxed text-primary-content shadow-sm"
+                class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-smart leading-relaxed text-primary-content shadow-sm"
               >
-                <p class="mb-1 text-xs font-bold opacity-70">You</p>
+                <p class="mb-1 text-smart-caption font-bold opacity-70">You</p>
                 <p class="whitespace-pre-wrap">{{ chat.content }}</p>
               </div>
             </div>
@@ -267,9 +279,9 @@
               </div>
 
               <div
-                class="flex max-w-[85%] flex-col gap-3 rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
+                class="flex max-w-[85%] flex-col gap-3 rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-smart leading-relaxed shadow-sm"
               >
-                <p class="text-xs font-bold text-base-content/50">
+                <p class="text-smart-caption font-bold text-base-content/50">
                   Weirdlandia
                 </p>
 
@@ -298,7 +310,7 @@
                   class="grid gap-2 pt-1"
                 >
                   <p
-                    class="text-xs font-black uppercase tracking-widest text-base-content/40"
+                    class="text-smart-caption font-black uppercase tracking-widest text-base-content/40"
                   >
                     What do you do next?
                   </p>
@@ -307,7 +319,7 @@
                     v-for="option in chat.replyOptions"
                     :key="option.id"
                     type="button"
-                    class="group flex items-start gap-2 rounded-2xl border p-3 text-left text-sm transition"
+                    class="group flex items-start gap-2 rounded-2xl border p-3 text-left text-smart transition"
                     :class="
                       storyStore.selectedReplyMatches(option)
                         ? 'border-secondary bg-secondary/15 ring-2 ring-secondary'
@@ -317,7 +329,7 @@
                     @click="storyStore.selectReplyOption(option)"
                   >
                     <span
-                      class="shrink-0 rounded-xl px-2 py-0.5 text-xs font-black"
+                      class="shrink-0 rounded-xl px-2 py-0.5 text-smart-caption font-black"
                       :class="
                         storyStore.selectedReplyMatches(option)
                           ? 'bg-secondary text-secondary-content'
@@ -342,12 +354,12 @@
         <div class="mx-auto flex max-w-3xl flex-col gap-2">
           <div
             v-if="storyStore.customDirection"
-            class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm"
+            class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-smart"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <p
-                  class="text-xs font-black uppercase tracking-widest text-secondary"
+                  class="text-smart-caption font-black uppercase tracking-widest text-secondary"
                 >
                   Selected action
                 </p>
@@ -358,7 +370,7 @@
               </div>
 
               <button
-                class="btn btn-ghost btn-xs shrink-0 rounded-xl"
+                class="btn btn-ghost btn-xs shrink-0 rounded-xl text-smart-caption"
                 type="button"
                 :disabled="storyStore.isBusy"
                 @click="storyStore.setCustomDirection('')"
@@ -370,7 +382,7 @@
 
           <textarea
             :value="storyStore.customDirection"
-            class="textarea textarea-bordered min-h-20 w-full resize-none rounded-2xl bg-base-200"
+            class="textarea textarea-bordered min-h-20 w-full resize-none rounded-2xl bg-base-200 text-smart"
             placeholder="Choose a reply above, type your own action, ask a question, or do something deeply unwise..."
             :disabled="storyStore.isBusy"
             @input="
@@ -384,14 +396,14 @@
           />
 
           <div
-            class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs text-base-content/60"
+            class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-smart-caption text-base-content/60"
           >
             <span class="font-bold text-base-content/70">Text server</span>
             <span class="truncate">{{ activeServerLabel }}</span>
           </div>
 
           <button
-            class="btn btn-success min-h-12 w-full rounded-2xl"
+            class="btn btn-success min-h-12 w-full rounded-2xl text-smart-button"
             type="button"
             :disabled="!storyStore.canSubmitStory"
             @click="storyStore.submitStoryTurn"

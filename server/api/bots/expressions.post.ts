@@ -1,4 +1,4 @@
-// /server/api/server/bots/expressions.patch.ts
+// /server/api/bots/expressions.post.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'

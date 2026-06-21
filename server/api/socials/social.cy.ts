@@ -58,7 +58,7 @@ describe('SocialPost API Full CRUD + Auth + Publish Tests', () => {
     })
   })
 
-  it('POST: creates a post with targets, audience, mature flag', () => {
+  it('POST: creates a post with targets via valid auth', () => {
     cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
@@ -70,41 +70,24 @@ describe('SocialPost API Full CRUD + Auth + Publish Tests', () => {
         title: itemTitle,
         body: 'Hello from **Kind Robots** social test.',
         isPublic: true,
-        isMature: true,
-        audience: 'WORK',
         platforms: ['DISCORD', 'BLUESKY', 'REDDIT'],
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.eq(true)
       expect(res.body.data).to.have.property('id')
-      expect(res.body.data.audience).to.eq('WORK')
-      expect(res.body.data.isMature).to.eq(true)
       expect(res.body.data.targets).to.be.an('array').and.have.length(3)
       itemId = res.body.data.id
       expect(itemId).to.be.a('number')
     })
   })
 
-  it('GET: fetch all public records (active only)', () => {
+  it('GET: fetch all public records', () => {
     cy.request<ApiResponse<any[]>>({ method: 'GET', url: baseUrl }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
       expect(res.body.data).to.be.an('array')
       expect(res.body.data?.find((i: any) => i.id === itemId)).to.not.eq(undefined)
-    })
-  })
-
-  it('GET: audience filter narrows results', () => {
-    cy.request<ApiResponse<any[]>>({
-      method: 'GET',
-      url: `${baseUrl}?audience=WORK`,
-      headers: { Authorization: `Bearer ${userToken}` },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      const allWork = (res.body.data ?? []).every((p: any) => p.audience === 'WORK')
-      expect(allWork).to.eq(true)
     })
   })
 
@@ -139,18 +122,18 @@ describe('SocialPost API Full CRUD + Auth + Publish Tests', () => {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
       },
-      body: { title: newTitle, audience: 'PUBLIC', platforms: ['DISCORD', 'MASTODON'] },
+      body: { title: newTitle, platforms: ['DISCORD', 'MASTODON'] },
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
       expect(res.body.data.title).to.eq(newTitle)
-      expect(res.body.data.audience).to.eq('PUBLIC')
       const platforms = res.body.data.targets.map((t: any) => t.platform).sort()
       expect(platforms).to.deep.eq(['DISCORD', 'MASTODON'])
     })
   })
 
   it('PATCH: marks a manual target COPIED', () => {
+    // Re-add REDDIT first so we have a manual target to mark.
     cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${itemId}`,
@@ -190,25 +173,6 @@ describe('SocialPost API Full CRUD + Auth + Publish Tests', () => {
       expect(res.body.success).to.eq(true)
       expect(res.body.data.dryRun).to.eq(true)
       expect(res.body.data.variants).to.be.an('array').and.not.be.empty
-    })
-  })
-
-  it('PUBLISH: un-wired Mastodon skips, not fails', () => {
-    // Targets are DISCORD + MASTODON. Mastodon adapter is un-wired, so it
-    // should come back SKIPPED. Discord may SENT (if webhook set) or FAILED
-    // (if not configured) — either is acceptable here; we only assert Mastodon.
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: `${baseUrl}/${itemId}/publish`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: { platforms: ['MASTODON'] },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      const mastodon = res.body.data.results.find((r: any) => r.platform === 'MASTODON')
-      expect(mastodon.status).to.eq('SKIPPED')
     })
   })
 

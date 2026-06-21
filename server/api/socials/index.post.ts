@@ -3,13 +3,19 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { Prisma, SocialPlatform } from '~/prisma/generated/prisma/client'
+import type {
+  Prisma,
+  SocialPlatform,
+  PostAudience,
+} from '~/prisma/generated/prisma/client'
 
 type IncomingPost = {
   title?: string
   body?: string
   mediaUrls?: unknown
   isPublic?: boolean
+  isMature?: boolean
+  audience?: PostAudience
   sourceType?: string | null
   sourceId?: number | null
   platforms?: SocialPlatform[]
@@ -32,7 +38,18 @@ export default defineEventHandler(async (event) => {
     const buildCreate = (
       entry: IncomingPost,
     ): Prisma.SocialPostCreateInput => {
-      const { title, body: postBody, mediaUrls, isPublic, sourceType, sourceId, platforms, designer } = entry
+      const {
+        title,
+        body: postBody,
+        mediaUrls,
+        isPublic,
+        isMature,
+        audience,
+        sourceType,
+        sourceId,
+        platforms,
+        designer,
+      } = entry
 
       if (!title || typeof title !== 'string') {
         throw createError({ statusCode: 400, message: 'The "title" field is required.' })
@@ -48,6 +65,8 @@ export default defineEventHandler(async (event) => {
         body: postBody,
         mediaUrls: (mediaUrls as Prisma.InputJsonValue) ?? [],
         isPublic: isPublic ?? false,
+        isMature: isMature ?? false,
+        audience: audience ?? ('SOCIAL' as PostAudience),
         sourceType: sourceType ?? null,
         sourceId: sourceId ?? null,
         designer: designer ?? user.username ?? null,

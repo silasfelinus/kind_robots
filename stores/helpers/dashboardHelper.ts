@@ -591,6 +591,18 @@ export const dashboardConfigs = {
         route: '/sanctuary',
       },
       {
+        key: 'social',
+        label: 'Social',
+        icon: 'kind-icon:share',
+        title: 'Social Publisher',
+        summary:
+          'Compose once, broadcast everywhere. Auto-post where the APIs cooperate, copy-ready blocks where they sulk. Every dispatch reviewed by butterflies with tiny press badges.',
+        image: tabImage('giftshop', 'social'),
+        narrative:
+          'Write a post, pick your platforms, and send it to the swarm. Discord goes out on its own; the stubborn networks get formatted, copy-ready blocks so the paste takes seconds.',
+        route: '/sanctuary',
+      },
+      {
         key: 'forum',
         label: 'Forum',
         icon: 'kind-icon:chat',

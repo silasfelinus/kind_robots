@@ -388,7 +388,7 @@ model Dream {
   pitch           String?         @db.Text
   flavorText      String?         @db.VarChar(512)
   examples        String?         @db.LongText
-  artPrompt       String?         @db.VarChar(764)
+  artPrompt       String?         @db.Text
   imagePath       String?         @db.Text
   highlightImage  String?         @db.VarChar(256)
   icon            String?

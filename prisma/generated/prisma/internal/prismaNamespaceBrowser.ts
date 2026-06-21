@@ -74,6 +74,8 @@ export const ModelName = {
   Scenario: 'Scenario',
   Server: 'Server',
   SmartIcon: 'SmartIcon',
+  SocialPost: 'SocialPost',
+  SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
   UserRelation: 'UserRelation'
@@ -657,6 +659,42 @@ export const SmartIconScalarFieldEnum = {
 export type SmartIconScalarFieldEnum = (typeof SmartIconScalarFieldEnum)[keyof typeof SmartIconScalarFieldEnum]
 
 
+export const SocialPostScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  designer: 'designer',
+  title: 'title',
+  body: 'body',
+  mediaUrls: 'mediaUrls',
+  status: 'status',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  scheduledAt: 'scheduledAt',
+  isPublic: 'isPublic',
+  userId: 'userId',
+  isActive: 'isActive',
+  isMature: 'isMature',
+  audience: 'audience'
+} as const
+
+export type SocialPostScalarFieldEnum = (typeof SocialPostScalarFieldEnum)[keyof typeof SocialPostScalarFieldEnum]
+
+
+export const SocialTargetScalarFieldEnum = {
+  id: 'id',
+  postId: 'postId',
+  platform: 'platform',
+  status: 'status',
+  remoteId: 'remoteId',
+  remoteUrl: 'remoteUrl',
+  errorMessage: 'errorMessage',
+  sentAt: 'sentAt'
+} as const
+
+export type SocialTargetScalarFieldEnum = (typeof SocialTargetScalarFieldEnum)[keyof typeof SocialTargetScalarFieldEnum]
+
+
 export const ThemeScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1117,6 +1155,25 @@ export const SmartIconOrderByRelevanceFieldEnum = {
 } as const
 
 export type SmartIconOrderByRelevanceFieldEnum = (typeof SmartIconOrderByRelevanceFieldEnum)[keyof typeof SmartIconOrderByRelevanceFieldEnum]
+
+
+export const SocialPostOrderByRelevanceFieldEnum = {
+  designer: 'designer',
+  title: 'title',
+  body: 'body',
+  sourceType: 'sourceType'
+} as const
+
+export type SocialPostOrderByRelevanceFieldEnum = (typeof SocialPostOrderByRelevanceFieldEnum)[keyof typeof SocialPostOrderByRelevanceFieldEnum]
+
+
+export const SocialTargetOrderByRelevanceFieldEnum = {
+  remoteId: 'remoteId',
+  remoteUrl: 'remoteUrl',
+  errorMessage: 'errorMessage'
+} as const
+
+export type SocialTargetOrderByRelevanceFieldEnum = (typeof SocialTargetOrderByRelevanceFieldEnum)[keyof typeof SocialTargetOrderByRelevanceFieldEnum]
 
 
 export const ThemeOrderByRelevanceFieldEnum = {

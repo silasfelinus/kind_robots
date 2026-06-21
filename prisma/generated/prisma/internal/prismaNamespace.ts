@@ -407,6 +407,8 @@ export const ModelName = {
   Scenario: 'Scenario',
   Server: 'Server',
   SmartIcon: 'SmartIcon',
+  SocialPost: 'SocialPost',
+  SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
   UserRelation: 'UserRelation'
@@ -425,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1947,6 +1949,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SocialPost: {
+      payload: Prisma.$SocialPostPayload<ExtArgs>
+      fields: Prisma.SocialPostFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SocialPostFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SocialPostFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload>
+        }
+        findFirst: {
+          args: Prisma.SocialPostFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SocialPostFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload>
+        }
+        findMany: {
+          args: Prisma.SocialPostFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload>[]
+        }
+        create: {
+          args: Prisma.SocialPostCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload>
+        }
+        createMany: {
+          args: Prisma.SocialPostCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SocialPostDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload>
+        }
+        update: {
+          args: Prisma.SocialPostUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload>
+        }
+        deleteMany: {
+          args: Prisma.SocialPostDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SocialPostUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SocialPostUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostPayload>
+        }
+        aggregate: {
+          args: Prisma.SocialPostAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSocialPost>
+        }
+        groupBy: {
+          args: Prisma.SocialPostGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialPostGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SocialPostCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialPostCountAggregateOutputType> | number
+        }
+      }
+    }
+    SocialTarget: {
+      payload: Prisma.$SocialTargetPayload<ExtArgs>
+      fields: Prisma.SocialTargetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SocialTargetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SocialTargetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload>
+        }
+        findFirst: {
+          args: Prisma.SocialTargetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SocialTargetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload>
+        }
+        findMany: {
+          args: Prisma.SocialTargetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload>[]
+        }
+        create: {
+          args: Prisma.SocialTargetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload>
+        }
+        createMany: {
+          args: Prisma.SocialTargetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SocialTargetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload>
+        }
+        update: {
+          args: Prisma.SocialTargetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload>
+        }
+        deleteMany: {
+          args: Prisma.SocialTargetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SocialTargetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SocialTargetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialTargetPayload>
+        }
+        aggregate: {
+          args: Prisma.SocialTargetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSocialTarget>
+        }
+        groupBy: {
+          args: Prisma.SocialTargetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialTargetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SocialTargetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialTargetCountAggregateOutputType> | number
+        }
+      }
+    }
     Theme: {
       payload: Prisma.$ThemePayload<ExtArgs>
       fields: Prisma.ThemeFieldRefs
@@ -2746,6 +2880,42 @@ export const SmartIconScalarFieldEnum = {
 export type SmartIconScalarFieldEnum = (typeof SmartIconScalarFieldEnum)[keyof typeof SmartIconScalarFieldEnum]
 
 
+export const SocialPostScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  designer: 'designer',
+  title: 'title',
+  body: 'body',
+  mediaUrls: 'mediaUrls',
+  status: 'status',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  scheduledAt: 'scheduledAt',
+  isPublic: 'isPublic',
+  userId: 'userId',
+  isActive: 'isActive',
+  isMature: 'isMature',
+  audience: 'audience'
+} as const
+
+export type SocialPostScalarFieldEnum = (typeof SocialPostScalarFieldEnum)[keyof typeof SocialPostScalarFieldEnum]
+
+
+export const SocialTargetScalarFieldEnum = {
+  id: 'id',
+  postId: 'postId',
+  platform: 'platform',
+  status: 'status',
+  remoteId: 'remoteId',
+  remoteUrl: 'remoteUrl',
+  errorMessage: 'errorMessage',
+  sentAt: 'sentAt'
+} as const
+
+export type SocialTargetScalarFieldEnum = (typeof SocialTargetScalarFieldEnum)[keyof typeof SocialTargetScalarFieldEnum]
+
+
 export const ThemeScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -3208,6 +3378,25 @@ export const SmartIconOrderByRelevanceFieldEnum = {
 export type SmartIconOrderByRelevanceFieldEnum = (typeof SmartIconOrderByRelevanceFieldEnum)[keyof typeof SmartIconOrderByRelevanceFieldEnum]
 
 
+export const SocialPostOrderByRelevanceFieldEnum = {
+  designer: 'designer',
+  title: 'title',
+  body: 'body',
+  sourceType: 'sourceType'
+} as const
+
+export type SocialPostOrderByRelevanceFieldEnum = (typeof SocialPostOrderByRelevanceFieldEnum)[keyof typeof SocialPostOrderByRelevanceFieldEnum]
+
+
+export const SocialTargetOrderByRelevanceFieldEnum = {
+  remoteId: 'remoteId',
+  remoteUrl: 'remoteUrl',
+  errorMessage: 'errorMessage'
+} as const
+
+export type SocialTargetOrderByRelevanceFieldEnum = (typeof SocialTargetOrderByRelevanceFieldEnum)[keyof typeof SocialTargetOrderByRelevanceFieldEnum]
+
+
 export const ThemeOrderByRelevanceFieldEnum = {
   name: 'name',
   values: 'values',
@@ -3441,6 +3630,34 @@ export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'PostStatus'
+ */
+export type EnumPostStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PostAudience'
+ */
+export type EnumPostAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostAudience'>
+    
+
+
+/**
+ * Reference to a field of type 'SocialPlatform'
+ */
+export type EnumSocialPlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SocialPlatform'>
+    
+
+
+/**
+ * Reference to a field of type 'TargetStatus'
+ */
+export type EnumTargetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TargetStatus'>
+    
+
+
+/**
  * Reference to a field of type 'Role'
  */
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
@@ -3593,6 +3810,8 @@ export type GlobalOmitConfig = {
   scenario?: Prisma.ScenarioOmit
   server?: Prisma.ServerOmit
   smartIcon?: Prisma.SmartIconOmit
+  socialPost?: Prisma.SocialPostOmit
+  socialTarget?: Prisma.SocialTargetOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
   userRelation?: Prisma.UserRelationOmit

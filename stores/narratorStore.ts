@@ -67,9 +67,9 @@ type DreamNarratorBot = Partial<Bot> & {
   id: number
   name: string
   slug?: string | null
+  chatBorderImage?: string | null
   ExpressionMedia?: NarratorExpressionMedia[]
 }
-
 type DreamScenario = {
   id?: number | null
   slug?: string | null
@@ -225,6 +225,10 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         ...fallbackNarratorEmotions,
       ]),
     )
+  })
+
+  const narratorChatFrameImage = computed(() => {
+    return narratorBot.value?.chatBorderImage ?? null
   })
 
   const currentEmotionRow = computed<NarratorExpressionMedia | null>(() => {
@@ -1539,5 +1543,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     quickCreate,
     routeNarratorInput,
     disposeTimers,
+    narratorChatFrameImage,
   }
 })

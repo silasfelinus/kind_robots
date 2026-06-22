@@ -67,6 +67,8 @@ export const ModelName = {
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
   MilestoneRecord: 'MilestoneRecord',
+  NarratorTopic: 'NarratorTopic',
+  NarratorThread: 'NarratorThread',
   Prompt: 'Prompt',
   Reaction: 'Reaction',
   Resource: 'Resource',
@@ -181,7 +183,8 @@ export const BotScalarFieldEnum = {
   artImageId: 'artImageId',
   isMature: 'isMature',
   isActive: 'isActive',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  chatBorderImage: 'chatBorderImage'
 } as const
 
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
@@ -471,6 +474,42 @@ export const MilestoneRecordScalarFieldEnum = {
 } as const
 
 export type MilestoneRecordScalarFieldEnum = (typeof MilestoneRecordScalarFieldEnum)[keyof typeof MilestoneRecordScalarFieldEnum]
+
+
+export const NarratorTopicScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  title: 'title',
+  subtitle: 'subtitle',
+  description: 'description',
+  icon: 'icon',
+  prompt: 'prompt',
+  sampleUserPrompt: 'sampleUserPrompt',
+  sortOrder: 'sortOrder',
+  isPublic: 'isPublic',
+  isActive: 'isActive'
+} as const
+
+export type NarratorTopicScalarFieldEnum = (typeof NarratorTopicScalarFieldEnum)[keyof typeof NarratorTopicScalarFieldEnum]
+
+
+export const NarratorThreadScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  botId: 'botId',
+  topicId: 'topicId',
+  title: 'title',
+  openingText: 'openingText',
+  guidance: 'guidance',
+  starterPrompts: 'starterPrompts',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive'
+} as const
+
+export type NarratorThreadScalarFieldEnum = (typeof NarratorThreadScalarFieldEnum)[keyof typeof NarratorThreadScalarFieldEnum]
 
 
 export const PromptScalarFieldEnum = {
@@ -875,7 +914,8 @@ export const BotOrderByRelevanceFieldEnum = {
   imagePath: 'imagePath',
   designer: 'designer',
   serverName: 'serverName',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  chatBorderImage: 'chatBorderImage'
 } as const
 
 export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)[keyof typeof BotOrderByRelevanceFieldEnum]
@@ -1053,6 +1093,28 @@ export const MilestoneRecordOrderByRelevanceFieldEnum = {
 } as const
 
 export type MilestoneRecordOrderByRelevanceFieldEnum = (typeof MilestoneRecordOrderByRelevanceFieldEnum)[keyof typeof MilestoneRecordOrderByRelevanceFieldEnum]
+
+
+export const NarratorTopicOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  subtitle: 'subtitle',
+  description: 'description',
+  icon: 'icon',
+  prompt: 'prompt',
+  sampleUserPrompt: 'sampleUserPrompt'
+} as const
+
+export type NarratorTopicOrderByRelevanceFieldEnum = (typeof NarratorTopicOrderByRelevanceFieldEnum)[keyof typeof NarratorTopicOrderByRelevanceFieldEnum]
+
+
+export const NarratorThreadOrderByRelevanceFieldEnum = {
+  title: 'title',
+  openingText: 'openingText',
+  guidance: 'guidance'
+} as const
+
+export type NarratorThreadOrderByRelevanceFieldEnum = (typeof NarratorThreadOrderByRelevanceFieldEnum)[keyof typeof NarratorThreadOrderByRelevanceFieldEnum]
 
 
 export const PromptOrderByRelevanceFieldEnum = {

@@ -551,6 +551,20 @@ export function cleanPublicNarratorText(value: unknown) {
     return ''
   }
 
+  // Reject seeded "action menus": pipe-delimited imperative lists like
+  // "Tell me a story. | Generate 6 scenarios. | Forge themed rewards."
+  // These belong in starterPrompts / nav actions, not in narration. If a
+  // botIntro/sampleResponse was seeded this way, drop it rather than render
+  // it as a stream-of-thought monologue.
+  const pipeSegments = text
+    .split('|')
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+
+  if (pipeSegments.length >= 3) {
+    return ''
+  }
+
   return text
 }
 

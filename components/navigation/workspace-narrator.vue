@@ -1,14 +1,12 @@
 <template>
   <div
     v-if="shouldRender"
-    class="pointer-events-none z-100 overflow-visible"
-    :class="narratorFrameClass"
+    class="pointer-events-none relative h-full w-full overflow-visible"
   >
     <Transition name="narrator-bubble">
       <aside
         v-if="activeBubble && bubblesEnabled && !isOpen"
-        class="narrator-speech pointer-events-auto absolute z-120 w-[min(calc(100vw-1.5rem),20rem)] rounded-[1.75rem] border-2 border-primary/30 bg-base-100/95 p-3 text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed text-base-content shadow-2xl backdrop-blur"
-        :class="bubbleFrameClass"
+        class="narrator-speech pointer-events-auto absolute bottom-[calc(var(--narrator-circle)+1.25rem)] right-3 z-120 w-[min(calc(100vw-1.5rem),20rem)] rounded-[1.75rem] border-2 border-primary/30 bg-base-100/95 p-3 text-sm leading-relaxed text-base-content shadow-2xl backdrop-blur md:text-base"
       >
         <div class="flex items-start gap-2">
           <span class="text-xl leading-none">
@@ -34,8 +32,7 @@
     <Transition name="narrator-panel">
       <section
         v-if="isOpen"
-        class="pointer-events-auto absolute z-110 flex flex-col overflow-hidden rounded-3xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
-        :class="narratorPanelClass"
+        class="pointer-events-auto absolute inset-y-0 right-0 flex w-(--narrator-w) min-w-0 flex-col overflow-hidden rounded-3xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
       >
         <header
           class="relative shrink-0 overflow-hidden border-b border-base-300 bg-base-200/90 p-3"
@@ -647,24 +644,33 @@
       </section>
     </Transition>
 
-    <section
-      class="pointer-events-auto relative z-100 h-full w-full overflow-visible"
-    >
+    <!--
+      COLLAPSED CIRCLE
+      When the panel is closed, the narrator lives as a circular avatar docked
+      in the bottom-right corner. Tapping it opens the right sidebar. Clicking
+      plays a reaction without opening (matches the old portrait behavior).
+      Its footprint is --narrator-circle, which app.vue reserves on the right
+      so the footer + toggles never sit underneath it.
+    -->
+    <Transition name="narrator-circle">
       <button
-        v-if="!mobileToggle"
+        v-if="!isOpen"
         type="button"
-        class="group relative h-full w-full overflow-hidden rounded-4xl border border-primary/30 bg-base-300 shadow-2xl transition-transform duration-300 hover:scale-105 md:rounded-[2.5rem]"
+        class="group pointer-events-auto absolute bottom-3 right-3 z-110 overflow-hidden rounded-full border-2 border-primary/40 bg-base-300 shadow-2xl transition-transform duration-300 hover:scale-105"
         :class="portraitFlipping ? 'is-portrait-flipping' : ''"
+        :style="{
+          height: 'var(--narrator-circle)',
+          width: 'var(--narrator-circle)',
+        }"
         :aria-expanded="isOpen"
+        :aria-label="`Open ${narratorName}`"
         :title="narratorHoverTitle"
         @click="togglePanel"
       >
         <div
-          class="absolute -inset-1 rounded-[2.75rem] bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
+          class="absolute -inset-1 rounded-full bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
         />
 
-        <!-- Reaction loop (animated webp) while playing, else the still portrait.
-             Clicking the portrait plays a reaction without toggling the panel. -->
         <img
           v-if="narratorVideo"
           :src="narratorVideo"
@@ -682,44 +688,14 @@
           @click.stop="playReactionOnClick"
         />
 
-        <div
-          class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-100 via-base-100/75 to-transparent px-2 pb-2 pt-8 text-center"
-        >
-          <div
-            class="mx-auto max-w-[92%] rounded-full border border-base-300/80 bg-base-100/90 px-3 py-1.5 shadow-xl backdrop-blur"
-          >
-            <p
-              class="truncate text-sm font-black leading-tight text-primary md:text-base"
-            >
-              {{ narratorName }}
-            </p>
-          </div>
-        </div>
-
         <span
           v-if="currentEmotionRow?.emoticon"
-          class="absolute right-2 top-2 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-base shadow md:text-lg"
+          class="absolute -right-0.5 -top-0.5 rounded-full border border-base-300 bg-base-100 px-1 py-0.5 text-xs shadow"
         >
           {{ currentEmotionRow.emoticon }}
         </span>
       </button>
-
-      <button
-        v-else
-        type="button"
-        class="btn btn-secondary btn-circle btn-sm shadow-2xl"
-        :class="isOpen ? 'btn-active' : ''"
-        :aria-expanded="isOpen"
-        :aria-label="isOpen ? 'Close narrator' : 'Open narrator'"
-        :title="isOpen ? 'Close narrator' : 'Open narrator'"
-        @click="togglePanel"
-      >
-        <Icon
-          :name="isOpen ? 'kind-icon:close' : 'kind-icon:bot'"
-          class="h-5 w-5"
-        />
-      </button>
-    </section>
+    </Transition>
   </div>
 </template>
 
@@ -739,21 +715,22 @@ import { useNarratorStore } from '@/stores/narratorStore'
 
 const props = withDefaults(
   defineProps<{
-    chromeMinimized?: boolean
-    railMode?: boolean
-    mobileToggle?: boolean
-    closeSignal?: number
+    // Parent-controlled open state (right sidebar). The store's isOpen remains
+    // the internal source of truth; we two-way sync it with this prop so the
+    // parent can also drive width var changes.
+    open?: boolean
+    // At xl the narrator may coexist with footer regions; below xl it doesn't.
+    coexist?: boolean
   }>(),
   {
-    chromeMinimized: false,
-    railMode: false,
-    mobileToggle: false,
-    closeSignal: 0,
+    open: false,
+    coexist: false,
   },
 )
 
 const emit = defineEmits<{
-  'panel-open-change': [value: boolean]
+  'update:open': [value: boolean]
+  'update:rendered': [value: boolean]
 }>()
 
 const narratorStore = useNarratorStore()
@@ -794,8 +771,6 @@ const {
 
 const chatLogRef = ref<HTMLElement | null>(null)
 
-const mobileToggle = computed(() => props.mobileToggle)
-
 // ---------------------------------------------------------------------------
 // Portrait card-spin
 // Mirrors the workspace-hand flip: whenever the displayed portrait or reaction
@@ -826,83 +801,6 @@ watch(
   },
 )
 
-const narratorFrameClass = computed(() => {
-  if (props.mobileToggle) {
-    return 'relative h-12 w-12 transition-transform duration-300 ease-out'
-  }
-
-  // Taller resting frame + bigger growth on hover/open than before.
-  if (props.railMode && !props.chromeMinimized) {
-    return [
-      'fixed bottom-3 right-3 h-44 w-28 max-w-[calc(100vw-1.5rem)]',
-      'transition-[height,width,transform] duration-300 ease-out',
-      isOpen.value ? 'h-52 w-32' : '',
-      'md:relative md:bottom-auto md:right-auto',
-      'md:h-[calc(var(--hand-h,9rem)*2.45)] md:w-[calc(var(--hand-h,9rem)*0.98)]',
-      'md:max-h-[82dvh] md:min-h-64 md:min-w-32 md:max-w-none',
-      isOpen.value
-        ? 'md:h-[calc(var(--hand-h,9rem)*3.05)] md:w-[calc(var(--hand-h,9rem)*1.24)]'
-        : 'md:hover:h-[calc(var(--hand-h,9rem)*3.2)] md:hover:w-[calc(var(--hand-h,9rem)*1.3)]',
-    ]
-      .filter(Boolean)
-      .join(' ')
-  }
-
-  return [
-    'fixed bottom-3 right-3 h-44 w-28 max-w-[calc(100vw-1.5rem)]',
-    'transition-[height,width,transform] duration-300 ease-out',
-    isOpen.value ? 'h-52 w-32' : '',
-    'sm:bottom-4 sm:right-4',
-    'md:h-[calc(var(--hand-h,9rem)*2.2)] md:w-[calc(var(--hand-h,9rem)*0.9)]',
-    'md:max-h-[80dvh] md:min-h-60 md:min-w-32 md:max-w-none',
-    isOpen.value
-      ? 'md:h-[calc(var(--hand-h,9rem)*2.8)] md:w-[calc(var(--hand-h,9rem)*1.16)]'
-      : 'md:hover:h-[calc(var(--hand-h,9rem)*2.95)] md:hover:w-[calc(var(--hand-h,9rem)*1.2)]',
-  ]
-    .filter(Boolean)
-    .join(' ')
-})
-
-const narratorPanelClass = computed(() => {
-  if (props.mobileToggle) {
-    return [
-      'fixed left-3 right-3 bottom-24 w-auto',
-      'max-h-[calc(100dvh-7.5rem)]',
-    ].join(' ')
-  }
-
-  if (props.railMode && !props.chromeMinimized) {
-    return [
-      'fixed inset-x-3 bottom-36 w-auto max-h-[calc(100dvh-9.75rem)]',
-      'md:absolute md:inset-x-auto md:bottom-0 md:right-[calc(100%+1rem)]',
-      'md:w-[min(30rem,calc(100vw-9.5rem))] md:max-h-[min(40rem,calc(100dvh-2rem))]',
-      'xl:w-[28rem]',
-    ].join(' ')
-  }
-
-  return [
-    'fixed inset-x-3 bottom-36 w-auto max-h-[calc(100dvh-9.75rem)]',
-    'sm:absolute sm:inset-x-auto sm:bottom-[calc(100%+1rem)] sm:right-0',
-    'sm:w-[min(calc(100vw-1.5rem),30rem)] sm:max-h-[min(40rem,calc(100dvh-2rem))]',
-    'xl:w-[28rem]',
-  ].join(' ')
-})
-
-const bubbleFrameClass = computed(() => {
-  if (props.mobileToggle) {
-    return 'bottom-[calc(100%+0.5rem)] left-0'
-  }
-
-  if (props.railMode && !props.chromeMinimized) {
-    return [
-      'bottom-[calc(100%+0.75rem)] right-0',
-      'md:bottom-6 md:right-[calc(100%+0.75rem)]',
-    ].join(' ')
-  }
-
-  return 'bottom-[calc(100%+0.75rem)] right-0'
-})
-
 const {
   initialize,
   disposeTimers,
@@ -927,17 +825,32 @@ const {
   teardownLiveness,
 } = narratorStore
 
+// ── open ⇄ isOpen bridge ─────────────────────────────────────────────────────
+// The store's isOpen stays the internal source of truth (togglePanel, pin,
+// liveness, etc. all read it). We mirror the parent's `open` prop into it and
+// emit changes back up so app.vue can update --narrator-w.
 watch(
-  () => props.closeSignal,
-  () => {
-    closePanel(false)
+  () => props.open,
+  (value) => {
+    if (value && !isOpen.value) {
+      togglePanel()
+    } else if (!value && isOpen.value) {
+      closePanel(false)
+    }
   },
+  { immediate: true },
 )
 
+watch(isOpen, (value) => {
+  if (value !== props.open) {
+    emit('update:open', value)
+  }
+})
+
 watch(
-  isOpen,
+  shouldRender,
   (value) => {
-    emit('panel-open-change', value)
+    emit('update:rendered', Boolean(value))
   },
   { immediate: true },
 )
@@ -1062,6 +975,19 @@ function scrollChatToBottom() {
 .narrator-bubble-leave-to {
   opacity: 0;
   transform: translateX(0.75rem) scale(0.98);
+}
+
+.narrator-circle-enter-active,
+.narrator-circle-leave-active {
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+
+.narrator-circle-enter-from,
+.narrator-circle-leave-to {
+  opacity: 0;
+  transform: scale(0.6) translateY(0.5rem);
 }
 
 @keyframes narrator-bounce {

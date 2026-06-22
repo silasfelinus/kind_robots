@@ -62,12 +62,11 @@
           >
             Mature
           </span>
-
           <button
             class="btn btn-ghost btn-sm rounded-xl text-smart-button"
             type="button"
             title="Show or hide scenario details"
-            @click="sheetStore.toggleSheet"
+            @click="sheetStore.toggleSheet()"
           >
             <Icon name="kind-icon:info" class="h-4 w-4" />
             <span class="hidden sm:inline">Info</span>

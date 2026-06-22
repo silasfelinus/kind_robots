@@ -63,12 +63,26 @@ type NarratorExpressionMedia = ExpressionMedia & {
   ArtImage?: ArtImageLike | null
 }
 
+// Directed transition clip between two expression keys. Arrives on the bot as
+// a relation (Bots[].ExpressionTransition[]) once the Dream query includes it;
+// the store tolerates its absence and falls back to instant mood swaps.
+type NarratorExpressionTransition = {
+  id?: number
+  fromKey?: string | null
+  toKey?: string | null
+  videoPath?: string | null
+  fps?: number | null
+  frames?: number | null
+  isActive?: boolean | null
+}
+
 type DreamNarratorBot = Partial<Bot> & {
   id: number
   name: string
   slug?: string | null
   chatBorderImage?: string | null
   ExpressionMedia?: NarratorExpressionMedia[]
+  ExpressionTransition?: NarratorExpressionTransition[]
 }
 type DreamScenario = {
   id?: number | null
@@ -158,8 +172,17 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   // True while a reaction loop is actively shown in the hero portrait.
   const playingVideo = ref(false)
 
+  // ── Transition system: bridge clips played when mood changes ──
+  // True while an A->B transition clip is bridging in the hero portrait.
+  const playingTransition = ref(false)
+  // Path of the transition clip currently bridging (empty when none).
+  const transitionClip = ref('')
+  // When a transition is requested, the mood to land on once it finishes.
+  const pendingEmotion = ref<NarratorEmotion | null>(null)
+
   let livenessTimer: ReturnType<typeof setTimeout> | null = null
   let videoStopTimer: ReturnType<typeof setTimeout> | null = null
+  let transitionStopTimer: ReturnType<typeof setTimeout> | null = null
   let livenessPausedUntil = 0
   let tabHidden = false
 
@@ -297,8 +320,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     )
   })
 
+  // Transition bridge clip, surfaced only while a transition is playing.
+  const narratorTransitionVideo = computed(() => {
+    return playingTransition.value ? transitionClip.value : ''
+  })
+
   // Reaction loop for the current expression, if one exists (else empty -> UI shows still).
+  // A transition clip takes precedence: while bridging between moods, the
+  // portrait shows the transition rather than a same-mood reaction loop.
   const narratorVideo = computed(() => {
+    if (playingTransition.value) return transitionClip.value
     // Only surface the loop while actively playing (click or ambient beat).
     if (!playingVideo.value) return ''
     return readEmotionVideo(currentEmotionRow.value)
@@ -477,7 +508,14 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       clearTimeout(videoStopTimer)
       videoStopTimer = null
     }
+    if (transitionStopTimer) {
+      clearTimeout(transitionStopTimer)
+      transitionStopTimer = null
+    }
     playingVideo.value = false
+    playingTransition.value = false
+    transitionClip.value = ''
+    pendingEmotion.value = null
     if (import.meta.client) {
       document.removeEventListener('visibilitychange', handleVisibility)
     }
@@ -537,7 +575,23 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeScreen.value = screen
   }
 
-  function setEmotion(emotion: NarratorEmotion, showBubble = true) {
+  function setEmotion(
+    emotion: NarratorEmotion,
+    showBubble = true,
+    options: { bridge?: boolean } = {},
+  ) {
+    // When bridging is requested and a transition clip exists from the current
+    // mood to the target, play it; the actual emotion swap happens when the
+    // clip lands (playTransition calls setEmotion again without bridge).
+    if (
+      options.bridge &&
+      !playingTransition.value &&
+      emotion !== currentEmotion.value &&
+      playTransition(emotion)
+    ) {
+      return
+    }
+
     currentEmotion.value = emotion
 
     if (showBubble) {
@@ -570,6 +624,58 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     emotionRows.value.filter((row) => Boolean(readEmotionVideo(row))),
   )
 
+  // Active transition rows attached to the bot (tolerates missing relation).
+  const transitionRows = computed<NarratorExpressionTransition[]>(() => {
+    return (narratorBot.value?.ExpressionTransition ?? []).filter(
+      (row) => row.isActive !== false,
+    )
+  })
+
+  // The lowercase expressionKey for a given NarratorEmotion, matched against
+  // the bot's own expression rows so transitions line up with stills. Falls
+  // back to the lowercased emotion name when no row carries a custom key.
+  function keyForEmotion(emotion: NarratorEmotion): string {
+    const row = emotionRows.value.find(
+      (entry) => normalizeEmotion(readExpressionValue(entry)) === emotion,
+    )
+    return expressionKeyOf(row) || String(emotion).toLowerCase()
+  }
+
+  // Resolve a transition clip from -> to: prefer a DB row, else derive the
+  // slug path written by the ComfyUI workflow. Returns '' when neither exists.
+  function findTransition(fromKey: string, toKey: string): string {
+    const from = String(fromKey || '').toLowerCase()
+    const to = String(toKey || '').toLowerCase()
+    if (!from || !to || from === to) return ''
+
+    const match = transitionRows.value.find(
+      (row) =>
+        String(row.fromKey || '').toLowerCase() === from &&
+        String(row.toKey || '').toLowerCase() === to,
+    )
+    if (match?.videoPath) return match.videoPath
+
+    const slug = narratorBot.value?.slug
+    if (slug) return `/images/bots/expressions/${slug}/${from}__${to}.webp`
+    return ''
+  }
+
+  // Duration a transition clip plays before settling on the target still.
+  // Derived from frames/fps when the DB row provides them, else a sane default.
+  function transitionDurationFor(fromKey: string, toKey: string): number {
+    const from = String(fromKey || '').toLowerCase()
+    const to = String(toKey || '').toLowerCase()
+    const row = transitionRows.value.find(
+      (entry) =>
+        String(entry.fromKey || '').toLowerCase() === from &&
+        String(entry.toKey || '').toLowerCase() === to,
+    )
+    const fps = row?.fps && row.fps > 0 ? row.fps : 16
+    const frames = row?.frames && row.frames > 0 ? row.frames : 33
+    // ms, with a small tail so the last frame isn't clipped before the still.
+    return Math.round((frames / fps) * 1000) + 120
+  }
+
   // Pick a mood to drift to. Prefers the bot's known expressions, falls back
   // to the full emotion list (image gracefully falls back to neutral if absent).
   function pickDriftEmotion(): NarratorEmotion {
@@ -580,12 +686,53 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     return source[Math.floor(Math.random() * source.length)] ?? 'NEUTRAL'
   }
 
-  // Drift to a new mood (swaps the still image to that mood if available).
+  // Drift to a new mood. Bridges through a transition clip when one exists
+  // (from the current emotion to the next), else swaps the still instantly.
   function driftMood() {
     const next = pickDriftEmotion()
-    setEmotion(next, bubblesEnabled.value)
+    setEmotion(next, bubblesEnabled.value, { bridge: true })
     showMoodRing.value = true
     setTimeout(() => (showMoodRing.value = false), 1200)
+  }
+
+  // Play a transition clip bridging the current emotion to `to`. The still is
+  // not swapped until the clip finishes, so the portrait reads as travelling
+  // between moods rather than hard-cutting. Returns true if a clip was played.
+  function playTransition(to: NarratorEmotion): boolean {
+    const from = currentEmotion.value
+    if (from === to) return false
+
+    const clip = findTransition(keyForEmotion(from), keyForEmotion(to))
+    if (!clip) return false
+
+    // A transition supersedes any reaction loop in flight.
+    if (videoStopTimer) {
+      clearTimeout(videoStopTimer)
+      videoStopTimer = null
+    }
+    playingVideo.value = false
+
+    pendingEmotion.value = to
+    transitionClip.value = clip
+    playingTransition.value = true
+
+    const duration = transitionDurationFor(
+      keyForEmotion(from),
+      keyForEmotion(to),
+    )
+
+    if (transitionStopTimer) clearTimeout(transitionStopTimer)
+    transitionStopTimer = setTimeout(() => {
+      // Land on the target still once the bridge clip completes.
+      const landing = pendingEmotion.value
+      playingTransition.value = false
+      transitionClip.value = ''
+      pendingEmotion.value = null
+      transitionStopTimer = null
+      if (landing) setEmotion(landing, bubblesEnabled.value)
+    }, duration)
+
+    return true
   }
 
   // Play a reaction video for the current (or a random video-having) expression,
@@ -671,6 +818,13 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       if (videoStopTimer) {
         clearTimeout(videoStopTimer)
         videoStopTimer = null
+      }
+      playingTransition.value = false
+      transitionClip.value = ''
+      pendingEmotion.value = null
+      if (transitionStopTimer) {
+        clearTimeout(transitionStopTimer)
+        transitionStopTimer = null
       }
     }
   }
@@ -1478,11 +1632,18 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     narratorHoverTitle,
     narratorImage,
     narratorVideo,
+    narratorTransitionVideo,
     rowByExpressionKey,
     // liveness system
     livenessEnabled,
     livenessConfig,
     playingVideo,
+    // transition system
+    playingTransition,
+    transitionClip,
+    transitionRows,
+    findTransition,
+    playTransition,
     startLiveness,
     stopLiveness,
     toggleLiveness,

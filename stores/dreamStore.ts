@@ -307,7 +307,7 @@ function defaultDreamForm(
   return {
     title: '',
     slug: null,
-    dreamType: 'ARTDREAM',
+    dreamType: 'PITCH',
     pitch: '',
     description: '',
     flavorText: '',
@@ -433,15 +433,12 @@ export const useDreamStore = defineStore('dreamStore', () => {
     ),
   )
 
-  const artDreams = computed(() => filterDreamsByType('ARTDREAM', dreams.value))
+  const artDreams = computed(() => filterDreamsByType('ART', dreams.value))
   const pitchDreams = computed(() => filterDreamsByType('PITCH', dreams.value))
-  const titles = computed(() => filterDreamsByType('TITLE', dreams.value))
   const brainstormDreams = computed(() =>
     filterDreamsByType('BRAINSTORM', dreams.value),
   )
-  const randomListDreams = computed(() =>
-    filterDreamsByType('RANDOMLIST', dreams.value),
-  )
+
   const dreamsByTitle = computed(() => groupDreamsByTitle(dreams.value))
 
   const selectedTitleDreams = computed(() => {
@@ -1981,7 +1978,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
       title: fallbackDreamTitle(prompt.prompt),
       pitch: prompt.prompt,
       description: prompt.prompt.slice(0, 764),
-      dreamType: 'ARTDREAM',
+      dreamType: 'PITCH',
       creationSource: 'HYBRID',
       userId: prompt.userId || currentUserId.value || 10,
       designer: userStore.username || 'Kind Designer',
@@ -2072,9 +2069,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     visibleDreams,
     artDreams,
     pitchDreams,
-    titles,
     brainstormDreams,
-    randomListDreams,
     dreamsByTitle,
     selectedTitleDreams,
     selectedDreamCast,

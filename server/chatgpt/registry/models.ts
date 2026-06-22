@@ -31,18 +31,13 @@ const PublicActiveFlagsSchema = z
   .strict()
 
 const DreamTypeSchema = z.enum([
-  'ARTDREAM',
+  'ART',
   'BRAINSTORM',
-  'WEIRDLANDIA',
-  'RANDOMLIST',
-  'TITLE',
-  'VIBE',
-  'BOT',
-  'INSPIRATION',
+  'PROMPTBOT',
+  'NARRATOR',
   'CHARACTER',
   'REWARD',
   'SCENARIO',
-  'TEXT',
   'LOCATION',
   'PITCH',
   'GENRE',

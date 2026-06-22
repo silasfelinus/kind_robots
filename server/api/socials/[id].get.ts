@@ -4,12 +4,11 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 
 export default defineEventHandler(async (event) => {
-  let id: number
+  const id = Number(event.context.params?.id)
   let response
 
   try {
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid SocialPost ID. Must be a positive integer.',
@@ -41,7 +40,11 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handled.statusCode || 500
     response = {
       success: false,
-      message: handled.message || `Failed to fetch SocialPost with ID ${id}.`,
+      message:
+        handled.message ||
+        (Number.isInteger(id) && id > 0
+          ? `Failed to fetch SocialPost with ID ${id}.`
+          : 'Failed to fetch SocialPost.'),
       statusCode: event.node.res.statusCode,
     }
   }

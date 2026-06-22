@@ -12,17 +12,26 @@ export default defineEventHandler(async (event) => {
   try {
     dreamId = Number(event.context.params?.dreamId)
     if (Number.isNaN(dreamId) || dreamId <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid Dream ID. Must be a positive integer.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid Dream ID. Must be a positive integer.',
+      })
     }
 
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
     const dream = await prisma.dream.findUnique({ where: { id: dreamId } })
     if (!dream) {
-      throw createError({ statusCode: 404, message: `Dream with ID ${dreamId} not found.` })
+      throw createError({
+        statusCode: 404,
+        message: `Dream with ID ${dreamId} not found.`,
+      })
     }
 
     if (dream.userId !== user.id && user.Role !== 'ADMIN') {
@@ -35,17 +44,17 @@ export default defineEventHandler(async (event) => {
     const existing = await prisma.pitchSheet.findUnique({
       where: { dreamId },
       include: {
-          Dream: true,
-          ArtImage: {
-            select: {
-              id: true,
-              imagePath: true,
-              thumbnailData: true,
-              fileName: true,
-              fileType: true,
-            },
+        Dream: true,
+        ArtImage: {
+          select: {
+            id: true,
+            imagePath: true,
+            thumbnailData: true,
+            fileName: true,
+            fileType: true,
           },
         },
+      },
     })
 
     if (existing) {
@@ -58,24 +67,26 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const body = await readBody<Record<string, unknown>>(event).catch(() => ({}))
+    const body = await readBody<Record<string, unknown>>(event).catch(
+      () => ({}),
+    )
     const overrides = sanitizePitchSheetPayload(body || {})
     const data = buildPitchSheetFromDream(dream, user.id, overrides)
 
     const created = await prisma.pitchSheet.create({
       data,
       include: {
-          Dream: true,
-          ArtImage: {
-            select: {
-              id: true,
-              imagePath: true,
-              thumbnailData: true,
-              fileName: true,
-              fileType: true,
-            },
+        Dream: true,
+        ArtImage: {
+          select: {
+            id: true,
+            imagePath: true,
+            thumbnailData: true,
+            fileName: true,
+            fileType: true,
           },
         },
+      },
     })
 
     event.node.res.statusCode = 201
@@ -90,7 +101,8 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handled.statusCode || 500
     return {
       success: false,
-      message: handled.message || `Failed to create PitchSheet for Dream ${dreamId}.`,
+      message:
+        handled.message || `Failed to create PitchSheet for Dream ${dreamId}.`,
       data: null,
       statusCode: event.node.res.statusCode,
     }

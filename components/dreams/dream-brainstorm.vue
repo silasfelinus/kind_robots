@@ -559,13 +559,16 @@ const generatedThisSession = ref(false)
 const saveDreamType = ref<DreamType>('PITCH')
 
 const saveDreamTypes: DreamType[] = [
-  'PITCH',
-  'LOCATION',
-  'SCENARIO',
+  'ART',
+  'BRAINSTORM',
+  'PROMPTBOT',
+  'NARRATOR',
   'CHARACTER',
   'REWARD',
-  'WEIRDLANDIA',
-  'TEXT',
+  'SCENARIO',
+  'LOCATION',
+  'PITCH',
+  'GENRE',
 ]
 
 const selectedDream = computed(() => dreamStore.selectedDream)

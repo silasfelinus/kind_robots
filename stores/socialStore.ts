@@ -135,7 +135,9 @@ export const useSocialStore = defineStore('socialStore', () => {
 
   async function fetchById(id: number): Promise<SocialPostWithTargets | null> {
     try {
-      const res = await performFetch<SocialPostWithTargets>(`/api/socials/${id}`)
+      const res = await performFetch<SocialPostWithTargets>(
+        `/api/socials/${id}`,
+      )
       if (res.success && res.data) return res.data
       throw new Error(res.message)
     } catch (err) {
@@ -162,15 +164,21 @@ export const useSocialStore = defineStore('socialStore', () => {
 
   async function addPost(payload?: SocialPostForm) {
     isSaving.value = true
+
     try {
-      const res = await performFetch('/api/socials', {
+      const res = await performFetch<SocialPostWithTargets>('/api/socials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(toPayload(payload ?? form.value)),
       })
-      if (!res.success) throw new Error(res.message)
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to create social post')
+      }
+
       items.value.unshift(res.data)
       syncToLocalStorage()
+
       return { success: true, data: res.data }
     } catch (err) {
       handleError(err, 'creating social post')
@@ -182,16 +190,27 @@ export const useSocialStore = defineStore('socialStore', () => {
 
   async function updatePost(id: number, updates: Partial<SocialPostForm>) {
     isSaving.value = true
+
     try {
-      const res = await performFetch(`/api/socials/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      })
-      if (!res.success) throw new Error(res.message)
+      const res = await performFetch<SocialPostWithTargets>(
+        `/api/socials/${id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+        },
+      )
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to update social post')
+      }
+
       const idx = items.value.findIndex((i) => i.id === id)
       if (idx !== -1) items.value[idx] = res.data
+      if (selected.value?.id === id) selected.value = res.data
+
       syncToLocalStorage()
+
       return { success: true, data: res.data }
     } catch (err) {
       handleError(err, 'updating social post')
@@ -246,21 +265,29 @@ export const useSocialStore = defineStore('socialStore', () => {
     }
   }
 
-  // Mark a manual target as COPIED (honest "handoff done", not "sent").
   async function markTargetCopied(postId: number, platform: SocialPlatform) {
     try {
-      const res = await performFetch(`/api/socials/${postId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          targetUpdate: { platform, status: 'COPIED' },
-        }),
-      })
-      if (!res.success) throw new Error(res.message)
+      const res = await performFetch<SocialPostWithTargets>(
+        `/api/socials/${postId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            targetUpdate: { platform, status: 'COPIED' },
+          }),
+        },
+      )
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to mark target copied')
+      }
+
       const idx = items.value.findIndex((i) => i.id === postId)
       if (idx !== -1) items.value[idx] = res.data
       if (selected.value?.id === postId) selected.value = res.data
+
       syncToLocalStorage()
+
       return { success: true }
     } catch (err) {
       handleError(err, 'marking target copied')

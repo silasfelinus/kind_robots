@@ -6,14 +6,15 @@
     :style="shellVars"
   >
     <ClientOnly>
-      <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-120">
+      <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
         <kind-loader @pageReady="handlePageReady" />
       </div>
     </ClientOnly>
 
     <ClientOnly>
-      <butterfly-layer class="pointer-events-none fixed inset-0 z-130" />
+      
       <animation-layer />
+<butterfly-layer class="pointer-events-none fixed inset-0 z-60" />
       <fx-clear-all />
       <milestone-popup />
     </ClientOnly>

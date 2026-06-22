@@ -3,32 +3,6 @@
     v-if="narratorDockVisible"
     class="pointer-events-none h-full w-full overflow-visible"
   >
-    <Transition name="narrator-bubble">
-      <aside
-        v-if="activeBubble && bubblesEnabled && !isOpen"
-        class="narrator-speech pointer-events-auto absolute bottom-[calc(var(--narrator-circle)+1.25rem)] right-3 z-120 w-[min(calc(100vw-1.5rem),20rem)] rounded-[1.75rem] border-2 border-primary/30 bg-base-100/95 p-3 text-sm leading-relaxed text-base-content shadow-2xl backdrop-blur md:text-base"
-      >
-        <div class="flex items-start gap-2">
-          <span class="text-xl leading-none">
-            {{ currentEmotionRow?.emoticon || fallbackEmotionIcon }}
-          </span>
-
-          <p class="min-w-0 flex-1 whitespace-pre-wrap">
-            {{ activeBubble }}
-          </p>
-
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs btn-circle"
-            aria-label="Dismiss narrator message"
-            @click="clearBubble"
-          >
-            <Icon name="kind-icon:close" class="h-3 w-3" />
-          </button>
-        </div>
-      </aside>
-    </Transition>
-
     <Transition name="narrator-panel">
       <section
         v-if="isOpen"
@@ -68,7 +42,7 @@
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
                   <h2
-                    class="truncate text-base lg:text-base xl:text-lg font-black text-base-content"
+                    class="truncate text-base font-black text-base-content lg:text-base xl:text-lg"
                   >
                     {{ narratorName }}
                   </h2>
@@ -127,6 +101,7 @@
             >
               <Icon name="kind-icon:map" class="h-4 w-4" />
               Scenarios
+
               <span
                 v-if="dreamScenarios.length"
                 class="badge badge-xs rounded-full"
@@ -217,7 +192,7 @@
                   </p>
 
                   <p
-                    class="mt-1 text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed text-base-content/75"
+                    class="mt-1 text-sm leading-relaxed text-base-content/75 md:text-base lg:text-lg xl:text-xl"
                   >
                     {{ narratorIntro }}
                   </p>
@@ -240,13 +215,13 @@
 
                   <span class="min-w-0 flex-1">
                     <span
-                      class="block text-sm md:text-base lg:text-lg xl:text-xl font-black text-base-content"
+                      class="block text-sm font-black text-base-content md:text-base lg:text-lg xl:text-xl"
                     >
                       {{ starter.title }}
                     </span>
 
                     <span
-                      class="mt-0.5 line-clamp-2 block text-xs md:text-sm lg:text-base xl:text-lg leading-relaxed text-base-content/60"
+                      class="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-base-content/60 md:text-sm lg:text-base xl:text-lg"
                     >
                       {{ starter.description }}
                     </span>
@@ -261,11 +236,8 @@
             </section>
 
             <section
-              v-if="
-                (showMoodRing && emotionOptions.length) ||
-                narratorSession.length
-              "
-              class="narrator-console mt-3 overflow-hidden rounded-3xl border border-primary/25 bg-base-200/70 shadow-lg"
+              v-if="showMoodRing && emotionOptions.length"
+              class="mt-3 overflow-hidden rounded-3xl border border-primary/25 bg-base-200/70 shadow-lg"
             >
               <div
                 class="flex items-center justify-between gap-2 border-b border-base-300/70 bg-base-100/60 px-3 py-2"
@@ -280,47 +252,17 @@
                   <p
                     class="text-xs font-black uppercase tracking-wide text-primary"
                   >
-                    Narrator Console
+                    Mood Ring
                   </p>
                 </div>
 
-                <span class="flex items-center gap-1">
-                  <span class="narrator-console-dot bg-error/70" />
-                  <span class="narrator-console-dot bg-warning/70" />
-                  <span class="narrator-console-dot bg-success/70" />
+                <span class="badge badge-outline badge-sm rounded-xl">
+                  {{ currentEmotionLabel }}
                 </span>
               </div>
 
-              <div
-                v-if="showMoodRing && emotionOptions.length"
-                class="border-b border-base-300/70 bg-base-100/40 p-3"
-              >
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <p
-                    class="text-xs font-black uppercase tracking-wide text-base-content/60"
-                  >
-                    Mood Ring
-                  </p>
-
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs rounded-xl"
-                    :class="
-                      bubblesEnabled ? 'text-success' : 'text-base-content/40'
-                    "
-                    @click="toggleBubbles"
-                  >
-                    <Icon
-                      :name="
-                        bubblesEnabled ? 'kind-icon:message' : 'kind-icon:mute'
-                      "
-                      class="h-3.5 w-3.5"
-                    />
-                    Bubbles
-                  </button>
-                </div>
-
-                <div class="mt-2 flex flex-wrap gap-2">
+              <div class="bg-base-100/40 p-3">
+                <div class="flex flex-wrap gap-2">
                   <button
                     v-for="emotion in emotionOptions"
                     :key="emotion"
@@ -333,9 +275,40 @@
                   </button>
                 </div>
               </div>
+            </section>
+
+            <section
+              v-if="narratorSession.length"
+              class="mt-3 overflow-hidden rounded-3xl border border-primary/25 bg-base-200/70 shadow-lg"
+            >
+              <div
+                class="flex items-center justify-between gap-2 border-b border-base-300/70 bg-base-100/60 px-3 py-2"
+              >
+                <div class="flex items-center gap-2">
+                  <span
+                    class="flex h-6 w-6 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary"
+                  >
+                    <Icon name="kind-icon:message" class="h-3.5 w-3.5" />
+                  </span>
+
+                  <p
+                    class="text-xs font-black uppercase tracking-wide text-primary"
+                  >
+                    Narrator Session
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-xl"
+                  :disabled="isNarratorResponding"
+                  @click="clearSession"
+                >
+                  Clear
+                </button>
+              </div>
 
               <div
-                v-if="narratorSession.length"
                 ref="chatLogRef"
                 class="max-h-64 overflow-y-auto overscroll-contain bg-base-200/40 p-3 sm:max-h-72"
               >
@@ -348,7 +321,9 @@
                     <div
                       class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm leading-relaxed text-primary-content"
                     >
-                      <p class="whitespace-pre-wrap">{{ chat.content }}</p>
+                      <p class="whitespace-pre-wrap">
+                        {{ chat.content }}
+                      </p>
                     </div>
 
                     <div class="flex max-w-[90%] gap-2">
@@ -690,6 +665,7 @@
           loading="lazy"
           @dblclick.stop="playReactionOnClick"
         />
+
         <img
           v-else
           :src="narratorImage"
@@ -745,11 +721,9 @@ const narratorStore = useNarratorStore()
 const {
   isOpen,
   pinOpen,
-  bubblesEnabled,
   activeScreen,
   selectedScenarioKey,
   showMoodRing,
-  activeBubble,
   narratorMessage,
   statusMessage,
   statusTone,
@@ -765,7 +739,6 @@ const {
   narratorImage,
   narratorVideo,
   currentEmotionLabel,
-  fallbackEmotionIcon,
   activeDreamSummary,
   narratorIntro,
   narratorStarterPrompts,
@@ -809,11 +782,9 @@ watch(
 const {
   initialize,
   disposeTimers,
-  clearBubble,
   togglePanel,
   closePanel,
   togglePin,
-  toggleBubbles,
   setScreen,
   setEmotion,
   selectScenario,
@@ -886,12 +857,10 @@ function screenButtonClass(screen: NarratorScreen) {
 }
 
 function emotionButtonClass(emotion: NarratorEmotion) {
-  return narratorStore.currentEmotion === emotion
-    ? 'btn-primary text-white'
-    : 'btn-outline'
+  return narratorStore.currentEmotion === emotion ? 'btn-primary text-white' : 'btn-outline'
 }
 
-function scrollChatToBottom() {
+function scrollChatToBottom(): void {
   const element = chatLogRef.value
   if (!element) return
 
@@ -919,23 +888,6 @@ function scrollChatToBottom() {
     object-fit: cover;
     padding: 0;
   }
-}
-
-.narrator-speech::after {
-  position: absolute;
-  right: -0.45rem;
-  bottom: 1.5rem;
-  height: 0.9rem;
-  width: 0.9rem;
-  transform: rotate(45deg);
-  border-top: 2px solid color-mix(in srgb, currentColor 20%, transparent);
-  border-right: 2px solid color-mix(in srgb, currentColor 20%, transparent);
-  background: color-mix(
-    in srgb,
-    var(--fallback-b1, oklch(var(--b1))) 95%,
-    transparent
-  );
-  content: '';
 }
 
 .narrator-console-dot {
@@ -1032,6 +984,15 @@ function scrollChatToBottom() {
 @media (prefers-reduced-motion: reduce) {
   .is-portrait-flipping {
     animation: none;
+  }
+
+  .narrator-panel-enter-active,
+  .narrator-panel-leave-active,
+  .narrator-bubble-enter-active,
+  .narrator-bubble-leave-active,
+  .narrator-circle-enter-active,
+  .narrator-circle-leave-active {
+    transition: none;
   }
 }
 </style>

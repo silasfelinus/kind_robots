@@ -22,13 +22,13 @@
     <section
       class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl p-3 sm:p-4"
     >
-      <workspace-header class="relative z-90" />
+      <workspace-header class="relative z-30" />
 
       <section class="relative z-10 min-h-0 flex-1 overflow-hidden">
         <button
           v-if="!workspaceSheetOpen"
           type="button"
-          class="btn btn-xs btn-square absolute left-0 top-0 z-80 shadow-lg"
+          class="btn btn-xs btn-square absolute left-0 top-0 z-40 shadow-lg"
           aria-label="Open workspace"
           :aria-expanded="workspaceSheetOpen"
           @click="setWorkspaceSheetOpen(true)"
@@ -39,7 +39,7 @@
         <Transition name="kr-sheet-slide">
           <aside
             v-if="workspaceSheetOpen"
-            class="absolute inset-y-0 left-0 z-70 flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl md:w-(--sheet-w)"
+            class="absolute inset-y-0 left-0 z-30 flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl md:w-(--sheet-w)"
           >
             <fx-region region="sheet" />
 
@@ -96,7 +96,7 @@
         </main>
 
         <workspace-narrator
-          class="pointer-events-none absolute inset-y-0 right-0 z-110 transition-[width] duration-300 ease-out"
+          class="pointer-events-none absolute inset-y-0 right-0 z-40 transition-[width] duration-300 ease-out"
           :style="{ width: narratorRailWidth }"
           :open="narratorOpen"
           :coexist="isXl"
@@ -108,7 +108,7 @@
 
     <ClientOnly>
       <section
-        class="kr-footer pointer-events-none fixed bottom-0 z-90 flex flex-col gap-2 px-2 sm:px-3 lg:flex-row lg:items-end"
+        class="kr-footer pointer-events-none fixed bottom-0 z-40 flex flex-col gap-2 px-2 sm:px-3 lg:flex-row lg:items-end"
         :style="footerVars"
       >
         <Transition name="kr-chat-slide">
@@ -132,7 +132,7 @@
         </Transition>
       </section>
 
-      <div class="pointer-events-auto fixed bottom-3 left-3 z-120">
+      <div class="pointer-events-auto fixed bottom-3 left-3 z-40">
         <button
           type="button"
           class="btn btn-primary btn-circle btn-sm shadow-2xl"
@@ -148,7 +148,7 @@
 
       <div
         v-if="narratorRendered"
-        class="pointer-events-auto fixed bottom-3 z-120"
+        class="pointer-events-auto fixed bottom-3 z-40"
         :style="{ right: 'calc(var(--narrator-circle) + 1.25rem)' }"
       >
         <button
@@ -166,7 +166,7 @@
 
       <template #fallback>
         <div
-          class="fixed inset-x-0 bottom-0 z-60 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+          class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
         >
           Loading workspace tools...
         </div>

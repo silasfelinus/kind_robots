@@ -160,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { DreamWithRelations } from '@/stores/dreamStore'
 import { useArtStore } from '@/stores/artStore'
@@ -301,32 +301,38 @@ const randomCollectionImage = computed<Partial<ArtImage> | null>(() => {
   return pool[index] ?? pool[0] ?? null
 })
 
-// The chosen ArtImage record for the cover, in priority order.
-const coverArt = computed<Partial<ArtImage> | null>(() => {
-  // 1) Hydrated primary relation.
-  if (props.dream.ArtImage && imageToSrc(props.dream.ArtImage))
+// The chosen primary ArtImage record for the cover.
+const primaryArt = computed<Partial<ArtImage> | null>(() => {
+  if (props.dream.ArtImage && imageToSrc(props.dream.ArtImage)) {
     return props.dream.ArtImage
-  // 2) Lazily-fetched primary by artImageId.
-  if (fetchedPrimaryArt.value && imageToSrc(fetchedPrimaryArt.value))
+  }
+
+  if (fetchedPrimaryArt.value && imageToSrc(fetchedPrimaryArt.value)) {
     return fetchedPrimaryArt.value
-  // 3) No explicit image, but a collection is attached → random from collection.
-  if (!props.dream.artImageId && randomCollectionImage.value)
-    return randomCollectionImage.value
-  // 4) Any attached/collection image as a last resort.
-  const firstUsable = collectionImagePool.value.find((art) => imageToSrc(art))
-  return firstUsable ?? null
+  }
+
+  return null
 })
 
-const previewImage = computed(() => {
-  // A resolved ArtImage (primary relation or fetched by artImageId, then a
-  // random collection image) takes precedence over loose path strings.
-  const fromArt = imageToSrc(coverArt.value)
-  if (fromArt) return fromArt
-
-  // Fall back to explicit string overrides on the Dream.
+const explicitDreamImagePath = computed(() => {
   return (
     normalizeImagePath(props.dream.imagePath) ||
     normalizeImagePath(props.dream.highlightImage) ||
+    ''
+  )
+})
+
+const fallbackCollectionArt = computed<Partial<ArtImage> | null>(() => {
+  if (randomCollectionImage.value) return randomCollectionImage.value
+
+  return collectionImagePool.value.find((art) => imageToSrc(art)) ?? null
+})
+
+const previewImage = computed(() => {
+  return (
+    imageToSrc(primaryArt.value) ||
+    explicitDreamImagePath.value ||
+    imageToSrc(fallbackCollectionArt.value) ||
     ''
   )
 })
@@ -384,6 +390,34 @@ watch(
   { immediate: true },
 )
 
+async function ensureCollectionImages() {
+  if (!dreamCollectionIds.value.length) return
+  if (collectionImagePool.value.some((art) => imageToSrc(art))) return
+
+  try {
+    const shouldForce = Boolean(
+      collectionStore.hasFetched &&
+        !collectionStore.allCollectionArtImages.length,
+    )
+
+    await collectionStore.fetchCollections(shouldForce, {
+      includeImages: true,
+      imageLimit: 80,
+    })
+  } catch {}
+
+  shuffleTick.value += 1
+}
+
+watch(
+  () => dreamCollectionIds.value.join(','),
+  () => {
+    void ensureCollectionImages()
+    shuffleTick.value += 1
+  },
+  { immediate: true },
+)
+
 // Re-roll the random cover once the collection art becomes available.
 watch(
   () => collectionImagePool.value.length,
@@ -391,6 +425,10 @@ watch(
     shuffleTick.value += 1
   },
 )
+
+onMounted(() => {
+  void ensureCollectionImages()
+})
 
 function isProbablyPath(value: string) {
   const trimmed = value.trim()
@@ -408,27 +446,38 @@ function isProbablyPath(value: string) {
 
 function normalizeImagePath(value?: string | null) {
   if (!value) return ''
+
   const trimmed = value.trim()
   if (!trimmed || trimmed === 'UNDEFINED' || trimmed === 'undefined') return ''
+
   if (
     trimmed.startsWith('http://') ||
     trimmed.startsWith('https://') ||
     trimmed.startsWith('data:image/')
-  )
+  ) {
     return trimmed
+  }
 
-  const cleanPath = trimmed
+  const cleanPath = stripServerFilePrefix(trimmed)
+  if (!cleanPath) return ''
+
+  if (cleanPath.startsWith('/images/')) return withAppUrl(cleanPath)
+  if (cleanPath.startsWith('images/')) return withAppUrl(`/${cleanPath}`)
+  if (cleanPath.startsWith('/')) return withAppUrl(cleanPath)
+
+  return withAppUrl(`/images/${cleanPath}`)
+}
+
+function stripServerFilePrefix(value: string) {
+  return value
     .replace(/^file:\/\//, '')
     .replace(/^\/mnt\/data\/+/, '')
     .replace(/^\/?(app\/)?public\/+/, '')
+}
 
-  let withImages = cleanPath
-  if (cleanPath.startsWith('/images/')) withImages = cleanPath
-  else if (cleanPath.startsWith('images/')) withImages = `/${cleanPath}`
-  else if (cleanPath.startsWith('/')) withImages = `/images${cleanPath}`
-  else withImages = `/images/${cleanPath}`
-
-  return appUrl.value ? `${appUrl.value}${withImages}` : withImages
+function withAppUrl(path: string) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  return appUrl.value ? `${appUrl.value}${normalizedPath}` : normalizedPath
 }
 
 const scenarioCount = computed(() => {

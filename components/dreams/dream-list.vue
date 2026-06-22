@@ -186,7 +186,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
-import type { ArtImage } from '@/stores/artStore'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useDreamStore } from '@/stores/dreamStore'
 
 type DreamListType = 'cast' | 'scenarios' | 'items' | 'art' | 'chats'

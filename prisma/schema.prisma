@@ -385,7 +385,7 @@ model Dream {
   // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────
   title           String          @db.VarChar(255)
   slug            String?         @unique @db.VarChar(255)
-  dreamType       DreamType       @default(ARTDREAM)
+  dreamType       DreamType       @default(PITCH)
   description     String?         @db.Text
   pitch           String?         @db.Text
   flavorText      String?         @db.VarChar(512)
@@ -419,12 +419,42 @@ model Dream {
   Rewards         Reward[]        @relation("DreamToReward")
   Bots            Bot[]
 
+  RelationsFrom   DreamRelation[] @relation("DreamRelationFrom")  // edges where this dream is the subject
+  RelationsTo     DreamRelation[] @relation("DreamRelationTo")    // edges where this dream is the object
+
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])
   @@index([dreamType])
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
+}
+
+model DreamRelation {
+  id           Int               @id @default(autoincrement())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime?         @default(now()) @updatedAt
+
+  fromDreamId  Int                              // the subject ("WeirdWest")
+  toDreamId    Int                              // the object  ("WeirdCore")
+  relationType DreamRelationType @default(RELATED)
+  note         String?           @db.VarChar(512)  // optional human label for the edge
+
+  FromDream    Dream @relation("DreamRelationFrom", fields: [fromDreamId], references: [id], onDelete: Cascade)
+  ToDream      Dream @relation("DreamRelationTo",   fields: [toDreamId],   references: [id], onDelete: Cascade)
+
+  @@unique([fromDreamId, toDreamId, relationType])  // no duplicate edges of same type
+  @@index([fromDreamId])
+  @@index([toDreamId])
+  @@index([relationType])
+}
+
+enum DreamRelationType {
+  IS_A         // taxonomy: WeirdWest IS_A WeirdCore
+  APPEARS_IN   // membership: Space Bar APPEARS_IN Space Adventures
+  CONTAINS     // explicit inverse authoring, if you ever want to author top-down
+  RELATED      // generic catch-all, the safe default
+  INSPIRED_BY  // soft creative lineage
 }
 
 /// One row per (owner, expression). Holds stills AND reaction videos. Holds both emotions (face-only edits)
@@ -1213,24 +1243,16 @@ enum ChatType {
 }
 
 enum DreamType {
-  ARTDREAM
+  ART
   BRAINSTORM
-  WEIRDLANDIA
-  RANDOMLIST
-  TITLE
-  VIBE
-  BOT
   PROMPTBOT
   NARRATOR
-  INSPIRATION
   CHARACTER
   REWARD
   SCENARIO
-  TEXT
   LOCATION
   PITCH
   GENRE
-  CONCEPT
 }
 
 enum Reaction_reactionCategory {

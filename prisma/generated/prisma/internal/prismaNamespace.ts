@@ -395,6 +395,7 @@ export const ModelName = {
   Component: 'Component',
   Composition: 'Composition',
   Dream: 'Dream',
+  DreamRelation: 'DreamRelation',
   ExpressionMedia: 'ExpressionMedia',
   Log: 'Log',
   Milestone: 'Milestone',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1156,6 +1157,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DreamCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DreamCountAggregateOutputType> | number
+        }
+      }
+    }
+    DreamRelation: {
+      payload: Prisma.$DreamRelationPayload<ExtArgs>
+      fields: Prisma.DreamRelationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DreamRelationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DreamRelationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload>
+        }
+        findFirst: {
+          args: Prisma.DreamRelationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DreamRelationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload>
+        }
+        findMany: {
+          args: Prisma.DreamRelationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload>[]
+        }
+        create: {
+          args: Prisma.DreamRelationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload>
+        }
+        createMany: {
+          args: Prisma.DreamRelationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.DreamRelationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload>
+        }
+        update: {
+          args: Prisma.DreamRelationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload>
+        }
+        deleteMany: {
+          args: Prisma.DreamRelationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DreamRelationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.DreamRelationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamRelationPayload>
+        }
+        aggregate: {
+          args: Prisma.DreamRelationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDreamRelation>
+        }
+        groupBy: {
+          args: Prisma.DreamRelationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DreamRelationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DreamRelationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DreamRelationCountAggregateOutputType> | number
         }
       }
     }
@@ -2742,6 +2809,19 @@ export const DreamScalarFieldEnum = {
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
 
 
+export const DreamRelationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  fromDreamId: 'fromDreamId',
+  toDreamId: 'toDreamId',
+  relationType: 'relationType',
+  note: 'note'
+} as const
+
+export type DreamRelationScalarFieldEnum = (typeof DreamRelationScalarFieldEnum)[keyof typeof DreamRelationScalarFieldEnum]
+
+
 export const ExpressionMediaScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -3395,6 +3475,13 @@ export const DreamOrderByRelevanceFieldEnum = {
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
 
 
+export const DreamRelationOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type DreamRelationOrderByRelevanceFieldEnum = (typeof DreamRelationOrderByRelevanceFieldEnum)[keyof typeof DreamRelationOrderByRelevanceFieldEnum]
+
+
 export const ExpressionMediaOrderByRelevanceFieldEnum = {
   label: 'label',
   emoticon: 'emoticon',
@@ -3733,6 +3820,13 @@ export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'DreamRelationType'
+ */
+export type EnumDreamRelationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamRelationType'>
+    
+
+
+/**
  * Reference to a field of type 'Expression'
  */
 export type EnumExpressionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Expression'>
@@ -3992,6 +4086,7 @@ export type GlobalOmitConfig = {
   component?: Prisma.ComponentOmit
   composition?: Prisma.CompositionOmit
   dream?: Prisma.DreamOmit
+  dreamRelation?: Prisma.DreamRelationOmit
   expressionMedia?: Prisma.ExpressionMediaOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit

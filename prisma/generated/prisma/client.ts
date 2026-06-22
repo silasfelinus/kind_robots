@@ -105,6 +105,11 @@ export type Composition = Prisma.CompositionModel
  */
 export type Dream = Prisma.DreamModel
 /**
+ * Model DreamRelation
+ * 
+ */
+export type DreamRelation = Prisma.DreamRelationModel
+/**
  * Model ExpressionMedia
  * One row per (owner, expression). Holds stills AND reaction videos. Holds both emotions (face-only edits)
  * and actions (pose/state edits), discriminated by `kind`.

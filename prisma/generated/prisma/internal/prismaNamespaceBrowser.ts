@@ -62,6 +62,7 @@ export const ModelName = {
   Component: 'Component',
   Composition: 'Composition',
   Dream: 'Dream',
+  DreamRelation: 'DreamRelation',
   ExpressionMedia: 'ExpressionMedia',
   Log: 'Log',
   Milestone: 'Milestone',
@@ -387,6 +388,19 @@ export const DreamScalarFieldEnum = {
 } as const
 
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
+
+
+export const DreamRelationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  fromDreamId: 'fromDreamId',
+  toDreamId: 'toDreamId',
+  relationType: 'relationType',
+  note: 'note'
+} as const
+
+export type DreamRelationScalarFieldEnum = (typeof DreamRelationScalarFieldEnum)[keyof typeof DreamRelationScalarFieldEnum]
 
 
 export const ExpressionMediaScalarFieldEnum = {
@@ -1040,6 +1054,13 @@ export const DreamOrderByRelevanceFieldEnum = {
 } as const
 
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
+
+
+export const DreamRelationOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type DreamRelationOrderByRelevanceFieldEnum = (typeof DreamRelationOrderByRelevanceFieldEnum)[keyof typeof DreamRelationOrderByRelevanceFieldEnum]
 
 
 export const ExpressionMediaOrderByRelevanceFieldEnum = {

@@ -9,6 +9,17 @@
 * 🟢 You can import this file directly.
 */
 
+export const DreamRelationType = {
+  IS_A: 'IS_A',
+  APPEARS_IN: 'APPEARS_IN',
+  CONTAINS: 'CONTAINS',
+  RELATED: 'RELATED',
+  INSPIRED_BY: 'INSPIRED_BY'
+} as const
+
+export type DreamRelationType = (typeof DreamRelationType)[keyof typeof DreamRelationType]
+
+
 export const ExpressionKind = {
   EMOTION: 'EMOTION',
   ACTION: 'ACTION'
@@ -228,24 +239,16 @@ export type ChatType = (typeof ChatType)[keyof typeof ChatType]
 
 
 export const DreamType = {
-  ARTDREAM: 'ARTDREAM',
+  ART: 'ART',
   BRAINSTORM: 'BRAINSTORM',
-  WEIRDLANDIA: 'WEIRDLANDIA',
-  RANDOMLIST: 'RANDOMLIST',
-  TITLE: 'TITLE',
-  VIBE: 'VIBE',
-  BOT: 'BOT',
   PROMPTBOT: 'PROMPTBOT',
   NARRATOR: 'NARRATOR',
-  INSPIRATION: 'INSPIRATION',
   CHARACTER: 'CHARACTER',
   REWARD: 'REWARD',
   SCENARIO: 'SCENARIO',
-  TEXT: 'TEXT',
   LOCATION: 'LOCATION',
   PITCH: 'PITCH',
-  GENRE: 'GENRE',
-  CONCEPT: 'CONCEPT'
+  GENRE: 'GENRE'
 } as const
 
 export type DreamType = (typeof DreamType)[keyof typeof DreamType]

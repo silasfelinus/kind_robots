@@ -1,11 +1,12 @@
 <template>
   <!-- /components/content/butterfly/butterfly-layer.vue -->
   <div
-    v-show="showSwarm"
+    v-if="renderSwarm"
     class="butterfly-layer"
     :class="{
       'butterfly-layer--overlay': overlayVisible,
       'butterfly-layer--released': !overlayVisible,
+      'butterfly-layer--fading': isFading,
     }"
   >
     <butterfly-animation
@@ -44,7 +45,7 @@
 
 <script setup lang="ts">
 // /components/content/butterfly/butterfly-layer.vue
-import { computed, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
@@ -63,6 +64,12 @@ const butterflyStore = useButterflyStore()
 const { butterflies, useLegacyStartupButterflies } = storeToRefs(butterflyStore)
 
 const showSwarm = computed(() => butterflyStore.showSwarm)
+const renderSwarm = ref(butterflyStore.showSwarm)
+const isFading = ref(false)
+
+let fadeTimer: ReturnType<typeof window.setTimeout> | null = null
+
+const fadeDuration = 700
 
 function afterNextPaint(callback: () => void) {
   requestAnimationFrame(() => {
@@ -70,10 +77,50 @@ function afterNextPaint(callback: () => void) {
   })
 }
 
+function clearFadeTimer() {
+  if (!fadeTimer) return
+
+  window.clearTimeout(fadeTimer)
+  fadeTimer = null
+}
+
+function fadeOutSwarm() {
+  if (isFading.value) return
+
+  renderSwarm.value = true
+  isFading.value = true
+  clearFadeTimer()
+
+  fadeTimer = window.setTimeout(() => {
+    butterflyStore.triggerLoaderButterflyExit(
+      useLegacyStartupButterflies.value ? 250 : 0,
+    )
+
+    renderSwarm.value = false
+    isFading.value = false
+    fadeTimer = null
+  }, fadeDuration)
+}
+
 onMounted(() => {
   afterNextPaint(() => {
+    renderSwarm.value = true
+    isFading.value = false
     void butterflyStore.spawnStartupSwarm(8)
   })
+})
+
+watch(showSwarm, (visible) => {
+  if (visible) {
+    clearFadeTimer()
+    renderSwarm.value = true
+    isFading.value = false
+    return
+  }
+
+  if (renderSwarm.value) {
+    fadeOutSwarm()
+  }
 })
 
 watch(
@@ -81,11 +128,13 @@ watch(
   ([beginExit, overlayVisible]) => {
     if (!beginExit && overlayVisible) return
 
-    butterflyStore.triggerLoaderButterflyExit(
-      useLegacyStartupButterflies.value ? 250 : 0,
-    )
+    fadeOutSwarm()
   },
 )
+
+onBeforeUnmount(() => {
+  clearFadeTimer()
+})
 </script>
 
 <style scoped>
@@ -129,6 +178,12 @@ watch(
   pointer-events: none;
   contain: layout paint style;
   transform: translateZ(0);
+  opacity: 1;
+  transition: opacity 700ms ease;
+}
+
+.butterfly-layer--fading {
+  opacity: 0;
 }
 
 .butterfly-layer__legacy {

@@ -61,12 +61,21 @@ const navStore = useNavStore()
 const themeStore = useThemeStore()
 
 const emit = defineEmits<{
+  covered: []
   pageReady: [boolean]
 }>()
 
 const showOverlay = ref(true)
 const storesReady = ref(false)
 const pageReadyEmitted = ref(false)
+
+const coveredEmitted = ref(false)
+
+function handleOverlayCovered() {
+  if (coveredEmitted.value) return
+  coveredEmitted.value = true
+  emit('covered')
+}
 
 function emitReadyOnce() {
   if (pageReadyEmitted.value) return

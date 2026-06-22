@@ -16,7 +16,9 @@
           :title="subtitle"
         >
           <Icon name="kind-icon:dream" class="h-4 w-4 text-primary" />
-          <h2 class="max-w-36 truncate text-sm font-black text-primary sm:max-w-48">
+          <h2
+            class="max-w-36 truncate text-sm font-black text-primary sm:max-w-48"
+          >
             {{ title }}
           </h2>
           <span class="badge badge-primary badge-sm rounded-xl">
@@ -267,7 +269,9 @@
             v-if="dreamStore.dreams.length > 0"
             class="mt-3 flex flex-wrap justify-center gap-2 text-xs"
           >
-            <span class="badge badge-ghost">Loaded: {{ exclusionSummary.total }}</span>
+            <span class="badge badge-ghost"
+              >Loaded: {{ exclusionSummary.total }}</span
+            >
 
             <span
               v-if="exclusionSummary.hiddenByOwnership"
@@ -438,7 +442,12 @@ const layoutMode = ref<'grid' | 'row'>(props.variant === 'row' ? 'row' : 'grid')
 const isDropdownMode = computed(() => props.variant === 'dropdown')
 
 const showToolbar = computed(() => {
-  return props.showHeader || props.showControls || props.allowAdd || props.allowRefresh
+  return (
+    props.showHeader ||
+    props.showControls ||
+    props.allowAdd ||
+    props.allowRefresh
+  )
 })
 
 const isCompact = computed(() => {
@@ -886,7 +895,12 @@ function dreamSearchText(dream: DreamWithRelations) {
 
   const primaryScenarioText = scenarioRowsForDream(dream)
     .map((scenario) =>
-      [scenario.title, scenario.description, scenario.locations, scenario.genres]
+      [
+        scenario.title,
+        scenario.description,
+        scenario.locations,
+        scenario.genres,
+      ]
         .filter(Boolean)
         .join(' '),
     )

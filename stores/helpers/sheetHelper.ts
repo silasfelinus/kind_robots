@@ -1,13 +1,30 @@
-// /stores/helpers/sheetHelper
+// /utils/sheets/sheetHelper.ts
 
-import type { DreamType } from '~/prisma/generated/prisma/client'
+export const pitchSheetDisplayTypes = [
+  'ART',
+  'PROMPTBOT',
+  'NARRATOR',
+  'CHARACTER',
+  'REWARD',
+  'SCENARIO',
+  'LOCATION',
+  'PITCH',
+  'GENRE',
+] as const
 
-export type PitchSheetDisplayType = Exclude<DreamType, 'BRAINSTORM'>
+export type PitchSheetDisplayType = (typeof pitchSheetDisplayTypes)[number]
 
 export type PitchSheetDefaultLabels = {
   highlights: readonly [string, string, string]
   details: readonly [string, string, string]
 }
+
+export type DreamTypeLike =
+  | PitchSheetDisplayType
+  | 'BRAINSTORM'
+  | string
+  | null
+  | undefined
 
 export const pitchSheetDefaults = {
   ART: {
@@ -49,7 +66,7 @@ export const pitchSheetDefaults = {
 } as const satisfies Record<PitchSheetDisplayType, PitchSheetDefaultLabels>
 
 export function getPitchSheetDisplayType(
-  dreamType?: DreamType | string | null,
+  dreamType?: DreamTypeLike,
 ): PitchSheetDisplayType {
   switch (dreamType) {
     case 'ART':
@@ -62,15 +79,20 @@ export function getPitchSheetDisplayType(
     case 'PITCH':
     case 'GENRE':
       return dreamType
+
     case 'BRAINSTORM':
     default:
       return 'PITCH'
   }
 }
 
-export function dreamTypeLabel(type?: DreamType | string | null) {
-  return String(getPitchSheetDisplayType(type))
+export function dreamTypeLabel(type?: DreamTypeLike) {
+  return getPitchSheetDisplayType(type)
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+export function getPitchSheetDefaultLabels(type?: DreamTypeLike) {
+  return pitchSheetDefaults[getPitchSheetDisplayType(type)]
 }

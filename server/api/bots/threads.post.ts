@@ -1,9 +1,9 @@
 // server/api/narrator/threads/batch.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { Prisma } from '~/prisma/generated/prisma/client'
-import prisma from './../../utils/prisma'
-import { validateApiKey } from './../../utils/validateKey'
-import { errorHandler } from './../../utils/error'
+import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
+import { errorHandler } from '../../utils/error'
 
 type StarterPrompt = {
   label: string

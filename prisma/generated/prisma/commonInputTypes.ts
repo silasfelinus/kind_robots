@@ -361,6 +361,23 @@ export type EnumCreationSourceWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
 }
 
+export type EnumDreamRelationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamRelationType | Prisma.EnumDreamRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamRelationType[]
+  notIn?: $Enums.DreamRelationType[]
+  not?: Prisma.NestedEnumDreamRelationTypeFilter<$PrismaModel> | $Enums.DreamRelationType
+}
+
+export type EnumDreamRelationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamRelationType | Prisma.EnumDreamRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamRelationType[]
+  notIn?: $Enums.DreamRelationType[]
+  not?: Prisma.NestedEnumDreamRelationTypeWithAggregatesFilter<$PrismaModel> | $Enums.DreamRelationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDreamRelationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDreamRelationTypeFilter<$PrismaModel>
+}
+
 export type EnumExpressionFilter<$PrismaModel = never> = {
   equals?: $Enums.Expression | Prisma.EnumExpressionFieldRefInput<$PrismaModel>
   in?: $Enums.Expression[]
@@ -1103,6 +1120,23 @@ export type NestedEnumCreationSourceWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumDreamRelationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamRelationType | Prisma.EnumDreamRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamRelationType[]
+  notIn?: $Enums.DreamRelationType[]
+  not?: Prisma.NestedEnumDreamRelationTypeFilter<$PrismaModel> | $Enums.DreamRelationType
+}
+
+export type NestedEnumDreamRelationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamRelationType | Prisma.EnumDreamRelationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamRelationType[]
+  notIn?: $Enums.DreamRelationType[]
+  not?: Prisma.NestedEnumDreamRelationTypeWithAggregatesFilter<$PrismaModel> | $Enums.DreamRelationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDreamRelationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDreamRelationTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumExpressionFilter<$PrismaModel = never> = {

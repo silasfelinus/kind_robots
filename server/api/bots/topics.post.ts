@@ -1,8 +1,8 @@
 // server/api/narrator/topics/batch.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import prisma from './../../utils/prisma'
-import { validateApiKey } from './../../utils/validateKey'
-import { errorHandler } from './../../utils/error'
+import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
+import { errorHandler } from '../../utils/error'
 
 type TopicInput = {
   slug: string

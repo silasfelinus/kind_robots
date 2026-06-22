@@ -1,6 +1,8 @@
 <!-- /components/content/social/social-publisher.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-3">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-3"
+  >
     <!-- Header -->
     <header
       class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
@@ -21,7 +23,11 @@
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <button class="btn btn-primary btn-sm rounded-xl" type="button" @click="socialStore.startNew()">
+        <button
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="socialStore.startNew()"
+        >
           <Icon name="kind-icon:plus" class="h-4 w-4" /> New post
         </button>
         <button
@@ -38,9 +44,11 @@
     <div
       v-if="status.message"
       class="shrink-0 rounded-2xl border p-3 text-sm"
-      :class="status.tone === 'error'
-        ? 'border-error/40 bg-error/10 text-error'
-        : 'border-success/40 bg-success/10 text-success'"
+      :class="
+        status.tone === 'error'
+          ? 'border-error/40 bg-error/10 text-error'
+          : 'border-success/40 bg-success/10 text-success'
+      "
     >
       {{ status.message }}
     </div>
@@ -54,7 +62,9 @@
         class="flex min-h-0 flex-col gap-3 overflow-auto rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
       >
         <div>
-          <label class="mb-1 block text-sm font-bold text-base-content/70">Title</label>
+          <label class="mb-1 block text-sm font-bold text-base-content/70"
+            >Title</label
+          >
           <input
             v-model="form.title"
             type="text"
@@ -64,7 +74,9 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-bold text-base-content/70">Body (markdown)</label>
+          <label class="mb-1 block text-sm font-bold text-base-content/70"
+            >Body (markdown)</label
+          >
           <textarea
             v-model="form.body"
             class="textarea textarea-bordered min-h-40 w-full rounded-xl bg-base-200"
@@ -73,7 +85,9 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-bold text-base-content/70">Canonical URL (optional)</label>
+          <label class="mb-1 block text-sm font-bold text-base-content/70"
+            >Canonical URL (optional)</label
+          >
           <input
             v-model="form.url"
             type="url"
@@ -83,7 +97,9 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-bold text-base-content/70">Media URLs</label>
+          <label class="mb-1 block text-sm font-bold text-base-content/70"
+            >Media URLs</label
+          >
           <textarea
             v-model="mediaText"
             class="textarea textarea-bordered min-h-20 w-full rounded-xl bg-base-200"
@@ -92,7 +108,9 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-bold text-base-content/70">Hashtags</label>
+          <label class="mb-1 block text-sm font-bold text-base-content/70"
+            >Hashtags</label
+          >
           <input
             v-model="hashtagText"
             type="text"
@@ -103,7 +121,9 @@
 
         <!-- Audience: who the post is FOR (distinct from platforms = where it GOES) -->
         <div>
-          <span class="mb-1 block text-sm font-bold text-base-content/70">Audience</span>
+          <span class="mb-1 block text-sm font-bold text-base-content/70"
+            >Audience</span
+          >
           <div class="flex flex-wrap gap-2">
             <button
               v-for="a in audiences"
@@ -120,7 +140,9 @@
 
         <!-- Platforms: where it GOES -->
         <div>
-          <span class="mb-1 block text-sm font-bold text-base-content/70">Platforms</span>
+          <span class="mb-1 block text-sm font-bold text-base-content/70"
+            >Platforms</span
+          >
           <div class="flex flex-wrap gap-2">
             <button
               v-for="p in allPlatforms"
@@ -132,13 +154,21 @@
             >
               <Icon :name="platformIcon(p)" class="h-4 w-4" />
               {{ p }}
-              <span v-if="!automatable(p)" class="badge badge-ghost badge-xs">manual</span>
+              <span v-if="!automatable(p)" class="badge badge-ghost badge-xs"
+                >manual</span
+              >
             </button>
           </div>
         </div>
 
-        <label class="flex cursor-pointer items-center gap-2 text-sm text-base-content/70">
-          <input v-model="form.isMature" type="checkbox" class="checkbox checkbox-sm" />
+        <label
+          class="flex cursor-pointer items-center gap-2 text-sm text-base-content/70"
+        >
+          <input
+            v-model="form.isMature"
+            type="checkbox"
+            class="checkbox checkbox-sm"
+          />
           Mature content
         </label>
 
@@ -152,7 +182,10 @@
             :disabled="socialStore.isSaving || !canSave"
             @click="onSave"
           >
-            <span v-if="socialStore.isSaving" class="loading loading-spinner loading-sm" />
+            <span
+              v-if="socialStore.isSaving"
+              class="loading loading-spinner loading-sm"
+            />
             <Icon v-else name="kind-icon:save" class="h-5 w-5" />
             {{ form.id ? 'Update' : 'Save draft' }}
           </button>
@@ -162,7 +195,10 @@
             :disabled="socialStore.isPublishing || !form.id || !hasAutomatable"
             @click="onPublish"
           >
-            <span v-if="socialStore.isPublishing" class="loading loading-spinner loading-sm" />
+            <span
+              v-if="socialStore.isPublishing"
+              class="loading loading-spinner loading-sm"
+            />
             <Icon v-else name="kind-icon:rocket" class="h-5 w-5" />
             Publish auto
           </button>
@@ -187,8 +223,13 @@
         >
           <div class="mb-2 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-              <Icon :name="platformIcon(variant.platform)" class="h-5 w-5 text-primary" />
-              <span class="font-bold text-base-content">{{ variant.platform }}</span>
+              <Icon
+                :name="platformIcon(variant.platform)"
+                class="h-5 w-5 text-primary"
+              />
+              <span class="font-bold text-base-content">{{
+                variant.platform
+              }}</span>
               <span :class="['badge badge-sm', statusBadge(variant.platform)]">
                 {{ targetStatus(variant.platform) }}
               </span>
@@ -196,7 +237,9 @@
             <span
               v-if="variant.limit !== null"
               class="text-xs font-mono"
-              :class="variant.isOverLimit ? 'text-error' : 'text-base-content/50'"
+              :class="
+                variant.isOverLimit ? 'text-error' : 'text-base-content/50'
+              "
             >
               {{ variant.remaining }}/{{ variant.limit }}
             </span>
@@ -208,7 +251,9 @@
             class="mb-2"
           >
             <div class="mb-1 flex items-center justify-between gap-2">
-              <span class="text-xs font-bold uppercase text-base-content/50">{{ block.label }}</span>
+              <span class="text-xs font-bold uppercase text-base-content/50">{{
+                block.label
+              }}</span>
               <button
                 class="btn btn-ghost btn-xs rounded-lg"
                 type="button"
@@ -217,7 +262,10 @@
                 <Icon name="kind-icon:copy" class="h-3.5 w-3.5" /> Copy
               </button>
             </div>
-            <pre class="whitespace-pre-wrap rounded-xl bg-base-200 p-2 text-xs leading-relaxed text-base-content/80">{{ block.value }}</pre>
+            <pre
+              class="whitespace-pre-wrap rounded-xl bg-base-200 p-2 text-xs leading-relaxed text-base-content/80"
+              >{{ block.value }}</pre
+            >
           </div>
 
           <ul v-if="variant.warnings.length" class="mb-2 space-y-1">
@@ -237,7 +285,8 @@
               type="button"
               @click="openExternal(variant.platform)"
             >
-              <Icon name="kind-icon:external" class="h-3.5 w-3.5" /> Open {{ variant.platform }}
+              <Icon name="kind-icon:external" class="h-3.5 w-3.5" /> Open
+              {{ variant.platform }}
             </button>
             <button
               v-if="!variant.isAutomatable && form.id"
@@ -263,11 +312,15 @@
           :key="post.id"
           type="button"
           class="btn btn-sm shrink-0 rounded-xl"
-          :class="socialStore.selected?.id === post.id ? 'btn-primary' : 'btn-ghost'"
+          :class="
+            socialStore.selected?.id === post.id ? 'btn-primary' : 'btn-ghost'
+          "
           @click="socialStore.select(post.id)"
         >
           {{ post.title || `Post #${post.id}` }}
-          <span :class="['badge badge-xs', postStatusBadge(post.status)]">{{ post.status }}</span>
+          <span :class="['badge badge-xs', postStatusBadge(post.status)]">{{
+            post.status
+          }}</span>
         </button>
       </div>
     </section>
@@ -288,11 +341,22 @@ const status = reactive<{ message: string; tone: 'success' | 'error' }>({
 })
 
 const allPlatforms: SocialPlatform[] = [
-  'DISCORD', 'MASTODON', 'BLUESKY', 'RSS', 'REDDIT', 'FACEBOOK', 'INSTAGRAM',
+  'DISCORD',
+  'MASTODON',
+  'BLUESKY',
+  'RSS',
+  'REDDIT',
+  'FACEBOOK',
+  'INSTAGRAM',
 ] as unknown as SocialPlatform[]
 
 const audiences: PostAudience[] = [
-  'PUBLIC', 'SOCIAL', 'WORK', 'FRIENDS', 'FAMILY', 'PRIVATE',
+  'PUBLIC',
+  'SOCIAL',
+  'WORK',
+  'FRIENDS',
+  'FAMILY',
+  'PRIVATE',
 ] as unknown as PostAudience[]
 
 const automatableSet = new Set(['DISCORD', 'MASTODON', 'BLUESKY', 'RSS'])
@@ -333,7 +397,8 @@ function setAudience(a: PostAudience) {
 }
 
 // ── Platform selection ──
-const isSelected = (p: SocialPlatform) => (form.value.platforms ?? []).includes(p)
+const isSelected = (p: SocialPlatform) =>
+  (form.value.platforms ?? []).includes(p)
 
 function togglePlatform(p: SocialPlatform) {
   const set = new Set(form.value.platforms ?? [])
@@ -361,44 +426,52 @@ function targetStatus(platform: SocialPlatform): string {
 
 function statusBadge(platform: SocialPlatform): string {
   const s = targetStatus(platform)
-  return {
-    SENT: 'badge-success',
-    COPIED: 'badge-info',
-    FAILED: 'badge-error',
-    SKIPPED: 'badge-ghost',
-    PENDING: 'badge-warning',
-  }[s] ?? 'badge-ghost'
+  return (
+    {
+      SENT: 'badge-success',
+      COPIED: 'badge-info',
+      FAILED: 'badge-error',
+      SKIPPED: 'badge-ghost',
+      PENDING: 'badge-warning',
+    }[s] ?? 'badge-ghost'
+  )
 }
 
 function postStatusBadge(s: string): string {
-  return {
-    PUBLISHED: 'badge-success',
-    PUBLISHING: 'badge-warning',
-    FAILED: 'badge-error',
-    SCHEDULED: 'badge-info',
-    DRAFT: 'badge-ghost',
-  }[s] ?? 'badge-ghost'
+  return (
+    {
+      PUBLISHED: 'badge-success',
+      PUBLISHING: 'badge-warning',
+      FAILED: 'badge-error',
+      SCHEDULED: 'badge-info',
+      DRAFT: 'badge-ghost',
+    }[s] ?? 'badge-ghost'
+  )
 }
 
 // ── Icons + external links ──
 function platformIcon(p: SocialPlatform): string {
-  return {
-    DISCORD: 'kind-icon:discord',
-    MASTODON: 'kind-icon:mastodon',
-    BLUESKY: 'kind-icon:bluesky',
-    REDDIT: 'kind-icon:reddit',
-    FACEBOOK: 'kind-icon:facebook',
-    INSTAGRAM: 'kind-icon:instagram',
-    RSS: 'kind-icon:rss',
-  }[p as string] ?? 'kind-icon:share'
+  return (
+    {
+      DISCORD: 'kind-icon:discord',
+      MASTODON: 'kind-icon:mastodon',
+      BLUESKY: 'kind-icon:bluesky',
+      REDDIT: 'kind-icon:reddit',
+      FACEBOOK: 'kind-icon:facebook',
+      INSTAGRAM: 'kind-icon:instagram',
+      RSS: 'kind-icon:rss',
+    }[p as string] ?? 'kind-icon:share'
+  )
 }
 
 function openUrl(p: SocialPlatform): string | null {
-  return {
-    REDDIT: 'https://www.reddit.com/submit',
-    FACEBOOK: 'https://www.facebook.com',
-    INSTAGRAM: 'https://www.instagram.com',
-  }[p as string] ?? null
+  return (
+    {
+      REDDIT: 'https://www.reddit.com/submit',
+      FACEBOOK: 'https://www.facebook.com',
+      INSTAGRAM: 'https://www.instagram.com',
+    }[p as string] ?? null
+  )
 }
 
 function openExternal(p: SocialPlatform) {
@@ -424,19 +497,28 @@ async function copy(value: string, label: string) {
 
 async function onSave() {
   const res = await socialStore.save()
-  setStatus(res.success ? 'Saved.' : res.message || 'Save failed.', res.success ? 'success' : 'error')
+  setStatus(
+    res.success ? 'Saved.' : res.message || 'Save failed.',
+    res.success ? 'success' : 'error',
+  )
 }
 
 async function onPublish() {
   if (!form.value.id) return
   const res = await socialStore.publish(form.value.id)
-  setStatus(res.success ? (res.data?.message ?? 'Published.') : res.message || 'Publish failed.', res.success ? 'success' : 'error')
+  setStatus(
+    res.success ? 'Published.' : res.message || 'Publish failed.',
+    res.success ? 'success' : 'error',
+  )
 }
 
 async function onMarkCopied(platform: SocialPlatform) {
   if (!form.value.id) return
   const res = await socialStore.markTargetCopied(form.value.id, platform)
-  setStatus(res.success ? `${platform} marked copied.` : res.message || 'Failed.', res.success ? 'success' : 'error')
+  setStatus(
+    res.success ? `${platform} marked copied.` : res.message || 'Failed.',
+    res.success ? 'success' : 'error',
+  )
 }
 
 onMounted(() => socialStore.initialize())

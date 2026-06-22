@@ -5,6 +5,15 @@ import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'
 import { errorHandler } from '../../utils/error'
 
+// Allow up to 60s on Vercel (Pro). Harmless on platforms that ignore it.
+export const config = {
+  maxDuration: 60,
+}
+
+// How many upserts to run per interactive transaction. Keeps any single
+// transaction well under both Prisma's and the platform's timeouts.
+const CHUNK_SIZE = 25
+
 type StarterPrompt = {
   label: string
   prompt: string
@@ -150,9 +159,16 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const results = []
-
-    for (const { botId, topicId, input } of valid) {
+    // ── Build one upsert arg per valid row, keyed on its compound unique. ──
+    const buildUpsertArgs = ({
+      botId,
+      topicId,
+      input,
+    }: {
+      botId: number
+      topicId: number
+      input: ThreadInput
+    }) => {
       const starterPrompts =
         input.starterPrompts === undefined
           ? undefined
@@ -169,18 +185,50 @@ export default defineEventHandler(async (event) => {
         isActive: input.isActive ?? true,
       }
 
-      const thread = await prisma.narratorThread.upsert({
+      return {
         where: { botId_topicId: { botId, topicId } },
         update: data,
         create: { botId, topicId, ...data },
-      })
+      }
+    }
 
-      results.push(thread)
+    // ── Upsert in chunks. Each chunk is its own transaction, so no single
+    //    transaction can outlast the timeout. Upserts are idempotent, so a
+    //    failure mid-run leaves prior chunks committed and is safely resumable
+    //    by re-sending the same payload. ──
+    const results = []
+    let committedChunks = 0
+
+    try {
+      for (let start = 0; start < valid.length; start += CHUNK_SIZE) {
+        const slice = valid.slice(start, start + CHUNK_SIZE)
+
+        const chunkResults = await prisma.$transaction(
+          slice.map((row) =>
+            prisma.narratorThread.upsert(buildUpsertArgs(row)),
+          ),
+          { timeout: 30000 },
+        )
+
+        results.push(...chunkResults)
+        committedChunks += 1
+      }
+    } catch (chunkError) {
+      const { message, statusCode } = errorHandler(chunkError)
+      event.node.res.statusCode = statusCode || 500
+
+      return {
+        success: false,
+        message: `Failed after committing ${results.length}/${valid.length} thread(s) (${committedChunks} chunk(s)). Re-send the same payload to resume — upserts are idempotent. Cause: ${message}`,
+        count: results.length,
+        errors,
+        statusCode: event.node.res.statusCode,
+      }
     }
 
     return {
       success: true,
-      message: `Upserted ${results.length} thread(s).`,
+      message: `Upserted ${results.length} thread(s) (${committedChunks} chunk(s) of up to ${CHUNK_SIZE}).`,
       count: results.length,
       errors,
       statusCode: 200,

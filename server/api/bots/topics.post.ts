@@ -1,4 +1,4 @@
-// server/api/bots/topics.post.ts
+// /server/api/bots/topics.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'

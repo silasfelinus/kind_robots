@@ -1,8 +1,8 @@
 // server/api/narrator/topics/batch.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import prisma from '../../../utils/prisma'
-import { validateApiKey } from '../../../utils/validateKey'
-import { errorHandler } from '../../../utils/error'
+import prisma from './../../utils/prisma'
+import { validateApiKey } from './../../utils/validateKey'
+import { errorHandler } from './../../utils/error'
 
 type TopicInput = {
   slug: string
@@ -28,7 +28,11 @@ export default defineEventHandler(async (event) => {
     const auth = await validateApiKey(event)
     if (!auth.isValid) {
       event.node.res.statusCode = 401
-      return { success: false, message: 'Invalid or missing API key.', statusCode: 401 }
+      return {
+        success: false,
+        message: 'Invalid or missing API key.',
+        statusCode: 401,
+      }
     }
 
     const body = (await readBody(event)) as BatchBody
@@ -51,11 +55,19 @@ export default defineEventHandler(async (event) => {
         return
       }
       if (typeof t.title !== 'string' || !t.title.trim()) {
-        errors.push({ index, slug: t.slug, message: 'Missing required field: title' })
+        errors.push({
+          index,
+          slug: t.slug,
+          message: 'Missing required field: title',
+        })
         return
       }
       if (typeof t.prompt !== 'string' || !t.prompt.trim()) {
-        errors.push({ index, slug: t.slug, message: 'Missing required field: prompt' })
+        errors.push({
+          index,
+          slug: t.slug,
+          message: 'Missing required field: prompt',
+        })
         return
       }
       const slug = t.slug.trim()
@@ -110,6 +122,10 @@ export default defineEventHandler(async (event) => {
   } catch (error: unknown) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message, statusCode: handled.statusCode || 500 }
+    return {
+      success: false,
+      message: handled.message,
+      statusCode: handled.statusCode || 500,
+    }
   }
 })

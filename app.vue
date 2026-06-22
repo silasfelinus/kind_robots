@@ -107,30 +107,26 @@
 
     <ClientOnly>
       <section
-        class="kr-footer pointer-events-none fixed bottom-0 z-90 flex items-end gap-2 px-2 sm:px-3"
+        class="kr-footer pointer-events-none fixed bottom-0 z-90 flex flex-col gap-2 px-2 sm:px-3 lg:flex-row lg:items-end"
         :style="footerVars"
       >
-        <Transition name="kr-hand-slide">
-          <div
-            v-if="handOpen"
-            class="pointer-events-auto min-w-0 flex-1"
-            :style="{ height: 'var(--hand-h)' }"
-          >
-            <workspace-hand />
-          </div>
-        </Transition>
-
         <Transition name="kr-chat-slide">
           <div
             v-if="narratorRendered && narratorChatOpen"
-            class="pointer-events-auto min-w-0"
-            :class="isXl ? 'w-104 max-w-[42vw]' : 'flex-1'"
-            :style="{ height: 'var(--hand-h)' }"
+            class="pointer-events-auto min-w-0 w-full lg:w-96 lg:max-w-[34vw]"
+            :style="{ height: 'var(--narrator-chat-h)' }"
           >
-            <narrator-chat
-              :compact="!isXl"
-              @close="setNarratorChatOpen(false)"
-            />
+            <narrator-chat compact @close="setNarratorChatOpen(false)" />
+          </div>
+        </Transition>
+
+        <Transition name="kr-hand-slide">
+          <div
+            v-if="handOpen"
+            class="pointer-events-auto min-w-0 w-full flex-1"
+            :style="{ height: 'var(--hand-panel-h)' }"
+          >
+            <workspace-hand />
           </div>
         </Transition>
       </section>
@@ -159,8 +155,8 @@
           class="btn btn-secondary btn-circle btn-sm shadow-2xl"
           :class="narratorChatOpen ? 'btn-active' : ''"
           :aria-expanded="narratorChatOpen"
-          aria-label="Toggle narrator chat"
-          title="Toggle narrator chat"
+          aria-label="Toggle narrator musings"
+          title="Toggle narrator musings"
           @click="toggleNarratorChat"
         >
           <Icon name="kind-icon:message" class="h-5 w-5" />
@@ -195,6 +191,7 @@ let failsafeTimeoutId: ReturnType<typeof setTimeout> | null = null
 
 function handlePageReady(): void {
   showLoader.value = false
+
   if (failsafeTimeoutId) {
     clearTimeout(failsafeTimeoutId)
     failsafeTimeoutId = null
@@ -202,12 +199,15 @@ function handlePageReady(): void {
 }
 
 const isMd = ref(false)
+const isLg = ref(false)
 const isXl = ref(false)
 let mdMedia: MediaQueryList | null = null
+let lgMedia: MediaQueryList | null = null
 let xlMedia: MediaQueryList | null = null
 
 function syncBreakpoints(): void {
   if (mdMedia) isMd.value = mdMedia.matches
+  if (lgMedia) isLg.value = lgMedia.matches
   if (xlMedia) isXl.value = xlMedia.matches
 }
 
@@ -222,7 +222,9 @@ const NARRATOR_W = '22rem'
 const NARRATOR_W_XL = '24rem'
 const NARRATOR_CIRCLE_MD = '4.5rem'
 const NARRATOR_CIRCLE_MOBILE = '5.25rem'
-const HAND_H = '11.5rem'
+const HAND_PANEL_H = '11.5rem'
+const NARRATOR_CHAT_H = '12rem'
+const FOOTER_GAP = '0.5rem'
 
 const narratorCircle = computed(() => {
   if (!narratorRendered.value) return '0px'
@@ -242,6 +244,7 @@ const narratorWidth = computed(() => {
 
 const narratorRailWidth = computed(() => {
   if (!narratorRendered.value) return '0px'
+
   return narratorOpen.value
     ? 'min(100%, var(--narrator-w))'
     : 'var(--narrator-circle)'
@@ -249,14 +252,30 @@ const narratorRailWidth = computed(() => {
 
 const footerOpen = computed(() => handOpen.value || narratorChatOpen.value)
 
-const handHeight = computed(() => (footerOpen.value ? HAND_H : '0px'))
+const footerHeight = computed(() => {
+  if (!footerOpen.value) return '0px'
+
+  if (handOpen.value && narratorChatOpen.value) {
+    return isLg.value
+      ? `max(${HAND_PANEL_H}, ${NARRATOR_CHAT_H})`
+      : `calc(${HAND_PANEL_H} + ${NARRATOR_CHAT_H} + ${FOOTER_GAP})`
+  }
+
+  if (handOpen.value) return HAND_PANEL_H
+  if (narratorChatOpen.value) return NARRATOR_CHAT_H
+
+  return '0px'
+})
 
 const shellVars = computed<CSSProperties>(() => {
   return {
     '--sheet-w': sheetWidth.value,
     '--narrator-w': narratorWidth.value,
     '--narrator-circle': narratorCircle.value,
-    '--hand-h': handHeight.value,
+    '--footer-h': footerHeight.value,
+    '--hand-panel-h': handOpen.value ? HAND_PANEL_H : '0px',
+    '--narrator-chat-h': narratorChatOpen.value ? NARRATOR_CHAT_H : '0px',
+    '--footer-gap': handOpen.value && narratorChatOpen.value ? FOOTER_GAP : '0px',
   } as CSSProperties
 })
 
@@ -270,22 +289,17 @@ const footerVars = computed<CSSProperties>(() => {
   return {
     left: 'var(--sheet-w)',
     right,
-    height: 'var(--hand-h)',
+    height: 'var(--footer-h)',
   } as CSSProperties
 })
 
 function toggleHand(): void {
-  const next = !handOpen.value
-  handOpen.value = next
-  if (next && !isXl.value) narratorChatOpen.value = false
+  handOpen.value = !handOpen.value
 }
 
 function toggleNarratorChat(): void {
   if (!narratorRendered.value) return
-
-  const next = !narratorChatOpen.value
-  narratorChatOpen.value = next
-  if (next && !isXl.value) handOpen.value = false
+  narratorChatOpen.value = !narratorChatOpen.value
 }
 
 function setNarratorChatOpen(value: boolean): void {
@@ -294,11 +308,11 @@ function setNarratorChatOpen(value: boolean): void {
 
 function setNarratorOpen(value: boolean): void {
   narratorOpen.value = value
-  if (value && !isXl.value) narratorChatOpen.value = false
 }
 
 function setNarratorRendered(value: boolean): void {
   narratorRendered.value = value
+
   if (!value) {
     narratorOpen.value = false
     narratorChatOpen.value = false
@@ -322,9 +336,12 @@ onMounted(async () => {
   await navStore.initialize()
 
   mdMedia = window.matchMedia('(min-width: 768px)')
+  lgMedia = window.matchMedia('(min-width: 1024px)')
   xlMedia = window.matchMedia('(min-width: 1280px)')
   syncBreakpoints()
+
   mdMedia.addEventListener('change', syncBreakpoints)
+  lgMedia.addEventListener('change', syncBreakpoints)
   xlMedia.addEventListener('change', syncBreakpoints)
 
   if (isXl.value) handOpen.value = true
@@ -337,14 +354,20 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   mdMedia?.removeEventListener('change', syncBreakpoints)
+  lgMedia?.removeEventListener('change', syncBreakpoints)
   xlMedia?.removeEventListener('change', syncBreakpoints)
+
+  if (failsafeTimeoutId) {
+    clearTimeout(failsafeTimeoutId)
+    failsafeTimeoutId = null
+  }
 })
 </script>
 
 <style scoped>
 .kr-main {
   padding-right: 0;
-  padding-bottom: var(--hand-h);
+  padding-bottom: var(--footer-h);
 }
 
 @media (min-width: 768px) {

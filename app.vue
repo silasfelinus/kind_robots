@@ -131,7 +131,8 @@
              tells it how wide the rail is via --narrator-w and listens for its
              open/close to update the var. -->
         <workspace-narrator
-          class="absolute inset-y-0 right-0 z-80"
+          class="pointer-events-none absolute inset-y-0 right-0 z-110 transition-[width] duration-300 ease-out"
+          :style="{ width: narratorRailWidth }"
           :open="narratorOpen"
           :coexist="isXl"
           @update:open="setNarratorOpen"
@@ -162,7 +163,7 @@
              at xl it can sit beside it. -->
         <Transition name="kr-chat-slide">
           <div
-            v-if="narratorChatOpen"
+            v-if="narratorRendered && narratorChatOpen"
             class="pointer-events-auto min-w-0"
             :class="isXl ? 'w-104 max-w-[42vw]' : 'flex-1'"
             :style="{ height: 'var(--hand-h)' }"
@@ -193,6 +194,7 @@
       <!-- BOTTOM-RIGHT chat toggle (narrator-chat). Sits just left of the
            narrator circle so the two right-side controls don't overlap. -->
       <div
+        v-if="narratorRendered"
         class="pointer-events-auto fixed bottom-3 z-120"
         :style="{ right: 'calc(var(--narrator-circle) + 1.25rem)' }"
       >
@@ -248,10 +250,13 @@ function handlePageReady(): void {
 // ── Breakpoint ──────────────────────────────────────────────────────────────
 // xl (>= 1280px) governs whether footer regions may coexist and how wide the
 // sidebars are allowed to grow.
+const isMd = ref(false)
 const isXl = ref(false)
+let mdMedia: MediaQueryList | null = null
 let xlMedia: MediaQueryList | null = null
 
-function syncIsXl(): void {
+function syncBreakpoints(): void {
+  if (mdMedia) isMd.value = mdMedia.matches
   if (xlMedia) isXl.value = xlMedia.matches
 }
 
@@ -288,13 +293,20 @@ const narratorCircle = computed(() =>
 )
 
 const sheetWidth = computed(() => {
-  if (!workspaceSheetOpen.value) return '0px'
+  if (!workspaceSheetOpen.value || !isMd.value) return '0px'
   return isXl.value ? SHEET_W_XL : SHEET_W_MD
 })
 
 const narratorWidth = computed(() => {
   if (!narratorOpen.value) return '0px'
   return isXl.value ? NARRATOR_W_XL : NARRATOR_W
+})
+
+const narratorRailWidth = computed(() => {
+  if (!narratorRendered.value) return '0px'
+  return narratorOpen.value
+    ? 'min(100%, var(--narrator-w))'
+    : 'var(--narrator-circle)'
 })
 
 const footerOpen = computed(() => handOpen.value || narratorChatOpen.value)
@@ -336,13 +348,15 @@ function toggleHand(): void {
 }
 
 function toggleNarratorChat(): void {
+  if (!narratorRendered.value) return
+
   const next = !narratorChatOpen.value
   narratorChatOpen.value = next
   if (next && !isXl.value) handOpen.value = false
 }
 
 function setNarratorChatOpen(value: boolean): void {
-  narratorChatOpen.value = value
+  narratorChatOpen.value = narratorRendered.value ? value : false
 }
 
 // Right sidebar. Opening it on small screens reclaims width that would crush
@@ -354,8 +368,11 @@ function setNarratorOpen(value: boolean): void {
 
 function setNarratorRendered(value: boolean): void {
   narratorRendered.value = value
-  // If the narrator stops rendering while open, release its width.
-  if (!value) narratorOpen.value = false
+  // If the narrator stops rendering while open, release its width and controls.
+  if (!value) {
+    narratorOpen.value = false
+    narratorChatOpen.value = false
+  }
 }
 
 function setWorkspaceSheetOpen(value: boolean): void {
@@ -375,9 +392,11 @@ onMounted(async () => {
   pageStore.initialize()
   await navStore.initialize()
 
+  mdMedia = window.matchMedia('(min-width: 768px)')
   xlMedia = window.matchMedia('(min-width: 1280px)')
-  syncIsXl()
-  xlMedia.addEventListener('change', syncIsXl)
+  syncBreakpoints()
+  mdMedia.addEventListener('change', syncBreakpoints)
+  xlMedia.addEventListener('change', syncBreakpoints)
 
   // At xl the hand can default open; below xl it stays hidden until toggled.
   if (isXl.value) handOpen.value = true
@@ -389,7 +408,8 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  xlMedia?.removeEventListener('change', syncIsXl)
+  mdMedia?.removeEventListener('change', syncBreakpoints)
+  xlMedia?.removeEventListener('change', syncBreakpoints)
 })
 </script>
 
@@ -397,7 +417,7 @@ onBeforeUnmount(() => {
 /* Main content reflows around all three regions. Sheet padding only applies
    from md (below md the sheet is a full-width overlay). */
 .kr-main {
-  padding-right: var(--narrator-w);
+  padding-right: max(var(--narrator-w), var(--narrator-circle));
   padding-bottom: var(--hand-h);
 }
 

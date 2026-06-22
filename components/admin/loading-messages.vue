@@ -20,7 +20,10 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoadStore } from '../../stores/loadStore'
 
 const props = defineProps<{ storesReady: boolean }>()
-const emit = defineEmits<{ hidden: [] }>()
+const emit = defineEmits<{
+  covered: []
+  hidden: []
+}>()
 
 const loadStore = useLoadStore()
 
@@ -142,6 +145,7 @@ watch(
 )
 
 onMounted(async () => {
+  emit('covered')
   await runVisualSequence()
 })
 

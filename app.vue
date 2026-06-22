@@ -5,16 +5,24 @@
     :class="showLoader ? 'bg-black' : 'bg-base-100'"
     :style="shellVars"
   >
+    <div
+      v-if="showBootCurtain && showLoader"
+      class="kr-boot-curtain"
+      aria-hidden="true"
+    />
+
     <ClientOnly>
       <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
-        <kind-loader @pageReady="handlePageReady" />
+        <kind-loader
+          @covered="handleLoaderCovered"
+          @pageReady="handlePageReady"
+        />
       </div>
     </ClientOnly>
 
     <ClientOnly>
-      
       <animation-layer />
-<butterfly-layer class="pointer-events-none fixed inset-0 z-60" />
+      <butterfly-layer class="pointer-events-none fixed inset-0 z-60" />
       <fx-clear-all />
       <milestone-popup />
     </ClientOnly>
@@ -188,14 +196,37 @@ const navStore = useNavStore()
 const { workspaceSheetOpen } = storeToRefs(navStore)
 
 const showLoader = ref(true)
+const showBootCurtain = ref(true)
+
 let failsafeTimeoutId: ReturnType<typeof setTimeout> | null = null
+let bootCurtainTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+function releaseBootCurtain(): void {
+  if (!showBootCurtain.value) return
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      showBootCurtain.value = false
+    })
+  })
+}
+
+function handleLoaderCovered(): void {
+  releaseBootCurtain()
+}
 
 function handlePageReady(): void {
+  showBootCurtain.value = false
   showLoader.value = false
 
   if (failsafeTimeoutId) {
     clearTimeout(failsafeTimeoutId)
     failsafeTimeoutId = null
+  }
+
+  if (bootCurtainTimeoutId) {
+    clearTimeout(bootCurtainTimeoutId)
+    bootCurtainTimeoutId = null
   }
 }
 
@@ -276,7 +307,8 @@ const shellVars = computed<CSSProperties>(() => {
     '--footer-h': footerHeight.value,
     '--hand-panel-h': handOpen.value ? HAND_PANEL_H : '0px',
     '--narrator-chat-h': narratorChatOpen.value ? NARRATOR_CHAT_H : '0px',
-    '--footer-gap': handOpen.value && narratorChatOpen.value ? FOOTER_GAP : '0px',
+    '--footer-gap':
+      handOpen.value && narratorChatOpen.value ? FOOTER_GAP : '0px',
   } as CSSProperties
 })
 
@@ -333,6 +365,11 @@ useSeoMeta({
 })
 
 onMounted(async () => {
+  bootCurtainTimeoutId = setTimeout(() => {
+    showBootCurtain.value = false
+    bootCurtainTimeoutId = null
+  }, 1500)
+
   pageStore.initialize()
   await navStore.initialize()
 
@@ -358,9 +395,9 @@ onBeforeUnmount(() => {
   lgMedia?.removeEventListener('change', syncBreakpoints)
   xlMedia?.removeEventListener('change', syncBreakpoints)
 
-  if (failsafeTimeoutId) {
-    clearTimeout(failsafeTimeoutId)
-    failsafeTimeoutId = null
+  if (bootCurtainTimeoutId) {
+    clearTimeout(bootCurtainTimeoutId)
+    bootCurtainTimeoutId = null
   }
 })
 </script>
@@ -376,6 +413,15 @@ onBeforeUnmount(() => {
     padding-left: var(--sheet-w);
     padding-right: max(var(--narrator-w), var(--narrator-circle));
   }
+}
+.kr-boot-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: #000;
+  pointer-events: none;
+  contain: layout paint style;
+  transform: translateZ(0);
 }
 
 .kr-sheet-slide-enter-active,

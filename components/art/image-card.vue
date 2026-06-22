@@ -303,7 +303,7 @@
 <script setup lang="ts">
 // /components/content/art/image-card.vue
 import { computed, ref, watch } from 'vue'
-import type { ArtImage } from '@/stores/artStore'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 
 const props = withDefaults(
@@ -417,7 +417,7 @@ const imageKey = computed(() =>
   [
     displayImage.value.id,
     getImageDataMode(displayImage.value.imageData),
-    displayImage.value.imagePath || 'no-path',
+    createImagePathUrl(displayImage.value) || 'no-path',
     imageLoadFailed.value ? 'fallback' : 'primary',
   ].join('-'),
 )
@@ -530,7 +530,8 @@ function shouldFetchFullImage(image: ArtImage) {
 }
 
 function shouldPreferImagePath(image: ArtImage) {
-  if (!image.imagePath) return false
+  const pathUrl = createImagePathUrl(image)
+  if (!pathUrl) return false
   if (!image.imageData) return true
   return isProbablyPath(image.imageData) || !isUsableImageData(image.imageData)
 }
@@ -586,24 +587,36 @@ function createImageDataUrl(image?: ArtImage | null) {
 
 function createImagePathUrl(image?: ArtImage | null) {
   const path =
-    image?.imagePath || getPathFromBadImageData(image?.imageData) || ''
+    image?.imagePath ||
+    (image as { path?: string | null } | null | undefined)?.path ||
+    getPathFromBadImageData(image?.imageData) ||
+    image?.fileName ||
+    ''
+
   return normalizeImagePath(path)
 }
 
 function normalizeImagePath(value?: string | null) {
   if (!value) return ''
+
   const trimmed = value.trim()
   if (!trimmed || trimmed === 'UNDEFINED' || trimmed === 'undefined') return ''
+
   if (
     trimmed.startsWith('http://') ||
     trimmed.startsWith('https://') ||
     trimmed.startsWith('data:image/')
-  )
+  ) {
     return trimmed
+  }
+
   const cleanPath = stripServerFilePrefix(trimmed)
+  if (!cleanPath) return ''
+
   if (cleanPath.startsWith('/images/')) return withAppUrl(cleanPath)
   if (cleanPath.startsWith('images/')) return withAppUrl(`/${cleanPath}`)
-  if (cleanPath.startsWith('/')) return withAppUrl(`/images${cleanPath}`)
+  if (cleanPath.startsWith('/')) return withAppUrl(cleanPath)
+
   return withAppUrl(`/images/${cleanPath}`)
 }
 

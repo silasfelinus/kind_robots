@@ -685,7 +685,6 @@ model PitchSheet {
   dreamId Int   @unique
   Dream   Dream @relation(fields: [dreamId], references: [id], onDelete: Cascade)
 
-  sheetType DreamType
   layoutKey String @default("pitch-card") @db.VarChar(128)
 
   title    String  @db.VarChar(255)
@@ -732,14 +731,12 @@ model PitchSheet {
 
   designer String? @default("system") @db.VarChar(255)
 
-  @@index([sheetType])
   @@index([layoutKey])
   @@index([artImageId])
   @@index([userId])
   @@index([isPublic])
   @@index([isActive])
 }
-
 
 
 /// this is an art or text prompt to an ai to generate new media

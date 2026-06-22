@@ -1,4 +1,4 @@
-// server/api/narrator/threads/batch.post.ts
+// server/api/bots/threads.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'

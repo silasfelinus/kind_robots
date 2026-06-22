@@ -34,12 +34,17 @@
         aria-label="Refresh art collections"
         @click="loadAssets(true)"
       >
-        <span v-if="isLoadingAssets" class="loading loading-spinner loading-xs" />
+        <span
+          v-if="isLoadingAssets"
+          class="loading loading-spinner loading-xs"
+        />
         <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
       </button>
     </div>
 
-    <div class="mt-3 grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]">
+    <div
+      class="mt-3 grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]"
+    >
       <label
         class="input input-sm input-bordered flex items-center gap-2 rounded-2xl bg-base-100"
       >
@@ -62,7 +67,8 @@
           :key="collection.id"
           :value="String(collection.id)"
         >
-          {{ collection.label || `Collection #${collection.id}` }} · {{ collection.imageCount }}
+          {{ collection.label || `Collection #${collection.id}` }} ·
+          {{ collection.imageCount }}
         </option>
       </select>
     </div>
@@ -74,9 +80,24 @@
         :disabled="!selectedCollectionId || isSaving"
         @click="attachSelectedCollection"
       >
-        <span v-if="isSavingCollection" class="loading loading-spinner loading-xs" />
+        <span
+          v-if="isSavingCollection"
+          class="loading loading-spinner loading-xs"
+        />
         <Icon v-else name="kind-icon:folder" class="h-4 w-4" />
         Attach Collection
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary btn-xs rounded-2xl text-white"
+        :disabled="!canUseRandomImage || isSaving"
+        data-tip="Pick a random image from a connected collection"
+        @click="useRandomCollectionImage"
+      >
+        <span v-if="isSavingImage" class="loading loading-spinner loading-xs" />
+        <Icon v-else name="kind-icon:dice" class="h-4 w-4" />
+        Random from Collection
       </button>
 
       <button
@@ -113,7 +134,11 @@
         :key="collection.id"
         type="button"
         class="btn btn-xs shrink-0 rounded-2xl"
-        :class="selectedCollectionId === collection.id ? 'btn-primary text-white' : 'btn-ghost'"
+        :class="
+          selectedCollectionId === collection.id
+            ? 'btn-primary text-white'
+            : 'btn-ghost'
+        "
         @click="selectedCollectionValue = String(collection.id)"
       >
         {{ collection.label || `#${collection.id}` }}
@@ -123,40 +148,19 @@
     <div
       class="mt-3 grid max-h-80 grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
     >
-      <button
+      <image-card
         v-for="image in visibleImages"
         :key="image.id"
-        type="button"
-        class="group relative aspect-square overflow-hidden rounded-2xl border bg-base-200 text-left transition hover:-translate-y-0.5 hover:shadow-md"
-        :class="image.id === activeArtImageId ? 'border-primary ring-2 ring-primary/40' : 'border-base-300'"
-        :disabled="isSaving"
-        :title="getImageLabel(image)"
-        @click="setHighlightImage(image)"
-      >
-        <img
-          v-if="getImageSource(image)"
-          :src="getImageSource(image)"
-          :alt="getImageLabel(image)"
-          class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-          loading="lazy"
-        />
-
-        <div
-          v-else
-          class="flex h-full w-full items-center justify-center text-base-content/40"
-        >
-          <Icon name="kind-icon:image" class="h-8 w-8" />
-        </div>
-
-        <div
-          class="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-base-300/85 px-2 py-1 text-[0.65rem] font-bold backdrop-blur"
-        >
-          <span class="truncate">#{{ image.id }}</span>
-          <span v-if="image.id === activeArtImageId" class="text-primary">
-            Primary
-          </span>
-        </div>
-      </button>
+        :art-image="image as ArtImage"
+        size="sm"
+        :show-actions="false"
+        :show-meta="false"
+        :show-prompt="false"
+        :show-reaction="false"
+        :selected="image.id === activeArtImageId"
+        :class="isSaving ? 'pointer-events-none opacity-60' : ''"
+        @select="setHighlightImage(image)"
+      />
 
       <div
         v-if="!visibleImages.length"
@@ -217,6 +221,31 @@ const activeArtImageId = computed(() => {
 
 const activeCollectionId = computed(() => {
   return dreamStore.selectedDream?.artCollectionId ?? null
+})
+
+// Collection ids tied to this Dream: the primary one plus any M2M-attached collections.
+const dreamCollectionIds = computed<number[]>(() => {
+  const ids = new Set<number>()
+
+  const primary = dreamStore.selectedDream?.artCollectionId
+  if (Number.isInteger(primary) && Number(primary) > 0) ids.add(Number(primary))
+
+  const dream = dreamStore.selectedDream as unknown as {
+    ArtCollection?: { id?: number } | null
+    ArtCollections?: { id?: number }[] | null
+  }
+
+  if (dream?.ArtCollection?.id) ids.add(Number(dream.ArtCollection.id))
+  for (const collection of dream?.ArtCollections ?? []) {
+    if (collection?.id) ids.add(Number(collection.id))
+  }
+
+  return Array.from(ids).filter((id) => Number.isInteger(id) && id > 0)
+})
+
+// Random selection is available when at least one connected collection holds images.
+const canUseRandomImage = computed(() => {
+  return collectImagesFromCollections(dreamCollectionIds.value).length > 0
 })
 
 const selectedCollectionId = computed(() => {
@@ -349,7 +378,9 @@ function syncCollectionSelection() {
   if (selectedCollectionValue.value !== 'all') return
 
   const firstCollection = collectionChoices.value[0]
-  selectedCollectionValue.value = firstCollection?.id ? String(firstCollection.id) : 'all'
+  selectedCollectionValue.value = firstCollection?.id
+    ? String(firstCollection.id)
+    : 'all'
 }
 
 async function loadAssets(force = false) {
@@ -367,22 +398,6 @@ async function loadAssets(force = false) {
   } finally {
     isLoadingAssets.value = false
   }
-}
-
-function getImageSource(image: ArtImageLike): string {
-  if (image.thumbnailData) {
-    return `data:image/${image.fileType || 'png'};base64,${image.thumbnailData}`
-  }
-
-  if (image.imageData) {
-    return `data:image/${image.fileType || 'png'};base64,${image.imageData}`
-  }
-
-  return image.imagePath || image.path || image.fileName || ''
-}
-
-function getImageLabel(image: ArtImageLike): string {
-  return image.title || image.promptString || `Art Image #${image.id}`
 }
 
 function buildDreamArtPatch(updates: Partial<DreamForm>): DreamForm {
@@ -412,7 +427,8 @@ async function setHighlightImage(image: ArtImageLike) {
       }),
     )
 
-    if (!result.success) throw new Error(result.message || 'Failed to set image.')
+    if (!result.success)
+      throw new Error(result.message || 'Failed to set image.')
 
     if (collectionId) {
       collectionStore.setCurrentCollection(collectionId)
@@ -422,7 +438,8 @@ async function setHighlightImage(image: ArtImageLike) {
     await dreamStore.fetchArtForDream(dreamStore.selectedDreamId)
     message.value = `Highlight image set to #${image.id}.`
   } catch (error) {
-    message.value = error instanceof Error ? error.message : 'Failed to set image.'
+    message.value =
+      error instanceof Error ? error.message : 'Failed to set image.'
   } finally {
     isSavingImage.value = false
   }
@@ -488,6 +505,88 @@ async function clearDreamCollection() {
   }
 }
 
+function collectImagesFromCollections(collectionIds: number[]): ArtImageLike[] {
+  if (!collectionIds.length) return []
+
+  const seen = new Map<number, ArtImageLike>()
+  for (const collectionId of collectionIds) {
+    const images = collectionStore.getCollectionImages(collectionId) ?? []
+    for (const image of images as ArtImageLike[]) {
+      if (image?.id) seen.set(image.id, image)
+    }
+  }
+
+  return Array.from(seen.values())
+}
+
+function pickRandom<T>(items: T[]): T | null {
+  if (!items.length) return null
+  const index = Math.floor(Math.random() * items.length)
+  return items[index] ?? null
+}
+
+// Picks a random image from a random collection tied to the Dream and makes it
+// the highlight image. Falls back to any connected-collection image if needed.
+async function useRandomCollectionImage() {
+  if (!dreamStore.selectedDreamId) return
+
+  isSavingImage.value = true
+  message.value = ''
+
+  try {
+    const collectionIds = dreamCollectionIds.value
+    const shuffledCollections = [...collectionIds].sort(
+      () => Math.random() - 0.5,
+    )
+
+    let chosen: ArtImageLike | null = null
+    let chosenCollectionId: number | null = null
+
+    for (const collectionId of shuffledCollections) {
+      const images = collectionStore.getCollectionImages(collectionId) ?? []
+      const picked = pickRandom(images as ArtImageLike[])
+      if (picked?.id) {
+        chosen = picked
+        chosenCollectionId = collectionId
+        break
+      }
+    }
+
+    if (!chosen) {
+      chosen = pickRandom(collectImagesFromCollections(collectionIds))
+      chosenCollectionId = chosen ? (collectionIds[0] ?? null) : null
+    }
+
+    if (!chosen?.id) {
+      message.value = 'No images available in the connected collections.'
+      return
+    }
+
+    const result = await dreamStore.updateSelectedDream(
+      buildDreamArtPatch({
+        artImageId: chosen.id,
+        artCollectionId: chosenCollectionId ?? activeCollectionId.value ?? null,
+        addArtToCollection: Boolean(chosenCollectionId),
+        updateNote: `Set random highlight image #${chosen.id}${
+          chosenCollectionId ? ` from collection #${chosenCollectionId}` : ''
+        }.`,
+      }),
+    )
+
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to set random image.')
+    }
+
+    await dreamStore.fetchArtForDream(dreamStore.selectedDreamId)
+    message.value = `Random highlight set to #${chosen.id}.`
+  } catch (error) {
+    message.value =
+      error instanceof Error ? error.message : 'Failed to set random image.'
+  } finally {
+    isSavingImage.value = false
+  }
+}
+
 async function clearHighlightImage() {
   if (!dreamStore.selectedDreamId) return
 
@@ -508,7 +607,8 @@ async function clearHighlightImage() {
 
     message.value = 'Dream highlight image cleared.'
   } catch (error) {
-    message.value = error instanceof Error ? error.message : 'Failed to clear image.'
+    message.value =
+      error instanceof Error ? error.message : 'Failed to clear image.'
   } finally {
     isSavingImage.value = false
   }

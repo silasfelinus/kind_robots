@@ -1,8 +1,9 @@
 // server/api/narrator/threads/batch.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import prisma from '../../../utils/prisma'
-import { validateApiKey } from '../../../utils/validateKey'
-import { errorHandler } from '../../../utils/error'
+import { Prisma } from '~/prisma/generated/prisma/client'
+import prisma from './../../utils/prisma'
+import { validateApiKey } from './../../utils/validateKey'
+import { errorHandler } from './../../utils/error'
 
 type StarterPrompt = {
   label: string
@@ -14,9 +15,6 @@ type StarterPrompt = {
   screen?: string
 }
 
-// Threads are keyed on @@unique([botId, topicId]). To keep this .http-friendly,
-// we accept human-readable references (botName / botId, topicSlug / topicId)
-// and resolve them server-side.
 type ThreadInput = {
   botId?: number
   botName?: string
@@ -40,7 +38,11 @@ export default defineEventHandler(async (event) => {
     const auth = await validateApiKey(event)
     if (!auth.isValid) {
       event.node.res.statusCode = 401
-      return { success: false, message: 'Invalid or missing API key.', statusCode: 401 }
+      return {
+        success: false,
+        message: 'Invalid or missing API key.',
+        statusCode: 401,
+      }
     }
 
     const body = (await readBody(event)) as BatchBody
@@ -49,60 +51,92 @@ export default defineEventHandler(async (event) => {
 
     if (!threads.length) {
       event.node.res.statusCode = 400
-      return { success: false, message: 'No threads provided.', statusCode: 400 }
+      return {
+        success: false,
+        message: 'No threads provided.',
+        statusCode: 400,
+      }
     }
 
-    // --- preload lookup maps for name/slug resolution ---
     const bots = await prisma.bot.findMany({
       where: { BotType: 'NARRATOR' },
       select: { id: true, name: true },
     })
+
     const topicsAll = await prisma.narratorTopic.findMany({
       select: { id: true, slug: true },
     })
-    const botByName = new Map(bots.map((b) => [b.name, b.id]))
-    const topicBySlug = new Map(topicsAll.map((t) => [t.slug, t.id]))
+
+    const botByName = new Map(bots.map((bot) => [bot.name, bot.id]))
+    const topicBySlug = new Map(
+      topicsAll.map((topic) => [topic.slug, topic.id]),
+    )
 
     const errors: Array<{ index: number; ref?: string; message: string }> = []
     const seenPairs = new Set<string>()
-    const valid: Array<{ botId: number; topicId: number; input: ThreadInput }> = []
+    const valid: Array<{ botId: number; topicId: number; input: ThreadInput }> =
+      []
 
-    threads.forEach((t, index) => {
-      const ref = `${t?.botName ?? t?.botId ?? '?'} / ${t?.topicSlug ?? t?.topicId ?? '?'}`
+    threads.forEach((thread, index) => {
+      const ref = `${thread?.botName ?? thread?.botId ?? '?'} / ${thread?.topicSlug ?? thread?.topicId ?? '?'}`
 
       const botId =
-        typeof t?.botId === 'number'
-          ? t.botId
-          : t?.botName
-            ? botByName.get(t.botName)
+        typeof thread?.botId === 'number'
+          ? thread.botId
+          : thread?.botName
+            ? botByName.get(thread.botName)
             : undefined
+
       const topicId =
-        typeof t?.topicId === 'number'
-          ? t.topicId
-          : t?.topicSlug
-            ? topicBySlug.get(t.topicSlug)
+        typeof thread?.topicId === 'number'
+          ? thread.topicId
+          : thread?.topicSlug
+            ? topicBySlug.get(thread.topicSlug)
             : undefined
 
       if (!botId) {
-        errors.push({ index, ref, message: `Could not resolve bot (${t?.botName ?? t?.botId})` })
+        errors.push({
+          index,
+          ref,
+          message: `Could not resolve bot (${thread?.botName ?? thread?.botId})`,
+        })
         return
       }
+
       if (!topicId) {
-        errors.push({ index, ref, message: `Could not resolve topic (${t?.topicSlug ?? t?.topicId})` })
+        errors.push({
+          index,
+          ref,
+          message: `Could not resolve topic (${thread?.topicSlug ?? thread?.topicId})`,
+        })
         return
       }
-      if (typeof t.openingText !== 'string' || !t.openingText.trim()) {
-        errors.push({ index, ref, message: 'Missing required field: openingText' })
+
+      if (
+        typeof thread.openingText !== 'string' ||
+        !thread.openingText.trim()
+      ) {
+        errors.push({
+          index,
+          ref,
+          message: 'Missing required field: openingText',
+        })
         return
       }
 
       const pairKey = `${botId}:${topicId}`
+
       if (seenPairs.has(pairKey)) {
-        errors.push({ index, ref, message: 'Duplicate botId+topicId within batch' })
+        errors.push({
+          index,
+          ref,
+          message: 'Duplicate botId+topicId within batch',
+        })
         return
       }
+
       seenPairs.add(pairKey)
-      valid.push({ botId, topicId, input: t })
+      valid.push({ botId, topicId, input: thread })
     })
 
     if (dryRun) {
@@ -110,28 +144,37 @@ export default defineEventHandler(async (event) => {
         success: true,
         dryRun: true,
         message: `Validated ${valid.length} thread(s), ${errors.length} error(s).`,
-        wouldUpsert: valid.map((v) => `${v.botId}:${v.topicId}`),
+        wouldUpsert: valid.map((thread) => `${thread.botId}:${thread.topicId}`),
         errors,
         statusCode: 200,
       }
     }
 
     const results = []
+
     for (const { botId, topicId, input } of valid) {
+      const starterPrompts =
+        input.starterPrompts === undefined
+          ? undefined
+          : input.starterPrompts === null
+            ? Prisma.DbNull
+            : (input.starterPrompts as Prisma.InputJsonValue)
+
       const data = {
         title: input.title ?? null,
         openingText: input.openingText,
         guidance: input.guidance ?? null,
-        starterPrompts:
-          input.starterPrompts === undefined ? undefined : (input.starterPrompts ?? null),
+        ...(starterPrompts !== undefined ? { starterPrompts } : {}),
         sortOrder: typeof input.sortOrder === 'number' ? input.sortOrder : 0,
         isActive: input.isActive ?? true,
       }
+
       const thread = await prisma.narratorThread.upsert({
         where: { botId_topicId: { botId, topicId } },
         update: data,
         create: { botId, topicId, ...data },
       })
+
       results.push(thread)
     }
 
@@ -145,6 +188,11 @@ export default defineEventHandler(async (event) => {
   } catch (error: unknown) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message, statusCode: handled.statusCode || 500 }
+
+    return {
+      success: false,
+      message: handled.message,
+      statusCode: handled.statusCode || 500,
+    }
   }
 })

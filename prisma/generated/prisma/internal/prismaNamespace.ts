@@ -397,12 +397,14 @@ export const ModelName = {
   Dream: 'Dream',
   DreamRelation: 'DreamRelation',
   ExpressionMedia: 'ExpressionMedia',
+  ExpressionTransition: 'ExpressionTransition',
   Log: 'Log',
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
   MilestoneRecord: 'MilestoneRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
+  PitchSheet: 'PitchSheet',
   Prompt: 'Prompt',
   Reaction: 'Reaction',
   Resource: 'Resource',
@@ -430,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1292,6 +1294,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ExpressionTransition: {
+      payload: Prisma.$ExpressionTransitionPayload<ExtArgs>
+      fields: Prisma.ExpressionTransitionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExpressionTransitionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExpressionTransitionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload>
+        }
+        findFirst: {
+          args: Prisma.ExpressionTransitionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExpressionTransitionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload>
+        }
+        findMany: {
+          args: Prisma.ExpressionTransitionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload>[]
+        }
+        create: {
+          args: Prisma.ExpressionTransitionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload>
+        }
+        createMany: {
+          args: Prisma.ExpressionTransitionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ExpressionTransitionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload>
+        }
+        update: {
+          args: Prisma.ExpressionTransitionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ExpressionTransitionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExpressionTransitionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ExpressionTransitionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpressionTransitionPayload>
+        }
+        aggregate: {
+          args: Prisma.ExpressionTransitionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExpressionTransition>
+        }
+        groupBy: {
+          args: Prisma.ExpressionTransitionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpressionTransitionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExpressionTransitionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpressionTransitionCountAggregateOutputType> | number
+        }
+      }
+    }
     Log: {
       payload: Prisma.$LogPayload<ExtArgs>
       fields: Prisma.LogFieldRefs
@@ -1685,6 +1753,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.NarratorThreadCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.NarratorThreadCountAggregateOutputType> | number
+        }
+      }
+    }
+    PitchSheet: {
+      payload: Prisma.$PitchSheetPayload<ExtArgs>
+      fields: Prisma.PitchSheetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PitchSheetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PitchSheetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload>
+        }
+        findFirst: {
+          args: Prisma.PitchSheetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PitchSheetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload>
+        }
+        findMany: {
+          args: Prisma.PitchSheetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload>[]
+        }
+        create: {
+          args: Prisma.PitchSheetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload>
+        }
+        createMany: {
+          args: Prisma.PitchSheetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PitchSheetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload>
+        }
+        update: {
+          args: Prisma.PitchSheetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload>
+        }
+        deleteMany: {
+          args: Prisma.PitchSheetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PitchSheetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PitchSheetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchSheetPayload>
+        }
+        aggregate: {
+          args: Prisma.PitchSheetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePitchSheet>
+        }
+        groupBy: {
+          args: Prisma.PitchSheetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PitchSheetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PitchSheetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PitchSheetCountAggregateOutputType> | number
         }
       }
     }
@@ -2846,6 +2980,24 @@ export const ExpressionMediaScalarFieldEnum = {
 export type ExpressionMediaScalarFieldEnum = (typeof ExpressionMediaScalarFieldEnum)[keyof typeof ExpressionMediaScalarFieldEnum]
 
 
+export const ExpressionTransitionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  fromKey: 'fromKey',
+  toKey: 'toKey',
+  videoPath: 'videoPath',
+  fps: 'fps',
+  frames: 'frames',
+  botId: 'botId',
+  characterId: 'characterId',
+  isActive: 'isActive',
+  designer: 'designer'
+} as const
+
+export type ExpressionTransitionScalarFieldEnum = (typeof ExpressionTransitionScalarFieldEnum)[keyof typeof ExpressionTransitionScalarFieldEnum]
+
+
 export const LogScalarFieldEnum = {
   id: 'id',
   message: 'message',
@@ -2943,6 +3095,46 @@ export const NarratorThreadScalarFieldEnum = {
 } as const
 
 export type NarratorThreadScalarFieldEnum = (typeof NarratorThreadScalarFieldEnum)[keyof typeof NarratorThreadScalarFieldEnum]
+
+
+export const PitchSheetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  dreamId: 'dreamId',
+  layoutKey: 'layoutKey',
+  title: 'title',
+  subtitle: 'subtitle',
+  hook: 'hook',
+  pitch: 'pitch',
+  highlight1Label: 'highlight1Label',
+  highlight1Value: 'highlight1Value',
+  highlight1Icon: 'highlight1Icon',
+  highlight2Label: 'highlight2Label',
+  highlight2Value: 'highlight2Value',
+  highlight2Icon: 'highlight2Icon',
+  highlight3Label: 'highlight3Label',
+  highlight3Value: 'highlight3Value',
+  highlight3Icon: 'highlight3Icon',
+  detail1Label: 'detail1Label',
+  detail1Body: 'detail1Body',
+  detail2Label: 'detail2Label',
+  detail2Body: 'detail2Body',
+  detail3Label: 'detail3Label',
+  detail3Body: 'detail3Body',
+  imagePath: 'imagePath',
+  artImageId: 'artImageId',
+  icon: 'icon',
+  colorTheme: 'colorTheme',
+  extraData: 'extraData',
+  userId: 'userId',
+  isPublic: 'isPublic',
+  isActive: 'isActive',
+  isMature: 'isMature',
+  designer: 'designer'
+} as const
+
+export type PitchSheetScalarFieldEnum = (typeof PitchSheetScalarFieldEnum)[keyof typeof PitchSheetScalarFieldEnum]
 
 
 export const PromptScalarFieldEnum = {
@@ -3496,6 +3688,16 @@ export const ExpressionMediaOrderByRelevanceFieldEnum = {
 export type ExpressionMediaOrderByRelevanceFieldEnum = (typeof ExpressionMediaOrderByRelevanceFieldEnum)[keyof typeof ExpressionMediaOrderByRelevanceFieldEnum]
 
 
+export const ExpressionTransitionOrderByRelevanceFieldEnum = {
+  fromKey: 'fromKey',
+  toKey: 'toKey',
+  videoPath: 'videoPath',
+  designer: 'designer'
+} as const
+
+export type ExpressionTransitionOrderByRelevanceFieldEnum = (typeof ExpressionTransitionOrderByRelevanceFieldEnum)[keyof typeof ExpressionTransitionOrderByRelevanceFieldEnum]
+
+
 export const LogOrderByRelevanceFieldEnum = {
   message: 'message',
   username: 'username'
@@ -3555,6 +3757,36 @@ export const NarratorThreadOrderByRelevanceFieldEnum = {
 } as const
 
 export type NarratorThreadOrderByRelevanceFieldEnum = (typeof NarratorThreadOrderByRelevanceFieldEnum)[keyof typeof NarratorThreadOrderByRelevanceFieldEnum]
+
+
+export const PitchSheetOrderByRelevanceFieldEnum = {
+  layoutKey: 'layoutKey',
+  title: 'title',
+  subtitle: 'subtitle',
+  hook: 'hook',
+  pitch: 'pitch',
+  highlight1Label: 'highlight1Label',
+  highlight1Value: 'highlight1Value',
+  highlight1Icon: 'highlight1Icon',
+  highlight2Label: 'highlight2Label',
+  highlight2Value: 'highlight2Value',
+  highlight2Icon: 'highlight2Icon',
+  highlight3Label: 'highlight3Label',
+  highlight3Value: 'highlight3Value',
+  highlight3Icon: 'highlight3Icon',
+  detail1Label: 'detail1Label',
+  detail1Body: 'detail1Body',
+  detail2Label: 'detail2Label',
+  detail2Body: 'detail2Body',
+  detail3Label: 'detail3Label',
+  detail3Body: 'detail3Body',
+  imagePath: 'imagePath',
+  icon: 'icon',
+  colorTheme: 'colorTheme',
+  designer: 'designer'
+} as const
+
+export type PitchSheetOrderByRelevanceFieldEnum = (typeof PitchSheetOrderByRelevanceFieldEnum)[keyof typeof PitchSheetOrderByRelevanceFieldEnum]
 
 
 export const PromptOrderByRelevanceFieldEnum = {
@@ -4088,12 +4320,14 @@ export type GlobalOmitConfig = {
   dream?: Prisma.DreamOmit
   dreamRelation?: Prisma.DreamRelationOmit
   expressionMedia?: Prisma.ExpressionMediaOmit
+  expressionTransition?: Prisma.ExpressionTransitionOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit
   manaTransaction?: Prisma.ManaTransactionOmit
   milestoneRecord?: Prisma.MilestoneRecordOmit
   narratorTopic?: Prisma.NarratorTopicOmit
   narratorThread?: Prisma.NarratorThreadOmit
+  pitchSheet?: Prisma.PitchSheetOmit
   prompt?: Prisma.PromptOmit
   reaction?: Prisma.ReactionOmit
   resource?: Prisma.ResourceOmit

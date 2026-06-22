@@ -118,6 +118,16 @@ export type DreamRelation = Prisma.DreamRelationModel
  */
 export type ExpressionMedia = Prisma.ExpressionMediaModel
 /**
+ * Model ExpressionTransition
+ * A directed transition clip between two expressions for the same owner
+ * (bot or character). videoPath holds the FLF2V-generated animated webp that
+ * travels fromKey -> toKey. The frontend picks a transition by matching the
+ * owner's current expression (fromKey) to the desired target (toKey); if no
+ * exact row exists it falls back to the static still on ExpressionMedia.
+ * fromKey/toKey are canonical lowercase keys matching ExpressionMedia.expressionKey.
+ */
+export type ExpressionTransition = Prisma.ExpressionTransitionModel
+/**
  * Model Log
  * our woefully underutilized log function, but it's there.
  */
@@ -147,6 +157,11 @@ export type NarratorTopic = Prisma.NarratorTopicModel
  * 
  */
 export type NarratorThread = Prisma.NarratorThreadModel
+/**
+ * Model PitchSheet
+ * 
+ */
+export type PitchSheet = Prisma.PitchSheetModel
 /**
  * Model Prompt
  * this is an art or text prompt to an ai to generate new media

@@ -314,27 +314,37 @@
         </button>
       </div>
 
-      <div v-else :class="layoutClass">
-        <dream-card
-          v-for="dream in filteredDreams"
-          :key="dream.id"
-          :dream="dream"
-          :selected="dreamStore.selectedDream?.id === dream.id"
-          :is-selected="dreamStore.selectedDream?.id === dream.id"
-          :compact="isCompact"
-          :show-image="showImages"
-          :show-actions="showCardActions"
-          :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :show-stats="showStats"
-          :show-debug="showDebug"
-          :allow-edit="allowEdit"
-          :allow-delete="allowDelete"
-          image-fit="cover"
-          @choose="selectDreamAndOpen"
-          @edit="startEditingDreamById"
-          @delete="handleDreamDeleted"
+      <div v-else class="flex flex-col gap-3">
+        <dream-sheet-toolbar
+          v-if="showSheetToolbar"
+          :dreams="filteredDreams"
+          :auto-refresh="autoLoadSheets"
         />
+
+        <div :class="layoutClass">
+          <dream-card
+            v-for="dream in filteredDreams"
+            :key="dream.id"
+            :dream="dream"
+            :selected="dreamStore.selectedDream?.id === dream.id"
+            :is-selected="dreamStore.selectedDream?.id === dream.id"
+            :compact="isCompact"
+            :show-image="showImages"
+            :show-actions="showCardActions"
+            :show-description="showDescriptions"
+            :show-meta="showMeta"
+            :show-stats="showStats"
+            :show-debug="showDebug"
+            :allow-edit="allowEdit"
+            :allow-delete="allowDelete"
+            :show-pitch-sheet-preview="showPitchSheetPreview"
+            :load-pitch-sheet-preview="autoLoadSheets"
+            image-fit="cover"
+            @choose="selectDreamAndOpen"
+            @edit="startEditingDreamById"
+            @delete="handleDreamDeleted"
+          />
+        </div>
       </div>
     </section>
   </section>
@@ -398,6 +408,9 @@ const props = withDefaults(
     compact: false,
     autoLoad: true,
     openOnSelect: true,
+    showPitchSheetPreview: true,
+    showSheetToolbar: false,
+    autoLoadSheets: true,
   },
 )
 

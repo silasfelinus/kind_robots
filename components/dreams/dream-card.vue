@@ -106,6 +106,21 @@
     </section>
 
     <div
+      v-if="showPitchSheetPreview"
+      class="pointer-events-none absolute inset-x-2 bottom-2 z-20 translate-y-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+    >
+      <div class="pointer-events-auto" @click.stop>
+        <dream-pitch-sheet
+          :dream="dream"
+          variant="hover"
+          :show-image="false"
+          :auto-load="loadPitchSheetPreview"
+          :ensure-on-load="ensurePitchSheetPreview"
+        />
+      </div>
+    </div>
+
+    <div
       v-if="showActions && (allowEdit || allowDelete)"
       class="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100"
       @click.stop
@@ -166,6 +181,9 @@ const props = withDefaults(
     allowEdit?: boolean
     allowDelete?: boolean
     imageFit?: 'cover' | 'contain'
+    showPitchSheetPreview?: boolean
+    loadPitchSheetPreview?: boolean
+    ensurePitchSheetPreview?: boolean
   }>(),
   {
     selected: false,
@@ -180,6 +198,9 @@ const props = withDefaults(
     allowEdit: true,
     allowDelete: false,
     imageFit: 'cover',
+    showPitchSheetPreview: true,
+    loadPitchSheetPreview: true,
+    ensurePitchSheetPreview: false,
   },
 )
 

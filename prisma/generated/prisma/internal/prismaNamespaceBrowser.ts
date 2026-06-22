@@ -64,12 +64,14 @@ export const ModelName = {
   Dream: 'Dream',
   DreamRelation: 'DreamRelation',
   ExpressionMedia: 'ExpressionMedia',
+  ExpressionTransition: 'ExpressionTransition',
   Log: 'Log',
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
   MilestoneRecord: 'MilestoneRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
+  PitchSheet: 'PitchSheet',
   Prompt: 'Prompt',
   Reaction: 'Reaction',
   Resource: 'Resource',
@@ -427,6 +429,24 @@ export const ExpressionMediaScalarFieldEnum = {
 export type ExpressionMediaScalarFieldEnum = (typeof ExpressionMediaScalarFieldEnum)[keyof typeof ExpressionMediaScalarFieldEnum]
 
 
+export const ExpressionTransitionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  fromKey: 'fromKey',
+  toKey: 'toKey',
+  videoPath: 'videoPath',
+  fps: 'fps',
+  frames: 'frames',
+  botId: 'botId',
+  characterId: 'characterId',
+  isActive: 'isActive',
+  designer: 'designer'
+} as const
+
+export type ExpressionTransitionScalarFieldEnum = (typeof ExpressionTransitionScalarFieldEnum)[keyof typeof ExpressionTransitionScalarFieldEnum]
+
+
 export const LogScalarFieldEnum = {
   id: 'id',
   message: 'message',
@@ -524,6 +544,46 @@ export const NarratorThreadScalarFieldEnum = {
 } as const
 
 export type NarratorThreadScalarFieldEnum = (typeof NarratorThreadScalarFieldEnum)[keyof typeof NarratorThreadScalarFieldEnum]
+
+
+export const PitchSheetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  dreamId: 'dreamId',
+  layoutKey: 'layoutKey',
+  title: 'title',
+  subtitle: 'subtitle',
+  hook: 'hook',
+  pitch: 'pitch',
+  highlight1Label: 'highlight1Label',
+  highlight1Value: 'highlight1Value',
+  highlight1Icon: 'highlight1Icon',
+  highlight2Label: 'highlight2Label',
+  highlight2Value: 'highlight2Value',
+  highlight2Icon: 'highlight2Icon',
+  highlight3Label: 'highlight3Label',
+  highlight3Value: 'highlight3Value',
+  highlight3Icon: 'highlight3Icon',
+  detail1Label: 'detail1Label',
+  detail1Body: 'detail1Body',
+  detail2Label: 'detail2Label',
+  detail2Body: 'detail2Body',
+  detail3Label: 'detail3Label',
+  detail3Body: 'detail3Body',
+  imagePath: 'imagePath',
+  artImageId: 'artImageId',
+  icon: 'icon',
+  colorTheme: 'colorTheme',
+  extraData: 'extraData',
+  userId: 'userId',
+  isPublic: 'isPublic',
+  isActive: 'isActive',
+  isMature: 'isMature',
+  designer: 'designer'
+} as const
+
+export type PitchSheetScalarFieldEnum = (typeof PitchSheetScalarFieldEnum)[keyof typeof PitchSheetScalarFieldEnum]
 
 
 export const PromptScalarFieldEnum = {
@@ -1077,6 +1137,16 @@ export const ExpressionMediaOrderByRelevanceFieldEnum = {
 export type ExpressionMediaOrderByRelevanceFieldEnum = (typeof ExpressionMediaOrderByRelevanceFieldEnum)[keyof typeof ExpressionMediaOrderByRelevanceFieldEnum]
 
 
+export const ExpressionTransitionOrderByRelevanceFieldEnum = {
+  fromKey: 'fromKey',
+  toKey: 'toKey',
+  videoPath: 'videoPath',
+  designer: 'designer'
+} as const
+
+export type ExpressionTransitionOrderByRelevanceFieldEnum = (typeof ExpressionTransitionOrderByRelevanceFieldEnum)[keyof typeof ExpressionTransitionOrderByRelevanceFieldEnum]
+
+
 export const LogOrderByRelevanceFieldEnum = {
   message: 'message',
   username: 'username'
@@ -1136,6 +1206,36 @@ export const NarratorThreadOrderByRelevanceFieldEnum = {
 } as const
 
 export type NarratorThreadOrderByRelevanceFieldEnum = (typeof NarratorThreadOrderByRelevanceFieldEnum)[keyof typeof NarratorThreadOrderByRelevanceFieldEnum]
+
+
+export const PitchSheetOrderByRelevanceFieldEnum = {
+  layoutKey: 'layoutKey',
+  title: 'title',
+  subtitle: 'subtitle',
+  hook: 'hook',
+  pitch: 'pitch',
+  highlight1Label: 'highlight1Label',
+  highlight1Value: 'highlight1Value',
+  highlight1Icon: 'highlight1Icon',
+  highlight2Label: 'highlight2Label',
+  highlight2Value: 'highlight2Value',
+  highlight2Icon: 'highlight2Icon',
+  highlight3Label: 'highlight3Label',
+  highlight3Value: 'highlight3Value',
+  highlight3Icon: 'highlight3Icon',
+  detail1Label: 'detail1Label',
+  detail1Body: 'detail1Body',
+  detail2Label: 'detail2Label',
+  detail2Body: 'detail2Body',
+  detail3Label: 'detail3Label',
+  detail3Body: 'detail3Body',
+  imagePath: 'imagePath',
+  icon: 'icon',
+  colorTheme: 'colorTheme',
+  designer: 'designer'
+} as const
+
+export type PitchSheetOrderByRelevanceFieldEnum = (typeof PitchSheetOrderByRelevanceFieldEnum)[keyof typeof PitchSheetOrderByRelevanceFieldEnum]
 
 
 export const PromptOrderByRelevanceFieldEnum = {

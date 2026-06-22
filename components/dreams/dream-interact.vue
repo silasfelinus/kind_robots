@@ -306,8 +306,8 @@
             <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <h2 class="font-black">Dream Assets</h2>
               <p class="mt-1 text-sm text-base-content/60">
-                Cast, rewards, scenario hooks, and generated art that orbit this
-                Dream.
+                Characters, scenarios, rewards, and generated art that orbit
+                this Dream.
               </p>
             </section>
 
@@ -316,6 +316,13 @@
               view-mode="grid"
               :show-refresh="false"
             />
+
+            <dream-list
+              list-type="scenarios"
+              view-mode="grid"
+              :show-refresh="false"
+            />
+
             <dream-list
               list-type="items"
               view-mode="grid"
@@ -433,16 +440,16 @@ const serverStore = useServerStore()
 const userStore = useUserStore()
 
 const message = ref('')
-const activePanel = ref<PanelKey>('chat')
+const activePanel = ref<PanelKey>('assets')
 const chatIsPublic = ref(true)
 const artPrompt = ref('')
 const isGeneratingArt = ref(false)
 const chatScrollRef = ref<HTMLElement | null>(null)
 
 const panels: { key: PanelKey; label: string; icon: string }[] = [
-  { key: 'chat', label: 'Chat', icon: 'kind-icon:chat' },
-  { key: 'art', label: 'Art', icon: 'kind-icon:image' },
   { key: 'assets', label: 'Assets', icon: 'kind-icon:inventory' },
+  { key: 'art', label: 'Art', icon: 'kind-icon:image' },
+  { key: 'chat', label: 'Chat', icon: 'kind-icon:chat' },
 ]
 
 const dreamTitle = computed(() => {

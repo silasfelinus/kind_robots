@@ -25,7 +25,113 @@
     </header>
 
     <div class="min-h-0 flex-1 overflow-y-auto p-3">
-      <div v-if="entries.length" :class="listLayoutClass">
+      <!-- Characters → character-card -->
+      <div v-if="listType === 'cast'" :class="hasCast ? cardGridClass : ''">
+        <template v-if="hasCast">
+          <character-card
+            v-for="character in dreamStore.selectedDreamCast"
+            :key="`character-${character.id}`"
+            :character="character"
+            compact
+            :show-reaction="false"
+            :show-description="false"
+            :selected="character.id === selectedCharacterId"
+            @edit="emit('edit-character', $event)"
+            @delete="emit('delete-character', $event)"
+          />
+        </template>
+
+        <div v-else :class="emptyClass">
+          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <div>
+            <p class="font-black">{{ emptyTitle }}</p>
+            <p class="mt-1">{{ emptyMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenarios → scenario-card -->
+      <div
+        v-else-if="listType === 'scenarios'"
+        :class="hasScenarios ? cardGridClass : ''"
+      >
+        <template v-if="hasScenarios">
+          <scenario-card
+            v-for="scenario in scenarioList"
+            :key="`scenario-${scenario.id}`"
+            :scenario="scenario"
+            compact
+            :show-reaction="false"
+            :show-description="false"
+            :selected="scenario.id === selectedScenarioId"
+            @edit="emit('edit-scenario', $event)"
+            @delete="emit('delete-scenario', $event)"
+          />
+        </template>
+
+        <div v-else :class="emptyClass">
+          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <div>
+            <p class="font-black">{{ emptyTitle }}</p>
+            <p class="mt-1">{{ emptyMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rewards & items → reward-card -->
+      <div
+        v-else-if="listType === 'items'"
+        :class="hasItems ? cardGridClass : ''"
+      >
+        <template v-if="hasItems">
+          <reward-card
+            v-for="reward in dreamStore.selectedDreamItems"
+            :key="`reward-${reward.id}`"
+            :reward="reward"
+            compact
+            :show-reaction="false"
+            @edit="emit('edit-reward', $event)"
+            @delete="emit('delete-reward', $event)"
+          />
+        </template>
+
+        <div v-else :class="emptyClass">
+          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <div>
+            <p class="font-black">{{ emptyTitle }}</p>
+            <p class="mt-1">{{ emptyMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Art → image-card (robust image loading) -->
+      <div v-else-if="listType === 'art'" :class="hasArt ? cardGridClass : ''">
+        <template v-if="hasArt">
+          <image-card
+            v-for="art in artList"
+            :key="`art-${art.id}`"
+            :art-image="art"
+            size="sm"
+            :show-actions="false"
+            :show-meta="false"
+            :show-reaction="false"
+            :show-select-button="selectable"
+            :selected="art.id === selectedArtImageId"
+            @select="onSelectArt"
+          />
+        </template>
+
+        <div v-else :class="emptyClass">
+          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <div>
+            <p class="font-black">{{ emptyTitle }}</p>
+            <p class="mt-1">{{ emptyMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chats → compact entry rows -->
+      <div v-else-if="entries.length" :class="listLayoutClass">
         <article
           v-for="entry in entries"
           :key="entry.key"
@@ -66,10 +172,7 @@
         </article>
       </div>
 
-      <div
-        v-else
-        class="flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/50"
-      >
+      <div v-else :class="emptyClass">
         <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
         <div>
           <p class="font-black">{{ emptyTitle }}</p>
@@ -82,9 +185,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
+import type { Scenario } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '@/stores/artStore'
 import { useDreamStore } from '@/stores/dreamStore'
 
-type DreamListType = 'cast' | 'items' | 'art' | 'chats'
+type DreamListType = 'cast' | 'scenarios' | 'items' | 'art' | 'chats'
 type ViewMode = 'compact' | 'grid'
 
 type ListEntry = {
@@ -103,14 +208,32 @@ const props = withDefaults(
     viewMode?: ViewMode
     autoLoad?: boolean
     showRefresh?: boolean
+    selectable?: boolean
+    selectedArtImageId?: number | null
+    selectedCharacterId?: number | null
+    selectedScenarioId?: number | null
   }>(),
   {
     listType: 'chats',
     viewMode: 'compact',
     autoLoad: true,
     showRefresh: true,
+    selectable: false,
+    selectedArtImageId: null,
+    selectedCharacterId: null,
+    selectedScenarioId: null,
   },
 )
+
+const emit = defineEmits<{
+  (event: 'select-art', artImage: ArtImage): void
+  (event: 'edit-character', id: number): void
+  (event: 'delete-character', id: number): void
+  (event: 'edit-scenario', id: number): void
+  (event: 'delete-scenario', id: number): void
+  (event: 'edit-reward', id: number): void
+  (event: 'delete-reward', id: number): void
+}>()
 
 const dreamStore = useDreamStore()
 
@@ -120,7 +243,8 @@ const isLoading = computed(() => {
 })
 
 const title = computed(() => {
-  if (props.listType === 'cast') return 'Cast'
+  if (props.listType === 'cast') return 'Characters'
+  if (props.listType === 'scenarios') return 'Scenarios'
   if (props.listType === 'items') return 'Rewards & Items'
   if (props.listType === 'art') return 'Dream Art'
   return 'Dream Chat'
@@ -130,6 +254,8 @@ const subtitle = computed(() => {
   if (!dreamStore.selectedDream) return 'Select a Dream first.'
   if (props.listType === 'cast')
     return 'Characters currently attached to this Dream.'
+  if (props.listType === 'scenarios')
+    return 'Story scenarios and adventures in this Dream.'
   if (props.listType === 'items')
     return 'Rewards, props, and objects in this Dream.'
   if (props.listType === 'art')
@@ -143,6 +269,7 @@ const refreshLabel = computed(() =>
 
 const emptyIcon = computed(() => {
   if (props.listType === 'cast') return 'kind-icon:user'
+  if (props.listType === 'scenarios') return 'kind-icon:map'
   if (props.listType === 'items') return 'kind-icon:gift'
   if (props.listType === 'art') return 'kind-icon:image'
   return 'kind-icon:chat'
@@ -150,6 +277,7 @@ const emptyIcon = computed(() => {
 
 const emptyTitle = computed(() => {
   if (props.listType === 'cast') return 'No cast yet'
+  if (props.listType === 'scenarios') return 'No scenarios yet'
   if (props.listType === 'items') return 'No items yet'
   if (props.listType === 'art') return 'No art linked'
   return 'No chat yet'
@@ -157,6 +285,8 @@ const emptyTitle = computed(() => {
 
 const emptyMessage = computed(() => {
   if (props.listType === 'cast') return 'Attach characters from Dream Interact.'
+  if (props.listType === 'scenarios')
+    return 'Attach or generate scenarios for this Dream.'
   if (props.listType === 'items')
     return 'Attach rewards or story objects from Dream Interact.'
   if (props.listType === 'art')
@@ -164,90 +294,38 @@ const emptyMessage = computed(() => {
   return 'Start a public or private Dream chat.'
 })
 
+const emptyClass =
+  'flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/50'
+
+const cardGridClass = 'grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3'
+
 const listLayoutClass = computed(() => {
   return props.viewMode === 'grid'
     ? 'grid grid-cols-1 gap-3 md:grid-cols-2'
     : 'grid gap-3'
 })
 
-const entries = computed<ListEntry[]>(() => {
-  if (props.listType === 'cast') return castEntries.value
-  if (props.listType === 'items') return itemEntries.value
-  if (props.listType === 'art') return artEntries.value
-  return chatEntries.value
+const hasCast = computed(() => dreamStore.selectedDreamCast.length > 0)
+const hasItems = computed(() => dreamStore.selectedDreamItems.length > 0)
+
+const scenarioList = computed<Scenario[]>(() => {
+  const dream = dreamStore.selectedDream
+  if (!dream) return []
+  if (Array.isArray(dream.Scenarios)) return dream.Scenarios
+  return dream.Scenario ? [dream.Scenario] : []
 })
 
-const castEntries = computed<ListEntry[]>(() => {
-  return dreamStore.selectedDreamCast.map((character) => {
-    const record = asRecord(character)
-    const id = readId(record)
+const hasScenarios = computed(() => scenarioList.value.length > 0)
 
-    return {
-      key: `character-${id}`,
-      title: readString(record, ['name', 'title']) || `Character #${id}`,
-      body:
-        readString(record, [
-          'backstory',
-          'description',
-          'personality',
-          'flavorText',
-          'artPrompt',
-        ]) || 'No character notes yet.',
-      icon: readString(record, ['icon']) || 'kind-icon:user',
-      image: readImage(record),
-      meta: readString(record, ['species', 'class', 'gender']),
-      badge: readBool(record, 'isPublic') === false ? 'Private' : undefined,
-    }
-  })
+const artList = computed<ArtImage[]>(() => {
+  return (dreamStore.selectedDreamCollectionArt as ArtImage[]).filter(
+    (art) => Boolean(art) && Number.isInteger((art as { id?: number }).id),
+  )
 })
 
-const itemEntries = computed<ListEntry[]>(() => {
-  return dreamStore.selectedDreamItems.map((reward) => {
-    const record = asRecord(reward)
-    const id = readId(record)
+const hasArt = computed(() => artList.value.length > 0)
 
-    return {
-      key: `reward-${id}`,
-      title: readString(record, ['name', 'title', 'label']) || `Reward #${id}`,
-      body:
-        readString(record, [
-          'description',
-          'flavorText',
-          'power',
-          'text',
-          'artPrompt',
-        ]) || 'No reward notes yet.',
-      icon: readString(record, ['icon']) || 'kind-icon:gift',
-      image: readImage(record),
-      meta: readString(record, ['collection']),
-      badge: readString(record, ['rarity', 'rewardType', 'type']),
-    }
-  })
-})
-
-const artEntries = computed<ListEntry[]>(() => {
-  return dreamStore.selectedDreamCollectionArt.map((art, index) => {
-    const record = asRecord(art)
-    const id = readId(record, index + 1)
-
-    return {
-      key: `art-${id}`,
-      title: readString(record, ['title', 'name']) || `Art #${id}`,
-      body:
-        readString(record, [
-          'promptString',
-          'prompt',
-          'description',
-          'artPrompt',
-          'imagePath',
-        ]) || 'No art prompt saved.',
-      icon: readString(record, ['icon']) || 'kind-icon:image',
-      image: readImage(record),
-      meta: readString(record, ['designer', 'serverName', 'model']),
-      badge: readBool(record, 'isMature') ? 'Mature' : undefined,
-    }
-  })
-})
+const entries = computed<ListEntry[]>(() => chatEntries.value)
 
 const chatEntries = computed<ListEntry[]>(() => {
   return dreamStore.selectedDreamChats.map((chat) => ({
@@ -278,6 +356,10 @@ watch(
   },
 )
 
+function onSelectArt(artImage: ArtImage) {
+  emit('select-art', artImage)
+}
+
 async function refreshList() {
   if (props.listType === 'chats') {
     await loadChats()
@@ -292,43 +374,6 @@ async function refreshList() {
 async function loadChats() {
   if (!dreamStore.selectedDreamId) return
   await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
-}
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === 'object'
-    ? (value as Record<string, unknown>)
-    : {}
-}
-
-function readId(record: Record<string, unknown>, fallback = 0) {
-  const id = Number(record.id)
-  return Number.isInteger(id) && id > 0 ? id : fallback
-}
-
-function readString(record: Record<string, unknown>, keys: string[]) {
-  for (const key of keys) {
-    const value = record[key]
-    if (typeof value === 'string' && value.trim()) return value.trim()
-    if (typeof value === 'number' && Number.isFinite(value))
-      return String(value)
-  }
-
-  return undefined
-}
-
-function readBool(record: Record<string, unknown>, key: string) {
-  return typeof record[key] === 'boolean' ? record[key] : undefined
-}
-
-function readImage(record: Record<string, unknown>) {
-  return readString(record, [
-    'imagePath',
-    'avatarImage',
-    'fileName',
-    'path',
-    'thumbnailPath',
-    'thumbnailData',
-  ])
 }
 
 function formatChatMeta(

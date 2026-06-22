@@ -114,11 +114,11 @@ watch(
 }
 
 .butterfly-layer--overlay {
-  z-index: 84;
+  z-index: 50;
 }
 
 .butterfly-layer--released {
-  z-index: 5;
+  z-index: 50;
 }
 
 .butterfly-layer {
@@ -127,7 +127,6 @@ watch(
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  transition: z-index 0s linear 0.2s;
   contain: layout paint style;
   transform: translateZ(0);
 }

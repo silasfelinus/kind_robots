@@ -93,7 +93,9 @@
       v-else
       class="flex min-h-56 flex-1 flex-col justify-end bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3"
     >
-      <h3 class="line-clamp-2 text-lg font-black leading-tight text-base-content">
+      <h3
+        class="line-clamp-2 text-lg font-black leading-tight text-base-content"
+      >
         {{ dreamTitle }}
       </h3>
 
@@ -143,9 +145,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { DreamWithRelations } from '@/stores/dreamStore'
+import { useArtStore } from '@/stores/artStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 
 const props = withDefaults(
   defineProps<{
@@ -189,6 +193,43 @@ const dreamTitle = computed(() => {
   return props.dream.title || `Dream ${props.dream.id}`
 })
 
+const runtimeConfig = useRuntimeConfig()
+const artStore = useArtStore()
+const collectionStore = useCollectionStore()
+
+// An ArtImage we lazily fetch when the Dream only carries an artImageId
+// (no hydrated ArtImage relation).
+const fetchedPrimaryArt = ref<ArtImage | null>(null)
+
+const appUrl = computed(() => {
+  const configured =
+    runtimeConfig.public?.appUrl ||
+    runtimeConfig.public?.APP_URL ||
+    runtimeConfig.public?.siteUrl ||
+    runtimeConfig.public?.SITE_URL ||
+    ''
+  if (typeof configured === 'string' && configured.trim()) {
+    return configured.trim().replace(/\/+$/, '')
+  }
+  if (import.meta.client && window.location.origin) {
+    return window.location.origin.replace(/\/+$/, '')
+  }
+  return ''
+})
+
+// All collections attached to the Dream (primary + many-relation).
+const dreamCollectionIds = computed<number[]>(() => {
+  const ids = new Set<number>()
+  if (props.dream.artCollectionId) ids.add(Number(props.dream.artCollectionId))
+  if (props.dream.ArtCollection?.id)
+    ids.add(Number(props.dream.ArtCollection.id))
+  for (const collection of props.dream.ArtCollections ?? []) {
+    if (collection?.id) ids.add(Number(collection.id))
+  }
+  return Array.from(ids).filter((id) => Number.isInteger(id) && id > 0)
+})
+
+// Images already attached to the Dream or its collections (hydrated payload).
 const collectionArt = computed<Partial<ArtImage>[]>(() => {
   return [
     ...(props.dream.ArtImages ?? []),
@@ -199,23 +240,175 @@ const collectionArt = computed<Partial<ArtImage>[]>(() => {
   ]
 })
 
-const previewImage = computed(() => {
-  const firstCollectionImage = collectionArt.value.find(
-    (art) => art.imagePath || art.path || art.fileName,
-  )
+// Pull collection images out of the collection store cache too, so a Dream that
+// only carries an artCollectionId can still show a cover.
+const collectionStoreArt = computed<Partial<ArtImage>[]>(() => {
+  const seen = new Map<number, Partial<ArtImage>>()
+  for (const collectionId of dreamCollectionIds.value) {
+    const images =
+      (collectionStore.getCollectionImages?.(collectionId) as
+        | Partial<ArtImage>[]
+        | undefined) ?? []
+    for (const image of images) {
+      if (image?.id) seen.set(image.id, image)
+    }
+  }
+  return Array.from(seen.values())
+})
 
+// The full pool of candidate collection images (payload + store cache).
+const collectionImagePool = computed<Partial<ArtImage>[]>(() => {
+  const seen = new Map<number, Partial<ArtImage>>()
+  for (const image of [...collectionArt.value, ...collectionStoreArt.value]) {
+    if (image?.id) seen.set(image.id, image)
+  }
+  return Array.from(seen.values())
+})
+
+// Bumping this re-rolls the random collection cover. It ticks on mount and
+// whenever the Dream (or its available collection art) changes, so each time
+// the card appears it can show a different image from the collection.
+const shuffleTick = ref(0)
+
+// A random collection image, reshuffled whenever shuffleTick changes.
+const randomCollectionImage = computed<Partial<ArtImage> | null>(() => {
+  // Touch shuffleTick so this recomputes when we ask for a new roll.
+  void shuffleTick.value
+  const pool = collectionImagePool.value.filter((art) => imageToSrc(art))
+  if (!pool.length) return null
+  const index = Math.floor(Math.random() * pool.length)
+  return pool[index] ?? pool[0] ?? null
+})
+
+// The chosen ArtImage record for the cover, in priority order.
+const coverArt = computed<Partial<ArtImage> | null>(() => {
+  // 1) Hydrated primary relation.
+  if (props.dream.ArtImage && imageToSrc(props.dream.ArtImage))
+    return props.dream.ArtImage
+  // 2) Lazily-fetched primary by artImageId.
+  if (fetchedPrimaryArt.value && imageToSrc(fetchedPrimaryArt.value))
+    return fetchedPrimaryArt.value
+  // 3) No explicit image, but a collection is attached → random from collection.
+  if (!props.dream.artImageId && randomCollectionImage.value)
+    return randomCollectionImage.value
+  // 4) Any attached/collection image as a last resort.
+  const firstUsable = collectionImagePool.value.find((art) => imageToSrc(art))
+  return firstUsable ?? null
+})
+
+const previewImage = computed(() => {
+  // A resolved ArtImage (primary relation or fetched by artImageId, then a
+  // random collection image) takes precedence over loose path strings.
+  const fromArt = imageToSrc(coverArt.value)
+  if (fromArt) return fromArt
+
+  // Fall back to explicit string overrides on the Dream.
   return (
-    props.dream.imagePath ||
-    props.dream.highlightImage ||
-    props.dream.ArtImage?.imagePath ||
-    props.dream.ArtImage?.path ||
-    props.dream.ArtImage?.fileName ||
-    firstCollectionImage?.imagePath ||
-    firstCollectionImage?.path ||
-    firstCollectionImage?.fileName ||
+    normalizeImagePath(props.dream.imagePath) ||
+    normalizeImagePath(props.dream.highlightImage) ||
     ''
   )
 })
+
+// Build a usable <img> src from an ArtImage: base64 data first, then path.
+function imageToSrc(image?: Partial<ArtImage> | null): string {
+  if (!image) return ''
+
+  const data = (image as { imageData?: string | null }).imageData
+  const thumb = (image as { thumbnailData?: string | null }).thumbnailData
+  const fileType = (image as { fileType?: string | null }).fileType || 'png'
+
+  if (thumb && !isProbablyPath(thumb)) {
+    return `data:image/${fileType};base64,${thumb}`
+  }
+  if (data && !isProbablyPath(data)) {
+    return `data:image/${fileType};base64,${data}`
+  }
+
+  const rawPath =
+    image.imagePath ||
+    (image as { path?: string | null }).path ||
+    image.fileName ||
+    ''
+  return normalizeImagePath(rawPath)
+}
+
+async function loadPrimaryArt() {
+  fetchedPrimaryArt.value = null
+
+  const id = Number(props.dream.artImageId)
+  if (!Number.isInteger(id) || id <= 0) return
+
+  // Already hydrated with a usable image — no fetch needed.
+  if (props.dream.ArtImage?.id === id && imageToSrc(props.dream.ArtImage))
+    return
+
+  try {
+    const fetched = await artStore.getArtImageById(id, {
+      includeImageData: true,
+      includeThumbnailData: true,
+    })
+    fetchedPrimaryArt.value = (fetched as ArtImage) ?? null
+  } catch {
+    fetchedPrimaryArt.value = null
+  }
+}
+
+watch(
+  () => [props.dream.id, props.dream.artImageId],
+  () => {
+    void loadPrimaryArt()
+    shuffleTick.value += 1
+  },
+  { immediate: true },
+)
+
+// Re-roll the random cover once the collection art becomes available.
+watch(
+  () => collectionImagePool.value.length,
+  () => {
+    shuffleTick.value += 1
+  },
+)
+
+function isProbablyPath(value: string) {
+  const trimmed = value.trim()
+  return (
+    trimmed.startsWith('/') ||
+    trimmed.startsWith('./') ||
+    trimmed.startsWith('../') ||
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('images/') ||
+    trimmed.startsWith('public/') ||
+    /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(trimmed)
+  )
+}
+
+function normalizeImagePath(value?: string | null) {
+  if (!value) return ''
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === 'UNDEFINED' || trimmed === 'undefined') return ''
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('data:image/')
+  )
+    return trimmed
+
+  const cleanPath = trimmed
+    .replace(/^file:\/\//, '')
+    .replace(/^\/mnt\/data\/+/, '')
+    .replace(/^\/?(app\/)?public\/+/, '')
+
+  let withImages = cleanPath
+  if (cleanPath.startsWith('/images/')) withImages = cleanPath
+  else if (cleanPath.startsWith('images/')) withImages = `/${cleanPath}`
+  else if (cleanPath.startsWith('/')) withImages = `/images${cleanPath}`
+  else withImages = `/images/${cleanPath}`
+
+  return appUrl.value ? `${appUrl.value}${withImages}` : withImages
+}
 
 const scenarioCount = computed(() => {
   return (

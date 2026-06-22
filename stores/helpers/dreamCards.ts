@@ -19,20 +19,15 @@ export type DreamTypeChoice = BuilderChoice & {
 }
 
 const DREAM_TYPE_SUBTEXT: Record<DreamType, string> = {
-  ARTDREAM:
-    'A visual seed for image generation, mood boards, covers, and weird little art goblins.',
+  ART: 'A visual seed for image generation, mood boards, covers, and weird little art goblins.',
   BRAINSTORM: 'A container for generated idea lists and remix fodder.',
-  WEIRDLANDIA: 'A strange setting, rule, creature, phrase, or reality wrinkle.',
-  RANDOMLIST: 'A pipe-delimited list used as a random source.',
-  TITLE: 'A name bank for title storms and naming passes.',
-  VIBE: 'A mood, tone, aura, or emotional weather pattern.',
-  BOT: 'A bot concept, voice, role, or personality seed.',
-  INSPIRATION: 'Reference material, creative spark, or outside influence.',
+  PROMPTBOT: 'A bot concept, voice, role, or personality seed.',
+  NARRATOR:
+    'A storytelling voice, guide, host, commentator, or suspiciously opinionated scene gremlin.',
   CHARACTER:
     'A person, creature, hero, villain, or emotionally suspicious raccoon.',
   REWARD: 'An item, prize, artifact, badge, loot drop, or shiny temptation.',
   SCENARIO: 'A situation with pressure, conflict, choices, and consequences.',
-  TEXT: 'A writing prompt, prose fragment, instruction, or reusable text block.',
   LOCATION:
     'A place where story can happen: physical, emotional, cosmic, or deeply cursed.',
   PITCH:
@@ -60,7 +55,7 @@ export const DREAM_CARDS: BuilderCard[] = [
     heroImage: '/images/dreams/type.webp',
     tagline: 'One model, many jobs. Pick the job before feeding the gremlin.',
     narrative:
-      'Dreams now cover the old pitch duties: art seeds, title banks, random lists, brainstorms, locations, scenarios, characters, rewards, bots, and plain text sparks. The type tells the builder how to treat the seed.',
+      'Dreams cover the old pitch duties: art seeds, brainstorms, locations, scenarios, characters, rewards, prompt bots, narrators, genres, and reusable sparks. The type tells the builder how to treat the seed.',
     required: true,
     restoresFields: ['dreamType'],
     steps: [
@@ -126,7 +121,7 @@ export const DREAM_CARDS: BuilderCard[] = [
     heroImage: '/images/dreams/description.webp',
     tagline: 'Context, boundaries, useful texture.',
     narrative:
-      'The description explains how to use the seed. For a location, this is place texture. For a bot, it is behavior. For a reward, it is what makes the object tempting. For a random list, it explains the pattern.',
+      'The description explains how to use the seed. For a location, this is place texture. For a bot or narrator, it is behavior and voice. For a reward, it is what makes the object tempting. For a brainstorm, it explains the pattern.',
     required: false,
     restoresFields: ['description', 'flavorText'],
     steps: [
@@ -165,9 +160,9 @@ export const DREAM_CARDS: BuilderCard[] = [
     flourish: '≋',
     deckImage: '/images/dreams/examples.webp',
     heroImage: '/images/dreams/examples.webp',
-    tagline: 'For random lists, brainstorms, title storms, and remix banks.',
+    tagline: 'For brainstorms, title storms, remix banks, and genre sparks.',
     narrative:
-      'Examples are pipe-delimited reusable entries. This preserves the useful part of the pitch helper: random entries, title storms, brainstorm output, and lightweight idea banks.',
+      'Examples are pipe-delimited reusable entries. This preserves the useful part of the old pitch helper: random entries, title storms, brainstorm output, and lightweight idea banks.',
     required: false,
     restoresFields: ['examples'],
     steps: [
@@ -175,7 +170,7 @@ export const DREAM_CARDS: BuilderCard[] = [
         key: 'dreamExamples',
         title: 'Examples',
         narrative:
-          'Add examples separated by pipes. For RANDOMLIST and TITLE dreams, these become direct source material.',
+          'Add examples separated by pipes. For BRAINSTORM and GENRE dreams, these become direct source material.',
         inputType: 'long',
         field: 'examples',
         placeholder:
@@ -221,9 +216,15 @@ export const DREAM_CARDS: BuilderCard[] = [
     heroImage: '/images/dreams/art.webp',
     tagline: 'Optional cover art or generation prompt.',
     narrative:
-      'Art prompt generation now belongs here too. Use the seed, type, description, and flavor text to build a visual representation. Then attach the generated image as the Dream cover.',
+      'Art prompt generation belongs here too. Use the seed, type, description, and flavor text to build a visual representation. Then attach the generated image as the Dream cover.',
     required: false,
-    restoresFields: ['artPrompt', 'highlightImage', 'artImageId'],
+    restoresFields: [
+      'artPrompt',
+      'imagePath',
+      'highlightImage',
+      'artImageId',
+      'artCollectionId',
+    ],
     unlockCondition: 'coreComplete',
     steps: [
       {

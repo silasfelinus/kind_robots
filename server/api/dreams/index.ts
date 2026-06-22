@@ -20,18 +20,11 @@ type DreamAccessInput = {
 }
 
 export const dreamTypes: DreamType[] = [
-  'ARTDREAM',
+  'ART',
   'BRAINSTORM',
-  'WEIRDLANDIA',
-  'RANDOMLIST',
-  'TITLE',
-  'VIBE',
-  'BOT',
-  'INSPIRATION',
   'CHARACTER',
   'REWARD',
   'SCENARIO',
-  'TEXT',
   'LOCATION',
   'PITCH',
   'GENRE',
@@ -368,7 +361,7 @@ export function normalizeOptionalText(
 export function normalizeDreamType(value: unknown): DreamType {
   return dreamTypes.includes(value as DreamType)
     ? (value as DreamType)
-    : 'ARTDREAM'
+    : 'PITCH'
 }
 
 export function parseDreamType(value: unknown): DreamType | null {

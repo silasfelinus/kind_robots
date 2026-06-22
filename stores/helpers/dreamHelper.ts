@@ -1,23 +1,22 @@
 // /stores/helpers/dreamHelper.ts
-import type { CreationSource, Dream } from '~/prisma/generated/prisma/client'
+import type {
+  CreationSource,
+  Dream,
+  DreamType as PrismaDreamType,
+} from '~/prisma/generated/prisma/client'
 
 export const DREAM_TYPES = [
-  'ARTDREAM',
+  'ART',
   'BRAINSTORM',
-  'WEIRDLANDIA',
-  'RANDOMLIST',
-  'TITLE',
-  'VIBE',
-  'BOT',
-  'INSPIRATION',
+  'PROMPTBOT',
+  'NARRATOR',
   'CHARACTER',
   'REWARD',
   'SCENARIO',
-  'TEXT',
   'LOCATION',
   'PITCH',
   'GENRE',
-] as const
+] as const satisfies readonly PrismaDreamType[]
 
 export type DreamType = (typeof DREAM_TYPES)[number]
 
@@ -27,7 +26,7 @@ export const CREATION_SOURCES = [
   'HYBRID',
   'UPLOAD',
   'UNKNOWN',
-] as const
+] as const satisfies readonly CreationSource[]
 
 export type DreamCreationSource = (typeof CREATION_SOURCES)[number]
 
@@ -41,6 +40,32 @@ type LegacyPitchLike = Omit<
   artPrompt?: string | null
   designer?: string | null
   creationSource?: string | null
+}
+
+const LEGACY_DREAM_TYPE_MAP: Record<string, DreamType> = {
+  ARTDREAM: 'ART',
+  ARTPITCH: 'ART',
+  BOT: 'PROMPTBOT',
+  DREAM: 'LOCATION',
+  INSPIRATION: 'PITCH',
+  RANDOMLIST: 'BRAINSTORM',
+  TEXT: 'PITCH',
+  TITLE: 'BRAINSTORM',
+  VIBE: 'GENRE',
+  WEIRDLANDIA: 'LOCATION',
+}
+
+const DREAM_TYPE_LABELS: Record<DreamType, string> = {
+  ART: 'Art',
+  BRAINSTORM: 'Brainstorm',
+  PROMPTBOT: 'Prompt Bot',
+  NARRATOR: 'Narrator',
+  CHARACTER: 'Character',
+  REWARD: 'Reward',
+  SCENARIO: 'Scenario',
+  LOCATION: 'Location',
+  PITCH: 'Pitch',
+  GENRE: 'Genre',
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -64,13 +89,13 @@ function fallbackTitle(seed?: string | null): string {
 
 export function parseDreamType(value?: string | null): DreamType {
   const normalized = cleanString(value).toUpperCase()
+  const legacyType = LEGACY_DREAM_TYPE_MAP[normalized]
 
-  if (normalized === 'ARTPITCH') return 'ARTDREAM'
-  if (normalized === 'DREAM') return 'LOCATION'
+  if (legacyType) return legacyType
 
   return DREAM_TYPES.includes(normalized as DreamType)
     ? (normalized as DreamType)
-    : 'ARTDREAM'
+    : 'PITCH'
 }
 
 export function parseCreationSource(
@@ -86,10 +111,12 @@ export function parseCreationSource(
 export function normalizeDreamType<T extends Partial<Dream>>(dream: T): T {
   return {
     ...dream,
-    dreamType: parseDreamType(dream.dreamType as unknown as string),
+    dreamType: parseDreamType(
+      dream.dreamType as unknown as string,
+    ) as T['dreamType'],
     creationSource: parseCreationSource(
       dream.creationSource as unknown as string,
-    ) as CreationSource,
+    ) as T['creationSource'],
   }
 }
 
@@ -147,7 +174,7 @@ export function filterVisibleDreams<T extends Partial<Dream>>(
 export function randomEntry(dreamName: string, allDreams: Partial<Dream>[]) {
   const dream = allDreams.find((entry) => {
     return (
-      parseDreamType(entry.dreamType as string) === 'RANDOMLIST' &&
+      parseDreamType(entry.dreamType as string) === 'BRAINSTORM' &&
       entry.title?.toLowerCase() === dreamName.toLowerCase()
     )
   })
@@ -155,6 +182,7 @@ export function randomEntry(dreamName: string, allDreams: Partial<Dream>[]) {
   if (!dream?.examples) return dreamName
 
   const examples = extractExamples(dream.examples)
+
   return examples.length
     ? examples[Math.floor(Math.random() * examples.length)] || dreamName
     : dreamName
@@ -213,10 +241,7 @@ export function hasExamples(dream: Partial<Dream>): boolean {
 }
 
 export function dreamTypeLabel(type?: string | null): string {
-  return parseDreamType(type)
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+  return DREAM_TYPE_LABELS[parseDreamType(type)]
 }
 
 export function estimateTokenCount(text: string): number {

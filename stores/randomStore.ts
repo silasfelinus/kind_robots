@@ -29,7 +29,7 @@ type RandomListDream = Dream & {
 const isClient = typeof window !== 'undefined'
 
 function isRandomListDream(dream: Pick<Dream, 'dreamType'>): boolean {
-  return dream.dreamType === 'RANDOMLIST'
+  return dream.dreamType === 'BRAINSTORM'
 }
 
 function safeParseStringArray(value: unknown): string[] {
@@ -202,7 +202,7 @@ export const useRandomStore = defineStore('randomStore', () => {
       pitch: examplesJson,
       examples: examplesJson,
       description: 'User-created random list.',
-      dreamType: 'RANDOMLIST',
+      dreamType: 'BRAINSTORM',
       userId: userStore.userId,
       isPublic: true,
       isMature: false,
@@ -257,7 +257,7 @@ export const useRandomStore = defineStore('randomStore', () => {
     const body: Partial<RandomListDream> & Record<string, unknown> = {
       id: list.id,
       title: list.title,
-      dreamType: 'RANDOMLIST',
+      dreamType: 'PITCH',
       userId: list.userId ?? userStore.userId,
       isPublic: list.isPublic,
       isMature: list.isMature,

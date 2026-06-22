@@ -5,12 +5,11 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  let id: number
+  const id = Number(event.context.params?.id)
   let response
 
   try {
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid SocialPost ID. Must be a positive integer.',
@@ -19,14 +18,19 @@ export default defineEventHandler(async (event) => {
 
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
+
     const userId = user.id
 
     const item = await prisma.socialPost.findUnique({
       where: { id },
       select: { userId: true },
     })
+
     if (!item) {
       throw createError({
         statusCode: 404,
@@ -35,8 +39,8 @@ export default defineEventHandler(async (event) => {
     }
 
     if (user.Role === 'ADMIN' || item.userId === userId) {
-      // onDelete: Cascade on SocialTarget handles child rows.
       const deleted = await prisma.socialPost.delete({ where: { id } })
+
       return {
         success: true,
         message: `SocialPost with ID ${id} successfully deleted.`,
@@ -55,7 +59,11 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = handled.statusCode || 500
     response = {
       success: false,
-      message: handled.message || `Failed to delete SocialPost with ID ${id}.`,
+      message:
+        handled.message ||
+        (Number.isInteger(id) && id > 0
+          ? `Failed to delete SocialPost with ID ${id}.`
+          : 'Failed to delete SocialPost.'),
       statusCode: event.node.res.statusCode,
     }
   }

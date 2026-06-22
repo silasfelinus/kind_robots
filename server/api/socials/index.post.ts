@@ -29,15 +29,16 @@ export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
     const userId = user.id
 
     const body = await readBody<IncomingPost | IncomingPost[]>(event)
 
-    const buildCreate = (
-      entry: IncomingPost,
-    ): Prisma.SocialPostCreateInput => {
+    const buildCreate = (entry: IncomingPost): Prisma.SocialPostCreateInput => {
       const {
         title,
         body: postBody,
@@ -52,10 +53,16 @@ export default defineEventHandler(async (event) => {
       } = entry
 
       if (!title || typeof title !== 'string') {
-        throw createError({ statusCode: 400, message: 'The "title" field is required.' })
+        throw createError({
+          statusCode: 400,
+          message: 'The "title" field is required.',
+        })
       }
       if (!postBody || typeof postBody !== 'string') {
-        throw createError({ statusCode: 400, message: 'The "body" field is required.' })
+        throw createError({
+          statusCode: 400,
+          message: 'The "body" field is required.',
+        })
       }
 
       const uniquePlatforms = Array.from(new Set(platforms ?? []))
@@ -69,7 +76,7 @@ export default defineEventHandler(async (event) => {
         audience: audience ?? ('SOCIAL' as PostAudience),
         sourceType: sourceType ?? null,
         sourceId: sourceId ?? null,
-        designer: designer ?? user.username ?? null,
+        designer: designer ?? null,
         status: 'DRAFT',
         User: { connect: { id: userId } },
         targets: uniquePlatforms.length

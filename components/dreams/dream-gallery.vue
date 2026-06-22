@@ -388,6 +388,9 @@ const props = withDefaults(
     compact?: boolean
     autoLoad?: boolean
     openOnSelect?: boolean
+    showPitchSheetPreview?: boolean
+    showSheetToolbar?: boolean
+    autoLoadSheets?: boolean
   }>(),
   {
     variant: 'dashboard',

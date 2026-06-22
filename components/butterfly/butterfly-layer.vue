@@ -67,7 +67,7 @@ const showSwarm = computed(() => butterflyStore.showSwarm)
 const renderSwarm = ref(butterflyStore.showSwarm)
 const isFading = ref(false)
 
-let fadeTimer: ReturnType<typeof window.setTimeout> | null = null
+let fadeTimer: number | null = null
 
 const fadeDuration = 700
 

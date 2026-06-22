@@ -9,7 +9,7 @@ interface ApiResponse<T = any> {
 }
 
 type DreamType =
-  | 'ARTDREAM'
+  | 'ART'
   | 'BRAINSTORM'
   | 'WEIRDLANDIA'
   | 'RANDOMLIST'

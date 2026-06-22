@@ -32,7 +32,7 @@
     <Transition name="narrator-panel">
       <section
         v-if="isOpen"
-        class="pointer-events-auto absolute inset-y-0 right-0 flex w-full max-w-[100vw] min-w-0 flex-col overflow-hidden rounded-3xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
+        class="pointer-events-auto absolute inset-y-0 right-0 flex w-full max-w-[100vw] min-w-0 flex-col overflow-hidden rounded-2xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl sm:rounded-3xl"
       >
         <header
           class="relative shrink-0 overflow-hidden border-b border-base-300 bg-base-200/90 p-3"
@@ -137,6 +137,35 @@
           </div>
         </header>
 
+        <section class="shrink-0 border-b border-base-300 bg-base-200/45 p-3">
+          <button
+            type="button"
+            class="group relative flex h-[min(34dvh,16rem)] w-full items-center justify-center overflow-hidden rounded-3xl border border-primary/20 bg-base-100/70 shadow-inner"
+            :aria-label="`Play ${narratorName} reaction`"
+            @click="playReactionOnClick"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-80"
+            />
+
+            <img
+              v-if="narratorVideo"
+              :src="narratorVideo"
+              :alt="narratorName"
+              class="relative z-10 h-full w-full object-contain p-1 transition-transform duration-300 group-hover:scale-[1.02]"
+              loading="lazy"
+            />
+
+            <img
+              v-else
+              :src="narratorImage"
+              :alt="narratorName"
+              class="relative z-10 h-full w-full object-contain p-1 transition-transform duration-300 group-hover:scale-[1.02]"
+              loading="lazy"
+            />
+          </button>
+        </section>
+
         <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
           <section
             class="rounded-3xl border border-base-300 bg-base-200/80 p-3 shadow-inner"
@@ -231,12 +260,6 @@
               </div>
             </section>
 
-            <!--
-              CONSOLE WINDOW
-              Mood ring + chat log live together inside one framed console so
-              the narrator's "notes" read as a single stylish surface rather
-              than stacked loose cards.
-            -->
             <section
               v-if="
                 (showMoodRing && emotionOptions.length) ||
@@ -644,24 +667,12 @@
       </section>
     </Transition>
 
-    <!--
-      COLLAPSED CIRCLE
-      When the panel is closed, the narrator lives as a circular avatar docked
-      in the bottom-right corner. Tapping it opens the right sidebar. Clicking
-      plays a reaction without opening (matches the old portrait behavior).
-      Its footprint is --narrator-circle, which app.vue reserves on the right
-      so the footer + toggles never sit underneath it.
-    -->
     <Transition name="narrator-circle">
       <button
         v-if="!isOpen"
         type="button"
-        class="group pointer-events-auto absolute bottom-3 right-3 z-110 overflow-hidden rounded-full border-2 border-primary/40 bg-base-300 shadow-2xl transition-transform duration-300 hover:scale-105"
+        class="narrator-dock group pointer-events-auto absolute bottom-3 right-3 z-110 overflow-hidden rounded-3xl border-2 border-primary/40 bg-base-300/90 shadow-2xl transition-transform duration-300 hover:scale-105 md:rounded-full"
         :class="portraitFlipping ? 'is-portrait-flipping' : ''"
-        :style="{
-          height: 'var(--narrator-circle)',
-          width: 'var(--narrator-circle)',
-        }"
         :aria-expanded="isOpen"
         :aria-label="`Open ${narratorName}`"
         :title="narratorHoverTitle"
@@ -675,7 +686,7 @@
           v-if="narratorVideo"
           :src="narratorVideo"
           :alt="narratorName"
-          class="relative h-full w-full cursor-pointer object-cover"
+          class="narrator-dock-img relative h-full w-full cursor-pointer p-1"
           loading="lazy"
           @dblclick.stop="playReactionOnClick"
         />
@@ -683,7 +694,7 @@
           v-else
           :src="narratorImage"
           :alt="narratorName"
-          class="relative h-full w-full cursor-pointer object-cover"
+          class="narrator-dock-img relative h-full w-full cursor-pointer p-1"
           loading="lazy"
           @dblclick.stop="playReactionOnClick"
         />
@@ -715,11 +726,7 @@ import { useNarratorStore } from '@/stores/narratorStore'
 
 const props = withDefaults(
   defineProps<{
-    // Parent-controlled open state (right sidebar). The store's isOpen remains
-    // the internal source of truth; we two-way sync it with this prop so the
-    // parent can also drive width var changes.
     open?: boolean
-    // At xl the narrator may coexist with footer regions; below xl it doesn't.
     coexist?: boolean
   }>(),
   {
@@ -772,17 +779,9 @@ const {
 const chatLogRef = ref<HTMLElement | null>(null)
 
 const narratorDockVisible = computed(() => {
-  return Boolean(
-    shouldRender.value || narratorImage.value || narratorVideo.value,
-  )
+  return Boolean(shouldRender.value || narratorImage.value || narratorVideo.value)
 })
 
-// ---------------------------------------------------------------------------
-// Portrait card-spin
-// Mirrors the workspace-hand flip: whenever the displayed portrait or reaction
-// source changes (emotion swap, reaction loop, character change), spin the
-// frame once. Reduced-motion is honored in the stylesheet.
-// ---------------------------------------------------------------------------
 const portraitFlipping = ref(false)
 const PORTRAIT_FLIP_MS = 650
 let portraitFlipTimer: ReturnType<typeof setTimeout> | null = null
@@ -831,10 +830,6 @@ const {
   teardownLiveness,
 } = narratorStore
 
-// ── open ⇄ isOpen bridge ─────────────────────────────────────────────────────
-// The store's isOpen stays the internal source of truth (togglePanel, pin,
-// liveness, etc. all read it). We mirror the parent's `open` prop into it and
-// emit changes back up so app.vue can update --narrator-w.
 watch(
   () => props.open,
   (value) => {
@@ -905,6 +900,27 @@ function scrollChatToBottom() {
 </script>
 
 <style scoped>
+.narrator-dock {
+  height: min(32dvh, 12rem);
+  width: var(--narrator-circle);
+}
+
+.narrator-dock-img {
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .narrator-dock {
+    height: var(--narrator-circle);
+    width: var(--narrator-circle);
+  }
+
+  .narrator-dock-img {
+    object-fit: cover;
+    padding: 0;
+  }
+}
+
 .narrator-speech::after {
   position: absolute;
   right: -0.45rem;
@@ -946,7 +962,6 @@ function scrollChatToBottom() {
   animation-delay: 300ms;
 }
 
-/* Portrait card-spin — mirrors workspace-hand's flip keyframes. */
 .is-portrait-flipping {
   animation: narrator-portrait-spin 650ms cubic-bezier(0.4, 0.1, 0.2, 1);
   transform-style: preserve-3d;

@@ -1,6 +1,6 @@
 <!-- /components/content/navigation/workspace-header.vue -->
 <template>
-  <div class="relative z-90 shrink-0 overflow-visible">
+  <div class="relative z-40 shrink-0 overflow-visible">
     <!--
       COMPACT HEADER
       A single minimal row: small page image, tab dropdown, channel dropdown,
@@ -10,7 +10,7 @@
     <transition name="header-toggle">
       <header
         v-if="compact"
-        class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl bg-base-100 shadow-sm"
+        class="relative z-50 mb-3 shrink-0 overflow-visible rounded-2xl bg-base-100 shadow-sm"
       >
         <fx-region region="header" />
 
@@ -177,7 +177,7 @@
     <transition name="header-slide">
       <header
         v-if="!compact"
-        class="relative z-90 mb-3 shrink-0 overflow-visible rounded-2xl bg-base-100 shadow-sm"
+        class="relative z-40 mb-3 shrink-0 overflow-visible rounded-2xl bg-base-100 shadow-sm"
       >
         <fx-region region="header" />
 
@@ -281,7 +281,7 @@
 
             <ul
               tabindex="0"
-              class="menu dropdown-content z-110 mt-2 max-h-80 w-[min(22rem,calc(100vw-2rem))] flex-nowrap overflow-y-auto rounded-2xl bg-base-100 p-2 shadow-xl"
+              class="menu dropdown-content z-40 mt-2 max-h-80 w-[min(22rem,calc(100vw-2rem))] flex-nowrap overflow-y-auto rounded-2xl bg-base-100 p-2 shadow-xl"
             >
               <li v-for="tab in resolvedTabs" :key="tab.key">
                 <button

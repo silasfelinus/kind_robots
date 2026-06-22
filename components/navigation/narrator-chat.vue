@@ -35,7 +35,9 @@
         </div>
 
         <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-black leading-tight text-base-content">
+          <p
+            class="truncate text-sm font-black leading-tight text-base-content"
+          >
             {{ narratorName }}
           </p>
 
@@ -187,15 +189,17 @@ const safeFrameImage = computed(() => {
 
 const hasChatFrame = computed(() => Boolean(safeFrameImage.value))
 
-const narratorFrameStyle = computed<Record<string, string>>(() => {
-  const frameImage = safeFrameImage.value
+const narratorFrameStyle = computed<Record<string, string>>(
+  (): Record<string, string> => {
+    const frameImage = safeFrameImage.value
 
-  if (!frameImage) return {}
+    if (!frameImage) return {}
 
-  return {
-    '--narrator-chat-frame': `url("${frameImage}")`,
-  }
-})
+    return {
+      '--narrator-chat-frame': `url("${frameImage}")`,
+    }
+  },
+)
 
 const visibleMusings = computed(() => {
   if (musingHistory.value.length) return musingHistory.value
@@ -225,7 +229,10 @@ function normalizeFramePath(input: string | null | undefined): string | null {
   return trimmed.replaceAll('"', '\\"')
 }
 
-function addMusing(message: string | null | undefined, label = currentEmotionLabel.value): void {
+function addMusing(
+  message: string | null | undefined,
+  label = currentEmotionLabel.value,
+): void {
   const trimmed = message?.trim()
   if (!trimmed) return
 
@@ -250,34 +257,28 @@ function scrollToBottom(): void {
   el.scrollTop = el.scrollHeight
 }
 
-watch(
-  activeBubble,
-  async (message) => {
-    if (!bubblesEnabled.value) return
+watch(activeBubble, async (message) => {
+  if (!bubblesEnabled.value) return
 
-    addMusing(message, currentEmotionLabel.value)
-    clearBubble()
+  addMusing(message, currentEmotionLabel.value)
+  clearBubble()
 
-    await nextTick()
-    scrollToBottom()
-  },
-)
+  await nextTick()
+  scrollToBottom()
+})
 
-watch(
-  currentEmotionLabel,
-  async (label, previousLabel) => {
-    if (!label || label === previousLabel) return
+watch(currentEmotionLabel, async (label, previousLabel) => {
+  if (!label || label === previousLabel) return
 
-    const rowMessage =
-      currentEmotionRow.value?.message ||
-      `Mood shifted to ${label.toLowerCase()}.`
+  const rowMessage =
+    currentEmotionRow.value?.message ||
+    `Mood shifted to ${label.toLowerCase()}.`
 
-    addMusing(rowMessage, label)
+  addMusing(rowMessage, label)
 
-    await nextTick()
-    scrollToBottom()
-  },
-)
+  await nextTick()
+  scrollToBottom()
+})
 
 watch(
   () => visibleMusings.value.length,

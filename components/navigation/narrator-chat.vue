@@ -35,9 +35,7 @@
         </div>
 
         <div class="min-w-0 flex-1">
-          <p
-            class="truncate text-sm font-black leading-tight text-base-content"
-          >
+          <p class="truncate text-sm font-black leading-tight text-base-content">
             {{ narratorName }}
           </p>
 
@@ -57,21 +55,9 @@
         </span>
 
         <button
-          v-if="narratorSession.length"
           type="button"
           class="btn btn-ghost btn-xs btn-circle"
-          title="Clear conversation"
-          aria-label="Clear conversation"
-          :disabled="isNarratorResponding"
-          @click="clearSession"
-        >
-          <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-ghost btn-xs btn-circle"
-          aria-label="Close narrator chat"
+          aria-label="Close narrator musings"
           @click="emit('close')"
         >
           <Icon name="kind-icon:close" class="h-3.5 w-3.5" />
@@ -82,120 +68,69 @@
         ref="logRef"
         class="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-base-200/40 px-3 py-3"
       >
-        <div
-          v-if="!narratorSession.length"
-          class="flex h-full flex-col justify-center gap-3"
-        >
-          <div class="flex items-start gap-3">
+        <div class="grid gap-3">
+          <article
+            v-for="musing in visibleMusings"
+            :key="musing.id"
+            class="flex items-start gap-2"
+          >
             <img
               :src="narratorImage"
               :alt="narratorName"
-              class="h-10 w-10 shrink-0 rounded-2xl border border-primary/30 bg-base-300 object-cover shadow"
+              class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover shadow-sm"
               loading="lazy"
             />
 
             <div
-              class="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed text-base-content/80 shadow-sm"
+              class="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed text-base-content/85 shadow-sm"
             >
-              {{ narratorIntro }}
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="starter in narratorStarterPrompts"
-              :key="starter.key"
-              type="button"
-              class="btn btn-sm rounded-2xl border-base-300 bg-base-100 font-bold shadow-sm hover:border-primary/40"
-              @click="applyStarterPrompt(starter)"
-            >
-              <Icon :name="starter.icon" class="h-4 w-4 text-primary" />
-              {{ starter.title }}
-            </button>
-          </div>
-        </div>
-
-        <div v-else class="grid gap-3">
-          <article
-            v-for="chat in narratorSession"
-            :key="chat.id"
-            class="grid gap-2"
-          >
-            <div
-              class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm leading-relaxed text-primary-content shadow-sm"
-            >
-              <p class="whitespace-pre-wrap">{{ chat.content }}</p>
-            </div>
-
-            <div class="flex max-w-[90%] items-end gap-2">
-              <img
-                :src="narratorImage"
-                :alt="narratorName"
-                class="h-7 w-7 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
-                loading="lazy"
-              />
-
-              <div
-                class="min-w-0 rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed text-base-content/85 shadow-sm"
-              >
+              <div class="flex items-center gap-2">
                 <span
-                  v-if="!chat.botResponse"
-                  class="flex items-center gap-1 py-1 text-base-content/60"
-                  aria-label="Narrator is typing"
+                  v-if="musing.emoticon"
+                  class="text-base leading-none"
+                  aria-hidden="true"
                 >
-                  <span class="narrator-chat-dot" />
-                  <span class="narrator-chat-dot delay-150" />
-                  <span class="narrator-chat-dot delay-300" />
+                  {{ musing.emoticon }}
                 </span>
 
-                <p v-else class="whitespace-pre-wrap">
-                  {{ chat.botResponse }}
+                <p
+                  class="truncate text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+                >
+                  {{ musing.label }}
                 </p>
               </div>
+
+              <p class="mt-1 whitespace-pre-wrap">
+                {{ musing.message }}
+              </p>
             </div>
           </article>
         </div>
       </div>
 
-      <p
-        v-if="statusMessage"
-        class="shrink-0 border-t px-3 py-1.5 text-xs font-bold"
-        :class="
-          statusTone === 'error'
-            ? 'border-error/30 bg-error/10 text-error'
-            : 'border-success/30 bg-success/10 text-success'
-        "
-      >
-        {{ statusMessage }}
-      </p>
-
       <footer
-        class="flex shrink-0 items-end gap-2 border-t border-base-300/70 bg-base-100 px-2.5 py-2"
+        class="shrink-0 border-t border-base-300/70 bg-base-100 px-3 py-2"
       >
-        <textarea
-          v-model="narratorMessage"
-          :rows="compact ? 1 : 2"
-          class="textarea textarea-bordered min-h-0 flex-1 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
-          :placeholder="narratorPlaceholder"
-          :disabled="!canUseNarrator || isNarratorResponding"
-          @keydown.enter.exact.prevent="handleSend"
-          @keydown.ctrl.enter.prevent="handleSend"
-          @keydown.meta.enter.prevent="handleSend"
-        />
+        <div class="flex items-center justify-between gap-2">
+          <p
+            class="truncate text-[0.65rem] font-black uppercase tracking-wide text-base-content/50"
+          >
+            Passive narrator musings
+          </p>
 
-        <button
-          type="button"
-          class="btn btn-primary btn-circle btn-sm shrink-0 text-white shadow-md"
-          :disabled="!canSendNarrator"
-          aria-label="Send"
-          @click="handleSend"
-        >
-          <span
-            v-if="isNarratorResponding"
-            class="loading loading-spinner loading-xs"
-          />
-          <Icon v-else name="kind-icon:send" class="h-4 w-4" />
-        </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs rounded-xl"
+            :class="bubblesEnabled ? 'text-success' : 'text-base-content/40'"
+            @click="toggleBubbles"
+          >
+            <Icon
+              :name="bubblesEnabled ? 'kind-icon:message' : 'kind-icon:mute'"
+              class="h-3.5 w-3.5"
+            />
+            {{ bubblesEnabled ? 'On' : 'Muted' }}
+          </button>
+        </div>
       </footer>
     </section>
   </section>
@@ -205,6 +140,13 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useNarratorStore } from '@/stores/narratorStore'
+
+type MusingEntry = {
+  id: string
+  label: string
+  message: string
+  emoticon: string | null
+}
 
 const props = withDefaults(
   defineProps<{
@@ -230,21 +172,14 @@ const {
   currentEmotionRow,
   currentEmotionLabel,
   narratorIntro,
-  narratorStarterPrompts,
-  narratorSession,
-  narratorMessage,
-  statusMessage,
-  statusTone,
-  isNarratorResponding,
-  canUseNarrator,
-  canSendNarrator,
-  narratorPlaceholder,
+  activeBubble,
+  bubblesEnabled,
 } = storeToRefs(narratorStore)
 
-const { initialize, applyStarterPrompt, sendNarratorMessage, clearSession } =
-  narratorStore
+const { initialize, clearBubble, toggleBubbles } = narratorStore
 
 const logRef = ref<HTMLElement | null>(null)
+const musingHistory = ref<MusingEntry[]>([])
 
 const safeFrameImage = computed(() => {
   return normalizeFramePath(props.frameImage ?? narratorChatFrameImage.value)
@@ -252,17 +187,28 @@ const safeFrameImage = computed(() => {
 
 const hasChatFrame = computed(() => Boolean(safeFrameImage.value))
 
-const narratorFrameStyle = computed<Record<string, string>>(
-  (): Record<string, string> => {
-    const frameImage = safeFrameImage.value
+const narratorFrameStyle = computed<Record<string, string>>(() => {
+  const frameImage = safeFrameImage.value
 
-    if (!frameImage) return {}
+  if (!frameImage) return {}
 
-    return {
-      '--narrator-chat-frame': `url("${frameImage}")`,
-    }
-  },
-)
+  return {
+    '--narrator-chat-frame': `url("${frameImage}")`,
+  }
+})
+
+const visibleMusings = computed(() => {
+  if (musingHistory.value.length) return musingHistory.value
+
+  return [
+    {
+      id: 'intro',
+      label: 'Narrator',
+      message: narratorIntro.value,
+      emoticon: currentEmotionRow.value?.emoticon ?? null,
+    },
+  ]
+})
 
 function normalizeFramePath(input: string | null | undefined): string | null {
   if (!input) return null
@@ -279,30 +225,62 @@ function normalizeFramePath(input: string | null | undefined): string | null {
   return trimmed.replaceAll('"', '\\"')
 }
 
+function addMusing(message: string | null | undefined, label = currentEmotionLabel.value): void {
+  const trimmed = message?.trim()
+  if (!trimmed) return
+
+  const last = musingHistory.value.at(-1)
+  if (last?.message === trimmed && last?.label === label) return
+
+  musingHistory.value.push({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    label,
+    message: trimmed,
+    emoticon: currentEmotionRow.value?.emoticon ?? null,
+  })
+
+  if (musingHistory.value.length > 24) {
+    musingHistory.value = musingHistory.value.slice(-24)
+  }
+}
+
 function scrollToBottom(): void {
   const el = logRef.value
   if (!el) return
   el.scrollTop = el.scrollHeight
 }
 
-function handleSend(): void {
-  if (!canSendNarrator.value) return
-  void sendNarratorMessage()
-}
-
 watch(
-  () =>
-    narratorSession.value
-      .map((chat) => `${chat.id}:${chat.botResponse ?? ''}`)
-      .join('|'),
-  async () => {
+  activeBubble,
+  async (message) => {
+    if (!bubblesEnabled.value) return
+
+    addMusing(message, currentEmotionLabel.value)
+    clearBubble()
+
     await nextTick()
     scrollToBottom()
   },
 )
 
 watch(
-  () => narratorSession.value.length,
+  currentEmotionLabel,
+  async (label, previousLabel) => {
+    if (!label || label === previousLabel) return
+
+    const rowMessage =
+      currentEmotionRow.value?.message ||
+      `Mood shifted to ${label.toLowerCase()}.`
+
+    addMusing(rowMessage, label)
+
+    await nextTick()
+    scrollToBottom()
+  },
+)
+
+watch(
+  () => visibleMusings.value.length,
   async () => {
     await nextTick()
     scrollToBottom()
@@ -311,6 +289,7 @@ watch(
 
 onMounted(async () => {
   await initialize()
+  addMusing(narratorIntro.value, 'Narrator')
   await nextTick()
   scrollToBottom()
 })
@@ -337,41 +316,9 @@ onMounted(async () => {
   pointer-events: none;
 }
 
-.narrator-chat-dot {
-  display: inline-block;
-  height: 0.375rem;
-  width: 0.375rem;
-  border-radius: 9999px;
-  background: currentColor;
-  animation: narrator-chat-bounce 1s ease-in-out infinite;
-}
-
-.narrator-chat-dot.delay-150 {
-  animation-delay: 150ms;
-}
-
-.narrator-chat-dot.delay-300 {
-  animation-delay: 300ms;
-}
-
-@keyframes narrator-chat-bounce {
-  0%,
-  80%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.65);
-  }
-
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .narrator-chat-dot {
-    animation: none;
-    opacity: 0.6;
+  .narrator-chat-frame {
+    filter: none;
   }
 }
 </style>

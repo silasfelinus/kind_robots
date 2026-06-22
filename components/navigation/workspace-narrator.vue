@@ -1,7 +1,7 @@
 <template>
   <div
-    v-if="shouldRender"
-    class="pointer-events-none relative h-full w-full overflow-visible"
+    v-if="narratorDockVisible"
+    class="pointer-events-none h-full w-full overflow-visible"
   >
     <Transition name="narrator-bubble">
       <aside
@@ -32,7 +32,7 @@
     <Transition name="narrator-panel">
       <section
         v-if="isOpen"
-        class="pointer-events-auto absolute inset-y-0 right-0 flex w-(--narrator-w) min-w-0 flex-col overflow-hidden rounded-3xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
+        class="pointer-events-auto absolute inset-y-0 right-0 flex w-full max-w-[100vw] min-w-0 flex-col overflow-hidden rounded-3xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl"
       >
         <header
           class="relative shrink-0 overflow-hidden border-b border-base-300 bg-base-200/90 p-3"
@@ -665,7 +665,7 @@
         :aria-expanded="isOpen"
         :aria-label="`Open ${narratorName}`"
         :title="narratorHoverTitle"
-        @click="togglePanel"
+        @click="openPanelFromDock"
       >
         <div
           class="absolute -inset-1 rounded-full bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
@@ -677,7 +677,7 @@
           :alt="narratorName"
           class="relative h-full w-full cursor-pointer object-cover"
           loading="lazy"
-          @click.stop="playReactionOnClick"
+          @dblclick.stop="playReactionOnClick"
         />
         <img
           v-else
@@ -685,7 +685,7 @@
           :alt="narratorName"
           class="relative h-full w-full cursor-pointer object-cover"
           loading="lazy"
-          @click.stop="playReactionOnClick"
+          @dblclick.stop="playReactionOnClick"
         />
 
         <span
@@ -771,6 +771,12 @@ const {
 
 const chatLogRef = ref<HTMLElement | null>(null)
 
+const narratorDockVisible = computed(() => {
+  return Boolean(
+    shouldRender.value || narratorImage.value || narratorVideo.value,
+  )
+})
+
 // ---------------------------------------------------------------------------
 // Portrait card-spin
 // Mirrors the workspace-hand flip: whenever the displayed portrait or reaction
@@ -848,7 +854,7 @@ watch(isOpen, (value) => {
 })
 
 watch(
-  shouldRender,
+  narratorDockVisible,
   (value) => {
     emit('update:rendered', Boolean(value))
   },
@@ -873,6 +879,10 @@ onBeforeUnmount(() => {
 
   if (portraitFlipTimer) clearTimeout(portraitFlipTimer)
 })
+
+function openPanelFromDock(): void {
+  if (!isOpen.value) togglePanel()
+}
 
 function screenButtonClass(screen: NarratorScreen) {
   return activeScreen.value === screen

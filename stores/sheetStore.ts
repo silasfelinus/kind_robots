@@ -1,167 +1,276 @@
-// /stores/sheetStore.ts
-// Single source of truth for what workspace-sheet displays in its hero.
-//
-// Default behavior: no override → workspace-sheet falls back to its
-// existing cascade (builder sheet → active card → pageStore meta).
-//
-// Override behavior: any store can push content here — selecting a
-// scenario, changing a dashboard subtab, picking a character — and the
-// sheet hero swaps to it. Last write wins; clears are source-checked so
-// deselecting a scenario can't stomp a newer override from someone else.
-//
-// Open/close state stays in navStore (it's persisted layout geometry);
-// this store proxies it so callers have one import.
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { useNavStore } from '@/stores/navStore'
-import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
+import { performFetch, handleError } from '@/stores/utils'
+import type { ArtImage, Dream, PitchSheet } from '~/prisma/generated/prisma/client'
 
-export type SheetSource =
-  | 'scenario'
-  | 'character'
-  | 'reward'
-  | 'bot'
-  | 'tab'
-  | string
-
-export type SheetContent = {
-  source: SheetSource
-  label: string
-  title: string
-  narrative: string
-  imagePath: string
-  icon: string
-  artImageId?: number | null
+export type SheetDream = Dream & {
+  ArtImage?: Partial<ArtImage> | null
 }
 
-export type SheetInput = Partial<Omit<SheetContent, 'source'>> & {
-  source: SheetSource
+export type SheetWithDream = PitchSheet & {
+  Dream?: SheetDream | null
+  ArtImage?: Partial<ArtImage> | null
 }
 
-export type SetSheetOptions = {
-  /** Open the workspace sheet after setting content. Default false. */
-  open?: boolean
+export type SheetCreatePayload = Partial<PitchSheet> & {
+  dreamId: number
 }
+
+export type SheetUpdatePayload = Partial<Omit<PitchSheet, 'id' | 'createdAt' | 'updatedAt'>>
 
 export const useSheetStore = defineStore('sheetStore', () => {
-  const override = ref<SheetContent | null>(null)
+  const sheets = ref<SheetWithDream[]>([])
+  const selectedSheet = ref<SheetWithDream | null>(null)
+  const loading = ref(false)
+  const isSaving = ref(false)
+  const error = ref<string | null>(null)
 
-  // Tracks the in-flight art fetch so a fast scenario→scenario switch
-  // can't resolve a stale image onto the newer override.
-  const artRequestToken = ref(0)
-
-  const hasOverride = computed(() => override.value !== null)
-
-  const isOpen = computed(() => {
-    const navStore = useNavStore()
-    return navStore.workspaceSheetOpen
+  const sheetsById = computed(() => {
+    const map = new Map<number, SheetWithDream>()
+    for (const sheet of sheets.value) map.set(sheet.id, sheet)
+    return map
   })
 
-  function openSheet(): void {
-    useNavStore().openWorkspaceSheet()
+  const sheetsByDreamId = computed(() => {
+    const map = new Map<number, SheetWithDream>()
+    for (const sheet of sheets.value) map.set(sheet.dreamId, sheet)
+    return map
+  })
+
+  function upsertLocal(sheet: SheetWithDream) {
+    const index = sheets.value.findIndex((item) => item.id === sheet.id)
+    if (index === -1) sheets.value.push(sheet)
+    else sheets.value[index] = sheet
+
+    if (selectedSheet.value?.id === sheet.id) selectedSheet.value = sheet
+    return sheet
   }
 
-  function closeSheet(): void {
-    useNavStore().closeWorkspaceSheet()
+  function removeLocal(id: number) {
+    sheets.value = sheets.value.filter((sheet) => sheet.id !== id)
+    if (selectedSheet.value?.id === id) selectedSheet.value = null
   }
 
-  function toggleSheet(): void {
-    useNavStore().toggleWorkspaceSheet()
-  }
-
-  /**
-   * Set the sheet hero content. Missing fields render as empty and let
-   * workspace-sheet's fallbacks (placeholder icon, etc.) take over.
-   * If artImageId is provided and no imagePath resolves, the art image
-   * is fetched async and applied when it lands.
-   */
-  function setSheet(input: SheetInput, options: SetSheetOptions = {}): void {
-    override.value = {
-      source: input.source,
-      label: input.label ?? '',
-      title: input.title ?? '',
-      narrative: input.narrative ?? '',
-      imagePath: input.imagePath ?? '',
-      icon: input.icon ?? '',
-      artImageId: input.artImageId ?? null,
-    }
-
-    if (input.artImageId) {
-      void resolveArtImage(input.artImageId)
-    }
-
-    if (options.open) {
-      openSheet()
-    }
-  }
-
-  /**
-   * Clear the override. Pass a source to clear only when that source is
-   * the current owner — deselecting a scenario won't wipe a tab intro
-   * or a character override that was set afterward.
-   */
-  function clearSheet(source?: SheetSource): void {
-    if (source && override.value?.source !== source) return
-
-    override.value = null
-  }
-
-  /** Convenience: push a dashboard tab's intro copy into the sheet. */
-  function setSheetFromTab(tab: DashboardTabConfig): void {
-    const title = tab.title?.trim() || tab.label?.trim() || ''
-    const narrative = tab.narrative?.trim() || tab.summary?.trim() || ''
-    const imagePath = tab.image?.trim() || ''
-
-    // A bare key/icon tab (like the "+" tab) has no intro to show;
-    // fall back to page defaults instead of a near-empty hero.
-    if (!title && !narrative && !imagePath) {
-      clearSheet('tab')
-      return
-    }
-
-    setSheet({
-      source: 'tab',
-      label: tab.label || '',
-      title,
-      narrative,
-      imagePath,
-      icon: tab.icon || '',
-    })
-  }
-
-  async function resolveArtImage(artImageId: number): Promise<void> {
-    const token = ++artRequestToken.value
+  async function fetchSheets() {
+    loading.value = true
+    error.value = null
 
     try {
-      const artStore = useArtStore()
-      const result = await artStore.getArtImageById(artImageId)
+      const res = await performFetch<SheetWithDream[]>('/api/sheets')
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to fetch sheets')
 
-      if (!result?.imageData) return
-
-      // A newer setSheet/clearSheet happened while we were fetching
-      if (token !== artRequestToken.value) return
-      if (override.value?.artImageId !== artImageId) return
-
-      override.value = {
-        ...override.value,
-        imagePath: `data:image/${result.fileType};base64,${result.imageData}`,
-      }
-    } catch (error) {
-      console.error('Failed to resolve sheet art image:', error)
+      sheets.value = res.data
+      return res.data
+    } catch (err) {
+      error.value = (err as Error).message
+      handleError(err, 'fetching sheets')
+      return []
+    } finally {
+      loading.value = false
     }
+  }
+
+  async function fetchSheet(id: number) {
+    loading.value = true
+    error.value = null
+
+    try {
+      const res = await performFetch<SheetWithDream>(`/api/sheets/${id}`)
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to fetch sheet')
+
+      return upsertLocal(res.data)
+    } catch (err) {
+      error.value = (err as Error).message
+      handleError(err, 'fetching sheet')
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchSheetByDreamId(dreamId: number) {
+    const cached = sheetsByDreamId.value.get(dreamId)
+    if (cached) return cached
+
+    loading.value = true
+    error.value = null
+
+    try {
+      const res = await performFetch<SheetWithDream>(`/api/sheets/by-dream/${dreamId}`)
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to fetch sheet by Dream')
+
+      return upsertLocal(res.data)
+    } catch (err) {
+      error.value = (err as Error).message
+      handleError(err, 'fetching sheet by Dream')
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function ensureSheetForDream(dreamId: number) {
+    const cached = sheetsByDreamId.value.get(dreamId)
+    if (cached) return { success: true, data: cached, created: false }
+
+    isSaving.value = true
+    error.value = null
+
+    try {
+      const res = await performFetch<SheetWithDream>(`/api/sheets/by-dream/${dreamId}`, {
+        method: 'POST',
+      })
+
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to create sheet')
+
+      const sheet = upsertLocal(res.data)
+      return { success: true, data: sheet, created: true }
+    } catch (err) {
+      error.value = (err as Error).message
+      handleError(err, 'creating sheet for Dream')
+      return { success: false, message: (err as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function ensureSheetsForDreams(dreams: Array<{ id?: number | null }>) {
+    isSaving.value = true
+    error.value = null
+
+    const created: SheetWithDream[] = []
+    const skipped: number[] = []
+    const failed: { dreamId: number; message: string }[] = []
+
+    try {
+      for (const dream of dreams) {
+        const dreamId = Number(dream.id)
+        if (!Number.isInteger(dreamId) || dreamId <= 0) continue
+
+        if (sheetsByDreamId.value.has(dreamId)) {
+          skipped.push(dreamId)
+          continue
+        }
+
+        const result = await ensureSheetForDream(dreamId)
+        if (result.success && result.data) created.push(result.data)
+        else failed.push({ dreamId, message: result.message || 'Unknown error' })
+      }
+
+      return {
+        success: failed.length === 0,
+        created,
+        skipped,
+        failed,
+        message: `${created.length} sheets created, ${skipped.length} skipped, ${failed.length} failed.`,
+      }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function createSheet(payload: SheetCreatePayload) {
+    isSaving.value = true
+    error.value = null
+
+    try {
+      const res = await performFetch<SheetWithDream>('/api/sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to create sheet')
+
+      return { success: true, data: upsertLocal(res.data) }
+    } catch (err) {
+      error.value = (err as Error).message
+      handleError(err, 'creating sheet')
+      return { success: false, message: (err as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function updateSheet(id: number, payload: SheetUpdatePayload) {
+    isSaving.value = true
+    error.value = null
+
+    try {
+      const res = await performFetch<SheetWithDream>(`/api/sheets/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to update sheet')
+
+      return { success: true, data: upsertLocal(res.data) }
+    } catch (err) {
+      error.value = (err as Error).message
+      handleError(err, 'updating sheet')
+      return { success: false, message: (err as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function deleteSheet(id: number) {
+    isSaving.value = true
+    error.value = null
+
+    try {
+      const res = await performFetch<SheetWithDream>(`/api/sheets/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.success) throw new Error(res.message || 'Failed to delete sheet')
+
+      removeLocal(id)
+      return { success: true }
+    } catch (err) {
+      error.value = (err as Error).message
+      handleError(err, 'deleting sheet')
+      return { success: false, message: (err as Error).message }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  function selectSheet(id: number) {
+    selectedSheet.value = sheetsById.value.get(id) ?? null
+    return selectedSheet.value
+  }
+
+  function selectSheetByDreamId(dreamId: number) {
+    selectedSheet.value = sheetsByDreamId.value.get(dreamId) ?? null
+    return selectedSheet.value
+  }
+
+  function clearSelectedSheet() {
+    selectedSheet.value = null
   }
 
   return {
-    override,
-    hasOverride,
-    isOpen,
-
-    setSheet,
-    clearSheet,
-    setSheetFromTab,
-    openSheet,
-    closeSheet,
-    toggleSheet,
+    sheets,
+    selectedSheet,
+    loading,
+    isSaving,
+    error,
+    sheetsById,
+    sheetsByDreamId,
+    fetchSheets,
+    fetchSheet,
+    fetchSheetByDreamId,
+    ensureSheetForDream,
+    ensureSheetsForDreams,
+    createSheet,
+    updateSheet,
+    deleteSheet,
+    selectSheet,
+    selectSheetByDreamId,
+    clearSelectedSheet,
   }
 })
+
+export type { PitchSheet }

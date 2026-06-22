@@ -380,6 +380,7 @@ export type DreamWhereInput = {
   Characters?: Prisma.CharacterListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Bots?: Prisma.BotListRelationFilter
+  PitchSheet?: Prisma.XOR<Prisma.PitchSheetNullableScalarRelationFilter, Prisma.PitchSheetWhereInput> | null
   RelationsFrom?: Prisma.DreamRelationListRelationFilter
   RelationsTo?: Prisma.DreamRelationListRelationFilter
 }
@@ -419,6 +420,7 @@ export type DreamOrderByWithRelationInput = {
   Characters?: Prisma.CharacterOrderByRelationAggregateInput
   Rewards?: Prisma.RewardOrderByRelationAggregateInput
   Bots?: Prisma.BotOrderByRelationAggregateInput
+  PitchSheet?: Prisma.PitchSheetOrderByWithRelationInput
   RelationsFrom?: Prisma.DreamRelationOrderByRelationAggregateInput
   RelationsTo?: Prisma.DreamRelationOrderByRelationAggregateInput
   _relevance?: Prisma.DreamOrderByRelevanceInput
@@ -462,6 +464,7 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   Characters?: Prisma.CharacterListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Bots?: Prisma.BotListRelationFilter
+  PitchSheet?: Prisma.XOR<Prisma.PitchSheetNullableScalarRelationFilter, Prisma.PitchSheetWhereInput> | null
   RelationsFrom?: Prisma.DreamRelationListRelationFilter
   RelationsTo?: Prisma.DreamRelationListRelationFilter
 }, "id" | "slug">
@@ -555,6 +558,7 @@ export type DreamCreateInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -591,6 +595,7 @@ export type DreamUncheckedCreateInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -626,6 +631,7 @@ export type DreamUpdateInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -662,6 +668,7 @@ export type DreamUncheckedUpdateInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -1156,6 +1163,20 @@ export type DreamUpdateOneRequiredWithoutRelationsToNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DreamUpdateToOneWithWhereWithoutRelationsToInput, Prisma.DreamUpdateWithoutRelationsToInput>, Prisma.DreamUncheckedUpdateWithoutRelationsToInput>
 }
 
+export type DreamCreateNestedOneWithoutPitchSheetInput = {
+  create?: Prisma.XOR<Prisma.DreamCreateWithoutPitchSheetInput, Prisma.DreamUncheckedCreateWithoutPitchSheetInput>
+  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutPitchSheetInput
+  connect?: Prisma.DreamWhereUniqueInput
+}
+
+export type DreamUpdateOneRequiredWithoutPitchSheetNestedInput = {
+  create?: Prisma.XOR<Prisma.DreamCreateWithoutPitchSheetInput, Prisma.DreamUncheckedCreateWithoutPitchSheetInput>
+  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutPitchSheetInput
+  upsert?: Prisma.DreamUpsertWithoutPitchSheetInput
+  connect?: Prisma.DreamWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DreamUpdateToOneWithWhereWithoutPitchSheetInput, Prisma.DreamUpdateWithoutPitchSheetInput>, Prisma.DreamUncheckedUpdateWithoutPitchSheetInput>
+}
+
 export type DreamCreateNestedOneWithoutReactionsInput = {
   create?: Prisma.XOR<Prisma.DreamCreateWithoutReactionsInput, Prisma.DreamUncheckedCreateWithoutReactionsInput>
   connectOrCreate?: Prisma.DreamCreateOrConnectWithoutReactionsInput
@@ -1320,6 +1341,7 @@ export type DreamCreateWithoutArtImageInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -1355,6 +1377,7 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -1399,6 +1422,7 @@ export type DreamCreateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -1434,6 +1458,7 @@ export type DreamUncheckedCreateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -1533,6 +1558,7 @@ export type DreamCreateWithoutArtCollectionInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -1568,6 +1594,7 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -1612,6 +1639,7 @@ export type DreamCreateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -1647,6 +1675,7 @@ export type DreamUncheckedCreateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -1718,6 +1747,7 @@ export type DreamCreateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -1753,6 +1783,7 @@ export type DreamUncheckedCreateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -1808,6 +1839,7 @@ export type DreamCreateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -1843,6 +1875,7 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -1898,6 +1931,7 @@ export type DreamCreateWithoutChatsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -1933,6 +1967,7 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -1983,6 +2018,7 @@ export type DreamUpdateWithoutChatsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -2018,6 +2054,7 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -2052,6 +2089,7 @@ export type DreamCreateWithoutCompositionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -2087,6 +2125,7 @@ export type DreamUncheckedCreateWithoutCompositionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -2137,6 +2176,7 @@ export type DreamUpdateWithoutCompositionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -2172,6 +2212,7 @@ export type DreamUncheckedUpdateWithoutCompositionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -2207,6 +2248,7 @@ export type DreamCreateWithoutRelationsFromInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
 
@@ -2242,6 +2284,7 @@ export type DreamUncheckedCreateWithoutRelationsFromInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
 
@@ -2281,6 +2324,7 @@ export type DreamCreateWithoutRelationsToInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
 }
 
@@ -2316,6 +2360,7 @@ export type DreamUncheckedCreateWithoutRelationsToInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
 }
 
@@ -2366,6 +2411,7 @@ export type DreamUpdateWithoutRelationsFromInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
 
@@ -2401,6 +2447,7 @@ export type DreamUncheckedUpdateWithoutRelationsFromInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
 
@@ -2446,6 +2493,7 @@ export type DreamUpdateWithoutRelationsToInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
 }
 
@@ -2481,7 +2529,166 @@ export type DreamUncheckedUpdateWithoutRelationsToInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
+}
+
+export type DreamCreateWithoutPitchSheetInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  slug?: string | null
+  dreamType?: $Enums.DreamType
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  highlightImage?: string | null
+  icon?: string | null
+  designer?: string | null
+  creationSource?: $Enums.CreationSource
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  User?: Prisma.UserCreateNestedOneWithoutDreamsInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsPrimaryInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsPrimaryInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
+  Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
+  RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+}
+
+export type DreamUncheckedCreateWithoutPitchSheetInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  slug?: string | null
+  dreamType?: $Enums.DreamType
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  highlightImage?: string | null
+  icon?: string | null
+  designer?: string | null
+  creationSource?: $Enums.CreationSource
+  userId?: number
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  artImageId?: number | null
+  artCollectionId?: number | null
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
+  RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+}
+
+export type DreamCreateOrConnectWithoutPitchSheetInput = {
+  where: Prisma.DreamWhereUniqueInput
+  create: Prisma.XOR<Prisma.DreamCreateWithoutPitchSheetInput, Prisma.DreamUncheckedCreateWithoutPitchSheetInput>
+}
+
+export type DreamUpsertWithoutPitchSheetInput = {
+  update: Prisma.XOR<Prisma.DreamUpdateWithoutPitchSheetInput, Prisma.DreamUncheckedUpdateWithoutPitchSheetInput>
+  create: Prisma.XOR<Prisma.DreamCreateWithoutPitchSheetInput, Prisma.DreamUncheckedCreateWithoutPitchSheetInput>
+  where?: Prisma.DreamWhereInput
+}
+
+export type DreamUpdateToOneWithWhereWithoutPitchSheetInput = {
+  where?: Prisma.DreamWhereInput
+  data: Prisma.XOR<Prisma.DreamUpdateWithoutPitchSheetInput, Prisma.DreamUncheckedUpdateWithoutPitchSheetInput>
+}
+
+export type DreamUpdateWithoutPitchSheetInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamType?: Prisma.EnumDreamTypeFieldUpdateOperationsInput | $Enums.DreamType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsPrimaryNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsPrimaryNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
+  RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+}
+
+export type DreamUncheckedUpdateWithoutPitchSheetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamType?: Prisma.EnumDreamTypeFieldUpdateOperationsInput | $Enums.DreamType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
+  RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
 
 export type DreamCreateWithoutReactionsInput = {
@@ -2514,6 +2721,7 @@ export type DreamCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -2549,6 +2757,7 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -2599,6 +2808,7 @@ export type DreamUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -2634,6 +2844,7 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -2668,6 +2879,7 @@ export type DreamCreateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -2703,6 +2915,7 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -2758,6 +2971,7 @@ export type DreamCreateWithoutScenariosInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -2793,6 +3007,7 @@ export type DreamUncheckedCreateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -2848,6 +3063,7 @@ export type DreamCreateWithoutUserInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
 }
@@ -2883,6 +3099,7 @@ export type DreamUncheckedCreateWithoutUserInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
 }
@@ -2967,6 +3184,7 @@ export type DreamUpdateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3002,6 +3220,7 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3060,6 +3279,7 @@ export type DreamUpdateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3095,6 +3315,7 @@ export type DreamUncheckedUpdateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3178,6 +3399,7 @@ export type DreamUpdateWithoutArtCollectionInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3213,6 +3435,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3271,6 +3494,7 @@ export type DreamUpdateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3306,6 +3530,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3365,6 +3590,7 @@ export type DreamUpdateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3400,6 +3626,7 @@ export type DreamUncheckedUpdateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3459,6 +3686,7 @@ export type DreamUpdateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3494,6 +3722,7 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3553,6 +3782,7 @@ export type DreamUpdateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3588,6 +3818,7 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3647,6 +3878,7 @@ export type DreamUpdateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3682,6 +3914,7 @@ export type DreamUncheckedUpdateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3765,6 +3998,7 @@ export type DreamUpdateWithoutUserInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
 }
@@ -3800,6 +4034,7 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -3984,6 +4219,7 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Characters?: boolean | Prisma.Dream$CharactersArgs<ExtArgs>
   Rewards?: boolean | Prisma.Dream$RewardsArgs<ExtArgs>
   Bots?: boolean | Prisma.Dream$BotsArgs<ExtArgs>
+  PitchSheet?: boolean | Prisma.Dream$PitchSheetArgs<ExtArgs>
   RelationsFrom?: boolean | Prisma.Dream$RelationsFromArgs<ExtArgs>
   RelationsTo?: boolean | Prisma.Dream$RelationsToArgs<ExtArgs>
   _count?: boolean | Prisma.DreamCountOutputTypeDefaultArgs<ExtArgs>
@@ -4030,6 +4266,7 @@ export type DreamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   Characters?: boolean | Prisma.Dream$CharactersArgs<ExtArgs>
   Rewards?: boolean | Prisma.Dream$RewardsArgs<ExtArgs>
   Bots?: boolean | Prisma.Dream$BotsArgs<ExtArgs>
+  PitchSheet?: boolean | Prisma.Dream$PitchSheetArgs<ExtArgs>
   RelationsFrom?: boolean | Prisma.Dream$RelationsFromArgs<ExtArgs>
   RelationsTo?: boolean | Prisma.Dream$RelationsToArgs<ExtArgs>
   _count?: boolean | Prisma.DreamCountOutputTypeDefaultArgs<ExtArgs>
@@ -4050,6 +4287,7 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     Characters: Prisma.$CharacterPayload<ExtArgs>[]
     Rewards: Prisma.$RewardPayload<ExtArgs>[]
     Bots: Prisma.$BotPayload<ExtArgs>[]
+    PitchSheet: Prisma.$PitchSheetPayload<ExtArgs> | null
     RelationsFrom: Prisma.$DreamRelationPayload<ExtArgs>[]
     RelationsTo: Prisma.$DreamRelationPayload<ExtArgs>[]
   }
@@ -4428,6 +4666,7 @@ export interface Prisma__DreamClient<T, Null = never, ExtArgs extends runtime.Ty
   Characters<T extends Prisma.Dream$CharactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$CharactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Rewards<T extends Prisma.Dream$RewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$RewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Bots<T extends Prisma.Dream$BotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$BotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  PitchSheet<T extends Prisma.Dream$PitchSheetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$PitchSheetArgs<ExtArgs>>): Prisma.Prisma__PitchSheetClient<runtime.Types.Result.GetResult<Prisma.$PitchSheetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   RelationsFrom<T extends Prisma.Dream$RelationsFromArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$RelationsFromArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   RelationsTo<T extends Prisma.Dream$RelationsToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$RelationsToArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -5080,6 +5319,25 @@ export type Dream$BotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.BotScalarFieldEnum | Prisma.BotScalarFieldEnum[]
+}
+
+/**
+ * Dream.PitchSheet
+ */
+export type Dream$PitchSheetArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PitchSheet
+   */
+  select?: Prisma.PitchSheetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PitchSheet
+   */
+  omit?: Prisma.PitchSheetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PitchSheetInclude<ExtArgs> | null
+  where?: Prisma.PitchSheetWhereInput
 }
 
 /**

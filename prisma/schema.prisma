@@ -131,6 +131,7 @@ model Bot {
   Reactions         Reaction[]
   Dreams            Dream[]
   ExpressionMedia   ExpressionMedia[]
+  ExpressionTransition ExpressionTransition[]
 
   @@index([userId], map: "Bot_userId_fkey")
   @@index([serverId], map: "Bot_serverId_fkey")
@@ -223,6 +224,7 @@ model Character {
   Scenarios     Scenario[]     @relation("CharacterToScenario")
   Compositions  Composition[]
   ExpressionMedia ExpressionMedia[]
+  ExpressionTransition ExpressionTransition[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -513,6 +515,44 @@ model ExpressionMedia {
   @@index([characterId, kind])
   @@index([botId, isActive])
   @@index([characterId, isActive])
+}
+
+/// A directed transition clip between two expressions for the same owner
+/// (bot or character). videoPath holds the FLF2V-generated animated webp that
+/// travels fromKey -> toKey. The frontend picks a transition by matching the
+/// owner's current expression (fromKey) to the desired target (toKey); if no
+/// exact row exists it falls back to the static still on ExpressionMedia.
+/// fromKey/toKey are canonical lowercase keys matching ExpressionMedia.expressionKey.
+model ExpressionTransition {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  fromKey String @db.VarChar(128)
+  toKey   String @db.VarChar(128)
+
+  videoPath String @db.VarChar(764) // animated webp/mp4 of the transition
+  fps       Int    @default(16)
+  frames    Int? // length in frames, for client-side timing
+
+  botId       Int?
+  characterId Int?
+
+  Bot       Bot?       @relation(fields: [botId], references: [id])
+  Character Character? @relation(fields: [characterId], references: [id])
+
+  isActive Boolean @default(true)
+  designer String? @db.VarChar(256)
+
+  // one transition per (owner, fromKey, toKey)
+  @@unique([botId, fromKey, toKey])
+  @@unique([characterId, fromKey, toKey])
+
+  @@index([botId])
+  @@index([characterId])
+  @@index([botId, fromKey])
+  @@index([characterId, fromKey])
+  @@index([isActive])
 }
 
 enum ExpressionKind {

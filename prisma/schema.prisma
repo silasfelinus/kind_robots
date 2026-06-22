@@ -58,6 +58,8 @@ model ArtImage {
   UserProfiles   User[]          @relation("UserProfileImage")
   ArtCollections ArtCollection[] @relation("ArtCollectionToArtImage")
   Compositions   Composition[]
+  PitchSheets     PitchSheet[]
+
 
   @@index([userId], map: "ArtImage_userId_fkey")
   @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
@@ -419,6 +421,11 @@ model Dream {
   Rewards         Reward[]        @relation("DreamToReward")
   Bots            Bot[]
 
+  PitchSheet PitchSheet?
+
+
+
+
   RelationsFrom   DreamRelation[] @relation("DreamRelationFrom")  // edges where this dream is the subject
   RelationsTo     DreamRelation[] @relation("DreamRelationTo")    // edges where this dream is the object
 
@@ -428,6 +435,8 @@ model Dream {
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
+
+
 }
 
 model DreamRelation {
@@ -667,6 +676,71 @@ model NarratorThread {
   @@index([sortOrder])
   @@index([isActive])
 }
+
+model PitchSheet {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  dreamId Int   @unique
+  Dream   Dream @relation(fields: [dreamId], references: [id], onDelete: Cascade)
+
+  sheetType DreamType
+  layoutKey String @default("pitch-card") @db.VarChar(128)
+
+  title    String  @db.VarChar(255)
+  subtitle String? @db.VarChar(512)
+  hook     String? @db.VarChar(512)
+  pitch    String? @db.Text
+
+  highlight1Label String? @db.VarChar(128)
+  highlight1Value String? @db.VarChar(512)
+  highlight1Icon  String? @db.VarChar(255)
+
+  highlight2Label String? @db.VarChar(128)
+  highlight2Value String? @db.VarChar(512)
+  highlight2Icon  String? @db.VarChar(255)
+
+  highlight3Label String? @db.VarChar(128)
+  highlight3Value String? @db.VarChar(512)
+  highlight3Icon  String? @db.VarChar(255)
+
+  detail1Label String? @db.VarChar(128)
+  detail1Body  String? @db.Text
+
+  detail2Label String? @db.VarChar(128)
+  detail2Body  String? @db.Text
+
+  detail3Label String? @db.VarChar(128)
+  detail3Body  String? @db.Text
+
+  imagePath  String? @db.VarChar(764)
+  artImageId Int?
+  ArtImage   ArtImage? @relation(fields: [artImageId], references: [id])
+
+  icon       String? @db.VarChar(255)
+  colorTheme String? @db.VarChar(255)
+
+  extraData Json?
+
+  userId Int?
+  User   User? @relation(fields: [userId], references: [id])
+
+  isPublic Boolean @default(true)
+  isActive Boolean @default(true)
+  isMature Boolean @default(false)
+
+  designer String? @default("system") @db.VarChar(255)
+
+  @@index([sheetType])
+  @@index([layoutKey])
+  @@index([artImageId])
+  @@index([userId])
+  @@index([isPublic])
+  @@index([isActive])
+}
+
+
 
 /// this is an art or text prompt to an ai to generate new media
 model Prompt {
@@ -1124,6 +1198,7 @@ model User {
   ArtImage              ArtImage?         @relation("UserProfileImage", fields: [artImageId], references: [id])
   Codes                 Code[]
   Compositions          Composition[]
+  PitchSheets           PitchSheet[]
 
   RelationsOwned    UserRelation[] @relation("UserRelationOwner")
   RelationsReceived UserRelation[] @relation("UserRelationTarget")

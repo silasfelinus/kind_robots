@@ -4,7 +4,11 @@
     <div
       v-if="isLoadingManager || managerError"
       class="mb-2 flex shrink-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs shadow-sm"
-      :class="managerError ? 'border-error/40 bg-error/10 text-error' : 'text-base-content/60'"
+      :class="
+        managerError
+          ? 'border-error/40 bg-error/10 text-error'
+          : 'text-base-content/60'
+      "
     >
       <span
         v-if="isLoadingManager"
@@ -46,35 +50,16 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'interact' && dreamStore.selectedDream"
+      v-else-if="activeTab === 'brainstorm'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <dream-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      <dream-brainstorm class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
-    <section
-      v-else
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-gallery
+    <section v-else class="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <dream-interact
         class="h-full min-h-0 flex-1 overflow-hidden"
-        variant="dashboard"
-        title="Dreams"
-        subtitle="Search, filter, and select a Dream. Selection opens the workspace."
-        :show-header="true"
-        :show-controls="true"
-        :show-images="true"
-        :show-card-actions="true"
-        :show-stats="true"
-        :show-meta="true"
-        :show-descriptions="false"
-        :allow-add="true"
-        :allow-edit="true"
-        :allow-delete="false"
-        :allow-refresh="true"
-        :open-on-select="true"
         @selected="onDreamSelected"
-        @opened="onDreamOpened"
         @editing="onDreamEditing"
         @created="onDreamCreated"
       />
@@ -93,15 +78,15 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
-type DreamTab = 'dreams' | 'interact' | 'dreammaker'
+type DreamTab = 'dreams' | 'dreammaker' | 'brainstorm'
 type LegacyDreamTab =
   | DreamTab
+  | 'interact'
   | 'overview'
   | 'gallery'
   | 'add'
   | 'maker'
   | 'prompts'
-  | 'brainstorm'
 
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
@@ -120,13 +105,7 @@ const managerError = ref<string | null>(null)
 
 const activeTab = computed<DreamTab>(() => {
   const selectedTab = navStore.getDashboardTab(dashboardKey) as LegacyDreamTab
-  const normalized = normalizeTab(selectedTab)
-
-  if (normalized === 'interact' && !dreamStore.selectedDream) {
-    return 'dreams'
-  }
-
-  return normalized
+  return normalizeTab(selectedTab)
 })
 
 const managerSummary = computed(() => {
@@ -136,14 +115,16 @@ const managerSummary = computed(() => {
 })
 
 function normalizeTab(tab?: LegacyDreamTab | string | null): DreamTab {
-  if (tab === 'interact') {
-    return 'interact'
+  if (tab === 'brainstorm') {
+    return 'brainstorm'
   }
 
   if (tab === 'add' || tab === 'maker' || tab === 'dreammaker') {
     return 'dreammaker'
   }
 
+  // 'interact', 'gallery', 'overview', 'prompts', and anything unknown
+  // resolve to the browse/workspace tab, which dream-interact owns.
   return defaultTab
 }
 
@@ -153,11 +134,6 @@ function setTab(tab: DreamTab) {
 
 function onDreamSelected() {
   setupUploadTarget()
-}
-
-function onDreamOpened() {
-  setupUploadTarget()
-  setTab('interact')
 }
 
 function onDreamEditing() {
@@ -177,7 +153,7 @@ async function onDreamSaved(id?: number | number[] | DreamWithRelations) {
   if (selectedId) {
     await dreamStore.selectDreamById(selectedId)
     setupUploadTarget()
-    setTab('interact')
+    setTab('dreams')
     return
   }
 

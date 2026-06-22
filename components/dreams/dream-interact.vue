@@ -1,6 +1,16 @@
 <!-- /components/dreams/dream-interact.vue -->
 <template>
+  <dream-gallery
+    v-if="!dreamStore.selectedDream"
+    class="h-full min-h-0"
+    variant="dashboard"
+    title="Choose a Dream"
+    subtitle="Pick a Dream to open its workspace."
+    :open-on-select="false"
+  />
+
   <section
+    v-else
     class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
     <div
@@ -109,7 +119,6 @@
     </header>
 
     <main
-      v-if="dreamStore.selectedDream"
       class="relative z-10 grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[minmax(0,1fr)_24rem]"
     >
       <section
@@ -123,7 +132,9 @@
             :key="panel.key"
             type="button"
             class="btn btn-sm rounded-2xl"
-            :class="activePanel === panel.key ? 'btn-primary text-white' : 'btn-ghost'"
+            :class="
+              activePanel === panel.key ? 'btn-primary text-white' : 'btn-ghost'
+            "
             @click="activePanel = panel.key"
           >
             <Icon :name="panel.icon" class="h-4 w-4" />
@@ -132,14 +143,18 @@
         </nav>
 
         <section class="min-h-0 overflow-y-auto p-3">
-          <div v-if="activePanel === 'chat'" class="flex min-h-full flex-col gap-3">
+          <div
+            v-if="activePanel === 'chat'"
+            class="flex min-h-full flex-col gap-3"
+          >
             <div
               class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
             >
               <div>
                 <h2 class="font-black">Dream Chat</h2>
                 <p class="text-xs text-base-content/60">
-                  Start a public or private chatroom-style thread attached to this Dream.
+                  Start a public or private chatroom-style thread attached to
+                  this Dream.
                 </p>
               </div>
 
@@ -147,7 +162,9 @@
                 <button
                   type="button"
                   class="btn btn-xs rounded-2xl"
-                  :class="chatIsPublic ? 'btn-primary text-white' : 'btn-outline'"
+                  :class="
+                    chatIsPublic ? 'btn-primary text-white' : 'btn-outline'
+                  "
                   @click="chatIsPublic = true"
                 >
                   Public
@@ -177,20 +194,31 @@
               ref="chatScrollRef"
               class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
             >
-              <div v-if="dreamStore.selectedDreamChats.length" class="grid gap-2">
+              <div
+                v-if="dreamStore.selectedDreamChats.length"
+                class="grid gap-2"
+              >
                 <article
                   v-for="chat in dreamStore.selectedDreamChats"
                   :key="chat.id"
                   class="rounded-2xl border p-3"
-                  :class="chat.type === 'BotResponse' ? 'border-info/40 bg-info/10' : 'border-base-300 bg-base-100'"
+                  :class="
+                    chat.type === 'BotResponse'
+                      ? 'border-info/40 bg-info/10'
+                      : 'border-base-300 bg-base-100'
+                  "
                 >
-                  <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-2"
+                  >
                     <p class="font-bold text-primary">
                       {{ chat.sender || chat.User?.username || 'Dreamer' }}
                     </p>
 
                     <div class="flex flex-wrap gap-1">
-                      <span class="badge badge-xs rounded-xl">{{ chat.type }}</span>
+                      <span class="badge badge-xs rounded-xl">{{
+                        chat.type
+                      }}</span>
                       <span
                         v-if="chat.isPublic === false"
                         class="badge badge-secondary badge-xs rounded-xl"
@@ -223,7 +251,8 @@
                 <div>
                   <h2 class="font-black">Dream Art</h2>
                   <p class="text-xs text-base-content/60">
-                    Generate art around the selected Dream concept using the art store.
+                    Generate art around the selected Dream concept using the art
+                    store.
                   </p>
                 </div>
 
@@ -277,12 +306,21 @@
             <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <h2 class="font-black">Dream Assets</h2>
               <p class="mt-1 text-sm text-base-content/60">
-                Cast, rewards, scenario hooks, and generated art that orbit this Dream.
+                Cast, rewards, scenario hooks, and generated art that orbit this
+                Dream.
               </p>
             </section>
 
-            <dream-list list-type="cast" view-mode="grid" :show-refresh="false" />
-            <dream-list list-type="items" view-mode="grid" :show-refresh="false" />
+            <dream-list
+              list-type="cast"
+              view-mode="grid"
+              :show-refresh="false"
+            />
+            <dream-list
+              list-type="items"
+              view-mode="grid"
+              :show-refresh="false"
+            />
           </div>
         </section>
 
@@ -292,7 +330,11 @@
           <textarea
             v-model="message"
             class="textarea textarea-bordered min-h-16 resize-none rounded-2xl bg-base-200"
-            :placeholder="chatIsPublic ? 'Post a public Dream message...' : 'Post a private Dream message...'"
+            :placeholder="
+              chatIsPublic
+                ? 'Post a public Dream message...'
+                : 'Post a private Dream message...'
+            "
             @keydown.ctrl.enter.prevent="submitMessage"
             @keydown.meta.enter.prevent="submitMessage"
           />
@@ -318,8 +360,14 @@
       >
         <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <h2 class="text-lg font-black text-primary">Concept</h2>
-          <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-base-content/70">
-            {{ dreamStore.selectedDream.pitch || dreamStore.selectedDream.description || dreamStore.selectedDream.flavorText }}
+          <p
+            class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-base-content/70"
+          >
+            {{
+              dreamStore.selectedDream.pitch ||
+              dreamStore.selectedDream.description ||
+              dreamStore.selectedDream.flavorText
+            }}
           </p>
         </section>
 
@@ -357,39 +405,6 @@
         <dream-list class="min-h-0" list-type="chats" />
       </aside>
     </main>
-
-    <div
-      v-else
-      class="relative z-10 flex min-h-0 flex-1 items-center justify-center p-6"
-    >
-      <div
-        class="max-w-lg rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center shadow"
-      >
-        <Icon name="kind-icon:dream" class="mx-auto h-16 w-16 text-primary/60" />
-        <h2 class="mt-3 text-2xl font-black">No Dream selected</h2>
-        <p class="mt-2 text-base-content/60">
-          Pick a Dream from the gallery, or make a new one in Dreammaker.
-        </p>
-
-        <div class="mt-4 flex flex-wrap justify-center gap-2">
-          <button
-            type="button"
-            class="btn btn-primary rounded-2xl text-white"
-            @click="backToGallery"
-          >
-            All Dreams
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-secondary rounded-2xl"
-            @click="goToDreammaker"
-          >
-            Dreammaker
-          </button>
-        </div>
-      </div>
-    </div>
   </section>
 </template>
 
@@ -443,9 +458,11 @@ const canSubmit = computed(() => {
 })
 
 const wallpaperUrl = computed(() => {
-  const firstCollectionImage = dreamStore.selectedDreamCollectionArt.find((art) => {
-    return art.imagePath || art.path || art.fileName
-  })
+  const firstCollectionImage = dreamStore.selectedDreamCollectionArt.find(
+    (art) => {
+      return art.imagePath || art.path || art.fileName
+    },
+  )
 
   return (
     dreamStore.selectedDreamCurrentImage ||
@@ -490,7 +507,12 @@ function syncFromSelectedDream() {
   if (!dream) return
 
   chatIsPublic.value = dream.isPublic ?? true
-  artPrompt.value = dream.artPrompt || dream.pitch || dream.description || dream.flavorText || ''
+  artPrompt.value =
+    dream.artPrompt ||
+    dream.pitch ||
+    dream.description ||
+    dream.flavorText ||
+    ''
 }
 
 function requireSelectedDream() {
@@ -597,7 +619,8 @@ async function generateArtImage() {
 
     await dreamStore.updateSelectedDream({
       artPrompt: prompt,
-      artImageId: Number.isInteger(artImageId) && artImageId > 0 ? artImageId : undefined,
+      artImageId:
+        Number.isInteger(artImageId) && artImageId > 0 ? artImageId : undefined,
       artCollectionId: dreamStore.selectedDream?.artCollectionId ?? null,
       addArtToCollection: true,
       updateNote: 'Generated Dream art.',
@@ -605,14 +628,19 @@ async function generateArtImage() {
 
     await dreamStore.addModelDreamMessage(`Generated Dream art:\n${prompt}`, {
       type: 'BotResponse',
-      artImageId: Number.isInteger(artImageId) && artImageId > 0 ? artImageId : null,
+      artImageId:
+        Number.isInteger(artImageId) && artImageId > 0 ? artImageId : null,
       isPublic: dreamStore.selectedDream?.isPublic ?? true,
       isMature: dreamStore.selectedDream?.isMature ?? false,
     })
 
     await refreshDream()
   } catch (error) {
-    dreamStore.reportError(error, 'generating Dream art', 'Art generation failed.')
+    dreamStore.reportError(
+      error,
+      'generating Dream art',
+      'Art generation failed.',
+    )
   } finally {
     isGeneratingArt.value = false
   }
@@ -627,11 +655,5 @@ async function editDream() {
 
 function backToGallery() {
   dreamStore.deselectDream?.()
-  navStore.setDashboardTab?.('dream', 'dreams')
-}
-
-function goToDreammaker() {
-  dreamStore.startAddingDream()
-  navStore.setDashboardTab?.('dream', 'dreammaker')
 }
 </script>

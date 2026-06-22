@@ -400,6 +400,8 @@ export const ModelName = {
   Milestone: 'Milestone',
   ManaTransaction: 'ManaTransaction',
   MilestoneRecord: 'MilestoneRecord',
+  NarratorTopic: 'NarratorTopic',
+  NarratorThread: 'NarratorThread',
   Prompt: 'Prompt',
   Reaction: 'Reaction',
   Resource: 'Resource',
@@ -427,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "expressionMedia" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1487,6 +1489,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    NarratorTopic: {
+      payload: Prisma.$NarratorTopicPayload<ExtArgs>
+      fields: Prisma.NarratorTopicFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NarratorTopicFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NarratorTopicFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload>
+        }
+        findFirst: {
+          args: Prisma.NarratorTopicFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NarratorTopicFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload>
+        }
+        findMany: {
+          args: Prisma.NarratorTopicFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload>[]
+        }
+        create: {
+          args: Prisma.NarratorTopicCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload>
+        }
+        createMany: {
+          args: Prisma.NarratorTopicCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.NarratorTopicDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload>
+        }
+        update: {
+          args: Prisma.NarratorTopicUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload>
+        }
+        deleteMany: {
+          args: Prisma.NarratorTopicDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NarratorTopicUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.NarratorTopicUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorTopicPayload>
+        }
+        aggregate: {
+          args: Prisma.NarratorTopicAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNarratorTopic>
+        }
+        groupBy: {
+          args: Prisma.NarratorTopicGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NarratorTopicGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NarratorTopicCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NarratorTopicCountAggregateOutputType> | number
+        }
+      }
+    }
+    NarratorThread: {
+      payload: Prisma.$NarratorThreadPayload<ExtArgs>
+      fields: Prisma.NarratorThreadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NarratorThreadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NarratorThreadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload>
+        }
+        findFirst: {
+          args: Prisma.NarratorThreadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NarratorThreadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload>
+        }
+        findMany: {
+          args: Prisma.NarratorThreadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload>[]
+        }
+        create: {
+          args: Prisma.NarratorThreadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload>
+        }
+        createMany: {
+          args: Prisma.NarratorThreadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.NarratorThreadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload>
+        }
+        update: {
+          args: Prisma.NarratorThreadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload>
+        }
+        deleteMany: {
+          args: Prisma.NarratorThreadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NarratorThreadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.NarratorThreadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NarratorThreadPayload>
+        }
+        aggregate: {
+          args: Prisma.NarratorThreadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNarratorThread>
+        }
+        groupBy: {
+          args: Prisma.NarratorThreadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NarratorThreadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NarratorThreadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NarratorThreadCountAggregateOutputType> | number
+        }
+      }
+    }
     Prompt: {
       payload: Prisma.$PromptPayload<ExtArgs>
       fields: Prisma.PromptFieldRefs
@@ -2402,7 +2536,8 @@ export const BotScalarFieldEnum = {
   artImageId: 'artImageId',
   isMature: 'isMature',
   isActive: 'isActive',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  chatBorderImage: 'chatBorderImage'
 } as const
 
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
@@ -2692,6 +2827,42 @@ export const MilestoneRecordScalarFieldEnum = {
 } as const
 
 export type MilestoneRecordScalarFieldEnum = (typeof MilestoneRecordScalarFieldEnum)[keyof typeof MilestoneRecordScalarFieldEnum]
+
+
+export const NarratorTopicScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  title: 'title',
+  subtitle: 'subtitle',
+  description: 'description',
+  icon: 'icon',
+  prompt: 'prompt',
+  sampleUserPrompt: 'sampleUserPrompt',
+  sortOrder: 'sortOrder',
+  isPublic: 'isPublic',
+  isActive: 'isActive'
+} as const
+
+export type NarratorTopicScalarFieldEnum = (typeof NarratorTopicScalarFieldEnum)[keyof typeof NarratorTopicScalarFieldEnum]
+
+
+export const NarratorThreadScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  botId: 'botId',
+  topicId: 'topicId',
+  title: 'title',
+  openingText: 'openingText',
+  guidance: 'guidance',
+  starterPrompts: 'starterPrompts',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive'
+} as const
+
+export type NarratorThreadScalarFieldEnum = (typeof NarratorThreadScalarFieldEnum)[keyof typeof NarratorThreadScalarFieldEnum]
 
 
 export const PromptScalarFieldEnum = {
@@ -3096,7 +3267,8 @@ export const BotOrderByRelevanceFieldEnum = {
   imagePath: 'imagePath',
   designer: 'designer',
   serverName: 'serverName',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  chatBorderImage: 'chatBorderImage'
 } as const
 
 export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)[keyof typeof BotOrderByRelevanceFieldEnum]
@@ -3274,6 +3446,28 @@ export const MilestoneRecordOrderByRelevanceFieldEnum = {
 } as const
 
 export type MilestoneRecordOrderByRelevanceFieldEnum = (typeof MilestoneRecordOrderByRelevanceFieldEnum)[keyof typeof MilestoneRecordOrderByRelevanceFieldEnum]
+
+
+export const NarratorTopicOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  subtitle: 'subtitle',
+  description: 'description',
+  icon: 'icon',
+  prompt: 'prompt',
+  sampleUserPrompt: 'sampleUserPrompt'
+} as const
+
+export type NarratorTopicOrderByRelevanceFieldEnum = (typeof NarratorTopicOrderByRelevanceFieldEnum)[keyof typeof NarratorTopicOrderByRelevanceFieldEnum]
+
+
+export const NarratorThreadOrderByRelevanceFieldEnum = {
+  title: 'title',
+  openingText: 'openingText',
+  guidance: 'guidance'
+} as const
+
+export type NarratorThreadOrderByRelevanceFieldEnum = (typeof NarratorThreadOrderByRelevanceFieldEnum)[keyof typeof NarratorThreadOrderByRelevanceFieldEnum]
 
 
 export const PromptOrderByRelevanceFieldEnum = {
@@ -3803,6 +3997,8 @@ export type GlobalOmitConfig = {
   milestone?: Prisma.MilestoneOmit
   manaTransaction?: Prisma.ManaTransactionOmit
   milestoneRecord?: Prisma.MilestoneRecordOmit
+  narratorTopic?: Prisma.NarratorTopicOmit
+  narratorThread?: Prisma.NarratorThreadOmit
   prompt?: Prisma.PromptOmit
   reaction?: Prisma.ReactionOmit
   resource?: Prisma.ResourceOmit

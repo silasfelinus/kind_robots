@@ -109,6 +109,16 @@ export type ManaTransaction = Prisma.ManaTransactionModel
  */
 export type MilestoneRecord = Prisma.MilestoneRecordModel
 /**
+ * Model NarratorTopic
+ * 
+ */
+export type NarratorTopic = Prisma.NarratorTopicModel
+/**
+ * Model NarratorThread
+ * 
+ */
+export type NarratorThread = Prisma.NarratorThreadModel
+/**
  * Model Prompt
  * this is an art or text prompt to an ai to generate new media
  */

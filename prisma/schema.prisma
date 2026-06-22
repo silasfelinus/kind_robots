@@ -122,6 +122,8 @@ model Bot {
   ArtImage          ArtImage?      @relation(fields: [artImageId], references: [id])
   Server            Server?        @relation(fields: [serverId], references: [id])
   User              User?          @relation(fields: [userId], references: [id])
+  chatBorderImage  String?            @db.VarChar(764)
+  NarratorThreads  NarratorThread[]
   Chats             Chat[]
   Prompts           Prompt[]
   Reactions         Reaction[]
@@ -592,6 +594,48 @@ model MilestoneRecord {
 
   @@index([milestoneId], map: "MilestoneRecord_milestoneId_fkey")
   @@index([userId], map: "MilestoneRecord_userId_fkey")
+}
+
+model NarratorTopic {
+  id               Int                @id @default(autoincrement())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime?          @default(now()) @updatedAt
+  slug             String             @unique @db.VarChar(255)
+  title            String             @db.VarChar(255)
+  subtitle         String?            @db.VarChar(764)
+  description      String?            @db.Text
+  icon             String?            @db.VarChar(255)
+  prompt           String             @db.Text
+  sampleUserPrompt String?            @db.VarChar(764)
+  sortOrder        Int                @default(0)
+  isPublic         Boolean            @default(true)
+  isActive         Boolean            @default(true)
+  Threads          NarratorThread[]
+
+  @@index([sortOrder])
+  @@index([isActive])
+}
+
+model NarratorThread {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime?      @default(now()) @updatedAt
+  botId          Int
+  topicId        Int
+  title          String?        @db.VarChar(255)
+  openingText    String         @db.Text
+  guidance       String?        @db.Text
+  starterPrompts Json?
+  sortOrder      Int            @default(0)
+  isActive       Boolean        @default(true)
+  Bot            Bot            @relation(fields: [botId], references: [id], onDelete: Cascade)
+  Topic          NarratorTopic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([botId, topicId])
+  @@index([botId])
+  @@index([topicId])
+  @@index([sortOrder])
+  @@index([isActive])
 }
 
 /// this is an art or text prompt to an ai to generate new media

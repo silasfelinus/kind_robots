@@ -2,7 +2,7 @@
 <template>
   <div
     ref="handEl"
-    class="pointer-events-none absolute inset-x-0 bottom-0 z-90 overflow-visible px-1"
+    class="pointer-events-none absolute inset-x-0 bottom-0 z-90 h-full overflow-visible px-1"
     :style="handFrameStyle"
   >
     <fx-region region="hand" />
@@ -322,13 +322,10 @@ const scrollFrameStyle = computed<CSSProperties>(() => {
 function publishHeight(): void {
   if (!import.meta.client) return
 
+  // Width drives card sizing. Height (--hand-h) is owned by app.vue now —
+  // the hand fills its footer slot rather than dictating the global var.
   handWidth.value =
     scrollEl.value?.clientWidth ?? handEl.value?.clientWidth ?? 0
-
-  document.documentElement.style.setProperty(
-    '--hand-h',
-    `${restingHandHeightPx.value}px`,
-  )
 }
 
 function getCardPath(card: BuilderCard): string {
@@ -480,8 +477,6 @@ onBeforeUnmount(() => {
   }
 
   if (flipTimer) clearTimeout(flipTimer)
-
-  document.documentElement.style.removeProperty('--hand-h')
 })
 </script>
 

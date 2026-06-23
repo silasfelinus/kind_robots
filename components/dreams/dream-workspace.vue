@@ -79,9 +79,8 @@
         :show-sheet-toolbar="false"
       />
 
-      <scenario-gallery
+      <scenario-relationship-gallery
         v-else-if="workspaceStore.dreamPanel === 'scenarios'"
-        variant="dashboard"
         title="Dream Scenarios"
         subtitle="Scenarios connected to this Dream."
         relation-mode="connected"

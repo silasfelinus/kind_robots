@@ -94,10 +94,8 @@ const dreamListInclude = {
     select: {
       id: true,
       title: true,
-      slug: true,
       description: true,
       imagePath: true,
-      icon: true,
       difficulty: true,
       tier: true,
       group: true,

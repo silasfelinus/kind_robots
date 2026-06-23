@@ -303,6 +303,17 @@
           </div>
 
           <div v-else class="grid gap-3">
+            <dream-pitch-sheet
+              :key="dreamStore.selectedDream.id"
+              :dream="dreamStore.selectedDream"
+              variant="detail"
+              :auto-load="true"
+              :allow-ensure="true"
+              :allow-edit="true"
+              :allow-actions="true"
+              @edit="editDream"
+            />
+
             <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <h2 class="font-black">Dream Assets</h2>
               <p class="mt-1 text-sm text-base-content/60">

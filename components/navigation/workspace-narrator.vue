@@ -1,4 +1,4 @@
-<!-- /components/workspace/workspace-narrator.vue -->
+<!-- /components/navigation/workspace-narrator.vue -->
 <template>
   <div
     v-if="narratorDockVisible"
@@ -8,6 +8,7 @@
       <section
         v-if="isOpen"
         class="pointer-events-auto absolute inset-y-0 right-0 z-40 flex h-full w-full max-w-[100vw] min-w-0 flex-col overflow-hidden rounded-2xl border border-primary/25 bg-base-100/95 shadow-2xl backdrop-blur-xl sm:rounded-3xl"
+        :data-coexist="coexist ? 'true' : 'false'"
       >
         <div class="narrator-card-stage relative h-full min-h-0 w-full">
           <div
@@ -70,7 +71,7 @@
               <main class="flex min-h-0 flex-1 flex-col bg-base-200/35 p-3">
                 <button
                   type="button"
-                  class="group relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-4xl border border-primary/20 bg-base-100/70 shadow-inner"
+                  class="group relative flex min-h-0 flex-1 items-stretch justify-stretch overflow-hidden rounded-4xl border border-primary/20 bg-base-100/70 shadow-inner"
                   :aria-label="`Shift ${narratorName} expression`"
                   @click="playReactionOnClick"
                 >
@@ -78,33 +79,63 @@
                     class="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-secondary/10 opacity-80"
                   />
 
-                  <div
-                    class="magic-card relative z-10 flex h-full w-full items-center justify-center"
-                    :class="expressionTricking ? 'is-tricking' : ''"
+                  <FlipCard
+                    class="relative z-10 h-full w-full"
+                    :trigger-key="expressionFlipToken"
+                    radius="1.75rem"
+                    @halfway="commitExpressionImage"
                   >
-                    <div
-                      v-if="showExpressionBack"
-                      class="expression-card-back absolute inset-2 rounded-[1.75rem]"
-                      aria-hidden="true"
+                    <template #front>
+                      <img
+                        :src="displayedNarratorImage"
+                        :alt="narratorName"
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </template>
+
+                    <template #back>
+                      <img
+                        :src="narratorCardBackSrc"
+                        :alt="`Card back ${cardBack}`"
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </template>
+                  </FlipCard>
+
+                  <Transition name="narrator-toast">
+                    <article
+                      v-if="latestMusing"
+                      class="pointer-events-none absolute inset-x-3 bottom-3 z-20 rounded-2xl border border-primary/25 bg-base-100/95 px-3 py-2 text-left text-sm shadow-2xl backdrop-blur"
                     >
-                      <div class="expression-card-back-core">
-                        <Icon
-                          name="kind-icon:dream"
-                          class="h-12 w-12 text-primary/70"
-                        />
+                      <div class="flex items-start gap-2">
+                        <span
+                          v-if="latestMusing.emoticon"
+                          class="mt-0.5 text-base leading-none"
+                          aria-hidden="true"
+                        >
+                          {{ latestMusing.emoticon }}
+                        </span>
+
+                        <div class="min-w-0 flex-1">
+                          <p
+                            class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+                          >
+                            {{ latestMusing.label }}
+                          </p>
+
+                          <p
+                            class="mt-1 line-clamp-2 leading-relaxed text-base-content/80"
+                          >
+                            {{ latestMusing.message }}
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    </article>
+                  </Transition>
 
-                    <img
-                      v-else
-                      :src="displayedNarratorImage"
-                      :alt="narratorName"
-                      class="h-full w-full rounded-[1.75rem] object-contain p-2 transition-transform duration-300 group-hover:scale-[1.015]"
-                      loading="lazy"
-                    />
-                  </div>
-
-                  <div class="pointer-events-none absolute inset-0">
+                  <div class="pointer-events-none absolute inset-0 z-30">
                     <span
                       v-for="burst in emojiBursts"
                       :key="burst.id"
@@ -119,37 +150,6 @@
                     </span>
                   </div>
                 </button>
-
-                <Transition name="narrator-musing">
-                  <article
-                    v-if="latestMusing"
-                    class="mt-3 rounded-3xl border border-primary/20 bg-base-100 px-3 py-2 shadow-lg"
-                  >
-                    <div class="flex items-start gap-2">
-                      <span
-                        v-if="latestMusing.emoticon"
-                        class="mt-0.5 text-lg leading-none"
-                        aria-hidden="true"
-                      >
-                        {{ latestMusing.emoticon }}
-                      </span>
-
-                      <div class="min-w-0 flex-1">
-                        <p
-                          class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
-                        >
-                          {{ latestMusing.label }}
-                        </p>
-
-                        <p
-                          class="mt-1 line-clamp-3 text-sm leading-relaxed text-base-content/80"
-                        >
-                          {{ latestMusing.message }}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                </Transition>
 
                 <button
                   type="button"
@@ -200,48 +200,23 @@
                   class="absolute -right-12 -top-16 h-36 w-36 rounded-full bg-primary/20 blur-3xl"
                 />
 
-                <div class="relative flex items-center justify-between gap-3">
+                <div class="relative flex items-start justify-between gap-3">
                   <button
                     type="button"
-                    class="group flex min-w-0 items-center gap-3 text-left"
+                    class="min-w-0 text-left"
                     @click="closeChatFace"
                   >
-                    <div
-                      class="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-primary/30 bg-base-300 shadow"
+                    <p
+                      class="truncate text-base font-black leading-tight text-base-content"
                     >
-                      <div
-                        class="magic-card h-full w-full"
-                        :class="expressionTricking ? 'is-tricking' : ''"
-                      >
-                        <div
-                          v-if="showExpressionBack"
-                          class="expression-card-back absolute inset-1 rounded-xl"
-                          aria-hidden="true"
-                        />
+                      {{ narratorName }}
+                    </p>
 
-                        <img
-                          v-else
-                          :src="displayedNarratorImage"
-                          :alt="narratorName"
-                          class="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    </div>
-
-                    <div class="min-w-0">
-                      <p
-                        class="truncate text-sm font-black leading-tight text-base-content"
-                      >
-                        {{ narratorName }}
-                      </p>
-
-                      <p
-                        class="truncate text-[0.65rem] font-black uppercase tracking-widest text-primary/75"
-                      >
-                        {{ currentEmotionLabel }}
-                      </p>
-                    </div>
+                    <p
+                      class="mt-1 truncate text-[0.65rem] font-black uppercase tracking-widest text-primary/75"
+                    >
+                      {{ currentEmotionLabel }}
+                    </p>
                   </button>
 
                   <div class="flex shrink-0 gap-1">
@@ -264,6 +239,35 @@
                       <Icon name="kind-icon:close" class="h-3.5 w-3.5" />
                     </button>
                   </div>
+                </div>
+
+                <div
+                  class="relative mt-3 h-[25dvh] min-h-36 max-h-60 overflow-hidden rounded-4xl border border-primary/20 bg-base-300 shadow-inner"
+                >
+                  <FlipCard
+                    class="h-full w-full"
+                    :trigger-key="expressionFlipToken"
+                    radius="1.75rem"
+                    @halfway="commitExpressionImage"
+                  >
+                    <template #front>
+                      <img
+                        :src="displayedNarratorImage"
+                        :alt="narratorName"
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </template>
+
+                    <template #back>
+                      <img
+                        :src="narratorCardBackSrc"
+                        :alt="`Card back ${cardBack}`"
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </template>
+                  </FlipCard>
                 </div>
               </header>
 
@@ -350,16 +354,31 @@
                         </p>
 
                         <p
-                          class="mt-1 text-sm leading-relaxed text-base-content/75"
+                          class="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-base-content/75"
                         >
                           {{ selectedTopicIntro }}
                         </p>
+
+                        <div
+                          v-if="selectedTopicStarters.length"
+                          class="mt-3 flex flex-wrap gap-2"
+                        >
+                          <button
+                            v-for="starter in selectedTopicStarters"
+                            :key="starter.key"
+                            type="button"
+                            class="btn btn-outline btn-xs rounded-2xl"
+                            @click="selectStarter(starter)"
+                          >
+                            {{ starter.label }}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </article>
 
                   <article
-                    v-if="!narratorSession.length"
+                    v-if="!seededMessages.length && !narratorSession.length"
                     class="flex items-start gap-2"
                   >
                     <img
@@ -373,6 +392,48 @@
                       class="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed text-base-content/85 shadow-sm"
                     >
                       {{ narratorIntro }}
+                    </div>
+                  </article>
+
+                  <article
+                    v-for="message in seededMessages"
+                    :key="message.id"
+                    class="flex max-w-[92%] gap-2"
+                  >
+                    <img
+                      :src="displayedNarratorImage"
+                      :alt="narratorName"
+                      class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
+                      loading="lazy"
+                    />
+
+                    <div
+                      class="rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed shadow-sm"
+                    >
+                      <p
+                        class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+                      >
+                        {{ message.title }}
+                      </p>
+
+                      <p class="mt-1 whitespace-pre-wrap text-base-content/80">
+                        {{ message.body }}
+                      </p>
+
+                      <div
+                        v-if="message.followups.length"
+                        class="mt-3 flex flex-wrap gap-2"
+                      >
+                        <button
+                          v-for="starter in message.followups"
+                          :key="starter.key"
+                          type="button"
+                          class="btn btn-outline btn-xs rounded-2xl"
+                          @click="selectStarter(starter)"
+                        >
+                          {{ starter.label }}
+                        </button>
+                      </div>
                     </div>
                   </article>
 
@@ -449,7 +510,7 @@
                       type="button"
                       class="btn btn-ghost btn-sm rounded-2xl"
                       :disabled="isNarratorResponding"
-                      @click="clearSession"
+                      @click="clearNarratorThread"
                     >
                       Clear
                     </button>
@@ -487,17 +548,17 @@
 
     <div
       v-if="!isOpen"
-      class="pointer-events-auto absolute bottom-3 right-3 z-50 flex flex-col items-end gap-2"
+      class="pointer-events-auto absolute bottom-3 right-3 z-50 flex items-end gap-2"
     >
-      <Transition name="narrator-musing">
+      <Transition name="narrator-toast">
         <article
           v-if="latestMusing"
-          class="max-w-[min(18rem,calc(100vw-7rem))] rounded-3xl border border-primary/20 bg-base-100/95 px-3 py-2 text-sm shadow-2xl backdrop-blur"
+          class="mb-1 max-w-[min(20rem,calc(100vw-7.5rem))] rounded-2xl border border-primary/25 bg-base-100/95 px-3 py-2 text-sm shadow-2xl backdrop-blur"
         >
           <div class="flex items-start gap-2">
             <span
               v-if="latestMusing.emoticon"
-              class="mt-0.5 text-lg leading-none"
+              class="mt-0.5 text-base leading-none"
               aria-hidden="true"
             >
               {{ latestMusing.emoticon }}
@@ -510,7 +571,7 @@
                 {{ latestMusing.label }}
               </p>
 
-              <p class="mt-1 line-clamp-3 leading-relaxed text-base-content/80">
+              <p class="mt-1 line-clamp-2 leading-relaxed text-base-content/80">
                 {{ latestMusing.message }}
               </p>
             </div>
@@ -530,25 +591,31 @@
           class="absolute -inset-1 rounded-full bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
         />
 
-        <div
-          class="magic-card relative h-full w-full"
-          :class="expressionTricking ? 'is-tricking' : ''"
+        <FlipCard
+          class="relative h-full w-full"
+          :trigger-key="expressionFlipToken"
+          radius="9999px"
+          @halfway="commitExpressionImage"
         >
-          <div
-            v-if="showExpressionBack"
-            class="expression-card-back absolute inset-1 rounded-3xl md:rounded-full"
-            aria-hidden="true"
-          />
+          <template #front>
+            <img
+              :src="displayedNarratorImage"
+              :alt="narratorName"
+              class="narrator-dock-img h-full w-full cursor-pointer p-1"
+              loading="lazy"
+              @dblclick.stop="playReactionOnClick"
+            />
+          </template>
 
-          <img
-            v-else
-            :src="displayedNarratorImage"
-            :alt="narratorName"
-            class="narrator-dock-img relative h-full w-full cursor-pointer p-1"
-            loading="lazy"
-            @dblclick.stop="playReactionOnClick"
-          />
-        </div>
+          <template #back>
+            <img
+              :src="narratorCardBackSrc"
+              :alt="`Card back ${cardBack}`"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </template>
+        </FlipCard>
 
         <span
           v-if="currentEmotionRow?.emoticon"
@@ -580,7 +647,32 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { navigateTo } from '#app'
 import { storeToRefs } from 'pinia'
+import FlipCard from '@/components/ui/flip-card.vue'
 import { useNarratorStore } from '@/stores/narratorStore'
+import { useUserStore } from '@/stores/userStore'
+
+type RawStarterPrompt = {
+  label?: string | null
+  title?: string | null
+  prompt?: string | null
+  answer?: string | null
+  response?: string | null
+  flavor?: string | null
+  openingText?: string | null
+  action?: string | null
+  path?: string | null
+  key?: string | null
+  screen?: string | null
+}
+
+type ThreadStarter = {
+  key: string
+  label: string
+  prompt: string
+  answer: string
+  action: string
+  path: string
+}
 
 type TopicButton = {
   key: string
@@ -590,6 +682,7 @@ type TopicButton = {
   prompt: string
   openingText: string
   route: string
+  starters: ThreadStarter[]
 }
 
 type MusingEntry = {
@@ -597,6 +690,13 @@ type MusingEntry = {
   label: string
   message: string
   emoticon: string | null
+}
+
+type SeededMessage = {
+  id: string
+  title: string
+  body: string
+  followups: ThreadStarter[]
 }
 
 type EmojiBurst = {
@@ -623,7 +723,13 @@ const emit = defineEmits<{
   'update:rendered': [value: boolean]
 }>()
 
+const CARD_BACKS = [1, 2, 3, 4, 5] as const
+type CardBack = (typeof CARD_BACKS)[number]
+
+const CARD_BACK_STORAGE_KEY = 'kr.workspaceCardBack'
+
 const narratorStore = useNarratorStore()
+const userStore = useUserStore()
 
 const {
   isOpen,
@@ -633,7 +739,6 @@ const {
   currentEmotion,
   currentEmotionRow,
   narratorName,
-  narratorMenuSummary,
   narratorHoverTitle,
   narratorImage,
   narratorThreads,
@@ -667,15 +772,15 @@ const chatLogRef = ref<HTMLElement | null>(null)
 const chatFaceOpen = ref(false)
 const showTopics = ref(false)
 const selectedTopicKey = ref('')
+const cardBack = ref<CardBack>(1)
 const displayedNarratorImage = ref('')
-const expressionTricking = ref(false)
-const showExpressionBack = ref(false)
+const queuedNarratorImage = ref('')
+const expressionFlipToken = ref(0)
 const musingHistory = ref<MusingEntry[]>([])
+const seededMessages = ref<SeededMessage[]>([])
 const emojiBursts = ref<EmojiBurst[]>([])
 
-let expressionTimerOne: ReturnType<typeof setTimeout> | null = null
-let expressionTimerTwo: ReturnType<typeof setTimeout> | null = null
-let expressionTimerThree: ReturnType<typeof setTimeout> | null = null
+let musingTimer: ReturnType<typeof setTimeout> | null = null
 let emojiTimer: ReturnType<typeof setTimeout> | null = null
 
 const narratorDockVisible = computed(() => {
@@ -684,6 +789,10 @@ const narratorDockVisible = computed(() => {
 
 const latestMusing = computed(() => {
   return musingHistory.value.at(-1) ?? null
+})
+
+const narratorCardBackSrc = computed(() => {
+  return cardBackSrc(cardBack.value)
 })
 
 const topicButtons = computed<TopicButton[]>(() => {
@@ -710,8 +819,9 @@ const topicButtons = computed<TopicButton[]>(() => {
       icon:
         topic?.icon || (isScenario ? 'kind-icon:book' : 'kind-icon:message'),
       prompt: topic?.sampleUserPrompt || topic?.prompt || '',
-      openingText: thread.openingText || '',
+      openingText: thread.openingText || topic?.description || '',
       route: isScenario ? '/stories' : '',
+      starters: parseStarterPrompts(thread.starterPrompts),
     }
   })
 
@@ -728,6 +838,28 @@ const topicButtons = computed<TopicButton[]>(() => {
       openingText:
         'Let’s turn the vague sparkly thing into an actual usable thing.',
       route: '',
+      starters: [
+        {
+          key: 'build-character',
+          label: 'Character seed',
+          prompt:
+            'Help me create one useful character for this Dream. Include name, role, visual hook, and conflict.',
+          answer:
+            'A strong character seed usually starts with a job, a wound, and a weird visual tell. I can help you turn that into a proper character record.',
+          action: '',
+          path: '',
+        },
+        {
+          key: 'build-reward',
+          label: 'Reward seed',
+          prompt:
+            'Help me create one useful reward for this Dream. Include rarity, effect, flavor text, and visual hook.',
+          answer:
+            'Rewards work best when they feel like souvenirs from the story world, not just inventory confetti.',
+          action: '',
+          path: '',
+        },
+      ],
     },
     {
       key: 'stories',
@@ -738,6 +870,7 @@ const topicButtons = computed<TopicButton[]>(() => {
       openingText:
         'Stories belong in the story room. Very official. Tiny velvet rope.',
       route: '/stories',
+      starters: [],
     },
     {
       key: 'lore',
@@ -749,6 +882,17 @@ const topicButtons = computed<TopicButton[]>(() => {
       openingText:
         'Lore mode: less spreadsheet, more secret butterfly constitution.',
       route: '',
+      starters: [
+        {
+          key: 'lore-ami',
+          label: 'Who is AMI?',
+          prompt: '',
+          answer:
+            'AMI is the Anti-Malaria Intelligence: a swarm of rainbow butterflies, a narrator spirit, and a tiny act of useful rebellion against mosquito-borne misery.',
+          action: '',
+          path: '',
+        },
+      ],
     },
   ]
 })
@@ -773,6 +917,81 @@ const selectedTopicIntro = computed(() => {
   return selectedTopic.value?.openingText || ''
 })
 
+const selectedTopicStarters = computed(() => {
+  return selectedTopic.value?.starters ?? []
+})
+
+function cardBackSrc(back: CardBack): string {
+  return `/images/adventure/card/card-back${back}.webp`
+}
+
+function readPreferredCardBack(): CardBack {
+  const source = userStore as unknown as {
+    workspaceCardBack?: number | string | null
+    cardBack?: number | string | null
+    user?: {
+      workspaceCardBack?: number | string | null
+      cardBack?: number | string | null
+    } | null
+  }
+
+  const candidates = [
+    source.workspaceCardBack,
+    source.cardBack,
+    source.user?.workspaceCardBack,
+    source.user?.cardBack,
+  ]
+
+  for (const candidate of candidates) {
+    const parsed = Number(candidate)
+
+    if (CARD_BACKS.includes(parsed as CardBack)) {
+      return parsed as CardBack
+    }
+  }
+
+  if (import.meta.client) {
+    try {
+      const stored = window.localStorage.getItem(CARD_BACK_STORAGE_KEY)
+      const parsed = stored ? Number(stored) : NaN
+
+      if (CARD_BACKS.includes(parsed as CardBack)) {
+        return parsed as CardBack
+      }
+    } catch {}
+  }
+
+  return 1
+}
+
+function parseStarterPrompts(value: unknown): ThreadStarter[] {
+  const rawItems = Array.isArray(value) ? value : []
+
+  return rawItems
+    .map((item, index) => {
+      if (!item || typeof item !== 'object') return null
+
+      const raw = item as RawStarterPrompt
+      const label = raw.label || raw.title || `Option ${index + 1}`
+      const prompt = raw.prompt || ''
+      const answer =
+        raw.answer || raw.response || raw.flavor || raw.openingText || ''
+      const action = raw.action || ''
+      const path = raw.path || ''
+      const key = raw.key || `${label}-${index}`
+
+      return {
+        key,
+        label,
+        prompt,
+        answer,
+        action,
+        path,
+      }
+    })
+    .filter((item): item is ThreadStarter => Boolean(item?.label))
+}
+
 function openNarrator(): void {
   isOpen.value = true
   clearBubble()
@@ -786,7 +1005,7 @@ function closeNarrator(): void {
 
 function openChatFace(): void {
   chatFaceOpen.value = true
-  showTopics.value = !narratorSession.value.length
+  showTopics.value = !seededMessages.value.length && !narratorSession.value.length
 }
 
 function closeChatFace(): void {
@@ -807,9 +1026,53 @@ async function selectTopic(topic: TopicButton): Promise<void> {
     return
   }
 
-  if (topic.prompt) {
+  seededMessages.value.push({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    title: topic.title,
+    body:
+      topic.openingText ||
+      topic.description ||
+      'This thread is ready. Pick a path or ask a custom question.',
+    followups: topic.starters,
+  })
+
+  if (topic.prompt && !topic.starters.length) {
     narratorMessage.value = topic.prompt
   }
+
+  await nextTick()
+  scrollChatToBottom()
+}
+
+async function selectStarter(starter: ThreadStarter): Promise<void> {
+  if (starter.action === 'navigate' && starter.path) {
+    closeNarrator()
+    await navigateTo(starter.path)
+    return
+  }
+
+  if (starter.answer) {
+    seededMessages.value.push({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      title: starter.label,
+      body: starter.answer,
+      followups: [],
+    })
+  }
+
+  if (starter.prompt) {
+    narratorMessage.value = starter.prompt
+  }
+
+  await nextTick()
+  scrollChatToBottom()
+}
+
+function clearNarratorThread(): void {
+  clearSession()
+  seededMessages.value = []
+  narratorMessage.value = ''
+  statusMessage.value = ''
 }
 
 function addMusing(
@@ -832,6 +1095,13 @@ function addMusing(
   if (musingHistory.value.length > 24) {
     musingHistory.value = musingHistory.value.slice(-24)
   }
+
+  if (musingTimer) clearTimeout(musingTimer)
+
+  musingTimer = setTimeout(() => {
+    musingHistory.value = []
+    musingTimer = null
+  }, 6500)
 }
 
 function expressionEmoji(): string {
@@ -886,43 +1156,30 @@ function spawnEmojiBurst(): void {
   }, 1600)
 }
 
-function runExpressionTrick(nextImage: string): void {
+function runExpressionFlip(nextImage: string, force = false): void {
   if (!nextImage) return
 
   if (!displayedNarratorImage.value) {
     displayedNarratorImage.value = nextImage
+    queuedNarratorImage.value = nextImage
     return
   }
 
-  if (nextImage === displayedNarratorImage.value) return
+  if (!force && nextImage === displayedNarratorImage.value) {
+    queuedNarratorImage.value = nextImage
+    expressionFlipToken.value += 1
+    spawnEmojiBurst()
+    return
+  }
 
-  if (expressionTimerOne) clearTimeout(expressionTimerOne)
-  if (expressionTimerTwo) clearTimeout(expressionTimerTwo)
-  if (expressionTimerThree) clearTimeout(expressionTimerThree)
-
-  expressionTricking.value = true
-  showExpressionBack.value = false
+  queuedNarratorImage.value = nextImage
+  expressionFlipToken.value += 1
   spawnEmojiBurst()
+}
 
-  expressionTimerOne = setTimeout(() => {
-    showExpressionBack.value = true
-  }, 170)
-
-  expressionTimerTwo = setTimeout(() => {
-    displayedNarratorImage.value = nextImage
-  }, 390)
-
-  expressionTimerThree = setTimeout(() => {
-    showExpressionBack.value = false
-
-    setTimeout(() => {
-      expressionTricking.value = false
-    }, 240)
-
-    expressionTimerOne = null
-    expressionTimerTwo = null
-    expressionTimerThree = null
-  }, 520)
+function commitExpressionImage(): void {
+  displayedNarratorImage.value =
+    queuedNarratorImage.value || displayedNarratorImage.value
 }
 
 function scrollChatToBottom(): void {
@@ -961,7 +1218,7 @@ watch(
 watch(
   () => narratorImage.value,
   (nextImage) => {
-    runExpressionTrick(nextImage)
+    runExpressionFlip(nextImage, true)
   },
 )
 
@@ -973,7 +1230,7 @@ watch(currentEmotionLabel, async (label, previousLabel) => {
     `Mood shifted to ${label.toLowerCase()}.`
 
   addMusing(rowMessage, label)
-  spawnEmojiBurst()
+  runExpressionFlip(narratorImage.value, true)
 
   await nextTick()
 })
@@ -1015,7 +1272,9 @@ watch(
 onMounted(async () => {
   await initialize()
 
+  cardBack.value = readPreferredCardBack()
   displayedNarratorImage.value = narratorImage.value
+  queuedNarratorImage.value = narratorImage.value
   addMusing(narratorIntro.value, 'Narrator')
 
   if (props.open) {
@@ -1027,9 +1286,7 @@ onBeforeUnmount(() => {
   disposeTimers()
   teardownLiveness()
 
-  if (expressionTimerOne) clearTimeout(expressionTimerOne)
-  if (expressionTimerTwo) clearTimeout(expressionTimerTwo)
-  if (expressionTimerThree) clearTimeout(expressionTimerThree)
+  if (musingTimer) clearTimeout(musingTimer)
   if (emojiTimer) clearTimeout(emojiTimer)
 })
 </script>
@@ -1072,56 +1329,6 @@ onBeforeUnmount(() => {
   transform: rotateY(180deg);
 }
 
-.magic-card {
-  position: relative;
-  transform-style: preserve-3d;
-}
-
-.magic-card.is-tricking {
-  animation: expression-card-trick 760ms cubic-bezier(0.4, 0.1, 0.2, 1);
-}
-
-.expression-card-back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(
-      circle at 20% 18%,
-      rgb(255 255 255 / 0.24),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 80% 72%,
-      rgb(255 255 255 / 0.18),
-      transparent 32%
-    ),
-    linear-gradient(135deg, rgb(var(--p) / 0.28), rgb(var(--s) / 0.22)),
-    repeating-linear-gradient(
-      45deg,
-      rgb(255 255 255 / 0.08) 0,
-      rgb(255 255 255 / 0.08) 0.35rem,
-      transparent 0.35rem,
-      transparent 0.7rem
-    );
-  border: 1px solid rgb(255 255 255 / 0.24);
-  box-shadow:
-    inset 0 0 0 1px rgb(0 0 0 / 0.08),
-    0 1rem 2rem rgb(0 0 0 / 0.18);
-}
-
-.expression-card-back-core {
-  display: flex;
-  height: 7rem;
-  width: 7rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border: 1px solid rgb(255 255 255 / 0.26);
-  background: rgb(var(--b1) / 0.72);
-  box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.16);
-}
-
 .emoji-burst {
   position: absolute;
   z-index: 20;
@@ -1154,6 +1361,8 @@ onBeforeUnmount(() => {
 .narrator-panel-leave-active,
 .narrator-musing-enter-active,
 .narrator-musing-leave-active,
+.narrator-toast-enter-active,
+.narrator-toast-leave-active,
 .narrator-topics-enter-active,
 .narrator-topics-leave-active {
   transition:
@@ -1168,37 +1377,17 @@ onBeforeUnmount(() => {
 }
 
 .narrator-musing-enter-from,
-.narrator-musing-leave-to {
+.narrator-musing-leave-to,
+.narrator-toast-enter-from,
+.narrator-toast-leave-to {
   opacity: 0;
-  transform: translateY(0.5rem) scale(0.98);
+  transform: translateX(0.75rem) translateY(0.25rem) scale(0.98);
 }
 
 .narrator-topics-enter-from,
 .narrator-topics-leave-to {
   opacity: 0;
   transform: translateY(-0.5rem);
-}
-
-@keyframes expression-card-trick {
-  0% {
-    transform: rotateY(0deg) scale(1);
-  }
-
-  34% {
-    transform: rotateY(92deg) scale(1.035);
-  }
-
-  52% {
-    transform: rotateY(180deg) scale(1.05);
-  }
-
-  74% {
-    transform: rotateY(268deg) scale(1.035);
-  }
-
-  100% {
-    transform: rotateY(360deg) scale(1);
-  }
 }
 
 @keyframes emoji-float {
@@ -1245,11 +1434,12 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .narrator-card-shell,
-  .magic-card.is-tricking,
   .narrator-panel-enter-active,
   .narrator-panel-leave-active,
   .narrator-musing-enter-active,
   .narrator-musing-leave-active,
+  .narrator-toast-enter-active,
+  .narrator-toast-leave-active,
   .narrator-topics-enter-active,
   .narrator-topics-leave-active,
   .emoji-burst,

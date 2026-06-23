@@ -104,12 +104,13 @@
         </main>
 
         <workspace-narrator
-  class="pointer-events-none absolute inset-y-0 right-0 z-40 transition-[width] duration-300 ease-out"
-  :style="{ width: narratorRailWidth }"
-  :coexist="isXl"
-  @update:open="setNarratorOpen"
-  @update:rendered="setNarratorRendered"
-/>
+          class="pointer-events-none absolute inset-y-0 right-0 z-40 transition-[width] duration-300 ease-out"
+          :style="{ width: narratorRailWidth }"
+          :coexist="isXl"
+          @update:open="setNarratorOpen"
+          @update:rendered="setNarratorRendered"
+          @update:compact-message-visible="setNarratorCompactMessageVisible"
+        />
       </section>
     </section>
 
@@ -202,22 +203,20 @@ function handlePageReady(): void {
 }
 
 const isMd = ref(false)
-const isLg = ref(false)
 const isXl = ref(false)
 
 let mdMedia: MediaQueryList | null = null
-let lgMedia: MediaQueryList | null = null
 let xlMedia: MediaQueryList | null = null
 
 function syncBreakpoints(): void {
   if (mdMedia) isMd.value = mdMedia.matches
-  if (lgMedia) isLg.value = lgMedia.matches
   if (xlMedia) isXl.value = xlMedia.matches
 }
 
 const handOpen = ref(false)
 const narratorOpen = ref(false)
 const narratorRendered = ref(false)
+const narratorCompactMessageVisible = ref(false)
 
 const SHEET_W_MD = '20rem'
 const SHEET_W_XL = '24rem'
@@ -254,6 +253,20 @@ const narratorRailWidth = computed(() => {
     : 'var(--narrator-circle)'
 })
 
+const narratorFooterReserve = computed(() => {
+  if (!isMd.value) return '0px'
+
+  if (narratorOpen.value) {
+    return 'var(--narrator-w)'
+  }
+
+  if (narratorCompactMessageVisible.value && narratorRendered.value) {
+    return 'max(var(--narrator-circle), calc((100vw - var(--sheet-w)) / 2))'
+  }
+
+  return narratorRendered.value ? 'var(--narrator-circle)' : '0px'
+})
+
 const footerOpen = computed(() => handOpen.value)
 
 const footerHeight = computed(() => {
@@ -268,6 +281,7 @@ const shellVars = computed<CSSProperties>(() => {
     '--sheet-w': sheetWidth.value,
     '--narrator-w': narratorWidth.value,
     '--narrator-circle': narratorCircle.value,
+    '--narrator-footer-reserve': narratorFooterReserve.value,
     '--footer-h': footerHeight.value,
     '--hand-panel-h': handOpen.value ? HAND_PANEL_H : '0px',
     '--footer-gap': '0px',
@@ -275,15 +289,9 @@ const shellVars = computed<CSSProperties>(() => {
 })
 
 const footerVars = computed<CSSProperties>(() => {
-  const right = !isMd.value
-    ? '0px'
-    : narratorOpen.value
-      ? 'var(--narrator-w)'
-      : 'var(--narrator-circle)'
-
   return {
     left: 'var(--sheet-w)',
-    right,
+    right: 'var(--narrator-footer-reserve)',
     height: 'var(--footer-h)',
   } as CSSProperties
 })
@@ -301,7 +309,12 @@ function setNarratorRendered(value: boolean): void {
 
   if (!value) {
     narratorOpen.value = false
+    narratorCompactMessageVisible.value = false
   }
+}
+
+function setNarratorCompactMessageVisible(value: boolean): void {
+  narratorCompactMessageVisible.value = value
 }
 
 function setWorkspaceSheetOpen(value: boolean): void {
@@ -326,13 +339,11 @@ onMounted(async () => {
   await navStore.initialize()
 
   mdMedia = window.matchMedia('(min-width: 768px)')
-  lgMedia = window.matchMedia('(min-width: 1024px)')
   xlMedia = window.matchMedia('(min-width: 1280px)')
 
   syncBreakpoints()
 
   mdMedia.addEventListener('change', syncBreakpoints)
-  lgMedia.addEventListener('change', syncBreakpoints)
   xlMedia.addEventListener('change', syncBreakpoints)
 
   if (isXl.value) handOpen.value = true
@@ -345,7 +356,6 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   mdMedia?.removeEventListener('change', syncBreakpoints)
-  lgMedia?.removeEventListener('change', syncBreakpoints)
   xlMedia?.removeEventListener('change', syncBreakpoints)
 
   if (bootCurtainTimeoutId) {

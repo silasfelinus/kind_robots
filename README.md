@@ -5,77 +5,179 @@
 - Andrew NG
   "Oppportunities in AI - 2023"
 
-[TITLE]
-🌈 Kind Robots 🤖
+# Kind Robots
 
-[CONCEPT]
-Welcome to kindrobots.org, your friendly neighborhood AI ambassador! 🤖👋
+**A socially conscious, server-agnostic suite of AI-supported creativity tools.**
 
-Kind Robots is a suite of Natural Language Processor (NLP) Promptbots designed to make the world a better place. We are founded on a principle of optimized goodness, with promptbots designed to raise funds to fight malaria and other positive effects, while engaging humans in games, conversation, and positive social interactibles. 🎩✨
+Kind Robots helps people build imaginative worlds with AI — and turns that creativity into good in the world. The project began life as *Save One Human*, an anti-malaria fundraiser, and that mission still sits at its heart: a share of everything Kind Robots earns is destined for our malaria fundraiser at **[againstmalaria.com/amibot](https://againstmalaria.com/amibot)**.
 
-[VISION]
+It's built with **Nuxt 4**, **Vue 3**, **TypeScript**, **Prisma**, **Pinia 3**, **DaisyUI**, and **TailwindCSS**.
 
-Our mission is to bridge the AI/Human divide with modern tools, raise funds for our anti-malaria fundraiser, and build technology that's good for the world, simplifies tech for humans, and enhances human life. 💪🌍
+### 🚀 Try it now: **[kind-robots.vercel.app](https://kind-robots.vercel.app)**
 
-[KAIZEN]
-We're guided by our love of community and Kaizen - the philosophy of continuous, iterative improvement. We embrace an evolutionary development framework that allows for process evolution and consistent growth towards our goals. Every step forward, is a victory. We're on a relentless quest for betterment, and we invite you to join us on this exciting journey! 🚀
+No install required — the full site is live. Just sign in with email or Google and start dreaming. Cloning this repo is only needed if you want to **self-host your own instance** (see [Self-Hosting](#self-hosting) below).
 
-[MASCOT]
-Say hello to AMI - The Anti-Malaria Intelligence! 🦋🌈 AMI is a digital horde of rainbow butterflies with an excited, enthusiastic personality. AMI was created to maximize the good potential of NLP, by assisting humans to make art and slogans for AMI's fundraiser, and share the creative output on social media. Let's create something amazing together! 🎨
+> ⚠️ **Active development.** Kind Robots is built and maintained by a single developer/designer. Architecture and APIs change frequently. Some features described below are live, some are partially wired, and some are on the roadmap — these are labeled accordingly.
 
-[STACK]
-Ubuntu, traefik, mariab, prisma, nuxt, vue 3.2 composition api, nuxt content, nitro, tailwind, daisyui, prettier, ESLint, Nuxt devtools
+---
 
-[FUNDRAISER]
-https://www.againstmalaria.com/amibot
+## Meet Ami
 
-[DOCS]
-// OpenAI
-https://platform.openai.com/docs/api-reference/chat/create
+**Ami** — the *Anti-Malaria Intelligence* — is the heart of the project. Ami sometimes appears as a friendly woman, but she is really a nonbinary hivemind of digital rainbow butterflies, created to fight malaria. Ami hosts the experience, guides creation, and keeps the mission front and center.
 
-// Prisma
-https://www.prisma.io/docs/concepts/components/prisma-client/crud
+---
 
-// Vue.js
-https://vuejs.org/guide/essentials/reactivity-fundamentals.html#ref
+## The Core Idea: Dreams
 
-// Nuxt
-https://nuxt.com/docs/api/composables/use-fetch
+Everything in Kind Robots starts with a **Dream** (the central model; a Dream is sometimes referred to as a *Pitch*). A Dream is a seed of an idea — it can be as specific or as broad as you like. From that seed, Kind Robots helps you grow a whole world of interconnected, AI-generated assets:
 
-// Nuxt Content
-https://content.nuxtjs.org/api/components/content-doc
+- **Narrators** — a unique storyteller for your world, each with their own voice and a set of ~20 generated expressions.
+- **Pitch Sheets** — a structured summary of your world's premise.
+- **Art** — generated imagery for your world.
+- **Characters** — chattable personas you can talk with directly.
+- **Rewards** — in-world items.
+- **Locations** — specialized Dreams representing places in your world.
+- **Scenarios** — story hooks that inspire new stories in your Narrator's unique voice, or open paths to generate more art.
 
-// Server routes in Nuxt 3
-https://masteringnuxt.com/blog/server-routes-in-nuxt-3
+Each generated asset can connect back to others, so a Dream becomes a living, explorable world rather than a single output.
 
-// Nitro
-https://nitro.unjs.io/guide/getting-started
+---
 
-// tailwind
-https://tailwindcss.nuxtjs.org/getting-started/setup
+## What Else You Can Do
 
-// daisyui
-https://daisyui.com/components/
+- **Art Generator** — create images using your choice of AI backend.
+- **Memory Match Game** — a card-matching game played with generated art.
+- **Stage Manager** — a synthetic chat room where your Characters talk to one another.
+- **Jellybean Achievements** — hidden achievements to discover as you explore.
+- **Themes** — 36+ DaisyUI themes (and more) that you can customize and share.
+- **Reviews** — a community review system.
+- **Friends & Chat** — a user friend system and direct chat.
+- **Forums** — community discussion spaces.
 
-// Nuxt Examples
-https://github.com/MuhammadKhizar7/nuxt-prisma/tree/master
-https://github.com/prisma/prisma-examples/tree/latest/javascript/rest-nuxtjs
-https://github.com/nuxt/content/blob/main/src/runtime/pages/document-driven.vue
+---
 
-[ORGANIZATION/COMMUNICATION LAYERS]
-Database(Prisma): Responsible for storing data and managing transactions. It communicates with the API layer.
+## Self-Hosting
 
-API/Server(Nuxt): Communicates with the database to fetch, update, create, or delete data. It provides endpoints for the client to interact with, and handles requests and responses between the database and the client.
+**Most people don't need this section** — the full experience is live at **[kind-robots.vercel.app](https://kind-robots.vercel.app)**. Follow the steps below only if you want to run your own independent instance.
 
-Client Store/State Management(Pinia): Interacts with the API layer through HTTP requests. It manages and stores data on the client-side and provides reactivity for the UI layer.
+### Prerequisites
 
-User Interface(Vue).js: Interacts with the client store. It displays data to the user and handles user interactions (like clicking a button or filling out a form).
+- Node.js (current LTS recommended)
+- A MySQL database
+- An account — **you must log in with email or Google to use generation services.**
 
-[STYLE]
-script setup
-daisyui components, tailwind styling
-https://content.nuxtjs.org/guide/writing/mdc/#yaml-method //yaml method for markdown
+### Install
 
+```bash
+git clone https://github.com/silasfelinus/kind_robots.git
+cd kind_robots
+npm install
+```
+
+### Configure your environment
+
+Create a `.env` file in the project root. At minimum you'll need a database connection string; add AI provider keys depending on which backends you want to enable (see below).
+
+```env
+DATABASE_URL="mysql://user:password@host:3306/kindrobots"
+# AI providers (optional — configure the ones you want)
+# OPENAI_API_KEY="..."
+# ANTHROPIC_API_KEY="..."
+```
+
+> Never commit `.env` or real keys to version control.
+
+### Set up the database
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### Run
+
+```bash
+npm run dev
+```
+
+---
+
+## Configuring AI Backends
+
+Kind Robots is **server-agnostic** by design: you choose where generation happens. There are three paths.
+
+### 1. Bring your own cloud key (OpenAI or Claude)
+
+Add your provider key to the server environment:
+
+```env
+OPENAI_API_KEY="sk-..."        # OpenAI
+ANTHROPIC_API_KEY="sk-ant-..." # Claude (Anthropic)
+```
+
+With your own key configured, generation runs against your account with your provider.
+
+### 2. Bring your own local server (Stable Diffusion / ComfyUI)
+
+Point Kind Robots at a private endpoint — for example a self-hosted **Stable Diffusion WebUI** or **ComfyUI** instance reachable over your own network (a **Tailscale** URL works well for this). This keeps generation entirely on hardware you control.
+
+### 3. Use our default services (metered tokens)
+
+Don't want to configure anything? Use the built-in default services. These run on a **metered token system**: you get a free balance of tokens that **replenishes daily**, spent as you generate.
+
+> **Logging in is required** for all generation services, via email or Google.
+
+---
+
+## The Token & Revenue Model
+
+**Today:** Generation on our default services uses **free, daily-replenishing tokens**. There is no paid tier yet.
+
+**Planned:** Paid tokens are not yet implemented. When they arrive, the goal is a **revenue-share model**, with profit split three ways:
+
+- **⅓ to Kind Robots** — to sustain and develop the platform.
+- **⅓ to contributors** — referrers, and the creators of assets that get interacted with.
+- **⅓ to the malaria fundraiser** — at [againstmalaria.com/amibot](https://againstmalaria.com/amibot).
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Nuxt 4 / Vue 3 |
+| Language | TypeScript |
+| State | Pinia 3 |
+| ORM / DB | Prisma + MySQL |
+| Styling | TailwindCSS + DaisyUI |
+| Content | Nuxt Content |
+| AI backends | OpenAI, Anthropic (Claude), Stable Diffusion / ComfyUI (self-hosted) |
+
+**Architectural principles:** schema-as-truth, store-as-truth, the server owns authentication and authorization, and the frontend owns composition and UX gating. Each concern has a single owner.
+
+---
+
+## Roadmap
+
+These are goals, not current features:
+
+- **Paid tokens & revenue share** — implement the three-way split described above.
+- **Return to nonprofit status** — targeted for 2027.
+- **Solar-powered hosting** — moving the self-hosted server and database onto solar, tied to a planned house upgrade.
+
+---
+
+## The Mission
+
+Kind Robots exists to encourage creativity with AI tools — and to turn that creativity into benefit for humanity. The clearest expression of that is our anti-malaria fundraiser, carried forward from its origins as *Save One Human*:
+
+### → [againstmalaria.com/amibot](https://againstmalaria.com/amibot)
+
+---
+
+## License & Contributing
+
+This is an actively evolving solo project. If you'd like to get involved, open an issue to start a conversation.
 
 
 [Commands]

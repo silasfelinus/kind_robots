@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
@@ -129,6 +129,8 @@ const dreamStore = useDreamStore()
 const navStore = useNavStore()
 const scenarioStore = useScenarioStore()
 const workspaceStore = useWorkspaceStore()
+
+const workspaceReady = ref(false)
 
 const panels: { key: DreamWorkspacePanel; label: string; icon: string }[] = [
   { key: 'asset-sheet', label: 'Sheet', icon: 'kind-icon:sheet' },
@@ -146,15 +148,20 @@ const selectedSummary = computed(() => dreamStore.selectedDreamSummary)
 watch(
   () => dreamStore.selectedDream?.id,
   (id) => {
-    if (id) {
-      workspaceStore.openDream(id, workspaceStore.dreamPanel)
-    }
+    if (!workspaceReady.value || !id) return
+
+    workspaceStore.openDream(id, workspaceStore.dreamPanel)
   },
-  { immediate: true },
 )
 
 onMounted(async () => {
   workspaceStore.hydrate()
+  workspaceReady.value = true
+
+  if (dreamStore.selectedDream?.id) {
+    workspaceStore.openDream(dreamStore.selectedDream.id, workspaceStore.dreamPanel)
+  }
+
   await scenarioStore.initialize({ fetchRemote: true, includeSeeds: true })
 })
 

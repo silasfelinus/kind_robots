@@ -69,8 +69,6 @@
           :show-stats="showStats"
           :allow-edit="allowEdit"
           :allow-delete="allowDelete"
-          :show-pitch-sheet-preview="showPitchSheetPreview"
-          :load-pitch-sheet-preview="false"
           image-fit="cover"
           @choose="selectDreamAndOpen"
           @edit="startEditingDreamById"
@@ -110,7 +108,6 @@ const props = withDefaults(
     allowDelete?: boolean
     compact?: boolean
     autoLoad?: boolean
-    showPitchSheetPreview?: boolean
   }>(),
   {
     title: 'Connected Dreams',
@@ -126,7 +123,6 @@ const props = withDefaults(
     allowDelete: false,
     compact: false,
     autoLoad: true,
-    showPitchSheetPreview: true,
   },
 )
 

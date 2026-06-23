@@ -1,8 +1,11 @@
 <template>
-  <div ref="menuRef" class="relative">
+  <div
+    ref="menuRef"
+    class="login-switcher relative flex min-w-0 justify-center"
+  >
     <button
       type="button"
-      class="btn btn-ghost btn-circle relative overflow-hidden border border-base-300 bg-base-100"
+      class="login-switcher-avatar btn btn-ghost relative shrink-0 overflow-hidden rounded-full border border-base-300 bg-base-100 p-0"
       :class="store.isOpen ? 'ring-2 ring-primary' : ''"
       title="Switch account"
       aria-label="Switch account"
@@ -12,7 +15,7 @@
       <img
         :src="store.currentAvatar"
         :alt="`${userStore.username} avatar`"
-        class="h-full w-full object-cover"
+        class="h-full w-full rounded-full object-cover"
       />
 
       <span
@@ -38,7 +41,8 @@
           </p>
 
           <p class="truncate text-xs text-base-content/60">
-            {{ userStore.role }} · {{ userStore.isLoggedIn ? 'Logged in' : 'Guest mode' }}
+            {{ userStore.role }} ·
+            {{ userStore.isLoggedIn ? 'Logged in' : 'Guest mode' }}
           </p>
         </div>
       </header>
@@ -51,7 +55,9 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <p class="px-1 text-xs font-black uppercase tracking-widest text-base-content/50">
+        <p
+          class="px-1 text-xs font-black uppercase tracking-widest text-base-content/50"
+        >
           Saved logins
         </p>
 
@@ -95,7 +101,8 @@
           v-if="!store.accounts.length"
           class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
         >
-          No saved logins yet. Login once, then this switcher starts collecting tiny test goblins.
+          No saved logins yet. Login once, then this switcher starts collecting
+          tiny test goblins.
         </div>
       </div>
 

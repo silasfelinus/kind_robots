@@ -778,4 +778,22 @@ onBeforeUnmount(() => {
     display: inline-flex;
   }
 }
+
+.header-control-compact :deep(.login-switcher),
+.header-control-grid :deep(.login-switcher) {
+  width: 100%;
+  justify-self: center;
+}
+
+.header-control-compact :deep(.login-switcher-avatar),
+.header-control-grid :deep(.login-switcher-avatar) {
+  width: 2.25rem;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  padding-left: 0;
+  padding-right: 0;
+}
 </style>

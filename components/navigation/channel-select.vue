@@ -268,11 +268,11 @@ const artChannel: ChannelRoute = {
 
 const botsChannel: ChannelRoute = {
   key: 'bots',
-  label: 'Bots',
+  label: 'Narrators',
   path: '/bots',
   icon: 'kind-icon:robot-color',
   summary:
-    'Build personalities, assistants, gremlins, and conversational accomplices.',
+    'Build and interact with the customized hosts that provide a unique flavor to every dream',
 }
 
 const rewardsChannel: ChannelRoute = {
@@ -285,7 +285,7 @@ const rewardsChannel: ChannelRoute = {
 
 const dreamsChannel: ChannelRoute = {
   key: 'dreams',
-  label: 'Dreams',
+  label: 'Pitches',
   path: '/dreams',
   icon: 'kind-icon:moon',
   summary: 'Explore imagined places and dreamscapes.',
@@ -301,7 +301,7 @@ const charactersChannel: ChannelRoute = {
 
 const scenariosChannel: ChannelRoute = {
   key: 'scenarios',
-  label: 'Scenarios',
+  label: 'Stories',
   path: '/stories',
   icon: 'kind-icon:story',
   summary: 'Create story situations, prompts, encounters, and playable scenes.',
@@ -315,10 +315,10 @@ const creationChannels: ChannelRoute[] = [
 ]
 
 const worldChannels: ChannelRoute[] = [
-  rewardsChannel,
   dreamsChannel,
   charactersChannel,
   scenariosChannel,
+  rewardsChannel,
 ]
 
 const allChannels = computed<ChannelRoute[]>(() => [

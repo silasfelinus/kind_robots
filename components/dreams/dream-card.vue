@@ -106,23 +106,8 @@
     </section>
 
     <div
-      v-if="showPitchSheetPreview"
-      class="pointer-events-none absolute inset-x-2 bottom-2 z-20 translate-y-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100"
-    >
-      <div class="pointer-events-auto" @click.stop>
-        <dream-pitch-sheet
-          :dream="dream"
-          variant="hover"
-          :show-image="false"
-          :auto-load="loadPitchSheetPreview"
-          :ensure-on-load="ensurePitchSheetPreview"
-        />
-      </div>
-    </div>
-
-    <div
       v-if="showActions && (allowEdit || allowDelete)"
-      class="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100"
+      class="pointer-events-none absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:pointer-events-auto group-hover:opacity-100"
       @click.stop
     >
       <button
@@ -151,9 +136,11 @@
       class="absolute inset-x-2 bottom-2 z-10 rounded-2xl border border-base-300 bg-base-100/95 p-2 text-xs shadow backdrop-blur"
       @click.stop
     >
-      <summary class="cursor-pointer font-bold text-primary">Debug</summary>
-      <pre class="mt-2 max-h-40 overflow-auto whitespace-pre-wrap">{{
-        dream
+      <summary class="cursor-pointer font-bold text-primary">
+        Image debug · {{ debugInfo.winningSource }}
+      </summary>
+      <pre class="mt-2 max-h-56 overflow-auto whitespace-pre-wrap">{{
+        debugInfo
       }}</pre>
     </details>
   </article>
@@ -181,9 +168,6 @@ const props = withDefaults(
     allowEdit?: boolean
     allowDelete?: boolean
     imageFit?: 'cover' | 'contain'
-    showPitchSheetPreview?: boolean
-    loadPitchSheetPreview?: boolean
-    ensurePitchSheetPreview?: boolean
   }>(),
   {
     selected: false,
@@ -198,9 +182,6 @@ const props = withDefaults(
     allowEdit: true,
     allowDelete: false,
     imageFit: 'cover',
-    showPitchSheetPreview: true,
-    loadPitchSheetPreview: true,
-    ensurePitchSheetPreview: false,
   },
 )
 
@@ -337,6 +318,67 @@ const previewImage = computed(() => {
   )
 })
 
+// A short, readable preview of any value: truncates long strings (e.g. base64)
+// and labels whether a string looks like a path or raw data.
+function previewValue(value?: string | null, max = 64): string {
+  if (value === null || value === undefined) return '∅ (null/undefined)'
+  const str = String(value)
+  if (!str.trim()) return '∅ (empty)'
+  const kind = isProbablyPath(str) ? 'path' : 'data'
+  const head =
+    str.length > max ? `${str.slice(0, max)}… (+${str.length - max})` : str
+  return `[${kind}] ${head}`
+}
+
+// Describe a candidate ArtImage record: its id and what image source fields it
+// actually carries (data / thumbnail / path), each previewed.
+function describeArt(image?: Partial<ArtImage> | null) {
+  if (!image) return { id: null, resolved: '∅ (no record)' }
+  const data = (image as { imageData?: string | null }).imageData
+  const thumb = (image as { thumbnailData?: string | null }).thumbnailData
+  const path =
+    image.imagePath ||
+    (image as { path?: string | null }).path ||
+    image.fileName ||
+    null
+  return {
+    id: image.id ?? null,
+    fileType: (image as { fileType?: string | null }).fileType ?? null,
+    thumbnailData: previewValue(thumb),
+    imageData: previewValue(data),
+    path: previewValue(path),
+    resolved: previewValue(imageToSrc(image)),
+  }
+}
+
+// What the card actually resolved at each step of the cover-image chain. This
+// is what the Debug panel renders so you can see why an image is missing.
+const debugInfo = computed(() => {
+  const winner = imageToSrc(primaryArt.value)
+    ? 'primaryArt'
+    : explicitDreamImagePath.value
+      ? 'explicitDreamImagePath'
+      : imageToSrc(fallbackCollectionArt.value)
+        ? 'fallbackCollectionArt'
+        : 'none'
+
+  return {
+    dreamId: props.dream.id,
+    artImageId: props.dream.artImageId ?? null,
+    artCollectionId: props.dream.artCollectionId ?? null,
+    collectionIds: dreamCollectionIds.value,
+    collectionPoolSize: collectionImagePool.value.length,
+    winningSource: winner,
+    finalPreviewImage: previewValue(previewImage.value),
+    primaryArt: describeArt(primaryArt.value),
+    explicitDreamImagePath: previewValue(explicitDreamImagePath.value),
+    fallbackCollectionArt: describeArt(fallbackCollectionArt.value),
+    collectionPool: collectionImagePool.value
+      .slice(0, 6)
+      .map((art) => describeArt(art)),
+  }
+})
+
 // Build a usable <img> src from an ArtImage: base64 data first, then path.
 function imageToSrc(image?: Partial<ArtImage> | null): string {
   if (!image) return ''
@@ -397,7 +439,7 @@ async function ensureCollectionImages() {
   try {
     const shouldForce = Boolean(
       collectionStore.hasFetched &&
-        !collectionStore.allCollectionArtImages.length,
+      !collectionStore.allCollectionArtImages.length,
     )
 
     await collectionStore.fetchCollections(shouldForce, {

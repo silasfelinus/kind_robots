@@ -1,4 +1,4 @@
-<!-- /components/content/weird/scenario-card.vue -->
+<!-- /components/scenarios/scenario-card.vue -->
 <template>
   <reactable-card
     :selected="activeSelected"
@@ -43,7 +43,6 @@
     </template>
 
     <div class="flex w-full flex-col">
-      <!-- Hero image: the art is the card -->
       <figure
         v-if="showImage"
         :class="[
@@ -58,7 +57,6 @@
           loading="lazy"
         />
 
-        <!-- Top badges -->
         <div
           class="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2"
         >
@@ -78,7 +76,6 @@
           </span>
         </div>
 
-        <!-- Title scrim -->
         <figcaption
           class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/45 to-transparent px-3 pb-3 pt-12"
         >
@@ -100,7 +97,6 @@
           </p>
         </figcaption>
 
-        <!-- Selected check -->
         <div
           v-if="activeSelected"
           class="absolute right-2 top-9 rounded-full bg-primary p-1.5 text-primary-content shadow-lg"
@@ -109,7 +105,6 @@
         </div>
       </figure>
 
-      <!-- Text-only fallback header when images are hidden -->
       <div v-else class="flex items-start justify-between gap-2">
         <h2
           class="line-clamp-2 text-base font-black leading-tight text-base-content"
@@ -206,6 +201,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
+  choose: [scenario: Scenario]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
@@ -253,9 +249,9 @@ const introCount = computed(() => {
   return parseScenarioIntros(props.scenario.intros).length
 })
 
-function selectScenario() {
-  // Store is the single source of truth — storyStore.phase reacts to this.
-  scenarioStore.selectScenario(props.scenario.id)
+async function selectScenario() {
+  await scenarioStore.selectScenario(props.scenario.id)
+  emit('choose', props.scenario)
 }
 
 async function deleteScenario() {

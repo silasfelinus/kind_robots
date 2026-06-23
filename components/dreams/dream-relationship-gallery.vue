@@ -345,22 +345,22 @@ function scenarioIds(dream: DreamWithRelations) {
     ),
   ])
 }
+
+function collectionIds(dream: DreamWithRelations) {
+  return uniqueIds([
+    dream.ArtCollection?.id,
+    ...((dream.ArtCollections ?? []) as ArtCollection[]).map(
+      (collection) => collection.id,
+    ),
+  ])
+}
+
 function characterIds(dream: DreamWithRelations) {
   return uniqueIds((dream.Characters ?? []).map((character) => character.id))
 }
 
 function rewardIds(dream: DreamWithRelations) {
   return uniqueIds((dream.Rewards ?? []).map((reward: Reward) => reward.id))
-}
-
-function collectionIds(dream: DreamWithRelations) {
-  return uniqueIds([
-    dream.artCollectionId,
-    dream.ArtCollection?.id,
-    ...((dream.ArtCollections ?? []) as ArtCollection[]).map(
-      (collection) => collection.id,
-    ),
-  ])
 }
 
 function uniqueIds(values: unknown[]) {

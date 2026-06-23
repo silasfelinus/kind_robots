@@ -476,8 +476,7 @@ async function applyAvatar(image: ArtImage) {
     await userStore.updateUserInfo({
       id: userStore.user.id,
       artImageId: full.id,
-      // Only overwrite avatarImage when we actually have a source string;
-      // otherwise leave it and let userImage() resolve from artImageId.
+      imagePath: ' ',
       ...(source ? { avatarImage: source } : {}),
     })
 
@@ -546,6 +545,7 @@ function configureUploadTarget() {
       await userStore.updateUserInfo({
         id: userStore.user.id,
         artImageId,
+        imagePath: null,
         ...(source ? { avatarImage: source } : {}),
       })
 

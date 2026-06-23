@@ -59,18 +59,34 @@ type NarratorExpressionMedia = ExpressionMedia & {
   emotion?: string | null
   expression?: string | null
   expressionKey?: string | null
-  videoPath?: string | null
   ArtImage?: ArtImageLike | null
 }
 
-type NarratorExpressionTransition = {
+type NarratorThreadTopic = {
   id?: number
-  fromKey?: string | null
-  toKey?: string | null
-  videoPath?: string | null
-  fps?: number | null
-  frames?: number | null
+  slug?: string | null
+  title?: string | null
+  subtitle?: string | null
+  description?: string | null
+  icon?: string | null
+  prompt?: string | null
+  sampleUserPrompt?: string | null
+  sortOrder?: number | null
+  isPublic?: boolean | null
   isActive?: boolean | null
+}
+
+type NarratorThread = {
+  id: number
+  botId?: number
+  topicId?: number
+  title?: string | null
+  openingText?: string | null
+  guidance?: string | null
+  starterPrompts?: unknown
+  sortOrder?: number | null
+  isActive?: boolean | null
+  Topic?: NarratorThreadTopic | null
 }
 
 type DreamNarratorBot = Partial<Bot> & {
@@ -79,7 +95,7 @@ type DreamNarratorBot = Partial<Bot> & {
   slug?: string | null
   chatBorderImage?: string | null
   ExpressionMedia?: NarratorExpressionMedia[]
-  ExpressionTransition?: NarratorExpressionTransition[]
+  NarratorThreads?: NarratorThread[]
 }
 
 type DreamScenario = {
@@ -141,7 +157,7 @@ const fallbackNarratorBot = {
   avatarImage: '/images/bots/avatars/ami-butterfly.webp',
   chatBorderImage: null,
   ExpressionMedia: [],
-  ExpressionTransition: [],
+  NarratorThreads: [],
 } as DreamNarratorBot
 
 export const useNarratorStore = defineStore('narratorStore', () => {
@@ -170,27 +186,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   const narratorSessionIds = ref<number[]>([])
   const hasInitialized = ref(false)
 
-  let bubbleTimer: ReturnType<typeof setTimeout> | null = null
-
   const livenessEnabled = ref(true)
 
   const livenessConfig = ref({
     minIdleMs: 18000,
     maxIdleMs: 42000,
-    videoChance: 0.35,
-    videoDurationMs: 4500,
     settleAfterInteractionMs: 12000,
   })
 
-  const playingVideo = ref(false)
-
-  const playingTransition = ref(false)
-  const transitionClip = ref('')
-  const pendingEmotion = ref<NarratorEmotion | null>(null)
-
+  let bubbleTimer: ReturnType<typeof setTimeout> | null = null
   let livenessTimer: ReturnType<typeof setTimeout> | null = null
-  let videoStopTimer: ReturnType<typeof setTimeout> | null = null
-  let transitionStopTimer: ReturnType<typeof setTimeout> | null = null
   let livenessPausedUntil = 0
   let tabHidden = false
 
@@ -264,6 +269,14 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     )
   })
 
+  const narratorThreads = computed<NarratorThread[]>(() => {
+    return (narratorBot.value?.NarratorThreads ?? [])
+      .filter((thread) => thread.isActive !== false)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+  })
+
+  const hasNarratorThreads = computed(() => narratorThreads.value.length > 0)
+
   const narratorChatFrameImage = computed(() => {
     return narratorBot.value?.chatBorderImage ?? null
   })
@@ -285,15 +298,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     )
   })
 
-  function rowByExpressionKey(key: string) {
-    const wanted = String(key || '').toLowerCase()
-    return (
-      emotionRows.value.find(
-        (row) => String(row.expressionKey || '').toLowerCase() === wanted,
-      ) ?? null
-    )
-  }
-
   const narratorName = computed(() => narratorBot.value?.name || 'Narrator')
 
   const narratorSummary = computed(() => {
@@ -306,6 +310,10 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   const narratorExtraTexts = computed(() => {
     return readAdditionalNarratorTexts(narratorBot.value)
+  })
+
+  const currentEmotionLabel = computed(() => {
+    return currentEmotionRow.value?.label || emotionLabel(currentEmotion.value)
   })
 
   const narratorHoverTitle = computed(() => {
@@ -329,20 +337,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       dreamImage(activeDream.value) ||
       '/images/bot.webp'
     )
-  })
-
-  const narratorTransitionVideo = computed(() => {
-    return playingTransition.value ? transitionClip.value : ''
-  })
-
-  const narratorVideo = computed(() => {
-    if (playingTransition.value) return transitionClip.value
-    if (!playingVideo.value) return ''
-    return readEmotionVideo(currentEmotionRow.value)
-  })
-
-  const currentEmotionLabel = computed(() => {
-    return currentEmotionRow.value?.label || emotionLabel(currentEmotion.value)
   })
 
   const fallbackEmotionIcon = computed(() => {
@@ -431,8 +425,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   const canSendNarrator = computed(() => {
     return Boolean(
       canUseNarrator.value &&
-      narratorMessage.value.trim() &&
-      !isNarratorResponding.value,
+        narratorMessage.value.trim() &&
+        !isNarratorResponding.value,
     )
   })
 
@@ -484,7 +478,10 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   )
 
   async function initialize() {
-    if (hasInitialized.value) return
+    if (hasInitialized.value) {
+      ensureClientLiveness()
+      return
+    }
 
     hasInitialized.value = true
     loadSettings()
@@ -503,27 +500,25 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       showBubbleForEmotion(currentEmotion.value)
     }
 
-    if (import.meta.client) {
-      document.addEventListener('visibilitychange', handleVisibility)
-      tabHidden = document.visibilityState === 'hidden'
-      if (livenessEnabled.value && !tabHidden) startLiveness()
+    ensureClientLiveness()
+  }
+
+  function ensureClientLiveness() {
+    if (!import.meta.client) return
+
+    document.removeEventListener('visibilitychange', handleVisibility)
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    tabHidden = document.visibilityState === 'hidden'
+
+    if (livenessEnabled.value && !tabHidden) {
+      startLiveness()
     }
   }
 
   function teardownLiveness() {
     stopLiveness()
-    if (videoStopTimer) {
-      clearTimeout(videoStopTimer)
-      videoStopTimer = null
-    }
-    if (transitionStopTimer) {
-      clearTimeout(transitionStopTimer)
-      transitionStopTimer = null
-    }
-    playingVideo.value = false
-    playingTransition.value = false
-    transitionClip.value = ''
-    pendingEmotion.value = null
+
     if (import.meta.client) {
       document.removeEventListener('visibilitychange', handleVisibility)
     }
@@ -583,24 +578,11 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeScreen.value = screen
   }
 
-  function setEmotion(
-    emotion: NarratorEmotion,
-    showBubble = true,
-    options: { bridge?: boolean } = {},
-  ) {
-    if (
-      options.bridge &&
-      !playingTransition.value &&
-      emotion !== currentEmotion.value &&
-      playTransition(emotion)
-    ) {
-      return
-    }
-
-    currentEmotion.value = emotion
+  function setEmotion(emotion: NarratorEmotion, showBubble = true) {
+    currentEmotion.value = normalizeEmotion(emotion)
 
     if (showBubble) {
-      showBubbleForEmotion(emotion)
+      showBubbleForEmotion(currentEmotion.value)
     }
   }
 
@@ -622,124 +604,28 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     return min + Math.random() * (max - min)
   }
 
-  const videoRows = computed(() =>
-    emotionRows.value.filter((row) => Boolean(readEmotionVideo(row))),
-  )
-
-  const transitionRows = computed<NarratorExpressionTransition[]>(() => {
-    return (narratorBot.value?.ExpressionTransition ?? []).filter(
-      (row) => row.isActive !== false,
-    )
-  })
-
-  function keyForEmotion(emotion: NarratorEmotion): string {
-    const row = emotionRows.value.find(
-      (entry) => normalizeEmotion(readExpressionValue(entry)) === emotion,
-    )
-    return expressionKeyOf(row) || String(emotion).toLowerCase()
-  }
-
-  function findTransition(fromKey: string, toKey: string): string {
-    const from = String(fromKey || '').toLowerCase()
-    const to = String(toKey || '').toLowerCase()
-    if (!from || !to || from === to) return ''
-
-    const match = transitionRows.value.find(
-      (row) =>
-        String(row.fromKey || '').toLowerCase() === from &&
-        String(row.toKey || '').toLowerCase() === to,
-    )
-    if (match?.videoPath) return match.videoPath
-
-    const slug = narratorBot.value?.slug
-    if (slug) return `/images/bots/expressions/${slug}/${from}__${to}.webp`
-    return ''
-  }
-
-  function transitionDurationFor(fromKey: string, toKey: string): number {
-    const from = String(fromKey || '').toLowerCase()
-    const to = String(toKey || '').toLowerCase()
-    const row = transitionRows.value.find(
-      (entry) =>
-        String(entry.fromKey || '').toLowerCase() === from &&
-        String(entry.toKey || '').toLowerCase() === to,
-    )
-    const fps = row?.fps && row.fps > 0 ? row.fps : 16
-    const frames = row?.frames && row.frames > 0 ? row.frames : 33
-    return Math.round((frames / fps) * 1000) + 120
-  }
-
   function pickDriftEmotion(): NarratorEmotion {
     const pool = emotionOptions.value.filter(
       (emotion) => emotion !== currentEmotion.value && emotion !== 'CUSTOM',
     )
     const source = pool.length ? pool : fallbackNarratorEmotions
+
     return source[Math.floor(Math.random() * source.length)] ?? 'NEUTRAL'
   }
 
   function driftMood() {
     const next = pickDriftEmotion()
-    setEmotion(next, bubblesEnabled.value, { bridge: true })
+
+    setEmotion(next, bubblesEnabled.value)
     showMoodRing.value = true
-    setTimeout(() => (showMoodRing.value = false), 1200)
+
+    setTimeout(() => {
+      showMoodRing.value = false
+    }, 1200)
   }
 
-  function playTransition(to: NarratorEmotion): boolean {
-    const from = currentEmotion.value
-    if (from === to) return false
-
-    const clip = findTransition(keyForEmotion(from), keyForEmotion(to))
-    if (!clip) return false
-
-    if (videoStopTimer) {
-      clearTimeout(videoStopTimer)
-      videoStopTimer = null
-    }
-    playingVideo.value = false
-
-    pendingEmotion.value = to
-    transitionClip.value = clip
-    playingTransition.value = true
-
-    const duration = transitionDurationFor(
-      keyForEmotion(from),
-      keyForEmotion(to),
-    )
-
-    if (transitionStopTimer) clearTimeout(transitionStopTimer)
-    transitionStopTimer = setTimeout(() => {
-      const landing = pendingEmotion.value
-      playingTransition.value = false
-      transitionClip.value = ''
-      pendingEmotion.value = null
-      transitionStopTimer = null
-      if (landing) setEmotion(landing, bubblesEnabled.value)
-    }, duration)
-
-    return true
-  }
-
-  function playReaction(row?: NarratorExpressionMedia | null) {
-    const target =
-      row ||
-      (readEmotionVideo(currentEmotionRow.value)
-        ? currentEmotionRow.value
-        : videoRows.value[Math.floor(Math.random() * videoRows.value.length)])
-
-    if (!target || !readEmotionVideo(target)) {
-      driftMood()
-      return
-    }
-
-    const rowEmotion = normalizeEmotion(readExpressionValue(target))
-    if (rowEmotion !== 'CUSTOM') setEmotion(rowEmotion, false)
-
-    playingVideo.value = true
-    if (videoStopTimer) clearTimeout(videoStopTimer)
-    videoStopTimer = setTimeout(() => {
-      playingVideo.value = false
-      videoStopTimer = null
-    }, livenessConfig.value.videoDurationMs)
+  function playReaction() {
+    driftMood()
   }
 
   function livenessBeat() {
@@ -751,11 +637,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       shouldRender.value
 
     if (canRun) {
-      const wantVideo =
-        videoRows.value.length > 0 &&
-        Math.random() < livenessConfig.value.videoChance
-      if (wantVideo) playReaction()
-      else driftMood()
+      driftMood()
     }
 
     scheduleLiveness()
@@ -763,10 +645,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   function scheduleLiveness() {
     if (livenessTimer) clearTimeout(livenessTimer)
+
     const delay = randBetween(
       livenessConfig.value.minIdleMs,
       livenessConfig.value.maxIdleMs,
     )
+
     livenessTimer = setTimeout(livenessBeat, delay)
   }
 
@@ -789,31 +673,23 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   function toggleLiveness() {
     livenessEnabled.value = !livenessEnabled.value
-    if (livenessEnabled.value) startLiveness()
-    else {
-      stopLiveness()
-      playingVideo.value = false
-      if (videoStopTimer) {
-        clearTimeout(videoStopTimer)
-        videoStopTimer = null
-      }
-      playingTransition.value = false
-      transitionClip.value = ''
-      pendingEmotion.value = null
-      if (transitionStopTimer) {
-        clearTimeout(transitionStopTimer)
-        transitionStopTimer = null
-      }
+
+    if (livenessEnabled.value) {
+      startLiveness()
+      return
     }
+
+    stopLiveness()
   }
 
   function playReactionOnClick() {
     nudgeLiveness()
-    playReaction(currentEmotionRow.value)
+    playReaction()
   }
 
   function handleVisibility() {
     tabHidden = document.visibilityState === 'hidden'
+
     if (tabHidden) {
       stopLiveness()
     } else if (livenessEnabled.value) {
@@ -910,6 +786,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       narratorName: narratorName.value,
       dreamTitle: activeDream.value?.title,
     })
+  }
+
+  function rowByExpressionKey(key: string) {
+    const wanted = String(key || '').toLowerCase()
+
+    return (
+      emotionRows.value.find(
+        (row) => String(row.expressionKey || '').toLowerCase() === wanted,
+      ) ?? null
+    )
   }
 
   function selectFirstScenario() {
@@ -1147,7 +1033,9 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       effectId: (effectId as never) || undefined,
       durationMs,
     })
+
     setEmotion('CHEERING', false)
+
     activeBubble.value = effectId
       ? `Lights up: ${animationStore.activeEffect?.label ?? effectId}.`
       : 'Surprise effect, incoming.'
@@ -1191,10 +1079,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       stopAnimation()
       return true
     }
+
     if (intent === 'random') {
       randomAnimation()
       return true
     }
+
     if (intent === 'next' || intent === 'prev') {
       cycleAnimation(intent)
       return true
@@ -1379,6 +1269,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
             .filter(Boolean)
             .join('\n')
         : '',
+      narratorThreads.value.length
+        ? `Available narrator threads: ${narratorThreads.value
+            .map((thread) => thread.title || thread.Topic?.title)
+            .filter(Boolean)
+            .join(', ')}.`
+        : '',
       'Site context: Kind Robots is a socially conscious, server-agnostic AI creativity playground. Its mascot is AMI, the Anti-Malaria Intelligence — a horde of rainbow butterflies. Creativity here supports an anti-malaria fundraiser (againstmalaria.com/amibot). Built by Silas. You may answer questions about the site, its mission, mascot, and founder.',
       `Available screen effects you can describe or suggest the user trigger: ${availableAnimations.value
         .map((effect) => effect.label)
@@ -1503,23 +1399,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   function avatarPathForSlug(slug?: string | null) {
     if (!slug) return ''
+
     return `/images/bots/avatars/${slug}.webp`
   }
 
   function expressionKeyOf(row?: NarratorExpressionMedia | null) {
     if (!row) return ''
+
     return String(
       row.expressionKey || row.expression || row.emotion || 'neutral',
     ).toLowerCase()
-  }
-
-  function readEmotionVideo(row?: NarratorExpressionMedia | null) {
-    if (!row) return ''
-    if (row.videoPath) return row.videoPath
-    const slug = narratorBot.value?.slug
-    const key = expressionKeyOf(row)
-    if (slug && key) return `/images/bots/reactions/${slug}/${key}.webp`
-    return ''
   }
 
   function readEmotionImage(row?: NarratorExpressionMedia | null) {
@@ -1591,17 +1480,11 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     narratorExtraTexts,
     narratorHoverTitle,
     narratorImage,
-    narratorVideo,
-    narratorTransitionVideo,
     rowByExpressionKey,
+    narratorThreads,
+    hasNarratorThreads,
     livenessEnabled,
     livenessConfig,
-    playingVideo,
-    playingTransition,
-    transitionClip,
-    transitionRows,
-    findTransition,
-    playTransition,
     startLiveness,
     stopLiveness,
     toggleLiveness,

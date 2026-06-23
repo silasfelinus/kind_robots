@@ -22,6 +22,18 @@ export type ScenarioWorkspacePanel =
 const workspaceStorageKey = 'organicWorkspaceContext'
 const isClient = typeof window !== 'undefined'
 
+const workspaceModels = ['dream', 'scenario', 'character', 'reward', 'art'] as const
+const dreamWorkspacePanels = [
+  'asset-sheet',
+  'connected-dreams',
+  'scenarios',
+  'characters',
+  'rewards',
+  'art',
+  'chat',
+] as const
+const scenarioWorkspacePanels = ['overview', 'dreams', 'characters', 'rewards'] as const
+
 type StoredWorkspace = {
   activeModel?: WorkspaceModel
   dreamId?: number | null
@@ -73,6 +85,18 @@ function cleanId(value?: number | null): number | null {
   return Number.isInteger(id) && id > 0 ? id : null
 }
 
+function isWorkspaceModel(value: unknown): value is WorkspaceModel {
+  return workspaceModels.includes(value as WorkspaceModel)
+}
+
+function isDreamWorkspacePanel(value: unknown): value is DreamWorkspacePanel {
+  return dreamWorkspacePanels.includes(value as DreamWorkspacePanel)
+}
+
+function isScenarioWorkspacePanel(value: unknown): value is ScenarioWorkspacePanel {
+  return scenarioWorkspacePanels.includes(value as ScenarioWorkspacePanel)
+}
+
 export const useWorkspaceStore = defineStore('workspaceStore', () => {
   const activeModel = ref<WorkspaceModel>('dream')
   const dreamId = ref<number | null>(null)
@@ -120,14 +144,20 @@ export const useWorkspaceStore = defineStore('workspaceStore', () => {
     const stored = safeParseWorkspace(safeGetLocalStorage(workspaceStorageKey))
 
     if (stored) {
-      activeModel.value = stored.activeModel ?? activeModel.value
+      activeModel.value = isWorkspaceModel(stored.activeModel)
+        ? stored.activeModel
+        : activeModel.value
       dreamId.value = cleanId(stored.dreamId)
       scenarioId.value = cleanId(stored.scenarioId)
       characterId.value = cleanId(stored.characterId)
       rewardId.value = cleanId(stored.rewardId)
       artImageId.value = cleanId(stored.artImageId)
-      dreamPanel.value = stored.dreamPanel ?? dreamPanel.value
-      scenarioPanel.value = stored.scenarioPanel ?? scenarioPanel.value
+      dreamPanel.value = isDreamWorkspacePanel(stored.dreamPanel)
+        ? stored.dreamPanel
+        : dreamPanel.value
+      scenarioPanel.value = isScenarioWorkspacePanel(stored.scenarioPanel)
+        ? stored.scenarioPanel
+        : scenarioPanel.value
     }
 
     hydrated.value = true

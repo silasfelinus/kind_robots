@@ -4,13 +4,20 @@
     <header class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-lg font-black text-base-content">{{ title }}</h2>
-          <p class="truncate text-sm text-base-content/60">{{ subtitleLine }}</p>
+          <h2 class="truncate text-lg font-black text-base-content">
+            {{ title }}
+          </h2>
+          <p class="truncate text-sm text-base-content/60">
+            {{ subtitleLine }}
+          </p>
         </div>
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
           <span class="badge badge-ghost">{{ filteredDreams.length }}</span>
-          <span v-if="resolvedDreamId" class="badge badge-primary badge-sm rounded-xl">
+          <span
+            v-if="resolvedDreamId"
+            class="badge badge-primary badge-sm rounded-xl"
+          >
             Dream #{{ resolvedDreamId }}
           </span>
 
@@ -26,7 +33,9 @@
         </div>
       </div>
 
-      <label class="input input-bordered input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-200">
+      <label
+        class="input input-bordered input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-200"
+      >
         <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
         <input
           v-model="searchQuery"
@@ -39,7 +48,10 @@
     </header>
 
     <section class="min-h-0 flex-1 overflow-y-auto">
-      <div v-if="isLoading || dreamStore.loading" class="flex h-full min-h-48 items-center justify-center">
+      <div
+        v-if="isLoading || dreamStore.loading"
+        class="flex h-full min-h-48 items-center justify-center"
+      >
         <span class="loading loading-spinner loading-lg text-primary" />
       </div>
 
@@ -81,7 +93,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import type { ArtCollection, ArtImage, Character, Reward, Scenario } from '~/prisma/generated/prisma/client'
+import type {
+  ArtCollection,
+  ArtImage,
+  Character,
+  Reward,
+  Scenario,
+} from '~/prisma/generated/prisma/client'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
@@ -141,8 +159,12 @@ const searchQuery = ref('')
 const isLoading = ref(false)
 const localRelationMode = ref<RelationMode>(props.relationMode)
 
-const currentUserId = computed(() => userStore.userId ?? userStore.user?.id ?? null)
-const showMature = computed(() => userStore.user?.showMature ?? userStore.showMature ?? false)
+const currentUserId = computed(
+  () => userStore.userId ?? userStore.user?.id ?? null,
+)
+const showMature = computed(
+  () => userStore.user?.showMature ?? userStore.showMature ?? false,
+)
 
 const resolvedDreamId = computed(() => {
   const explicitId = Number(props.contextDreamId)
@@ -161,7 +183,11 @@ const anchorDream = computed(() => {
   const id = resolvedDreamId.value
   if (!id) return null
 
-  return dreamStore.dreams.find((dream) => dream.id === id) ?? dreamStore.selectedDream ?? null
+  return (
+    dreamStore.dreams.find((dream) => dream.id === id) ??
+    dreamStore.selectedDream ??
+    null
+  )
 })
 
 const subtitleLine = computed(() => {
@@ -183,7 +209,10 @@ const visibleDreams = computed<DreamWithRelations[]>(() => {
 
   if (!userStore.isAdmin) {
     dreams = dreams.filter((dream) => {
-      return dream.isPublic || (currentUserId.value !== null && dream.userId === currentUserId.value)
+      return (
+        dream.isPublic ||
+        (currentUserId.value !== null && dream.userId === currentUserId.value)
+      )
     })
   }
 
@@ -196,7 +225,9 @@ const visibleDreams = computed<DreamWithRelations[]>(() => {
 
 const relationDreams = computed<DreamWithRelations[]>(() => {
   if (localRelationMode.value === 'all') {
-    return visibleDreams.value.filter((dream) => dream.id !== resolvedDreamId.value)
+    return visibleDreams.value.filter(
+      (dream) => dream.id !== resolvedDreamId.value,
+    )
   }
 
   const anchor = anchorDream.value
@@ -216,20 +247,25 @@ const filteredDreams = computed<DreamWithRelations[]>(() => {
 
   if (!query) return relationDreams.value
 
-  return relationDreams.value.filter((dream) => dreamSearchText(dream).toLowerCase().includes(query))
+  return relationDreams.value.filter((dream) =>
+    dreamSearchText(dream).toLowerCase().includes(query),
+  )
 })
 
 const emptyTitle = computed(() => {
   if (searchQuery.value) return 'No connected Dreams match your search.'
   if (localRelationMode.value === 'connected') return 'No connected Dreams yet.'
-  if (localRelationMode.value === 'available') return 'No available Dreams found.'
+  if (localRelationMode.value === 'available')
+    return 'No available Dreams found.'
   return 'No Dreams found.'
 })
 
 const emptySubtitle = computed(() => {
   if (searchQuery.value) return 'Try fewer or stranger words.'
-  if (localRelationMode.value === 'connected') return 'Shared scenarios, cast, rewards, or collections will appear here.'
-  if (localRelationMode.value === 'available') return 'Everything visible already looks connected or filtered out.'
+  if (localRelationMode.value === 'connected')
+    return 'Shared scenarios, cast, rewards, or collections will appear here.'
+  if (localRelationMode.value === 'available')
+    return 'Everything visible already looks connected or filtered out.'
   return 'The Dream shelf is suspiciously empty.'
 })
 
@@ -303,12 +339,12 @@ function dreamsAreConnected(a: DreamWithRelations, b: DreamWithRelations) {
 
 function scenarioIds(dream: DreamWithRelations) {
   return uniqueIds([
-    dream.scenarioId,
     dream.Scenario?.id,
-    ...((dream.Scenarios ?? []) as DreamScenarioWithCharacters[]).map((scenario) => scenario.id),
+    ...((dream.Scenarios ?? []) as DreamScenarioWithCharacters[]).map(
+      (scenario) => scenario.id,
+    ),
   ])
 }
-
 function characterIds(dream: DreamWithRelations) {
   return uniqueIds((dream.Characters ?? []).map((character) => character.id))
 }
@@ -321,7 +357,9 @@ function collectionIds(dream: DreamWithRelations) {
   return uniqueIds([
     dream.artCollectionId,
     dream.ArtCollection?.id,
-    ...((dream.ArtCollections ?? []) as ArtCollection[]).map((collection) => collection.id),
+    ...((dream.ArtCollections ?? []) as ArtCollection[]).map(
+      (collection) => collection.id,
+    ),
   ])
 }
 
@@ -344,15 +382,40 @@ function overlaps(a: number[], b: number[]) {
 
 function dreamSearchText(dream: DreamWithRelations) {
   const scenarioText = (dream.Scenarios ?? [])
-    .map((scenario) => [scenario.title, scenario.description, scenario.locations, scenario.genres].filter(Boolean).join(' '))
+    .map((scenario) =>
+      [
+        scenario.title,
+        scenario.description,
+        scenario.locations,
+        scenario.genres,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    )
     .join(' ')
 
   const characterText = (dream.Characters ?? [])
-    .map((character) => [character.name, character.honorific, character.title, character.role, character.class, character.species, character.genre].filter(Boolean).join(' '))
+    .map((character) =>
+      [
+        character.name,
+        character.honorific,
+        character.title,
+        character.role,
+        character.class,
+        character.species,
+        character.genre,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    )
     .join(' ')
 
   const rewardText = (dream.Rewards ?? [])
-    .map((reward: Reward) => [reward.name, reward.description, reward.rarity, reward.rewardType].filter(Boolean).join(' '))
+    .map((reward: Reward) =>
+      [reward.name, reward.description, reward.rarity, reward.rewardType]
+        .filter(Boolean)
+        .join(' '),
+    )
     .join(' ')
 
   return [
@@ -378,7 +441,9 @@ function previewImage(dream: DreamWithRelations) {
   const collectionImage = [
     ...(dream.ArtImages ?? []),
     ...(dream.ArtCollection?.ArtImages ?? []),
-    ...(dream.ArtCollections ?? []).flatMap((collection) => collection.ArtImages ?? []),
+    ...(dream.ArtCollections ?? []).flatMap(
+      (collection) => collection.ArtImages ?? [],
+    ),
   ].find((art: Partial<ArtImage>) => art.imagePath || art.path || art.fileName)
 
   return (

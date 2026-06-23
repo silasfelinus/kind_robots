@@ -204,18 +204,17 @@ export const useUserStore = defineStore('userStore', () => {
 
   function getChangedUserFields(fields: UserPatch): UserPatch {
     const cleaned = cleanPatch(fields)
+    if (!user.value) return {}
 
-    if (!user.value) {
-      return {}
-    }
+    // Avatar identity fields must always survive the diff — the local
+    // user record is frequently stale or stores a normalized variant.
+    const alwaysSend = new Set(['artImageId', 'avatarImage'])
 
     return Object.entries(cleaned).reduce<UserPatch>((patch, [key, value]) => {
       const currentValue = (user.value as Record<string, unknown>)[key]
-
-      if (!valuesMatch(currentValue, value)) {
+      if (alwaysSend.has(key) || !valuesMatch(currentValue, value)) {
         ;(patch as Record<string, unknown>)[key] = value
       }
-
       return patch
     }, {})
   }
@@ -520,10 +519,9 @@ export const useUserStore = defineStore('userStore', () => {
           ? await artStore.getOrFetchArtImageById(artImageId)
           : await artStore.getArtImageById(artImageId)
 
-      const data = artImage?.imageData
-
+      const data = artImage?.imageData || artImage?.imagePath || artImage?.path
       if (!data) {
-        return fallbackAvatar
+        return target?.avatarImage || fallbackAvatar
       }
 
       if (

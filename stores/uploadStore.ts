@@ -149,6 +149,45 @@ export const useUploadStore = defineStore('UploadStore', () => {
     message.value = null
   }
 
+  // Single source of truth for "this upload is a user avatar." Both the
+  // dashboard and the avatar-picker call this instead of hand-rolling their
+  // own setTarget block — the applyImage callback links the new ArtImage to
+  // the user via artImageId ONLY. We never write a base64 source into
+  // User.avatarImage (it overflows the @db.Text column → P2000); userImage()
+  // resolves the avatar from artImageId.
+  function setAvatarTarget(options: {
+    userId: number
+    collectionLabel?: string
+    showPreview?: boolean
+    // Caller-specific UI after the user is patched (preview, emit, tab switch).
+    onApplied?: (data: ImageUploadApplyData) => Promise<void> | void
+  }): void {
+    const { userId, collectionLabel = 'avatars', showPreview = false } = options
+
+    setTarget({
+      model: 'User',
+      modelId: userId,
+      galleryName: 'avatarUploads',
+      collectionLabel,
+      promptString: '[UserAvatar]',
+      path: '[UserAvatar]',
+      buttonLabel: 'Upload avatar',
+      icon: 'kind-icon:camera',
+      showPreview,
+      applyImage: async (data) => {
+        const userStore = useUserStore()
+        if (userStore.isGuest || !userStore.user?.id) return
+
+        await userStore.updateUserInfo({
+          id: userStore.user.id,
+          artImageId: data.artImageId,
+        })
+
+        await options.onApplied?.(data)
+      },
+    })
+  }
+
   function clearTarget(): void {
     activeTarget.value = null
     error.value = null
@@ -614,6 +653,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
     uploadPercent,
     lastBatchArtImages,
     setTarget,
+    setAvatarTarget,
     clearTarget,
     validateFile,
     uploadForActiveTarget,

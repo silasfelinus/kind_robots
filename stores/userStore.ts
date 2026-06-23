@@ -494,10 +494,7 @@ export const useUserStore = defineStore('userStore', () => {
 
   async function userImage(userIdOverride?: number): Promise<string> {
     const resolvedId = userIdOverride ?? userId.value
-
-    if (!resolvedId) {
-      return fallbackAvatar
-    }
+    if (!resolvedId) return fallbackAvatar
 
     const target =
       user.value?.id === resolvedId
@@ -506,23 +503,23 @@ export const useUserStore = defineStore('userStore', () => {
           (await getUserById(resolvedId)))
 
     const artImageId = target?.artImageId
-
-    if (!artImageId) {
-      return fallbackAvatar
-    }
+    if (!artImageId) return target?.avatarImage || fallbackAvatar
 
     const artStore = useArtStore()
 
     try {
-      const artImage =
-        typeof artStore.getOrFetchArtImageById === 'function'
-          ? await artStore.getOrFetchArtImageById(artImageId)
-          : await artStore.getArtImageById(artImageId)
+      const artImage = await artStore.getArtImageById(artImageId, {
+        includeImageData: true,
+        includeThumbnailData: true,
+      })
 
-      const data = artImage?.imageData || artImage?.imagePath || artImage?.path
-      if (!data) {
-        return target?.avatarImage || fallbackAvatar
-      }
+      const data =
+        artImage?.imageData ||
+        artImage?.imagePath ||
+        artImage?.path ||
+        artImage?.thumbnailData
+
+      if (!data) return target?.avatarImage || fallbackAvatar
 
       if (
         data.startsWith('/') ||
@@ -536,7 +533,7 @@ export const useUserStore = defineStore('userStore', () => {
       return `data:image/png;base64,${data}`
     } catch (error) {
       handleError(error, 'userImage')
-      return fallbackAvatar
+      return target?.avatarImage || fallbackAvatar
     }
   }
 

@@ -476,7 +476,6 @@ async function applyAvatar(image: ArtImage) {
     await userStore.updateUserInfo({
       id: userStore.user.id,
       artImageId: full.id,
-      imagePath: ' ',
       ...(source ? { avatarImage: source } : {}),
     })
 
@@ -545,7 +544,6 @@ function configureUploadTarget() {
       await userStore.updateUserInfo({
         id: userStore.user.id,
         artImageId,
-        imagePath: null,
         ...(source ? { avatarImage: source } : {}),
       })
 

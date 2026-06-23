@@ -20,6 +20,7 @@
       "art-randomizer",
       "art-reactions",
       "art-styler",
+      "art-test",
       "collection-card",
       "collection-picker",
       "generate-button",
@@ -44,17 +45,7 @@
   },
   {
     "folderName": "brainstorm",
-    "components": [
-      "add-pitch",
-      "add-prompt",
-      "brainstorm-interact",
-      "brainstorm-manager",
-      "pitch-card",
-      "pitch-creator",
-      "pitch-gallery",
-      "prompt-card",
-      "prompt-gallery"
-    ]
+    "components": []
   },
   {
     "folderName": "builder",
@@ -115,6 +106,7 @@
     "components": [
       "add-character",
       "character-card",
+      "character-flip-card",
       "character-gallery",
       "character-interact",
       "character-manager",
@@ -146,13 +138,18 @@
   {
     "folderName": "dreams",
     "components": [
-      "add-dream",
+      "dream-art-chooser",
+      "dream-brainstorm",
       "dream-card",
       "dream-gallery",
       "dream-interact",
       "dream-list",
+      "dream-maker",
       "dream-manager",
-      "dream-prompts"
+      "dream-pitch-sheet",
+      "dream-relationship-gallery",
+      "dream-sheet-toolbar",
+      "dream-workspace"
     ]
   },
   {
@@ -165,6 +162,7 @@
       "mana-wallet",
       "print-swag",
       "shopping-cart",
+      "social-publisher",
       "subscription-manager"
     ]
   },
@@ -203,13 +201,16 @@
     "components": [
       "card-picker",
       "channel-select",
-      "dashboard-shell",
+      "flip-card",
       "login-switcher",
       "mana-widget",
+      "narrator-chat",
       "page-image",
       "server-selector",
+      "tutorial-flyer",
       "workspace-hand",
       "workspace-header",
+      "workspace-narrator",
       "workspace-sheet"
     ]
   },
@@ -252,7 +253,8 @@
       "scenario-gallery",
       "scenario-interact",
       "scenario-intros",
-      "scenario-manager"
+      "scenario-manager",
+      "scenario-relationship-gallery"
     ]
   },
   {
@@ -305,7 +307,6 @@
     "components": [
       "add-checkpoint",
       "add-server",
-      "art-test",
       "chat-test",
       "checkpoint-card",
       "checkpoint-gallery",
@@ -340,10 +341,12 @@
     "folderName": "user",
     "components": [
       "avatar-image",
+      "avatar-picker",
       "cache-clear",
       "chat-card",
       "chat-gallery",
       "chat-view",
+      "forum-thread",
       "friend-gallery",
       "google-login",
       "login-form",

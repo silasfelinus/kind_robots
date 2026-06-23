@@ -473,10 +473,12 @@ async function applyAvatar(image: ArtImage) {
 
     const source = avatarSourceFor(full)
 
+    // artImageId is the single source of truth for the avatar. We never write
+    // the resolved source into User.avatarImage — for uploaded/generated images
+    // that source is a base64 data URI, which overflows the @db.Text column.
     await userStore.updateUserInfo({
       id: userStore.user.id,
       artImageId: full.id,
-      ...(source ? { avatarImage: source } : {}),
     })
 
     previewUrl.value = source || FALLBACK_AVATAR
@@ -541,10 +543,10 @@ function configureUploadTarget() {
         asImageSource(imagePath) ||
         avatarSourceFor(artImage)
 
+      // Persist only the artImageId — never the base64 source (overflows @db.Text).
       await userStore.updateUserInfo({
         id: userStore.user.id,
         artImageId,
-        ...(source ? { avatarImage: source } : {}),
       })
 
       localHydrated.value = { ...localHydrated.value, [artImage.id]: artImage }

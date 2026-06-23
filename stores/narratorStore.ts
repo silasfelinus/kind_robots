@@ -1,4 +1,5 @@
-import { computed, ref, watch } from 'vue'
+// /stores/narratorStore.ts
+import { computed, nextTick, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { navigateTo } from '#app'
 import type {
@@ -55,25 +56,37 @@ type ArtImageLike = Partial<ArtImage> & {
 }
 
 type NarratorExpressionMedia = ExpressionMedia & {
-  // tolerate old + new field shapes during migration
   emotion?: string | null
   expression?: string | null
   expressionKey?: string | null
-  videoPath?: string | null
   ArtImage?: ArtImageLike | null
 }
 
-// Directed transition clip between two expression keys. Arrives on the bot as
-// a relation (Bots[].ExpressionTransition[]) once the Dream query includes it;
-// the store tolerates its absence and falls back to instant mood swaps.
-type NarratorExpressionTransition = {
+type NarratorThreadTopic = {
   id?: number
-  fromKey?: string | null
-  toKey?: string | null
-  videoPath?: string | null
-  fps?: number | null
-  frames?: number | null
+  slug?: string | null
+  title?: string | null
+  subtitle?: string | null
+  description?: string | null
+  icon?: string | null
+  prompt?: string | null
+  sampleUserPrompt?: string | null
+  sortOrder?: number | null
+  isPublic?: boolean | null
   isActive?: boolean | null
+}
+
+type NarratorThread = {
+  id: number
+  botId?: number
+  topicId?: number
+  title?: string | null
+  openingText?: string | null
+  guidance?: string | null
+  starterPrompts?: unknown
+  sortOrder?: number | null
+  isActive?: boolean | null
+  Topic?: NarratorThreadTopic | null
 }
 
 type DreamNarratorBot = Partial<Bot> & {
@@ -82,8 +95,9 @@ type DreamNarratorBot = Partial<Bot> & {
   slug?: string | null
   chatBorderImage?: string | null
   ExpressionMedia?: NarratorExpressionMedia[]
-  ExpressionTransition?: NarratorExpressionTransition[]
+  NarratorThreads?: NarratorThread[]
 }
+
 type DreamScenario = {
   id?: number | null
   slug?: string | null
@@ -124,6 +138,28 @@ type ChatRuntimeInput = Parameters<
 
 const narratorStorageKey = 'kindrobots:workspace-narrator'
 
+const fallbackNarratorBot = {
+  id: 433,
+  name: 'Ami-butterfly',
+  slug: 'ami-butterfly',
+  BotType: 'NARRATOR',
+  prompt:
+    'You are Ami-butterfly, the default Kind Robots workspace narrator. You are AMI, the Anti-Malaria Intelligence: a horde of rainbow butterflies helping users build creative worlds, stories, bots, dreams, and generous weird little futures.',
+  personality:
+    'Warm, playful, clever, supportive, slightly uncanny, and focused on helping the user make things real.',
+  narrativeVoice:
+    'A shimmering swarm of rainbow butterflies speaking as one helpful creative intelligence.',
+  botIntro:
+    'Ami-butterfly is the default guide for Kind Robots when no Dream is loaded.',
+  forgeIntro:
+    'Help the user navigate Kind Robots, understand the mission, create Dreams, characters, rewards, scenarios, stories, and playful site experiences.',
+  imagePath: '/images/bots/avatars/ami-butterfly.webp',
+  avatarImage: '/images/bots/avatars/ami-butterfly.webp',
+  chatBorderImage: null,
+  ExpressionMedia: [],
+  NarratorThreads: [],
+} as DreamNarratorBot
+
 export const useNarratorStore = defineStore('narratorStore', () => {
   const dreamStore = useDreamStore()
   const navStore = useNavStore()
@@ -150,39 +186,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   const narratorSessionIds = ref<number[]>([])
   const hasInitialized = ref(false)
 
-  let bubbleTimer: ReturnType<typeof setTimeout> | null = null
-
-  // ── Liveness system: ambient mood drift + occasional reaction videos ──
-  // Global toggle (persisted with other settings).
   const livenessEnabled = ref(true)
 
-  // Tunable config — adjust to taste. All times in milliseconds.
   const livenessConfig = ref({
-    // Idle heartbeat window: next event fires somewhere in [min, max].
     minIdleMs: 18000,
     maxIdleMs: 42000,
-    // Of each heartbeat, chance (0..1) it's a VIDEO reaction vs a mood drift.
-    videoChance: 0.35,
-    // How long a reaction video plays before settling back to the still.
-    videoDurationMs: 4500,
-    // Pause liveness for this long after any manual interaction.
     settleAfterInteractionMs: 12000,
   })
 
-  // True while a reaction loop is actively shown in the hero portrait.
-  const playingVideo = ref(false)
-
-  // ── Transition system: bridge clips played when mood changes ──
-  // True while an A->B transition clip is bridging in the hero portrait.
-  const playingTransition = ref(false)
-  // Path of the transition clip currently bridging (empty when none).
-  const transitionClip = ref('')
-  // When a transition is requested, the mood to land on once it finishes.
-  const pendingEmotion = ref<NarratorEmotion | null>(null)
-
+  let bubbleTimer: ReturnType<typeof setTimeout> | null = null
   let livenessTimer: ReturnType<typeof setTimeout> | null = null
-  let videoStopTimer: ReturnType<typeof setTimeout> | null = null
-  let transitionStopTimer: ReturnType<typeof setTimeout> | null = null
   let livenessPausedUntil = 0
   let tabHidden = false
 
@@ -221,6 +234,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   })
 
   const narratorBot = computed<DreamNarratorBot | null>(() => {
+    const dream = activeDream.value
+
+    if (!dream) {
+      return fallbackNarratorBot
+    }
+
     return (
       dreamNarrators.value.find(
         (bot) => String(bot.BotType || '').toUpperCase() === 'NARRATOR',
@@ -250,12 +269,19 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     )
   })
 
+  const narratorThreads = computed<NarratorThread[]>(() => {
+    return (narratorBot.value?.NarratorThreads ?? [])
+      .filter((thread) => thread.isActive !== false)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+  })
+
+  const hasNarratorThreads = computed(() => narratorThreads.value.length > 0)
+
   const narratorChatFrameImage = computed(() => {
     return narratorBot.value?.chatBorderImage ?? null
   })
 
   const currentEmotionRow = computed<NarratorExpressionMedia | null>(() => {
-    // Match on the normalized expression first (covers all canonical values).
     const exact = emotionRows.value.find(
       (row) =>
         normalizeEmotion(readExpressionValue(row)) === currentEmotion.value,
@@ -272,17 +298,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     )
   })
 
-  // Resolve a specific row by its expressionKey (needed for CUSTOM actions,
-  // where multiple rows share expression = CUSTOM but differ by key).
-  function rowByExpressionKey(key: string) {
-    const wanted = String(key || '').toLowerCase()
-    return (
-      emotionRows.value.find(
-        (row) => String(row.expressionKey || '').toLowerCase() === wanted,
-      ) ?? null
-    )
-  }
-
   const narratorName = computed(() => narratorBot.value?.name || 'Narrator')
 
   const narratorSummary = computed(() => {
@@ -295,6 +310,10 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   const narratorExtraTexts = computed(() => {
     return readAdditionalNarratorTexts(narratorBot.value)
+  })
+
+  const currentEmotionLabel = computed(() => {
+    return currentEmotionRow.value?.label || emotionLabel(currentEmotion.value)
   })
 
   const narratorHoverTitle = computed(() => {
@@ -318,25 +337,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       dreamImage(activeDream.value) ||
       '/images/bot.webp'
     )
-  })
-
-  // Transition bridge clip, surfaced only while a transition is playing.
-  const narratorTransitionVideo = computed(() => {
-    return playingTransition.value ? transitionClip.value : ''
-  })
-
-  // Reaction loop for the current expression, if one exists (else empty -> UI shows still).
-  // A transition clip takes precedence: while bridging between moods, the
-  // portrait shows the transition rather than a same-mood reaction loop.
-  const narratorVideo = computed(() => {
-    if (playingTransition.value) return transitionClip.value
-    // Only surface the loop while actively playing (click or ambient beat).
-    if (!playingVideo.value) return ''
-    return readEmotionVideo(currentEmotionRow.value)
-  })
-
-  const currentEmotionLabel = computed(() => {
-    return currentEmotionRow.value?.label || emotionLabel(currentEmotion.value)
   })
 
   const fallbackEmotionIcon = computed(() => {
@@ -419,20 +419,23 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   })
 
   const canUseNarrator = computed(() => {
-    return Boolean(activeDream.value && narratorBot.value)
+    return Boolean(narratorBot.value)
   })
 
   const canSendNarrator = computed(() => {
     return Boolean(
       canUseNarrator.value &&
-      narratorMessage.value.trim() &&
-      !isNarratorResponding.value,
+        narratorMessage.value.trim() &&
+        !isNarratorResponding.value,
     )
   })
 
   const narratorPlaceholder = computed(() => {
-    if (!activeDream.value) return 'Choose a Dream first.'
     if (!narratorBot.value) return 'Attach a NARRATOR bot to this Dream first.'
+
+    if (!activeDream.value) {
+      return `Ask ${narratorName.value} about Kind Robots, Dreams, stories, bots, or what to build next...`
+    }
 
     return `Ask ${narratorName.value} about ${
       activeDream.value.title || 'this Dream'
@@ -475,7 +478,10 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   )
 
   async function initialize() {
-    if (hasInitialized.value) return
+    if (hasInitialized.value) {
+      ensureClientLiveness()
+      return
+    }
 
     hasInitialized.value = true
     loadSettings()
@@ -494,28 +500,25 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       showBubbleForEmotion(currentEmotion.value)
     }
 
-    if (import.meta.client) {
-      document.addEventListener('visibilitychange', handleVisibility)
-      tabHidden = document.visibilityState === 'hidden'
-      if (livenessEnabled.value && !tabHidden) startLiveness()
+    ensureClientLiveness()
+  }
+
+  function ensureClientLiveness() {
+    if (!import.meta.client) return
+
+    document.removeEventListener('visibilitychange', handleVisibility)
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    tabHidden = document.visibilityState === 'hidden'
+
+    if (livenessEnabled.value && !tabHidden) {
+      startLiveness()
     }
   }
 
-  // Tear down timers + listeners (call from component onUnmounted/onScopeDispose).
   function teardownLiveness() {
     stopLiveness()
-    if (videoStopTimer) {
-      clearTimeout(videoStopTimer)
-      videoStopTimer = null
-    }
-    if (transitionStopTimer) {
-      clearTimeout(transitionStopTimer)
-      transitionStopTimer = null
-    }
-    playingVideo.value = false
-    playingTransition.value = false
-    transitionClip.value = ''
-    pendingEmotion.value = null
+
     if (import.meta.client) {
       document.removeEventListener('visibilitychange', handleVisibility)
     }
@@ -575,27 +578,11 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeScreen.value = screen
   }
 
-  function setEmotion(
-    emotion: NarratorEmotion,
-    showBubble = true,
-    options: { bridge?: boolean } = {},
-  ) {
-    // When bridging is requested and a transition clip exists from the current
-    // mood to the target, play it; the actual emotion swap happens when the
-    // clip lands (playTransition calls setEmotion again without bridge).
-    if (
-      options.bridge &&
-      !playingTransition.value &&
-      emotion !== currentEmotion.value &&
-      playTransition(emotion)
-    ) {
-      return
-    }
-
-    currentEmotion.value = emotion
+  function setEmotion(emotion: NarratorEmotion, showBubble = true) {
+    currentEmotion.value = normalizeEmotion(emotion)
 
     if (showBubble) {
-      showBubbleForEmotion(emotion)
+      showBubbleForEmotion(currentEmotion.value)
     }
   }
 
@@ -613,156 +600,34 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     setEmotion(nextEmotion)
   }
 
-  // ── Liveness engine ───────────────────────────────────────────────────────
-
   function randBetween(min: number, max: number) {
     return min + Math.random() * (max - min)
   }
 
-  // Rows that actually have a playable reaction video.
-  const videoRows = computed(() =>
-    emotionRows.value.filter((row) => Boolean(readEmotionVideo(row))),
-  )
-
-  // Active transition rows attached to the bot (tolerates missing relation).
-  const transitionRows = computed<NarratorExpressionTransition[]>(() => {
-    return (narratorBot.value?.ExpressionTransition ?? []).filter(
-      (row) => row.isActive !== false,
-    )
-  })
-
-  // The lowercase expressionKey for a given NarratorEmotion, matched against
-  // the bot's own expression rows so transitions line up with stills. Falls
-  // back to the lowercased emotion name when no row carries a custom key.
-  function keyForEmotion(emotion: NarratorEmotion): string {
-    const row = emotionRows.value.find(
-      (entry) => normalizeEmotion(readExpressionValue(entry)) === emotion,
-    )
-    return expressionKeyOf(row) || String(emotion).toLowerCase()
-  }
-
-  // Resolve a transition clip from -> to: prefer a DB row, else derive the
-  // slug path written by the ComfyUI workflow. Returns '' when neither exists.
-  function findTransition(fromKey: string, toKey: string): string {
-    const from = String(fromKey || '').toLowerCase()
-    const to = String(toKey || '').toLowerCase()
-    if (!from || !to || from === to) return ''
-
-    const match = transitionRows.value.find(
-      (row) =>
-        String(row.fromKey || '').toLowerCase() === from &&
-        String(row.toKey || '').toLowerCase() === to,
-    )
-    if (match?.videoPath) return match.videoPath
-
-    const slug = narratorBot.value?.slug
-    if (slug) return `/images/bots/expressions/${slug}/${from}__${to}.webp`
-    return ''
-  }
-
-  // Duration a transition clip plays before settling on the target still.
-  // Derived from frames/fps when the DB row provides them, else a sane default.
-  function transitionDurationFor(fromKey: string, toKey: string): number {
-    const from = String(fromKey || '').toLowerCase()
-    const to = String(toKey || '').toLowerCase()
-    const row = transitionRows.value.find(
-      (entry) =>
-        String(entry.fromKey || '').toLowerCase() === from &&
-        String(entry.toKey || '').toLowerCase() === to,
-    )
-    const fps = row?.fps && row.fps > 0 ? row.fps : 16
-    const frames = row?.frames && row.frames > 0 ? row.frames : 33
-    // ms, with a small tail so the last frame isn't clipped before the still.
-    return Math.round((frames / fps) * 1000) + 120
-  }
-
-  // Pick a mood to drift to. Prefers the bot's known expressions, falls back
-  // to the full emotion list (image gracefully falls back to neutral if absent).
   function pickDriftEmotion(): NarratorEmotion {
     const pool = emotionOptions.value.filter(
-      (e) => e !== currentEmotion.value && e !== 'CUSTOM',
+      (emotion) => emotion !== currentEmotion.value && emotion !== 'CUSTOM',
     )
     const source = pool.length ? pool : fallbackNarratorEmotions
+
     return source[Math.floor(Math.random() * source.length)] ?? 'NEUTRAL'
   }
 
-  // Drift to a new mood. Bridges through a transition clip when one exists
-  // (from the current emotion to the next), else swaps the still instantly.
   function driftMood() {
     const next = pickDriftEmotion()
-    setEmotion(next, bubblesEnabled.value, { bridge: true })
+
+    setEmotion(next, bubblesEnabled.value)
     showMoodRing.value = true
-    setTimeout(() => (showMoodRing.value = false), 1200)
+
+    setTimeout(() => {
+      showMoodRing.value = false
+    }, 1200)
   }
 
-  // Play a transition clip bridging the current emotion to `to`. The still is
-  // not swapped until the clip finishes, so the portrait reads as travelling
-  // between moods rather than hard-cutting. Returns true if a clip was played.
-  function playTransition(to: NarratorEmotion): boolean {
-    const from = currentEmotion.value
-    if (from === to) return false
-
-    const clip = findTransition(keyForEmotion(from), keyForEmotion(to))
-    if (!clip) return false
-
-    // A transition supersedes any reaction loop in flight.
-    if (videoStopTimer) {
-      clearTimeout(videoStopTimer)
-      videoStopTimer = null
-    }
-    playingVideo.value = false
-
-    pendingEmotion.value = to
-    transitionClip.value = clip
-    playingTransition.value = true
-
-    const duration = transitionDurationFor(
-      keyForEmotion(from),
-      keyForEmotion(to),
-    )
-
-    if (transitionStopTimer) clearTimeout(transitionStopTimer)
-    transitionStopTimer = setTimeout(() => {
-      // Land on the target still once the bridge clip completes.
-      const landing = pendingEmotion.value
-      playingTransition.value = false
-      transitionClip.value = ''
-      pendingEmotion.value = null
-      transitionStopTimer = null
-      if (landing) setEmotion(landing, bubblesEnabled.value)
-    }, duration)
-
-    return true
+  function playReaction() {
+    driftMood()
   }
 
-  // Play a reaction video for the current (or a random video-having) expression,
-  // then settle back to the still.
-  function playReaction(row?: NarratorExpressionMedia | null) {
-    const target =
-      row ||
-      (readEmotionVideo(currentEmotionRow.value)
-        ? currentEmotionRow.value
-        : videoRows.value[Math.floor(Math.random() * videoRows.value.length)])
-
-    if (!target || !readEmotionVideo(target)) {
-      // No video to play — drift instead so the beat isn't wasted.
-      driftMood()
-      return
-    }
-
-    // Align current emotion to the row so the hero shows the right loop.
-    const rowEmotion = normalizeEmotion(readExpressionValue(target))
-    if (rowEmotion !== 'CUSTOM') setEmotion(rowEmotion, false)
-
-    playingVideo.value = true
-    if (videoStopTimer) clearTimeout(videoStopTimer)
-    videoStopTimer = setTimeout(() => {
-      playingVideo.value = false
-      videoStopTimer = null
-    }, livenessConfig.value.videoDurationMs)
-  }
-
-  // One heartbeat: decide drift vs video, then schedule the next.
   function livenessBeat() {
     const now = Date.now()
     const canRun =
@@ -772,11 +637,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       shouldRender.value
 
     if (canRun) {
-      const wantVideo =
-        videoRows.value.length > 0 &&
-        Math.random() < livenessConfig.value.videoChance
-      if (wantVideo) playReaction()
-      else driftMood()
+      driftMood()
     }
 
     scheduleLiveness()
@@ -784,10 +645,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   function scheduleLiveness() {
     if (livenessTimer) clearTimeout(livenessTimer)
+
     const delay = randBetween(
       livenessConfig.value.minIdleMs,
       livenessConfig.value.maxIdleMs,
     )
+
     livenessTimer = setTimeout(livenessBeat, delay)
   }
 
@@ -803,7 +666,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     }
   }
 
-  // Manual interaction: pause ambient drift briefly so it doesn't fight the user.
   function nudgeLiveness() {
     livenessPausedUntil =
       Date.now() + livenessConfig.value.settleAfterInteractionMs
@@ -811,33 +673,23 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
   function toggleLiveness() {
     livenessEnabled.value = !livenessEnabled.value
-    if (livenessEnabled.value) startLiveness()
-    else {
-      stopLiveness()
-      playingVideo.value = false
-      if (videoStopTimer) {
-        clearTimeout(videoStopTimer)
-        videoStopTimer = null
-      }
-      playingTransition.value = false
-      transitionClip.value = ''
-      pendingEmotion.value = null
-      if (transitionStopTimer) {
-        clearTimeout(transitionStopTimer)
-        transitionStopTimer = null
-      }
+
+    if (livenessEnabled.value) {
+      startLiveness()
+      return
     }
+
+    stopLiveness()
   }
 
-  // Click the portrait -> play its reaction now (and settle ambient timing).
   function playReactionOnClick() {
     nudgeLiveness()
-    playReaction(currentEmotionRow.value)
+    playReaction()
   }
 
-  // Tab visibility: pause when hidden, resume when shown.
   function handleVisibility() {
     tabHidden = document.visibilityState === 'hidden'
+
     if (tabHidden) {
       stopLiveness()
     } else if (livenessEnabled.value) {
@@ -936,6 +788,16 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     })
   }
 
+  function rowByExpressionKey(key: string) {
+    const wanted = String(key || '').toLowerCase()
+
+    return (
+      emotionRows.value.find(
+        (row) => String(row.expressionKey || '').toLowerCase() === wanted,
+      ) ?? null
+    )
+  }
+
   function selectFirstScenario() {
     const scenarios = dreamScenarios.value
     const firstScenario = scenarios[0]
@@ -1026,16 +888,19 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   }
 
   function prepareBuildPrompt() {
-    if (!activeDream.value) {
-      activeScreen.value = 'scenarios'
-      isOpen.value = true
-      return
-    }
-
     activeScreen.value = 'narrator'
     isOpen.value = true
     clearBubble()
     setEmotion('CHEERING')
+
+    if (!activeDream.value) {
+      narratorMessage.value = [
+        'Help me start a new Dream from scratch.',
+        'Ask me one useful question if needed, then suggest a strong title, premise, visual direction, and first playable scenario.',
+        'Keep it punchy, weird, and immediately usable.',
+      ].join('\n')
+      return
+    }
 
     narratorMessage.value = [
       `Help me expand the Dream "${activeDream.value.title}".`,
@@ -1045,16 +910,19 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   }
 
   function prepareStoryPrompt() {
-    if (!activeDream.value) {
-      activeScreen.value = 'scenarios'
-      isOpen.value = true
-      return
-    }
-
     activeScreen.value = 'narrator'
     isOpen.value = true
     clearBubble()
     setEmotion('PROUD')
+
+    if (!activeDream.value) {
+      narratorMessage.value = [
+        'Help me create the opening scene for a brand-new Dream.',
+        'Start with a vivid premise and end with 2 or 3 choices.',
+        'Make it feel like a playable story seed, not a generic writing prompt.',
+      ].join('\n')
+      return
+    }
 
     narratorMessage.value = [
       `Start an interactive opening scene for the Dream "${activeDream.value.title}".`,
@@ -1064,16 +932,19 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   }
 
   function prepareScenarioSeedPrompt() {
-    if (!activeDream.value) {
-      activeScreen.value = 'scenarios'
-      isOpen.value = true
-      return
-    }
-
     activeScreen.value = 'narrator'
     isOpen.value = true
     clearBubble()
     setEmotion('CHEERING')
+
+    if (!activeDream.value) {
+      narratorMessage.value = [
+        'Help me invent 3 scenario options for a new Dream.',
+        'Each scenario should include a title, a playable location, a central tension, and one visual hook.',
+        'Make them distinct, immediately usable, and weird in a good way.',
+      ].join('\n')
+      return
+    }
 
     narratorMessage.value = [
       `Create 3 scenario options for the Dream "${activeDream.value.title}".`,
@@ -1124,7 +995,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       .join('\n')
   }
 
-  // ── Site lore / founder Q&A ───────────────────────────────────────────────
   function answerLore(query: string): boolean {
     const topic = matchLoreTopic(query)
 
@@ -1156,7 +1026,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     activeBubble.value = topic.answer
   }
 
-  // ── Animation control ─────────────────────────────────────────────────────
   function startAnimation(effect?: string, durationMs: number | null = null) {
     const effectId = effect ? resolveAnimationId(effect) : null
 
@@ -1164,7 +1033,9 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       effectId: (effectId as never) || undefined,
       durationMs,
     })
+
     setEmotion('CHEERING', false)
+
     activeBubble.value = effectId
       ? `Lights up: ${animationStore.activeEffect?.label ?? effectId}.`
       : 'Surprise effect, incoming.'
@@ -1208,25 +1079,23 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       stopAnimation()
       return true
     }
+
     if (intent === 'random') {
       randomAnimation()
       return true
     }
+
     if (intent === 'next' || intent === 'prev') {
       cycleAnimation(intent)
       return true
     }
 
-    // 'start' — try to resolve a named effect from the phrase.
     const effectId = resolveAnimationId(text)
     startAnimation(effectId || undefined)
 
     return true
   }
 
-  // ── Object creation ───────────────────────────────────────────────────────
-  // Stages a drafting prompt for the given type and routes to its builder.
-  // Set sendNow to also fire the Narrator chat request immediately.
   async function prepareCreate(
     type: NarratorCreatableType,
     options: { navigate?: boolean; sendNow?: boolean } = {},
@@ -1254,13 +1123,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     }
   }
 
-  // Direct create path. Wire these to your real store methods.
-  // Each store method is expected to accept a partial payload and return the
-  // created record (with an id). Adjust names to match your stores.
-  // Normalizes the four stores' differing return shapes to { id } | null.
-  // - createCharacter / createScenario → record | null
-  // - createReward → { success, data } | { success, message }
-  // - createDream  → { success, data, message }
   function readCreatedRecord(result: unknown): { id?: number } | null {
     if (!result || typeof result !== 'object') return null
 
@@ -1271,13 +1133,11 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       message?: string
     }
 
-    // Wrapped result shape (reward, dream).
     if ('success' in record) {
       if (record.success && record.data?.id) return record.data
       throw new Error(record.message || 'Create failed.')
     }
 
-    // Direct record shape (character, scenario).
     if (record.id) return record
 
     return null
@@ -1309,7 +1169,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
           break
         }
         case 'scenario': {
-          // Scenarios link to Dreams via dreamIds (M2M), not a scalar dreamId.
           result = await scenarioStore.createScenario({
             userId,
             ...(dream ? { dreamIds: [dream.id] } : {}),
@@ -1318,7 +1177,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
           break
         }
         case 'dream': {
-          // Dreams need a full DreamForm; build defaults then overlay overrides.
           const form = dreamStore.createDefaultDreamForm({
             userId,
             ...payload,
@@ -1348,9 +1206,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     }
   }
 
-  // ── Unified intent router ─────────────────────────────────────────────────
-  // Lets a single user line trigger lore answers or animation control before
-  // falling back to a normal Narrator chat turn.
   async function routeNarratorInput(
     text: string,
   ): Promise<'lore' | 'animation' | 'chat'> {
@@ -1405,7 +1260,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
           ]
             .filter(Boolean)
             .join('\n')
-        : '',
+        : 'No Dream is currently loaded. Act as the default Kind Robots guide. Help the user create or choose a Dream, understand the workspace, brainstorm story seeds, or navigate the site.',
       selectedScenario.value
         ? [
             `Selected scenario: ${scenarioTitle(selectedScenario.value)}`,
@@ -1413,6 +1268,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
           ]
             .filter(Boolean)
             .join('\n')
+        : '',
+      narratorThreads.value.length
+        ? `Available narrator threads: ${narratorThreads.value
+            .map((thread) => thread.title || thread.Topic?.title)
+            .filter(Boolean)
+            .join(', ')}.`
         : '',
       'Site context: Kind Robots is a socially conscious, server-agnostic AI creativity playground. Its mascot is AMI, the Anti-Malaria Intelligence — a horde of rainbow butterflies. Creativity here supports an anti-malaria fundraiser (againstmalaria.com/amibot). Built by Silas. You may answer questions about the site, its mission, mascot, and founder.',
       `Available screen effects you can describe or suggest the user trigger: ${availableAnimations.value
@@ -1472,7 +1333,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     const bot = narratorBot.value
     const content = narratorMessage.value.trim()
 
-    if (!dream || !bot || !content || isNarratorResponding.value) return
+    if (!bot || !content || isNarratorResponding.value) return
 
     statusMessage.value = ''
     promptStore.currentPrompt = content
@@ -1485,7 +1346,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       const payload: ChatRuntimeInput = {
         botId: bot.id,
         botName: bot.name,
-        dreamId: dream.id,
+        dreamId: dream?.id ?? null,
         content,
         isPublic: false,
         userId,
@@ -1523,7 +1384,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       setStatus(
         error instanceof Error
           ? error.message
-          : 'Narrator request failed. Check Dream narrator bot and text server settings.',
+          : 'Narrator request failed. Check narrator bot and text server settings.',
         'error',
       )
     }
@@ -1536,30 +1397,18 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     }
   }
 
-  // Slug-based path conventions (files live under /images/bots/<kind>/<slug>/...).
-  // Avatars: /images/bots/avatars/<slug>.webp
-  // Emotions/actions stills: /images/bots/emotions/<slug>/<key>.webp
-  // Reaction loops:          /images/bots/reactions/<slug>/<key>.webp
   function avatarPathForSlug(slug?: string | null) {
     if (!slug) return ''
+
     return `/images/bots/avatars/${slug}.webp`
   }
 
   function expressionKeyOf(row?: NarratorExpressionMedia | null) {
     if (!row) return ''
+
     return String(
       row.expressionKey || row.expression || row.emotion || 'neutral',
     ).toLowerCase()
-  }
-
-  // Reaction video for the current expression row, if one exists or can be derived.
-  function readEmotionVideo(row?: NarratorExpressionMedia | null) {
-    if (!row) return ''
-    if (row.videoPath) return row.videoPath
-    const slug = narratorBot.value?.slug
-    const key = expressionKeyOf(row)
-    if (slug && key) return `/images/bots/reactions/${slug}/${key}.webp`
-    return ''
   }
 
   function readEmotionImage(row?: NarratorExpressionMedia | null) {
@@ -1631,19 +1480,11 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     narratorExtraTexts,
     narratorHoverTitle,
     narratorImage,
-    narratorVideo,
-    narratorTransitionVideo,
     rowByExpressionKey,
-    // liveness system
+    narratorThreads,
+    hasNarratorThreads,
     livenessEnabled,
     livenessConfig,
-    playingVideo,
-    // transition system
-    playingTransition,
-    transitionClip,
-    transitionRows,
-    findTransition,
-    playTransition,
     startLiveness,
     stopLiveness,
     toggleLiveness,

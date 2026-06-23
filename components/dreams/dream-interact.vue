@@ -342,35 +342,7 @@
           </div>
         </section>
 
-        <footer
-          class="grid shrink-0 gap-2 border-t border-base-300 bg-base-100 p-3 md:grid-cols-[minmax(0,1fr)_auto]"
-        >
-          <textarea
-            v-model="message"
-            class="textarea textarea-bordered min-h-16 resize-none rounded-2xl bg-base-200"
-            :placeholder="
-              chatIsPublic
-                ? 'Post a public Dream message...'
-                : 'Post a private Dream message...'
-            "
-            @keydown.ctrl.enter.prevent="submitMessage"
-            @keydown.meta.enter.prevent="submitMessage"
-          />
-
-          <button
-            type="button"
-            class="btn btn-primary rounded-2xl text-white"
-            :disabled="dreamStore.isSaving || !canSubmit"
-            @click="submitMessage"
-          >
-            <span
-              v-if="dreamStore.isSaving"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:send" class="h-4 w-4" />
-            Send
-          </button>
-        </footer>
+  
       </section>
 
       <aside

@@ -553,7 +553,7 @@
       <Transition name="narrator-toast">
         <article
           v-if="latestMusing"
-          class="mb-1 max-w-[min(20rem,calc(100vw-7.5rem))] rounded-2xl border border-primary/25 bg-base-100/95 px-3 py-2 text-sm shadow-2xl backdrop-blur"
+          class="narrator-compact-toast mb-1 rounded-2xl border border-primary/25 bg-base-100/95 px-3 py-2 text-sm shadow-2xl backdrop-blur"
         >
           <div class="flex items-start gap-2">
             <span
@@ -581,7 +581,7 @@
 
       <button
         type="button"
-        class="narrator-dock group relative overflow-hidden rounded-3xl border-2 border-primary/40 bg-base-300/90 shadow-2xl transition-transform duration-300 hover:scale-105 md:rounded-full"
+        class="narrator-dock group relative shrink-0 overflow-hidden rounded-3xl border-2 border-primary/40 bg-base-300/90 shadow-2xl transition-transform duration-300 hover:scale-105 md:rounded-full"
         :aria-expanded="isOpen"
         :aria-label="`Open ${narratorName}`"
         :title="narratorHoverTitle"
@@ -721,6 +721,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   'update:open': [value: boolean]
   'update:rendered': [value: boolean]
+  'update:compactMessageVisible': [value: boolean]
 }>()
 
 const CARD_BACKS = [1, 2, 3, 4, 5] as const
@@ -789,6 +790,10 @@ const narratorDockVisible = computed(() => {
 
 const latestMusing = computed(() => {
   return musingHistory.value.at(-1) ?? null
+})
+
+const compactMessageVisible = computed(() => {
+  return Boolean(!isOpen.value && latestMusing.value)
 })
 
 const narratorCardBackSrc = computed(() => {
@@ -1005,7 +1010,8 @@ function closeNarrator(): void {
 
 function openChatFace(): void {
   chatFaceOpen.value = true
-  showTopics.value = !seededMessages.value.length && !narratorSession.value.length
+  showTopics.value =
+    !seededMessages.value.length && !narratorSession.value.length
 }
 
 function closeChatFace(): void {
@@ -1165,14 +1171,14 @@ function runExpressionFlip(nextImage: string, force = false): void {
     return
   }
 
-  if (!force && nextImage === displayedNarratorImage.value) {
-    queuedNarratorImage.value = nextImage
+  queuedNarratorImage.value = nextImage
+
+  if (force || nextImage !== displayedNarratorImage.value) {
     expressionFlipToken.value += 1
     spawnEmojiBurst()
     return
   }
 
-  queuedNarratorImage.value = nextImage
   expressionFlipToken.value += 1
   spawnEmojiBurst()
 }
@@ -1211,6 +1217,14 @@ watch(
   narratorDockVisible,
   (value) => {
     emit('update:rendered', Boolean(value))
+  },
+  { immediate: true },
+)
+
+watch(
+  compactMessageVisible,
+  (value) => {
+    emit('update:compactMessageVisible', value)
   },
   { immediate: true },
 )
@@ -1299,6 +1313,15 @@ onBeforeUnmount(() => {
 
 .narrator-dock-img {
   object-fit: contain;
+}
+
+.narrator-compact-toast {
+  width: clamp(
+    12rem,
+    calc((100vw - var(--sheet-w, 0px)) / 2 - var(--narrator-circle) - 1rem),
+    24rem
+  );
+  max-width: calc(100vw - var(--narrator-circle) - 2rem);
 }
 
 .narrator-card-stage {

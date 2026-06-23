@@ -67,16 +67,13 @@
         </section>
       </div>
 
-      <dream-gallery
+      <dream-relationship-gallery
         v-else-if="workspaceStore.dreamPanel === 'connected-dreams'"
-        variant="dashboard"
         title="Connected Dreams"
         subtitle="Dreams linked by shared scenarios, cast, rewards, or collections."
         relation-mode="connected"
         :context-dream-id="dreamStore.selectedDreamId"
-        :open-on-select="true"
         :auto-load="false"
-        :show-sheet-toolbar="false"
       />
 
       <scenario-relationship-gallery

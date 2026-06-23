@@ -647,7 +647,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { navigateTo } from '#app'
 import { storeToRefs } from 'pinia'
-import FlipCard from '@/components/ui/flip-card.vue'
+import FlipCard from './flip-card.vue'
 import { useNarratorStore } from '@/stores/narratorStore'
 import { useUserStore } from '@/stores/userStore'
 

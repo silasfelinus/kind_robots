@@ -181,26 +181,7 @@ const welcomeMessage = computed(() => {
 function configureUserImageUpload() {
   if (isGuest.value || !userStore.user?.id) return
 
-  imageUploadStore.setTarget({
-    model: 'User',
-    modelId: userStore.user.id,
-    galleryName: 'avatarUploads',
-    collectionLabel: 'avatars',
-    promptString: '[UserAvatar]',
-    path: '[UserAvatar]',
-    buttonLabel: 'Upload avatar',
-    icon: 'kind-icon:camera',
-    showPreview: false,
-    applyImage: async ({ artImageId, imageData }) => {
-      if (isGuest.value || !userStore.user?.id) return
-
-      await userStore.updateUserInfo({
-        id: userStore.user.id,
-        artImageId,
-        avatarImage: imageData ?? userStore.user.avatarImage ?? '',
-      })
-    },
-  })
+  imageUploadStore.setAvatarTarget({ userId: userStore.user.id })
 }
 
 onMounted(() => {

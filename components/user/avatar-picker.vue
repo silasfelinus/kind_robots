@@ -525,29 +525,18 @@ function setStatus(message: string, tone: 'success' | 'error') {
 function configureUploadTarget() {
   if (userStore.isGuest || !userStore.user?.id) return
 
-  uploadStore.setTarget({
-    model: 'User',
-    modelId: userStore.user.id,
-    galleryName: 'avatarUploads',
+  // Avatar linking (user patch via artImageId) lives in the store. The hook
+  // below only does picker-specific UI: cache the hydrated image, update the
+  // preview, announce, and drop back to the gallery.
+  uploadStore.setAvatarTarget({
+    userId: userStore.user.id,
     collectionLabel: props.defaultCollectionLabel,
-    promptString: '[UserAvatar]',
-    path: '[UserAvatar]',
-    buttonLabel: 'Upload avatar',
-    icon: 'kind-icon:camera',
     showPreview: true,
-    applyImage: async ({ artImageId, imageData, imagePath, artImage }) => {
-      if (userStore.isGuest || !userStore.user?.id) return
-
+    onApplied: ({ imageData, imagePath, artImage }) => {
       const source =
         asImageSource(imageData) ||
         asImageSource(imagePath) ||
         avatarSourceFor(artImage)
-
-      // Persist only the artImageId — never the base64 source (overflows @db.Text).
-      await userStore.updateUserInfo({
-        id: userStore.user.id,
-        artImageId,
-      })
 
       localHydrated.value = { ...localHydrated.value, [artImage.id]: artImage }
       previewUrl.value = source || FALLBACK_AVATAR

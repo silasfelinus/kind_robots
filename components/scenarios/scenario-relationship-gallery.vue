@@ -235,7 +235,7 @@ const visibleScenarios = computed<ScenarioWithRelations[]>(() => {
 
   if (!userStore.isAdmin) {
     scenarios = scenarios.filter((scenario) => {
-      return scenario.isPublic || scenario.userId === currentUserId
+      return scenario.isPublic || (currentUserId !== null && scenario.userId === currentUserId)
     })
   }
 

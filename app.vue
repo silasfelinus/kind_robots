@@ -119,16 +119,6 @@
         class="kr-footer pointer-events-none fixed bottom-0 z-40 flex flex-col gap-2 px-2 sm:px-3 lg:flex-row lg:items-end"
         :style="footerVars"
       >
-        <Transition name="kr-chat-slide">
-          <div
-            v-if="narratorRendered && narratorChatOpen"
-            class="pointer-events-auto min-w-0 w-full lg:w-96 lg:max-w-[34vw]"
-            :style="{ height: 'var(--narrator-chat-h)' }"
-          >
-            <narrator-chat compact @close="setNarratorChatOpen(false)" />
-          </div>
-        </Transition>
-
         <Transition name="kr-hand-slide">
           <div
             v-if="handOpen"
@@ -151,24 +141,6 @@
           @click="toggleHand"
         >
           <Icon name="kind-icon:card" class="h-5 w-5" />
-        </button>
-      </div>
-
-      <div
-        v-if="narratorRendered"
-        class="pointer-events-auto fixed bottom-3 z-40"
-        :style="{ right: 'calc(var(--narrator-circle) + 1.25rem)' }"
-      >
-        <button
-          type="button"
-          class="btn btn-secondary btn-circle btn-sm shadow-2xl"
-          :class="narratorChatOpen ? 'btn-active' : ''"
-          :aria-expanded="narratorChatOpen"
-          aria-label="Toggle narrator musings"
-          title="Toggle narrator musings"
-          @click="toggleNarratorChat"
-        >
-          <Icon name="kind-icon:message" class="h-5 w-5" />
         </button>
       </div>
 
@@ -233,6 +205,7 @@ function handlePageReady(): void {
 const isMd = ref(false)
 const isLg = ref(false)
 const isXl = ref(false)
+
 let mdMedia: MediaQueryList | null = null
 let lgMedia: MediaQueryList | null = null
 let xlMedia: MediaQueryList | null = null
@@ -244,7 +217,6 @@ function syncBreakpoints(): void {
 }
 
 const handOpen = ref(false)
-const narratorChatOpen = ref(false)
 const narratorOpen = ref(false)
 const narratorRendered = ref(false)
 
@@ -255,22 +227,23 @@ const NARRATOR_W_XL = '24rem'
 const NARRATOR_CIRCLE_MD = '4.5rem'
 const NARRATOR_CIRCLE_MOBILE = '5.25rem'
 const HAND_PANEL_H = '11.5rem'
-const NARRATOR_CHAT_H = '12rem'
-const FOOTER_GAP = '0.5rem'
 
 const narratorCircle = computed(() => {
   if (!narratorRendered.value) return '0px'
+
   return isMd.value ? NARRATOR_CIRCLE_MD : NARRATOR_CIRCLE_MOBILE
 })
 
 const sheetWidth = computed(() => {
   if (!workspaceSheetOpen.value || !isMd.value) return '0px'
+
   return isXl.value ? SHEET_W_XL : SHEET_W_MD
 })
 
 const narratorWidth = computed(() => {
   if (!narratorOpen.value) return '0px'
   if (!isMd.value) return '100vw'
+
   return isXl.value ? NARRATOR_W_XL : NARRATOR_W
 })
 
@@ -282,19 +255,11 @@ const narratorRailWidth = computed(() => {
     : 'var(--narrator-circle)'
 })
 
-const footerOpen = computed(() => handOpen.value || narratorChatOpen.value)
+const footerOpen = computed(() => handOpen.value)
 
 const footerHeight = computed(() => {
   if (!footerOpen.value) return '0px'
-
-  if (handOpen.value && narratorChatOpen.value) {
-    return isLg.value
-      ? `max(${HAND_PANEL_H}, ${NARRATOR_CHAT_H})`
-      : `calc(${HAND_PANEL_H} + ${NARRATOR_CHAT_H} + ${FOOTER_GAP})`
-  }
-
   if (handOpen.value) return HAND_PANEL_H
-  if (narratorChatOpen.value) return NARRATOR_CHAT_H
 
   return '0px'
 })
@@ -306,9 +271,7 @@ const shellVars = computed<CSSProperties>(() => {
     '--narrator-circle': narratorCircle.value,
     '--footer-h': footerHeight.value,
     '--hand-panel-h': handOpen.value ? HAND_PANEL_H : '0px',
-    '--narrator-chat-h': narratorChatOpen.value ? NARRATOR_CHAT_H : '0px',
-    '--footer-gap':
-      handOpen.value && narratorChatOpen.value ? FOOTER_GAP : '0px',
+    '--footer-gap': '0px',
   } as CSSProperties
 })
 
@@ -330,15 +293,6 @@ function toggleHand(): void {
   handOpen.value = !handOpen.value
 }
 
-function toggleNarratorChat(): void {
-  if (!narratorRendered.value) return
-  narratorChatOpen.value = !narratorChatOpen.value
-}
-
-function setNarratorChatOpen(value: boolean): void {
-  narratorChatOpen.value = narratorRendered.value ? value : false
-}
-
 function setNarratorOpen(value: boolean): void {
   narratorOpen.value = value
 }
@@ -348,7 +302,6 @@ function setNarratorRendered(value: boolean): void {
 
   if (!value) {
     narratorOpen.value = false
-    narratorChatOpen.value = false
   }
 }
 
@@ -376,6 +329,7 @@ onMounted(async () => {
   mdMedia = window.matchMedia('(min-width: 768px)')
   lgMedia = window.matchMedia('(min-width: 1024px)')
   xlMedia = window.matchMedia('(min-width: 1280px)')
+
   syncBreakpoints()
 
   mdMedia.addEventListener('change', syncBreakpoints)
@@ -399,6 +353,11 @@ onBeforeUnmount(() => {
     clearTimeout(bootCurtainTimeoutId)
     bootCurtainTimeoutId = null
   }
+
+  if (failsafeTimeoutId) {
+    clearTimeout(failsafeTimeoutId)
+    failsafeTimeoutId = null
+  }
 })
 </script>
 
@@ -414,6 +373,7 @@ onBeforeUnmount(() => {
     padding-right: max(var(--narrator-w), var(--narrator-circle));
   }
 }
+
 .kr-boot-curtain {
   position: fixed;
   inset: 0;
@@ -450,26 +410,11 @@ onBeforeUnmount(() => {
   transform: translateY(1rem);
 }
 
-.kr-chat-slide-enter-active,
-.kr-chat-slide-leave-active {
-  transition:
-    opacity 240ms ease,
-    transform 240ms ease;
-}
-
-.kr-chat-slide-enter-from,
-.kr-chat-slide-leave-to {
-  opacity: 0;
-  transform: translateY(1rem) translateX(0.5rem);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .kr-sheet-slide-enter-active,
   .kr-sheet-slide-leave-active,
   .kr-hand-slide-enter-active,
-  .kr-hand-slide-leave-active,
-  .kr-chat-slide-enter-active,
-  .kr-chat-slide-leave-active {
+  .kr-hand-slide-leave-active {
     transition: none;
   }
 }

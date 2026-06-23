@@ -4,7 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { Prisma } from '~/prisma/generated/prisma/client'
-import { dreamInclude, parseDreamType } from './index'
+import { parseDreamType } from './index'
 
 type DreamListQuery = {
   take?: string
@@ -21,6 +21,142 @@ type DreamListQuery = {
   characterId?: string
   rewardId?: string
 }
+
+const artImageCardSelect = {
+  id: true,
+  imagePath: true,
+  path: true,
+  fileName: true,
+  thumbnailData: true,
+} satisfies Prisma.ArtImageSelect
+
+const dreamListInclude = {
+  ArtImage: {
+    select: artImageCardSelect,
+  },
+  ArtCollection: {
+    select: {
+      id: true,
+      label: true,
+      imagePath: true,
+      description: true,
+      artPrompt: true,
+    },
+  },
+  ArtImages: {
+    take: 1,
+    orderBy: {
+      updatedAt: 'desc',
+    },
+    select: artImageCardSelect,
+  },
+  ArtCollections: {
+    take: 1,
+    select: {
+      id: true,
+      label: true,
+      imagePath: true,
+      description: true,
+      artPrompt: true,
+      ArtImages: {
+        take: 1,
+        orderBy: {
+          updatedAt: 'desc',
+        },
+        select: artImageCardSelect,
+      },
+    },
+  },
+  Bots: {
+    where: {
+      isActive: true,
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      BotType: true,
+      subtitle: true,
+      description: true,
+      avatarImage: true,
+      imagePath: true,
+      chatBorderImage: true,
+      artImageId: true,
+      isActive: true,
+      isPublic: true,
+    },
+  },
+  Scenarios: {
+    where: {
+      isActive: true,
+    },
+    take: 3,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      imagePath: true,
+      icon: true,
+      difficulty: true,
+      tier: true,
+      group: true,
+      outputType: true,
+      isActive: true,
+      isPublic: true,
+    },
+  },
+  Characters: {
+    where: {
+      isActive: true,
+    },
+    take: 3,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      title: true,
+      role: true,
+      species: true,
+      class: true,
+      imagePath: true,
+      artImageId: true,
+      isActive: true,
+      isPublic: true,
+    },
+  },
+  Rewards: {
+    where: {
+      isActive: true,
+    },
+    take: 3,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      rewardType: true,
+      rarity: true,
+      imagePath: true,
+      icon: true,
+      isActive: true,
+      isPublic: true,
+    },
+  },
+  PitchSheet: {
+    select: {
+      id: true,
+      title: true,
+      subtitle: true,
+      hook: true,
+      imagePath: true,
+      artImageId: true,
+      icon: true,
+      colorTheme: true,
+      isActive: true,
+      isPublic: true,
+    },
+  },
+} satisfies Prisma.DreamInclude
 
 function normalizeLimit(value: unknown, fallback = 48, max = 200): number {
   const parsed = Number(value)
@@ -210,6 +346,21 @@ export default defineEventHandler(async (event) => {
               },
             },
           },
+          {
+            Bots: {
+              some: {
+                OR: [
+                  { name: { contains: search } },
+                  { slug: { contains: search } },
+                  { subtitle: { contains: search } },
+                  { description: { contains: search } },
+                  { botIntro: { contains: search } },
+                  { narrativeVoice: { contains: search } },
+                  { personality: { contains: search } },
+                ],
+              },
+            },
+          },
         ],
       })
     }
@@ -226,7 +377,7 @@ export default defineEventHandler(async (event) => {
         orderBy: {
           updatedAt: 'desc',
         },
-        include: dreamInclude,
+        include: dreamListInclude,
       }),
       prisma.dream.count({ where }),
     ])

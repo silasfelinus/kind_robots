@@ -181,8 +181,10 @@ const visibleDreams = computed<DreamWithRelations[]>(() => {
 
   dreams = dreams.filter((dream) => dream.isActive !== false)
 
-  if (!userStore.isAdmin && currentUserId.value !== null) {
-    dreams = dreams.filter((dream) => dream.isPublic || dream.userId === currentUserId.value)
+  if (!userStore.isAdmin) {
+    dreams = dreams.filter((dream) => {
+      return dream.isPublic || (currentUserId.value !== null && dream.userId === currentUserId.value)
+    })
   }
 
   if (!showMature.value) {

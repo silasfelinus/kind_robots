@@ -70,12 +70,12 @@
               <main class="flex min-h-0 flex-1 flex-col bg-base-200/35 p-3">
                 <button
                   type="button"
-                  class="group relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-primary/20 bg-base-100/70 shadow-inner"
+                  class="group relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-4xl border border-primary/20 bg-base-100/70 shadow-inner"
                   :aria-label="`Shift ${narratorName} expression`"
                   @click="playReactionOnClick"
                 >
                   <div
-                    class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-80"
+                    class="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-secondary/10 opacity-80"
                   />
 
                   <div
@@ -421,9 +421,7 @@
                 </div>
               </div>
 
-              <footer
-                class="shrink-0 border-t border-base-300 bg-base-100 p-3"
-              >
+              <footer class="shrink-0 border-t border-base-300 bg-base-100 p-3">
                 <section
                   v-if="statusMessage"
                   class="mb-2 rounded-2xl border p-2 text-sm"
@@ -709,7 +707,8 @@ const topicButtons = computed<TopicButton[]>(() => {
         thread.guidance ||
         thread.openingText ||
         'Talk through this narrator mode.',
-      icon: topic?.icon || (isScenario ? 'kind-icon:book' : 'kind-icon:message'),
+      icon:
+        topic?.icon || (isScenario ? 'kind-icon:book' : 'kind-icon:message'),
       prompt: topic?.sampleUserPrompt || topic?.prompt || '',
       openingText: thread.openingText || '',
       route: isScenario ? '/stories' : '',
@@ -836,8 +835,10 @@ function addMusing(
 }
 
 function expressionEmoji(): string {
-  const lookup: Record<string, string[]> = {
-    NEUTRAL: ['✨', '🦋', '🌈'],
+  const fallbackOptions = ['✨', '🦋', '🌈']
+
+  const lookup: Partial<Record<string, string[]>> = {
+    NEUTRAL: fallbackOptions,
     JOYFUL: ['😊', '✨', '🎉'],
     SORROWFUL: ['🌧️', '💧', '🫧'],
     AFRAID: ['😨', '⚡', '🌀'],
@@ -857,11 +858,13 @@ function expressionEmoji(): string {
     CHEERING: ['🎉', '📣', '✨'],
     WHISPERING: ['🤫', '🫧', '✨'],
     SHOUTING: ['📣', '⚡', '💥'],
-    CUSTOM: ['✨', '🦋', '🌈'],
+    CUSTOM: fallbackOptions,
   }
 
-  const options = lookup[currentEmotion.value] ?? lookup.NEUTRAL
-  return options[Math.floor(Math.random() * options.length)] ?? '✨'
+  const options = lookup[currentEmotion.value] ?? fallbackOptions
+  const index = Math.floor(Math.random() * options.length)
+
+  return options[index] ?? fallbackOptions[0] ?? '✨'
 }
 
 function spawnEmojiBurst(): void {
@@ -1083,8 +1086,16 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 20% 18%, rgb(255 255 255 / 0.24), transparent 28%),
-    radial-gradient(circle at 80% 72%, rgb(255 255 255 / 0.18), transparent 32%),
+    radial-gradient(
+      circle at 20% 18%,
+      rgb(255 255 255 / 0.24),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 80% 72%,
+      rgb(255 255 255 / 0.18),
+      transparent 32%
+    ),
     linear-gradient(135deg, rgb(var(--p) / 0.28), rgb(var(--s) / 0.22)),
     repeating-linear-gradient(
       45deg,

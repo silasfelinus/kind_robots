@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/bots.cy.ts
 
@@ -13,17 +12,7 @@ type CypressEnv = {
   BASE_API_URL?: string
 }
 
-let userId = 0
 describe('Bot Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
   let apiRoot = 'https://kind-robots.vercel.app/api'
   let baseUrl = `${apiRoot}/bots`
   let usersUrl = `${apiRoot}/users`
@@ -190,7 +179,8 @@ describe('Bot Management API Tests', () => {
   })
 
   it('Create a New Bot with Valid Authentication', () => {
-expect(createdUserId, 'createdUserId').to.be.a('number')
+    expect(userToken, 'userToken').to.be.a('string').and.not.be.empty
+    expect(createdUserId, 'createdUserId').to.be.a('number')
 
     cy.request({
       method: 'POST',
@@ -262,7 +252,9 @@ expect(createdUserId, 'createdUserId').to.be.a('number')
 
   it('Update Bot with Valid Authentication', () => {
     expect(createdBotId, 'createdBotId').to.be.a('number')
-cy.request({
+    expect(userToken, 'userToken').to.be.a('string').and.not.be.empty
+
+    cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${createdBotId}`,
       headers: bearerHeaders(userToken),
@@ -337,7 +329,9 @@ cy.request({
 
   it('Delete Bot with Valid Authentication', () => {
     expect(createdBotId, 'createdBotId').to.be.a('number')
-cy.request({
+    expect(userToken, 'userToken').to.be.a('string').and.not.be.empty
+
+    cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${createdBotId}`,
       headers: bearerHeaders(userToken),

@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // /cypress/e2e/api/comfy.cy.ts
 /// <reference types="cypress" />
 
@@ -24,7 +23,15 @@ describe.skip('Comfy Direct Test Endpoint', () => {
   let turboCheckpointId = 0
 
   before(() => {
-    cy.env(['API_BASE', 'API_KEY', 'COMFY_TEST_SERVER_ID', 'COMFY_FLUX_CHECKPOINT_ID', 'COMFY_SDXL_CHECKPOINT_ID', 'COMFY_KONTEXT_CHECKPOINT_ID', 'COMFY_TURBO_CHECKPOINT_ID']).then((env) => {
+    cy.env([
+      'API_BASE',
+      'API_KEY',
+      'COMFY_TEST_SERVER_ID',
+      'COMFY_FLUX_CHECKPOINT_ID',
+      'COMFY_SDXL_CHECKPOINT_ID',
+      'COMFY_KONTEXT_CHECKPOINT_ID',
+      'COMFY_TURBO_CHECKPOINT_ID',
+    ]).then((env) => {
       const rawApiBase = String(
         env.API_BASE || 'https://kind-robots.vercel.app',
       )

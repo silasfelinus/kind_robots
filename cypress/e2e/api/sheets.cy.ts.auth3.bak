@@ -10,14 +10,6 @@ interface ApiResponse<T = any> {
 }
 
 describe('Sheets API CRUD + Auth Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
   const fallbackApiBase = 'https://kind-robots.vercel.app'
   const invalidToken = 'definitely-not-a-real-token'
 
@@ -41,6 +33,12 @@ describe('Sheets API CRUD + Auth Tests', () => {
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
+    })
+  })
+  // Auth migration: fresh disposable JWT user
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      userToken = auth.token
     })
   })
 

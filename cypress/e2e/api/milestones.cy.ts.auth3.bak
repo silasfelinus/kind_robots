@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/milestones.cy.ts
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

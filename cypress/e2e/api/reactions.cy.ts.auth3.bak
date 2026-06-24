@@ -2,15 +2,6 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/reactions.cy.ts
 
 describe('Reaction Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
   const baseUrl = 'https://kind-robots.vercel.app/api'
   const invalidToken = 'someInvalidTokenValue'
   let userId = 0
@@ -20,13 +11,20 @@ describe('Reaction Management API Tests', () => {
   let reactionId: number | undefined
 
   before(() => {
-    cy.wrap(null).then(() => {
+    cy.env([]).then((env) => {
           })
   })
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     userId = auth.id
+    })
+  })
+  // Auth migration: fresh disposable JWT user
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      userToken = auth.token
+      userId = auth.id
     })
   })
 

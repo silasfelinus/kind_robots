@@ -24,25 +24,20 @@ describe('Sheets API CRUD + Auth Tests', () => {
   const dreamTitle = `PitchSheet Cypress Dream ${time}`
 
   before(() => {
-    cy.env(['API_BASE']).then((env) => {
+    cy.env(['API_BASE', 'USER_TOKEN']).then((env) => {
       apiBase = String(env.API_BASE || fallbackApiBase)
       sheetsUrl = `${apiBase}/api/sheets`
       dreamsUrl = `${apiBase}/api/dreams`
-})
+      userToken = String(env.USER_TOKEN || '')
+
+      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be.empty
+    })
   })
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
-
 
 
 

@@ -1,8 +1,6 @@
 import { createLoggedInTestUser } from '../../support/api-auth'
 // /cypress/e2e/api/rewards.cy.ts
 
-let userId = 0
-
 describe('Reward Management API Tests', () => {
   const fallbackBaseUrl = 'https://kind-robots.vercel.app/api/rewards'
   const invalidToken = 'someInvalidTokenValue'
@@ -51,9 +49,13 @@ describe('Reward Management API Tests', () => {
   }
 
   before(() => {
-    cy.env(['REWARDS_API_URL']).then((env) => {
+    cy.env(['REWARDS_API_URL', 'USER_TOKEN']).then((env) => {
       baseUrl = String(env.REWARDS_API_URL || fallbackBaseUrl)
-})
+      userToken = String(env.USER_TOKEN || '')
+
+      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+        .empty
+    })
   })
 
   after(() => {
@@ -76,15 +78,6 @@ describe('Reward Management API Tests', () => {
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
-
 
 
 

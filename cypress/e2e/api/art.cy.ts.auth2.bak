@@ -2,8 +2,6 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/art.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-let userId = 0
-
 describe('ArtImage Management API Tests', () => {
   const apiRoot = 'https://kind-robots.vercel.app/api'
   const artImageUrl = `${apiRoot}/art/image`
@@ -21,9 +19,15 @@ describe('ArtImage Management API Tests', () => {
   let generatedPath = ''
 
   before(() => {
-    cy.env(['API_KEY', 'ADMIN_TOKEN', 'LOLA_TEST_SERVER_ID']).then((env) => {
+    cy.env([
+      'API_KEY',
+      'ADMIN_TOKEN',
+      'USER_TOKEN',
+      'LOLA_TEST_SERVER_ID',
+    ]).then((env) => {
       apiKey = String(env.API_KEY || '')
       adminToken = String(env.ADMIN_TOKEN || '')
+      userToken = String(env.USER_TOKEN || '')
 
       const parsedValue = Number(env.LOLA_TEST_SERVER_ID ?? 37)
       lolaTestServerId = Number.isFinite(parsedValue) ? parsedValue : 37
@@ -101,15 +105,6 @@ describe('ArtImage Management API Tests', () => {
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
-
 
 
 

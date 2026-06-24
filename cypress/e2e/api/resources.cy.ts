@@ -12,8 +12,7 @@ describe('Resource Management API Tests', () => {
 let userId = 0let resourceId: number | undefined
 
   before(() => {
-    cy.env(['USER_TOKEN']).then((env) => {
-      userToken = String(env.USER_TOKEN || '')
+    cy.env([]).then((env) => {
           })
   })
   before(() => {
@@ -22,6 +21,15 @@ let userId = 0let resourceId: number | undefined
     userId = auth.id
     })
   })
+  // Auth migration: fresh disposable JWT user
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      userToken = auth.token
+      userId = auth.id
+    })
+  })
+
+
 
 
 

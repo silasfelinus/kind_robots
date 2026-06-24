@@ -64,10 +64,17 @@ export default defineConfig({
       on('before:run', async () => {
         fs.mkdirSync(timingDir, { recursive: true })
 
-        const seedStart = Date.now()
-        timingLog('seed ensure: start')
-        await ensureCypressApiSeed(config.env as Record<string, unknown>)
-        recordEvent('seed ensure', seedStart)
+        if (
+          process.env.CYPRESS_EAGER_SEED === '1' ||
+          config.env.CYPRESS_EAGER_SEED === '1'
+        ) {
+          const seedStart = Date.now()
+          timingLog('seed ensure: start')
+          await ensureCypressApiSeed(config.env as Record<string, unknown>)
+          recordEvent('seed ensure', seedStart)
+        } else {
+          timingLog('seed ensure: lazy')
+        }
       })
 
       on('before:spec', (spec) => {

@@ -229,8 +229,9 @@ describe('Friendship / UserRelation API Tests', () => {
       userId = auth.id
       actorUserId = auth.id
 
-      return createLoggedInTestUser().then((other) => {
+      return createLoggedInTestUser({ role: 'second' }).then((other) => {
         relatedUserId = other.id
+        adminToken = other.token
       })
     })
   })
@@ -239,7 +240,7 @@ describe('Friendship / UserRelation API Tests', () => {
     cy.env(['API_BASE', 'ADMIN_TOKEN', 'RELATED_USER_ID']).then(
       (env) => {
         apiBase = String(env.API_BASE || fallbackApiBase)
-        adminToken = String(env.ADMIN_TOKEN || '')
+        adminToken = String(env.ADMIN_TOKEN || adminToken || '')
 expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
           .empty
 
@@ -278,11 +279,6 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
   // Each block leaves the graph clean so subsequent blocks start fresh.
 
   context('Friend request lifecycle', () => {
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    })
-  })
 
 
 

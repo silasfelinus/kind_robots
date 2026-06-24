@@ -43,7 +43,6 @@ export type CreateLoggedInTestUserOptions = {
 export const defaultApiBase = 'https://kind-robots.vercel.app/api'
 export const defaultTestPassword = 'testtest12'
 
-let seedUserCursor = 0
 
 export const jsonHeaders = () => ({
   Accept: 'application/json',
@@ -74,19 +73,14 @@ const seedUserForRole = (seed: {
   secondUser: TestUserAuth
   thirdUser: TestUserAuth
 }, role?: TestUserRole) => {
-  if (role === 'primary') return seed.user
   if (role === 'second') return seed.secondUser
   if (role === 'third') return seed.thirdUser
 
-  const users = [seed.user, seed.secondUser, seed.thirdUser]
-  const user = users[seedUserCursor % users.length]
-  seedUserCursor += 1
-
-  return user
+  return seed.user
 }
 
 export const resetSeedUserCursor = () => {
-  seedUserCursor = 0
+  // Backward-compatible no-op. Seed users no longer rotate by default.
 }
 
 export const getApiEnv = () =>

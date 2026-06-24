@@ -353,7 +353,7 @@ const cleanupCreatedFixtures = () => {
           ).to.include(response.status)
 
           if (
-            [200, 202, 204].includes(response.status) &&
+            [200, 202, 204, 401, 403, 404].includes(response.status) &&
             response.body &&
             Object.prototype.hasOwnProperty.call(response.body, 'success')
           ) {

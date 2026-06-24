@@ -3,14 +3,6 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/butterflies.cy.ts
 
 describe('Butterfly API', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
   const baseUrl = 'https://kind-robots.vercel.app/api/butterflies'
   const recordsUrl = 'https://kind-robots.vercel.app/api/butterflies/records'
 
@@ -61,6 +53,12 @@ describe('Butterfly API', () => {
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
+    })
+  })
+  // Auth migration: fresh disposable JWT user
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      userToken = auth.token
     })
   })
 

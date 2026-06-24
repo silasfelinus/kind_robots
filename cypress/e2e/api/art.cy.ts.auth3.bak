@@ -5,15 +5,6 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 let userId = 0
 
 describe('ArtImage Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
   const apiRoot = 'https://kind-robots.vercel.app/api'
   const artImageUrl = `${apiRoot}/art/image`
   const artGenerateUrl = `${apiRoot}/art/generate`
@@ -108,6 +99,13 @@ describe('ArtImage Management API Tests', () => {
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
+    })
+  })
+  // Auth migration: fresh disposable JWT user
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      userToken = auth.token
+      userId = auth.id
     })
   })
 

@@ -2,6 +2,15 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/prompts.cy.ts
 
 describe('Prompt Management API Tests', () => {
+
+  // Auth migration: fresh disposable JWT user
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      userToken = auth.token
+      userId = auth.id
+    })
+  })
+
   const baseUrl = 'https://kind-robots.vercel.app/api/prompts'
   const invalidToken = 'someInvalidTokenValue'
   const uniquePrompt = `devil bunny ${Date.now()}`
@@ -11,20 +20,13 @@ describe('Prompt Management API Tests', () => {
 let userId = 0let promptId: number | undefined
 
   before(() => {
-    cy.env([]).then((env) => {
+    cy.wrap(null).then(() => {
           })
   })
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     userId = auth.id
-    })
-  })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
     })
   })
 

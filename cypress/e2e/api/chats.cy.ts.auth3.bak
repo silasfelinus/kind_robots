@@ -9,14 +9,6 @@ import {
 } from '../../support/api-auth'
 
 describe('Chat API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userId = auth.id
-    })
-  })
-
   const baseUrl = 'https://kind-robots.vercel.app/api/chats'
   const badJwt = 'definitely-not-valid'
   const botId = 1

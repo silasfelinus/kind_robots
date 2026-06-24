@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/milestone-records.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
@@ -13,16 +12,7 @@ type ApiResponse<T = unknown> = {
   token?: string
 }
 
-let userId = 0
 describe('Milestone Record Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userId = auth.id
-    })
-  })
-
   const baseUrl = 'https://kind-robots.vercel.app/api'
   const recordsUrl = `${baseUrl}/milestones/records`
   const usersUrl = `${baseUrl}/users`

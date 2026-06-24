@@ -53,16 +53,6 @@ let userToken = ''
 let userId = 0
 
 describe('Server API Full CRUD + Auth Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userA_apiKey = auth.token
-      userId = auth.id
-    })
-  })
-
   const fallbackApiBase = 'https://kind-robots.vercel.app'
   const testUserId = 9
   const invalidToken = 'definitely-not-a-real-token'
@@ -85,6 +75,14 @@ describe('Server API Full CRUD + Auth Tests', () => {
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
+    })
+  })
+  // Auth migration: fresh disposable JWT user
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      userToken = auth.token
+      userA_apiKey = auth.token
+      userId = auth.id
     })
   })
 

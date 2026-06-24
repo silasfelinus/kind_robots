@@ -1,5 +1,6 @@
 //server/api/auth/index.ts
 import crypto from 'crypto'
+import { createError } from 'h3'
 import { hash as bcryptHash, compare as bcryptCompare } from 'bcryptjs'
 import { jwtVerify, SignJWT } from 'jose'
 import { errorHandler } from '../../utils/error'
@@ -10,12 +11,6 @@ import type { User } from '~/prisma/generated/prisma/client'
 const config = useRuntimeConfig()
 const JWT_SECRET = config.jwtSecret
 
-export interface ValidateApiKeyResult {
-  success: boolean
-  user?: { id: number; Role: string }
-  message: string
-}
-
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET is not configured.')
 }
@@ -24,7 +19,6 @@ if (typeof JWT_SECRET !== 'string' || !JWT_SECRET) {
   throw new Error('JWT_SECRET is not configured or is not a string.')
 }
 
-// Define the return type directly in the function signature
 export const verifyJwtToken = async (
   token: string,
 ): Promise<{
@@ -60,23 +54,8 @@ export function extractTokenFromHeader(
         'Authorization token is required in the format "Bearer <token>".',
     })
   }
+
   return authorizationHeader.split(' ')[1] ?? ''
-}
-
-export async function getUserIdFromToken(token: string): Promise<number> {
-  const user = await prisma.user.findFirst({
-    where: { apiKey: token },
-    select: { id: true },
-  })
-
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      message: 'Invalid or expired token.',
-    })
-  }
-
-  return user.id
 }
 
 export const getUserDataByToken = async (token: string) => {
@@ -98,60 +77,11 @@ export const getUserDataByToken = async (token: string) => {
     return { success: true, data }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
+
     return {
       success: false,
       message: `🚀 Mission abort! ${message}`,
       statusCode: statusCode ?? 403,
-    }
-  }
-}
-
-export function generateApiKey(): string {
-  try {
-    const apiKey = crypto.randomBytes(16).toString('hex')
-    return apiKey
-  } catch (error: unknown) {
-    console.error('🔥 Failed to generate API key:', errorHandler(error).message)
-    throw new Error('Failed to generate API key.')
-  }
-}
-
-export async function validateApiKey(
-  apiKey: string,
-): Promise<ValidateApiKeyResult> {
-  try {
-    if (!apiKey) {
-      throw createError({
-        statusCode: 400,
-        message: 'API key is required.',
-      })
-    }
-
-    // Fetch the user by API key with relevant fields
-    const user = await prisma.user.findFirst({
-      where: { apiKey },
-      select: { id: true, Role: true }, // Add fields as needed
-    })
-
-    if (!user) {
-      return {
-        success: false,
-        message: 'Invalid API key. No user found.',
-      }
-    }
-
-    return {
-      success: true,
-      user, // Pass the validated user object
-      message: '🚀 API key is valid. You are good to go!',
-    }
-  } catch (error: unknown) {
-    const errorMessage = `🔥 Failed to validate API key: ${error instanceof Error ? error.message : 'Unknown error'}`
-    console.error(errorMessage)
-
-    return {
-      success: false,
-      message: errorMessage,
     }
   }
 }
@@ -191,18 +121,17 @@ export async function createUserWithAuth(
     }
 
     const { isValid, message } = validatePassword(password)
+
     if (!isValid) {
       throw new Error(message)
     }
 
     const hashedPassword = await hashPassword(password)
-    const apiKey = generateApiKey()
     const newUser = await prisma.user.create({
       data: {
         username,
         email: email ?? undefined,
         password: hashedPassword,
-        apiKey,
         Role: 'USER',
         createdAt: new Date(),
       },
@@ -211,9 +140,11 @@ export async function createUserWithAuth(
     return { success: true, user: newUser }
   } catch (error: unknown) {
     console.error(`Error in createUserWithAuth: ${errorHandler(error).message}`)
+
     return { success: false, message: errorHandler(error).message }
   }
 }
+
 export async function validateUserCredentials(
   username: string,
   password?: string,
@@ -227,6 +158,7 @@ export async function validateUserCredentials(
 
     if (user.password && password) {
       const isPasswordValid = await bcryptCompare(password, user.password)
+
       if (!isPasswordValid) {
         return null
       }
@@ -235,11 +167,13 @@ export async function validateUserCredentials(
     }
 
     const token = await createToken(user)
+
     return { user, token }
   } catch (error: unknown) {
     console.error(
       `Failed to validate user credentials: ${errorHandler(error).message}`,
     )
+
     throw new Error('Failed to validate user credentials.')
   }
 }
@@ -262,6 +196,7 @@ export function validatePassword(password: string): {
 
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10
+
   return await bcryptHash(password, saltRounds)
 }
 
@@ -271,11 +206,13 @@ export async function addPasswordToExistingUser(
 ) {
   try {
     const existingUser = await prisma.user.findUnique({ where: { username } })
+
     if (!existingUser) {
       return { success: false, message: 'Username does not exist.' }
     }
 
     const passwordValidation = validatePassword(password)
+
     if (!passwordValidation.isValid) {
       return { success: false, message: passwordValidation.message }
     }

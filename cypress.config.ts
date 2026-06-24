@@ -23,6 +23,15 @@ type SeedUser = {
   id: number
 }
 
+type CleanupRequest = {
+  label: string
+  method?: 'DELETE' | 'POST' | 'PATCH'
+  url: string
+  headers?: Record<string, string>
+  body?: unknown
+  expectedStatuses?: number[]
+}
+
 const timingDir = path.resolve('.cypress-cache')
 const timingLatestFile = path.join(timingDir, 'timing-latest.json')
 const seedCleanupLatestFile = path.join(timingDir, 'seed-cleanup-latest.json')
@@ -45,6 +54,16 @@ const keepSeedAfterRun = (env: Record<string, unknown>) =>
   env.CYPRESS_KEEP_SEED === '1' ||
   env.CYPRESS_KEEP_SEED === true
 
+const parseResponseBody = async (response: Response) => {
+  const text = await response.text()
+
+  try {
+    return text ? JSON.parse(text) : null
+  } catch {
+    return text
+  }
+}
+
 const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser) => {
   const response = await fetch(`${apiBase}/users/${user.id}`, {
     method: 'DELETE',
@@ -55,20 +74,37 @@ const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser)
     },
   })
 
-  const text = await response.text()
-  let body: unknown = text
-
-  try {
-    body = text ? JSON.parse(text) : null
-  } catch {
-    // Keep the raw text body.
-  }
-
   return {
+    label: `seed user ${user.id}`,
     userId: user.id,
     status: response.status,
     ok: [200, 202, 204, 401, 403, 404].includes(response.status),
-    body,
+    body: await parseResponseBody(response),
+  }
+}
+
+const cleanupKey = (request: CleanupRequest) =>
+  `${request.method || 'DELETE'} ${request.url} ${request.label}`
+
+const runCleanupRequest = async (request: CleanupRequest) => {
+  const response = await fetch(request.url, {
+    method: request.method || 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...(request.headers || {}),
+    },
+    body: request.body === undefined ? undefined : JSON.stringify(request.body),
+  })
+  const expectedStatuses = request.expectedStatuses || [200, 202, 204, 401, 403, 404]
+
+  return {
+    label: request.label,
+    method: request.method || 'DELETE',
+    url: request.url,
+    status: response.status,
+    ok: expectedStatuses.includes(response.status),
+    body: await parseResponseBody(response),
   }
 }
 
@@ -86,6 +122,7 @@ export default defineConfig({
       const specStarts = new Map<string, number>()
       const specSummaries: TimingSpecSummary[] = []
       const timingEvents: Array<{ label: string; durationMs: number; at: string }> = []
+      const cleanupRequests: CleanupRequest[] = []
 
       const timingLog = (message: string) => {
         if (timingEnabled) console.log(`[cypress:timing] ${message}`)
@@ -142,26 +179,40 @@ export default defineConfig({
         const sortedSpecs = [...specSummaries].sort((a, b) => b.durationMs - a.durationMs)
         const cleanupStartedAt = Date.now()
         const env = config.env as Record<string, unknown>
-        let seedCleanup: unknown[] = []
+        const cleanupResults: unknown[] = []
+
+        for (const request of [...cleanupRequests].reverse()) {
+          try {
+            cleanupResults.push(await runCleanupRequest(request))
+          } catch (error) {
+            cleanupResults.push({
+              label: request.label,
+              method: request.method || 'DELETE',
+              url: request.url,
+              ok: false,
+              error: error instanceof Error ? error.message : String(error),
+            })
+          }
+        }
 
         if (!keepSeedAfterRun(env)) {
           try {
             const seed = await ensureCypressApiSeed(env)
-            seedCleanup = []
 
             for (const user of [seed.thirdUser, seed.secondUser, seed.user]) {
-              seedCleanup.push(await deleteSeedUser(seed.apiBase, seed.adminKey, user))
+              cleanupResults.push(await deleteSeedUser(seed.apiBase, seed.adminKey, user))
             }
 
             clearCypressApiSeed()
           } catch (error) {
-            seedCleanup = [{
+            cleanupResults.push({
+              label: 'seed users',
               ok: false,
               error: error instanceof Error ? error.message : String(error),
-            }]
+            })
           }
         } else {
-          seedCleanup = [{ ok: true, kept: true }]
+          cleanupResults.push({ label: 'seed users', ok: true, kept: true })
         }
 
         recordEvent('test world cleanup', cleanupStartedAt)
@@ -186,7 +237,7 @@ export default defineConfig({
 
         fs.mkdirSync(timingDir, { recursive: true })
         fs.writeFileSync(timingLatestFile, `${JSON.stringify(report, null, 2)}\n`)
-        fs.writeFileSync(seedCleanupLatestFile, `${JSON.stringify(seedCleanup, null, 2)}\n`)
+        fs.writeFileSync(seedCleanupLatestFile, `${JSON.stringify(cleanupResults, null, 2)}\n`)
         fs.writeFileSync(path.join(timingDir, `timing-${Date.now()}.json`), `${JSON.stringify(report, null, 2)}\n`)
 
         if (timingEnabled) {
@@ -218,9 +269,24 @@ export default defineConfig({
           return result
         },
 
+        'cypressCleanup:register'(request: CleanupRequest) {
+          const start = Date.now()
+          const key = cleanupKey(request)
+          if (!cleanupRequests.some((item) => cleanupKey(item) === key)) {
+            cleanupRequests.push({
+              method: 'DELETE',
+              expectedStatuses: [200, 202, 204, 401, 403, 404],
+              ...request,
+            })
+          }
+          recordEvent('task cypressCleanup:register', start)
+          return cleanupRequests.length
+        },
+
         'cypressSeed:clear'() {
           const start = Date.now()
           clearCypressApiSeed()
+          cleanupRequests.length = 0
           recordEvent('task cypressSeed:clear', start)
           return null
         },

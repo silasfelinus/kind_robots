@@ -11,7 +11,8 @@ describe('Theme Management API Tests', () => {
   let themeId: number | undefined
 
   before(() => {
-    cy.env([]).then((env) => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
           })
   })
   before(() => {
@@ -19,14 +20,6 @@ describe('Theme Management API Tests', () => {
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
-
 
 
 

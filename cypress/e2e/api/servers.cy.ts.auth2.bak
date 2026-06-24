@@ -50,8 +50,6 @@ interface ServerRecord {
 }
 
 let userToken = ''
-let userId = 0
-
 describe('Server API Full CRUD + Auth Tests', () => {
   const fallbackApiBase = 'https://kind-robots.vercel.app'
   const testUserId = 9
@@ -67,26 +65,20 @@ describe('Server API Full CRUD + Auth Tests', () => {
   let badServerId: number | undefined
 
   before(() => {
-    cy.env(['API_BASE']).then((env) => {
+    cy.env(['API_BASE', 'USER_TOKEN']).then((env) => {
       apiBase = String(env.API_BASE || fallbackApiBase)
       baseUrl = `${apiBase}/api/server`
-})
+      userA_apiKey = String(env.USER_TOKEN || '')
+
+      expect(userA_apiKey, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+        .empty
+    })
   })
   before(() => {
     createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userA_apiKey = auth.token
-      userId = auth.id
-    })
-  })
-
-
 
 
 

@@ -1,8 +1,5 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/components.cy.ts
-
-let userId = 0
 
 describe('Component Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/components'
@@ -18,14 +15,6 @@ describe('Component Management API Tests', () => {
       expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userId = auth.id
-    })
-  })
-
-
 
   it('Get All Folder Names', () => {
     cy.request({
@@ -59,7 +48,7 @@ describe('Component Management API Tests', () => {
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
-        userId,
+        userId: 9,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

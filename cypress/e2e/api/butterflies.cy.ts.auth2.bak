@@ -18,7 +18,8 @@ describe('Butterfly API', () => {
   let recordId: number | undefined
 
   before(() => {
-    cy.env(['ADMIN_TOKEN']).then((env) => {
+    cy.env(['USER_TOKEN', 'ADMIN_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
       adminToken = String(env.ADMIN_TOKEN || '')
 
             expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
@@ -55,14 +56,6 @@ describe('Butterfly API', () => {
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
-
 
 
 

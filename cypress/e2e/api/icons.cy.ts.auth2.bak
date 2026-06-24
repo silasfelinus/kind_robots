@@ -1,8 +1,6 @@
 import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/icons.cy.ts
 
-let userId = 0
-
 describe('SmartIcon API Full CRUD Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/icons'
   const invalidToken = 'someInvalidTokenValue'
@@ -15,7 +13,8 @@ describe('SmartIcon API Full CRUD Tests', () => {
   const iconTitle = `Icon-${time}`
 
   before(() => {
-    cy.env([]).then((env) => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
           })
   })
   before(() => {
@@ -23,15 +22,6 @@ describe('SmartIcon API Full CRUD Tests', () => {
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
-
 
 
 
@@ -84,7 +74,7 @@ describe('SmartIcon API Full CRUD Tests', () => {
     })
   })
 
-  it('POST: creates a SmartIcon with valid JWT', () => {
+  it('POST: creates a SmartIcon with USER_TOKEN', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -180,7 +170,7 @@ describe('SmartIcon API Full CRUD Tests', () => {
     })
   })
 
-  it('PATCH: updates SmartIcon with valid JWT', () => {
+  it('PATCH: updates SmartIcon with USER_TOKEN', () => {
     expect(iconId).to.exist
 
     const updatedTitle = `Updated-${iconTitle}`
@@ -233,7 +223,7 @@ describe('SmartIcon API Full CRUD Tests', () => {
     })
   })
 
-  it('DELETE: deletes SmartIcon with valid JWT', () => {
+  it('DELETE: deletes SmartIcon with USER_TOKEN', () => {
     expect(iconId).to.exist
 
     cy.request({

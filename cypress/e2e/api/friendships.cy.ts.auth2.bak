@@ -8,7 +8,7 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // decline / remove), blocking, family (PARENT/CHILD) request flow, and the
 // FRIEND-only auto-accept-on-reverse behavior.
 //
-// Two real users are needed: fresh JWT test user (the actor) and ADMIN_TOKEN (the
+// Two real users are needed: USER_TOKEN (the actor) and ADMIN_TOKEN (the
 // target who confirms/rejects requests). RELATED_USER_ID is the target's user
 // id; if not provided we resolve it from /api/users/me with the admin token.
 //
@@ -55,7 +55,7 @@ const relationsPath = '/api/relations'
 let apiBase = fallbackApiBase
 let userToken = ''
 let adminToken = ''
-let actorUserId = 0 // fresh JWT test user id (the requester)
+let actorUserId = 0 // USER_TOKEN's user id (the requester)
 let relatedUserId = 0 // ADMIN_TOKEN's user id (the target)
 
 // Every relation row id we create, tracked for teardown.
@@ -149,7 +149,7 @@ const track = (recordId: number) => {
   if (!createdRelationIds.includes(recordId)) createdRelationIds.push(recordId)
 }
 
-// Create a relation as the actor. Tracks the resulting row.
+// Create a relation as the actor (USER_TOKEN). Tracks the resulting row.
 const createRelation = (
   type: RelationType,
   target = relatedUserId,
@@ -218,22 +218,24 @@ const findRelation = (
         (r.userId === b && r.relatedUserId === a)),
   )
 
-let userId = 0
-
 describe('Friendship / UserRelation API Tests', () => {
   before(() => {
-    cy.env(['API_BASE', 'ADMIN_TOKEN', 'RELATED_USER_ID']).then(
+    cy.env(['API_BASE', 'USER_TOKEN', 'ADMIN_TOKEN', 'RELATED_USER_ID']).then(
       (env) => {
         apiBase = String(env.API_BASE || fallbackApiBase)
+        userToken = String(env.USER_TOKEN || '')
         adminToken = String(env.ADMIN_TOKEN || '')
-expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
+
+        expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+          .empty
+        expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
           .empty
 
         if (env.RELATED_USER_ID) relatedUserId = Number(env.RELATED_USER_ID)
       },
     )
 
-    // Resolve actor id and, if needed, the target id (ADMIN_TOKEN).
+    // Resolve actor id (USER_TOKEN) and, if needed, the target id (ADMIN_TOKEN).
     cy.then(() => {
       return apiRequest<CurrentUserData>({
         method: 'GET',
@@ -269,20 +271,6 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
     userToken = auth.token
     })
   })
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-      actorUserId = auth.id
-
-      return createLoggedInTestUser().then((other) => {
-        relatedUserId = other.id
-      })
-    })
-  })
-
-
 
 
     it('rejects creating a relation without auth', () => {

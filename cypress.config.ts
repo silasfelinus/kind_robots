@@ -19,8 +19,13 @@ type TimingSpecSummary = {
   skipped: number
 }
 
+type SeedUser = {
+  id: number
+}
+
 const timingDir = path.resolve('.cypress-cache')
 const timingLatestFile = path.join(timingDir, 'timing-latest.json')
+const seedCleanupLatestFile = path.join(timingDir, 'seed-cleanup-latest.json')
 
 const formatMs = (ms: number) => {
   if (!Number.isFinite(ms)) return 'n/a'
@@ -34,6 +39,38 @@ const countTestsByState = (tests: unknown[], state: string) =>
     const lastAttempt = record.attempts?.[record.attempts.length - 1]
     return record.state === state || lastAttempt?.state === state
   }).length
+
+const keepSeedAfterRun = (env: Record<string, unknown>) =>
+  process.env.CYPRESS_KEEP_SEED === '1' ||
+  env.CYPRESS_KEEP_SEED === '1' ||
+  env.CYPRESS_KEEP_SEED === true
+
+const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser) => {
+  const response = await fetch(`${apiBase}/users/${user.id}`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'x-api-key': adminKey,
+    },
+  })
+
+  const text = await response.text()
+  let body: unknown = text
+
+  try {
+    body = text ? JSON.parse(text) : null
+  } catch {
+    // Keep the raw text body.
+  }
+
+  return {
+    userId: user.id,
+    status: response.status,
+    ok: [200, 202, 204, 401, 403, 404].includes(response.status),
+    body,
+  }
+}
 
 export default defineConfig({
   e2e: {
@@ -64,17 +101,10 @@ export default defineConfig({
       on('before:run', async () => {
         fs.mkdirSync(timingDir, { recursive: true })
 
-        if (
-          process.env.CYPRESS_EAGER_SEED === '1' ||
-          config.env.CYPRESS_EAGER_SEED === '1'
-        ) {
-          const seedStart = Date.now()
-          timingLog('seed ensure: start')
-          await ensureCypressApiSeed(config.env as Record<string, unknown>)
-          recordEvent('seed ensure', seedStart)
-        } else {
-          timingLog('seed ensure: lazy')
-        }
+        const seedStart = Date.now()
+        timingLog('test world setup: start')
+        await ensureCypressApiSeed(config.env as Record<string, unknown>)
+        recordEvent('test world setup', seedStart)
       })
 
       on('before:spec', (spec) => {
@@ -107,9 +137,35 @@ export default defineConfig({
         )
       })
 
-      on('after:run', (results) => {
+      on('after:run', async (results) => {
         const totalMs = Date.now() - runStartedAt
         const sortedSpecs = [...specSummaries].sort((a, b) => b.durationMs - a.durationMs)
+        const cleanupStartedAt = Date.now()
+        const env = config.env as Record<string, unknown>
+        let seedCleanup: unknown[] = []
+
+        if (!keepSeedAfterRun(env)) {
+          try {
+            const seed = await ensureCypressApiSeed(env)
+            seedCleanup = []
+
+            for (const user of [seed.thirdUser, seed.secondUser, seed.user]) {
+              seedCleanup.push(await deleteSeedUser(seed.apiBase, seed.adminKey, user))
+            }
+
+            clearCypressApiSeed()
+          } catch (error) {
+            seedCleanup = [{
+              ok: false,
+              error: error instanceof Error ? error.message : String(error),
+            }]
+          }
+        } else {
+          seedCleanup = [{ ok: true, kept: true }]
+        }
+
+        recordEvent('test world cleanup', cleanupStartedAt)
+
         const report = {
           createdAt: new Date().toISOString(),
           totalMs,
@@ -130,6 +186,7 @@ export default defineConfig({
 
         fs.mkdirSync(timingDir, { recursive: true })
         fs.writeFileSync(timingLatestFile, `${JSON.stringify(report, null, 2)}\n`)
+        fs.writeFileSync(seedCleanupLatestFile, `${JSON.stringify(seedCleanup, null, 2)}\n`)
         fs.writeFileSync(path.join(timingDir, `timing-${Date.now()}.json`), `${JSON.stringify(report, null, 2)}\n`)
 
         if (timingEnabled) {
@@ -142,6 +199,7 @@ export default defineConfig({
             )
           }
           console.log(`[cypress:timing] wrote ${timingLatestFile}`)
+          console.log(`[cypress:timing] wrote ${seedCleanupLatestFile}`)
         }
       })
 

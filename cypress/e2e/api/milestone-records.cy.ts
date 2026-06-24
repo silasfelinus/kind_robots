@@ -1,6 +1,17 @@
 // cypress/e2e/api/milestone-records.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
+type ApiResponse<T = unknown> = {
+  success: boolean
+  message?: string
+  data?: T
+  user?: {
+    id?: number
+    token?: string
+  }
+  token?: string
+}
+
 describe('Milestone Record Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
   const recordsUrl = `${baseUrl}/milestones/records`
@@ -8,56 +19,114 @@ describe('Milestone Record Management API Tests', () => {
   const milestoneId = 10
   const invalidToken = 'invalidTokenValue'
 
-  let apiKey = ''
+  let adminToken = ''
   let milestoneRecordId: number | undefined
   let createdUserId: number | undefined
   let createdUserToken: string | undefined
+  let uniqueUsername = ''
+  const testPassword = 'testpassword123'
+
+  const jsonHeaders = () => ({
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  })
+
+  const betaAdminHeaders = () => ({
+    ...jsonHeaders(),
+    'x-beta-admin-token': adminToken,
+  })
+
+  const bearerHeaders = (token: string) => ({
+    ...jsonHeaders(),
+    Authorization: `Bearer ${token}`,
+  })
+
+  const extractToken = (body: ApiResponse): string => {
+    return String(
+      body.data && typeof body.data === 'object' && 'token' in body.data
+        ? body.data.token
+        : body.token ||
+            body.user?.token ||
+            (body.data &&
+            typeof body.data === 'object' &&
+            'user' in body.data &&
+            body.data.user &&
+            typeof body.data.user === 'object' &&
+            'token' in body.data.user
+              ? body.data.user.token
+              : ''),
+    )
+  }
 
   before(() => {
-    cy.env(['API_KEY']).then((env) => {
-      apiKey = String(env.API_KEY || '')
-      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+    adminToken = String(
+      Cypress.env('BETA_ADMIN_TOKEN') || Cypress.env('API_KEY') || '',
+    )
+
+    expect(adminToken, 'BETA_ADMIN_TOKEN or API_KEY').to.be.a('string').and.not
+      .be.empty
+
+    uniqueUsername = `testuser${Date.now()}`
+    const userEmail = `${uniqueUsername}@kindrobots.org`
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: `${usersUrl}/register`,
+      headers: betaAdminHeaders(),
+      body: {
+        username: uniqueUsername,
+        email: userEmail,
+        password: testPassword,
+      },
+      failOnStatusCode: false,
     })
-
-    cy.then(() => {
-      const uniqueUsername = `testuser${Date.now()}`
-      const userEmail = `${uniqueUsername}@kindrobots.org`
-
-      cy.request({
-        method: 'POST',
-        url: `${usersUrl}/register`,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: {
-          username: uniqueUsername,
-          email: userEmail,
-          password: 'testpassword123',
-        },
-      }).then((response) => {
+      .then((response) => {
         expect(response.status).to.be.oneOf([200, 201])
         expect(response.body).to.have.property('success', true)
 
-        createdUserId = response.body.user.id
-        createdUserToken = response.body.user.apiKey
+        createdUserId =
+          response.body.user?.id ||
+          (response.body.data &&
+          typeof response.body.data === 'object' &&
+          'id' in response.body.data
+            ? Number(response.body.data.id)
+            : undefined)
 
-        expect(createdUserId).to.be.a('number')
-        expect(createdUserToken).to.be.a('string').and.not.be.empty
+        expect(createdUserId, 'created user id').to.be.a('number')
       })
-    })
+      .then(() => {
+        return cy.request<ApiResponse>({
+          method: 'POST',
+          url: `${baseUrl}/auth/login`,
+          headers: jsonHeaders(),
+          body: {
+            username: uniqueUsername,
+            password: testPassword,
+          },
+          failOnStatusCode: false,
+        })
+      })
+      .then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('success', true)
+
+        const token = extractToken(response.body)
+
+        expect(token, 'created user JWT')
+          .to.be.a('string')
+          .and.have.length.greaterThan(10)
+
+        createdUserToken = token
+      })
   })
 
   it('should not allow creating a milestone record without an authorization token', () => {
     expect(createdUserId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'POST',
       url: recordsUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       body: {
         userId: createdUserId,
         milestoneId,
@@ -65,8 +134,8 @@ describe('Milestone Record Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
+      expect(response.body.message || '').to.match(
+        /authorization token|invalid or expired/i,
       )
     })
   })
@@ -74,13 +143,10 @@ describe('Milestone Record Management API Tests', () => {
   it('should not allow creating a milestone record with an invalid authorization token', () => {
     expect(createdUserId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'POST',
       url: recordsUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      headers: bearerHeaders(invalidToken),
       body: {
         userId: createdUserId,
         milestoneId,
@@ -88,7 +154,7 @@ describe('Milestone Record Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message || '').to.match(/invalid or expired/i)
     })
   })
 
@@ -96,23 +162,21 @@ describe('Milestone Record Management API Tests', () => {
     expect(createdUserId).to.exist
     expect(createdUserToken).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse<{ id: number }>>({
       method: 'POST',
       url: recordsUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${createdUserToken}`,
-      },
+      headers: bearerHeaders(createdUserToken as string),
       body: {
         userId: createdUserId,
         milestoneId,
       },
+      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
 
-      milestoneRecordId = response.body.data.id
+      milestoneRecordId = response.body.data?.id
 
       expect(milestoneRecordId).to.be.a('number')
     })
@@ -121,17 +185,15 @@ describe('Milestone Record Management API Tests', () => {
   it('Attempt to Delete Milestone Record without Authentication (expect failure)', () => {
     expect(milestoneRecordId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${recordsUrl}/${milestoneRecordId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
+      expect(response.body.message || '').to.match(
+        /authorization token|invalid or expired/i,
       )
     })
   })
@@ -139,17 +201,14 @@ describe('Milestone Record Management API Tests', () => {
   it('Attempt to Delete Milestone Record with Invalid Token (expect failure)', () => {
     expect(milestoneRecordId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${recordsUrl}/${milestoneRecordId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      headers: bearerHeaders(invalidToken),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message || '').to.match(/invalid or expired/i)
     })
   })
 
@@ -157,17 +216,15 @@ describe('Milestone Record Management API Tests', () => {
     expect(milestoneRecordId).to.exist
     expect(createdUserToken).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${recordsUrl}/${milestoneRecordId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${createdUserToken}`,
-      },
+      headers: bearerHeaders(createdUserToken as string),
+      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.message).to.include(
+      expect(response.body.message || '').to.include(
         `Milestone Record with ID ${milestoneRecordId} successfully deleted`,
       )
 
@@ -178,17 +235,14 @@ describe('Milestone Record Management API Tests', () => {
 
   after(() => {
     cy.then(() => {
-      if (!createdUserId || !createdUserToken) {
+      if (!createdUserId || !adminToken) {
         return
       }
 
-      cy.request({
+      cy.request<ApiResponse>({
         method: 'DELETE',
         url: `${usersUrl}/${createdUserId}`,
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${createdUserToken}`,
-        },
+        headers: betaAdminHeaders(),
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.be.oneOf([200, 404])

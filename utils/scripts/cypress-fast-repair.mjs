@@ -151,6 +151,21 @@ patch('cypress/e2e/api/resources.cy.ts', (source) =>
 
 patch('cypress/e2e/api/rewards.cy.ts', (source) => normalizeAuthMessageAssertions(source))
 
+patch('cypress/e2e/api/art.cy.ts', (source) => {
+  let next = source
+  let authHookCount = 0
+
+  next = next.replace(
+    /\n\s*before\(\(\) => \{\n\s*return createLoggedInTestUser\(\)\.then\(\(auth\) => \{\n\s*userToken = auth\.token\n\s*userId = auth\.id\n\s*\}\)\n\s*\}\)\n/g,
+    (block) => {
+      authHookCount += 1
+      return authHookCount === 1 ? block : '\n'
+    },
+  )
+
+  return next
+})
+
 patch('cypress/e2e/api/relationships.cy.ts', (source) => {
   let next = source
 

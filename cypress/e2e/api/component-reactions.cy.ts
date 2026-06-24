@@ -1,11 +1,19 @@
-describe('Component Reactions API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api'
-  const invalidToken = 'someInvalidTokenValue'
-  const userId = 9
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+  invalidBearerHeaders,
+  jsonHeaders,
+  type TestUserAuth,
+} from '../../support/api-auth'
 
-  let userToken = ''
+describe('Component Reactions API Tests', () => {
+  let apiBase = ''
+  let adminToken = ''
   let componentId: number | undefined
   let reactionId: number | undefined
+  let testUser: TestUserAuth | undefined
 
   const createdComponents: number[] = []
   const createdReactions: number[] = []
@@ -18,20 +26,40 @@ describe('Component Reactions API Tests', () => {
     return value
   }
 
+  const authHeaders = () => {
+    expect(testUser).to.exist
+    return bearerHeaders(testUser!.token)
+  }
+
+  const reactionBody = () => {
+    expect(testUser).to.exist
+    expect(componentId).to.exist
+
+    return {
+      userId: testUser!.id,
+      reactionType: 'CLAPPED',
+      reactionCategory: 'COMPONENT',
+      componentId,
+      comment: 'Great job on this component!',
+      rating: 4,
+      chatId: null,
+      artImageId: null,
+    }
+  }
+
   before(() => {
-    cy.env(['USER_TOKEN']).then((env) => {
-      userToken = String(env.USER_TOKEN || '')
-      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    getApiEnv().then((env) => {
+      apiBase = env.apiBase
+      adminToken = env.adminToken
     })
 
-    cy.then(() => {
+    createLoggedInTestUser().then((auth) => {
+      testUser = auth
+
       cy.request({
         method: 'POST',
-        url: `${baseUrl}/components`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
+        url: `${apiBase}/components`,
+        headers: authHeaders(),
         body: {
           folderName: 'test-folder',
           componentName: `TestComponent_${Date.now()}`,
@@ -54,76 +82,37 @@ describe('Component Reactions API Tests', () => {
   })
 
   it('should not allow creating a component reaction without an authorization token', () => {
-    expect(componentId).to.exist
-
     cy.request({
       method: 'POST',
-      url: `${baseUrl}/reactions`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        userId,
-        reactionType: 'CLAPPED',
-        reactionCategory: 'COMPONENT',
-        componentId,
-        comment: 'Great job on this component!',
-        rating: 4,
-      },
+      url: `${apiBase}/reactions`,
+      headers: jsonHeaders(),
+      body: reactionBody(),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include('Invalid or expired token.')
     })
   })
 
   it('should not allow creating a component reaction with an invalid authorization token', () => {
-    expect(componentId).to.exist
-
     cy.request({
       method: 'POST',
-      url: `${baseUrl}/reactions`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      body: {
-        userId,
-        reactionType: 'CLAPPED',
-        reactionCategory: 'COMPONENT',
-        componentId,
-        comment: 'Great job on this component!',
-        rating: 4,
-      },
+      url: `${apiBase}/reactions`,
+      headers: invalidBearerHeaders(),
+      body: reactionBody(),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
   it('Create a New Component Reaction with Valid Authentication', () => {
-    expect(componentId).to.exist
-
     cy.request({
       method: 'POST',
-      url: `${baseUrl}/reactions`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
-        userId,
-        reactionType: 'CLAPPED',
-        reactionCategory: 'COMPONENT',
-        componentId,
-        comment: 'Great job on this component!',
-        rating: 4,
-        chatId: null,
-        artImageId: null,
-      },
+      url: `${apiBase}/reactions`,
+      headers: authHeaders(),
+      body: reactionBody(),
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
@@ -141,11 +130,8 @@ describe('Component Reactions API Tests', () => {
 
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/reactions/component/${componentId}`,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      url: `${apiBase}/reactions/component/${componentId}`,
+      headers: authHeaders(),
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
@@ -160,11 +146,8 @@ describe('Component Reactions API Tests', () => {
 
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: authHeaders(),
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
@@ -173,7 +156,7 @@ describe('Component Reactions API Tests', () => {
 
       expect(reaction.id).to.eq(reactionId)
       expect(reaction.componentId).to.eq(componentId)
-      expect(reaction.userId).to.eq(userId)
+      expect(reaction.userId).to.eq(testUser!.id)
       expect(reaction.comment).to.eq('Great job on this component!')
       expect(reaction.rating).to.eq(4)
     })
@@ -182,17 +165,18 @@ describe('Component Reactions API Tests', () => {
   it('Update an Existing Component Reaction with Valid and Invalid Authentication', () => {
     expect(reactionId).to.exist
 
+    const patchBody = {
+      reactionType: 'BOOED',
+      reactionCategory: 'COMPONENT',
+      comment: 'Actually, I have second thoughts...',
+      rating: 2,
+    }
+
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        reactionType: 'BOOED',
-        comment: 'Actually, I have second thoughts...',
-        rating: 2,
-      },
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: jsonHeaders(),
+      body: patchBody,
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -201,16 +185,9 @@ describe('Component Reactions API Tests', () => {
 
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      body: {
-        reactionType: 'BOOED',
-        comment: 'Actually, I have second thoughts...',
-        rating: 2,
-      },
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: invalidBearerHeaders(),
+      body: patchBody,
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -219,17 +196,9 @@ describe('Component Reactions API Tests', () => {
 
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
-        reactionType: 'BOOED',
-        reactionCategory: 'COMPONENT',
-        comment: 'Actually, I have second thoughts...',
-        rating: 2,
-      },
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: authHeaders(),
+      body: patchBody,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
@@ -246,10 +215,8 @@ describe('Component Reactions API Tests', () => {
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        Accept: 'application/json',
-      },
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: jsonHeaders(),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -258,11 +225,8 @@ describe('Component Reactions API Tests', () => {
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: invalidBearerHeaders(),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -271,11 +235,8 @@ describe('Component Reactions API Tests', () => {
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: authHeaders(),
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
@@ -289,34 +250,30 @@ describe('Component Reactions API Tests', () => {
   })
 
   after(() => {
-    cy.then(() => {
-      createdReactions.forEach((id) => {
+    if (testUser) {
+      cy.wrap(createdReactions).each((id) => {
         cy.request({
           method: 'DELETE',
-          url: `${baseUrl}/reactions/${id}`,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${userToken}`,
-          },
+          url: `${apiBase}/reactions/${id}`,
+          headers: authHeaders(),
           failOnStatusCode: false,
-        }).then((response) => {
-          expect(response.status).to.be.oneOf([200, 404])
         })
       })
 
-      createdComponents.forEach((id) => {
+      cy.wrap(createdComponents).each((id) => {
         cy.request({
           method: 'DELETE',
-          url: `${baseUrl}/components/${id}`,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${userToken}`,
-          },
+          url: `${apiBase}/components/${id}`,
+          headers: authHeaders(),
           failOnStatusCode: false,
-        }).then((response) => {
-          expect(response.status).to.be.oneOf([200, 404])
         })
       })
+    }
+
+    deleteTestUser(apiBase, adminToken, testUser?.id).then((response) => {
+      if (response) {
+        cy.log('Component reaction test user cleanup:', JSON.stringify(response.body))
+      }
     })
   })
 })

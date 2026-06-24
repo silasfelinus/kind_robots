@@ -25,6 +25,7 @@ function readBetaAdminToken(event: H3Event): string {
   return (
     getHeader(event, 'x-beta-admin-token') ||
     getHeader(event, 'x-admin-token') ||
+    getHeader(event, 'x-api-key') ||
     readBearerToken(event)
   ).trim()
 }

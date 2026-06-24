@@ -2,74 +2,46 @@
 import { defineEventHandler, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import { requireApiUser } from '../../../utils/authGuard'
 
 export default defineEventHandler(async (event) => {
   let response
   let recordId: number | null = null
 
   try {
-    // Validate and parse the milestone record ID
     recordId = Number(event.context.params?.id)
-    if (isNaN(recordId) || recordId <= 0) {
+
+    if (Number.isNaN(recordId) || recordId <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Milestone Record ID must be a positive integer.',
       })
     }
 
-    console.log('Attempting to delete Milestone Record with ID:', recordId)
+    const { user, isAdmin } = await requireApiUser(event)
 
-    // Extract and validate the API key from the Authorization header
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401, // Unauthorized
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401, // Unauthorized
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const userId = user.id
-
-    // Check if the milestone record exists and verify ownership
     const milestoneRecord = await prisma.milestoneRecord.findUnique({
       where: { id: recordId },
     })
+
     if (!milestoneRecord) {
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: `Milestone Record with ID ${recordId} does not exist.`,
       })
     }
 
-    if (milestoneRecord.userId !== userId) {
+    if (!isAdmin && milestoneRecord.userId !== user.id) {
       throw createError({
-        statusCode: 403, // Forbidden
+        statusCode: 403,
         message: 'You are not authorized to delete this milestone record.',
       })
     }
 
-    // Proceed to delete the milestone record
     await prisma.milestoneRecord.delete({
       where: { id: recordId },
     })
 
-    console.log('Milestone Record deleted successfully:', recordId)
-
-    // Successful response
     response = {
       success: true,
       message: `Milestone Record with ID ${recordId} successfully deleted.`,
@@ -78,12 +50,6 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error(
-      `Error while deleting Milestone Record with ID "${recordId}":`,
-      handledError,
-    )
-
-    // Set the appropriate status code and response message
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

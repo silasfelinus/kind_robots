@@ -1,16 +1,7 @@
 // @/stores/util
 import { useUserStore } from '~/stores/userStore'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
-
-export type ApiResponse<T> = {
-  success: boolean
-  message: string
-  data?: T
-  user?: User
-  token?: string
-  apiKey?: string
-  usernames?: string[]
-}
+import type { ApiResponse } from '~/types/api'
 
 export async function performFetch<T = unknown>(
   url: string,
@@ -182,15 +173,15 @@ export enum Role {
 }
 
 export enum StringType {
-  TAG = 'TAG', // single unit tag phrase
-  PROMPT = 'PROMPT', // combined nlp prompt message
-  WILDCARD = 'WILDCARD', // list for randomized generations
-  RESPONSE = 'RESPONSE', // message response nlp to human
-  IMAGE_URL = 'IMAGE_URL', // image url
-  URL = 'URL', // generic web url
-  MASK_URL = 'MASK_URL', // url to an image mask
-  CODE = 'CODE', // validated codewall
-  ERROR = 'ERROR', // An Error message
+  TAG = 'TAG',
+  PROMPT = 'PROMPT',
+  WILDCARD = 'WILDCARD',
+  RESPONSE = 'RESPONSE',
+  IMAGE_URL = 'IMAGE_URL',
+  URL = 'URL',
+  MASK_URL = 'MASK_URL',
+  CODE = 'CODE',
+  ERROR = 'ERROR',
 }
 
 export enum BotType {

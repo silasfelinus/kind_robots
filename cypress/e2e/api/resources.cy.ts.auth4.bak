@@ -6,7 +6,7 @@ describe('Resource Management API Tests', () => {
 
   // Auth migration: fresh disposable JWT user
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
       userToken = auth.token
       userId = auth.id
     })
@@ -25,7 +25,7 @@ let userId = 0let resourceId: number | undefined
           })
   })
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     userId = auth.id
     })

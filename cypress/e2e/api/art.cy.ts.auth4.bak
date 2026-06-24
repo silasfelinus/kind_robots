@@ -8,7 +8,7 @@ describe('ArtImage Management API Tests', () => {
 
   // Auth migration: fresh disposable JWT user
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
       userToken = auth.token
       userId = auth.id
     })
@@ -19,6 +19,8 @@ describe('ArtImage Management API Tests', () => {
   const artGenerateUrl = `${apiRoot}/art/generate`
   const invalidToken = 'someInvalidTokenValue'
   const adminUserId = 1
+  const testUserId = 9
+
   let apiKey = ''
   let adminToken = ''
   let userToken = ''
@@ -54,7 +56,7 @@ describe('ArtImage Management API Tests', () => {
           steps: 10,
           path: ' ',
           seed: -1,
-          userId: userId,
+          userId: testUserId,
           imagePath: 'justfortesting',
         },
         failOnStatusCode: false,
@@ -104,7 +106,7 @@ describe('ArtImage Management API Tests', () => {
     }
   })
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     })
   })

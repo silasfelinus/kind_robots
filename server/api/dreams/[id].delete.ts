@@ -2,7 +2,7 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import { requireApiUser } from '@/server/utils/authGuard'
 import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
 function parseBoolean(value: unknown): boolean {
@@ -18,30 +18,8 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const hardDelete = parseBoolean(query.hard)
 
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const userRecord = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        username: true,
-        Role: true,
-      },
-    })
-
-    if (!userRecord) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authenticated user could not be found.',
-      })
-    }
+    const auth = await requireApiUser(event)
+    const user = auth.user
 
     const dream = await prisma.dream.findUnique({
       where: { id },
@@ -65,12 +43,12 @@ export default defineEventHandler(async (event) => {
 
     assertDreamAccess({
       dream,
-      userId: userRecord.id,
-      userRole: userRecord.Role,
+      userId: user.id,
+      userRole: user.Role,
       action: 'mutate',
     })
 
-    const actor = userRecord.username || `User ${userRecord.id}`
+    const actor = user.username || `User ${user.id}`
 
     if (!hardDelete) {
       const data = await prisma.dream.update({
@@ -87,7 +65,7 @@ export default defineEventHandler(async (event) => {
           sender: actor,
           content: `Dream archived: ${dream.title}`,
           title: dream.title,
-          userId: userRecord.id,
+          userId: user.id,
           dreamId: id,
           artImageId: dream.artImageId ?? undefined,
           isPublic: dream.isPublic,

@@ -8,6 +8,7 @@ export type AuthGuardResult = {
   user: AuthUser
   kind: 'jwt' | 'beta-admin-token'
   isAdmin: boolean
+  isServerKey: boolean
 }
 
 const config = useRuntimeConfig()
@@ -69,6 +70,7 @@ async function validateJwtAuth(token: string): Promise<AuthGuardResult | null> {
     user,
     kind: 'jwt',
     isAdmin: user.isAdmin,
+    isServerKey: false,
   }
 }
 
@@ -86,6 +88,7 @@ async function validateBetaAdminAuth(event: H3Event): Promise<AuthGuardResult | 
     user,
     kind: 'beta-admin-token',
     isAdmin: true,
+    isServerKey: true,
   }
 }
 

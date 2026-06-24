@@ -59,12 +59,12 @@ describe('Milestone Record Management API Tests', () => {
   }
 
   before(() => {
-    adminToken = String(
-      Cypress.env('BETA_ADMIN_TOKEN') || Cypress.env('API_KEY') || '',
-    )
+    cy.env(['BETA_ADMIN_TOKEN', 'API_KEY']).then((env) => {
+      adminToken = String(env.BETA_ADMIN_TOKEN || env.API_KEY || '')
 
-    expect(adminToken, 'BETA_ADMIN_TOKEN or API_KEY').to.be.a('string').and.not
-      .be.empty
+      expect(adminToken, 'BETA_ADMIN_TOKEN or API_KEY').to.be.a('string').and.not
+        .be.empty
+    })
 
     uniqueUsername = `testuser${Date.now()}`
     const userEmail = `${uniqueUsername}@kindrobots.org`

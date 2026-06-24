@@ -106,7 +106,6 @@ describe('ArtImage Management API Tests', () => {
   before(() => {
     return createLoggedInTestUser().then((auth) => {
     userToken = auth.token
-      userId = auth.id
     })
   })
 

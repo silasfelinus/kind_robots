@@ -348,7 +348,7 @@ const cleanupCreatedFixtures = () => {
       deleteRecord(key, recordId, headers).then((response) => {
         if (response.status !== 404) {
           expect(
-            [200, 202, 204, 401, 404],
+            [200, 202, 204],
             `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
           ).to.include(response.status)
 

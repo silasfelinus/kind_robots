@@ -1,3 +1,4 @@
+import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/resources.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
@@ -7,14 +8,22 @@ describe('Resource Management API Tests', () => {
   const uniqueResourceName = `Resource-${Date.now()}`
 
   let userToken = ''
-  let resourceId: number | undefined
+  
+let userId = 0let resourceId: number | undefined
 
   before(() => {
     cy.env(['USER_TOKEN']).then((env) => {
       userToken = String(env.USER_TOKEN || '')
-      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+          })
+  })
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+    userToken = auth.token
+    userId = auth.id
     })
   })
+
+
 
   it('should not allow creating a resource without an authorization token', () => {
     cy.request({
@@ -24,7 +33,7 @@ describe('Resource Management API Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        userId: 9,
+        userId,
         name: uniqueResourceName,
         customLabel: 'Custom Label',
         MediaPath: '/media/test-resource.jpg',
@@ -52,7 +61,7 @@ describe('Resource Management API Tests', () => {
         Authorization: `Bearer ${invalidToken}`,
       },
       body: {
-        userId: 9,
+        userId,
         name: uniqueResourceName,
         customLabel: 'Custom Label',
         MediaPath: '/media/test-resource.jpg',
@@ -80,7 +89,7 @@ describe('Resource Management API Tests', () => {
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        userId: 9,
+        userId,
         name: uniqueResourceName,
         customLabel: 'Custom Label',
         MediaPath: '/media/test-resource.jpg',

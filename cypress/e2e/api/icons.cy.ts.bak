@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/icons.cy.ts
 
 describe('SmartIcon API Full CRUD Tests', () => {
@@ -15,15 +14,9 @@ describe('SmartIcon API Full CRUD Tests', () => {
   before(() => {
     cy.env(['USER_TOKEN']).then((env) => {
       userToken = String(env.USER_TOKEN || '')
-          })
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
     })
   })
-
-
 
   it('POST: rejects SmartIcon creation without auth', () => {
     cy.request({

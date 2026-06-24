@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/prompts.cy.ts
 
 describe('Prompt Management API Tests', () => {
@@ -7,22 +6,14 @@ describe('Prompt Management API Tests', () => {
   const uniquePrompt = `devil bunny ${Date.now()}`
 
   let userToken = ''
-  
-let userId = 0let promptId: number | undefined
+  let promptId: number | undefined
 
   before(() => {
     cy.env(['USER_TOKEN']).then((env) => {
       userToken = String(env.USER_TOKEN || '')
-          })
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    userId = auth.id
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
     })
   })
-
-
 
   it('should not allow creating a prompt without an authorization token', () => {
     cy.request({
@@ -33,7 +24,7 @@ let userId = 0let promptId: number | undefined
       },
       body: {
         galleryId: 21,
-        userId,
+        userId: 9,
         prompt: uniquePrompt,
       },
       failOnStatusCode: false,
@@ -53,7 +44,7 @@ let userId = 0let promptId: number | undefined
       },
       body: {
         galleryId: 21,
-        userId,
+        userId: 9,
         prompt: uniquePrompt,
       },
       failOnStatusCode: false,
@@ -73,7 +64,7 @@ let userId = 0let promptId: number | undefined
       },
       body: {
         galleryId: 21,
-        userId,
+        userId: 9,
         prompt: uniquePrompt,
         CreationSource: 'HUMAN',
       },

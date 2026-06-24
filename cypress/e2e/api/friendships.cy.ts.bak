@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // /cypress/e2e/api/friendships.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
@@ -266,13 +265,6 @@ describe('Friendship / UserRelation API Tests', () => {
   // Each block leaves the graph clean so subsequent blocks start fresh.
 
   context('Friend request lifecycle', () => {
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    })
-  })
-
-
     it('rejects creating a relation without auth', () => {
       expectedFailureRequest(
         {

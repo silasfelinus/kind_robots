@@ -1,30 +1,22 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
-// cypress/e2e/api/prompts.cy.ts
+// cypress/e2e/api/resources.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
-describe('Prompt Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/prompts'
+describe('Resource Management API Tests', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api/resources'
   const invalidToken = 'someInvalidTokenValue'
-  const uniquePrompt = `devil bunny ${Date.now()}`
+  const uniqueResourceName = `Resource-${Date.now()}`
 
   let userToken = ''
-  
-let userId = 0let promptId: number | undefined
+  let resourceId: number | undefined
 
   before(() => {
     cy.env(['USER_TOKEN']).then((env) => {
       userToken = String(env.USER_TOKEN || '')
-          })
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    userId = auth.id
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
     })
   })
 
-
-
-  it('should not allow creating a prompt without an authorization token', () => {
+  it('should not allow creating a resource without an authorization token', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -32,9 +24,17 @@ let userId = 0let promptId: number | undefined
         'Content-Type': 'application/json',
       },
       body: {
-        galleryId: 21,
-        userId,
-        prompt: uniquePrompt,
+        userId: 9,
+        name: uniqueResourceName,
+        customLabel: 'Custom Label',
+        MediaPath: '/media/test-resource.jpg',
+        customUrl: 'https://custom-url.com',
+        civitaiUrl: 'https://civitai-url.com',
+        huggingUrl: 'https://huggingface-url.com',
+        localPath: '/local/test-resource',
+        description: 'This is a test resource description.',
+        resourceType: 'URL',
+        isMature: false,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -43,7 +43,7 @@ let userId = 0let promptId: number | undefined
     })
   })
 
-  it('should not allow creating a prompt with an invalid authorization token', () => {
+  it('should not allow creating a resource with an invalid authorization token', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -52,9 +52,17 @@ let userId = 0let promptId: number | undefined
         Authorization: `Bearer ${invalidToken}`,
       },
       body: {
-        galleryId: 21,
-        userId,
-        prompt: uniquePrompt,
+        userId: 9,
+        name: uniqueResourceName,
+        customLabel: 'Custom Label',
+        MediaPath: '/media/test-resource.jpg',
+        customUrl: 'https://custom-url.com',
+        civitaiUrl: 'https://civitai-url.com',
+        huggingUrl: 'https://huggingface-url.com',
+        localPath: '/local/test-resource',
+        description: 'This is a test resource description.',
+        resourceType: 'URL',
+        isMature: false,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -63,7 +71,7 @@ let userId = 0let promptId: number | undefined
     })
   })
 
-  it('Create a New Prompt with Valid Authentication', () => {
+  it('Create a New Resource with Authentication', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
@@ -72,32 +80,40 @@ let userId = 0let promptId: number | undefined
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        galleryId: 21,
-        userId,
-        prompt: uniquePrompt,
-        CreationSource: 'HUMAN',
+        userId: 9,
+        name: uniqueResourceName,
+        customLabel: 'Custom Label',
+        MediaPath: '/media/test-resource.jpg',
+        customUrl: 'https://custom-url.com',
+        civitaiUrl: 'https://civitai-url.com',
+        huggingUrl: 'https://huggingface-url.com',
+        localPath: '/local/test-resource',
+        description: 'This is a test resource description.',
+        resourceType: 'URL',
+        isMature: false,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.data).to.be.an('object').that.is.not.empty
 
-      promptId = response.body.data.id
+      resourceId = response.body.data.id
 
-      expect(promptId).to.be.a('number')
+      expect(resourceId).to.be.a('number')
     })
   })
 
-  it('Attempt to Update Prompt without Authentication (expect failure)', () => {
-    expect(promptId).to.exist
+  it('Attempt to Update Resource without Authentication (expect failure)', () => {
+    expect(resourceId).to.exist
 
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${promptId}`,
+      url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
       },
       body: {
-        prompt: 'unauthorized bunny update',
+        name: 'Unauthorized Update Attempt',
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -106,18 +122,18 @@ let userId = 0let promptId: number | undefined
     })
   })
 
-  it('Attempt to Update Prompt with Invalid Token (expect failure)', () => {
-    expect(promptId).to.exist
+  it('Attempt to Update Resource with Invalid Token (expect failure)', () => {
+    expect(resourceId).to.exist
 
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${promptId}`,
+      url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
       },
       body: {
-        prompt: 'invalid token bunny update',
+        name: 'Invalid Token Update Attempt',
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -126,32 +142,35 @@ let userId = 0let promptId: number | undefined
     })
   })
 
-  it('Update Prompt with Authentication', () => {
-    expect(promptId).to.exist
+  it('Update Resource with Authentication', () => {
+    expect(resourceId).to.exist
+
+    const updatedResourceName = `Updated-${uniqueResourceName}`
 
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${promptId}`,
+      url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
       body: {
-        prompt: 'angel bunny',
+        name: updatedResourceName,
+        description: 'This is an updated test resource description.',
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.prompt).to.eq('angel bunny')
+      expect(response.body.data.name).to.eq(updatedResourceName)
     })
   })
 
-  it('Get Prompt by ID', () => {
-    expect(promptId).to.exist
+  it('Get Resource by ID', () => {
+    expect(resourceId).to.exist
 
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/${promptId}`,
+      url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
@@ -159,11 +178,12 @@ let userId = 0let promptId: number | undefined
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.prompt).to.eq('angel bunny')
+      expect(response.body.data).to.be.an('object')
+      expect(response.body.data.name).to.eq(`Updated-${uniqueResourceName}`)
     })
   })
 
-  it('Get All Prompts', () => {
+  it('Get All Resources', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
@@ -180,12 +200,12 @@ let userId = 0let promptId: number | undefined
     })
   })
 
-  it('Attempt to Delete Prompt without Authentication (expect failure)', () => {
-    expect(promptId).to.exist
+  it('Attempt to Delete Resource without Authentication (expect failure)', () => {
+    expect(resourceId).to.exist
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${promptId}`,
+      url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -198,12 +218,12 @@ let userId = 0let promptId: number | undefined
     })
   })
 
-  it('Attempt to Delete Prompt with Invalid Token (expect failure)', () => {
-    expect(promptId).to.exist
+  it('Attempt to Delete Resource with Invalid Token (expect failure)', () => {
+    expect(resourceId).to.exist
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${promptId}`,
+      url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
@@ -211,18 +231,16 @@ let userId = 0let promptId: number | undefined
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  it('Delete Prompt with Authentication', () => {
-    expect(promptId).to.exist
+  it('Delete Resource with Authentication', () => {
+    expect(resourceId).to.exist
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${promptId}`,
+      url: `${baseUrl}/${resourceId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
@@ -231,8 +249,10 @@ let userId = 0let promptId: number | undefined
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.message).to.include(
-        `Prompt with ID ${promptId} successfully deleted.`,
+        `Resource with ID ${resourceId} successfully deleted`,
       )
+
+      resourceId = undefined
     })
   })
 })

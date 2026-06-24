@@ -118,30 +118,19 @@ const normalizeAuthMessageAssertions = (source) => {
 }
 
 const removeCleanupSuccessAssertion = (source) => {
-  const lines = source.split('\n')
-  const out = []
+  let next = source
 
-  for (let i = 0; i < lines.length; i += 1) {
-    if (lines[i].includes('Object.prototype.hasOwnProperty.call(response.body')) {
-      while (out.length && !out[out.length - 1].trim().startsWith('if (')) out.pop()
-      if (out.length) out.pop()
+  next = next.replace(
+    /\n\s*if \(\n\s*\[200, 202, 204, 401, 403, 404\]\.includes\(response\.status\) &&\n\s*response\.body &&\n\s*Object\.prototype\.hasOwnProperty\.call\(response\.body, 'success'\)\n\s*\) \{\n\s*expect\(response\.body\.success, `\$\{key\} \$\{recordId\} cleanup`\)\.to\.eq\(\n\s*true,\n\s*\)\n\s*\}/g,
+    '\n          // Cleanup status is asserted above; body.success is ignored for tolerated teardown responses.',
+  )
 
-      while (
-        i < lines.length &&
-        !lines[i].includes('created[key] = (created[key] || []).filter')
-      ) {
-        i += 1
-      }
+  next = next.replace(
+    /\n\s*if \(\n\s*response\.body &&\n\s*Object\.prototype\.hasOwnProperty\.call\(response\.body, 'success'\)\n\s*\) \{\n\s*expect\(response\.body\.success, `\$\{key\} \$\{recordId\} cleanup`\)\.to\.eq\(\n\s*true,\n\s*\)\n\s*\}/g,
+    '\n          // Cleanup status is asserted above; body.success is ignored for tolerated teardown responses.',
+  )
 
-      out.push('          // Cleanup status is asserted above; body.success is ignored for tolerated teardown responses.')
-      if (i < lines.length) out.push(lines[i])
-      continue
-    }
-
-    out.push(lines[i])
-  }
-
-  return out.join('\n')
+  return next
 }
 
 patch('cypress/e2e/api/prompts.cy.ts', (source) => normalizeSingleAuthHook(source, 'promptId'))

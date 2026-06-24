@@ -45,6 +45,7 @@ describe('Bot Management API Tests', () => {
 
   const loginTestUser = () => {
     expect(testUsername, 'testUsername').to.be.a('string').and.not.be.empty
+    expect(createdUserId, 'createdUserId before login').to.be.a('number')
 
     return cy
       .request({
@@ -65,15 +66,12 @@ describe('Bot Management API Tests', () => {
         expect(response.body).to.have.property('success', true)
 
         const token = response.body?.data?.token || response.body?.token
-        const userId = response.body?.data?.user?.id
 
         expect(token, 'login token')
           .to.be.a('string')
           .and.have.length.greaterThan(20)
-        expect(userId, 'logged in user id').to.be.a('number')
 
         userToken = token
-        createdUserId = userId
       })
   }
 
@@ -108,7 +106,13 @@ describe('Bot Management API Tests', () => {
           expect(
             response.status,
             `register status: ${response.status} ${JSON.stringify(response.body)}`,
-          ).to.be.oneOf([200, 201, 409])
+          ).to.be.oneOf([200, 201])
+          expect(response.body).to.have.property('success', true)
+          expect(response.body).to.have.property('user')
+
+          createdUserId = response.body.user.id
+
+          expect(createdUserId, 'registered user id').to.be.a('number')
         })
         .then(() => loginTestUser())
     })

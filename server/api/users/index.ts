@@ -1,7 +1,7 @@
 import type { Prisma, User } from '../../../prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { validatePassword, hashPassword, generateApiKey } from '../auth'
+import { validatePassword, hashPassword } from '../auth'
 
 export async function createUser(data: {
   username?: string
@@ -11,10 +11,8 @@ export async function createUser(data: {
   success: boolean
   user?: User
   message?: string
-  apiKey?: string
 }> {
   try {
-    // Ensure either username or email is provided
     if (!data.username && !data.email) {
       return {
         success: false,
@@ -22,49 +20,43 @@ export async function createUser(data: {
       }
     }
 
-    // Use email as username if username is not provided
     const username = data.username || data.email
 
-    // Validate username uniqueness
     if (username && (await userExists(username, 'username'))) {
       return { success: false, message: 'Username already exists.' }
     }
 
-    // Validate email uniqueness if email is provided
     if (data.email) {
       const existingUserWithEmail = await prisma.user.findUnique({
         where: { email: data.email },
       })
+
       if (existingUserWithEmail) {
         return { success: false, message: 'Email already exists.' }
       }
     }
 
-    // Validate and hash password if provided
     if (data.password) {
       const passwordValidation = validatePassword(data.password)
+
       if (!passwordValidation.isValid) {
         return { success: false, message: passwordValidation.message }
       }
+
       data.password = await hashPassword(data.password)
     }
 
-    // Generate API key
-    const apiKey = generateApiKey()
-
-    // Create a new user
     const user = await prisma.user.create({
       data: {
         username: username || '',
         email: data.email ?? null,
         password: data.password ?? null,
-        apiKey,
         Role: 'USER',
         createdAt: new Date(),
       },
     })
 
-    return { success: true, user, apiKey }
+    return { success: true, user }
   } catch (error) {
     const handledError = errorHandler(error)
     console.error(`Failed to create user: ${handledError.message}`)
@@ -72,10 +64,9 @@ export async function createUser(data: {
   }
 }
 
-// Optimized fetchUsers to ensure users always returns an array
 export async function fetchUsers(): Promise<{
   success: boolean
-  users: Partial<User>[] // Explicitly defined as always an array
+  users: Partial<User>[]
   message?: string
 }> {
   try {
@@ -104,7 +95,7 @@ export async function fetchUsers(): Promise<{
           matchRecord: true,
           artImageId: true,
         },
-      })) || [] // Fallback to empty array if findMany returns null/undefined
+      })) || []
 
     return { success: true, users }
   } catch (error) {
@@ -150,7 +141,7 @@ export async function userExists(
   field: 'id' | 'username' = 'id',
 ): Promise<boolean> {
   try {
-    let where: Prisma.UserWhereUniqueInput | null = null // Initialize as null
+    let where: Prisma.UserWhereUniqueInput | null = null
 
     if (field === 'id') {
       where = { id: identifier as number }

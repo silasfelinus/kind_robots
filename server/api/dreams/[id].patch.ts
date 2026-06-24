@@ -54,7 +54,12 @@ type DreamPatchBody = {
 
 function uniqueIds(values: Array<number | null | undefined>): number[] {
   return Array.from(
-    new Set(values.filter((id): id is number => Number.isInteger(id) && id > 0)),
+    new Set(
+      values.filter(
+        (id): id is number =>
+          typeof id === 'number' && Number.isInteger(id) && id > 0,
+      ),
+    ),
   )
 }
 

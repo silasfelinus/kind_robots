@@ -2,6 +2,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import { requireApiUser } from '../../../utils/authGuard'
 import type { Reaction } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -9,56 +10,26 @@ export default defineEventHandler(async (event) => {
   let response
 
   try {
-    // Parse and validate the component ID from the URL params
     componentId = Number(event.context.params?.id)
-    if (isNaN(componentId) || componentId <= 0) {
-      event.node.res.statusCode = 400
+
+    if (Number.isNaN(componentId) || componentId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Component ID is required and must be a valid number.',
       })
     }
 
-    // Extract and validate the API key from the Authorization header
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
+    const { user } = await requireApiUser(event)
     const userId = user.id
-
-    // Parse the request body as partial reaction data
     const reactionData: Partial<Reaction> = await readBody(event)
 
-    // Ensure that reactionType is provided in the data
-    if (!reactionData || !reactionData.reactionType) {
-      event.node.res.statusCode = 400
+    if (!reactionData?.reactionType) {
       throw createError({
         statusCode: 400,
         message: 'Reaction type is required.',
       })
     }
 
-    // Check if the reaction already exists for this user and component
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         componentId,
@@ -66,28 +37,20 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    let updatedReaction
+    const updatedReaction = existingReaction
+      ? await prisma.reaction.update({
+          where: { id: existingReaction.id },
+          data: reactionData,
+        })
+      : await prisma.reaction.create({
+          data: {
+            componentId,
+            userId,
+            reactionType: reactionData.reactionType,
+            ...reactionData,
+          },
+        })
 
-    if (existingReaction) {
-      // Update the existing reaction
-      updatedReaction = await prisma.reaction.update({
-        where: { id: existingReaction.id },
-        data: reactionData,
-      })
-    } else {
-      // Create a new reaction if none exists
-      updatedReaction = await prisma.reaction.create({
-        data: {
-          componentId,
-          userId,
-          reactionType: reactionData.reactionType,
-          ...reactionData,
-        },
-      })
-    }
-
-    // Consistently wrap the response in a data object
-    event.node.res.statusCode = 200
     response = {
       success: true,
       data: { updatedReaction },

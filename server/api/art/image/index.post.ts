@@ -3,6 +3,8 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { validateApiKey } from '~/server/utils/validateKey'
+import { userIsAdmin } from '~/server/utils/authUser'
 
 type CreateArtImagePayload = {
   userId?: number | null
@@ -137,24 +139,6 @@ function getFallbackFileType(body: CreateArtImagePayload): string {
   return 'png'
 }
 
-async function validateUserToken(userId: number, token: string): Promise<void> {
-  const user = await prisma.user.findFirst({
-    where: {
-      apiKey: token,
-    },
-    select: {
-      id: true,
-    },
-  })
-
-  if (!user || user.id !== userId) {
-    throw createError({
-      statusCode: 403,
-      message: 'Token does not match user ID',
-    })
-  }
-}
-
 function buildCreateData(
   body: CreateArtImagePayload,
 ): Prisma.ArtImageCreateInput {
@@ -231,35 +215,25 @@ function buildCreateData(
 
 export default defineEventHandler(async (event) => {
   try {
-    const authorizationHeader = event.node.req.headers.authorization
+    const auth = await validateApiKey(event)
 
-    if (!authorizationHeader?.startsWith('Bearer ')) {
+    if (!auth.isValid || !auth.user) {
       throw createError({
         statusCode: 401,
-        message: 'Authorization token required in the format "Bearer <token>"',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]?.trim()
-
-    if (!token) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token is empty',
+        message: 'Valid authorization token required.',
       })
     }
 
     const body = await readBody<CreateArtImagePayload>(event)
-    const userId = cleanPositiveId(body.userId)
+    const requestedUserId = cleanPositiveId(body.userId)
+    const userId = requestedUserId || auth.user.id
 
-    if (!userId) {
+    if (requestedUserId && requestedUserId !== auth.user.id && !userIsAdmin(auth.user)) {
       throw createError({
-        statusCode: 400,
-        message: 'Invalid or missing userId',
+        statusCode: 403,
+        message: 'Token does not match user ID',
       })
     }
-
-    await validateUserToken(userId, token)
 
     const data = buildCreateData({
       ...body,

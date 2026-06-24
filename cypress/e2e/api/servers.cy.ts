@@ -64,7 +64,6 @@ describe('Server API Full CRUD + Auth Tests', () => {
   })
 
   const fallbackApiBase = 'https://kind-robots.vercel.app'
-  const testUserId = 9
   const invalidToken = 'definitely-not-a-real-token'
   const time = Date.now()
   const serverTitle = `Server-${time}`
@@ -81,11 +80,6 @@ describe('Server API Full CRUD + Auth Tests', () => {
       apiBase = String(env.API_BASE || fallbackApiBase)
       baseUrl = `${apiBase}/api/server`
 })
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    })
   })
 
 
@@ -117,7 +111,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
         apiKey: null,
         apiKeyName: null,
         model: 'stable-diffusion',
-        userId: testUserId,
+        userId: userId,
         isPublic: false,
         isOfficial: false,
         isDefault: false,
@@ -150,7 +144,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
       expect(server.healthPath).to.eq('/sdapi/v1/progress')
       expect(server.apiLink).to.eq('https://lola.acrocatranch.com/docs')
       expect(server.model).to.eq('stable-diffusion')
-      expect(server.userId).to.eq(testUserId)
+      expect(server.userId).to.eq(userId)
       expect(server.isPublic).to.eq(false)
       expect(server.isOfficial).to.eq(false)
       expect(server.isDefault).to.eq(false)
@@ -235,7 +229,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
       expect(server.serverType).to.eq('A1111')
       expect(server.accessMode).to.eq('BROWSER')
       expect(server.authType).to.eq('NONE')
-      expect(server.userId).to.eq(testUserId)
+      expect(server.userId).to.eq(userId)
     })
   })
 
@@ -386,7 +380,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
         baseUrl: 'not-a-real-url',
         endpointPath: '/sdapi/v1/txt2img',
         healthPath: '/sdapi/v1/progress',
-        userId: testUserId,
+        userId: userId,
         isPublic: false,
         isOfficial: false,
         isDefault: false,
@@ -438,7 +432,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
         authType: 'NONE',
         baseUrl: 'https://example.com',
         endpointPath: '/sdapi/v1/txt2img',
-        userId: testUserId,
+        userId: userId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -462,7 +456,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
         authType: 'NONE',
         baseUrl: 'https://example.com',
         endpointPath: '/sdapi/v1/txt2img',
-        userId: testUserId,
+        userId: userId,
       },
       failOnStatusCode: false,
     }).then((res) => {

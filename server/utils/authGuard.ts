@@ -1,28 +1,22 @@
 // /server/utils/authGuard.ts
-import { createError, type H3Event, getHeader } from 'h3'
+import { createError, getHeader, type H3Event } from 'h3'
 import prisma from './prisma'
-import { validateApiKey } from './validateKey'
 import { verifyJwtToken } from '@/server/api/auth'
-import { type AuthUser, userIsAdmin, withAdminFlag } from './authUser'
+import { type AuthUser, withAdminFlag } from './authUser'
 
 export type AuthGuardResult = {
   user: AuthUser
-  kind: 'jwt' | 'user' | 'server' | 'api'
+  kind: 'jwt'
   isAdmin: boolean
-  isServerKey: boolean
-}
-
-function cleanBearer(value?: string | null): string {
-  return (
-    value
-      ?.trim()
-      .replace(/^Bearer\s+/i, '')
-      .trim() || ''
-  )
 }
 
 function readBearerToken(event: H3Event): string {
-  return cleanBearer(getHeader(event, 'authorization'))
+  const authorization = getHeader(event, 'authorization') ?? ''
+
+  return authorization
+    .trim()
+    .replace(/^Bearer\s+/i, '')
+    .trim()
 }
 
 async function getUserById(id: number): Promise<AuthUser | null> {
@@ -33,10 +27,12 @@ async function getUserById(id: number): Promise<AuthUser | null> {
   return user ? withAdminFlag(user) : null
 }
 
-async function validateJwtString(
-  token: string,
+export async function getOptionalApiUser(
+  event: H3Event,
 ): Promise<AuthGuardResult | null> {
-  if (token.split('.').length !== 3) return null
+  const token = readBearerToken(event)
+
+  if (!token) return null
 
   const verification = await verifyJwtToken(token)
 
@@ -50,37 +46,6 @@ async function validateJwtString(
     user,
     kind: 'jwt',
     isAdmin: user.isAdmin,
-    isServerKey: false,
-  }
-}
-
-export async function getOptionalApiUser(
-  event: H3Event,
-): Promise<AuthGuardResult | null> {
-  const token = readBearerToken(event)
-
-  if (!token) return null
-
-  const jwtAuth = await validateJwtString(token)
-
-  if (jwtAuth) return jwtAuth
-
-  const apiAuth = await validateApiKey(event)
-
-  if (!apiAuth.isValid || !apiAuth.user?.id) return null
-
-  const user = await getUserById(apiAuth.user.id)
-
-  if (!user || !user.isActive) return null
-
-  const isServerKey = apiAuth.kind === 'server'
-  const isAdmin = userIsAdmin(user)
-
-  return {
-    user,
-    kind: apiAuth.kind ?? 'api',
-    isAdmin,
-    isServerKey,
   }
 }
 

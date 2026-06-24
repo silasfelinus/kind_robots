@@ -8,7 +8,8 @@ import type {
 import { useUserStore } from './userStore'
 import { useErrorStore } from './errorStore'
 import { milestoneData } from './../training/milestoneData'
-import { performFetch, handleError, type ApiResponse } from './utils'
+import { performFetch, handleError } from './utils'
+import type { ApiResponse } from '~/types/api'
 
 type UserScore = {
   id: number
@@ -318,7 +319,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     safeRemoveLocalStorage(pendingGuestMilestonesStorageKey)
   }
 
-      async function confirmMilestone(milestoneId: number) {
+  async function confirmMilestone(milestoneId: number) {
     const id = Number(milestoneId)
 
     if (!Number.isInteger(id) || id <= 0) {
@@ -348,8 +349,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
     const record = milestoneRecords.value.find(
       (entry) =>
-        Number(entry.userId) === userId &&
-        Number(entry.milestoneId) === id,
+        Number(entry.userId) === userId && Number(entry.milestoneId) === id,
     )
 
     deactivateMilestone(id)
@@ -561,7 +561,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
       upsertMilestoneRecord(response.data)
       return { success: true }
-        } catch (error) {
+    } catch (error) {
       const message = errorStore.report(
         error,
         ErrorType.STORE_ERROR,
@@ -571,7 +571,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
       return { success: false, message }
     }
-}
+  }
 
   async function fetchMilestoneById(
     milestoneId: number,

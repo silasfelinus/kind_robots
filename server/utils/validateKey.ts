@@ -25,7 +25,8 @@ function readRequestToken(event: H3Event): string {
   return cleanToken(
     getHeader(event, 'authorization') ||
       getHeader(event, 'x-beta-admin-token') ||
-      getHeader(event, 'x-admin-token'),
+      getHeader(event, 'x-admin-token') ||
+      getHeader(event, 'x-api-key'),
   )
 }
 

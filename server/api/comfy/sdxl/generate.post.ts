@@ -19,6 +19,7 @@ import {
 } from '../../art/utils/checkpointResource'
 import { manaGate } from '../../../utils/manaGate'
 import { estimateArtCostUsd } from '../../../utils/manaCost'
+import { requireApiUser } from '../../../utils/authGuard'
 
 type ComfyGenerateRequestData = RequestData &
   CheckpointResourceRequestData & {
@@ -100,34 +101,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Auth + mana gate. Replaces the old Bearer/karma checks: manaGate
-    // validates the token, and billing is now mana-based (free on the user's
-    // own/unmetered server, charged on the metered platform server).
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: {
-        id: true,
-        preferredArtServerId: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
+    const { user } = await requireApiUser(event)
 
     if (user.id !== requestData.userId) {
       throw createError({
@@ -275,8 +249,6 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Generation succeeded — charge mana (no-op on free/unmetered servers).
-    // This replaces the old `karma - 1` decrement.
     const { balance } = await gate.commit(`sdxl:${newArt.id}`)
 
     event.node.res.statusCode = 201

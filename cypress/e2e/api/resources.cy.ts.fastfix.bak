@@ -17,8 +17,13 @@ describe('Resource Management API Tests', () => {
   const uniqueResourceName = `Resource-${Date.now()}`
 
   let userToken = ''
-  let userId = 0
-  let resourceId: number | undefined
+  
+let userId = 0let resourceId: number | undefined
+
+  before(() => {
+    cy.wrap(null).then(() => {
+          })
+  })
   before(() => {
     return createLoggedInTestUser().then((auth) => {
     userToken = auth.token

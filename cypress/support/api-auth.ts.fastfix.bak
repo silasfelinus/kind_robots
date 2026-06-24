@@ -36,7 +36,7 @@ export type CreateLoggedInTestUserOptions = {
    * ownership isolation. Most API specs should use the shared seed for speed.
    */
   fresh?: boolean
-  /** Pick a stable seed user. When omitted, the primary seed user is used. */
+  /** Pick a stable seed user. When omitted, calls cycle primary -> second -> third. */
   role?: TestUserRole
 }
 

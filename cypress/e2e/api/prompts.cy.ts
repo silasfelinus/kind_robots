@@ -16,13 +16,8 @@ describe('Prompt Management API Tests', () => {
   const uniquePrompt = `devil bunny ${Date.now()}`
 
   let userToken = ''
-  
-let userId = 0let promptId: number | undefined
-
-  before(() => {
-    cy.wrap(null).then(() => {
-          })
-  })
+  let userId = 0
+  let promptId: number | undefined
   before(() => {
     return createLoggedInTestUser().then((auth) => {
     userToken = auth.token

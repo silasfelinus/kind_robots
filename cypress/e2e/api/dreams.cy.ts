@@ -132,9 +132,7 @@ describe('Dream API tests', () => {
   const dreamsUrl = `${API_BASE}/api/dreams`
 
   const invalidToken = 'someInvalidTokenValue'
-  const testUserId = 9
-
-  let userToken = ''
+    let userToken = ''
 
   let publicDreamId = 0
   let privateDreamId = 0
@@ -215,6 +213,7 @@ describe('Dream API tests', () => {
   before(() => {
     return createLoggedInTestUser().then((auth) => {
     userToken = auth.token
+      userId = auth.id
     })
   })
 
@@ -231,7 +230,7 @@ describe('Dream API tests', () => {
         title: `Unauthorized Dream ${time}`,
         description: 'This should fail.',
         pitch: 'This should fail.',
-        userId: testUserId,
+        userId: userId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -252,7 +251,7 @@ describe('Dream API tests', () => {
         title: `Invalid Token Dream ${time}`,
         description: 'This should fail too.',
         pitch: 'This should fail too.',
-        userId: testUserId,
+        userId: userId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -269,7 +268,7 @@ describe('Dream API tests', () => {
       body: {
         description: 'No title, no dream.',
         pitch: 'No title, no dream.',
-        userId: testUserId,
+        userId: userId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -297,7 +296,7 @@ describe('Dream API tests', () => {
         artPrompt:
           'bright lantern greenhouse, robot philosophers, hyperactive butterflies, cozy surreal fantasy, cinematic lighting',
         creationSource: 'HUMAN',
-        userId: testUserId,
+        userId: userId,
         isPublic: true,
         isMature: false,
         isActive: true,
@@ -335,7 +334,7 @@ describe('Dream API tests', () => {
         artPrompt:
           'hidden robot speakeasy, sleeping stars, library basement, whimsical noir',
         creationSource: 'HUMAN',
-        userId: testUserId,
+        userId: userId,
         isPublic: false,
         isMature: false,
         isActive: true,
@@ -373,7 +372,7 @@ describe('Dream API tests', () => {
         artPrompt:
           'a surreal town square full of glowing mirrors, multidimensional genre portals',
         creationSource: 'AI',
-        userId: testUserId,
+        userId: userId,
         isPublic: false,
         isMature: false,
         isActive: true,
@@ -612,7 +611,7 @@ describe('Dream API tests', () => {
         title: 'Cypress first arrival',
         content:
           'Add a silver fox made of moonlight and make the greenhouse warmer.',
-        userId: testUserId,
+        userId: userId,
         dreamId: publicDreamId,
         channel: `dream-${publicDreamId}`,
         isPublic: true,
@@ -645,7 +644,7 @@ describe('Dream API tests', () => {
           'The dream warms. A silver fox curls beneath the lanterns, scattering moonlit sparks.',
         botResponse:
           'The dream warms. A silver fox curls beneath the lanterns, scattering moonlit sparks.',
-        userId: testUserId,
+        userId: userId,
         dreamId: publicDreamId,
         channel: `dream-${publicDreamId}`,
         updateDream: true,
@@ -710,7 +709,7 @@ describe('Dream API tests', () => {
       headers: jsonHeaders(),
       body: {
         content: 'This should fail.',
-        userId: testUserId,
+        userId: userId,
         dreamId: publicDreamId,
       },
       failOnStatusCode: false,
@@ -730,7 +729,7 @@ describe('Dream API tests', () => {
       },
       body: {
         content: 'This should fail too.',
-        userId: testUserId,
+        userId: userId,
         dreamId: publicDreamId,
       },
       failOnStatusCode: false,
@@ -748,7 +747,7 @@ describe('Dream API tests', () => {
       body: {
         type: 'Dream',
         sender: 'Cypress Dreamer',
-        userId: testUserId,
+        userId: userId,
         dreamId: publicDreamId,
       },
       failOnStatusCode: false,

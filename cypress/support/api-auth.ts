@@ -27,8 +27,23 @@ export type TestUserAuth = {
   token: string
 }
 
+export type TestUserRole = 'primary' | 'second' | 'third'
+
+export type CreateLoggedInTestUserOptions = {
+  /**
+   * Use a brand-new disposable remote user instead of the shared per-run seed user.
+   * Keep this for tests that are specifically about registration, deletion, or hard
+   * ownership isolation. Most API specs should use the shared seed for speed.
+   */
+  fresh?: boolean
+  /** Pick a stable seed user. When omitted, calls cycle primary -> second -> third. */
+  role?: TestUserRole
+}
+
 export const defaultApiBase = 'https://kind-robots.vercel.app/api'
 export const defaultTestPassword = 'testtest12'
+
+let seedUserCursor = 0
 
 export const jsonHeaders = () => ({
   Accept: 'application/json',
@@ -54,6 +69,26 @@ const bodyNumber = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
 }
 
+const seedUserForRole = (seed: {
+  user: TestUserAuth
+  secondUser: TestUserAuth
+  thirdUser: TestUserAuth
+}, role?: TestUserRole) => {
+  if (role === 'primary') return seed.user
+  if (role === 'second') return seed.secondUser
+  if (role === 'third') return seed.thirdUser
+
+  const users = [seed.user, seed.secondUser, seed.thirdUser]
+  const user = users[seedUserCursor % users.length]
+  seedUserCursor += 1
+
+  return user
+}
+
+export const resetSeedUserCursor = () => {
+  seedUserCursor = 0
+}
+
 export const getApiEnv = () =>
   cy.env(['API_KEY', 'BETA_ADMIN_TOKEN', 'BASE_API_URL']).then((env: CypressApiEnv) => {
     const apiBase = String(env.BASE_API_URL || defaultApiBase).replace(/\/+$/, '')
@@ -66,13 +101,15 @@ export const getApiEnv = () =>
   })
 
 export const extractToken = (body: ApiResponse): string => {
-  const data = body.data && typeof body.data === 'object' ? body.data as Record<string, unknown> : {}
+  const data = body.data && typeof body.data === 'object' ? dataFromBody(body) : {}
   const token = String(data.token || body.token || body.user?.token || '')
 
   expect(token, 'login token').to.be.a('string').and.have.length.greaterThan(20)
 
   return token
 }
+
+const dataFromBody = (body: ApiResponse) => body.data as Record<string, unknown>
 
 export const extractUserId = (body: ApiResponse<RegisterUserData>): number => {
   const data = body.data && typeof body.data === 'object' ? body.data : {}
@@ -83,7 +120,14 @@ export const extractUserId = (body: ApiResponse<RegisterUserData>): number => {
   return id as number
 }
 
-export const createLoggedInTestUser = () =>
+export const getSeedTestUser = (role?: TestUserRole) =>
+  cy.task<{
+    user: TestUserAuth
+    secondUser: TestUserAuth
+    thirdUser: TestUserAuth
+  }>('cypressSeed:get').then((seed) => seedUserForRole(seed, role))
+
+export const createFreshLoggedInTestUser = () =>
   getApiEnv().then(({ apiBase, adminToken }) => {
     const stamp = `${Date.now()}-${Cypress._.random(1000, 9999)}`
     const username = `cypress-user-${stamp}`
@@ -135,15 +179,25 @@ export const createLoggedInTestUser = () =>
       })
   })
 
+export const createLoggedInTestUser = (options: CreateLoggedInTestUserOptions = {}) => {
+  if (options.fresh) return createFreshLoggedInTestUser()
+
+  return getSeedTestUser(options.role)
+}
+
 export const deleteTestUser = (apiBase: string, adminToken: string, userId?: number) => {
   if (!userId) {
     return cy.wrap(null)
   }
 
-  return cy.request({
-    method: 'DELETE',
-    url: `${apiBase}/users/${userId}`,
-    headers: adminHeaders(adminToken),
-    failOnStatusCode: false,
+  return cy.task<boolean>('cypressSeed:isSeedUser', userId).then((isSeedUser) => {
+    if (isSeedUser) return null
+
+    return cy.request({
+      method: 'DELETE',
+      url: `${apiBase}/users/${userId}`,
+      headers: adminHeaders(adminToken),
+      failOnStatusCode: false,
+    })
   })
 }

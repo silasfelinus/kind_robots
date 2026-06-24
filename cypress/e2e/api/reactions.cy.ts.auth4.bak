@@ -5,7 +5,7 @@ describe('Reaction Management API Tests', () => {
 
   // Auth migration: fresh disposable JWT user
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
       userToken = auth.token
       userId = auth.id
     })
@@ -24,7 +24,7 @@ describe('Reaction Management API Tests', () => {
           })
   })
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     userId = auth.id
     })
@@ -246,7 +246,7 @@ describe('Reaction Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect([200, 204, 401, 404]).to.include(response.status)
+      expect([200, 204, 404]).to.include(response.status)
 
       artImageId = undefined
     })

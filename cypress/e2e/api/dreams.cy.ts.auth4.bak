@@ -120,7 +120,7 @@ describe('Dream API tests', () => {
 
   // Auth migration: fresh disposable JWT user
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
       userToken = auth.token
       userId = auth.id
     })
@@ -213,7 +213,7 @@ describe('Dream API tests', () => {
     hardDeleteDream(brainstormDreamId)
   })
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     })
   })

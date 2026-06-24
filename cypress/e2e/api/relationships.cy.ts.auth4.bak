@@ -39,6 +39,7 @@ type EndpointKey =
 
 const fallbackApiBase = 'https://kind-robots.vercel.app'
 const invalidToken = 'definitely-not-a-real-token'
+const testUserId = 9
 const time = Date.now()
 
 const normalRequestTimeout = 20000
@@ -386,7 +387,7 @@ const createReactionFor = (
   expectId(targetId, `reaction target ${field}`)
 
   return postRecord('reaction', {
-    userId: userId,
+    userId: testUserId,
     reactionType: 'LOVED',
     reactionCategory: category,
     rating: 5,
@@ -404,7 +405,7 @@ describe('Relationship API Tests', () => {
 
   // Auth migration: fresh disposable JWT user
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser().then((auth) => {
       userToken = auth.token
       userId = auth.id
     })
@@ -424,7 +425,16 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
   })
 
   describe('Fixture setup', () => {
-  it('creates core ArtImage fixtures', () => {
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+    userToken = auth.token
+    })
+  })
+
+
+
+
+    it('creates core ArtImage fixtures', () => {
       postRecord('artImage', {
         promptString: `relationship test image A ${time}`,
         artPrompt: `relationship test image A ${time}`,
@@ -432,7 +442,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         imagePath: `/images/test/relationship-a-${time}.webp`,
         fileName: `relationship-a-${time}.webp`,
         fileType: 'webp',
-        userId: userId,
+        userId: testUserId,
         seed: null,
         steps: 10,
         isPublic: false,
@@ -441,7 +451,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
       })
         .then((artImage) => {
           ids.artImageA = artImage.id
-          expectFieldEquals(artImage, 'userId', userId)
+          expectFieldEquals(artImage, 'userId', testUserId)
 
           return postRecord('artImage', {
             promptString: `relationship test image B ${time}`,
@@ -450,7 +460,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             imagePath: `/images/test/relationship-b-${time}.webp`,
             fileName: `relationship-b-${time}.webp`,
             fileType: 'webp',
-            userId: userId,
+            userId: testUserId,
             seed: null,
             steps: 10,
             isPublic: false,
@@ -460,7 +470,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((artImage) => {
           ids.artImageB = artImage.id
-          expectFieldEquals(artImage, 'userId', userId)
+          expectFieldEquals(artImage, 'userId', testUserId)
         })
     })
 
@@ -473,7 +483,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         description: 'Cypress relationship server fixture',
         serverType: 'COMFY',
         baseUrl: `https://example.com/cypress-server-${time}`,
-        userId: userId,
+        userId: testUserId,
         isPublic: false,
         isOfficial: false,
         isDefault: false,
@@ -483,7 +493,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
       })
         .then((server) => {
           ids.server = server.id
-          expectFieldEquals(server, 'userId', userId)
+          expectFieldEquals(server, 'userId', testUserId)
 
           return postRecord('resource', {
             name: `cypress-relationship-resource-${time}`,
@@ -491,7 +501,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             description: 'Cypress relationship checkpoint fixture',
             resourceType: 'CHECKPOINT',
             supportedServer: 'COMFY',
-            userId: userId,
+            userId: testUserId,
             artImageId: id('artImageA'),
             isPublic: false,
             isActive: true,
@@ -499,7 +509,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((resource) => {
           ids.resource = resource.id
-          expectFieldEquals(resource, 'userId', userId)
+          expectFieldEquals(resource, 'userId', testUserId)
           expectFieldEquals(resource, 'artImageId', id('artImageA'))
         })
     })
@@ -524,13 +534,13 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
       postRecord('artCollection', {
         label: `cypress-relationship-collection-${time}`,
         description: 'Cypress relationship ArtCollection fixture',
-        userId: userId,
+        userId: testUserId,
         artImageIds: [id('artImageA')],
         isPublic: false,
         isMature: false,
       }).then((collection) => {
         ids.artCollection = collection.id
-        expectFieldEquals(collection, 'userId', userId)
+        expectFieldEquals(collection, 'userId', testUserId)
         expectArrayIncludesId(
           collection.ArtImages,
           id('artImageA'),
@@ -554,7 +564,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         userIntro: 'Test user says hello.',
         prompt: 'Respond as a relationship test bot.',
         designer: 'cypress',
-        userId: userId,
+        userId: testUserId,
         serverId: id('server'),
         artImageId: id('artImageA'),
         isPublic: false,
@@ -563,7 +573,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
       })
         .then((bot) => {
           ids.bot = bot.id
-          expectFieldEquals(bot, 'userId', userId, 'bot')
+          expectFieldEquals(bot, 'userId', testUserId, 'bot')
           expectFieldEquals(bot, 'serverId', id('server'), 'bot')
           expectFieldEquals(bot, 'artImageId', id('artImageA'), 'bot')
 
@@ -572,7 +582,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             species: 'Test Goblin',
             class: 'Relationship Wrangler',
             backstory: 'Born in a Cypress fixture and immediately suspicious.',
-            userId: userId,
+            userId: testUserId,
             artImageId: id('artImageA'),
             isPublic: false,
             isActive: true,
@@ -580,7 +590,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((character) => {
           ids.character = character.id
-          expectFieldEquals(character, 'userId', userId, 'character')
+          expectFieldEquals(character, 'userId', testUserId, 'character')
           expectFieldEquals(
             character,
             'artImageId',
@@ -589,7 +599,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
           )
           return postRecord('prompt', {
             prompt: `A relationship test prompt ${time}`,
-            userId: userId,
+            userId: testUserId,
             artImageId: id('artImageA'),
             botId: id('bot'),
             isPublic: false,
@@ -598,7 +608,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((prompt) => {
           ids.prompt = prompt.id
-          expectFieldEquals(prompt, 'userId', userId, 'prompt')
+          expectFieldEquals(prompt, 'userId', testUserId, 'prompt')
           expectFieldEquals(prompt, 'artImageId', id('artImageA'), 'prompt')
           expectFieldEquals(prompt, 'botId', id('bot'), 'prompt')
 
@@ -611,7 +621,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             collection: 'cypress',
             rarity: 'COMMON',
             rewardType: 'ITEM',
-            userId: userId,
+            userId: testUserId,
             artImageId: id('artImageA'),
             isPublic: false,
             isActive: true,
@@ -619,7 +629,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((reward) => {
           ids.reward = reward.id
-          expectFieldEquals(reward, 'userId', userId, 'reward')
+          expectFieldEquals(reward, 'userId', testUserId, 'reward')
           expectFieldEquals(reward, 'artImageId', id('artImageA'), 'reward')
 
           return postRecord('scenario', {
@@ -627,7 +637,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             description: 'A scenario designed to test model relationships.',
             intros:
               'The party enters the API layer. Something smells like nullable foreign keys.',
-            userId: userId,
+            userId: testUserId,
             artImageId: id('artImageA'),
             isPublic: false,
             isActive: true,
@@ -635,7 +645,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((scenario) => {
           ids.scenario = scenario.id
-          expectFieldEquals(scenario, 'userId', userId, 'scenario')
+          expectFieldEquals(scenario, 'userId', testUserId, 'scenario')
           expectFieldEquals(scenario, 'artImageId', id('artImageA'), 'scenario')
 
           return postRecord('dream', {
@@ -646,7 +656,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             pitch: 'cypress relationship test chamber',
             artPrompt:
               'cypress relationship test chamber, glowing relation graph',
-            userId: userId,
+            userId: testUserId,
             artImageId: id('artImageA'),
             artCollectionId: id('artCollection'),
             scenarioId: id('scenario'),
@@ -656,7 +666,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((dream) => {
           ids.dream = dream.id
-          expectFieldEquals(dream, 'userId', userId, 'dream')
+          expectFieldEquals(dream, 'userId', testUserId, 'dream')
           expectFieldEquals(dream, 'artImageId', id('artImageA'), 'dream')
           expectFieldEquals(
             dream,
@@ -684,7 +694,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         recipient: 'relationship-suite',
         content: 'Testing every haunted hallway in the relation graph.',
         title: `Cypress Chat ${time}`,
-        userId: userId,
+        userId: testUserId,
         botId: id('bot'),
         artImageId: id('artImageA'),
         promptId: id('prompt'),
@@ -696,7 +706,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
       })
         .then((chat) => {
           ids.chat = chat.id
-          expectFieldEquals(chat, 'userId', userId)
+          expectFieldEquals(chat, 'userId', testUserId)
           expectFieldEquals(chat, 'botId', id('bot'))
           expectFieldEquals(chat, 'artImageId', id('artImageA'))
           expectFieldEquals(chat, 'promptId', id('prompt'))
@@ -724,7 +734,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             description: 'A composition tying multiple models together.',
             label: `cypress-composition-${time}`,
             mode: 'both',
-            userId: userId,
+            userId: testUserId,
             artImageId: id('artImageB'),
             characterId: id('character'),
             dreamId: id('dream'),
@@ -736,7 +746,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((composition) => {
           ids.composition = composition.id
-          expectFieldEquals(composition, 'userId', userId)
+          expectFieldEquals(composition, 'userId', testUserId)
           expectFieldEquals(composition, 'artImageId', id('artImageB'))
           expectFieldEquals(composition, 'characterId', id('character'))
           expectFieldEquals(composition, 'dreamId', id('dream'))
@@ -760,7 +770,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
           scale: 1,
           rarityNumber: Number(String(time).slice(-8)),
           designer: 'cypress',
-          userId: userId,
+          userId: testUserId,
           isPublic: false,
         },
         adminHeaders(),
@@ -770,17 +780,17 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
           expectFieldEquals(butterfly, 'userId', 1, 'butterfly')
 
           return postRecord('butterflyRecord', {
-            userId: userId,
+            userId: testUserId,
             butterflyId: id('butterfly'),
           })
         })
         .then((record) => {
           ids.butterflyRecord = record.id
-          expectFieldEquals(record, 'userId', userId)
+          expectFieldEquals(record, 'userId', testUserId)
           expectFieldEquals(record, 'butterflyId', id('butterfly'))
 
           return postRecord('code', {
-            userId: userId,
+            userId: testUserId,
             title: `Cypress Code ${time}`,
             description: 'Relationship code fixture',
             icon: 'kind-icon:code',
@@ -792,18 +802,18 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((code) => {
           ids.code = code.id
-          expectFieldEquals(code, 'userId', userId)
+          expectFieldEquals(code, 'userId', testUserId)
 
           return postRecord('log', {
             message: `Cypress relationship log ${time}`,
             timestamp: new Date().toISOString(),
             username: `cypress-${time}`,
-            userId: userId,
+            userId: testUserId,
           })
         })
         .then((log) => {
           ids.log = log.id
-          expectFieldEquals(log, 'userId', userId)
+          expectFieldEquals(log, 'userId', testUserId)
 
           return apiRequest({
             method: 'POST',
@@ -839,20 +849,20 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
           return postRecord('milestoneRecord', {
             username: `cypress-${time}`,
             milestoneId: id('milestone'),
-            userId: userId,
+            userId: testUserId,
             isConfirmed: false,
           })
         })
         .then((record) => {
           ids.milestoneRecord = record.id
           expectFieldEquals(record, 'milestoneId', id('milestone'))
-          expectFieldEquals(record, 'userId', userId)
+          expectFieldEquals(record, 'userId', testUserId)
 
           return postRecord('smartIcon', {
             title: `Cypress SmartIcon ${time}`,
             type: 'nav',
             designer: 'cypress',
-            userId: userId,
+            userId: testUserId,
             icon: 'kind-icon:test-tube',
             label: 'Relationship Test',
             link: '/cypress-relationship-test',
@@ -863,7 +873,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((smartIcon) => {
           ids.smartIcon = smartIcon.id
-          expectFieldEquals(smartIcon, 'userId', userId)
+          expectFieldEquals(smartIcon, 'userId', testUserId)
 
           return postRecord('theme', {
             name: `cypress-theme-${time}`,
@@ -872,7 +882,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
               secondary: '#00ffff',
               accent: '#ffff00',
             }),
-            userId: userId,
+            userId: testUserId,
             isPublic: false,
             tagline: 'Relationship theme fixture',
             colorScheme: 'light',
@@ -882,7 +892,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         })
         .then((theme) => {
           ids.theme = theme.id
-          expectFieldEquals(theme, 'userId', userId)
+          expectFieldEquals(theme, 'userId', testUserId)
         })
     })
 
@@ -1059,7 +1069,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         expectStoredId('server')
 
         getRecord('artImage', id('artImageA'), true).then((artImage) => {
-          expectFieldEquals(artImage, 'userId', userId)
+          expectFieldEquals(artImage, 'userId', testUserId)
           expectFieldEquals(artImage, 'checkpointResourceId', id('resource'))
           expectFieldEquals(artImage, 'serverId', id('server'))
         })
@@ -1108,7 +1118,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         expectStoredId('server')
 
         getRecord('bot', id('bot'), true).then((bot) => {
-          expectFieldEquals(bot, 'userId', userId)
+          expectFieldEquals(bot, 'userId', testUserId)
           expectFieldEquals(bot, 'artImageId', id('artImageA'))
           expectFieldEquals(bot, 'serverId', id('server'))
         })
@@ -1124,7 +1134,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         expectStoredId('server')
 
         getRecord('chat', id('chat'), true).then((chat) => {
-          expectFieldEquals(chat, 'userId', userId)
+          expectFieldEquals(chat, 'userId', testUserId)
           expectFieldEquals(chat, 'artImageId', id('artImageA'))
           expectFieldEquals(chat, 'botId', id('bot'))
           expectFieldEquals(chat, 'characterId', id('character'))
@@ -1144,7 +1154,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
 
         getRecord('composition', id('composition'), true).then(
           (composition) => {
-            expectFieldEquals(composition, 'userId', userId)
+            expectFieldEquals(composition, 'userId', testUserId)
             expectFieldEquals(composition, 'artImageId', id('artImageB'))
             expectFieldEquals(composition, 'characterId', id('character'))
             expectFieldEquals(composition, 'dreamId', id('dream'))
@@ -1161,7 +1171,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
         expectStoredId('scenario')
 
         getRecord('dream', id('dream'), true).then((dream) => {
-          expectFieldEquals(dream, 'userId', userId)
+          expectFieldEquals(dream, 'userId', testUserId)
           expectFieldEquals(dream, 'artCollectionId', id('artCollection'))
           expectFieldEquals(dream, 'artImageId', id('artImageA'))
         })
@@ -1305,7 +1315,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             url: urlFor('reaction'),
             headers: authHeaders(),
             body: {
-              userId: userId,
+              userId: testUserId,
               reactionType: 'LOVED',
               reactionCategory: 'ART_IMAGE',
               rating: 5,
@@ -1323,7 +1333,7 @@ expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
             url: urlFor('reaction'),
             headers: authHeaders(),
             body: {
-              userId: userId,
+              userId: testUserId,
               reactionType: 'LOVED',
               reactionCategory: 'ART_IMAGE',
               rating: 5,

@@ -5,7 +5,7 @@ describe('Prompt Management API Tests', () => {
 
   // Auth migration: fresh disposable JWT user
   before(() => {
-    createLoggedInTestUser().then((auth) => {
+    return createLoggedInTestUser().then((auth) => {
       userToken = auth.token
       userId = auth.id
     })
@@ -24,7 +24,7 @@ let userId = 0let promptId: number | undefined
           })
   })
   before(() => {
-    createLoggedInTestUser().then((auth) => {
+    return createLoggedInTestUser().then((auth) => {
     userToken = auth.token
     userId = auth.id
     })

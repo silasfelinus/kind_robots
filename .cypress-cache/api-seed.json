@@ -1,0 +1,27 @@
+{
+  "runId": "1782292327054-7712",
+  "apiBase": "https://kind-robots.vercel.app/api",
+  "adminKey": "1432b5a06939750da5df10765d796ebd",
+  "user": {
+    "id": 1748,
+    "username": "cypress-user-1782292327054-7712",
+    "email": "cypress-user-1782292327054-7712@example.com",
+    "password": "testtest12",
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTc0OCwidXNlcm5hbWUiOiJjeXByZXNzLXVzZXItMTc4MjI5MjMyNzA1NC03NzEyIiwiaWF0IjoxNzgyMjkyMzI5LCJleHAiOjE4MTMzOTYzMjl9.KRMlehTTN1i5jFnr96jRkPK3j830mc4uuhLYK8ZnqmM"
+  },
+  "secondUser": {
+    "id": 1749,
+    "username": "cypress-target-1782292327054-7712",
+    "email": "cypress-target-1782292327054-7712@example.com",
+    "password": "testtest12",
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTc0OSwidXNlcm5hbWUiOiJjeXByZXNzLXRhcmdldC0xNzgyMjkyMzI3MDU0LTc3MTIiLCJpYXQiOjE3ODIyOTIzMzEsImV4cCI6MTgxMzM5NjMzMX0.1rD1iI1YDxBDj8WRvelpwwx-oJDNtKP1q-n2s_emrng"
+  },
+  "thirdUser": {
+    "id": 1750,
+    "username": "cypress-third-1782292327054-7712",
+    "email": "cypress-third-1782292327054-7712@example.com",
+    "password": "testtest12",
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTc1MCwidXNlcm5hbWUiOiJjeXByZXNzLXRoaXJkLTE3ODIyOTIzMjcwNTQtNzcxMiIsImlhdCI6MTc4MjI5MjMzMywiZXhwIjoxODEzMzk2MzMzfQ.EcPKYB3rE-GjQFd3W13KtXT0Z-6Ep1CLfKOE9F9qCmM"
+  },
+  "fixtures": {}
+}

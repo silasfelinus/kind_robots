@@ -4,6 +4,7 @@ nuxt
 nuxt/
 .nitro
 .cache
+.cypress-cache
 .output
 .env
 *env

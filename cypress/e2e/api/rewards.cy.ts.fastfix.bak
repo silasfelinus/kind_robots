@@ -105,7 +105,7 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.match(/Invalid or expired token|Invalid or expired authorization token/)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -125,7 +125,7 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.match(/Invalid or expired token|Invalid or expired authorization token/)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -224,7 +224,7 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.match(/Invalid or expired token|Invalid or expired authorization token/)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -245,7 +245,7 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.match(/Invalid or expired token|Invalid or expired authorization token/)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
@@ -368,7 +368,7 @@ describe('Reward Management API Tests', () => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
       expect(response.body.message).to.match(
-        /Authorization token is required|Invalid or expired token|Invalid or expired authorization token/,
+        /Authorization token is required|Invalid or expired token/,
       )
     })
   })
@@ -387,7 +387,7 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
-      expect(response.body.message).to.match(/Invalid or expired token|Invalid or expired authorization token/)
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 

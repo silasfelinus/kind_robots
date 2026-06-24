@@ -97,7 +97,7 @@ describe('ArtImage Management API Tests', () => {
         url: `${artImageUrl}/${generatedArtImageId}`,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${adminToken}`,
         },
         failOnStatusCode: false,
       })
@@ -170,7 +170,7 @@ describe('ArtImage Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        Authorization: `Bearer ${userToken}`,
+        Authorization: `Bearer ${adminToken}`,
       },
       timeout: 120000,
       failOnStatusCode: false,
@@ -187,7 +187,7 @@ describe('ArtImage Management API Tests', () => {
         checkpoint: 'realcartoonPony_v1.safetensors',
         sampler: 'Euler',
         designer: 'cypress-admin',
-        isPublic: true,
+        isPublic: false,
         isMature: false,
       },
     }).then((response) => {
@@ -284,7 +284,7 @@ describe('ArtImage Management API Tests', () => {
       },
       body: {
         designer: 'unauthorizedDesigner',
-        isPublic: true,
+        isPublic: false,
       },
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -307,7 +307,7 @@ describe('ArtImage Management API Tests', () => {
       body: {
         path: 'invalid-token-path.webp',
         designer: 'invalidTokenDesigner',
-        isPublic: true,
+        isPublic: false,
       },
     }).then((response) => {
       expect(response.status).to.eq(401)

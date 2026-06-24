@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery, sendRedirect, createError } from 'h3'
 import prisma from '../../../utils/prisma'
-import { createToken, generateApiKey } from '..'
+import { createToken } from '..'
 
 interface GoogleTokenResponse {
   access_token: string
@@ -66,20 +66,17 @@ export default defineEventHandler(async (event) => {
     let user = await prisma.user.findUnique({ where: { email } })
 
     if (!user) {
-      const apiKey = generateApiKey()
       user = await prisma.user.create({
         data: {
           email,
           googleId,
           username: name || `user-${googleId.substring(0, 8)}`,
           avatarImage: picture,
-          apiKey,
         },
       })
     }
 
     const jwt = await createToken(user)
-
     const redirectTarget = `/auth/google?token=${jwt}`
 
     return sendRedirect(event, redirectTarget)

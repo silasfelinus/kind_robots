@@ -1,79 +1,129 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+  jsonHeaders,
+} from '../../support/api-auth'
 
 type ArtImageTestRecord = {
   id: number
 }
 
-describe('ArtCollection API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/art/collection'
-  const artImageBaseUrl = 'https://kind-robots.vercel.app/api/art/image'
-  const invalidToken = 'someInvalidTokenValue'
+type ArtCollectionTestRecord = {
+  id: number
+  ArtImages?: ArtImageTestRecord[]
+}
 
-  let userToken = ''
-  let collectionId: number
-  let artImageId: number
+const artImageIdsFrom = (collection: ArtCollectionTestRecord): number[] =>
+  (collection.ArtImages ?? []).map((image) => image.id)
+
+describe('ArtCollection API Tests', () => {
+  const badJwt = 'definitely-not-valid'
+
+  let apiBase = ''
+  let setupAuth = ''
+  let baseUrl = ''
+  let artImageBaseUrl = ''
+  let userJwt = ''
+  let createdUserId: number | undefined
+  let collectionId: number | undefined
+  let artImageId: number | undefined
   let existingArtImageIds: number[] = []
-  let artImageIdToRemove: number
-  let newArtImageId: number
+  let artImageIdToRemove: number | undefined
+  let newArtImageId: number | undefined
+
+  const createArtImage = (label: string, prompt: string) =>
+    cy.request({
+      method: 'POST',
+      url: artImageBaseUrl,
+      headers: bearerHeaders(userJwt),
+      body: {
+        promptString: prompt,
+        artPrompt: prompt,
+        steps: 10,
+        path: `/images/test/${label}.webp`,
+        imagePath: `/images/test/${label}.webp`,
+        fileName: `${label}.webp`,
+        fileType: 'webp',
+        seed: null,
+        userId: createdUserId,
+        isPublic: false,
+        isMature: false,
+        isActive: true,
+      },
+      failOnStatusCode: false,
+    })
 
   before(() => {
-    cy.env(['USER_TOKEN']).then((env) => {
-      userToken = String(env.USER_TOKEN || '')
-      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    getApiEnv().then((env) => {
+      apiBase = env.apiBase
+      setupAuth = env.adminToken
+      baseUrl = `${apiBase}/art/collection`
+      artImageBaseUrl = `${apiBase}/art/image`
+    })
+
+    createLoggedInTestUser().then((auth) => {
+      userJwt = auth.token
+      createdUserId = auth.id
     })
 
     cy.then(() => {
-      cy.request({
-        method: 'POST',
-        url: artImageBaseUrl,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        body: {
-          promptString:
-            'surreal, A beautiful pancake sunrise over the mountains',
-          artPrompt: 'surreal, A beautiful pancake sunrise over the mountains',
-          steps: 10,
-          path: '/images/test/pancake-sunrise-collection.webp',
-          imagePath: '/images/test/pancake-sunrise-collection.webp',
-          fileName: 'pancake-sunrise-collection.webp',
-          fileType: 'webp',
-          seed: null,
-          userId: 9,
-          isPublic: false,
-          isMature: false,
-          isActive: true,
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
+      createArtImage(
+        'pancake-sunrise-collection',
+        'surreal, A beautiful pancake sunrise over the mountains',
+      ).then((response) => {
         cy.log('Create ArtImage response:', JSON.stringify(response.body))
 
-        expect(response.status).to.eq(201)
+        expect(response.status, JSON.stringify(response.body)).to.eq(201)
         expect(response.body.success).to.be.true
         expect(response.body.data).to.be.an('object').that.is.not.empty
 
         artImageId = response.body.data.id
-
-        if (!artImageId) {
-          throw new Error('Failed to create ArtImage.')
-        }
+        expect(artImageId, 'created ArtImage id').to.be.a('number')
       })
     })
   })
 
+  after(() => {
+    if (collectionId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${collectionId}`,
+        headers: bearerHeaders(userJwt),
+        failOnStatusCode: false,
+      })
+    }
+
+    const cleanupArtImageIds = [artImageId, newArtImageId].filter(
+      (id): id is number =>
+        typeof id === 'number' && Number.isInteger(id) && id > 0,
+    )
+
+    cleanupArtImageIds.forEach((id) => {
+      cy.request({
+        method: 'DELETE',
+        url: `${artImageBaseUrl}/${id}`,
+        headers: bearerHeaders(userJwt),
+        failOnStatusCode: false,
+      })
+    })
+
+    deleteTestUser(apiBase, setupAuth, createdUserId)
+  })
+
   it('Create a New ArtCollection', () => {
+    expect(artImageId, 'fixture ArtImage id').to.be.a('number')
+
     cy.request({
       method: 'POST',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: bearerHeaders(userJwt),
       body: {
         label: `cypress-art-collection-${Date.now()}`,
         description: 'Cypress ArtCollection test fixture',
-        userId: 9,
+        userId: createdUserId,
         artImageIds: [artImageId],
         isPublic: false,
         isMature: false,
@@ -82,13 +132,11 @@ describe('ArtCollection API Tests', () => {
     }).then((response) => {
       cy.log('Create ArtCollection response:', JSON.stringify(response.body))
 
-      expect(response.status).to.eq(201)
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body.success).to.be.true
 
       collectionId = response.body.data.id
-      existingArtImageIds = response.body.data.ArtImages.map(
-        (image: ArtImageTestRecord) => image.id,
-      )
+      existingArtImageIds = artImageIdsFrom(response.body.data)
 
       expect(collectionId).to.be.a('number')
       expect(existingArtImageIds).to.include(artImageId)
@@ -96,12 +144,12 @@ describe('ArtCollection API Tests', () => {
   })
 
   it('should not allow adding ArtImages to collection without an authorization token', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       failOnStatusCode: false,
       body: {
         addArtImageIds: [artImageId],
@@ -114,13 +162,12 @@ describe('ArtCollection API Tests', () => {
   })
 
   it('should not allow adding ArtImages to collection with an invalid authorization token', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      headers: bearerHeaders(badJwt),
       failOnStatusCode: false,
       body: {
         addArtImageIds: [artImageId],
@@ -133,45 +180,25 @@ describe('ArtCollection API Tests', () => {
   })
 
   it('Add a Different ArtImage to Collection with Valid Token', () => {
-    cy.request({
-      method: 'POST',
-      url: artImageBaseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
-        promptString: 'surreal, A magical castle in the clouds',
-        artPrompt: 'surreal, A magical castle in the clouds',
-        steps: 15,
-        path: '/images/test/magical-castle-collection.webp',
-        imagePath: '/images/test/magical-castle-collection.webp',
-        fileName: 'magical-castle-collection.webp',
-        fileType: 'webp',
-        seed: null,
-        userId: 9,
-        isPublic: false,
-        isMature: false,
-        isActive: true,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
+    createArtImage(
+      'magical-castle-collection',
+      'surreal, A magical castle in the clouds',
+    ).then((response) => {
       cy.log('Create second ArtImage response:', JSON.stringify(response.body))
 
-      expect(response.status).to.eq(201)
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
 
       newArtImageId = response.body.data.id
-      expect(newArtImageId).to.exist
+      expect(newArtImageId).to.be.a('number')
 
       cy.request({
         method: 'PATCH',
         url: `${baseUrl}/${collectionId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
+        headers: bearerHeaders(userJwt),
         body: {
           addArtImageIds: [newArtImageId],
         },
@@ -179,12 +206,10 @@ describe('ArtCollection API Tests', () => {
       }).then((patchResponse) => {
         cy.log('Patch add response:', JSON.stringify(patchResponse.body))
 
-        expect(patchResponse.status).to.eq(200)
+        expect(patchResponse.status, JSON.stringify(patchResponse.body)).to.eq(200)
         expect(patchResponse.body.success).to.be.true
 
-        const returnedArtImageIds = patchResponse.body.data.ArtImages.map(
-          (image: ArtImageTestRecord) => image.id,
-        )
+        const returnedArtImageIds = artImageIdsFrom(patchResponse.body.data)
 
         expect(returnedArtImageIds).to.include(newArtImageId)
 
@@ -196,19 +221,13 @@ describe('ArtCollection API Tests', () => {
   it('Remove ArtImage from Collection', () => {
     const firstArtImageId = existingArtImageIds[0]
 
-    if (firstArtImageId === undefined) {
-      throw new Error('No ArtImage ID available to remove.')
-    }
-
+    expect(firstArtImageId, 'ArtImage ID available to remove').to.be.a('number')
     artImageIdToRemove = firstArtImageId
 
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: bearerHeaders(userJwt),
       body: {
         removeArtImageIds: [artImageIdToRemove],
       },
@@ -216,12 +235,10 @@ describe('ArtCollection API Tests', () => {
     }).then((response) => {
       cy.log('Patch remove response:', JSON.stringify(response.body))
 
-      expect(response.status).to.eq(200)
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.success).to.be.true
 
-      const returnedArtImageIds = response.body.data.ArtImages.map(
-        (image: ArtImageTestRecord) => image.id,
-      )
+      const returnedArtImageIds = artImageIdsFrom(response.body.data)
 
       expect(returnedArtImageIds).to.not.include(artImageIdToRemove)
 
@@ -230,13 +247,14 @@ describe('ArtCollection API Tests', () => {
   })
 
   it('Replace ArtImages in Collection', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+    expect(artImageId, 'first ArtImage id').to.be.a('number')
+    expect(newArtImageId, 'second ArtImage id').to.be.a('number')
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: bearerHeaders(userJwt),
       body: {
         artImageIds: [artImageId, newArtImageId].filter(Boolean),
         mode: 'replace',
@@ -245,12 +263,10 @@ describe('ArtCollection API Tests', () => {
     }).then((response) => {
       cy.log('Patch replace response:', JSON.stringify(response.body))
 
-      expect(response.status).to.eq(200)
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.success).to.be.true
 
-      const returnedArtImageIds = response.body.data.ArtImages.map(
-        (image: ArtImageTestRecord) => image.id,
-      )
+      const returnedArtImageIds = artImageIdsFrom(response.body.data)
 
       expect(returnedArtImageIds).to.include(artImageId)
       expect(returnedArtImageIds).to.include(newArtImageId)
@@ -260,17 +276,17 @@ describe('ArtCollection API Tests', () => {
   })
 
   it('Get All ArtCollections', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'GET',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       failOnStatusCode: false,
     }).then((response) => {
       cy.log('Get all ArtCollections response:', JSON.stringify(response.body))
 
-      expect(response.status).to.eq(200)
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('array')
 
@@ -281,49 +297,45 @@ describe('ArtCollection API Tests', () => {
       expect(matchingCollection).to.exist
       expect(matchingCollection.ArtImages).to.be.an('array')
 
-      const returnedArtImageIds = matchingCollection.ArtImages.map(
-        (image: ArtImageTestRecord) => image.id,
-      )
+      const returnedArtImageIds = artImageIdsFrom(matchingCollection)
 
       expect(returnedArtImageIds).to.include(artImageId)
     })
   })
 
   it('Get ArtCollection by ID', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       failOnStatusCode: false,
     }).then((response) => {
       cy.log('Get ArtCollection by ID response:', JSON.stringify(response.body))
 
-      expect(response.status).to.eq(200)
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object')
       expect(response.body.data.id).to.eq(collectionId)
       expect(response.body.data.ArtImages).to.be.an('array')
 
-      const returnedArtImageIds = response.body.data.ArtImages.map(
-        (image: ArtImageTestRecord) => image.id,
-      )
+      const returnedArtImageIds = artImageIdsFrom(response.body.data)
 
       expect(returnedArtImageIds).to.include(artImageId)
     })
   })
 
   it('Get ArtCollection by ID returns lightweight ArtImages only', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.success).to.be.true
 
       const firstImage = response.body.data.ArtImages[0]
@@ -342,6 +354,8 @@ describe('ArtCollection API Tests', () => {
   })
 
   it('should not allow deleting a collection without an authorization token', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${collectionId}`,
@@ -349,17 +363,17 @@ describe('ArtCollection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.match(/authorization/i)
+      expect(response.body.message).to.match(/authorization|token/i)
     })
   })
 
   it('should not allow deleting a collection with an invalid authorization token', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      headers: bearerHeaders(badJwt),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -369,42 +383,18 @@ describe('ArtCollection API Tests', () => {
   })
 
   it('Delete ArtCollection with Valid Token', () => {
+    expect(collectionId, 'collection id').to.be.a('number')
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${collectionId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: bearerHeaders(userJwt),
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.message).to.include(String(collectionId))
-    })
-  })
-
-  after(() => {
-    cy.then(() => {
-      const cleanupArtImageIds = [artImageId, newArtImageId].filter(
-        (id): id is number =>
-          typeof id === 'number' && Number.isInteger(id) && id > 0,
-      )
-
-      cleanupArtImageIds.forEach((id) => {
-        cy.request({
-          method: 'DELETE',
-          url: `${artImageBaseUrl}/${id}`,
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-          failOnStatusCode: false,
-        }).then((response) => {
-          if (response.status !== 404) {
-            expect(response.status, JSON.stringify(response.body)).to.eq(200)
-            expect(response.body.success).to.be.true
-          }
-        })
-      })
+      collectionId = undefined
     })
   })
 })

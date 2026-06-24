@@ -11,7 +11,7 @@ export async function performFetch<T = unknown>(
 ): Promise<ApiResponse<T> & { status?: number }> {
   const userStore = useUserStore()
   const errorStore = useErrorStore()
-  const token = userStore.user?.apiKey
+  const token = userStore.token || userStore.user?.token || ''
 
   const normalizedHeaders = new Headers(options.headers ?? {})
 
@@ -73,7 +73,6 @@ export async function performFetch<T = unknown>(
               : `Request failed with status ${res.status}`,
         user: body.user as ApiResponse<T>['user'],
         token: typeof body.token === 'string' ? body.token : undefined,
-        apiKey: typeof body.apiKey === 'string' ? body.apiKey : undefined,
         usernames: Array.isArray(body.usernames)
           ? (body.usernames as string[])
           : undefined,

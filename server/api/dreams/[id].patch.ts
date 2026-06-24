@@ -2,7 +2,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import { requireApiUser } from '@/server/utils/authGuard'
 import type {
   CreationSource,
   DreamType,
@@ -15,6 +15,7 @@ import {
   getDreamId,
   normalizeCreationSource,
   normalizeIdArray,
+  normalizeNullableId,
   normalizeOptionalText,
   normalizeSlug,
   relationFromNullableId,
@@ -49,6 +50,108 @@ type DreamPatchBody = {
   artCollectionIds?: number[]
   addArtImageToCollection?: boolean
   updateNote?: string | null
+}
+
+function uniqueIds(values: Array<number | null | undefined>): number[] {
+  return Array.from(
+    new Set(values.filter((id): id is number => Number.isInteger(id) && id > 0)),
+  )
+}
+
+function idsFromNullable(value: unknown): number[] {
+  const id = normalizeNullableId(value)
+  return id ? [id] : []
+}
+
+function forbiddenRelationError(label: string) {
+  return createError({
+    statusCode: 403,
+    message: `You do not have permission to attach one or more ${label} records to this Dream.`,
+  })
+}
+
+async function assertAttachableRelations(
+  body: DreamPatchBody,
+  userId: number,
+  userRole: string,
+) {
+  if (userRole === 'ADMIN') return
+
+  const artImageIds = uniqueIds([
+    ...idsFromNullable(body.artImageId),
+    ...(normalizeIdArray(body.artImageIds) ?? []),
+  ])
+
+  if (artImageIds.length) {
+    const count = await prisma.artImage.count({
+      where: {
+        id: { in: artImageIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== artImageIds.length) throw forbiddenRelationError('ArtImage')
+  }
+
+  const artCollectionIds = uniqueIds([
+    ...idsFromNullable(body.artCollectionId),
+    ...(normalizeIdArray(body.artCollectionIds) ?? []),
+  ])
+
+  if (artCollectionIds.length) {
+    const count = await prisma.artCollection.count({
+      where: {
+        id: { in: artCollectionIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== artCollectionIds.length)
+      throw forbiddenRelationError('ArtCollection')
+  }
+
+  const scenarioIds = uniqueIds([
+    ...idsFromNullable(body.scenarioId),
+    ...(normalizeIdArray(body.scenarioIds) ?? []),
+    ...(normalizeIdArray(body.Scenarios) ?? []),
+  ])
+
+  if (scenarioIds.length) {
+    const count = await prisma.scenario.count({
+      where: {
+        id: { in: scenarioIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== scenarioIds.length) throw forbiddenRelationError('Scenario')
+  }
+
+  const characterIds = normalizeIdArray(body.characterIds) ?? []
+
+  if (characterIds.length) {
+    const count = await prisma.character.count({
+      where: {
+        id: { in: characterIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== characterIds.length) throw forbiddenRelationError('Character')
+  }
+
+  const rewardIds = normalizeIdArray(body.rewardIds) ?? []
+
+  if (rewardIds.length) {
+    const count = await prisma.reward.count({
+      where: {
+        id: { in: rewardIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== rewardIds.length) throw forbiddenRelationError('Reward')
+  }
 }
 
 function setTextField<T extends keyof Prisma.DreamUpdateInput>(
@@ -111,14 +214,8 @@ export default defineEventHandler(async (event) => {
   try {
     id = getDreamId(event)
 
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
+    const auth = await requireApiUser(event)
+    const user = auth.user
 
     const existingDream = await prisma.dream.findUnique({
       where: { id },
@@ -152,6 +249,8 @@ export default defineEventHandler(async (event) => {
         message: 'No data provided for update.',
       })
     }
+
+    await assertAttachableRelations(body, user.id, user.Role)
 
     const dataInput: Prisma.DreamUpdateInput = {}
 
@@ -300,12 +399,7 @@ export default defineEventHandler(async (event) => {
         include: dreamInclude,
       })) ?? updated
 
-    const userRecord = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { username: true },
-    })
-
-    const sender = userRecord?.username || `User ${user.id}`
+    const sender = user.username || `User ${user.id}`
     const updateNote = normalizeOptionalText(body.updateNote)
     const content = updateNote || getUpdateSummary(body)
 

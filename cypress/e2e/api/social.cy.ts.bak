@@ -1,4 +1,3 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // /cypress/e2e/api/social.cy.ts
 /// <reference types="cypress" />
 
@@ -29,13 +28,6 @@ describe('SocialPost API Full CRUD + Auth + Publish Tests', () => {
       expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be.empty
     })
   })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    })
-  })
-
-
 
   it('POST: rejects creation without auth', () => {
     cy.request<ApiResponse>({

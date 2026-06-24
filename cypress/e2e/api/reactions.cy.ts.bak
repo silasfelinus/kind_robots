@@ -1,10 +1,9 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/reactions.cy.ts
 
 describe('Reaction Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
   const invalidToken = 'someInvalidTokenValue'
-  let userId = 0
+  const userId = 9
 
   let userToken = ''
   let artImageId: number | undefined
@@ -13,16 +12,9 @@ describe('Reaction Management API Tests', () => {
   before(() => {
     cy.env(['USER_TOKEN']).then((env) => {
       userToken = String(env.USER_TOKEN || '')
-          })
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    userId = auth.id
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
     })
   })
-
-
 
   it('Create a New ArtImage Fixture', () => {
     cy.request({

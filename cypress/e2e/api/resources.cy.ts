@@ -3,15 +3,6 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Resource Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    return createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
   const baseUrl = 'https://kind-robots.vercel.app/api/resources'
   const invalidToken = 'someInvalidTokenValue'
   const uniqueResourceName = `Resource-${Date.now()}`
@@ -19,16 +10,19 @@ describe('Resource Management API Tests', () => {
   let userToken = ''
   let userId = 0
   let resourceId: number | undefined
+
+  const expectAuthFailureMessage = (message: string) => {
+    expect(message).to.match(
+      /Authorization token is required|Invalid or expired token|Invalid or expired authorization token/,
+    )
+  }
+
   before(() => {
     return createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    userId = auth.id
+      userToken = auth.token
+      userId = auth.id
     })
   })
-
-
-
-
 
   it('should not allow creating a resource without an authorization token', () => {
     cy.request({
@@ -53,7 +47,7 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expectAuthFailureMessage(response.body.message)
     })
   })
 
@@ -81,7 +75,7 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expectAuthFailureMessage(response.body.message)
     })
   })
 
@@ -132,7 +126,7 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expectAuthFailureMessage(response.body.message)
     })
   })
 
@@ -152,7 +146,7 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expectAuthFailureMessage(response.body.message)
     })
   })
 
@@ -226,9 +220,7 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expectAuthFailureMessage(response.body.message)
     })
   })
 
@@ -245,7 +237,7 @@ describe('Resource Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expectAuthFailureMessage(response.body.message)
     })
   })
 

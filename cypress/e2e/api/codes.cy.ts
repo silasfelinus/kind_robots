@@ -4,6 +4,16 @@
 
 /// <reference types="cypress" />
 
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+  invalidBearerHeaders,
+  jsonHeaders,
+  type TestUserAuth,
+} from '../../support/api-auth'
+
 interface ApiResponse<T = any> {
   success: boolean
   message: string
@@ -55,13 +65,11 @@ interface CodeRecord {
 
 describe('[Code] API Full CRUD + Auth Tests', () => {
   const modelName = 'code'
-  const fallbackApiBase = 'https://kind-robots.vercel.app'
-  const invalidToken = 'definitely-not-a-real-token'
-  const testUserId = 9
 
-  let apiBase = fallbackApiBase
-  let baseUrl = `${fallbackApiBase}/api/${modelName}`
-  let userToken = ''
+  let apiBase = ''
+  let adminToken = ''
+  let baseUrl = ''
+  let testUser: TestUserAuth | undefined
   let itemId: number | null = null
   let privateItemId: number | null = null
   let batchIds: number[] = []
@@ -134,11 +142,9 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
     }
   }
 
-  function authHeaders(token = userToken) {
-    return {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    }
+  function authHeaders() {
+    expect(testUser).to.exist
+    return bearerHeaders(testUser!.token)
   }
 
   function rememberId(id: number | undefined | null) {
@@ -147,28 +153,29 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   }
 
   before(() => {
-    cy.env(['API_BASE', 'USER_TOKEN']).then((env) => {
-      apiBase = String(env.API_BASE || fallbackApiBase)
-      baseUrl = `${apiBase}/api/${modelName}`
-      userToken = String(env.USER_TOKEN || '')
+    getApiEnv().then((env) => {
+      apiBase = env.apiBase
+      adminToken = env.adminToken
+      baseUrl = `${apiBase}/${modelName}`
+    })
 
-      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
-        .empty
+    createLoggedInTestUser().then((auth) => {
+      testUser = auth
     })
   })
 
   it('POST: rejects Code creation without auth', () => {
+    expect(testUser).to.exist
+
     cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       body: {
         title: `Unauthorized-${itemTitle}`,
         description: 'This should not be created.',
         icon: 'kind-icon:warning',
-        userId: testUserId,
+        userId: testUser!.id,
         isPublic: true,
         graph: makeGraph('unauthorized'),
       },
@@ -180,15 +187,17 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('POST: rejects Code creation with invalid auth', () => {
+    expect(testUser).to.exist
+
     cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
-      headers: authHeaders(invalidToken),
+      headers: invalidBearerHeaders(),
       body: {
         title: `Invalid-${itemTitle}`,
         description: 'This should not be created.',
         icon: 'kind-icon:warning',
-        userId: testUserId,
+        userId: testUser!.id,
         isPublic: true,
         graph: makeGraph('invalid'),
       },
@@ -208,6 +217,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
         title: `Missing-Graph-${itemTitle}`,
         description: 'This should fail because graph is required.',
         icon: 'kind-icon:warning',
+        userId: testUser!.id,
         isPublic: true,
       },
       failOnStatusCode: false,
@@ -226,7 +236,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
         title: itemTitle,
         description: 'Cypress-created public Code blueprint.',
         icon: 'kind-icon:blocks',
-        userId: testUserId,
+        userId: testUser!.id,
         isPublic: true,
         graph: makeGraph('public'),
       },
@@ -258,7 +268,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
         title: privateTitle,
         description: 'Cypress-created private Code blueprint.',
         icon: 'kind-icon:lock',
-        userId: testUserId,
+        userId: testUser!.id,
         isPublic: false,
         graph: makeGraph('private'),
       },
@@ -286,6 +296,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
           title: `Batch-A-${itemTitle}`,
           description: 'Batch Code blueprint A.',
           icon: 'kind-icon:sparkles',
+          userId: testUser!.id,
           isPublic: true,
           graph: makeGraph('batch-a'),
         },
@@ -293,6 +304,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
           title: `Batch-B-${itemTitle}`,
           description: 'Batch Code blueprint B.',
           icon: 'kind-icon:cube',
+          userId: testUser!.id,
           isPublic: false,
           graph: makeGraph('batch-b'),
         },
@@ -310,6 +322,9 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: fetches all public Code records without auth', () => {
+    expect(itemId).to.not.eq(null)
+    expect(privateItemId).to.not.eq(null)
+
     cy.request<ApiResponse<CodeRecord[]>>({
       method: 'GET',
       url: baseUrl,
@@ -332,9 +347,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
     cy.request<ApiResponse<CodeRecord[]>>({
       method: 'GET',
       url: baseUrl,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
@@ -354,9 +367,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
     cy.request<ApiResponse<CodeRecord[]>>({
       method: 'GET',
       url: `${baseUrl}?mineOnly=true`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
@@ -373,6 +384,8 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: fetches public Code by ID without auth', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse<CodeRecord>>({
       method: 'GET',
       url: `${baseUrl}/${itemId}`,
@@ -385,6 +398,8 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: rejects private Code by ID without auth', () => {
+    expect(privateItemId).to.not.eq(null)
+
     cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/${privateItemId}`,
@@ -396,12 +411,12 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: fetches private Code by ID as owner', () => {
+    expect(privateItemId).to.not.eq(null)
+
     cy.request<ApiResponse<CodeRecord>>({
       method: 'GET',
       url: `${baseUrl}/${privateItemId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
@@ -411,12 +426,12 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('PATCH: rejects update without auth', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${itemId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       body: {
         title: 'No Auth Edit',
       },
@@ -428,10 +443,12 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('PATCH: rejects update with invalid auth', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${itemId}`,
-      headers: authHeaders(invalidToken),
+      headers: invalidBearerHeaders(),
       body: {
         title: 'Invalid Auth Edit',
       },
@@ -443,6 +460,8 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('PATCH: updates Code record with valid auth', () => {
+    expect(itemId).to.not.eq(null)
+
     const newTitle = `Updated-${itemTitle}`
     const updatedGraph = makeGraph('updated')
     updatedGraph.zoom = 0.85
@@ -470,6 +489,8 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('PATCH: rejects invalid graph object', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${itemId}`,
@@ -485,6 +506,8 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('DELETE: rejects delete without auth', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${itemId}`,
@@ -496,12 +519,12 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('DELETE: rejects delete with invalid auth', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${itemId}`,
-      headers: {
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      headers: invalidBearerHeaders(),
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
@@ -510,12 +533,12 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('DELETE: soft deletes Code record with valid auth', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse<CodeRecord>>({
       method: 'DELETE',
       url: `${baseUrl}/${itemId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
@@ -525,12 +548,12 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: soft-deleted Code record returns 404', () => {
+    expect(itemId).to.not.eq(null)
+
     cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/${itemId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(404)
@@ -539,17 +562,21 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   after(() => {
-    if (!userToken || !createdIds.length) return
-
-    cy.wrap(createdIds).each((id) => {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${id}`,
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-        failOnStatusCode: false,
+    if (testUser && createdIds.length) {
+      cy.wrap(createdIds).each((id) => {
+        cy.request({
+          method: 'DELETE',
+          url: `${baseUrl}/${id}`,
+          headers: bearerHeaders(testUser!.token),
+          failOnStatusCode: false,
+        })
       })
+    }
+
+    deleteTestUser(apiBase, adminToken, testUser?.id).then((response) => {
+      if (response) {
+        cy.log('Code test user cleanup:', JSON.stringify(response.body))
+      }
     })
   })
 })

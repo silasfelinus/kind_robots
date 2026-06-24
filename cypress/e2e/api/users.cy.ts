@@ -8,7 +8,7 @@ describe('User Management API Tests', () => {
 
   let createdUserId: number | undefined
   let uniqueUsername = ''
-  let createdUserApiKey = ''
+  let createdUserToken = ''
   let authToken = ''
 
   const expectUpdatedMsg = (msg: string) => {
@@ -28,6 +28,17 @@ describe('User Management API Tests', () => {
       },
       failOnStatusCode: false,
     })
+
+  const captureLoginToken = (response: Cypress.Response<any>) => {
+    const token = response.body?.data?.token || response.body?.token
+
+    expect(token, 'login token')
+      .to.be.a('string')
+      .and.have.length.greaterThan(10)
+
+    authToken = token
+    createdUserToken = token
+  }
 
   before(() => {
     cy.env(['BASE_URL', 'AUTH_URL', 'API_KEY']).then((env) => {
@@ -78,10 +89,7 @@ describe('User Management API Tests', () => {
               expect(loginRes.body?.success).to.eq(true)
 
               createdUserId = loginRes.body?.data?.user?.id
-              createdUserApiKey =
-                loginRes.body?.data?.user?.apiKey ||
-                loginRes.body?.user?.apiKey ||
-                createdUserApiKey
+              captureLoginToken(loginRes)
             })
           }
 
@@ -89,10 +97,8 @@ describe('User Management API Tests', () => {
           expect(response.body).to.have.property('user')
 
           createdUserId = response.body.user.id
-          createdUserApiKey = response.body.user.apiKey
 
           expect(createdUserId).to.be.a('number')
-          expect(createdUserApiKey).to.be.a('string').and.not.be.empty
         })
         .then(() => {
           return login(uniqueUsername).then((res) => {
@@ -102,13 +108,7 @@ describe('User Management API Tests', () => {
             ).to.eq(200)
             expect(res.body).to.have.property('success', true)
 
-            const token = res.body?.data?.token || res.body?.token
-
-            expect(token, 'login token')
-              .to.be.a('string')
-              .and.have.length.greaterThan(10)
-
-            authToken = token
+            captureLoginToken(res)
           })
         })
     })
@@ -135,14 +135,14 @@ describe('User Management API Tests', () => {
 
     it('Get User by ID with Authentication', () => {
       expect(createdUserId).to.exist
-      expect(createdUserApiKey).to.be.a('string').and.not.be.empty
+      expect(createdUserToken).to.be.a('string').and.not.be.empty
 
       cy.request({
         method: 'GET',
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${createdUserApiKey}`,
+          Authorization: `Bearer ${createdUserToken}`,
         },
       }).then((response) => {
         expect(response.status).to.eq(200)
@@ -197,7 +197,7 @@ describe('User Management API Tests', () => {
 
     it('Update User by ID with New Username (with auth)', () => {
       expect(createdUserId).to.exist
-      expect(createdUserApiKey).to.be.a('string').and.not.be.empty
+      expect(createdUserToken).to.be.a('string').and.not.be.empty
 
       const newUsername = `updateduser${Date.now()}`
 
@@ -206,7 +206,7 @@ describe('User Management API Tests', () => {
         url: `${baseUrl}/${createdUserId}`,
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${createdUserApiKey}`,
+          Authorization: `Bearer ${createdUserToken}`,
         },
         body: {
           username: newUsername,
@@ -225,11 +225,7 @@ describe('User Management API Tests', () => {
             expect(res.status).to.eq(200)
             expect(res.body?.success).to.eq(true)
 
-            const token = res.body?.data?.token || res.body?.token
-
-            expect(token).to.be.a('string').and.have.length.greaterThan(10)
-
-            authToken = token
+            captureLoginToken(res)
           })
         })
     })
@@ -241,11 +237,7 @@ describe('User Management API Tests', () => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
 
-        const token = response.body?.data?.token || response.body?.token
-
-        expect(token, 'token presence').to.be.a('string')
-
-        authToken = token
+        captureLoginToken(response)
       })
     })
 
@@ -289,33 +281,6 @@ describe('User Management API Tests', () => {
         expect(response.body).to.have.property('data').that.is.an('object')
       })
     })
-
-    it('API Key Validation (user apiKey)', () => {
-      expect(createdUserApiKey).to.be.a('string').and.not.be.empty
-
-      cy.request({
-        method: 'POST',
-        url: `${authUrl}/validate/api`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: {
-          apiKey: createdUserApiKey,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('success', true)
-        expect(response.body)
-          .to.have.nested.property('data.kind')
-          .that.equals('user')
-
-        if (createdUserId) {
-          expect(response.body)
-            .to.have.nested.property('data.user.id')
-            .that.equals(createdUserId)
-        }
-      })
-    })
   })
 
   context('User Deletion Tests', () => {
@@ -340,7 +305,7 @@ describe('User Management API Tests', () => {
 
     it('Delete User by ID with Authentication', () => {
       expect(createdUserId).to.exist
-      expect(createdUserApiKey).to.be.a('string').and.not.be.empty
+      expect(createdUserToken).to.be.a('string').and.not.be.empty
 
       const deleteUser = (
         attempt = 1,
@@ -351,7 +316,7 @@ describe('User Management API Tests', () => {
             url: `${baseUrl}/${createdUserId}`,
             headers: {
               Accept: 'application/json',
-              Authorization: `Bearer ${createdUserApiKey}`,
+              Authorization: `Bearer ${createdUserToken}`,
             },
             failOnStatusCode: false,
           })

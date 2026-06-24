@@ -69,11 +69,7 @@ const cfg = computed(() => PROVIDERS[provider.value])
 
 function getAuthHeaders(): HeadersInit {
   const token =
-    userStore.token ||
-    userStore.user?.token ||
-    userStore.user?.apiKey ||
-    userStore.apiKey ||
-    ''
+    userStore.token || userStore.user?.token || userStore.apiKey || ''
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

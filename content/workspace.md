@@ -9,7 +9,7 @@ icon: kind-icon:gearhammer
 sort: highlight
 dottitip: "AMI, who let Silas build a secret control room in the back of the lab?"
 amitip: "He did, obviously. It's where he tells the robots what to do and then pretends he's surprised by what they build. The button in the left corner still works if you wander in by accident."
-dashboardKey: workspace
+dashboardKey: wonder
 dashboardTab: workspace
 cards: labCards
 loadingMessage: Loading workspace...

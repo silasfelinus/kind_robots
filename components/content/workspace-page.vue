@@ -16,9 +16,7 @@
     <template v-else>
       <!-- Summary stats -->
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div
-          class="stat rounded-2xl border border-base-300 bg-base-200 py-4"
-        >
+        <div class="stat rounded-2xl border border-base-300 bg-base-200 py-4">
           <div class="stat-figure text-primary">
             <Icon name="kind-icon:folder" class="size-7" />
           </div>
@@ -26,9 +24,7 @@
           <div class="stat-value text-2xl">{{ projects.length }}</div>
         </div>
 
-        <div
-          class="stat rounded-2xl border border-base-300 bg-base-200 py-4"
-        >
+        <div class="stat rounded-2xl border border-base-300 bg-base-200 py-4">
           <div class="stat-figure text-success">
             <Icon name="kind-icon:check" class="size-7" />
           </div>
@@ -36,9 +32,7 @@
           <div class="stat-value text-2xl">{{ totalDone }}</div>
         </div>
 
-        <div
-          class="stat rounded-2xl border border-base-300 bg-base-200 py-4"
-        >
+        <div class="stat rounded-2xl border border-base-300 bg-base-200 py-4">
           <div class="stat-figure text-warning">
             <Icon name="kind-icon:warning" class="size-7" />
           </div>
@@ -46,9 +40,7 @@
           <div class="stat-value text-2xl">{{ totalNeedsHuman }}</div>
         </div>
 
-        <div
-          class="stat rounded-2xl border border-base-300 bg-base-200 py-4"
-        >
+        <div class="stat rounded-2xl border border-base-300 bg-base-200 py-4">
           <div class="stat-figure text-accent">
             <Icon name="kind-icon:sparkles" class="size-7" />
           </div>
@@ -56,6 +48,69 @@
           <div class="stat-value text-2xl">{{ totalPitches }}</div>
         </div>
       </div>
+
+      <!-- Agent inbox panel -->
+      <section class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+        <button
+          class="flex w-full items-center justify-between text-left"
+          type="button"
+          @click="showAgentInbox = !showAgentInbox"
+        >
+          <div
+            class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-base-content/60"
+          >
+            <Icon name="kind-icon:robot" class="size-4" />
+            Message the next agent
+          </div>
+          <span class="text-xs text-base-content/30">{{
+            showAgentInbox ? '▲' : '▼'
+          }}</span>
+        </button>
+
+        <Transition
+          enter-active-class="transition-all duration-200 ease-out"
+          enter-from-class="opacity-0 -translate-y-1"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-150 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-1"
+        >
+          <div v-if="showAgentInbox" class="mt-4 space-y-3">
+            <textarea
+              v-model="agentMessage"
+              class="textarea textarea-bordered w-full resize-none text-sm"
+              rows="4"
+              placeholder="New projects, priority changes, direction notes — anything the next agent should read before starting its cycle..."
+            />
+            <div class="flex items-center gap-2">
+              <a
+                :href="conductorIssueUrl('Agent Inbox', agentMessage)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm btn-primary gap-2"
+                :class="{
+                  'btn-disabled pointer-events-none opacity-40':
+                    !agentMessage.trim(),
+                }"
+              >
+                <Icon name="kind-icon:robot" class="size-4" />
+                Open in Conductor ↗
+              </a>
+              <button
+                class="btn btn-sm btn-ghost"
+                type="button"
+                @click="agentMessage = ''"
+              >
+                Clear
+              </button>
+            </div>
+            <p class="text-xs text-base-content/40">
+              Opens a pre-filled GitHub issue in the Conductor repo — review and
+              submit to send it into the next cycle.
+            </p>
+          </div>
+        </Transition>
+      </section>
 
       <!-- Project grid -->
       <section class="space-y-3">
@@ -82,9 +137,15 @@
             <!-- Card header -->
             <div class="flex items-start gap-3">
               <div
-                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary"
+                class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-primary/10 text-primary"
               >
-                <Icon :name="project.icon" class="size-6" />
+                <img
+                  v-if="project.image"
+                  :src="project.image"
+                  :alt="project.label"
+                  class="h-full w-full object-cover"
+                />
+                <Icon v-else :name="project.icon" class="size-6" />
               </div>
 
               <div class="min-w-0 flex-1">
@@ -145,6 +206,19 @@
               </span>
             </div>
 
+            <!-- Needs review chip -->
+            <div
+              v-if="project.statusCounts['needs-human']"
+              class="flex items-center gap-1.5 rounded-xl border border-warning/30 bg-warning/10 px-3 py-1.5 text-xs text-warning"
+            >
+              <Icon name="kind-icon:warning" class="size-3.5" />
+              {{
+                project.statusCounts['needs-human'] === 1
+                  ? '1 item needs your review'
+                  : `${project.statusCounts['needs-human']} items need your review`
+              }}
+            </div>
+
             <!-- Pitches chip -->
             <div
               v-if="project.pitches.length"
@@ -177,9 +251,15 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div
-                class="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary"
+                class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-primary/10 text-primary"
               >
-                <Icon :name="selectedProject.icon" class="size-5" />
+                <img
+                  v-if="selectedProject.image"
+                  :src="selectedProject.image"
+                  :alt="selectedProject.label"
+                  class="h-full w-full object-cover"
+                />
+                <Icon v-else :name="selectedProject.icon" class="size-5" />
               </div>
               <div>
                 <div class="flex items-center gap-2">
@@ -193,9 +273,24 @@
                     {{ selectedProject.kind }}
                   </span>
                 </div>
-                <p v-if="selectedProject.repo" class="text-xs text-base-content/40">
-                  {{ selectedProject.repo }}
-                </p>
+                <div class="flex items-center gap-2">
+                  <p
+                    v-if="selectedProject.repo"
+                    class="text-xs text-base-content/40"
+                  >
+                    {{ selectedProject.repo }}
+                  </p>
+                  <a
+                    v-if="selectedProject.repo"
+                    :href="`https://github.com/${selectedProject.repo}/pulls`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-xs text-primary/60 hover:text-primary"
+                    @click.stop
+                  >
+                    open PRs ↗
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -270,6 +365,11 @@
                 v-for="task in selectedProject.tasks"
                 :key="task.title"
                 class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-200 p-3"
+                :class="
+                  task.status === 'needs-human'
+                    ? 'border-warning/30 bg-warning/5'
+                    : ''
+                "
               >
                 <Icon
                   :name="taskIcon(task.status)"
@@ -295,6 +395,18 @@
                 >
                   {{ task.status }}
                 </span>
+
+                <a
+                  v-if="task.status === 'needs-human'"
+                  href="https://github.com/silasfelinus/conductor/pulls"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-xs btn-warning btn-outline shrink-0"
+                  title="Review open PRs in Conductor"
+                  @click.stop
+                >
+                  ↗
+                </a>
               </div>
             </div>
           </div>
@@ -314,15 +426,59 @@
                 class="space-y-1 rounded-xl border border-accent/30 bg-accent/5 p-4"
               >
                 <div class="flex items-center gap-2">
-                  <Icon name="kind-icon:sparkles" class="size-4 shrink-0 text-accent" />
-                  <p class="font-bold text-sm text-base-content">
+                  <Icon
+                    name="kind-icon:sparkles"
+                    class="size-4 shrink-0 text-accent"
+                  />
+                  <p class="text-sm font-bold text-base-content">
                     {{ pitch.title }}
                   </p>
                 </div>
-                <p class="text-xs leading-relaxed text-base-content/60 pl-6">
+                <p
+                  class="pl-6 text-xs leading-relaxed text-base-content/60"
+                >
                   {{ pitch.summary }}
                 </p>
               </div>
+            </div>
+          </div>
+
+          <!-- Leave a note -->
+          <div class="space-y-3 border-t border-base-300 pt-4">
+            <h4
+              class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+            >
+              Leave a Note
+            </h4>
+            <textarea
+              v-model="projectNotes[selectedProject.slug]"
+              class="textarea textarea-bordered w-full resize-none text-sm"
+              rows="3"
+              placeholder="Add context, roadmap direction, or clarifications for the next agent cycle..."
+            />
+            <div class="flex items-center gap-2">
+              <a
+                :href="
+                  conductorIssueUrl(
+                    `Note: ${selectedProject.label}`,
+                    projectNotes[selectedProject.slug] ?? '',
+                    selectedProject.slug,
+                  )
+                "
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm btn-outline gap-2"
+                :class="{
+                  'btn-disabled pointer-events-none opacity-40':
+                    !(projectNotes[selectedProject.slug] ?? '').trim(),
+                }"
+              >
+                <Icon name="kind-icon:sparkles" class="size-4" />
+                Open in Conductor ↗
+              </a>
+              <p class="text-xs text-base-content/40">
+                Opens a pre-filled GitHub issue — review and submit.
+              </p>
             </div>
           </div>
         </section>
@@ -332,7 +488,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 defineProps<{
@@ -374,6 +530,7 @@ interface Project {
   kind: ProjectKind
   description: string
   icon: string
+  image?: string
   progress: number
   milestones: Milestone[]
   tasks: Task[]
@@ -383,6 +540,9 @@ interface Project {
 
 const userStore = useUserStore()
 const selectedSlug = ref<string | null>(null)
+const showAgentInbox = ref(false)
+const agentMessage = ref('')
+const projectNotes = reactive<Record<string, string>>({})
 
 function toggleProject(slug: string) {
   selectedSlug.value = selectedSlug.value === slug ? null : slug
@@ -403,6 +563,18 @@ const totalNeedsHuman = computed(() =>
 const totalPitches = computed(() =>
   projects.reduce((sum, p) => sum + p.pitches.length, 0),
 )
+
+function conductorIssueUrl(
+  title: string,
+  body: string,
+  projectSlug?: string,
+): string {
+  const fullBody = projectSlug
+    ? `**Project:** \`${projectSlug}\`\n\n${body.trim()}`
+    : body.trim()
+  const params = new URLSearchParams({ title, body: fullBody })
+  return `https://github.com/silasfelinus/conductor/issues/new?${params.toString()}`
+}
 
 function statusBadgeClass(status: TaskStatus): string {
   const map: Record<TaskStatus, string> = {
@@ -532,7 +704,11 @@ const rawProjects: Omit<Project, 'statusCounts' | 'progress'>[] = [
     icon: 'kind-icon:chat',
     milestones: [
       { title: 'Loop proven end-to-end on this repo', weight: 10, done: false },
-      { title: 'Existing site imported + building cleanly', weight: 20, done: false },
+      {
+        title: 'Existing site imported + building cleanly',
+        weight: 20,
+        done: false,
+      },
       { title: 'Content + copy refresh', weight: 25, done: false },
       { title: 'Contact / quote-request flow', weight: 25, done: false },
       { title: 'SEO + analytics', weight: 20, done: false },
@@ -558,11 +734,19 @@ const rawProjects: Omit<Project, 'statusCounts' | 'progress'>[] = [
       'New customer-management software for the poop-scoop service: customers, pets/yards, service schedules, visit logs, billing. Build with seed/dummy data only until Silas says otherwise.',
     icon: 'kind-icon:blueprint',
     milestones: [
-      { title: 'Stack chosen + skeleton app runs locally', weight: 15, done: false },
+      {
+        title: 'Stack chosen + skeleton app runs locally',
+        weight: 15,
+        done: false,
+      },
       { title: 'Customer + property data model', weight: 20, done: false },
       { title: 'Recurring service scheduling', weight: 25, done: false },
       { title: 'Visit logging + history', weight: 20, done: false },
-      { title: 'Invoicing (draft-only, no live payments)', weight: 20, done: false },
+      {
+        title: 'Invoicing (draft-only, no live payments)',
+        weight: 20,
+        done: false,
+      },
     ],
     tasks: [
       {
@@ -648,15 +832,27 @@ const rawProjects: Omit<Project, 'statusCounts' | 'progress'>[] = [
       'Content pipeline: research stores → brainstorm concepts → create drafts → market → advertise. Only build within product-types.yaml. Never publish a listing, post marketing, or spend ad money unattended.',
     icon: 'kind-icon:gift',
     milestones: [
-      { title: 'Store/platform landscape researched', weight: 20, done: false },
+      {
+        title: 'Store/platform landscape researched',
+        weight: 20,
+        done: false,
+      },
       {
         title: 'Content concepts brainstormed (per approved product type)',
         weight: 20,
         done: false,
       },
       { title: 'First products created (drafts)', weight: 25, done: false },
-      { title: 'Organic marketing on discovered channels', weight: 20, done: false },
-      { title: 'Paid advertising (within human-set budget)', weight: 15, done: false },
+      {
+        title: 'Organic marketing on discovered channels',
+        weight: 20,
+        done: false,
+      },
+      {
+        title: 'Paid advertising (within human-set budget)',
+        weight: 15,
+        done: false,
+      },
     ],
     tasks: [
       {

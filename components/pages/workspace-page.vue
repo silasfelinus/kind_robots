@@ -33,11 +33,12 @@
     </div>
 
     <!-- Loading skeleton -->
-    <div v-if="pending && !data" class="flex shrink-0 gap-3">
+    <div v-if="pending && !data" class="hand-scroll flex shrink-0 items-end gap-3 overflow-x-auto pb-2 pt-4">
       <div
-        v-for="n in 4"
+        v-for="n in 5"
         :key="n"
-        class="h-40 flex-1 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+        class="project-card animate-pulse shrink-0 rounded-2xl border border-base-300 bg-base-200"
+        style="aspect-ratio: 2/3"
       />
     </div>
 
@@ -105,101 +106,132 @@
       </div>
     </Transition>
 
-    <!-- Main content area -->
-    <div v-if="data" class="flex min-h-0 flex-1 gap-4 overflow-hidden">
-      <!-- Projects grid -->
-      <div
-        class="min-w-0 overflow-y-auto"
-        :class="selectedProject ? 'hidden w-0 sm:block sm:w-80 sm:shrink-0' : 'flex-1'"
-      >
-        <div
-          class="grid gap-3 pb-4"
-          :class="selectedProject ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'"
+    <!-- Project card hand -->
+    <div v-if="data && data.projects.length" class="project-hand shrink-0">
+      <div class="hand-scroll flex items-end gap-3 overflow-x-auto pb-3 pt-6 px-2">
+        <button
+          v-for="(project, index) in data.projects"
+          :key="project.slug"
+          type="button"
+          class="project-card group relative shrink-0 cursor-pointer rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-3 hover:scale-110"
+          :class="[
+            selectedProject?.slug === project.slug
+              ? 'z-30 border-primary shadow-lg is-selected'
+              : 'z-10 border-base-300 hover:border-primary/60',
+            flippingSlug === project.slug ? 'is-flipping' : '',
+          ]"
+          @click="handleCardClick(project)"
         >
-          <article
-            v-for="project in data.projects"
-            :key="project.slug"
-            class="group cursor-pointer rounded-2xl border bg-base-200 p-4 transition-all hover:shadow-md"
-            :class="
-              selectedProject?.slug === project.slug
-                ? 'border-primary bg-primary/5'
-                : 'border-base-300 hover:border-base-content/20'
-            "
-            @click="toggleProject(project)"
-          >
-            <div class="mb-3 flex items-start gap-3">
-              <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border"
-                :class="kindIconClass(project.kind)"
-              >
-                <Icon :name="kindIcon(project.kind)" class="size-5" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <h3 class="truncate font-black leading-tight text-base-content">
-                  {{ project.name || project.slug }}
-                </h3>
-                <div class="mt-1 flex flex-wrap gap-1">
-                  <span class="badge badge-sm" :class="kindBadgeClass(project.kind)">
-                    {{ project.kind }}
-                  </span>
-                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-sm">
-                    {{ blockedCount(project) }} blocked
-                  </span>
-                  <span v-if="needsHumanCount(project) > 0" class="badge badge-accent badge-sm">
-                    {{ needsHumanCount(project) }} needs you
-                  </span>
+          <div class="card-flip relative w-full">
+            <!-- Card front -->
+            <div class="card-face card-front relative flex w-full flex-col overflow-hidden rounded-2xl shadow-md">
+              <div class="relative overflow-hidden" style="aspect-ratio: 2/3">
+                <img
+                  :src="cardBackSrc(index)"
+                  :alt="project.name"
+                  class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+
+                <!-- Kind-tinted gradient overlay -->
+                <div
+                  class="absolute inset-0 transition-opacity duration-300"
+                  :style="kindOverlay(project.kind)"
+                />
+
+                <!-- Large kind icon, centered -->
+                <div class="absolute inset-0 flex items-center justify-center pb-8">
+                  <Icon
+                    :name="kindIcon(project.kind)"
+                    class="transition-transform duration-300 group-hover:scale-125"
+                    :class="kindIconColorClass(project.kind)"
+                    style="width: 2.75rem; height: 2.75rem"
+                  />
                 </div>
+
+                <!-- Bottom overlay: progress + alert badges -->
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent px-2 pb-2 pt-6">
+                  <div class="mb-1.5 h-1.5 overflow-hidden rounded-full bg-white/20">
+                    <div
+                      class="h-full rounded-full transition-all duration-700"
+                      :class="kindProgressClass(project.kind)"
+                      :style="{ width: `${project.progress}%` }"
+                    />
+                  </div>
+                  <div class="flex flex-wrap gap-0.5">
+                    <span v-if="blockedCount(project) > 0" class="badge badge-error badge-xs">
+                      {{ blockedCount(project) }} ✗
+                    </span>
+                    <span v-if="needsHumanCount(project) > 0" class="badge badge-accent badge-xs">
+                      {{ needsHumanCount(project) }} 👤
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Selected indicator -->
+                <Transition name="pop">
+                  <div
+                    v-if="selectedProject?.slug === project.slug"
+                    class="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-primary shadow"
+                  >
+                    <Icon name="kind-icon:check" class="size-3 text-primary-content" />
+                  </div>
+                </Transition>
               </div>
-              <Icon
-                name="kind-icon:chevron-right"
-                class="size-4 shrink-0 text-base-content/30 transition-transform"
-                :class="selectedProject?.slug === project.slug ? 'rotate-90' : ''"
-              />
+
+              <!-- Card footer label -->
+              <div class="bg-base-100 px-2 py-1.5 rounded-b-2xl">
+                <p class="truncate text-center text-[0.6rem] font-black leading-none text-base-content/80" :title="project.name || project.slug">
+                  {{ project.name || project.slug }}
+                </p>
+                <p class="text-center text-[0.55rem] leading-none text-base-content/40 mt-0.5">
+                  {{ project.progress }}%
+                </p>
+              </div>
             </div>
 
-            <!-- Progress bar -->
-            <div class="mb-3">
-              <div class="mb-1 flex items-center justify-between text-xs">
-                <span class="font-semibold text-base-content/60">Progress</span>
-                <span class="font-bold text-base-content">{{ project.progress }}%</span>
-              </div>
-              <div class="h-2 overflow-hidden rounded-full bg-base-300">
-                <div
-                  class="h-full rounded-full bg-primary transition-all duration-500"
-                  :style="{ width: `${project.progress}%` }"
+            <!-- Card back (revealed during flip animation) -->
+            <div class="card-face card-back absolute inset-0 flex flex-col overflow-hidden rounded-2xl shadow-md">
+              <div class="relative min-h-0 flex-1 overflow-hidden">
+                <img
+                  :src="cardBackSrc(index)"
+                  :alt="`Card back`"
+                  class="h-full w-full object-cover"
                 />
               </div>
+              <div class="bg-base-100 px-2 py-1.5 rounded-b-2xl">
+                <p class="text-center text-[0.6rem] leading-none">&nbsp;</p>
+                <p class="text-center text-[0.55rem] leading-none mt-0.5">&nbsp;</p>
+              </div>
             </div>
+          </div>
 
-            <!-- Task status mini-chips -->
-            <div class="flex flex-wrap gap-1.5">
-              <span
-                v-for="[status, count] in taskStatusSummary(project)"
-                :key="status"
-                class="badge badge-sm gap-0.5"
-                :class="taskBadgeClass(status)"
-              >
-                {{ count }} {{ status }}
-              </span>
-            </div>
-          </article>
-        </div>
+          <!-- Sparkle + swirl FX layer -->
+          <div
+            v-if="flippingSlug === project.slug"
+            class="sparkle-layer pointer-events-none absolute inset-0 z-50 overflow-visible"
+            aria-hidden="true"
+          >
+            <span
+              v-for="n in 10"
+              :key="n"
+              class="sparkle"
+              :style="sparkleStyle(n)"
+            />
+            <span class="swirl swirl-a" />
+            <span class="swirl swirl-b" />
+          </div>
+        </button>
       </div>
+    </div>
 
-      <!-- Detail panel -->
+    <!-- Detail panel — slides in below the card hand -->
+    <Transition name="detail-slide">
       <div
         v-if="selectedProject"
-        class="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto"
+        class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto"
       >
-        <div class="flex shrink-0 items-center gap-2">
-          <button
-            class="btn btn-ghost btn-sm rounded-xl sm:hidden"
-            type="button"
-            @click="selectedProject = null"
-          >
-            <Icon name="kind-icon:arrow-left" class="size-4" />
-            Back
-          </button>
+        <!-- Detail header -->
+        <div class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3">
           <div
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border"
             :class="kindIconClass(selectedProject.kind)"
@@ -210,12 +242,15 @@
             <h3 class="truncate text-lg font-black">
               {{ selectedProject.name || selectedProject.slug }}
             </h3>
+            <p class="text-xs text-base-content/50">
+              {{ selectedProject.progress }}% complete · {{ selectedProject.tasks.length }} tasks
+            </p>
           </div>
           <span class="badge badge-sm shrink-0" :class="kindBadgeClass(selectedProject.kind)">
             {{ selectedProject.kind }}
           </span>
           <button
-            class="btn btn-ghost btn-sm hidden rounded-xl sm:flex"
+            class="btn btn-ghost btn-sm rounded-xl"
             type="button"
             @click="selectedProject = null"
           >
@@ -223,82 +258,96 @@
           </button>
         </div>
 
+        <!-- Task status summary chips -->
+        <div class="flex shrink-0 flex-wrap gap-2">
+          <span
+            v-for="[status, count] in taskStatusSummary(selectedProject)"
+            :key="status"
+            class="badge badge-sm gap-1"
+            :class="taskBadgeClass(status)"
+          >
+            <Icon :name="taskIcon(status)" class="size-3" />
+            {{ count }} {{ status }}
+          </span>
+        </div>
+
         <!-- Notes from Silas -->
         <div
           v-if="selectedProject.notesFromSilas"
           class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
         >
-          <p class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70">
-            Notes from Silas
-          </p>
+          <p class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70">Notes from Silas</p>
           {{ selectedProject.notesFromSilas }}
         </div>
 
-        <!-- Milestones -->
-        <div v-if="selectedProject.milestones.length" class="shrink-0">
-          <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
-            Milestones
-          </h4>
-          <div class="space-y-2">
-            <div
-              v-for="m in selectedProject.milestones"
-              :key="m.id"
-              class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-            >
+        <!-- Two-column: milestones + tasks -->
+        <div class="grid min-h-0 gap-4 pb-4 sm:grid-cols-2">
+          <!-- Milestones -->
+          <div v-if="selectedProject.milestones.length">
+            <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
+              Milestones
+            </h4>
+            <div class="space-y-2">
               <div
-                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
-                :class="milestoneIconClass(m.status)"
+                v-for="m in selectedProject.milestones"
+                :key="m.id"
+                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
               >
-                <Icon :name="milestoneIcon(m.status)" class="size-3.5" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-semibold">{{ m.title }}</p>
-                <p class="text-xs text-base-content/50">weight {{ m.weight }}</p>
-              </div>
-              <span class="badge badge-sm shrink-0" :class="milestoneBadgeClass(m.status)">
-                {{ m.status }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tasks -->
-        <div v-if="selectedProject.tasks.length">
-          <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
-            Tasks ({{ selectedProject.tasks.length }})
-          </h4>
-          <div class="space-y-2 pb-4">
-            <div
-              v-for="task in selectedProject.tasks"
-              :key="task.id"
-              class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-            >
-              <div class="flex items-start gap-3">
                 <div
-                  class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
-                  :class="taskIconClass(task.status)"
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
+                  :class="milestoneIconClass(m.status)"
                 >
-                  <Icon :name="taskIcon(task.status)" class="size-3" />
+                  <Icon :name="milestoneIcon(m.status)" class="size-3.5" />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-sm font-semibold leading-snug">{{ task.title }}</p>
-                  <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50">
-                    <span>{{ task.id }}</span>
-                    <span v-if="task.milestone">· {{ task.milestone }}</span>
-                    <span v-if="task.gateHuman" class="text-accent">· gate</span>
-                    <span v-if="task.owner">· {{ task.owner }}</span>
-                    <span v-if="task.passes > 0" class="text-warning">· pass {{ task.passes }}/3</span>
-                  </div>
+                  <p class="truncate text-sm font-semibold">{{ m.title }}</p>
+                  <p class="text-xs text-base-content/50">weight {{ m.weight }}</p>
                 </div>
-                <span class="badge badge-sm shrink-0" :class="taskBadgeClass(task.status)">
-                  {{ task.status }}
+                <span class="badge badge-sm shrink-0" :class="milestoneBadgeClass(m.status)">
+                  {{ m.status }}
                 </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasks -->
+          <div v-if="selectedProject.tasks.length">
+            <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
+              Tasks ({{ selectedProject.tasks.length }})
+            </h4>
+            <div class="space-y-2">
+              <div
+                v-for="task in selectedProject.tasks"
+                :key="task.id"
+                class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+              >
+                <div class="flex items-start gap-3">
+                  <div
+                    class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
+                    :class="taskIconClass(task.status)"
+                  >
+                    <Icon :name="taskIcon(task.status)" class="size-3" />
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold leading-snug">{{ task.title }}</p>
+                    <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50">
+                      <span>{{ task.id }}</span>
+                      <span v-if="task.milestone">· {{ task.milestone }}</span>
+                      <span v-if="task.gateHuman" class="text-accent">· gate</span>
+                      <span v-if="task.owner">· {{ task.owner }}</span>
+                      <span v-if="task.passes > 0" class="text-warning">· pass {{ task.passes }}/3</span>
+                    </div>
+                  </div>
+                  <span class="badge badge-sm shrink-0" :class="taskBadgeClass(task.status)">
+                    {{ task.status }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Transition>
 
     <!-- Empty state -->
     <div
@@ -314,7 +363,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import type { CSSProperties } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import type { ConductorProject, ConductorData } from '@/server/api/conductor/projects.get'
 
 withDefaults(
@@ -330,6 +380,44 @@ const { data, pending, error, refresh } = await useFetch<ConductorData>('/api/co
 
 const selectedProject = ref<ConductorProject | null>(null)
 const showPitches = ref(true)
+
+// Flip animation state
+const flippingSlug = ref('')
+const FLIP_DURATION_MS = 650
+let flipTimer: ReturnType<typeof setTimeout> | null = null
+
+onBeforeUnmount(() => {
+  if (flipTimer) clearTimeout(flipTimer)
+})
+
+function handleCardClick(project: ConductorProject) {
+  if (flipTimer) clearTimeout(flipTimer)
+
+  const isDeselect = selectedProject.value?.slug === project.slug
+  selectedProject.value = isDeselect ? null : project
+
+  flippingSlug.value = project.slug
+  flipTimer = setTimeout(() => {
+    flippingSlug.value = ''
+    flipTimer = null
+  }, FLIP_DURATION_MS)
+}
+
+function cardBackSrc(index: number): string {
+  return `/images/adventure/card/card-back${(index % 5) + 1}.webp`
+}
+
+function sparkleStyle(n: number): CSSProperties {
+  const angle = (n / 10) * Math.PI * 2
+  const radius = 28 + (n % 3) * 8
+  const x = 50 + Math.cos(angle) * radius
+  const y = 50 + Math.sin(angle) * radius
+  return {
+    left: `${x}%`,
+    top: `${y}%`,
+    animationDelay: `${(n % 5) * 40}ms`,
+  }
+}
 
 const fetchedLabel = computed(() => {
   if (!data.value?.fetchedAt) return ''
@@ -359,10 +447,6 @@ const totalNeedsHuman = computed(
     ) ?? 0,
 )
 
-function toggleProject(project: ConductorProject) {
-  selectedProject.value = selectedProject.value?.slug === project.slug ? null : project
-}
-
 function blockedCount(p: ConductorProject) {
   return p.tasks.filter((t) => t.status === 'blocked').length
 }
@@ -389,6 +473,34 @@ function kindIcon(kind: string) {
     : kind === 'proposal'
       ? 'kind-icon:sparkles'
       : 'kind-icon:document'
+}
+
+function kindOverlay(kind: string): CSSProperties {
+  const overlays: Record<string, string> = {
+    software:
+      'linear-gradient(160deg, rgba(168,85,247,0.25) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%)',
+    proposal:
+      'linear-gradient(160deg, rgba(14,165,233,0.25) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%)',
+    content:
+      'linear-gradient(160deg, rgba(236,72,153,0.25) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%)',
+  }
+  return { background: overlays[kind] ?? overlays['content']! }
+}
+
+function kindIconColorClass(kind: string) {
+  return kind === 'software'
+    ? 'kind-glow-primary'
+    : kind === 'proposal'
+      ? 'kind-glow-info'
+      : 'kind-glow-secondary'
+}
+
+function kindProgressClass(kind: string) {
+  return kind === 'software'
+    ? 'bg-primary'
+    : kind === 'proposal'
+      ? 'bg-info'
+      : 'bg-secondary'
 }
 
 function kindIconClass(kind: string) {
@@ -472,6 +584,155 @@ function milestoneBadgeClass(status: string) {
 </script>
 
 <style scoped>
+/* ── Card hand scroll strip ───────────────────────────── */
+.hand-scroll {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.hand-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Project card sizing ──────────────────────────────── */
+.project-card {
+  width: 120px;
+  perspective: 900px;
+}
+
+.is-selected {
+  box-shadow:
+    0 0 0 2px hsl(var(--p, 280 90% 60%)),
+    0 8px 24px hsl(var(--p, 280 90% 60%) / 0.35);
+}
+
+/* ── Kind icon glows ──────────────────────────────────── */
+.kind-glow-primary {
+  color: hsl(var(--p, 280 90% 70%));
+  filter: drop-shadow(0 0 10px hsl(var(--p, 280 90% 70%) / 0.9));
+}
+.kind-glow-secondary {
+  color: hsl(var(--s, 316 70% 60%));
+  filter: drop-shadow(0 0 10px hsl(var(--s, 316 70% 60%) / 0.9));
+}
+.kind-glow-info {
+  color: hsl(var(--in, 198 93% 60%));
+  filter: drop-shadow(0 0 10px hsl(var(--in, 198 93% 60%) / 0.9));
+}
+
+/* ── 3-D flip mechanics (ported from workspace-hand) ─── */
+.card-flip {
+  transform-style: preserve-3d;
+  transition: transform 0s;
+}
+
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.is-flipping .card-flip {
+  animation: card-spin 650ms cubic-bezier(0.4, 0.1, 0.2, 1);
+}
+
+@keyframes card-spin {
+  0% {
+    transform: rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: rotateY(180deg) scale(1.08);
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+  }
+}
+
+/* ── Sparkles ────────────────────────────────────────── */
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, hsl(var(--p, 280 90% 70%)) 0%, transparent 70%);
+  box-shadow:
+    0 0 6px 2px hsl(var(--p, 280 90% 70%) / 0.8),
+    0 0 12px 4px hsl(var(--s, 200 90% 70%) / 0.5);
+  opacity: 0;
+  animation: sparkle-pop 650ms ease-out forwards;
+}
+
+@keyframes sparkle-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(0deg);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.4) rotate(90deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(180deg);
+  }
+}
+
+/* ── Swirl rings ─────────────────────────────────────── */
+.swirl {
+  position: absolute;
+  inset: 8%;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  opacity: 0;
+}
+
+.swirl-a {
+  border-top-color: hsl(var(--p, 280 90% 70%) / 0.9);
+  border-right-color: hsl(var(--s, 200 90% 70%) / 0.6);
+  animation: swirl-spin 650ms ease-out forwards;
+}
+
+.swirl-b {
+  inset: 20%;
+  border-bottom-color: hsl(var(--a, 320 90% 70%) / 0.9);
+  border-left-color: hsl(var(--p, 280 90% 70%) / 0.6);
+  animation: swirl-spin-rev 650ms ease-out forwards;
+}
+
+@keyframes swirl-spin {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.6);
+  }
+  40% {
+    opacity: 1;
+    transform: rotate(220deg) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(420deg) scale(1.3);
+  }
+}
+
+@keyframes swirl-spin-rev {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.6);
+  }
+  40% {
+    opacity: 1;
+    transform: rotate(-220deg) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-420deg) scale(1.25);
+  }
+}
+
+/* ── Transitions ─────────────────────────────────────── */
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: opacity 0.2s ease, max-height 0.25s ease;
@@ -482,5 +743,41 @@ function milestoneBadgeClass(status: string) {
 .slide-down-leave-to {
   opacity: 0;
   max-height: 0;
+}
+
+.detail-slide-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+}
+.detail-slide-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.detail-slide-enter-from,
+.detail-slide-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.pop-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0, 0.2, 1.4);
+}
+.pop-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+/* ── Reduced motion ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .is-flipping .card-flip {
+    animation: none;
+  }
+  .sparkle,
+  .swirl {
+    animation: none;
+    opacity: 0;
+  }
 }
 </style>

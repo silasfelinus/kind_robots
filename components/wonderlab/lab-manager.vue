@@ -59,6 +59,16 @@
       />
     </section>
 
+    <section
+      v-else-if="activeTab === 'workspace'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <workspace-page
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        :show-header="false"
+      />
+    </section>
+
     <div
       v-else
       class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
@@ -72,28 +82,35 @@
 import { computed, onMounted, ref } from 'vue'
 import { useComponentStore } from '@/stores/componentStore'
 import { useNavStore } from '@/stores/navStore'
+import { useUserStore } from '@/stores/userStore'
 
 import LabInteract from '@/components/wonderlab/lab-interact.vue'
 import MemoryDungeon from '@/components/pages/memory-dungeon.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
 
-type LabTab = 'memory-dungeon' | 'wonder-lab' | 'screen-fx'
+type LabTab = 'memory-dungeon' | 'wonder-lab' | 'screen-fx' | 'workspace'
 
 const dashboardKey = 'wonder' as const
 const fallbackTab: LabTab = 'memory-dungeon'
 
-const validTabs: LabTab[] = ['memory-dungeon', 'wonder-lab', 'screen-fx']
+// 'workspace' is admin-only; non-admins fall back even if the tab is selected.
+const baseTabs: LabTab[] = ['memory-dungeon', 'wonder-lab', 'screen-fx']
 
 const navStore = useNavStore()
 const componentStore = useComponentStore()
+const userStore = useUserStore()
 
 const isLoading = ref(false)
 const managerError = ref<string | null>(null)
 
+const validTabs = computed<LabTab[]>(() =>
+  userStore.isAdmin ? [...baseTabs, 'workspace'] : baseTabs,
+)
+
 const activeTab = computed<LabTab>(() => {
   const selectedTab = navStore.getDashboardTab(dashboardKey)
 
-  if (validTabs.includes(selectedTab as LabTab)) {
+  if (validTabs.value.includes(selectedTab as LabTab)) {
     return selectedTab as LabTab
   }
 

@@ -8,6 +8,13 @@ import { useSheetStore } from '@/stores/sheetStore'
 
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
 export type WorkspaceCardsInput = string | BuilderCard[]
+export type PageNarratorKind = 'bot' | 'character'
+export type PageNarratorRef =
+  | string
+  | {
+      type?: PageNarratorKind
+      slug: string
+    }
 
 export type WorkspacePage = ContentCollectionItem & {
   cards?: WorkspaceCardsInput
@@ -20,6 +27,7 @@ export type WorkspacePage = ContentCollectionItem & {
   tooltip?: string
   dottitip?: string
   amitip?: string
+  narrator?: PageNarratorRef
   artPrompt?: string
   sort?: string | number
   icon?: string
@@ -53,6 +61,28 @@ function getString(value: unknown): string {
 
 function getCardsKey(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function getNarratorRef(value: unknown): PageNarratorRef | null {
+  if (typeof value === 'string') {
+    const slug = value.trim()
+    return slug ? slug : null
+  }
+
+  if (!value || typeof value !== 'object') return null
+
+  const record = value as {
+    type?: unknown
+    slug?: unknown
+  }
+
+  const slug = getString(record.slug)
+  if (!slug) return null
+
+  return {
+    type: record.type === 'character' ? 'character' : 'bot',
+    slug,
+  }
 }
 
 export const usePageStore = defineStore('pageStore', () => {
@@ -91,6 +121,7 @@ export const usePageStore = defineStore('pageStore', () => {
     tooltip: getString(currentPage.value?.tooltip),
     dottitip: getString(currentPage.value?.dottitip),
     amitip: getString(currentPage.value?.amitip),
+    narrator: getNarratorRef(currentPage.value?.narrator),
     artPrompt: getString(currentPage.value?.artPrompt),
     sort: currentPage.value?.sort ?? '',
     dashboardKey: getString(currentPage.value?.dashboardKey),
@@ -196,6 +227,7 @@ export const usePageStore = defineStore('pageStore', () => {
     tooltip: computed(() => meta.value.tooltip),
     dottitip: computed(() => meta.value.dottitip),
     amitip: computed(() => meta.value.amitip),
+    narrator: computed(() => meta.value.narrator),
     artPrompt: computed(() => meta.value.artPrompt),
     sort: computed(() => meta.value.sort),
     dashboardKey: computed(() => meta.value.dashboardKey),

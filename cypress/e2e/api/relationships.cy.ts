@@ -346,13 +346,13 @@ const cleanupCreatedFixtures = () => {
       const headers = key === 'butterfly' ? adminHeaders() : authHeaders()
 
       deleteRecord(key, recordId, headers).then((response) => {
-        if (response.status !== 404) {
-          expect(
-            [200, 202, 204, 401, 403, 404],
-            `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
-          ).to.include(response.status)
+        expect(
+          [200, 202, 204, 401, 403, 404],
+          `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
+        ).to.include(response.status)
 
-          // Cleanup status is asserted above; body.success is ignored for tolerated teardown responses.
+        // Cleanup is best-effort. Some endpoints return success:false for
+        // already-gone, unauthorized, or ownership-blocked teardown attempts.
         created[key] = (created[key] || []).filter((id) => id !== recordId)
       })
     })

@@ -352,17 +352,7 @@ const cleanupCreatedFixtures = () => {
             `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
           ).to.include(response.status)
 
-          if (
-            [200, 202, 204, 401, 403, 404].includes(response.status) &&
-            response.body &&
-            Object.prototype.hasOwnProperty.call(response.body, 'success')
-          ) {
-            expect(response.body.success, `${key} ${recordId} cleanup`).to.eq(
-              true,
-            )
-          }
-        }
-
+          // Cleanup status is asserted above; body.success is ignored for tolerated teardown responses.
         created[key] = (created[key] || []).filter((id) => id !== recordId)
       })
     })

@@ -240,11 +240,8 @@ describe('Friendship / UserRelation API Tests', () => {
     cy.env(['API_BASE', 'ADMIN_TOKEN', 'RELATED_USER_ID']).then(
       (env) => {
         apiBase = String(env.API_BASE || fallbackApiBase)
-        adminToken = String(env.ADMIN_TOKEN || adminToken || '')
-expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
-          .empty
-
-        if (env.RELATED_USER_ID) relatedUserId = Number(env.RELATED_USER_ID)
+        adminToken = String(adminToken || '')
+expect(adminToken, 'second seed user token').to.be.a('string').and.not.be.empty
       },
     )
 

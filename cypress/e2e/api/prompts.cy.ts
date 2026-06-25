@@ -3,14 +3,6 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 
 describe('Prompt Management API Tests', () => {
 
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    return createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
   const baseUrl = 'https://kind-robots.vercel.app/api/prompts'
   const invalidToken = 'someInvalidTokenValue'
   const uniquePrompt = `devil bunny ${Date.now()}`
@@ -20,8 +12,8 @@ describe('Prompt Management API Tests', () => {
   let promptId: number | undefined
   before(() => {
     return createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    userId = auth.id
+      userToken = auth.token
+      userId = auth.id
     })
   })
 

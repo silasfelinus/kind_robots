@@ -2,6 +2,14 @@
 import { defineCollection, defineContentConfig } from '@nuxt/content'
 import * as z from 'zod'
 
+const narratorSchema = z.union([
+  z.string(),
+  z.object({
+    type: z.enum(['bot', 'character']).optional(),
+    slug: z.string(),
+  }),
+])
+
 const contentSchema = z.object({
   title: z.string().optional(),
   room: z.string().optional(),
@@ -12,6 +20,7 @@ const contentSchema = z.object({
   tooltip: z.string().optional(),
   dottitip: z.string().optional(),
   amitip: z.string().optional(),
+  narrator: narratorSchema.optional(),
   artPrompt: z.string().optional(),
   summary: z.string().optional(),
   sort: z.string().optional(),
@@ -65,6 +74,13 @@ export type ContentType = z.infer<typeof contentSchema> & {
   }
 }
 
+export type PageNarratorRef =
+  | string
+  | {
+      type?: 'bot' | 'character'
+      slug: string
+    }
+
 export type PageBrief = {
   title: string
   room: string
@@ -75,6 +91,7 @@ export type PageBrief = {
   tooltip: string
   dottitip: string
   amitip: string
+  narrator?: PageNarratorRef
   artPrompt: string
   dashboardKey?: string
   summary?: string

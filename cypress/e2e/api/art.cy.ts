@@ -349,6 +349,7 @@ describe('ArtImage Management API Tests', () => {
       url: `${artImageUrl}/${fixtureArtImageId}`,
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
         Authorization: `Bearer ${userToken}`,
       },
       failOnStatusCode: false,

@@ -88,13 +88,21 @@
               </div>
 
               <div class="min-w-0 flex-1">
-                <h3
-                  class="truncate font-black leading-tight text-base-content"
-                >
-                  {{ project.label }}
-                </h3>
+                <div class="flex items-center gap-1.5">
+                  <h3
+                    class="truncate font-black leading-tight text-base-content"
+                  >
+                    {{ project.label }}
+                  </h3>
+                  <span
+                    class="badge badge-xs shrink-0"
+                    :class="kindBadgeClass(project.kind)"
+                  >
+                    {{ project.kind }}
+                  </span>
+                </div>
                 <p class="truncate text-xs text-base-content/50">
-                  {{ project.repo }}
+                  {{ project.repo ?? '(no repo)' }}
                 </p>
               </div>
 
@@ -173,9 +181,22 @@
               >
                 <Icon :name="selectedProject.icon" class="size-5" />
               </div>
-              <h3 class="text-lg font-black text-base-content">
-                {{ selectedProject.label }}
-              </h3>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-black text-base-content">
+                    {{ selectedProject.label }}
+                  </h3>
+                  <span
+                    class="badge badge-sm shrink-0"
+                    :class="kindBadgeClass(selectedProject.kind)"
+                  >
+                    {{ selectedProject.kind }}
+                  </span>
+                </div>
+                <p v-if="selectedProject.repo" class="text-xs text-base-content/40">
+                  {{ selectedProject.repo }}
+                </p>
+              </div>
             </div>
 
             <button
@@ -192,7 +213,7 @@
           </p>
 
           <!-- Milestones -->
-          <div class="space-y-3">
+          <div v-if="selectedProject.milestones.length" class="space-y-3">
             <h4
               class="text-xs font-bold uppercase tracking-widest text-base-content/50"
             >
@@ -237,7 +258,7 @@
           </div>
 
           <!-- Tasks -->
-          <div class="space-y-3">
+          <div v-if="selectedProject.tasks.length" class="space-y-3">
             <h4
               class="text-xs font-bold uppercase tracking-widest text-base-content/50"
             >
@@ -327,6 +348,8 @@ type TaskStatus =
   | 'needs-human'
   | 'blocked'
 
+type ProjectKind = 'software' | 'content' | 'proposal'
+
 interface Task {
   title: string
   status: TaskStatus
@@ -347,7 +370,8 @@ interface Pitch {
 interface Project {
   slug: string
   label: string
-  repo: string
+  repo: string | null
+  kind: ProjectKind
   description: string
   icon: string
   progress: number
@@ -393,6 +417,15 @@ function statusBadgeClass(status: TaskStatus): string {
   return map[status] ?? 'badge-ghost'
 }
 
+function kindBadgeClass(kind: ProjectKind): string {
+  const map: Record<ProjectKind, string> = {
+    software: 'badge-primary',
+    content: 'badge-accent',
+    proposal: 'badge-ghost',
+  }
+  return map[kind] ?? 'badge-ghost'
+}
+
 function taskIcon(status: TaskStatus): string {
   const map: Record<TaskStatus, string> = {
     done: 'kind-icon:check',
@@ -433,9 +466,10 @@ function computeProgress(milestones: Milestone[], tasks: Task[]): number {
   const done = tasks.filter((t) => t.status === 'done').length
   const total = tasks.length
   if (!total) {
-    const doneMilestones = milestones.filter((m) => m.done)
     const totalWeight = milestones.reduce((s, m) => s + m.weight, 0)
-    const doneWeight = doneMilestones.reduce((s, m) => s + m.weight, 0)
+    const doneWeight = milestones
+      .filter((m) => m.done)
+      .reduce((s, m) => s + m.weight, 0)
     return totalWeight ? Math.round((doneWeight / totalWeight) * 100) : 0
   }
   return Math.round((done / total) * 100)
@@ -443,54 +477,74 @@ function computeProgress(milestones: Milestone[], tasks: Task[]): number {
 
 const rawProjects: Omit<Project, 'statusCounts' | 'progress'>[] = [
   {
+    slug: 'conductor',
+    label: 'Conductor',
+    repo: 'silasfelinus/conductor',
+    kind: 'software',
+    description:
+      'The autonomous multi-agent coordination system that orchestrates all projects, manages the worker/reviewer loop, and maintains roadmaps and pitches.',
+    icon: 'kind-icon:gearhammer',
+    milestones: [],
+    tasks: [],
+    pitches: [
+      {
+        title: 'Add a CI build/lint gate for software projects',
+        summary:
+          'A lightweight GitHub Actions CI check (lint + build) on every worker/* PR, giving the Reviewer an objective green-checks signal rather than judging by eye — and making branch protection actually meaningful.',
+      },
+      {
+        title: 'Per-cycle cost + run-budget guard for AI_Networker',
+        summary:
+          'A check the Worker runs each cycle tracking daily agent runs/PRs and pauses new work if the daily budget is hit — protecting against the Pro-tier 5-routine/day limit and runaway API spend.',
+      },
+    ],
+  },
+  {
     slug: 'kind-robots',
     label: 'Kind Robots',
     repo: 'silasfelinus/kind_robots',
+    kind: 'software',
     description:
-      'The main Kind Robots platform — Nuxt 3 app with AI bots, art generation, stories, and the Butterfly Sanctuary.',
+      'The main Kind Robots Nuxt 4 platform. Agents consume the shared backend as read-only — build app-owned logic in this project, do not reimplement or modify shared backend concerns.',
     icon: 'kind-icon:robot-color',
     milestones: [
-      { title: 'Core platform launch', weight: 30, done: true },
-      { title: 'Workspace tab integration', weight: 20, done: false },
-      { title: 'Conductor front-end', weight: 25, done: false },
-      { title: 'Live GitHub data feed', weight: 25, done: false },
-    ],
-    tasks: [
-      { title: 'Admin role gate (userStore.isAdmin)', status: 'done' },
-      { title: 'dashboardHelper workspace tab', status: 'done' },
-      { title: 'lab-manager workspace section', status: 'done' },
-      { title: 'workspace-page component', status: 'claimed' },
-      { title: 'Wire dashboardKey to wonder', status: 'review' },
-      { title: 'Live Conductor API composable', status: 'ready' },
-    ],
-    pitches: [
       {
-        title: 'Live GitHub API feed',
-        summary:
-          'Pull project/task state directly from Conductor via GitHub REST API on page load with a 5-minute TTL cache on the server route.',
+        title: 'App scope + boundary defined (app-owned vs shared backend)',
+        weight: 100,
+        done: false,
       },
     ],
+    tasks: [
+      {
+        title: 'Draft the app/backend boundary doc for Silas to approve',
+        status: 'ready',
+      },
+    ],
+    pitches: [],
   },
   {
     slug: 'humboldt-scoop',
     label: 'Humboldt Scoop',
     repo: 'silasfelinus/humboldt-scoop',
+    kind: 'software',
     description:
-      'Local news aggregator and publisher for Humboldt County. Pulls feeds, formats stories, and queues for editorial review.',
+      'Existing Humboldt Scoop site — the first real test of the agent loop. Do NOT deploy or touch DNS unattended.',
     icon: 'kind-icon:chat',
     milestones: [
-      { title: 'Feed ingestion', weight: 40, done: true },
-      { title: 'Editorial queue', weight: 35, done: false },
-      { title: 'Publishing pipeline', weight: 25, done: false },
+      { title: 'Loop proven end-to-end on this repo', weight: 10, done: false },
+      { title: 'Existing site imported + building cleanly', weight: 20, done: false },
+      { title: 'Content + copy refresh', weight: 25, done: false },
+      { title: 'Contact / quote-request flow', weight: 25, done: false },
+      { title: 'SEO + analytics', weight: 20, done: false },
     ],
     tasks: [
-      { title: 'RSS feed parser', status: 'done' },
-      { title: 'Article deduplication', status: 'done' },
-      { title: 'Editor review UI', status: 'waiting' },
       {
-        title: 'Publish to CMS',
-        status: 'blocked',
-        dependsOn: 'humboldt-poop-scoop-cms',
+        title: 'Confirm the loop: trivial no-op PR through the full cycle',
+        status: 'ready',
+      },
+      {
+        title: 'Audit the imported site and report build/run steps',
+        status: 'ready',
       },
     ],
     pitches: [],
@@ -499,44 +553,89 @@ const rawProjects: Omit<Project, 'statusCounts' | 'progress'>[] = [
     slug: 'humboldt-poop-scoop-cms',
     label: 'Poop Scoop CMS',
     repo: 'silasfelinus/humboldt-poop-scoop-cms',
+    kind: 'software',
     description:
-      'Headless CMS backing Humboldt Scoop. Manages articles, authors, tags, and publishing schedules.',
+      'New customer-management software for the poop-scoop service: customers, pets/yards, service schedules, visit logs, billing. Build with seed/dummy data only until Silas says otherwise.',
     icon: 'kind-icon:blueprint',
     milestones: [
-      { title: 'Schema design', weight: 30, done: true },
-      { title: 'API layer', weight: 40, done: false },
-      { title: 'Admin panel', weight: 30, done: false },
+      { title: 'Stack chosen + skeleton app runs locally', weight: 15, done: false },
+      { title: 'Customer + property data model', weight: 20, done: false },
+      { title: 'Recurring service scheduling', weight: 25, done: false },
+      { title: 'Visit logging + history', weight: 20, done: false },
+      { title: 'Invoicing (draft-only, no live payments)', weight: 20, done: false },
     ],
     tasks: [
-      { title: 'Prisma schema', status: 'done' },
-      { title: 'Article CRUD API', status: 'claimed' },
-      { title: 'Author management', status: 'ready' },
-      { title: 'Staging deploy', status: 'needs-human' },
-    ],
-    pitches: [
       {
-        title: 'Sanity.io migration',
-        summary:
-          'Evaluate moving to Sanity for the CMS layer instead of custom Prisma-backed API to reduce maintenance surface.',
+        title: 'Propose a stack + scaffold a running skeleton',
+        status: 'ready',
+      },
+      {
+        title: 'Design the customer + property schema',
+        status: 'ready',
       },
     ],
+    pitches: [],
   },
   {
     slug: 'approval-portal',
     label: 'Approval Portal',
     repo: 'silasfelinus/approval-portal',
+    kind: 'software',
     description:
-      'Internal tool for routing AI-generated content through human approval before publication.',
+      'The portal Silas lives in: review projects, pick from pitches, validate/reject upgrade plans, confirm updates, and roll back. Repo stays source of truth — portal reads roadmaps and writes decisions back as commits/PRs.',
     icon: 'kind-icon:check',
     milestones: [
-      { title: 'Review queue UI', weight: 50, done: false },
-      { title: 'Webhook integration', weight: 50, done: false },
+      {
+        title: 'Read-only dashboard: projects, progress %, tasks, pitches',
+        weight: 25,
+        done: false,
+      },
+      {
+        title: 'Pitch voting: approve/reject writes back to the repo',
+        weight: 25,
+        done: false,
+      },
+      {
+        title: 'Update confirmation: see open PRs, approve-merge or reject',
+        weight: 20,
+        done: false,
+      },
+      {
+        title: 'Rollback: one-click revert of a merged change',
+        weight: 15,
+        done: false,
+      },
+      {
+        title: 'Login + deploy (gated for Silas to approve going live)',
+        weight: 15,
+        done: false,
+      },
     ],
     tasks: [
-      { title: 'Queue dashboard', status: 'ready' },
-      { title: 'Approve/reject actions', status: 'waiting' },
-      { title: 'Slack webhook notify', status: 'waiting' },
-      { title: 'Auth guard', status: 'needs-human' },
+      {
+        title: 'Spec the portal: data sources, screens, and repo-write strategy',
+        status: 'ready',
+      },
+      {
+        title: 'Build read-only dashboard from repo data',
+        status: 'waiting',
+        dependsOn: 'portal spec (t-001)',
+      },
+      {
+        title: 'Pitch voting that writes approve/reject back to the repo',
+        status: 'waiting',
+        dependsOn: 'dashboard (t-002)',
+      },
+      {
+        title: 'One-click rollback via git revert',
+        status: 'waiting',
+        dependsOn: 'pitch voting (t-003)',
+      },
+      {
+        title: 'Plan auth + deploy (do NOT deploy)',
+        status: 'waiting',
+        dependsOn: 'rollback (t-004)',
+      },
     ],
     pitches: [],
   },
@@ -544,88 +643,119 @@ const rawProjects: Omit<Project, 'statusCounts' | 'progress'>[] = [
     slug: 'digital-storefront',
     label: 'Digital Storefront',
     repo: 'silasfelinus/digital-storefront',
+    kind: 'content',
     description:
-      'E-commerce frontend for Butterfly Sanctuary merch, prints, and digital products.',
+      'Content pipeline: research stores → brainstorm concepts → create drafts → market → advertise. Only build within product-types.yaml. Never publish a listing, post marketing, or spend ad money unattended.',
     icon: 'kind-icon:gift',
     milestones: [
-      { title: 'Product catalog', weight: 40, done: false },
-      { title: 'Checkout flow', weight: 60, done: false },
+      { title: 'Store/platform landscape researched', weight: 20, done: false },
+      {
+        title: 'Content concepts brainstormed (per approved product type)',
+        weight: 20,
+        done: false,
+      },
+      { title: 'First products created (drafts)', weight: 25, done: false },
+      { title: 'Organic marketing on discovered channels', weight: 20, done: false },
+      { title: 'Paid advertising (within human-set budget)', weight: 15, done: false },
     ],
     tasks: [
-      { title: 'Product listing component', status: 'ready' },
-      { title: 'Cart store', status: 'waiting' },
-      { title: 'Stripe integration', status: 'needs-human' },
-      { title: 'Order confirmation emails', status: 'waiting' },
+      {
+        title: 'Research candidate stores/platforms and recommend a shortlist',
+        status: 'ready',
+      },
+      {
+        title: 'Brainstorm content concepts for the chosen stores',
+        status: 'waiting',
+        dependsOn: 'store research (t-001)',
+      },
+      {
+        title: 'Create first product drafts from approved concepts',
+        status: 'waiting',
+        dependsOn: 'concepts (t-002)',
+      },
+      {
+        title: 'Identify organic marketing channels for the products',
+        status: 'waiting',
+        dependsOn: 'product drafts (t-003)',
+      },
+      {
+        title: 'Draft paid-ad plans for human-budgeted channels',
+        status: 'waiting',
+        dependsOn: 'organic channels (t-004)',
+      },
     ],
     pitches: [
       {
-        title: 'Gumroad as payment backend',
+        title: '“Acts of Kindness” coloring book (PDF + POD)',
         summary:
-          'Use Gumroad instead of raw Stripe to reduce PCI scope and get to launch faster.',
+          'Each page illustrates a small act of kindness with a one-line prompt to do it this week. Uses two already-approved product types (pdf-coloring, pod-text-art), reinforces the brand social-good angle, and works as a first testable storefront product.',
       },
     ],
   },
   {
     slug: 'brainstorm',
     label: 'Brainstorm',
-    repo: 'silasfelinus/brainstorm',
+    repo: null,
+    kind: 'proposal',
     description:
-      'Standalone pitch-generation and brainstorming tool powered by LLM riffing and collaborative voting.',
+      'Generates ideas for Silas to vote on. Quality over quantity — a few strong, specific, buildable pitches beat a pile of vague ones. Max 3 new pitches per cycle; respects CONTROL.md genre guidance.',
     icon: 'kind-icon:brain',
     milestones: [
-      { title: 'Pitch generator', weight: 50, done: true },
-      { title: 'Voting system', weight: 50, done: false },
+      {
+        title: 'Idea engine running and producing votable pitches',
+        weight: 0,
+        done: false,
+      },
     ],
     tasks: [
-      { title: 'LLM pitch riff endpoint', status: 'done' },
-      { title: 'Thumbs up/down voting', status: 'claimed' },
-      { title: 'Export to Conductor pitches/', status: 'ready' },
+      {
+        title: 'Generate this cycle pitches (recurring)',
+        status: 'ready',
+      },
     ],
     pitches: [],
   },
   {
     slug: 'mermaids-of-venice',
     label: 'Mermaids of Venice',
-    repo: 'silasfelinus/mermaids-of-venice',
+    repo: null,
+    kind: 'content',
     description:
-      'Interactive story set in near-future Venice with mermaid protagonists and canal mysteries.',
+      'A creative content project. Direction TBD — Silas will fill in the roadmap before the first cycle runs on this project.',
     icon: 'kind-icon:moon',
     milestones: [
-      { title: 'World building', weight: 30, done: true },
-      { title: 'Chapter one', weight: 40, done: false },
-      { title: 'Art direction', weight: 30, done: false },
+      { title: 'Define concept and scope', weight: 10, done: false },
+      { title: 'First content draft', weight: 30, done: false },
+      { title: 'Silas review and approval', weight: 10, done: false },
     ],
     tasks: [
-      { title: 'Setting document', status: 'done' },
-      { title: 'Character sheets', status: 'done' },
-      { title: 'Chapter 1 prose draft', status: 'claimed' },
-      { title: 'Canal map art', status: 'waiting' },
+      {
+        title: 'Draft concept brief for Silas to review',
+        status: 'needs-human',
+      },
     ],
     pitches: [],
   },
   {
     slug: 'coat-dance',
     label: 'Coat Dance',
-    repo: 'silasfelinus/coat-dance',
+    repo: null,
+    kind: 'content',
     description:
-      'Generative art project exploring kinetic coat forms and dance notation as visual language.',
+      'A creative content project. Direction TBD — Silas will fill in the roadmap before the first cycle runs on this project.',
     icon: 'kind-icon:palette',
     milestones: [
-      { title: 'Visual system', weight: 60, done: false },
-      { title: 'Interactive demo', weight: 40, done: false },
+      { title: 'Define concept and scope', weight: 10, done: false },
+      { title: 'First content draft', weight: 30, done: false },
+      { title: 'Silas review and approval', weight: 10, done: false },
     ],
     tasks: [
-      { title: 'Coat silhouette generator', status: 'waiting' },
-      { title: 'Motion path renderer', status: 'waiting' },
-      { title: 'Export to SVG', status: 'waiting' },
-    ],
-    pitches: [
       {
-        title: 'Dance notation DSL',
-        summary:
-          'Design a mini DSL for encoding movement sequences that drives the coat animation system.',
+        title: 'Draft concept brief for Silas to review',
+        status: 'needs-human',
       },
     ],
+    pitches: [],
   },
 ]
 

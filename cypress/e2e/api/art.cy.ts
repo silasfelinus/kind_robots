@@ -37,7 +37,7 @@ describe('ArtImage Management API Tests', () => {
 
       expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
       expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
-            expect(lolaTestServerId, 'LOLA_TEST_SERVER_ID').to.be.a('number')
+      expect(lolaTestServerId, 'LOLA_TEST_SERVER_ID').to.be.a('number')
     })
 
     cy.then(() => {
@@ -103,16 +103,6 @@ describe('ArtImage Management API Tests', () => {
       })
     }
   })
-  before(() => {
-    return createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-      userId = auth.id
-    })
-  })
-
-
-
-
 
   it('should not allow generating an ArtImage without a bearer token', () => {
     cy.request({

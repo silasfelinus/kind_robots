@@ -29,6 +29,12 @@ export type DashboardTabConfig = {
   modelType?: string
   route: string
   requiredBeforeNext?: string[]
+  /**
+   * Optional role gate. When set, the tab is only shown to users whose Role
+   * matches. Tabs without this field are visible to everyone (current behavior).
+   * Use with filterTabsByRole / getVisibleDashboardTabs below.
+   */
+  requiredRole?: 'ADMIN'
 }
 
 export type DashboardConfig = {
@@ -893,6 +899,20 @@ export const dashboardConfigs = {
           'Control the screen-effect layer, including matrix rain, firefly drift, butterflies, and ambient theater.',
         route: '/screenfx',
       },
+      {
+        key: 'workspace',
+        label: 'Workspace',
+        icon: 'kind-icon:gearhammer',
+        title: 'Conductor Workspace',
+        summary: 'Private control panel for the Conductor agent network.',
+        image: tabImage('wonder', 'workspace'),
+        flourish: '⚙',
+        tagline: 'Steer the agents, vote on pitches, see what needs you.',
+        narrative:
+          'The private cockpit for the Conductor loop: project progress, pitches awaiting your vote, and what needs a human. Admin only.',
+        route: '/wonderlab',
+        requiredRole: 'ADMIN',
+      },
     ],
   },
 } as const satisfies Record<string, DashboardConfig>
@@ -936,6 +956,26 @@ export function getDashboardConfig(key: DashboardKey): DashboardConfig {
 
 export function getDashboardTabs(key: DashboardKey): DashboardTabConfig[] {
   return dashboardConfigs[key].tabs
+}
+
+/**
+ * Filter a tab list by the viewer's role. Tabs with no `requiredRole` are always
+ * kept; tabs that require a role are kept only when it matches. Pass
+ * `userStore.role.value` (or any role string) as the second arg.
+ */
+export function filterTabsByRole(
+  tabs: DashboardTabConfig[],
+  role: string | null | undefined,
+): DashboardTabConfig[] {
+  return tabs.filter((tab) => !tab.requiredRole || tab.requiredRole === role)
+}
+
+/** Role-aware version of getDashboardTabs. */
+export function getVisibleDashboardTabs(
+  key: DashboardKey,
+  role: string | null | undefined,
+): DashboardTabConfig[] {
+  return filterTabsByRole(dashboardConfigs[key].tabs, role)
 }
 
 export function getDashboardDefaultTab(key: DashboardKey): string {

@@ -266,24 +266,6 @@ export const ProjectStatus = {
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
 
 
-export const TodoStatus = {
-  OPEN: 'OPEN',
-  DONE: 'DONE',
-  ARCHIVED: 'ARCHIVED'
-} as const
-
-export type TodoStatus = (typeof TodoStatus)[keyof typeof TodoStatus]
-
-
-export const TodoPriority = {
-  LOW: 'LOW',
-  NORMAL: 'NORMAL',
-  HIGH: 'HIGH'
-} as const
-
-export type TodoPriority = (typeof TodoPriority)[keyof typeof TodoPriority]
-
-
 export const Reaction_reactionCategory = {
   ART_IMAGE: 'ART_IMAGE',
   ART_COLLECTION: 'ART_COLLECTION',

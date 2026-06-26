@@ -396,6 +396,13 @@ model Dream {
   examples        String?         @db.LongText
   artPrompt       String?         @db.Text
   imagePath       String?         @db.Text
+  cardPath        String?         @db.Text
+  heroPath        String?         @db.Text
+  // ── Project-specific (dreamType = PROJECT) ────────────────────────────────
+  projectStatus   ProjectStatus?
+  repoUrl         String?         @db.VarChar(512)
+  liveUrl         String?         @db.VarChar(512)
+  allowReviews    Boolean         @default(false)
   highlightImage  String?         @db.VarChar(256)
   icon            String?
   designer        String?         @db.VarChar(256)
@@ -437,6 +444,7 @@ model Dream {
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
+  @@index([projectStatus])
 
 
 }
@@ -1360,11 +1368,19 @@ enum DreamType {
   PROMPTBOT
   NARRATOR
   CHARACTER
+  PROJECT
   REWARD
   SCENARIO
   LOCATION
   PITCH
   GENRE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  DONE
+  ARCHIVED
 }
 
 enum Reaction_reactionCategory {

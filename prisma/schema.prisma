@@ -138,46 +138,6 @@ model Bot {
   @@index([artImageId], map: "Bot_artImageId_fkey")
 }
 
-/// Butterfly is the source of truth for each collectible species.
-model Butterfly {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @default(now()) @updatedAt
-  name      String    @unique @db.VarChar(255)
-  message   String    @db.VarChar(764)
-
-  wingTopColor    String            @db.VarChar(64)
-  wingBottomColor String            @db.VarChar(64)
-  speed           Float
-  wingSpeed       Float
-  scale           Float
-  rarityNumber    Int               @unique
-  designer        String?           @db.VarChar(255)
-  userId          Int?              @default(1)
-  isPublic        Boolean           @default(true)
-  User            User?             @relation(fields: [userId], references: [id])
-  Collections     ButterflyRecord[]
-  Reactions       Reaction[]
-
-  @@index([userId], map: "Butterfly_userId_fkey")
-}
-
-/// Records which butterflies each user has caught.
-/// Follows the MilestoneRecord pattern rather than implicit M2M,
-/// so we can attach caughtAt and any future metadata cleanly.
-model ButterflyRecord {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @default(now()) @updatedAt
-  userId      Int
-  butterflyId Int
-  Butterfly   Butterfly @relation(fields: [butterflyId], references: [id])
-  User        User      @relation(fields: [userId], references: [id])
-
-  @@unique([userId, butterflyId])
-  @@index([userId], map: "ButterflyRecord_userId_fkey")
-  @@index([butterflyId], map: "ButterflyRecord_butterflyId_fkey")
-}
 
 model Character {
   id            Int            @id @default(autoincrement())
@@ -837,7 +797,6 @@ model Reaction {
   ArtCollection    ArtCollection?            @relation(fields: [artCollectionId], references: [id])
   ArtImage         ArtImage?                 @relation(fields: [artImageId], references: [id])
   Bot              Bot?                      @relation(fields: [botId], references: [id])
-  Butterfly        Butterfly?                @relation(fields: [butterflyId], references: [id])
   Character        Character?                @relation(fields: [characterId], references: [id])
   Chat             Chat?                     @relation(fields: [chatId], references: [id])
   Component        Component?                @relation(fields: [componentId], references: [id])
@@ -1223,8 +1182,6 @@ model User {
   ArtCollections        ArtCollection[]
   ArtImages             ArtImage[]        @relation("ArtImageCreator")
   Bots                  Bot[]
-  Butterflies           Butterfly[]
-  ButterflyRecords      ButterflyRecord[]
   Characters            Character[]
   Chats                 Chat[]
   Dreams                Dream[]

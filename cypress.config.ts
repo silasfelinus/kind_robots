@@ -41,10 +41,35 @@ type RunStatsSummary = {
   totalSkipped: number
 }
 
+type ApiRecord = Record<string, unknown> & { id?: number }
+
+type SweepTarget = {
+  label: string
+  path: string
+}
+
 const timingDir = path.resolve('.cypress-cache')
 const timingLatestFile = path.join(timingDir, 'timing-latest.json')
 const seedCleanupLatestFile = path.join(timingDir, 'seed-cleanup-latest.json')
 const apiKeyHeaderName = ['x', 'api', 'key'].join('-')
+
+const sweepTargets: SweepTarget[] = [
+  { label: 'chats', path: '/chats' },
+  { label: 'dreams', path: '/dreams' },
+  { label: 'prompts', path: '/prompts' },
+  { label: 'characters', path: '/characters' },
+  { label: 'bots', path: '/bots' },
+  { label: 'rewards', path: '/rewards' },
+  { label: 'scenarios', path: '/scenarios' },
+  { label: 'art collections', path: '/art/collection' },
+  { label: 'resources', path: '/resources' },
+  { label: 'art images', path: '/art/image' },
+  { label: 'servers', path: '/server' },
+  { label: 'components', path: '/components' },
+  { label: 'reactions', path: '/reactions' },
+]
+
+const cypressFixturePattern = /cypress|relationship-\d+|reaction-fixture-|pancake-sunrise-collection|justfortesting|Bad-Server-/i
 
 const formatMs = (ms: number) => {
   if (!Number.isFinite(ms)) return 'n/a'
@@ -96,6 +121,44 @@ const parseResponseBody = async (response: Response) => {
   }
 }
 
+const dataArrayFromBody = (body: unknown): ApiRecord[] => {
+  if (!body || typeof body !== 'object') return []
+
+  const record = body as Record<string, unknown>
+  const data = record.data
+
+  if (!Array.isArray(data)) return []
+
+  return data.filter((item): item is ApiRecord => Boolean(item && typeof item === 'object'))
+}
+
+const stringifySearchableRecord = (record: ApiRecord) =>
+  [
+    record.title,
+    record.label,
+    record.name,
+    record.fileName,
+    record.path,
+    record.imagePath,
+    record.promptString,
+    record.artPrompt,
+    record.description,
+    record.notes,
+    record.designer,
+    record.sender,
+    record.recipient,
+    record.content,
+  ]
+    .filter((value) => typeof value === 'string')
+    .join(' ')
+
+const isCypressFixtureRecord = (record: ApiRecord) => {
+  const id = Number(record.id)
+  if (!Number.isInteger(id) || id <= 0) return false
+
+  return cypressFixturePattern.test(stringifySearchableRecord(record))
+}
+
 const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser) => {
   const response = await fetch(`${apiBase}/users/${user.id}`, {
     method: 'DELETE',
@@ -138,6 +201,45 @@ const runCleanupRequest = async (request: CleanupRequest) => {
     ok: expectedStatuses.includes(response.status),
     body: await parseResponseBody(response),
   }
+}
+
+const sweepCypressFixtures = async (apiBase: string, adminKey: string) => {
+  const headers = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    [apiKeyHeaderName]: adminKey,
+  }
+  const results: unknown[] = []
+
+  for (const target of sweepTargets) {
+    try {
+      const listResponse = await fetch(`${apiBase}${target.path}`, { headers })
+      const listBody = await parseResponseBody(listResponse)
+      const records = dataArrayFromBody(listBody).filter(isCypressFixtureRecord)
+
+      for (const record of records) {
+        const response = await fetch(`${apiBase}${target.path}/${record.id}`, {
+          method: 'DELETE',
+          headers,
+        })
+
+        results.push({
+          label: `sweep ${target.label} ${record.id}`,
+          status: response.status,
+          ok: [200, 202, 204, 404].includes(response.status),
+          body: await parseResponseBody(response),
+        })
+      }
+    } catch (error) {
+      results.push({
+        label: `sweep ${target.label}`,
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+
+  return results
 }
 
 export default defineConfig({
@@ -226,6 +328,17 @@ export default defineConfig({
               error: error instanceof Error ? error.message : String(error),
             })
           }
+        }
+
+        try {
+          const seed = await ensureCypressApiSeed(env)
+          cleanupResults.push(...await sweepCypressFixtures(seed.apiBase, seed.adminKey))
+        } catch (error) {
+          cleanupResults.push({
+            label: 'cypress fixture sweep',
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          })
         }
 
         if (!keepSeedAfterRun(env)) {

@@ -11,5 +11,6 @@
   },
   "vueCompilerOptions": {
     "plugins": []
-  }
+  },
+  "exclude": ["cypress/e2e/**/*"]
 }

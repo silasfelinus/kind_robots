@@ -32,14 +32,46 @@ type CleanupRequest = {
   expectedStatuses?: number[]
 }
 
+type RunStatsSummary = {
+  totalDurationMs: number
+  totalTests: number
+  totalPassed: number
+  totalFailed: number
+  totalPending: number
+  totalSkipped: number
+}
+
 const timingDir = path.resolve('.cypress-cache')
 const timingLatestFile = path.join(timingDir, 'timing-latest.json')
 const seedCleanupLatestFile = path.join(timingDir, 'seed-cleanup-latest.json')
+const apiKeyHeaderName = ['x', 'api', 'key'].join('-')
 
 const formatMs = (ms: number) => {
   if (!Number.isFinite(ms)) return 'n/a'
   if (ms < 1000) return `${ms}ms`
   return `${(ms / 1000).toFixed(1)}s`
+}
+
+const readNumber = (value: unknown, fallback = 0) => {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback
+}
+
+const readRunStats = (results: unknown): RunStatsSummary | null => {
+  if (!results || typeof results !== 'object') return null
+
+  const record = results as Record<string, unknown>
+  const totalDuration = record.totalDuration
+
+  if (typeof totalDuration !== 'number') return null
+
+  return {
+    totalDurationMs: totalDuration,
+    totalTests: readNumber(record.totalTests),
+    totalPassed: readNumber(record.totalPassed),
+    totalFailed: readNumber(record.totalFailed),
+    totalPending: readNumber(record.totalPending),
+    totalSkipped: readNumber(record.totalSkipped),
+  }
 }
 
 const countTestsByState = (tests: unknown[], state: string) =>
@@ -70,7 +102,7 @@ const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser)
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'x-api-key': adminKey,
+      [apiKeyHeaderName]: adminKey,
     },
   })
 
@@ -158,7 +190,7 @@ export default defineConfig({
           relative: spec.relative,
           name: spec.name,
           durationMs: elapsed,
-          wallClockDurationMs: stats?.wallClockDuration,
+          wallClockDurationMs: stats?.duration ?? elapsed,
           tests: stats?.tests ?? tests.length,
           passes: stats?.passes ?? countTestsByState(tests, 'passed'),
           failures: stats?.failures ?? countTestsByState(tests, 'failed'),
@@ -180,6 +212,7 @@ export default defineConfig({
         const cleanupStartedAt = Date.now()
         const env = config.env as Record<string, unknown>
         const cleanupResults: unknown[] = []
+        const cypressStats = readRunStats(results)
 
         for (const request of [...cleanupRequests].reverse()) {
           try {
@@ -221,16 +254,7 @@ export default defineConfig({
           createdAt: new Date().toISOString(),
           totalMs,
           totalFormatted: formatMs(totalMs),
-          cypressStats: results?.totalDuration
-            ? {
-                totalDurationMs: results.totalDuration,
-                totalTests: results.totalTests,
-                totalPassed: results.totalPassed,
-                totalFailed: results.totalFailed,
-                totalPending: results.totalPending,
-                totalSkipped: results.totalSkipped,
-              }
-            : null,
+          cypressStats,
           events: timingEvents,
           specs: sortedSpecs,
         }

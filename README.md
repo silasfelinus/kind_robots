@@ -250,4 +250,5 @@ npx prisma generate
 npx prisma migrate status --schema=prisma/schema.prisma
 
 **********
-
+Covnert Images: 
+node ./utils/scripts/convertImagesToWebp.mjs public/images/convert public/images/convert/webp

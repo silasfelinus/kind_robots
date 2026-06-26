@@ -24,7 +24,6 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'ART_IMAGE',
   'ART_COLLECTION',
   'BOT',
-  'BUTTERFLY',
   'CHARACTER',
   'CHAT_EXCHANGE',
   'COMPONENT',
@@ -42,7 +41,6 @@ export type ReactionTargetType =
   | 'artImage'
   | 'artCollection'
   | 'bot'
-  | 'butterfly'
   | 'character'
   | 'chat'
   | 'component'
@@ -59,7 +57,6 @@ type ReactionTargetIdKey =
   | 'artImageId'
   | 'artCollectionId'
   | 'botId'
-  | 'butterflyId'
   | 'characterId'
   | 'chatId'
   | 'componentId'
@@ -79,7 +76,6 @@ type AddReactionPayload = {
   artImageId?: number | null
   artCollectionId?: number | null
   botId?: number | null
-  butterflyId?: number | null
   characterId?: number | null
   chatId?: number | null
   componentId?: number | null
@@ -101,7 +97,6 @@ const targetIdKeyMap: Record<ReactionTargetType, ReactionTargetIdKey> = {
   artImage: 'artImageId',
   artCollection: 'artCollectionId',
   bot: 'botId',
-  butterfly: 'butterflyId',
   character: 'characterId',
   chat: 'chatId',
   component: 'componentId',
@@ -211,6 +206,7 @@ export const useReactionStore = defineStore('reactionStore', () => {
       return getUserReactionForTarget.value('component', componentId, userId)
     }
   })
+
   const getUserReactionForArtImage = computed(() => {
     return (artImageId: number, userId: number) => {
       return getUserReactionForTarget.value('artImage', artImageId, userId)

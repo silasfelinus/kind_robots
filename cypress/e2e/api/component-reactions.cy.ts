@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 import {
   bearerHeaders,
   createLoggedInTestUser,
@@ -8,10 +10,11 @@ import {
   type TestUserAuth,
 } from '../../support/api-auth'
 
-let userId = 0
-describe('Component Reactions API Tests', () => {
+type CleanupResponse = Cypress.Response<unknown> | null
 
-  // Auth migration: fresh disposable JWT user
+let userId = 0
+
+describe('Component Reactions API Tests', () => {
   before(() => {
     createLoggedInTestUser().then((auth) => {
       userId = auth.id
@@ -279,9 +282,18 @@ describe('Component Reactions API Tests', () => {
       })
     }
 
-    deleteTestUser(apiBase, adminToken, testUser?.id).then((response) => {
+    const cleanup = deleteTestUser(
+      apiBase,
+      adminToken,
+      testUser?.id,
+    ) as Cypress.Chainable<CleanupResponse>
+
+    cleanup.then((response: CleanupResponse) => {
       if (response) {
-        cy.log('Component reaction test user cleanup:', JSON.stringify(response.body))
+        cy.log(
+          'Component reaction test user cleanup:',
+          JSON.stringify(response.body),
+        )
       }
     })
   })

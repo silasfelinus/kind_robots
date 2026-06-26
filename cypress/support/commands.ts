@@ -167,15 +167,18 @@ const getCleanupRequests = (
   })
 }
 
-const registerCleanup = (request: CleanupRequest) => {
+const registerCleanup = (request: CleanupRequest): Cypress.Chainable<unknown> => {
   return cy.task('cypressCleanup:register', request, { log: false })
 }
 
-const registerCleanups = (requests: CleanupRequest[]) => {
-  return requests.reduce<Cypress.Chainable<unknown>>(
-    (chain, request) => chain.then(() => registerCleanup(request)),
-    cy.wrap(null, { log: false }),
-  )
+const registerCleanups = (requests: CleanupRequest[]): Cypress.Chainable<unknown> => {
+  let chain = cy.wrap(undefined, { log: false }) as Cypress.Chainable<unknown>
+
+  for (const request of requests) {
+    chain = chain.then(() => registerCleanup(request))
+  }
+
+  return chain
 }
 
 ;(Cypress.Commands.overwrite as unknown as LooseOverwrite)(
@@ -186,7 +189,7 @@ const registerCleanups = (requests: CleanupRequest[]) => {
     return originalFn(...args).then((response: Cypress.Response<unknown>) => {
       const cleanupRequests = getCleanupRequests(request, response)
 
-      if (!cleanupRequests.length) return response
+      if (!cleanupRequests.length) return cy.wrap(response, { log: false })
 
       return registerCleanups(cleanupRequests).then(() => response)
     })

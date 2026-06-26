@@ -115,7 +115,7 @@ export interface FetchDreamOptions {
   galleryId?: number
   scenarioId?: number
   dreamType?: DreamType | string
-  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED'
+  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
   tagId?: number
   characterId?: number
   rewardId?: number
@@ -443,7 +443,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
     filterDreamsByType('PROJECT', dreams.value),
   )
   const publicProjectDreams = computed(() =>
-    filterPublicDreams(projectDreams.value, currentUserId.value, userStore.isAdmin),
+    filterPublicDreams(
+      projectDreams.value,
+      currentUserId.value,
+      userStore.isAdmin,
+    ),
   )
 
   const dreamsByTitle = computed(() => groupDreamsByTitle(dreams.value))

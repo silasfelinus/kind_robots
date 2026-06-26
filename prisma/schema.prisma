@@ -1336,6 +1336,7 @@ enum ProjectStatus {
   PAUSED
   DONE
   ARCHIVED
+  BRAINSTORM 
 }
 
 enum Reaction_reactionCategory {

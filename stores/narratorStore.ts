@@ -116,6 +116,7 @@ function buildPageNarratorDream(
   narrator: PageNarratorBot,
 ): PageNarratorDream {
   const now = new Date()
+  const imagePath = pageStore.image || null
 
   return {
     id: syntheticPageDreamId,
@@ -129,7 +130,13 @@ function buildPageNarratorDream(
     flavorText: pageStore.subtitle || null,
     examples: null,
     artPrompt: pageStore.artPrompt || null,
-    imagePath: pageStore.image || null,
+    imagePath,
+    cardPath: imagePath,
+    heroPath: imagePath,
+    projectStatus: 'ACTIVE',
+    repoUrl: null,
+    liveUrl: null,
+    allowReviews: false,
     highlightImage: null,
     icon: pageStore.icon || 'kind-icon:robot-color',
     designer: 'system',
@@ -150,7 +157,7 @@ function buildPageNarratorDream(
     Reactions: [],
     _count: {},
     __pageNarratorDream: true,
-  } as PageNarratorDream
+  }
 }
 
 function restoreSavedDream(dreamStore: ReturnType<typeof useDreamStore>) {
@@ -164,21 +171,23 @@ function restoreSavedDream(dreamStore: ReturnType<typeof useDreamStore>) {
 async function hydrateDefaultNarratorBot(store: NarratorStore) {
   const activeNarrator = readBot(store.narratorBot)
 
-  if (!isDefaultNarrator(activeNarrator) || hasExpressionRows(activeNarrator)) return
+  if (!isDefaultNarrator(activeNarrator) || !activeNarrator || hasExpressionRows(activeNarrator)) return
+
+  const targetNarrator = activeNarrator
 
   if (!hydrationPromise) {
     hydrationPromise = (async () => {
       const defaultNarrator = readBot(await getBotById(defaultNarratorBotId))
 
-      if (!isDefaultNarrator(defaultNarrator) || !hasExpressionRows(defaultNarrator)) return
+      if (!defaultNarrator || !isDefaultNarrator(defaultNarrator) || !hasExpressionRows(defaultNarrator)) return
 
-      Object.assign(activeNarrator, defaultNarrator, {
+      Object.assign(targetNarrator, defaultNarrator, {
         ExpressionMedia: Array.isArray(defaultNarrator.ExpressionMedia)
           ? defaultNarrator.ExpressionMedia
           : [],
         NarratorThreads: Array.isArray(defaultNarrator.NarratorThreads)
           ? defaultNarrator.NarratorThreads
-          : activeNarrator?.NarratorThreads ?? [],
+          : targetNarrator.NarratorThreads ?? [],
       })
 
       store.setEmotion(store.currentEmotion, false)

@@ -3,7 +3,7 @@
   <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
     <div
       v-if="!userStore.isAdmin"
-      class="flex min-h-[22rem] flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
+      class="flex min-h-88 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
     >
       <div class="mx-auto flex max-w-lg flex-col items-center gap-4">
         <div
@@ -12,7 +12,9 @@
           <Icon name="kind-icon:lock" class="size-8" />
         </div>
         <div class="space-y-2">
-          <h2 class="text-2xl font-black text-warning">Admin access required</h2>
+          <h2 class="text-2xl font-black text-warning">
+            Admin access required
+          </h2>
           <p class="text-sm leading-relaxed text-base-content/70">
             This is Silas&apos;s private Conductor cockpit: project progress,
             agent tasks, roadmap state, and pitches waiting for human judgment.
@@ -569,17 +571,23 @@
             v-else
             class="shrink-0 rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
           >
-            <Icon name="kind-icon:dream" class="mx-auto mb-1 size-5 opacity-40" />
+            <Icon
+              name="kind-icon:dream"
+              class="mx-auto mb-1 size-5 opacity-40"
+            />
             No Project Dream linked for
             <strong>{{ selectedProject.slug }}</strong> — run
-            <code class="rounded bg-base-200 px-1">addProjects.http</code> to seed it.
+            <code class="rounded bg-base-200 px-1">addProjects.http</code> to
+            seed it.
           </div>
 
           <div
             v-if="selectedProject.notesFromSilas"
             class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
           >
-            <p class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70">
+            <p
+              class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70"
+            >
               Notes from Silas
             </p>
             {{ selectedProject.notesFromSilas }}
@@ -602,7 +610,10 @@
                     class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
                     :class="milestoneIconClass(milestone.status)"
                   >
-                    <Icon :name="milestoneIcon(milestone.status)" class="size-3.5" />
+                    <Icon
+                      :name="milestoneIcon(milestone.status)"
+                      class="size-3.5"
+                    />
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-semibold">
@@ -649,7 +660,9 @@
                         class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
                       >
                         <span>{{ task.id }}</span>
-                        <span v-if="task.milestone">· {{ task.milestone }}</span>
+                        <span v-if="task.milestone"
+                          >· {{ task.milestone }}</span
+                        >
                         <span v-if="task.gateHuman" class="text-accent">
                           · gate
                         </span>
@@ -749,7 +762,10 @@ const projects = computed(() => data.value?.projects ?? [])
 
 const selectedProject = computed<ConductorProject | null>(() => {
   if (!selectedSlug.value) return null
-  return projects.value.find((project) => project.slug === selectedSlug.value) ?? null
+  return (
+    projects.value.find((project) => project.slug === selectedSlug.value) ??
+    null
+  )
 })
 
 const linkedDream = computed(() => {
@@ -770,7 +786,9 @@ const fetchedLabel = computed(() => {
 })
 
 const pendingPitches = computed(
-  () => data.value?.pitches.filter((pitch) => pitch.status.includes('awaiting')) ?? [],
+  () =>
+    data.value?.pitches.filter((pitch) => pitch.status.includes('awaiting')) ??
+    [],
 )
 
 const totalDone = computed(() =>
@@ -1033,7 +1051,8 @@ function milestoneIcon(status: string): string {
 
 function milestoneIconClass(status: string): string {
   if (status === 'done') return 'border-success/40 bg-success/10 text-success'
-  if (status === 'in-progress') return 'border-warning/40 bg-warning/10 text-warning'
+  if (status === 'in-progress')
+    return 'border-warning/40 bg-warning/10 text-warning'
   return 'border-base-300 bg-base-200 text-base-content/40'
 }
 

@@ -12,9 +12,7 @@
           <Icon name="kind-icon:lock" class="size-8" />
         </div>
         <div class="space-y-2">
-          <h2 class="text-2xl font-black text-warning">
-            Admin access required
-          </h2>
+          <h2 class="text-2xl font-black text-warning">Admin access required</h2>
           <p class="text-sm leading-relaxed text-base-content/70">
             This is Silas&apos;s private Conductor cockpit: project progress,
             agent tasks, roadmap state, and pitches waiting for human judgment.
@@ -57,236 +55,248 @@
         {{ error.message }}
       </div>
 
+      <!-- Loading skeleton -->
       <div
         v-if="pending && !data"
-        class="hand-scroll flex shrink-0 items-end gap-3 overflow-x-auto pb-2 pt-4"
+        class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4"
       >
         <div
-          v-for="n in 5"
+          v-for="n in 4"
           :key="n"
-          class="project-card animate-pulse shrink-0 rounded-2xl border border-base-300 bg-base-200"
-          style="aspect-ratio: 2/3"
+          class="animate-pulse rounded-2xl border border-base-300 bg-base-200 px-4 py-3 h-20"
         />
       </div>
 
-      <div v-if="data" class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
-        <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-          <p class="text-2xl font-black text-primary">{{ projects.length }}</p>
-          <p class="text-xs font-semibold text-base-content/60">Projects</p>
-        </div>
-        <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-          <p class="text-2xl font-black text-success">{{ totalDone }}</p>
-          <p class="text-xs font-semibold text-base-content/60">Tasks Done</p>
-        </div>
-        <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-          <p class="text-2xl font-black text-warning">{{ totalNeedsHuman }}</p>
-          <p class="text-xs font-semibold text-base-content/60">Needs You</p>
-        </div>
-        <button
-          type="button"
-          class="rounded-2xl border px-4 py-3 text-left transition-colors"
-          :class="
-            showPitches
-              ? 'border-warning/60 bg-warning/10'
-              : 'border-base-300 bg-base-200 hover:border-warning/40'
-          "
-          @click="showPitches = !showPitches"
-        >
-          <p class="text-2xl font-black text-warning">
-            {{ pendingPitches.length }}
-          </p>
-          <p class="text-xs font-semibold text-base-content/60">
-            Pitches Pending
-            <Icon
-              name="kind-icon:chevron-down"
-              class="ml-0.5 inline size-3 transition-transform"
-              :class="showPitches ? 'rotate-180' : ''"
-            />
-          </p>
-        </button>
-      </div>
-
-      <Transition name="slide-down">
-        <div
-          v-if="data && showPitches && pendingPitches.length"
-          class="shrink-0 space-y-2"
-        >
-          <h3
-            class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-          >
-            Pitches Awaiting Your Vote
-          </h3>
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <article
-              v-for="pitch in pendingPitches"
-              :key="pitch.slug"
-              class="rounded-2xl border border-warning/40 bg-warning/5 p-4 transition-shadow hover:shadow-md"
+      <!-- Main content area -->
+      <div
+        v-if="data"
+        class="flex min-h-0 flex-1 flex-col overflow-y-auto"
+      >
+        <!-- OVERVIEW -->
+        <div v-if="viewMode === 'overview'" class="flex flex-col gap-4 pb-4">
+          <div class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
+            <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+              <p class="text-2xl font-black text-primary">{{ projects.length }}</p>
+              <p class="text-xs font-semibold text-base-content/60">Projects</p>
+            </div>
+            <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+              <p class="text-2xl font-black text-success">{{ totalDone }}</p>
+              <p class="text-xs font-semibold text-base-content/60">Tasks Done</p>
+            </div>
+            <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+              <p class="text-2xl font-black text-warning">{{ totalNeedsHuman }}</p>
+              <p class="text-xs font-semibold text-base-content/60">Needs You</p>
+            </div>
+            <button
+              type="button"
+              class="rounded-2xl border px-4 py-3 text-left transition-colors"
+              :class="
+                pendingPitches.length
+                  ? 'border-warning/60 bg-warning/10 hover:border-warning cursor-pointer'
+                  : 'border-base-300 bg-base-200'
+              "
+              :disabled="!pendingPitches.length"
+              @click="goToBrainstorm"
             >
-              <div class="mb-2 flex items-start justify-between gap-2">
-                <h4 class="font-bold leading-tight text-base-content">
-                  {{ pitch.title }}
-                </h4>
-                <span class="badge badge-warning badge-sm shrink-0">vote</span>
-              </div>
-              <p
-                v-if="pitch.projectTarget"
-                class="mb-2 text-xs text-base-content/50"
+              <p class="text-2xl font-black text-warning">{{ pendingPitches.length }}</p>
+              <p class="text-xs font-semibold text-base-content/60">
+                Pitches Pending
+                <Icon
+                  v-if="pendingPitches.length"
+                  name="kind-icon:chevron-right"
+                  class="ml-0.5 inline size-3"
+                />
+              </p>
+            </button>
+          </div>
+
+          <!-- Projects summary -->
+          <div v-if="projects.length" class="space-y-2">
+            <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
+              Projects
+            </h3>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <button
+                v-for="project in projects"
+                :key="project.slug"
+                type="button"
+                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-primary/5"
+                @click="selectProject(project.slug)"
               >
+                <div
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border"
+                  :class="kindIconClass(project.kind)"
+                >
+                  <Icon :name="kindIcon(project.kind)" class="size-4" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-bold">{{ project.name || project.slug }}</p>
+                  <div class="mt-1 h-1 overflow-hidden rounded-full bg-base-300">
+                    <div
+                      class="h-full rounded-full"
+                      :class="kindProgressClass(project.kind)"
+                      :style="{ width: `${project.progress}%` }"
+                    />
+                  </div>
+                </div>
+                <div class="flex shrink-0 flex-col items-end gap-1">
+                  <span class="text-xs text-base-content/50">{{ project.progress }}%</span>
+                  <span
+                    v-if="blockedCount(project) > 0"
+                    class="badge badge-error badge-xs"
+                  >{{ blockedCount(project) }} blocked</span>
+                  <span
+                    v-else-if="needsHumanCount(project) > 0"
+                    class="badge badge-accent badge-xs"
+                  >{{ needsHumanCount(project) }} need you</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div
+            v-if="!projects.length"
+            class="flex flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-200 py-12"
+          >
+            <div class="text-center">
+              <Icon name="kind-icon:gearhammer" class="mx-auto mb-2 size-8 opacity-40" />
+              <p class="text-sm text-base-content/50">No projects found in Conductor.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- BRAINSTORM -->
+        <div v-else-if="viewMode === 'brainstorm'" class="flex flex-col gap-4 pb-4">
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm rounded-xl"
+              @click="goToOverview"
+            >
+              <Icon name="kind-icon:chevron-left" class="size-4" />
+              Overview
+            </button>
+            <h3 class="text-sm font-bold">Pitches</h3>
+            <span class="badge badge-warning badge-sm">{{ pendingPitches.length }} pending</span>
+          </div>
+
+          <div v-if="!allPitches.length" class="py-8 text-center text-sm text-base-content/50">
+            No pitches in the queue.
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <article
+              v-for="pitch in allPitches"
+              :key="pitch.slug"
+              class="flex flex-col gap-3 rounded-2xl border p-4 transition-shadow"
+              :class="pitchArticleClass(pitch.slug)"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="font-bold leading-tight text-base-content">{{ pitch.title }}</h4>
+                <span
+                  class="badge badge-sm shrink-0"
+                  :class="pitchVotedChoice(pitch.slug) ? 'badge-ghost' : 'badge-warning'"
+                >
+                  {{ pitchVotedChoice(pitch.slug) ?? 'vote' }}
+                </span>
+              </div>
+
+              <p v-if="pitch.projectTarget" class="text-xs text-base-content/50">
                 <Icon name="kind-icon:folder" class="mr-0.5 inline size-3" />
                 {{ pitch.projectTarget }}
                 <span v-if="pitch.date" class="ml-2">· {{ pitch.date }}</span>
               </p>
-              <p
-                v-if="pitch.idea"
-                class="line-clamp-3 text-sm text-base-content/75"
-              >
-                {{ pitch.idea }}
+
+              <!-- Idea text / editor -->
+              <div v-if="editingPitchSlug === pitch.slug" class="flex flex-col gap-2">
+                <textarea
+                  v-model="pitchEditTexts[pitch.slug]"
+                  class="textarea textarea-bordered rounded-xl text-sm"
+                  rows="4"
+                  placeholder="Describe the idea..."
+                />
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-xl"
+                    @click="editingPitchSlug = ''"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-xs rounded-xl"
+                    @click="editingPitchSlug = ''"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+              <div v-else class="group/idea relative">
+                <p class="text-sm text-base-content/75">
+                  {{ pitchEditTexts[pitch.slug] ?? pitch.idea }}
+                </p>
+                <button
+                  type="button"
+                  class="absolute right-0 top-0 opacity-0 transition-opacity group-hover/idea:opacity-100 btn btn-ghost btn-xs rounded-lg"
+                  @click="startEditPitch(pitch)"
+                >
+                  <Icon name="kind-icon:edit" class="size-3" />
+                </button>
+              </div>
+
+              <p v-if="pitch.whyDoIt" class="text-xs italic text-base-content/50">
+                {{ pitch.whyDoIt }}
               </p>
+
+              <!-- Vote actions -->
+              <div v-if="!pitchVotedChoice(pitch.slug)" class="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  class="btn btn-success btn-sm flex-1 gap-1 rounded-xl"
+                  @click="voteOnPitch(pitch.slug, 'approved')"
+                >
+                  <Icon name="kind-icon:check" class="size-3.5" />
+                  Approve
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm flex-1 gap-1 rounded-xl border border-base-300"
+                  @click="voteOnPitch(pitch.slug, 'passed')"
+                >
+                  <Icon name="kind-icon:x" class="size-3.5" />
+                  Pass
+                </button>
+              </div>
+              <div v-else class="flex items-center justify-between pt-1">
+                <span
+                  class="text-xs font-semibold"
+                  :class="pitchVotedChoice(pitch.slug) === 'approved' ? 'text-success' : 'text-base-content/40'"
+                >
+                  <Icon
+                    :name="pitchVotedChoice(pitch.slug) === 'approved' ? 'kind-icon:check' : 'kind-icon:x'"
+                    class="mr-1 inline size-3"
+                  />
+                  {{ pitchVotedChoice(pitch.slug) === 'approved' ? 'Approved' : 'Passed' }}
+                </span>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-xl"
+                  @click="clearVote(pitch.slug)"
+                >
+                  Undo
+                </button>
+              </div>
             </article>
           </div>
         </div>
-      </Transition>
 
-      <div v-if="projects.length" class="project-hand shrink-0">
+        <!-- PROJECT DETAIL -->
         <div
-          class="hand-scroll flex items-end gap-3 overflow-x-auto px-2 pb-3 pt-6"
+          v-else-if="selectedProject"
+          class="flex flex-col gap-4 pb-4"
         >
-          <button
-            v-for="(project, index) in projects"
-            :key="project.slug"
-            type="button"
-            class="project-card group relative shrink-0 cursor-pointer rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-3 hover:scale-110"
-            :class="[
-              selectedSlug === project.slug
-                ? 'z-30 border-primary shadow-lg is-selected'
-                : 'z-10 border-base-300 hover:border-primary/60',
-              flippingSlug === project.slug ? 'is-flipping' : '',
-            ]"
-            @click="handleCardClick(project)"
-          >
-            <div class="card-flip relative w-full">
-              <div
-                class="card-face card-front relative flex w-full flex-col overflow-hidden rounded-2xl shadow-md"
-              >
-                <div class="relative overflow-hidden" style="aspect-ratio: 2/3">
-                  <img
-                    :src="cardBackSrc(index)"
-                    :alt="project.name"
-                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div
-                    class="absolute inset-0 transition-opacity duration-300"
-                    :style="kindOverlay(project.kind)"
-                  />
-                  <div
-                    class="absolute inset-0 flex items-center justify-center pb-8"
-                  >
-                    <Icon
-                      :name="kindIcon(project.kind)"
-                      class="transition-transform duration-300 group-hover:scale-125"
-                      :class="kindIconColorClass(project.kind)"
-                      style="width: 2.75rem; height: 2.75rem"
-                    />
-                  </div>
-                  <div
-                    class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/50 to-transparent px-2 pb-2 pt-6"
-                  >
-                    <div
-                      class="mb-1.5 h-1.5 overflow-hidden rounded-full bg-white/20"
-                    >
-                      <div
-                        class="h-full rounded-full transition-all duration-700"
-                        :class="kindProgressClass(project.kind)"
-                        :style="{ width: `${project.progress}%` }"
-                      />
-                    </div>
-                    <div class="flex flex-wrap gap-0.5">
-                      <span
-                        v-if="blockedCount(project) > 0"
-                        class="badge badge-error badge-xs"
-                      >
-                        {{ blockedCount(project) }} ✗
-                      </span>
-                      <span
-                        v-if="needsHumanCount(project) > 0"
-                        class="badge badge-accent badge-xs"
-                      >
-                        {{ needsHumanCount(project) }} 👤
-                      </span>
-                    </div>
-                  </div>
-                  <Transition name="pop">
-                    <div
-                      v-if="selectedSlug === project.slug"
-                      class="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-primary shadow"
-                    >
-                      <Icon
-                        name="kind-icon:check"
-                        class="size-3 text-primary-content"
-                      />
-                    </div>
-                  </Transition>
-                </div>
-                <div class="rounded-b-2xl bg-base-100 px-2 py-1.5">
-                  <p
-                    class="truncate text-center text-[0.6rem] font-black leading-none text-base-content/80"
-                    :title="project.name || project.slug"
-                  >
-                    {{ project.name || project.slug }}
-                  </p>
-                  <p
-                    class="mt-0.5 text-center text-[0.55rem] leading-none text-base-content/40"
-                  >
-                    {{ project.progress }}%
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="card-face card-back absolute inset-0 flex flex-col overflow-hidden rounded-2xl shadow-md"
-              >
-                <div class="relative min-h-0 flex-1 overflow-hidden">
-                  <img
-                    :src="cardBackSrc(index)"
-                    alt="Card back"
-                    class="h-full w-full object-cover"
-                  />
-                </div>
-                <div class="rounded-b-2xl bg-base-100 px-2 py-1.5">
-                  <p class="text-center text-[0.6rem] leading-none">&nbsp;</p>
-                  <p class="mt-0.5 text-center text-[0.55rem] leading-none">
-                    &nbsp;
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div
-              v-if="flippingSlug === project.slug"
-              class="sparkle-layer pointer-events-none absolute inset-0 z-50 overflow-visible"
-              aria-hidden="true"
-            >
-              <span
-                v-for="n in 10"
-                :key="n"
-                class="sparkle"
-                :style="sparkleStyle(n)"
-              />
-              <span class="swirl swirl-a" />
-              <span class="swirl swirl-b" />
-            </div>
-          </button>
-        </div>
-      </div>
-
-      <Transition name="detail-slide">
-        <div
-          v-if="selectedProject"
-          class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto"
-        >
-          <div
-            class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3"
-          >
+          <div class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3">
             <div
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border"
               :class="kindIconClass(selectedProject.kind)"
@@ -311,7 +321,7 @@
             <button
               class="btn btn-ghost btn-sm rounded-xl"
               type="button"
-              @click="selectedSlug = null"
+              @click="goToOverview"
             >
               <Icon name="kind-icon:x" class="size-4" />
             </button>
@@ -335,9 +345,7 @@
           >
             <div class="flex items-center gap-2">
               <Icon name="kind-icon:dream" class="size-4 text-primary" />
-              <h4
-                class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60"
-              >
+              <h4 class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60">
                 Project Intent
               </h4>
               <button
@@ -366,9 +374,7 @@
                 @click="patchDream({ isPublic: !linkedDream.isPublic })"
               >
                 <Icon
-                  :name="
-                    linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
-                  "
+                  :name="linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'"
                   class="size-3.5"
                 />
                 {{ linkedDream.isPublic ? 'Public' : 'Private' }}
@@ -473,9 +479,7 @@
               <div class="space-y-3">
                 <div class="form-control">
                   <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">
-                      Description
-                    </span>
+                    <span class="label-text text-xs font-semibold">Description</span>
                   </label>
                   <textarea
                     v-model="dreamEditForm.description"
@@ -487,9 +491,7 @@
 
                 <div class="form-control">
                   <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">
-                      Intent / Pitch
-                    </span>
+                    <span class="label-text text-xs font-semibold">Intent / Pitch</span>
                   </label>
                   <textarea
                     v-model="dreamEditForm.pitch"
@@ -501,9 +503,7 @@
 
                 <div class="form-control">
                   <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">
-                      Flavor Text
-                    </span>
+                    <span class="label-text text-xs font-semibold">Flavor Text</span>
                   </label>
                   <input
                     v-model="dreamEditForm.flavorText"
@@ -516,9 +516,7 @@
                 <div class="grid gap-3 sm:grid-cols-2">
                   <div class="form-control">
                     <label class="label py-0.5">
-                      <span class="label-text text-xs font-semibold">
-                        Live URL
-                      </span>
+                      <span class="label-text text-xs font-semibold">Live URL</span>
                     </label>
                     <input
                       v-model="dreamEditForm.liveUrl"
@@ -529,9 +527,7 @@
                   </div>
                   <div class="form-control">
                     <label class="label py-0.5">
-                      <span class="label-text text-xs font-semibold">
-                        Repo URL
-                      </span>
+                      <span class="label-text text-xs font-semibold">Repo URL</span>
                     </label>
                     <input
                       v-model="dreamEditForm.repoUrl"
@@ -571,33 +567,23 @@
             v-else
             class="shrink-0 rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
           >
-            <Icon
-              name="kind-icon:dream"
-              class="mx-auto mb-1 size-5 opacity-40"
-            />
+            <Icon name="kind-icon:dream" class="mx-auto mb-1 size-5 opacity-40" />
             No Project Dream linked for
             <strong>{{ selectedProject.slug }}</strong> — run
-            <code class="rounded bg-base-200 px-1">addProjects.http</code> to
-            seed it.
+            <code class="rounded bg-base-200 px-1">addProjects.http</code> to seed it.
           </div>
 
           <div
             v-if="selectedProject.notesFromSilas"
             class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
           >
-            <p
-              class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70"
-            >
-              Notes from Silas
-            </p>
+            <p class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70">Notes from Silas</p>
             {{ selectedProject.notesFromSilas }}
           </div>
 
-          <div class="grid min-h-0 gap-4 pb-4 sm:grid-cols-2">
+          <div class="grid min-h-0 gap-4 sm:grid-cols-2">
             <div v-if="selectedProject.milestones.length">
-              <h4
-                class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
-              >
+              <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
                 Milestones
               </h4>
               <div class="space-y-2">
@@ -610,18 +596,11 @@
                     class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
                     :class="milestoneIconClass(milestone.status)"
                   >
-                    <Icon
-                      :name="milestoneIcon(milestone.status)"
-                      class="size-3.5"
-                    />
+                    <Icon :name="milestoneIcon(milestone.status)" class="size-3.5" />
                   </div>
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-semibold">
-                      {{ milestone.title }}
-                    </p>
-                    <p class="text-xs text-base-content/50">
-                      weight {{ milestone.weight }}
-                    </p>
+                    <p class="truncate text-sm font-semibold">{{ milestone.title }}</p>
+                    <p class="text-xs text-base-content/50">weight {{ milestone.weight }}</p>
                   </div>
                   <span
                     class="badge badge-sm shrink-0"
@@ -634,9 +613,7 @@
             </div>
 
             <div v-if="selectedProject.tasks.length">
-              <h4
-                class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
-              >
+              <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
                 Tasks ({{ selectedProject.tasks.length }})
               </h4>
               <div class="space-y-2">
@@ -653,19 +630,11 @@
                       <Icon :name="taskIcon(task.status)" class="size-3" />
                     </div>
                     <div class="min-w-0 flex-1">
-                      <p class="text-sm font-semibold leading-snug">
-                        {{ task.title }}
-                      </p>
-                      <div
-                        class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
-                      >
+                      <p class="text-sm font-semibold leading-snug">{{ task.title }}</p>
+                      <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50">
                         <span>{{ task.id }}</span>
-                        <span v-if="task.milestone"
-                          >· {{ task.milestone }}</span
-                        >
-                        <span v-if="task.gateHuman" class="text-accent">
-                          · gate
-                        </span>
+                        <span v-if="task.milestone">· {{ task.milestone }}</span>
+                        <span v-if="task.gateHuman" class="text-accent">· gate</span>
                         <span v-if="task.owner">· {{ task.owner }}</span>
                         <span v-if="task.passes > 0" class="text-warning">
                           · pass {{ task.passes }}/3
@@ -684,21 +653,6 @@
             </div>
           </div>
         </div>
-      </Transition>
-
-      <div
-        v-if="!pending && data && !projects.length"
-        class="flex flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-200"
-      >
-        <div class="text-center">
-          <Icon
-            name="kind-icon:gearhammer"
-            class="mx-auto mb-2 size-8 opacity-40"
-          />
-          <p class="text-sm text-base-content/50">
-            No projects found in Conductor.
-          </p>
-        </div>
       </div>
     </template>
   </section>
@@ -706,13 +660,16 @@
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type {
   ConductorData,
   ConductorProject,
+  ConductorPitch,
 } from '@/server/api/conductor/projects.get'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useUserStore } from '@/stores/userStore'
+import { usePageStore } from '@/stores/pageStore'
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 withDefaults(
   defineProps<{
@@ -737,17 +694,23 @@ type ProjectPatch = {
 
 const userStore = useUserStore()
 const dreamStore = useDreamStore()
-const selectedSlug = ref<string | null>(null)
-const showPitches = ref(true)
-const flippingSlug = ref('')
+const pageStore = usePageStore()
+
 const dreamEditMode = ref(false)
 const dreamSaving = ref(false)
 const dreamSaveMessage = ref('')
 const dreamSaveError = ref(false)
 const dreamEditForm = ref<ProjectPatch>({})
-const flipDurationMs = 650
 
-let flipTimer: ReturnType<typeof setTimeout> | null = null
+// Pitch editing
+const editingPitchSlug = ref('')
+const pitchEditTexts = ref<Record<string, string>>({})
+
+// Pitch votes (persisted to localStorage)
+const votedPitches = ref<Record<string, 'approved' | 'passed'>>({})
+
+const VOTE_STORAGE_KEY = 'kr.workspacePitchVotes'
+
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
 const { data, pending, error, refresh } = await useFetch<ConductorData>(
@@ -760,12 +723,24 @@ const { data, pending, error, refresh } = await useFetch<ConductorData>(
 
 const projects = computed(() => data.value?.projects ?? [])
 
+const allPitches = computed(() => data.value?.pitches ?? [])
+
+const pendingPitches = computed(
+  () => allPitches.value.filter((pitch) => pitch.status.includes('awaiting')),
+)
+
+// View mode driven by pageStore.workspaceCardKey
+const viewMode = computed(() => {
+  const key = pageStore.workspaceCardKey
+  if (!key || key === 'overview') return 'overview'
+  if (key === 'brainstorm') return 'brainstorm'
+  if (projects.value.some((p) => p.slug === key)) return key
+  return 'overview'
+})
+
 const selectedProject = computed<ConductorProject | null>(() => {
-  if (!selectedSlug.value) return null
-  return (
-    projects.value.find((project) => project.slug === selectedSlug.value) ??
-    null
-  )
+  if (viewMode.value === 'overview' || viewMode.value === 'brainstorm') return null
+  return projects.value.find((p) => p.slug === viewMode.value) ?? null
 })
 
 const linkedDream = computed(() => {
@@ -785,12 +760,6 @@ const fetchedLabel = computed(() => {
   })
 })
 
-const pendingPitches = computed(
-  () =>
-    data.value?.pitches.filter((pitch) => pitch.status.includes('awaiting')) ??
-    [],
-)
-
 const totalDone = computed(() =>
   projects.value.reduce(
     (sum, project) =>
@@ -808,11 +777,63 @@ const totalNeedsHuman = computed(() =>
   ),
 )
 
+// Build workspace BuilderCards to push into workspace-hand
+const workspaceCards = computed<BuilderCard[]>(() => {
+  if (!data.value) return []
+
+  function makeCard(key: string, label: string, icon: string, deckImage?: string): BuilderCard {
+    return {
+      key,
+      label,
+      title: label,
+      icon,
+      tagline: '',
+      narrative: '',
+      restoresFields: [],
+      steps: [],
+      deckImage,
+      payload: {},
+    }
+  }
+
+  const result: BuilderCard[] = [
+    makeCard('overview', 'Overview', 'kind-icon:gearhammer', '/images/adventure/card/card-back1.webp'),
+  ]
+
+  if (pendingPitches.value.length) {
+    result.push(
+      makeCard(
+        'brainstorm',
+        `Pitches (${pendingPitches.value.length})`,
+        'kind-icon:sparkles',
+        '/images/adventure/card/card-back2.webp',
+      ),
+    )
+  }
+
+  projects.value.forEach((project, i) => {
+    result.push(
+      makeCard(
+        project.slug,
+        project.name || project.slug,
+        kindIcon(project.kind),
+        `/images/adventure/card/card-back${(i % 5) + 1}.webp`,
+      ),
+    )
+  })
+
+  return result
+})
+
 watch(
-  () => userStore.isAdmin,
-  async (isAdmin) => {
-    if (isAdmin) {
-      await refreshWorkspace()
+  workspaceCards,
+  (cards) => {
+    if (cards.length) {
+      pageStore.setCards(cards)
+      // Default to overview on first load if no key set
+      if (!pageStore.workspaceCardKey) {
+        pageStore.setWorkspaceCardKey('overview')
+      }
     }
   },
   { immediate: true },
@@ -835,9 +856,26 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => userStore.isAdmin,
+  async (isAdmin) => {
+    if (isAdmin) {
+      await refreshWorkspace()
+    }
+  },
+  { immediate: true },
+)
+
+onMounted(() => {
+  try {
+    const stored = localStorage.getItem(VOTE_STORAGE_KEY)
+    if (stored) votedPitches.value = JSON.parse(stored) as Record<string, 'approved' | 'passed'>
+  } catch {}
+})
+
 onBeforeUnmount(() => {
-  if (flipTimer) clearTimeout(flipTimer)
   if (saveMessageTimer) clearTimeout(saveMessageTimer)
+  pageStore.clearCards()
 })
 
 async function refreshWorkspace() {
@@ -851,19 +889,54 @@ async function ensureProjectDreams() {
   }
 }
 
-function handleCardClick(project: ConductorProject) {
-  if (flipTimer) clearTimeout(flipTimer)
-
-  const isDeselect = selectedSlug.value === project.slug
-  selectedSlug.value = isDeselect ? null : project.slug
-  flippingSlug.value = project.slug
-
-  flipTimer = setTimeout(() => {
-    flippingSlug.value = ''
-    flipTimer = null
-  }, flipDurationMs)
+function selectProject(slug: string) {
+  pageStore.setWorkspaceCardKey(slug)
 }
 
+function goToOverview() {
+  pageStore.setWorkspaceCardKey('overview')
+}
+
+function goToBrainstorm() {
+  pageStore.setWorkspaceCardKey('brainstorm')
+}
+
+// Pitch vote helpers
+function pitchVotedChoice(slug: string): 'approved' | 'passed' | null {
+  return votedPitches.value[slug] ?? null
+}
+
+function voteOnPitch(slug: string, choice: 'approved' | 'passed') {
+  votedPitches.value = { ...votedPitches.value, [slug]: choice }
+  try {
+    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value))
+  } catch {}
+}
+
+function clearVote(slug: string) {
+  const next = { ...votedPitches.value }
+  delete next[slug]
+  votedPitches.value = next
+  try {
+    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value))
+  } catch {}
+}
+
+function pitchArticleClass(slug: string): string {
+  const choice = pitchVotedChoice(slug)
+  if (choice === 'approved') return 'border-success/40 bg-success/5'
+  if (choice === 'passed') return 'border-base-300 bg-base-200/50 opacity-60'
+  return 'border-warning/40 bg-warning/5 hover:shadow-md'
+}
+
+function startEditPitch(pitch: ConductorPitch) {
+  if (!pitchEditTexts.value[pitch.slug]) {
+    pitchEditTexts.value = { ...pitchEditTexts.value, [pitch.slug]: pitch.idea }
+  }
+  editingPitchSlug.value = pitch.slug
+}
+
+// Dream patch helpers
 function cancelDreamEdit() {
   dreamEditMode.value = false
   const dream = linkedDream.value
@@ -916,22 +989,6 @@ function handleProjectStatusChange(event: Event) {
   patchDream({ projectStatus: target.value as ProjectStatus })
 }
 
-function cardBackSrc(index: number): string {
-  return `/images/adventure/card/card-back${(index % 5) + 1}.webp`
-}
-
-function sparkleStyle(n: number): CSSProperties {
-  const angle = (n / 10) * Math.PI * 2
-  const radius = 28 + (n % 3) * 8
-  const x = 50 + Math.cos(angle) * radius
-  const y = 50 + Math.sin(angle) * radius
-  return {
-    left: `${x}%`,
-    top: `${y}%`,
-    animationDelay: `${(n % 5) * 40}ms`,
-  }
-}
-
 function blockedCount(project: ConductorProject): number {
   return project.tasks.filter((task) => task.status === 'blocked').length
 }
@@ -941,13 +998,7 @@ function needsHumanCount(project: ConductorProject): number {
 }
 
 const statusOrder = [
-  'done',
-  'review',
-  'claimed',
-  'ready',
-  'waiting',
-  'blocked',
-  'needs-human',
+  'done', 'review', 'claimed', 'ready', 'waiting', 'blocked', 'needs-human',
 ]
 
 function taskStatusSummary(project: ConductorProject): [string, number][] {
@@ -966,18 +1017,6 @@ function kindIcon(kind: string): string {
   if (kind === 'software') return 'kind-icon:code'
   if (kind === 'proposal') return 'kind-icon:sparkles'
   return 'kind-icon:document'
-}
-
-function kindOverlay(kind: string): CSSProperties {
-  const overlays: Record<string, string> = {
-    software:
-      'linear-gradient(160deg, rgba(168,85,247,0.25) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%)',
-    proposal:
-      'linear-gradient(160deg, rgba(14,165,233,0.25) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%)',
-    content:
-      'linear-gradient(160deg, rgba(236,72,153,0.25) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%)',
-  }
-  return { background: overlays[kind] ?? overlays.content }
 }
 
 function kindIconColorClass(kind: string): string {
@@ -1051,8 +1090,7 @@ function milestoneIcon(status: string): string {
 
 function milestoneIconClass(status: string): string {
   if (status === 'done') return 'border-success/40 bg-success/10 text-success'
-  if (status === 'in-progress')
-    return 'border-warning/40 bg-warning/10 text-warning'
+  if (status === 'in-progress') return 'border-warning/40 bg-warning/10 text-warning'
   return 'border-base-300 bg-base-200 text-base-content/40'
 }
 
@@ -1061,29 +1099,14 @@ function milestoneBadgeClass(status: string): string {
   if (status === 'in-progress') return 'badge-warning'
   return 'badge-ghost'
 }
+
+// Unused but kept for potential future use
+function _kindIconColorClass(kind: string): string {
+  return kindIconColorClass(kind)
+}
 </script>
 
 <style scoped>
-.hand-scroll {
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.hand-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.project-card {
-  width: 120px;
-  perspective: 900px;
-}
-
-.is-selected {
-  box-shadow:
-    0 0 0 2px hsl(var(--p, 280 90% 60%)),
-    0 8px 24px hsl(var(--p, 280 90% 60%) / 0.35);
-}
-
 .kind-glow-primary {
   color: hsl(var(--p, 280 90% 70%));
   filter: drop-shadow(0 0 10px hsl(var(--p, 280 90% 70%) / 0.9));
@@ -1097,182 +1120,5 @@ function milestoneBadgeClass(status: string): string {
 .kind-glow-info {
   color: hsl(var(--in, 198 93% 60%));
   filter: drop-shadow(0 0 10px hsl(var(--in, 198 93% 60%) / 0.9));
-}
-
-.card-flip {
-  transform-style: preserve-3d;
-  transition: transform 0s;
-}
-
-.card-face {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.card-back {
-  transform: rotateY(180deg);
-}
-
-.is-flipping .card-flip {
-  animation: card-spin 650ms cubic-bezier(0.4, 0.1, 0.2, 1);
-}
-
-@keyframes card-spin {
-  0% {
-    transform: rotateY(0deg) scale(1);
-  }
-  50% {
-    transform: rotateY(180deg) scale(1.08);
-  }
-  100% {
-    transform: rotateY(360deg) scale(1);
-  }
-}
-
-.sparkle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  border-radius: 9999px;
-  background: radial-gradient(
-    circle,
-    hsl(var(--p, 280 90% 70%)) 0%,
-    transparent 70%
-  );
-  box-shadow:
-    0 0 6px 2px hsl(var(--p, 280 90% 70%) / 0.8),
-    0 0 12px 4px hsl(var(--s, 200 90% 70%) / 0.5);
-  opacity: 0;
-  animation: sparkle-pop 650ms ease-out forwards;
-}
-
-@keyframes sparkle-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.2) rotate(0deg);
-  }
-  35% {
-    opacity: 1;
-    transform: scale(1.4) rotate(90deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.4) rotate(180deg);
-  }
-}
-
-.swirl {
-  position: absolute;
-  inset: 8%;
-  border-radius: 9999px;
-  border: 2px solid transparent;
-  opacity: 0;
-}
-
-.swirl-a {
-  border-top-color: hsl(var(--p, 280 90% 70%) / 0.9);
-  border-right-color: hsl(var(--s, 200 90% 70%) / 0.6);
-  animation: swirl-spin 650ms ease-out forwards;
-}
-
-.swirl-b {
-  inset: 20%;
-  border-bottom-color: hsl(var(--a, 320 90% 70%) / 0.9);
-  border-left-color: hsl(var(--p, 280 90% 70%) / 0.6);
-  animation: swirl-spin-rev 650ms ease-out forwards;
-}
-
-@keyframes swirl-spin {
-  0% {
-    opacity: 0;
-    transform: rotate(0deg) scale(0.6);
-  }
-  40% {
-    opacity: 1;
-    transform: rotate(220deg) scale(1.1);
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(420deg) scale(1.3);
-  }
-}
-
-@keyframes swirl-spin-rev {
-  0% {
-    opacity: 0;
-    transform: rotate(0deg) scale(0.6);
-  }
-  40% {
-    opacity: 1;
-    transform: rotate(-220deg) scale(1.05);
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(-420deg) scale(1.25);
-  }
-}
-
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition:
-    opacity 0.2s ease,
-    max-height 0.25s ease;
-  overflow: hidden;
-  max-height: 2000px;
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
-  opacity: 0;
-  max-height: 0;
-}
-
-.detail-slide-enter-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
-}
-
-.detail-slide-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.detail-slide-enter-from,
-.detail-slide-leave-to {
-  opacity: 0;
-  transform: translateY(12px);
-}
-
-.pop-enter-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s cubic-bezier(0.2, 0, 0.2, 1.4);
-}
-
-.pop-leave-active {
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-
-.pop-enter-from,
-.pop-leave-to {
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .is-flipping .card-flip {
-    animation: none;
-  }
-
-  .sparkle,
-  .swirl {
-    animation: none;
-    opacity: 0;
-  }
 }
 </style>

@@ -54,8 +54,6 @@ export const ModelName = {
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
-  Butterfly: 'Butterfly',
-  ButterflyRecord: 'ButterflyRecord',
   Character: 'Character',
   Chat: 'Chat',
   Code: 'Code',
@@ -191,37 +189,6 @@ export const BotScalarFieldEnum = {
 } as const
 
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
-
-
-export const ButterflyScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  name: 'name',
-  message: 'message',
-  wingTopColor: 'wingTopColor',
-  wingBottomColor: 'wingBottomColor',
-  speed: 'speed',
-  wingSpeed: 'wingSpeed',
-  scale: 'scale',
-  rarityNumber: 'rarityNumber',
-  designer: 'designer',
-  userId: 'userId',
-  isPublic: 'isPublic'
-} as const
-
-export type ButterflyScalarFieldEnum = (typeof ButterflyScalarFieldEnum)[keyof typeof ButterflyScalarFieldEnum]
-
-
-export const ButterflyRecordScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId',
-  butterflyId: 'butterflyId'
-} as const
-
-export type ButterflyRecordScalarFieldEnum = (typeof ButterflyRecordScalarFieldEnum)[keyof typeof ButterflyRecordScalarFieldEnum]
 
 
 export const CharacterScalarFieldEnum = {
@@ -999,17 +966,6 @@ export const BotOrderByRelevanceFieldEnum = {
 } as const
 
 export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)[keyof typeof BotOrderByRelevanceFieldEnum]
-
-
-export const ButterflyOrderByRelevanceFieldEnum = {
-  name: 'name',
-  message: 'message',
-  wingTopColor: 'wingTopColor',
-  wingBottomColor: 'wingBottomColor',
-  designer: 'designer'
-} as const
-
-export type ButterflyOrderByRelevanceFieldEnum = (typeof ButterflyOrderByRelevanceFieldEnum)[keyof typeof ButterflyOrderByRelevanceFieldEnum]
 
 
 export const CharacterOrderByRelevanceFieldEnum = {

@@ -2928,6 +2928,12 @@ export const DreamScalarFieldEnum = {
   examples: 'examples',
   artPrompt: 'artPrompt',
   imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  projectStatus: 'projectStatus',
+  repoUrl: 'repoUrl',
+  liveUrl: 'liveUrl',
+  allowReviews: 'allowReviews',
   highlightImage: 'highlightImage',
   icon: 'icon',
   designer: 'designer',
@@ -3659,6 +3665,10 @@ export const DreamOrderByRelevanceFieldEnum = {
   examples: 'examples',
   artPrompt: 'artPrompt',
   imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  repoUrl: 'repoUrl',
+  liveUrl: 'liveUrl',
   highlightImage: 'highlightImage',
   icon: 'icon',
   designer: 'designer'
@@ -4041,6 +4051,13 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'DreamType'
  */
 export type EnumDreamTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamType'>
+    
+
+
+/**
+ * Reference to a field of type 'ProjectStatus'
+ */
+export type EnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectStatus'>
     
 
 

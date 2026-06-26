@@ -1,5 +1,5 @@
 // /server/api/reactions/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'
@@ -19,7 +19,6 @@ type ReactionBody = {
   artId?: unknown
   artCollectionId?: unknown
   botId?: unknown
-  butterflyId?: unknown
   characterId?: unknown
   chatId?: unknown
   componentId?: unknown
@@ -34,22 +33,19 @@ type ReactionBody = {
 
 const validReactionTypes = Object.values(ReactionType)
 const validReactionCategories = Object.values(Reaction_reactionCategory)
+const retiredReactionCategories = new Set<string>(['BUTTERFLY'])
 
 const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   ART: Reaction_reactionCategory.ART_IMAGE,
   ARTIMAGE: Reaction_reactionCategory.ART_IMAGE,
   ART_IMAGE: Reaction_reactionCategory.ART_IMAGE,
   IMAGE: Reaction_reactionCategory.ART_IMAGE,
-
   COLLECTION: Reaction_reactionCategory.ART_COLLECTION,
   ART_COLLECTION: Reaction_reactionCategory.ART_COLLECTION,
-
   CHAT: Reaction_reactionCategory.CHAT_EXCHANGE,
   CHAT_EXCHANGE: Reaction_reactionCategory.CHAT_EXCHANGE,
   MESSAGE: Reaction_reactionCategory.MESSAGE,
-
   BOT: Reaction_reactionCategory.BOT,
-  BUTTERFLY: Reaction_reactionCategory.BUTTERFLY,
   CHARACTER: Reaction_reactionCategory.CHARACTER,
   COMPONENT: Reaction_reactionCategory.COMPONENT,
   COMPOSITION: Reaction_reactionCategory.COMPOSITION,
@@ -64,10 +60,7 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
 
 function normalizeReactionType(value: unknown): ReactionType {
   if (typeof value !== 'string') {
-    throw createError({
-      statusCode: 400,
-      message: '"reactionType" is required.',
-    })
+    throw createError({ statusCode: 400, message: '"reactionType" is required.' })
   }
 
   const normalized = value.trim().toUpperCase() as ReactionType
@@ -84,16 +77,18 @@ function normalizeReactionType(value: unknown): ReactionType {
 
 function normalizeReactionCategory(value: unknown): Reaction_reactionCategory {
   if (typeof value !== 'string') {
+    throw createError({ statusCode: 400, message: '"reactionCategory" is required.' })
+  }
+
+  const normalizedKey = value.trim().toUpperCase().replace(/[\s-]+/g, '_')
+
+  if (retiredReactionCategories.has(normalizedKey)) {
     throw createError({
       statusCode: 400,
-      message: '"reactionCategory" is required.',
+      message: `reactionCategory ${normalizedKey} is no longer supported.`,
     })
   }
 
-  const normalizedKey = value
-    .trim()
-    .toUpperCase()
-    .replace(/[\s-]+/g, '_')
   const aliased = reactionCategoryAliases[normalizedKey]
 
   if (aliased) return aliased
@@ -120,9 +115,7 @@ function toNullableText(value: unknown): string | null | undefined {
 
 function toRating(value: unknown): number {
   const parsed = Number(value)
-
   if (!Number.isFinite(parsed)) return 0
-
   return Math.max(0, Math.min(5, Math.round(parsed)))
 }
 
@@ -136,7 +129,6 @@ function getTargetFields(body: ReactionBody) {
     artImageId: toPositiveId(body.artImageId ?? body.artId),
     artCollectionId: toPositiveId(body.artCollectionId),
     botId: toPositiveId(body.botId),
-    butterflyId: toPositiveId(body.butterflyId),
     characterId: toPositiveId(body.characterId),
     chatId: toPositiveId(body.chatId),
     componentId: toPositiveId(body.componentId),
@@ -151,14 +143,12 @@ function getTargetFields(body: ReactionBody) {
 }
 
 function getExpectedTargetField(category: Reaction_reactionCategory) {
-  const map: Record<
-    Reaction_reactionCategory,
-    keyof ReturnType<typeof getTargetFields> | null
+  const map: Partial<
+    Record<Reaction_reactionCategory, keyof ReturnType<typeof getTargetFields> | null>
   > = {
     [Reaction_reactionCategory.ART_IMAGE]: 'artImageId',
     [Reaction_reactionCategory.ART_COLLECTION]: 'artCollectionId',
     [Reaction_reactionCategory.BOT]: 'botId',
-    [Reaction_reactionCategory.BUTTERFLY]: 'butterflyId',
     [Reaction_reactionCategory.CHARACTER]: 'characterId',
     [Reaction_reactionCategory.CHAT_EXCHANGE]: 'chatId',
     [Reaction_reactionCategory.COMPONENT]: 'componentId',
@@ -173,7 +163,7 @@ function getExpectedTargetField(category: Reaction_reactionCategory) {
     [Reaction_reactionCategory.POST]: null,
   }
 
-  return map[category]
+  return map[category] ?? null
 }
 
 function buildTargetWhere(
@@ -181,7 +171,6 @@ function buildTargetWhere(
   targets: ReturnType<typeof getTargetFields>,
 ): Prisma.ReactionWhereInput {
   const expectedField = getExpectedTargetField(category)
-
   if (!expectedField) return {}
 
   const expectedId = targets[expectedField]
@@ -193,9 +182,7 @@ function buildTargetWhere(
     })
   }
 
-  return {
-    [expectedField]: expectedId,
-  }
+  return { [expectedField]: expectedId }
 }
 
 async function assertReactionTargetExists(
@@ -203,88 +190,28 @@ async function assertReactionTargetExists(
   targets: ReturnType<typeof getTargetFields>,
 ) {
   const expectedField = getExpectedTargetField(category)
-
   if (!expectedField) return
 
   const targetId = targets[expectedField]
-
   if (!targetId) return
 
   const checks: Record<string, () => Promise<unknown>> = {
-    artImageId: () =>
-      prisma.artImage.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    artCollectionId: () =>
-      prisma.artCollection.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    botId: () =>
-      prisma.bot.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    butterflyId: () =>
-      prisma.butterfly.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    characterId: () =>
-      prisma.character.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    chatId: () =>
-      prisma.chat.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    componentId: () =>
-      prisma.component.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    compositionId: () =>
-      prisma.composition.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    dreamId: () =>
-      prisma.dream.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    promptId: () =>
-      prisma.prompt.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    resourceId: () =>
-      prisma.resource.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    rewardId: () =>
-      prisma.reward.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    scenarioId: () =>
-      prisma.scenario.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    themeId: () =>
-      prisma.theme.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
+    artImageId: () => prisma.artImage.findUnique({ where: { id: targetId }, select: { id: true } }),
+    artCollectionId: () => prisma.artCollection.findUnique({ where: { id: targetId }, select: { id: true } }),
+    botId: () => prisma.bot.findUnique({ where: { id: targetId }, select: { id: true } }),
+    characterId: () => prisma.character.findUnique({ where: { id: targetId }, select: { id: true } }),
+    chatId: () => prisma.chat.findUnique({ where: { id: targetId }, select: { id: true } }),
+    componentId: () => prisma.component.findUnique({ where: { id: targetId }, select: { id: true } }),
+    compositionId: () => prisma.composition.findUnique({ where: { id: targetId }, select: { id: true } }),
+    dreamId: () => prisma.dream.findUnique({ where: { id: targetId }, select: { id: true } }),
+    promptId: () => prisma.prompt.findUnique({ where: { id: targetId }, select: { id: true } }),
+    resourceId: () => prisma.resource.findUnique({ where: { id: targetId }, select: { id: true } }),
+    rewardId: () => prisma.reward.findUnique({ where: { id: targetId }, select: { id: true } }),
+    scenarioId: () => prisma.scenario.findUnique({ where: { id: targetId }, select: { id: true } }),
+    themeId: () => prisma.theme.findUnique({ where: { id: targetId }, select: { id: true } }),
   }
 
   const check = checks[expectedField]
-
   if (!check) return
 
   const found = await check()
@@ -302,19 +229,13 @@ export default defineEventHandler(async (event) => {
     const { isValid, user } = await validateApiKey(event)
 
     if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
+      throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
     }
 
     const body = await readBody<ReactionBody>(event)
 
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
-      throw createError({
-        statusCode: 400,
-        message: 'Reaction payload is required.',
-      })
+      throw createError({ statusCode: 400, message: 'Reaction payload is required.' })
     }
 
     const reactionType = normalizeReactionType(body.reactionType)
@@ -344,14 +265,10 @@ export default defineEventHandler(async (event) => {
 
     const data = existingReaction
       ? await prisma.reaction.update({
-          where: {
-            id: existingReaction.id,
-          },
+          where: { id: existingReaction.id },
           data: mutationData,
         })
-      : await prisma.reaction.create({
-          data: mutationData,
-        })
+      : await prisma.reaction.create({ data: mutationData })
 
     event.node.res.statusCode = existingReaction ? 200 : 201
 
@@ -366,7 +283,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handledError = errorHandler(error)
-
     event.node.res.statusCode = handledError.statusCode || 500
 
     return {

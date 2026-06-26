@@ -252,3 +252,18 @@ npx prisma migrate status --schema=prisma/schema.prisma
 **********
 Covnert Images: 
 node ./utils/scripts/convertImagesToWebp.mjs public/images/convert public/images/convert/webp
+
+
+****
+Github whitespace error (if git is out of sync with minor edits)
+
+## confirm the edits are minor
+git diff --summary
+git diff --check
+git diff --ignore-space-at-eol --stat
+
+## Sync
+git fetch origin
+git reset --hard origin/main
+git clean -fd
+git status

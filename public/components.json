@@ -44,10 +44,6 @@
     ]
   },
   {
-    "folderName": "brainstorm",
-    "components": []
-  },
-  {
     "folderName": "builder",
     "components": [
       "art-builder",
@@ -149,7 +145,8 @@
       "dream-pitch-sheet",
       "dream-relationship-gallery",
       "dream-sheet-toolbar",
-      "dream-workspace"
+      "dream-workspace",
+      "project-card"
     ]
   },
   {
@@ -201,6 +198,7 @@
     "components": [
       "card-picker",
       "channel-select",
+      "conductor-hand",
       "flip-card",
       "login-switcher",
       "mana-widget",
@@ -228,7 +226,8 @@
       "social-page",
       "sponsor-page",
       "super-form",
-      "welcome-page"
+      "welcome-page",
+      "workspace-page"
     ]
   },
   {

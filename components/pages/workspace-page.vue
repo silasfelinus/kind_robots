@@ -127,22 +127,31 @@
           </div>
 
           <!-- Quick add -->
-          <form class="flex gap-2" @submit.prevent="submitNewTodo">
-            <input
-              v-model="newTodoTitle"
-              type="text"
-              placeholder="Add a task..."
-              class="input input-bordered input-sm flex-1 rounded-xl"
+          <form class="flex flex-col gap-2" @submit.prevent="submitNewTodo">
+            <div class="flex gap-2">
+              <input
+                v-model="newTodoTitle"
+                type="text"
+                placeholder="Add a task..."
+                class="input input-bordered input-sm flex-1 rounded-xl"
+                :disabled="todoStore.loading"
+              />
+              <select v-model="newTodoPriority" class="select select-bordered select-sm rounded-xl">
+                <option value="HIGH">High</option>
+                <option value="NORMAL">Normal</option>
+                <option value="LOW">Low</option>
+              </select>
+              <button type="submit" class="btn btn-primary btn-sm rounded-xl" :disabled="!newTodoTitle.trim() || todoStore.loading">
+                Add
+              </button>
+            </div>
+            <textarea
+              v-model="newTodoDescription"
+              placeholder="Context for the agent (project name, specific instructions...)"
+              class="textarea textarea-bordered textarea-sm rounded-xl text-xs leading-relaxed"
+              rows="2"
               :disabled="todoStore.loading"
             />
-            <select v-model="newTodoPriority" class="select select-bordered select-sm rounded-xl">
-              <option value="HIGH">High</option>
-              <option value="NORMAL">Normal</option>
-              <option value="LOW">Low</option>
-            </select>
-            <button type="submit" class="btn btn-primary btn-sm rounded-xl" :disabled="!newTodoTitle.trim() || todoStore.loading">
-              Add
-            </button>
           </form>
 
           <!-- Filter tabs -->
@@ -175,44 +184,50 @@
             <div
               v-for="todo in filteredTodos"
               :key="todo.id"
-              class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-2.5 transition-colors"
+              class="flex flex-col gap-1 rounded-2xl border border-base-300 bg-base-100 px-4 py-2.5 transition-colors"
               :class="todo.status === 'DONE' ? 'opacity-60' : ''"
             >
-              <button
-                type="button"
-                class="shrink-0 transition-colors"
-                :class="todo.status === 'DONE' ? 'text-success' : 'text-base-content/30 hover:text-success'"
-                @click="todoStore.toggleDone(todo)"
-              >
-                <Icon :name="todo.status === 'DONE' ? 'kind-icon:check-circle' : 'kind-icon:circle'" class="size-5" />
-              </button>
-
-              <span class="min-w-0 flex-1 truncate text-sm" :class="todo.status === 'DONE' ? 'line-through text-base-content/40' : ''">
-                {{ todo.title }}
-              </span>
-
-              <span v-if="todo.priority === 'HIGH'" class="badge badge-error badge-xs shrink-0">high</span>
-              <span v-else-if="todo.priority === 'LOW'" class="badge badge-ghost badge-xs shrink-0">low</span>
-
-              <div class="flex shrink-0 gap-1">
-                <button
-                  v-if="todo.status !== 'ARCHIVED'"
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
-                  title="Archive"
-                  @click="todoStore.archiveTodo(todo.id)"
-                >
-                  <Icon name="kind-icon:archive" class="size-3" />
-                </button>
+              <div class="flex items-center gap-3">
                 <button
                   type="button"
-                  class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
-                  title="Delete"
-                  @click="todoStore.deleteTodo(todo.id)"
+                  class="shrink-0 transition-colors"
+                  :class="todo.status === 'DONE' ? 'text-success' : 'text-base-content/30 hover:text-success'"
+                  @click="todoStore.toggleDone(todo)"
                 >
-                  <Icon name="kind-icon:x" class="size-3" />
+                  <Icon :name="todo.status === 'DONE' ? 'kind-icon:check-circle' : 'kind-icon:circle'" class="size-5" />
                 </button>
+
+                <span class="min-w-0 flex-1 truncate text-sm" :class="todo.status === 'DONE' ? 'line-through text-base-content/40' : ''">
+                  {{ todo.title }}
+                </span>
+
+                <span v-if="todo.priority === 'HIGH'" class="badge badge-error badge-xs shrink-0">high</span>
+                <span v-else-if="todo.priority === 'LOW'" class="badge badge-ghost badge-xs shrink-0">low</span>
+
+                <div class="flex shrink-0 gap-1">
+                  <button
+                    v-if="todo.status !== 'ARCHIVED'"
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
+                    title="Archive"
+                    @click="todoStore.archiveTodo(todo.id)"
+                  >
+                    <Icon name="kind-icon:archive" class="size-3" />
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
+                    title="Delete"
+                    @click="todoStore.deleteTodo(todo.id)"
+                  >
+                    <Icon name="kind-icon:x" class="size-3" />
+                  </button>
+                </div>
               </div>
+
+              <p v-if="todo.description" class="ml-8 text-xs leading-relaxed text-base-content/50">
+                {{ todo.description }}
+              </p>
             </div>
 
             <p v-if="!todoStore.loading && !filteredTodos.length" class="py-6 text-center text-sm text-base-content/50">
@@ -528,6 +543,7 @@ const votedPitches = ref<Record<string, 'approved' | 'passed'>>({})
 const VOTE_STORAGE_KEY = 'kr.workspacePitchVotes'
 
 const newTodoTitle = ref('')
+const newTodoDescription = ref('')
 const newTodoPriority = ref<'LOW' | 'NORMAL' | 'HIGH'>('NORMAL')
 const todoFilter = ref<'OPEN' | 'DONE' | 'ARCHIVED'>('OPEN')
 const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
@@ -697,8 +713,13 @@ function goTo(key: string) { pageStore.setWorkspaceCardKey(key) }
 async function submitNewTodo() {
   const title = newTodoTitle.value.trim()
   if (!title) return
-  await todoStore.createTodo({ title, priority: newTodoPriority.value })
+  await todoStore.createTodo({
+    title,
+    priority: newTodoPriority.value,
+    description: newTodoDescription.value.trim() || null,
+  })
   newTodoTitle.value = ''
+  newTodoDescription.value = ''
   newTodoPriority.value = 'NORMAL'
   todoFilter.value = 'OPEN'
 }

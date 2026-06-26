@@ -1,204 +1,158 @@
-### Seed: Conductor Projects as PROJECT-type Dreams
-### Run these once against your local or prod DB.
-### Images are served from the conductor GitHub repo.
-### Auth: set ADMIN_TOKEN in your .env (or .env.local)
-
+### Seed: All Conductor Projects as one batch
 @base = https://kind-robots.vercel.app/api
 @admintoken = {{$dotenv ADMIN_TOKEN}}
+@imgbase = https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images
 
-# ─── Image base URL ────────────────────────────────────────────────────────────
-# All project images live in:
-# https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/
-
-### ── 1. kind-robots ──────────────────────────────────────────────────────────
-POST {{base}}/dreams
+POST {{base}}/dreams/batch
 Content-Type: application/json
-Authorization: Bearer {{admintoken}}
+x-admin-token: {{admintoken}}
 
 {
-  "title": "Kind Robots",
-  "slug": "kind-robots",
-  "dreamType": "PROJECT",
-  "projectStatus": "ACTIVE",
-  "description": "The Kind Robots app — a Nuxt 4/Vue 3/TS/Prisma/Pinia/DaisyUI platform for AI-assisted creativity. Covers art generation, character creation, scenario building, and agent-driven workflows.",
-  "pitch": "Build app-owned logic here; consume shared backend as read-only. Do not reimplement the shared backend.",
-  "flavorText": "Where AI and humans make things together.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/kind-robots-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/kind-robots-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/kind-robots-hero.webp",
-  "icon": "kind-icon:robot",
-  "repoUrl": "https://github.com/silasfelinus/kind_robots",
-  "liveUrl": "https://kind-robots.vercel.app",
-  "isPublic": true,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
+  "dreams": [
+    {
+      "title": "Kind Robots",
+      "slug": "kind-robots",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "The Kind Robots app — a Nuxt 4/Vue 3/TS/Prisma/Pinia/DaisyUI platform for AI-assisted creativity. Covers art generation, character creation, scenario building, and agent-driven workflows.",
+      "pitch": "Build app-owned logic here; consume shared backend as read-only. Do not reimplement the shared backend.",
+      "flavorText": "Where AI and humans make things together.",
+      "imagePath": "{{imgbase}}/kind-robots-icon.webp",
+      "cardPath": "{{imgbase}}/kind-robots-card.webp",
+      "heroPath": "{{imgbase}}/kind-robots-hero.webp",
+      "icon": "kind-icon:robot",
+      "repoUrl": "https://github.com/silasfelinus/kind_robots",
+      "liveUrl": "https://kind-robots.vercel.app",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    },
+    {
+      "title": "Humboldt Scoop",
+      "slug": "humboldt-scoop",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "The existing Humboldt Scoop website — the first real test of the agent loop. A local business site for a poop-scoop service in Humboldt County.",
+      "pitch": "First real test of the agent loop. Do NOT deploy or touch DNS unattended.",
+      "flavorText": "Keeping Humboldt clean, one yard at a time.",
+      "imagePath": "{{imgbase}}/humboldt-scoop-icon.webp",
+      "cardPath": "{{imgbase}}/humboldt-scoop-card.webp",
+      "heroPath": "{{imgbase}}/humboldt-scoop-hero.webp",
+      "icon": "kind-icon:leaf",
+      "repoUrl": "https://github.com/silasfelinus/humboldt-scoop",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    },
+    {
+      "title": "Poop Scoop CMS",
+      "slug": "humboldt-poop-scoop-cms",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "New customer-management software for a poop-scoop service. Tracks customers, pets and yards, service schedules, visit logs, and billing.",
+      "pitch": "Build with seed/dummy data only until Silas approves going live.",
+      "flavorText": "Customer management that doesn't stink.",
+      "imagePath": "{{imgbase}}/humboldt-poop-scoop-cms-icon.webp",
+      "cardPath": "{{imgbase}}/humboldt-poop-scoop-cms-card.webp",
+      "heroPath": "{{imgbase}}/humboldt-poop-scoop-cms-hero.webp",
+      "icon": "kind-icon:clipboard",
+      "repoUrl": "https://github.com/silasfelinus/humboldt-poop-scoop-cms",
+      "isPublic": false,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    },
+    {
+      "title": "Approval Portal",
+      "slug": "approval-portal",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "A portal for Silas to review AI agent work: pick pitches, validate upgrades, confirm updates, and roll back changes. The repo stays source of truth — the portal reads roadmaps/pitches/git and writes decisions as commits/PRs.",
+      "pitch": "Core principle: the repo is always the source of truth. The portal is a read/write UI on top of git.",
+      "flavorText": "Where the human stays in control.",
+      "imagePath": "{{imgbase}}/approval-portal-icon.webp",
+      "cardPath": "{{imgbase}}/approval-portal-card.webp",
+      "heroPath": "{{imgbase}}/approval-portal-hero.webp",
+      "icon": "kind-icon:check",
+      "repoUrl": "https://github.com/silasfelinus/conductor",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    },
+    {
+      "title": "Digital Storefront",
+      "slug": "digital-storefront",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "A content pipeline project: research stores, brainstorm products, create drafts, plan marketing, write ad copy. Only builds within product-types.yaml constraints.",
+      "pitch": "No unattended publishing, posting, or spending. All output goes to needs-human before anything goes live.",
+      "flavorText": "Making things people actually want to buy.",
+      "imagePath": "{{imgbase}}/digital-storefront-icon.webp",
+      "cardPath": "{{imgbase}}/digital-storefront-card.webp",
+      "heroPath": "{{imgbase}}/digital-storefront-hero.webp",
+      "icon": "kind-icon:store",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    },
+    {
+      "title": "Brainstorm",
+      "slug": "brainstorm",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "Ongoing proposal generation: AI workers surface ideas for Silas to vote on. Quality over quantity — max 3 new pitches per cycle. Respects CONTROL.md genre guidance and product-type constraints.",
+      "pitch": "Generate ideas for Silas to vote on. The Worker never implements; it only writes the pitch.",
+      "flavorText": "Ideas are cheap. Good ideas, less so.",
+      "imagePath": "{{imgbase}}/brainstorm-icon.webp",
+      "cardPath": "{{imgbase}}/brainstorm-card.webp",
+      "heroPath": "{{imgbase}}/brainstorm-hero.webp",
+      "icon": "kind-icon:sparkles",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    },
+    {
+      "title": "Mermaids of Venice",
+      "slug": "mermaids-of-venice",
+      "dreamType": "PROJECT",
+      "projectStatus": "PAUSED",
+      "description": "A creative content project. Full direction is TBD — Silas will fill in the roadmap before the first cycle.",
+      "pitch": "Creative content project with direction TBD.",
+      "flavorText": "Where the canals run deep and the stories run deeper.",
+      "imagePath": "{{imgbase}}/mermaids-of-venice-icon.webp",
+      "cardPath": "{{imgbase}}/mermaids-of-venice-card.webp",
+      "heroPath": "{{imgbase}}/mermaids-of-venice-hero.webp",
+      "icon": "kind-icon:water",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    },
+    {
+      "title": "Coat Dance",
+      "slug": "coat-dance",
+      "dreamType": "PROJECT",
+      "projectStatus": "PAUSED",
+      "description": "A creative content project. Direction TBD — Silas will fill in the roadmap before the first cycle.",
+      "pitch": "Creative content project with direction TBD.",
+      "flavorText": "Every coat tells a story.",
+      "imagePath": "{{imgbase}}/coat-dance-icon.webp",
+      "cardPath": "{{imgbase}}/coat-dance-card.webp",
+      "heroPath": "{{imgbase}}/coat-dance-hero.webp",
+      "icon": "kind-icon:star",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false
+    }
+  ]
 }
 
-### ── 2. humboldt-scoop ────────────────────────────────────────────────────────
-POST {{base}}/dreams
-Content-Type: application/json
-Authorization: Bearer {{admintoken}}
-
-{
-  "title": "Humboldt Scoop",
-  "slug": "humboldt-scoop",
-  "dreamType": "PROJECT",
-  "projectStatus": "ACTIVE",
-  "description": "The existing Humboldt Scoop website — the first real test of the agent loop. A local business site for a poop-scoop service in Humboldt County.",
-  "pitch": "First real test of the agent loop. Do NOT deploy or touch DNS unattended.",
-  "flavorText": "Keeping Humboldt clean, one yard at a time.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/humboldt-scoop-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/humboldt-scoop-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/humboldt-scoop-hero.webp",
-  "icon": "kind-icon:leaf",
-  "repoUrl": "https://github.com/silasfelinus/humboldt-scoop",
-  "isPublic": true,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
-}
-
-### ── 3. humboldt-poop-scoop-cms ──────────────────────────────────────────────
-POST {{base}}/dreams
-Content-Type: application/json
-Authorization: Bearer {{admintoken}}
-
-{
-  "title": "Poop Scoop CMS",
-  "slug": "humboldt-poop-scoop-cms",
-  "dreamType": "PROJECT",
-  "projectStatus": "ACTIVE",
-  "description": "New customer-management software for a poop-scoop service. Tracks customers, pets and yards, service schedules, visit logs, and billing.",
-  "pitch": "Build with seed/dummy data only until Silas approves going live.",
-  "flavorText": "Customer management that doesn't stink.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/humboldt-poop-scoop-cms-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/humboldt-poop-scoop-cms-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/humboldt-poop-scoop-cms-hero.webp",
-  "icon": "kind-icon:clipboard",
-  "repoUrl": "https://github.com/silasfelinus/humboldt-poop-scoop-cms",
-  "isPublic": false,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
-}
-
-### ── 4. approval-portal ──────────────────────────────────────────────────────
-POST {{base}}/dreams
-Content-Type: application/json
-Authorization: Bearer {{admintoken}}
-
-{
-  "title": "Approval Portal",
-  "slug": "approval-portal",
-  "dreamType": "PROJECT",
-  "projectStatus": "ACTIVE",
-  "description": "A portal for Silas to review AI agent work: pick pitches, validate upgrades, confirm updates, and roll back changes. The repo stays source of truth — the portal reads roadmaps/pitches/git and writes decisions as commits/PRs.",
-  "pitch": "Core principle: the repo is always the source of truth. The portal is a read/write UI on top of git.",
-  "flavorText": "Where the human stays in control.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/approval-portal-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/approval-portal-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/approval-portal-hero.webp",
-  "icon": "kind-icon:check",
-  "repoUrl": "https://github.com/silasfelinus/conductor",
-  "isPublic": true,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
-}
-
-### ── 5. digital-storefront ────────────────────────────────────────────────────
-POST {{base}}/dreams
-Content-Type: application/json
-Authorization: Bearer {{admintoken}}
-
-{
-  "title": "Digital Storefront",
-  "slug": "digital-storefront",
-  "dreamType": "PROJECT",
-  "projectStatus": "ACTIVE",
-  "description": "A content pipeline project: research stores, brainstorm products, create drafts, plan marketing, write ad copy. Only builds within product-types.yaml constraints.",
-  "pitch": "No unattended publishing, posting, or spending. All output goes to needs-human before anything goes live.",
-  "flavorText": "Making things people actually want to buy.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/digital-storefront-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/digital-storefront-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/digital-storefront-hero.webp",
-  "icon": "kind-icon:store",
-  "isPublic": true,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
-}
-
-### ── 6. brainstorm ────────────────────────────────────────────────────────────
-POST {{base}}/dreams
-Content-Type: application/json
-Authorization: Bearer {{admintoken}}
-
-{
-  "title": "Brainstorm",
-  "slug": "brainstorm",
-  "dreamType": "PROJECT",
-  "projectStatus": "ACTIVE",
-  "description": "Ongoing proposal generation: AI workers surface ideas for Silas to vote on. Quality over quantity — max 3 new pitches per cycle. Respects CONTROL.md genre guidance and product-type constraints.",
-  "pitch": "Generate ideas for Silas to vote on. The Worker never implements; it only writes the pitch.",
-  "flavorText": "Ideas are cheap. Good ideas, less so.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/brainstorm-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/brainstorm-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/brainstorm-hero.webp",
-  "icon": "kind-icon:sparkles",
-  "isPublic": true,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
-}
-
-### ── 7. mermaids-of-venice ────────────────────────────────────────────────────
-POST {{base}}/dreams
-Content-Type: application/json
-Authorization: Bearer {{admintoken}}
-
-{
-  "title": "Mermaids of Venice",
-  "slug": "mermaids-of-venice",
-  "dreamType": "PROJECT",
-  "projectStatus": "PAUSED",
-  "description": "A creative content project. Full direction is TBD — Silas will fill in the roadmap before the first cycle.",
-  "pitch": "Creative content project with direction TBD.",
-  "flavorText": "Where the canals run deep and the stories run deeper.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/mermaids-of-venice-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/mermaids-of-venice-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/mermaids-of-venice-hero.webp",
-  "icon": "kind-icon:water",
-  "isPublic": true,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
-}
-
-### ── 8. coat-dance ────────────────────────────────────────────────────────────
-POST {{base}}/dreams
-Content-Type: application/json
-Authorization: Bearer {{admintoken}}
-
-{
-  "title": "Coat Dance",
-  "slug": "coat-dance",
-  "dreamType": "PROJECT",
-  "projectStatus": "PAUSED",
-  "description": "A creative content project. Direction TBD — Silas will fill in the roadmap before the first cycle.",
-  "pitch": "Creative content project with direction TBD.",
-  "flavorText": "Every coat tells a story.",
-  "imagePath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/coat-dance-icon.webp",
-  "cardPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/coat-dance-card.webp",
-  "heroPath": "https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images/coat-dance-hero.webp",
-  "icon": "kind-icon:star",
-  "isPublic": true,
-  "isMature": false,
-  "isActive": true,
-  "allowReviews": false
-}
-
-### ── Verify: list all PROJECT dreams ─────────────────────────────────────────
+### Verify
 GET {{base}}/dreams?dreamType=PROJECT
-Authorization: Bearer {{admintoken}}
+x-admin-token: {{admintoken}}

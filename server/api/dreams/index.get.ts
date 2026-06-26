@@ -16,6 +16,7 @@ type DreamListQuery = {
   userOnly?: string
   search?: string
   dreamType?: string
+  projectStatus?: string
   artCollectionId?: string
   scenarioId?: string
   characterId?: string
@@ -215,6 +216,11 @@ export default defineEventHandler(async (event) => {
       normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
     const search = typeof query.search === 'string' ? query.search.trim() : ''
     const dreamType = parseDreamType(query.dreamType)
+    const validProjectStatuses = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED'] as const
+    type ProjectStatus = typeof validProjectStatuses[number]
+    const projectStatus = validProjectStatuses.includes(query.projectStatus as ProjectStatus)
+      ? (query.projectStatus as ProjectStatus)
+      : null
     const artCollectionId = normalizePositiveInt(query.artCollectionId)
     const scenarioId = normalizePositiveInt(query.scenarioId)
     const characterId = normalizePositiveInt(query.characterId)
@@ -244,6 +250,10 @@ export default defineEventHandler(async (event) => {
 
     if (dreamType) {
       andFilters.push({ dreamType })
+    }
+
+    if (projectStatus) {
+      andFilters.push({ projectStatus })
     }
 
     if (artCollectionId) {

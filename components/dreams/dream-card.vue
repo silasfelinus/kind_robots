@@ -1,6 +1,20 @@
 <!-- /components/dreams/dream-card.vue -->
 <template>
+  <project-card
+    v-if="dream.dreamType === 'PROJECT'"
+    :dream="dream"
+    :compact="compact"
+    :show-actions="showActions"
+    :allow-edit="allowEdit"
+    :allow-delete="allowDelete"
+    :selected="selected || isSelected"
+    @choose="$emit('choose', $event)"
+    @edit="$emit('edit', $event)"
+    @delete="$emit('delete', $event)"
+  />
+
   <article
+    v-else
     class="group relative flex h-full min-h-0 cursor-pointer overflow-hidden rounded-2xl border bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl"
     :class="cardClass"
     @click="$emit('choose', dream)"
@@ -297,6 +311,7 @@ const primaryArt = computed<Partial<ArtImage> | null>(() => {
 
 const explicitDreamImagePath = computed(() => {
   return (
+    normalizeImagePath(props.dream.cardPath) ||
     normalizeImagePath(props.dream.imagePath) ||
     normalizeImagePath(props.dream.highlightImage) ||
     ''

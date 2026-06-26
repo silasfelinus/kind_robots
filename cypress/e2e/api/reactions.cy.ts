@@ -2,52 +2,73 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/reactions.cy.ts
 
 describe('Reaction Management API Tests', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api'
+  const invalidToken = 'someInvalidTokenValue'
+  let userId = 0
+  let userToken = ''
+  let apiKey = ''
+  let artImageId: number | undefined
+  let reactionId: number | undefined
 
-  // Auth migration: fresh disposable JWT user
+  const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${userToken}`,
+  })
+
+  const cleanupHeaders = () => ({
+    ...authHeaders(),
+    ...(apiKey ? { 'x-api-key': apiKey } : {}),
+  })
+
   before(() => {
+    cy.env(['API_KEY', 'BETA_ADMIN_TOKEN']).then((env) => {
+      apiKey = String(env.BETA_ADMIN_TOKEN || env.API_KEY || '')
+    })
+
     return createLoggedInTestUser().then((auth) => {
       userToken = auth.token
       userId = auth.id
     })
   })
 
-  const baseUrl = 'https://kind-robots.vercel.app/api'
-  const invalidToken = 'someInvalidTokenValue'
-  let userId = 0
+  after(() => {
+    if (reactionId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/reactions/${reactionId}`,
+        headers: cleanupHeaders(),
+        failOnStatusCode: false,
+      }).then(() => {
+        reactionId = undefined
+      })
+    }
 
-  let userToken = ''
-  let artImageId: number | undefined
-  let reactionId: number | undefined
-
-  before(() => {
-    cy.wrap(null).then(() => {
-          })
+    if (artImageId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/art/image/${artImageId}`,
+        headers: cleanupHeaders(),
+        failOnStatusCode: false,
+      }).then(() => {
+        artImageId = undefined
+      })
+    }
   })
-  before(() => {
-    return createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    userId = auth.id
-    })
-  })
-
-
-
-
 
   it('Create a New ArtImage Fixture', () => {
+    const stamp = Date.now()
+
     cy.request({
       method: 'POST',
       url: `${baseUrl}/art/image`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
         artPrompt: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
-        path: `/images/testing/reaction-fixture-${Date.now()}.webp`,
-        imagePath: `/images/testing/reaction-fixture-${Date.now()}.webp`,
+        path: `/images/testing/reaction-fixture-${stamp}.webp`,
+        imagePath: `/images/testing/reaction-fixture-${stamp}.webp`,
+        fileName: `reaction-fixture-${stamp}.webp`,
         fileType: 'webp',
         seed: -1,
         userId,
@@ -123,10 +144,7 @@ describe('Reaction Management API Tests', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/reactions`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
       body: {
         userId,
         reactionType: 'LOVED',
@@ -154,10 +172,7 @@ describe('Reaction Management API Tests', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: authHeaders(),
       body: {
         reactionType: 'CLAPPED',
         reactionCategory: 'ART_IMAGE',
@@ -219,10 +234,7 @@ describe('Reaction Management API Tests', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: cleanupHeaders(),
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
@@ -240,13 +252,10 @@ describe('Reaction Management API Tests', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/art/image/${artImageId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: cleanupHeaders(),
       failOnStatusCode: false,
     }).then((response) => {
-      expect([200, 204, 401, 404]).to.include(response.status)
+      expect([200, 204, 404]).to.include(response.status)
 
       artImageId = undefined
     })

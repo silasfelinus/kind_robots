@@ -89,63 +89,67 @@ const normalizeRequestArgs = (args: unknown[]): NormalizedRequest => {
   }
 }
 
-const getBodyData = (body: unknown): Record<string, unknown> | null => {
-  if (!body || typeof body !== 'object') return null
-
-  const record = body as Record<string, unknown>
-  const data = record.data
-
-  if (Array.isArray(data)) {
-    const first = data[0]
-    return first && typeof first === 'object' ? (first as Record<string, unknown>) : null
-  }
-
-  if (data && typeof data === 'object') return data as Record<string, unknown>
-  return record
-}
-
-const getCreatedId = (body: unknown): number | null => {
-  const data = getBodyData(body)
-  const parsed = Number(data?.id)
-
+const positiveId = (value: unknown): number | null => {
+  const parsed = Number(value)
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null
 }
 
-const getCleanupUrl = (requestUrl: string, responseBody: unknown): string | null => {
-  const createdId = getCreatedId(responseBody)
-  if (!createdId) return null
+const getCreatedIdsFromValue = (value: unknown): number[] => {
+  if (Array.isArray(value)) return value.flatMap((entry) => getCreatedIdsFromValue(entry))
+  if (!value || typeof value !== 'object') return []
+
+  const record = value as Record<string, unknown>
+  const directId = positiveId(record.id)
+
+  return directId ? [directId] : []
+}
+
+const getCreatedIds = (body: unknown): number[] => {
+  if (!body || typeof body !== 'object') return []
+
+  const record = body as Record<string, unknown>
+  const fromData = getCreatedIdsFromValue(record.data)
+  if (fromData.length) return [...new Set(fromData)]
+
+  return [...new Set(getCreatedIdsFromValue(record))]
+}
+
+const getCleanupRequests = (
+  request: NormalizedRequest,
+  response: Cypress.Response<unknown>,
+): CleanupRequest[] => {
+  if (request.method !== 'POST') return []
+  if (![200, 201, 202].includes(response.status)) return []
 
   const baseUrl = String(Cypress.config('baseUrl') || 'https://kind-robots.vercel.app')
-  const url = new URL(requestUrl, baseUrl)
+  const url = new URL(request.url, baseUrl)
   const path = url.pathname.replace(/\/+$/, '')
   const cleanupPath = cleanupPathOverrides[path] || path
 
-  if (!cleanupEligiblePaths.has(path) && !cleanupPathOverrides[path]) return null
+  if (!cleanupEligiblePaths.has(path) && !cleanupPathOverrides[path]) return []
 
-  return `${url.origin}${cleanupPath}/${createdId}`
+  return getCreatedIds(response.body).map((createdId) => {
+    const cleanupUrl = `${url.origin}${cleanupPath}/${createdId}`
+
+    return {
+      label: cleanupUrl,
+      method: 'DELETE' as const,
+      url: cleanupUrl,
+      headers: request.headers,
+      expectedStatuses: [200, 202, 204, 401, 403, 404],
+    }
+  })
 }
 
 const registerCleanup = (request: CleanupRequest) => {
   return cy.task('cypressCleanup:register', request, { log: false })
 }
 
-const getCleanupRequest = (
-  request: NormalizedRequest,
-  response: Cypress.Response<unknown>,
-): CleanupRequest | null => {
-  if (request.method !== 'POST') return null
-  if (![200, 201, 202].includes(response.status)) return null
-
-  const cleanupUrl = getCleanupUrl(request.url, response.body)
-  if (!cleanupUrl) return null
-
-  return {
-    label: cleanupUrl,
-    method: 'DELETE',
-    url: cleanupUrl,
-    headers: request.headers,
-    expectedStatuses: [200, 202, 204, 401, 403, 404],
-  }
+const registerCleanups = (requests: CleanupRequest[]) => {
+  return requests.reduce<Cypress.Chainable<unknown>>(
+    (chain, request) => chain.then(() => registerCleanup(request)),
+    cy.wrap(null, { log: false }),
+  )
 }
 
 ;(Cypress.Commands.overwrite as unknown as Function)(
@@ -154,11 +158,11 @@ const getCleanupRequest = (
     const request = normalizeRequestArgs(args)
 
     return originalFn(...args).then((response: Cypress.Response<unknown>) => {
-      const cleanupRequest = getCleanupRequest(request, response)
+      const cleanupRequests = getCleanupRequests(request, response)
 
-      if (!cleanupRequest) return response
+      if (!cleanupRequests.length) return response
 
-      return registerCleanup(cleanupRequest).then(() => response)
+      return registerCleanups(cleanupRequests).then(() => response)
     })
   },
 )

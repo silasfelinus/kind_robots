@@ -21,6 +21,7 @@ type TimingSpecSummary = {
 
 type SeedUser = {
   id: number
+  token?: string
 }
 
 type CleanupRequest = {
@@ -46,6 +47,11 @@ type ApiRecord = Record<string, unknown> & { id?: number }
 type SweepTarget = {
   label: string
   path: string
+}
+
+type SweepDeleteAuth = {
+  label: string
+  headers: Record<string, string>
 }
 
 const timingDir = path.resolve('.cypress-cache')
@@ -159,12 +165,44 @@ const isCypressFixtureRecord = (record: ApiRecord) => {
   return cypressFixturePattern.test(stringifySearchableRecord(record))
 }
 
+const baseJsonHeaders = () => ({
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+})
+
+const buildSweepDeleteAuths = (adminKey: string, seedUsers: SeedUser[]): SweepDeleteAuth[] => {
+  const bearerAuths = seedUsers
+    .filter((user) => typeof user.token === 'string' && user.token.length > 20)
+    .map((user) => ({
+      label: `seed user ${user.id}`,
+      headers: {
+        ...baseJsonHeaders(),
+        Authorization: `Bearer ${user.token}`,
+      },
+    }))
+
+  const adminAuths = adminKey
+    ? [
+        {
+          label: 'beta admin token',
+          headers: {
+            ...baseJsonHeaders(),
+            'x-beta-admin-token': adminKey,
+            [apiKeyHeaderName]: adminKey,
+          },
+        },
+      ]
+    : []
+
+  return [...bearerAuths, ...adminAuths]
+}
+
 const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser) => {
   const response = await fetch(`${apiBase}/users/${user.id}`, {
     method: 'DELETE',
     headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+      ...baseJsonHeaders(),
+      'x-beta-admin-token': adminKey,
       [apiKeyHeaderName]: adminKey,
     },
   })
@@ -185,8 +223,7 @@ const runCleanupRequest = async (request: CleanupRequest) => {
   const response = await fetch(request.url, {
     method: request.method || 'DELETE',
     headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+      ...baseJsonHeaders(),
       ...(request.headers || {}),
     },
     body: request.body === undefined ? undefined : JSON.stringify(request.body),
@@ -203,32 +240,64 @@ const runCleanupRequest = async (request: CleanupRequest) => {
   }
 }
 
-const sweepCypressFixtures = async (apiBase: string, adminKey: string) => {
-  const headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+const deleteSweptRecord = async (
+  apiBase: string,
+  target: SweepTarget,
+  record: ApiRecord,
+  auths: SweepDeleteAuth[],
+) => {
+  const url = `${apiBase}${target.path}/${record.id}`
+  const attempts: unknown[] = []
+
+  for (const auth of auths) {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: auth.headers,
+    })
+    const body = await parseResponseBody(response)
+    const ok = [200, 202, 204, 404].includes(response.status)
+
+    attempts.push({ auth: auth.label, status: response.status, ok, body })
+
+    if (ok) {
+      return {
+        label: `sweep ${target.label} ${record.id}`,
+        status: response.status,
+        ok: true,
+        auth: auth.label,
+        body,
+      }
+    }
+  }
+
+  return {
+    label: `sweep ${target.label} ${record.id}`,
+    ok: false,
+    attempts,
+  }
+}
+
+const sweepCypressFixtures = async (
+  apiBase: string,
+  adminKey: string,
+  seedUsers: SeedUser[],
+) => {
+  const listHeaders = {
+    ...baseJsonHeaders(),
+    'x-beta-admin-token': adminKey,
     [apiKeyHeaderName]: adminKey,
   }
+  const deleteAuths = buildSweepDeleteAuths(adminKey, seedUsers)
   const results: unknown[] = []
 
   for (const target of sweepTargets) {
     try {
-      const listResponse = await fetch(`${apiBase}${target.path}`, { headers })
+      const listResponse = await fetch(`${apiBase}${target.path}`, { headers: listHeaders })
       const listBody = await parseResponseBody(listResponse)
       const records = dataArrayFromBody(listBody).filter(isCypressFixtureRecord)
 
       for (const record of records) {
-        const response = await fetch(`${apiBase}${target.path}/${record.id}`, {
-          method: 'DELETE',
-          headers,
-        })
-
-        results.push({
-          label: `sweep ${target.label} ${record.id}`,
-          status: response.status,
-          ok: [200, 202, 204, 404].includes(response.status),
-          body: await parseResponseBody(response),
-        })
+        results.push(await deleteSweptRecord(apiBase, target, record, deleteAuths))
       }
     } catch (error) {
       results.push({
@@ -330,9 +399,17 @@ export default defineConfig({
           }
         }
 
+        let seed: Awaited<ReturnType<typeof ensureCypressApiSeed>> | undefined
+
         try {
-          const seed = await ensureCypressApiSeed(env)
-          cleanupResults.push(...await sweepCypressFixtures(seed.apiBase, seed.adminKey))
+          seed = await ensureCypressApiSeed(env)
+          cleanupResults.push(
+            ...(await sweepCypressFixtures(seed.apiBase, seed.adminKey, [
+              seed.user,
+              seed.secondUser,
+              seed.thirdUser,
+            ])),
+          )
         } catch (error) {
           cleanupResults.push({
             label: 'cypress fixture sweep',
@@ -343,7 +420,7 @@ export default defineConfig({
 
         if (!keepSeedAfterRun(env)) {
           try {
-            const seed = await ensureCypressApiSeed(env)
+            seed = seed || (await ensureCypressApiSeed(env))
 
             for (const user of [seed.thirdUser, seed.secondUser, seed.user]) {
               cleanupResults.push(await deleteSeedUser(seed.apiBase, seed.adminKey, user))

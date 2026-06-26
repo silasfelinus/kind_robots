@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 768" width="512" height="768">
+  <rect width="512" height="768" rx="32" fill="#1e293b"/>
+  <rect x="4" y="4" width="504" height="760" rx="28" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="12 6"/>
+
+  <!-- Palette icon, vertically centered in the upper half -->
+  <ellipse cx="256" cy="310" rx="90" ry="90" fill="none" stroke="#334155" stroke-width="10"/>
+  <ellipse cx="256" cy="310" rx="90" ry="90" fill="#0f172a" opacity="0.6"/>
+  <circle cx="218" cy="278" r="16" fill="#6366f1"/>
+  <circle cx="260" cy="265" r="16" fill="#a855f7"/>
+  <circle cx="300" cy="282" r="16" fill="#22c55e"/>
+  <circle cx="318" cy="322" r="16" fill="#f59e0b"/>
+  <circle cx="300" cy="358" r="16" fill="#ef4444"/>
+  <circle cx="230" cy="340" r="24" fill="#1e293b"/>
+  <!-- Brush -->
+  <rect x="306" y="338" width="10" height="60" rx="5" fill="#94a3b8" transform="rotate(-40 311 368)"/>
+  <rect x="306" y="390" width="10" height="18" rx="3" fill="#6366f1" transform="rotate(-40 311 399)"/>
+
+  <!-- Label -->
+  <text x="256" y="458" font-family="system-ui, sans-serif" font-size="20" font-weight="700"
+        fill="#64748b" text-anchor="middle" letter-spacing="2">CARD ART</text>
+  <text x="256" y="486" font-family="system-ui, sans-serif" font-size="20" font-weight="700"
+        fill="#64748b" text-anchor="middle" letter-spacing="2">COMING SOON</text>
+  <text x="256" y="520" font-family="system-ui, sans-serif" font-size="13"
+        fill="#475569" text-anchor="middle">2:3 portrait · 512×768 min</text>
+  <text x="256" y="542" font-family="system-ui, sans-serif" font-size="13"
+        fill="#334155" text-anchor="middle">projects/images/{slug}-card.webp</text>
+</svg>

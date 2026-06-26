@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <rect width="1280" height="720" rx="32" fill="#1e293b"/>
+  <rect x="4" y="4" width="1272" height="712" rx="28" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="16 8"/>
+
+  <!-- Palette icon, centered -->
+  <ellipse cx="640" cy="310" rx="100" ry="100" fill="none" stroke="#334155" stroke-width="10"/>
+  <ellipse cx="640" cy="310" rx="100" ry="100" fill="#0f172a" opacity="0.6"/>
+  <circle cx="598" cy="275" r="18" fill="#6366f1"/>
+  <circle cx="645" cy="260" r="18" fill="#a855f7"/>
+  <circle cx="690" cy="278" r="18" fill="#22c55e"/>
+  <circle cx="710" cy="322" r="18" fill="#f59e0b"/>
+  <circle cx="688" cy="362" r="18" fill="#ef4444"/>
+  <circle cx="614" cy="346" r="26" fill="#1e293b"/>
+  <!-- Brush -->
+  <rect x="715" y="346" width="11" height="68" rx="5" fill="#94a3b8" transform="rotate(-40 720 380)"/>
+  <rect x="715" y="406" width="11" height="20" rx="3" fill="#6366f1" transform="rotate(-40 720 416)"/>
+
+  <!-- Text -->
+  <text x="640" y="464" font-family="system-ui, sans-serif" font-size="26" font-weight="700"
+        fill="#64748b" text-anchor="middle" letter-spacing="3">HERO ART COMING SOON</text>
+  <text x="640" y="498" font-family="system-ui, sans-serif" font-size="16"
+        fill="#475569" text-anchor="middle">16:9 landscape · 1280×720 min</text>
+  <text x="640" y="522" font-family="system-ui, sans-serif" font-size="15"
+        fill="#334155" text-anchor="middle">projects/images/{slug}-hero.webp</text>
+</svg>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="48" fill="#1e293b"/>
+  <rect x="4" y="4" width="504" height="504" rx="44" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="12 6"/>
+
+  <!-- Palette icon -->
+  <ellipse cx="256" cy="210" rx="90" ry="90" fill="none" stroke="#334155" stroke-width="10"/>
+  <ellipse cx="256" cy="210" rx="90" ry="90" fill="#0f172a" opacity="0.6"/>
+  <!-- Color dots on palette -->
+  <circle cx="218" cy="178" r="16" fill="#6366f1"/>
+  <circle cx="260" cy="165" r="16" fill="#a855f7"/>
+  <circle cx="300" cy="182" r="16" fill="#22c55e"/>
+  <circle cx="318" cy="222" r="16" fill="#f59e0b"/>
+  <circle cx="300" cy="258" r="16" fill="#ef4444"/>
+  <!-- Thumb hole -->
+  <circle cx="230" cy="240" r="24" fill="#1e293b"/>
+
+  <!-- Brush -->
+  <rect x="306" y="238" width="10" height="60" rx="5" fill="#94a3b8" transform="rotate(-40 311 268)"/>
+  <rect x="306" y="290" width="10" height="18" rx="3" fill="#6366f1" transform="rotate(-40 311 299)"/>
+
+  <!-- Text -->
+  <text x="256" y="338" font-family="system-ui, sans-serif" font-size="22" font-weight="700"
+        fill="#64748b" text-anchor="middle" letter-spacing="2">ART COMING SOON</text>
+  <text x="256" y="368" font-family="system-ui, sans-serif" font-size="14"
+        fill="#475569" text-anchor="middle">Add prompt to DALL-E, save as .webp</text>
+  <text x="256" y="390" font-family="system-ui, sans-serif" font-size="13"
+        fill="#334155" text-anchor="middle">projects/images/{slug}.webp</text>
+</svg>

@@ -271,6 +271,212 @@
           </span>
         </div>
 
+        <!-- ── Project Dream Intent panel ──────────────────────────────────── -->
+        <div
+          v-if="linkedDream"
+          class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+        >
+          <!-- Section header + edit toggle -->
+          <div class="flex items-center gap-2">
+            <Icon name="kind-icon:dream" class="size-4 text-primary" />
+            <h4 class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60">
+              Project Intent
+            </h4>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs rounded-xl gap-1"
+              @click="dreamEditMode = !dreamEditMode"
+            >
+              <Icon :name="dreamEditMode ? 'kind-icon:x' : 'kind-icon:edit'" class="size-3" />
+              {{ dreamEditMode ? 'Cancel' : 'Edit' }}
+            </button>
+          </div>
+
+          <!-- ── Visibility + Maturity toggles (always visible) ───────────── -->
+          <div class="flex flex-wrap gap-2">
+            <!-- isPublic toggle -->
+            <button
+              type="button"
+              class="btn btn-sm rounded-xl gap-2 transition-colors"
+              :class="linkedDream.isPublic ? 'btn-success' : 'btn-ghost border border-base-300'"
+              :disabled="dreamSaving"
+              @click="patchDream({ isPublic: !linkedDream.isPublic })"
+            >
+              <Icon :name="linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'" class="size-3.5" />
+              {{ linkedDream.isPublic ? 'Public' : 'Private' }}
+            </button>
+
+            <!-- isMature toggle -->
+            <button
+              type="button"
+              class="btn btn-sm rounded-xl gap-2 transition-colors"
+              :class="linkedDream.isMature ? 'btn-warning' : 'btn-ghost border border-base-300'"
+              :disabled="dreamSaving"
+              @click="patchDream({ isMature: !linkedDream.isMature })"
+            >
+              <Icon name="kind-icon:warning" class="size-3.5" />
+              {{ linkedDream.isMature ? 'Mature' : 'Safe' }}
+            </button>
+
+            <!-- allowReviews toggle -->
+            <button
+              type="button"
+              class="btn btn-sm rounded-xl gap-2 transition-colors"
+              :class="linkedDream.allowReviews ? 'btn-accent' : 'btn-ghost border border-base-300'"
+              :disabled="dreamSaving"
+              @click="patchDream({ allowReviews: !linkedDream.allowReviews })"
+            >
+              <Icon name="kind-icon:chat" class="size-3.5" />
+              {{ linkedDream.allowReviews ? 'Reviews On' : 'Reviews Off' }}
+            </button>
+
+            <!-- projectStatus selector -->
+            <select
+              class="select select-sm rounded-xl border-base-300 bg-base-200 text-xs font-semibold"
+              :value="linkedDream.projectStatus ?? 'ACTIVE'"
+              :disabled="dreamSaving"
+              @change="patchDream({ projectStatus: ($event.target as HTMLSelectElement).value as 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' })"
+            >
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="PAUSED">PAUSED</option>
+              <option value="DONE">DONE</option>
+              <option value="ARCHIVED">ARCHIVED</option>
+            </select>
+
+            <span v-if="dreamSaving" class="loading loading-spinner loading-xs self-center text-primary" />
+            <span v-if="dreamSaveMessage" class="self-center text-xs" :class="dreamSaveError ? 'text-error' : 'text-success'">
+              {{ dreamSaveMessage }}
+            </span>
+          </div>
+
+          <!-- ── Read-only view ──────────────────────────────────────────── -->
+          <template v-if="!dreamEditMode">
+            <p v-if="linkedDream.description" class="text-sm text-base-content/80">
+              {{ linkedDream.description }}
+            </p>
+            <p v-else-if="linkedDream.pitch" class="text-sm italic text-base-content/60">
+              {{ linkedDream.pitch }}
+            </p>
+            <div v-if="linkedDream.liveUrl || linkedDream.repoUrl" class="flex flex-wrap gap-2">
+              <a
+                v-if="linkedDream.liveUrl"
+                :href="linkedDream.liveUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-xs btn-outline gap-1"
+              >
+                <Icon name="kind-icon:external-link" class="size-3" />
+                Live Site
+              </a>
+              <a
+                v-if="linkedDream.repoUrl"
+                :href="linkedDream.repoUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-xs btn-outline gap-1"
+              >
+                <Icon name="kind-icon:code" class="size-3" />
+                Repo
+              </a>
+            </div>
+          </template>
+
+          <!-- ── Edit form ───────────────────────────────────────────────── -->
+          <template v-if="dreamEditMode">
+            <div class="space-y-3">
+              <div class="form-control">
+                <label class="label py-0.5">
+                  <span class="label-text text-xs font-semibold">Description</span>
+                </label>
+                <textarea
+                  v-model="dreamEditForm.description"
+                  class="textarea textarea-bordered rounded-xl text-sm"
+                  rows="3"
+                  placeholder="What is this project? What problem does it solve?"
+                />
+              </div>
+
+              <div class="form-control">
+                <label class="label py-0.5">
+                  <span class="label-text text-xs font-semibold">Intent / Pitch</span>
+                </label>
+                <textarea
+                  v-model="dreamEditForm.pitch"
+                  class="textarea textarea-bordered rounded-xl text-sm"
+                  rows="2"
+                  placeholder="One-line seed: what's the core constraint or north star?"
+                />
+              </div>
+
+              <div class="form-control">
+                <label class="label py-0.5">
+                  <span class="label-text text-xs font-semibold">Flavor Text</span>
+                </label>
+                <input
+                  v-model="dreamEditForm.flavorText"
+                  type="text"
+                  class="input input-bordered rounded-xl text-sm"
+                  placeholder="Short tagline shown on the card"
+                />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="form-control">
+                  <label class="label py-0.5">
+                    <span class="label-text text-xs font-semibold">Live URL</span>
+                  </label>
+                  <input
+                    v-model="dreamEditForm.liveUrl"
+                    type="url"
+                    class="input input-bordered rounded-xl text-sm"
+                    placeholder="https://..."
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5">
+                    <span class="label-text text-xs font-semibold">Repo URL</span>
+                  </label>
+                  <input
+                    v-model="dreamEditForm.repoUrl"
+                    type="url"
+                    class="input input-bordered rounded-xl text-sm"
+                    placeholder="https://github.com/..."
+                  />
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-2">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm rounded-xl"
+                  @click="cancelDreamEdit"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm rounded-xl gap-1"
+                  :disabled="dreamSaving"
+                  @click="saveDreamEdit"
+                >
+                  <span v-if="dreamSaving" class="loading loading-spinner loading-xs" />
+                  Save
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- No linked dream nudge -->
+        <div
+          v-else
+          class="shrink-0 rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
+        >
+          <Icon name="kind-icon:dream" class="mx-auto mb-1 size-5 opacity-40" />
+          No Project Dream linked for <strong>{{ selectedProject.slug }}</strong> — run
+          <code class="rounded bg-base-200 px-1">addProjects.http</code> to seed it.
+        </div>
+
         <!-- Notes from Silas -->
         <div
           v-if="selectedProject.notesFromSilas"
@@ -364,8 +570,9 @@
 
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import type { ConductorProject, ConductorData } from '@/server/api/conductor/projects.get'
+import { useDreamStore } from '@/stores/dreamStore'
 
 withDefaults(
   defineProps<{
@@ -378,6 +585,8 @@ const { data, pending, error, refresh } = await useFetch<ConductorData>('/api/co
   lazy: true,
 })
 
+const dreamStore = useDreamStore()
+
 const selectedProject = ref<ConductorProject | null>(null)
 const showPitches = ref(true)
 
@@ -386,9 +595,100 @@ const flippingSlug = ref('')
 const FLIP_DURATION_MS = 650
 let flipTimer: ReturnType<typeof setTimeout> | null = null
 
+onMounted(async () => {
+  if (!dreamStore.hasLoaded) {
+    await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
+  }
+})
+
 onBeforeUnmount(() => {
   if (flipTimer) clearTimeout(flipTimer)
 })
+
+// ── Project Dream integration ─────────────────────────────────────────────────
+
+const linkedDream = computed(() => {
+  if (!selectedProject.value) return null
+  return dreamStore.projectDreams.find(
+    (d) => d.slug === selectedProject.value!.slug,
+  ) ?? null
+})
+
+// Edit state
+const dreamEditMode = ref(false)
+const dreamSaving = ref(false)
+const dreamSaveMessage = ref('')
+const dreamSaveError = ref(false)
+
+type ProjectPatch = {
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  liveUrl?: string | null
+  repoUrl?: string | null
+  isPublic?: boolean
+  isMature?: boolean
+  allowReviews?: boolean
+  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED'
+}
+
+const dreamEditForm = ref<ProjectPatch>({})
+
+watch(linkedDream, (dream) => {
+  dreamEditMode.value = false
+  dreamEditForm.value = dream
+    ? {
+        description: dream.description ?? '',
+        pitch: dream.pitch ?? '',
+        flavorText: dream.flavorText ?? '',
+        liveUrl: dream.liveUrl ?? '',
+        repoUrl: dream.repoUrl ?? '',
+      }
+    : {}
+})
+
+function cancelDreamEdit() {
+  dreamEditMode.value = false
+  const dream = linkedDream.value
+  dreamEditForm.value = dream
+    ? {
+        description: dream.description ?? '',
+        pitch: dream.pitch ?? '',
+        flavorText: dream.flavorText ?? '',
+        liveUrl: dream.liveUrl ?? '',
+        repoUrl: dream.repoUrl ?? '',
+      }
+    : {}
+}
+
+let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
+
+async function patchDream(patch: ProjectPatch) {
+  if (!linkedDream.value) return
+  dreamSaving.value = true
+  dreamSaveMessage.value = ''
+  dreamSaveError.value = false
+
+  const result = await dreamStore.updateDream(linkedDream.value.id, patch)
+
+  dreamSaving.value = false
+
+  if (result?.success) {
+    dreamSaveMessage.value = 'Saved'
+    dreamSaveError.value = false
+  } else {
+    dreamSaveMessage.value = result?.message || 'Save failed'
+    dreamSaveError.value = true
+  }
+
+  if (saveMessageTimer) clearTimeout(saveMessageTimer)
+  saveMessageTimer = setTimeout(() => { dreamSaveMessage.value = '' }, 3000)
+}
+
+async function saveDreamEdit() {
+  await patchDream(dreamEditForm.value)
+  if (!dreamSaveError.value) dreamEditMode.value = false
+}
 
 function handleCardClick(project: ConductorProject) {
   if (flipTimer) clearTimeout(flipTimer)

@@ -33,6 +33,8 @@ type DreamPatchBody = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
   highlightImage?: string | null
   icon?: string | null
   designer?: string | null
@@ -44,6 +46,10 @@ type DreamPatchBody = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
+  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED'
+  repoUrl?: string | null
+  liveUrl?: string | null
+  allowReviews?: boolean
   characterIds?: number[]
   rewardIds?: number[]
   artImageIds?: number[]
@@ -203,9 +209,18 @@ function getUpdateSummary(body: DreamPatchBody): string {
   if (
     body.isPublic !== undefined ||
     body.isMature !== undefined ||
-    body.isActive !== undefined
+    body.isActive !== undefined ||
+    body.allowReviews !== undefined
   ) {
     changes.push('settings')
+  }
+
+  if (
+    body.projectStatus !== undefined ||
+    body.repoUrl !== undefined ||
+    body.liveUrl !== undefined
+  ) {
+    changes.push('project')
   }
 
   if (!changes.length) return 'Dream updated.'
@@ -308,6 +323,14 @@ export default defineEventHandler(async (event) => {
       setTextField(dataInput, 'imagePath', body.imagePath)
     }
 
+    if (body.cardPath !== undefined) {
+      setTextField(dataInput, 'cardPath', body.cardPath)
+    }
+
+    if (body.heroPath !== undefined) {
+      setTextField(dataInput, 'heroPath', body.heroPath)
+    }
+
     if (body.highlightImage !== undefined) {
       setTextField(dataInput, 'highlightImage', body.highlightImage)
     }
@@ -346,6 +369,23 @@ export default defineEventHandler(async (event) => {
 
     if (typeof body.isActive === 'boolean') {
       dataInput.isActive = body.isActive
+    }
+
+    const validProjectStatuses = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED'] as const
+    if (body.projectStatus !== undefined && validProjectStatuses.includes(body.projectStatus)) {
+      dataInput.projectStatus = body.projectStatus
+    }
+
+    if (body.repoUrl !== undefined) {
+      setTextField(dataInput, 'repoUrl', body.repoUrl)
+    }
+
+    if (body.liveUrl !== undefined) {
+      setTextField(dataInput, 'liveUrl', body.liveUrl)
+    }
+
+    if (typeof body.allowReviews === 'boolean') {
+      dataInput.allowReviews = body.allowReviews
     }
 
     const characterIds = normalizeIdArray(body.characterIds)

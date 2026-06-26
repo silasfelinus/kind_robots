@@ -23,6 +23,7 @@ export const dreamTypes: DreamType[] = [
   'ART',
   'BRAINSTORM',
   'CHARACTER',
+  'PROJECT',
   'REWARD',
   'SCENARIO',
   'LOCATION',

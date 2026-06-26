@@ -19,6 +19,8 @@ export type DreamTypeChoice = BuilderChoice & {
 }
 
 const DREAM_TYPE_SUBTEXT: Record<DreamType, string> = {
+  PROJECT:
+    'A coordinated build target with status, repo links, live links, agents, reviews, and actual shipping energy.',
   ART: 'A visual seed for image generation, mood boards, covers, and weird little art goblins.',
   BRAINSTORM: 'A container for generated idea lists and remix fodder.',
   PROMPTBOT: 'A bot concept, voice, role, or personality seed.',

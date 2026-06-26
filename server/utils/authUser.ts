@@ -5,8 +5,12 @@ export type AuthUser = User & {
   isAdmin: boolean
 }
 
-export function userIsAdmin(user: Pick<User, 'id' | 'Role'>): boolean {
-  return user.Role === 'ADMIN' || user.id === 1
+type AdminCheckUser = Pick<User, 'id'> & {
+  Role?: User['Role'] | string | null
+}
+
+export function userIsAdmin(user: AdminCheckUser): boolean {
+  return String(user.Role || '').toUpperCase() === 'ADMIN' || user.id === 1
 }
 
 export function withAdminFlag(user: User): AuthUser {

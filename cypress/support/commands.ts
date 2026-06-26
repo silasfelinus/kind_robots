@@ -126,26 +126,26 @@ const getCleanupUrl = (requestUrl: string, responseBody: unknown): string | null
 }
 
 const registerCleanup = (request: CleanupRequest) => {
-  cy.task('cypressCleanup:register', request, { log: false })
+  return cy.task('cypressCleanup:register', request, { log: false })
 }
 
-const maybeRegisterCreatedRecord = (
+const getCleanupRequest = (
   request: NormalizedRequest,
   response: Cypress.Response<unknown>,
-) => {
-  if (request.method !== 'POST') return
-  if (![200, 201, 202].includes(response.status)) return
+): CleanupRequest | null => {
+  if (request.method !== 'POST') return null
+  if (![200, 201, 202].includes(response.status)) return null
 
   const cleanupUrl = getCleanupUrl(request.url, response.body)
-  if (!cleanupUrl) return
+  if (!cleanupUrl) return null
 
-  registerCleanup({
+  return {
     label: cleanupUrl,
     method: 'DELETE',
     url: cleanupUrl,
     headers: request.headers,
     expectedStatuses: [200, 202, 204, 401, 403, 404],
-  })
+  }
 }
 
 ;(Cypress.Commands.overwrite as unknown as Function)(
@@ -154,8 +154,11 @@ const maybeRegisterCreatedRecord = (
     const request = normalizeRequestArgs(args)
 
     return originalFn(...args).then((response: Cypress.Response<unknown>) => {
-      maybeRegisterCreatedRecord(request, response)
-      return response
+      const cleanupRequest = getCleanupRequest(request, response)
+
+      if (!cleanupRequest) return response
+
+      return registerCleanup(cleanupRequest).then(() => response)
     })
   },
 )

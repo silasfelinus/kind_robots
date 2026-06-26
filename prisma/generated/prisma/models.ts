@@ -11,8 +11,6 @@
 export type * from './models/ArtImage'
 export type * from './models/ArtCollection'
 export type * from './models/Bot'
-export type * from './models/Butterfly'
-export type * from './models/ButterflyRecord'
 export type * from './models/Character'
 export type * from './models/Chat'
 export type * from './models/Code'

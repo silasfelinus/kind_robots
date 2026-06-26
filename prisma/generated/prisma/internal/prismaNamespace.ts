@@ -387,8 +387,6 @@ export const ModelName = {
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
-  Butterfly: 'Butterfly',
-  ButterflyRecord: 'ButterflyRecord',
   Character: 'Character',
   Chat: 'Chat',
   Code: 'Code',
@@ -432,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -631,138 +629,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BotCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BotCountAggregateOutputType> | number
-        }
-      }
-    }
-    Butterfly: {
-      payload: Prisma.$ButterflyPayload<ExtArgs>
-      fields: Prisma.ButterflyFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ButterflyFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ButterflyFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload>
-        }
-        findFirst: {
-          args: Prisma.ButterflyFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ButterflyFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload>
-        }
-        findMany: {
-          args: Prisma.ButterflyFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload>[]
-        }
-        create: {
-          args: Prisma.ButterflyCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload>
-        }
-        createMany: {
-          args: Prisma.ButterflyCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ButterflyDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload>
-        }
-        update: {
-          args: Prisma.ButterflyUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload>
-        }
-        deleteMany: {
-          args: Prisma.ButterflyDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ButterflyUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ButterflyUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyPayload>
-        }
-        aggregate: {
-          args: Prisma.ButterflyAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateButterfly>
-        }
-        groupBy: {
-          args: Prisma.ButterflyGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ButterflyGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ButterflyCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ButterflyCountAggregateOutputType> | number
-        }
-      }
-    }
-    ButterflyRecord: {
-      payload: Prisma.$ButterflyRecordPayload<ExtArgs>
-      fields: Prisma.ButterflyRecordFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ButterflyRecordFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ButterflyRecordFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload>
-        }
-        findFirst: {
-          args: Prisma.ButterflyRecordFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ButterflyRecordFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload>
-        }
-        findMany: {
-          args: Prisma.ButterflyRecordFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload>[]
-        }
-        create: {
-          args: Prisma.ButterflyRecordCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload>
-        }
-        createMany: {
-          args: Prisma.ButterflyRecordCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ButterflyRecordDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload>
-        }
-        update: {
-          args: Prisma.ButterflyRecordUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload>
-        }
-        deleteMany: {
-          args: Prisma.ButterflyRecordDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ButterflyRecordUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ButterflyRecordUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ButterflyRecordPayload>
-        }
-        aggregate: {
-          args: Prisma.ButterflyRecordAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateButterflyRecord>
-        }
-        groupBy: {
-          args: Prisma.ButterflyRecordGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ButterflyRecordGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ButterflyRecordCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ButterflyRecordCountAggregateOutputType> | number
         }
       }
     }
@@ -2744,37 +2610,6 @@ export const BotScalarFieldEnum = {
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
 
 
-export const ButterflyScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  name: 'name',
-  message: 'message',
-  wingTopColor: 'wingTopColor',
-  wingBottomColor: 'wingBottomColor',
-  speed: 'speed',
-  wingSpeed: 'wingSpeed',
-  scale: 'scale',
-  rarityNumber: 'rarityNumber',
-  designer: 'designer',
-  userId: 'userId',
-  isPublic: 'isPublic'
-} as const
-
-export type ButterflyScalarFieldEnum = (typeof ButterflyScalarFieldEnum)[keyof typeof ButterflyScalarFieldEnum]
-
-
-export const ButterflyRecordScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId',
-  butterflyId: 'butterflyId'
-} as const
-
-export type ButterflyRecordScalarFieldEnum = (typeof ButterflyRecordScalarFieldEnum)[keyof typeof ButterflyRecordScalarFieldEnum]
-
-
 export const CharacterScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -3552,17 +3387,6 @@ export const BotOrderByRelevanceFieldEnum = {
 export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)[keyof typeof BotOrderByRelevanceFieldEnum]
 
 
-export const ButterflyOrderByRelevanceFieldEnum = {
-  name: 'name',
-  message: 'message',
-  wingTopColor: 'wingTopColor',
-  wingBottomColor: 'wingBottomColor',
-  designer: 'designer'
-} as const
-
-export type ButterflyOrderByRelevanceFieldEnum = (typeof ButterflyOrderByRelevanceFieldEnum)[keyof typeof ButterflyOrderByRelevanceFieldEnum]
-
-
 export const CharacterOrderByRelevanceFieldEnum = {
   name: 'name',
   slug: 'slug',
@@ -4013,13 +3837,6 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
  * Reference to a field of type 'Rarity'
  */
 export type EnumRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Rarity'>
@@ -4093,6 +3910,13 @@ export type EnumExpressionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'ManaReason'
  */
 export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaReason'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
@@ -4327,8 +4151,6 @@ export type GlobalOmitConfig = {
   artImage?: Prisma.ArtImageOmit
   artCollection?: Prisma.ArtCollectionOmit
   bot?: Prisma.BotOmit
-  butterfly?: Prisma.ButterflyOmit
-  butterflyRecord?: Prisma.ButterflyRecordOmit
   character?: Prisma.CharacterOmit
   chat?: Prisma.ChatOmit
   code?: Prisma.CodeOmit

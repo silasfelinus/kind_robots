@@ -33,18 +33,6 @@ export type ArtCollection = Prisma.ArtCollectionModel
  */
 export type Bot = Prisma.BotModel
 /**
- * Model Butterfly
- * Butterfly is the source of truth for each collectible species.
- */
-export type Butterfly = Prisma.ButterflyModel
-/**
- * Model ButterflyRecord
- * Records which butterflies each user has caught.
- * Follows the MilestoneRecord pattern rather than implicit M2M,
- * so we can attach caughtAt and any future metadata cleanly.
- */
-export type ButterflyRecord = Prisma.ButterflyRecordModel
-/**
  * Model Character
  * 
  */

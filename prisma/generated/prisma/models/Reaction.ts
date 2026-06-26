@@ -419,7 +419,6 @@ export type ReactionWhereInput = {
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  Butterfly?: Prisma.XOR<Prisma.ButterflyNullableScalarRelationFilter, Prisma.ButterflyWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
@@ -459,7 +458,6 @@ export type ReactionOrderByWithRelationInput = {
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Bot?: Prisma.BotOrderByWithRelationInput
-  Butterfly?: Prisma.ButterflyOrderByWithRelationInput
   Character?: Prisma.CharacterOrderByWithRelationInput
   Chat?: Prisma.ChatOrderByWithRelationInput
   Component?: Prisma.ComponentOrderByWithRelationInput
@@ -503,7 +501,6 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  Butterfly?: Prisma.XOR<Prisma.ButterflyNullableScalarRelationFilter, Prisma.ButterflyWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
@@ -582,10 +579,10 @@ export type ReactionCreateInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -631,10 +628,10 @@ export type ReactionUpdateInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -705,6 +702,7 @@ export type ReactionUpdateManyMutationInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyInput = {
@@ -986,48 +984,6 @@ export type ReactionUncheckedUpdateManyWithoutBotNestedInput = {
   connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
   update?: Prisma.ReactionUpdateWithWhereUniqueWithoutBotInput | Prisma.ReactionUpdateWithWhereUniqueWithoutBotInput[]
   updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutBotInput | Prisma.ReactionUpdateManyWithWhereWithoutBotInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
-export type ReactionCreateNestedManyWithoutButterflyInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutButterflyInput, Prisma.ReactionUncheckedCreateWithoutButterflyInput> | Prisma.ReactionCreateWithoutButterflyInput[] | Prisma.ReactionUncheckedCreateWithoutButterflyInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutButterflyInput | Prisma.ReactionCreateOrConnectWithoutButterflyInput[]
-  createMany?: Prisma.ReactionCreateManyButterflyInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUncheckedCreateNestedManyWithoutButterflyInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutButterflyInput, Prisma.ReactionUncheckedCreateWithoutButterflyInput> | Prisma.ReactionCreateWithoutButterflyInput[] | Prisma.ReactionUncheckedCreateWithoutButterflyInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutButterflyInput | Prisma.ReactionCreateOrConnectWithoutButterflyInput[]
-  createMany?: Prisma.ReactionCreateManyButterflyInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUpdateManyWithoutButterflyNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutButterflyInput, Prisma.ReactionUncheckedCreateWithoutButterflyInput> | Prisma.ReactionCreateWithoutButterflyInput[] | Prisma.ReactionUncheckedCreateWithoutButterflyInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutButterflyInput | Prisma.ReactionCreateOrConnectWithoutButterflyInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutButterflyInput | Prisma.ReactionUpsertWithWhereUniqueWithoutButterflyInput[]
-  createMany?: Prisma.ReactionCreateManyButterflyInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutButterflyInput | Prisma.ReactionUpdateWithWhereUniqueWithoutButterflyInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutButterflyInput | Prisma.ReactionUpdateManyWithWhereWithoutButterflyInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
-export type ReactionUncheckedUpdateManyWithoutButterflyNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutButterflyInput, Prisma.ReactionUncheckedCreateWithoutButterflyInput> | Prisma.ReactionCreateWithoutButterflyInput[] | Prisma.ReactionUncheckedCreateWithoutButterflyInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutButterflyInput | Prisma.ReactionCreateOrConnectWithoutButterflyInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutButterflyInput | Prisma.ReactionUpsertWithWhereUniqueWithoutButterflyInput[]
-  createMany?: Prisma.ReactionCreateManyButterflyInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutButterflyInput | Prisma.ReactionUpdateWithWhereUniqueWithoutButterflyInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutButterflyInput | Prisma.ReactionUpdateManyWithWhereWithoutButterflyInput[]
   deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
 }
 
@@ -1508,9 +1464,9 @@ export type ReactionCreateWithoutArtImageInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -1609,9 +1565,9 @@ export type ReactionCreateWithoutArtCollectionInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -1682,9 +1638,9 @@ export type ReactionCreateWithoutBotInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -1748,79 +1704,6 @@ export type ReactionUpdateManyWithWhereWithoutBotInput = {
   data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutBotInput>
 }
 
-export type ReactionCreateWithoutButterflyInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
-  Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
-  Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
-  Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
-  Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
-  Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
-  User: Prisma.UserCreateNestedOneWithoutReactionsInput
-}
-
-export type ReactionUncheckedCreateWithoutButterflyInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-  compositionId?: number | null
-}
-
-export type ReactionCreateOrConnectWithoutButterflyInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutButterflyInput, Prisma.ReactionUncheckedCreateWithoutButterflyInput>
-}
-
-export type ReactionCreateManyButterflyInputEnvelope = {
-  data: Prisma.ReactionCreateManyButterflyInput | Prisma.ReactionCreateManyButterflyInput[]
-  skipDuplicates?: boolean
-}
-
-export type ReactionUpsertWithWhereUniqueWithoutButterflyInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.ReactionUpdateWithoutButterflyInput, Prisma.ReactionUncheckedUpdateWithoutButterflyInput>
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutButterflyInput, Prisma.ReactionUncheckedCreateWithoutButterflyInput>
-}
-
-export type ReactionUpdateWithWhereUniqueWithoutButterflyInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.ReactionUpdateWithoutButterflyInput, Prisma.ReactionUncheckedUpdateWithoutButterflyInput>
-}
-
-export type ReactionUpdateManyWithWhereWithoutButterflyInput = {
-  where: Prisma.ReactionScalarWhereInput
-  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutButterflyInput>
-}
-
 export type ReactionCreateWithoutCharacterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1828,10 +1711,10 @@ export type ReactionCreateWithoutCharacterInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
@@ -1901,10 +1784,10 @@ export type ReactionCreateWithoutChatInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
@@ -1974,10 +1857,10 @@ export type ReactionCreateWithoutComponentInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
@@ -2047,10 +1930,10 @@ export type ReactionCreateWithoutCompositionInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2120,10 +2003,10 @@ export type ReactionCreateWithoutDreamInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2193,10 +2076,10 @@ export type ReactionCreateWithoutPromptInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2266,10 +2149,10 @@ export type ReactionCreateWithoutResourceInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2339,10 +2222,10 @@ export type ReactionCreateWithoutRewardInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2412,10 +2295,10 @@ export type ReactionCreateWithoutScenarioInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2485,10 +2368,10 @@ export type ReactionCreateWithoutThemeInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2558,10 +2441,10 @@ export type ReactionCreateWithoutUserInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  butterflyId?: number | null
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
@@ -2655,9 +2538,9 @@ export type ReactionUpdateWithoutArtImageInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -2750,9 +2633,9 @@ export type ReactionUpdateWithoutArtCollectionInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -2845,9 +2728,9 @@ export type ReactionUpdateWithoutBotInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -2909,101 +2792,6 @@ export type ReactionUncheckedUpdateManyWithoutBotInput = {
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type ReactionCreateManyButterflyInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-  compositionId?: number | null
-}
-
-export type ReactionUpdateWithoutButterflyInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
-  Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
-  Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
-  Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
-  Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
-  Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
-  User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-}
-
-export type ReactionUncheckedUpdateWithoutButterflyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ReactionUncheckedUpdateManyWithoutButterflyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
 export type ReactionCreateManyCharacterInput = {
   id?: number
   createdAt?: Date | string
@@ -3035,10 +2823,10 @@ export type ReactionUpdateWithoutCharacterInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
@@ -3130,10 +2918,10 @@ export type ReactionUpdateWithoutChatInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
@@ -3225,10 +3013,10 @@ export type ReactionUpdateWithoutComponentInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
@@ -3320,10 +3108,10 @@ export type ReactionUpdateWithoutCompositionInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -3415,10 +3203,10 @@ export type ReactionUpdateWithoutDreamInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -3510,10 +3298,10 @@ export type ReactionUpdateWithoutPromptInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -3605,10 +3393,10 @@ export type ReactionUpdateWithoutResourceInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -3700,10 +3488,10 @@ export type ReactionUpdateWithoutRewardInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -3795,10 +3583,10 @@ export type ReactionUpdateWithoutScenarioInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -3890,10 +3678,10 @@ export type ReactionUpdateWithoutThemeInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -3985,10 +3773,10 @@ export type ReactionUpdateWithoutUserInput = {
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
@@ -4077,7 +3865,6 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reaction$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Reaction$BotArgs<ExtArgs>
-  Butterfly?: boolean | Prisma.Reaction$ButterflyArgs<ExtArgs>
   Character?: boolean | Prisma.Reaction$CharacterArgs<ExtArgs>
   Chat?: boolean | Prisma.Reaction$ChatArgs<ExtArgs>
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
@@ -4123,7 +3910,6 @@ export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reaction$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Reaction$BotArgs<ExtArgs>
-  Butterfly?: boolean | Prisma.Reaction$ButterflyArgs<ExtArgs>
   Character?: boolean | Prisma.Reaction$CharacterArgs<ExtArgs>
   Chat?: boolean | Prisma.Reaction$ChatArgs<ExtArgs>
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
@@ -4143,7 +3929,6 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Bot: Prisma.$BotPayload<ExtArgs> | null
-    Butterfly: Prisma.$ButterflyPayload<ExtArgs> | null
     Character: Prisma.$CharacterPayload<ExtArgs> | null
     Chat: Prisma.$ChatPayload<ExtArgs> | null
     Component: Prisma.$ComponentPayload<ExtArgs> | null
@@ -4522,7 +4307,6 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
   ArtCollection<T extends Prisma.Reaction$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.Reaction$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Bot<T extends Prisma.Reaction$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Butterfly<T extends Prisma.Reaction$ButterflyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ButterflyArgs<ExtArgs>>): Prisma.Prisma__ButterflyClient<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Character<T extends Prisma.Reaction$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Chat<T extends Prisma.Reaction$ChatArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ChatArgs<ExtArgs>>): Prisma.Prisma__ChatClient<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Component<T extends Prisma.Reaction$ComponentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ComponentArgs<ExtArgs>>): Prisma.Prisma__ComponentClient<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -4987,25 +4771,6 @@ export type Reaction$BotArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.BotInclude<ExtArgs> | null
   where?: Prisma.BotWhereInput
-}
-
-/**
- * Reaction.Butterfly
- */
-export type Reaction$ButterflyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Butterfly
-   */
-  select?: Prisma.ButterflySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Butterfly
-   */
-  omit?: Prisma.ButterflyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ButterflyInclude<ExtArgs> | null
-  where?: Prisma.ButterflyWhereInput
 }
 
 /**

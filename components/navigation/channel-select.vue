@@ -86,11 +86,11 @@
                   Creation Tools
                 </p>
                 <p class="text-[0.58rem] font-bold text-base-content/45">
-                  Lab · Builder · Art · Bots
+                  Conductor · Lab · Builder · Art · Bots
                 </p>
               </div>
 
-              <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
                 <NuxtLink
                   v-for="channel in creationChannels"
                   :key="channel.key"
@@ -242,6 +242,14 @@ const sanctuaryChannel: ChannelRoute = {
 
 const utilityChannels: ChannelRoute[] = [homeChannel, sanctuaryChannel]
 
+const conductorChannel: ChannelRoute = {
+  key: 'conductor',
+  label: 'Conductor',
+  path: '/conductor',
+  icon: 'kind-icon:gearhammer',
+  summary: 'Steer agents, review work, and approve what needs a human.',
+}
+
 const labChannel: ChannelRoute = {
   key: 'lab',
   label: 'Lab',
@@ -308,6 +316,7 @@ const scenariosChannel: ChannelRoute = {
 }
 
 const creationChannels: ChannelRoute[] = [
+  conductorChannel,
   labChannel,
   builderChannel,
   artChannel,

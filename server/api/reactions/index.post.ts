@@ -33,6 +33,7 @@ type ReactionBody = {
 
 const validReactionTypes = Object.values(ReactionType)
 const validReactionCategories = Object.values(Reaction_reactionCategory)
+const retiredReactionCategories = new Set<string>(['BUTTERFLY'])
 
 const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   ART: Reaction_reactionCategory.ART_IMAGE,
@@ -80,6 +81,14 @@ function normalizeReactionCategory(value: unknown): Reaction_reactionCategory {
   }
 
   const normalizedKey = value.trim().toUpperCase().replace(/[\s-]+/g, '_')
+
+  if (retiredReactionCategories.has(normalizedKey)) {
+    throw createError({
+      statusCode: 400,
+      message: `reactionCategory ${normalizedKey} is no longer supported.`,
+    })
+  }
+
   const aliased = reactionCategoryAliases[normalizedKey]
 
   if (aliased) return aliased
@@ -134,9 +143,8 @@ function getTargetFields(body: ReactionBody) {
 }
 
 function getExpectedTargetField(category: Reaction_reactionCategory) {
-  const map: Record<
-    Reaction_reactionCategory,
-    keyof ReturnType<typeof getTargetFields> | null
+  const map: Partial<
+    Record<Reaction_reactionCategory, keyof ReturnType<typeof getTargetFields> | null>
   > = {
     [Reaction_reactionCategory.ART_IMAGE]: 'artImageId',
     [Reaction_reactionCategory.ART_COLLECTION]: 'artCollectionId',
@@ -155,7 +163,7 @@ function getExpectedTargetField(category: Reaction_reactionCategory) {
     [Reaction_reactionCategory.POST]: null,
   }
 
-  return map[category]
+  return map[category] ?? null
 }
 
 function buildTargetWhere(

@@ -22,6 +22,8 @@ interface ApiResponse<T = any> {
   statusCode?: number
 }
 
+type CleanupResponse = Cypress.Response<unknown> | null
+
 interface CodeNode {
   id: string
   kind: string
@@ -65,7 +67,6 @@ interface CodeRecord {
 
 let userId = 0
 describe('[Code] API Full CRUD + Auth Tests', () => {
-
   // Auth migration: fresh disposable JWT user
   before(() => {
     createLoggedInTestUser().then((auth) => {
@@ -582,7 +583,13 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
       })
     }
 
-    deleteTestUser(apiBase, adminToken, testUser?.id).then((response) => {
+    const cleanup = deleteTestUser(
+      apiBase,
+      adminToken,
+      testUser?.id,
+    ) as Cypress.Chainable<CleanupResponse>
+
+    cleanup.then((response: CleanupResponse) => {
       if (response) {
         cy.log('Code test user cleanup:', JSON.stringify(response.body))
       }

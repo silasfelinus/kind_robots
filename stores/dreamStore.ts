@@ -115,6 +115,7 @@ export interface FetchDreamOptions {
   galleryId?: number
   scenarioId?: number
   dreamType?: DreamType | string
+  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED'
   tagId?: number
   characterId?: number
   rewardId?: number
@@ -437,6 +438,12 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const pitchDreams = computed(() => filterDreamsByType('PITCH', dreams.value))
   const brainstormDreams = computed(() =>
     filterDreamsByType('BRAINSTORM', dreams.value),
+  )
+  const projectDreams = computed(() =>
+    filterDreamsByType('PROJECT', dreams.value),
+  )
+  const publicProjectDreams = computed(() =>
+    filterPublicDreams(projectDreams.value, currentUserId.value, userStore.isAdmin),
   )
 
   const dreamsByTitle = computed(() => groupDreamsByTitle(dreams.value))
@@ -922,6 +929,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
           dreamType: options.dreamType
             ? parseDreamType(options.dreamType)
             : undefined,
+          projectStatus: options.projectStatus,
           tagId: options.tagId,
           characterId: options.characterId,
           rewardId: options.rewardId,
@@ -2070,6 +2078,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
     artDreams,
     pitchDreams,
     brainstormDreams,
+    projectDreams,
+    publicProjectDreams,
     dreamsByTitle,
     selectedTitleDreams,
     selectedDreamCast,

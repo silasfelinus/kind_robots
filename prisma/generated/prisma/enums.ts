@@ -244,6 +244,7 @@ export const DreamType = {
   PROMPTBOT: 'PROMPTBOT',
   NARRATOR: 'NARRATOR',
   CHARACTER: 'CHARACTER',
+  PROJECT: 'PROJECT',
   REWARD: 'REWARD',
   SCENARIO: 'SCENARIO',
   LOCATION: 'LOCATION',
@@ -252,6 +253,16 @@ export const DreamType = {
 } as const
 
 export type DreamType = (typeof DreamType)[keyof typeof DreamType]
+
+
+export const ProjectStatus = {
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  DONE: 'DONE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
 
 
 export const Reaction_reactionCategory = {

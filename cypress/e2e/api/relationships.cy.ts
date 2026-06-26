@@ -15,7 +15,6 @@ type EndpointKey =
   | 'bot'
   | 'character'
   | 'chat'
-  | 'component'
   | 'dream'
   | 'prompt'
   | 'resource'
@@ -34,7 +33,6 @@ const endpointPaths: Record<EndpointKey, string> = {
   bot: '/api/bots',
   character: '/api/characters',
   chat: '/api/chats',
-  component: '/api/components',
   dream: '/api/dreams',
   prompt: '/api/prompts',
   resource: '/api/resources',
@@ -43,9 +41,24 @@ const endpointPaths: Record<EndpointKey, string> = {
   server: '/api/server',
 }
 
+const cleanupOrder: EndpointKey[] = [
+  'chat',
+  'dream',
+  'prompt',
+  'character',
+  'bot',
+  'reward',
+  'scenario',
+  'artCollection',
+  'resource',
+  'artImage',
+  'server',
+]
+
 let apiBase = fallbackApiBase
 let userToken = ''
 let userId = 0
+let apiKey = ''
 const ids: CreatedIds = {}
 
 const urlFor = (key: EndpointKey, recordId?: number) => {
@@ -56,6 +69,11 @@ const urlFor = (key: EndpointKey, recordId?: number) => {
 const authHeaders = () => ({
   Authorization: `Bearer ${userToken}`,
   'Content-Type': 'application/json',
+})
+
+const cleanupHeaders = () => ({
+  ...authHeaders(),
+  ...(apiKey ? { 'x-api-key': apiKey } : {}),
 })
 
 const expectSuccess = (
@@ -105,7 +123,7 @@ const patchRecord = (
     .request<ApiResponse>({
       method: 'PATCH',
       url: urlFor(key, recordId),
-      headers: authHeaders(),
+      headers: cleanupHeaders(),
       body,
       failOnStatusCode: false,
     })
@@ -113,6 +131,20 @@ const patchRecord = (
       expectSuccess(response)
       return response.body.data as Record<string, unknown>
     })
+}
+
+const cleanupRecord = (key: EndpointKey) => {
+  const recordId = ids[key]
+  if (!recordId) return
+
+  cy.request({
+    method: 'DELETE',
+    url: urlFor(key, recordId),
+    headers: cleanupHeaders(),
+    failOnStatusCode: false,
+  }).then(() => {
+    ids[key] = undefined
+  })
 }
 
 describe('Relationship API Tests', () => {
@@ -124,9 +156,27 @@ describe('Relationship API Tests', () => {
   })
 
   before(() => {
-    cy.env(['API_BASE']).then((env) => {
-      apiBase = String(env.API_BASE || fallbackApiBase)
+    cy.env(['API_BASE', 'API_KEY', 'BETA_ADMIN_TOKEN']).then((env) => {
+      apiBase = String(env.API_BASE || fallbackApiBase).replace(/\/+$/, '')
+      apiKey = String(env.BETA_ADMIN_TOKEN || env.API_KEY || '')
     })
+  })
+
+  after(() => {
+    if (ids.artImage) {
+      cy.request({
+        method: 'PATCH',
+        url: urlFor('artImage', ids.artImage),
+        headers: cleanupHeaders(),
+        body: {
+          checkpointResourceId: null,
+          serverId: null,
+        },
+        failOnStatusCode: false,
+      })
+    }
+
+    cleanupOrder.forEach(cleanupRecord)
   })
 
   it('creates linked art, model, and chat records', () => {

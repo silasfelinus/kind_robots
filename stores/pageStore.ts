@@ -92,6 +92,7 @@ export const usePageStore = defineStore('pageStore', () => {
   const isLoading = ref(false)
   const workspaceCardKey = ref('')
   const lastResolvedPath = ref('')
+  const overrideCards = ref<BuilderCard[] | null>(null)
 
   const currentPage = computed(() => page.value as WorkspacePage | null)
 
@@ -103,6 +104,7 @@ export const usePageStore = defineStore('pageStore', () => {
   })
 
   const cards = computed<BuilderCard[]>(() => {
+    if (overrideCards.value !== null) return overrideCards.value
     const value = currentPage.value?.cards
     return isBuilderCardArray(value) ? value : []
   })
@@ -160,6 +162,7 @@ export const usePageStore = defineStore('pageStore', () => {
   function setPage(newPage: ContentCollectionItem): void {
     page.value = newPage
     workspaceCardKey.value = ''
+    overrideCards.value = null
     ready.value = true
     isLoading.value = false
     lastResolvedPath.value = (newPage as WorkspacePage).path ?? ''
@@ -174,6 +177,7 @@ export const usePageStore = defineStore('pageStore', () => {
 
     page.value = null
     workspaceCardKey.value = ''
+    overrideCards.value = null
     ready.value = true
     isLoading.value = false
 
@@ -186,6 +190,7 @@ export const usePageStore = defineStore('pageStore', () => {
 
     page.value = null
     workspaceCardKey.value = ''
+    overrideCards.value = null
     ready.value = false
     isLoading.value = false
     lastResolvedPath.value = ''
@@ -195,6 +200,14 @@ export const usePageStore = defineStore('pageStore', () => {
 
   function setWorkspaceCardKey(cardKey: string): void {
     workspaceCardKey.value = cardKey
+  }
+
+  function setCards(newCards: BuilderCard[]): void {
+    overrideCards.value = newCards
+  }
+
+  function clearCards(): void {
+    overrideCards.value = null
   }
 
   return {
@@ -216,6 +229,8 @@ export const usePageStore = defineStore('pageStore', () => {
     setLoading,
     initialize,
     setWorkspaceCardKey,
+    setCards,
+    clearCards,
 
     title: computed(() => meta.value.title),
     room: computed(() => meta.value.room),

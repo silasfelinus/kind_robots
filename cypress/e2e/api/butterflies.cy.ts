@@ -1,6 +1,6 @@
-// cypress/e2e/api/butterflies.cy.ts
+/// <reference types="cypress" />
 
-describe('Butterfly API route retirement', () => {
+describe('Retired API route coverage', () => {
   it('has no DB-backed endpoint tests', () => {
     expect(true).to.eq(true)
   })

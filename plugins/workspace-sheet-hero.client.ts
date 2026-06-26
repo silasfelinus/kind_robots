@@ -109,7 +109,7 @@ function profileFromDream(
 function overviewProfile(card: BuilderCard | null): SheetProfile {
   return {
     key: 'overview',
-    label: 'Workspace',
+    label: 'Conductor',
     title: firstString([card?.title, 'Conductor Workspace']),
     narrative: firstString([
       card?.narrative,
@@ -149,6 +149,7 @@ export default defineNuxtPlugin(() => {
 
   const isWorkspace = computed(() => {
     return (
+      route.path === '/conductor' ||
       route.path === '/workspace' ||
       (pageStore.dashboardKey === 'wonder' && pageStore.dashboardTab === 'workspace')
     )

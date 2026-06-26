@@ -17,6 +17,11 @@ type CleanupRequest = {
   expectedStatuses?: number[]
 }
 
+type LooseOverwrite = (
+  name: string,
+  fn: (originalFn: (...args: unknown[]) => Cypress.Chainable, ...args: unknown[]) => Cypress.Chainable,
+) => void
+
 const apiKeyHeaderName = ['x', 'api', 'key'].join('-')
 
 const cleanupEligiblePaths = new Set([
@@ -173,9 +178,9 @@ const registerCleanups = (requests: CleanupRequest[]) => {
   )
 }
 
-;(Cypress.Commands.overwrite as unknown as Function)(
+;(Cypress.Commands.overwrite as unknown as LooseOverwrite)(
   'request',
-  (originalFn: (...args: unknown[]) => Cypress.Chainable, ...args: unknown[]) => {
+  (originalFn, ...args) => {
     const request = normalizeRequestArgs(args)
 
     return originalFn(...args).then((response: Cypress.Response<unknown>) => {

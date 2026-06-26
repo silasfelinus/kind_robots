@@ -5,6 +5,8 @@ import { defineEventHandler, createError } from 'h3'
 const GITHUB_API = 'https://api.github.com'
 const OWNER = 'silasfelinus'
 const REPO = 'conductor'
+const CONDUCTOR_RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`
+const PROJECT_IMAGE_BASE = `${CONDUCTOR_RAW_BASE}/projects/images`
 
 export interface ConductorMilestone {
   id: string
@@ -24,6 +26,12 @@ export interface ConductorTask {
   gateHuman: boolean
 }
 
+export interface ConductorProjectAssets {
+  imagePath: string
+  cardPath: string
+  heroPath: string
+}
+
 export interface ConductorProject {
   slug: string
   name: string
@@ -31,6 +39,9 @@ export interface ConductorProject {
   milestones: ConductorMilestone[]
   tasks: ConductorTask[]
   progress: number
+  imagePath: string
+  cardPath: string
+  heroPath: string
   notesFromSilas?: string
 }
 
@@ -68,6 +79,14 @@ function b64decode(b64: string): string {
   return Buffer.from(b64.replace(/\n/g, ''), 'base64').toString('utf-8')
 }
 
+function conductorProjectAssets(slug: string): ConductorProjectAssets {
+  return {
+    imagePath: `${PROJECT_IMAGE_BASE}/${slug}-icon.webp`,
+    cardPath: `${PROJECT_IMAGE_BASE}/${slug}-card.webp`,
+    heroPath: `${PROJECT_IMAGE_BASE}/${slug}-hero.webp`,
+  }
+}
+
 function computeProgress(milestones: ConductorMilestone[]): number {
   if (!milestones.length) return 0
   let total = 0
@@ -80,7 +99,7 @@ function computeProgress(milestones: ConductorMilestone[]): number {
   return total > 0 ? Math.round((done / total) * 100) : 0
 }
 
-function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progress'> {
+function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progress' | keyof ConductorProjectAssets> {
   const lines = text.split('\n')
   const result = {
     name: '',
@@ -94,10 +113,8 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
   while (i < lines.length) {
     const line = lines[i]!
 
-    // Skip blank lines and comments
     if (!line.trim() || line.trim().startsWith('#')) { i++; continue }
 
-    // Top-level scalars
     const scalar = line.match(/^(project|kind):\s*(.+)$/)
     if (scalar) {
       const val = scalar[2]!.replace(/^["']|["']$/g, '').trim()
@@ -106,7 +123,6 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
       i++; continue
     }
 
-    // notes_from_silas: |
     if (/^notes_from_silas:\s*\|/.test(line)) {
       const buf: string[] = []
       i++
@@ -118,7 +134,6 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
       continue
     }
 
-    // milestones:
     if (/^milestones:/.test(line)) {
       i++
       while (i < lines.length && /^  - /.test(lines[i]!)) {
@@ -141,7 +156,6 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
       continue
     }
 
-    // tasks:
     if (/^tasks:/.test(line)) {
       i++
       while (i < lines.length && /^  - /.test(lines[i]!)) {
@@ -150,7 +164,6 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
         i++
         while (i < lines.length && /^    /.test(lines[i]!)) {
           const tline = lines[i]!
-          // skip multiline strings (note: > or |)
           if (/^    \w+:\s*[>|]/.test(tline)) {
             i++
             while (i < lines.length && /^      /.test(lines[i]!)) i++
@@ -248,6 +261,7 @@ export default defineEventHandler(async (): Promise<ConductorData> => {
             return {
               slug,
               ...parsed,
+              ...conductorProjectAssets(slug),
               name: parsed.name || slug,
               progress: computeProgress(parsed.milestones),
             } satisfies ConductorProject

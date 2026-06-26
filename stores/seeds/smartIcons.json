@@ -13,7 +13,6 @@
     "category": "model",
     "modelType": "art"
   },
-
   {
     "title": "Bots",
     "type": "directory",
@@ -42,7 +41,20 @@
     "category": "model",
     "modelType": "prompt"
   },
-
+  {
+    "title": "Conductor",
+    "type": "directory",
+    "userId": 10,
+    "designer": "content-seeder",
+    "icon": "kind-icon:gearhammer",
+    "label": "Conductor Cockpit",
+    "link": "/conductor",
+    "component": "lab-nav",
+    "isPublic": false,
+    "description": "Private control panel for the Conductor agent loop: projects, pitches, blockers, and human approval gates.",
+    "category": "ami",
+    "modelType": "ami"
+  },
   {
     "title": "Characters",
     "type": "directory",
@@ -71,7 +83,6 @@
     "category": "user",
     "modelType": "user"
   },
-
   {
     "title": "Forum",
     "type": "directory",
@@ -114,7 +125,6 @@
     "category": "user",
     "modelType": "user"
   },
-
   {
     "title": "Milestones",
     "type": "directory",
@@ -129,7 +139,6 @@
     "category": "user",
     "modelType": "user"
   },
-
   {
     "title": "Memory",
     "type": "directory",
@@ -144,7 +153,6 @@
     "category": "model",
     "modelType": "art"
   },
-
   {
     "title": "Navigation",
     "type": "directory",
@@ -159,7 +167,6 @@
     "category": "ami",
     "modelType": "ami"
   },
-
   {
     "title": "Rewards",
     "type": "directory",

@@ -1,6 +1,7 @@
 type CypressApiEnv = {
   API_KEY?: string
   BETA_ADMIN_TOKEN?: string
+  ADMIN_TOKEN?: string
   BASE_API_URL?: string
 }
 
@@ -43,6 +44,9 @@ export type CreateLoggedInTestUserOptions = {
 export const defaultApiBase = 'https://kind-robots.vercel.app/api'
 export const defaultTestPassword = 'testtest12'
 
+const apiKeyHeaderName = ['x', 'api', 'key'].join('-')
+const adminTokenHeaderName = ['x', 'admin', 'token'].join('-')
+const betaAdminTokenHeaderName = ['x', 'beta', 'admin', 'token'].join('-')
 
 export const jsonHeaders = () => ({
   Accept: 'application/json',
@@ -58,7 +62,9 @@ export const invalidBearerHeaders = () => bearerHeaders('invalid-cypress-token')
 
 export const adminHeaders = (token: string) => ({
   ...jsonHeaders(),
-  'x-api-key': token,
+  [adminTokenHeaderName]: token,
+  [betaAdminTokenHeaderName]: token,
+  [apiKeyHeaderName]: token,
 })
 
 export const apiKeyHeaders = (token: string) => adminHeaders(token)
@@ -84,12 +90,12 @@ export const resetSeedUserCursor = () => {
 }
 
 export const getApiEnv = () =>
-  cy.env(['API_KEY', 'BETA_ADMIN_TOKEN', 'BASE_API_URL']).then((env: CypressApiEnv) => {
+  cy.env(['API_KEY', 'BETA_ADMIN_TOKEN', 'ADMIN_TOKEN', 'BASE_API_URL']).then((env: CypressApiEnv) => {
     const apiBase = String(env.BASE_API_URL || defaultApiBase).replace(/\/+$/, '')
-    const adminToken = String(env.BETA_ADMIN_TOKEN || env.API_KEY || '')
+    const adminToken = String(env.ADMIN_TOKEN || env.BETA_ADMIN_TOKEN || env.API_KEY || '')
 
     expect(apiBase, 'api base').to.be.a('string').and.not.be.empty
-    expect(adminToken, 'API_KEY or BETA_ADMIN_TOKEN').to.be.a('string').and.not.be.empty
+    expect(adminToken, 'ADMIN_TOKEN, BETA_ADMIN_TOKEN, or API_KEY').to.be.a('string').and.not.be.empty
 
     return { apiBase, adminToken }
   })

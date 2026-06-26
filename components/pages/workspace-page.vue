@@ -33,7 +33,10 @@
     </div>
 
     <!-- Loading skeleton -->
-    <div v-if="pending && !data" class="hand-scroll flex shrink-0 items-end gap-3 overflow-x-auto pb-2 pt-4">
+    <div
+      v-if="pending && !data"
+      class="hand-scroll flex shrink-0 items-end gap-3 overflow-x-auto pb-2 pt-4"
+    >
       <div
         v-for="n in 5"
         :key="n"
@@ -45,7 +48,9 @@
     <!-- Stats bar -->
     <div v-if="data" class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
       <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-        <p class="text-2xl font-black text-primary">{{ data.projects.length }}</p>
+        <p class="text-2xl font-black text-primary">
+          {{ data.projects.length }}
+        </p>
         <p class="text-xs font-semibold text-base-content/60">Projects</p>
       </div>
       <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
@@ -65,7 +70,9 @@
         "
         @click="showPitches = !showPitches"
       >
-        <p class="text-2xl font-black text-warning">{{ pendingPitches.length }}</p>
+        <p class="text-2xl font-black text-warning">
+          {{ pendingPitches.length }}
+        </p>
         <p class="text-xs font-semibold text-base-content/60">
           Pitches Pending
           <Icon
@@ -79,8 +86,13 @@
 
     <!-- Pitches panel (collapsible) -->
     <Transition name="slide-down">
-      <div v-if="data && showPitches && pendingPitches.length" class="shrink-0 space-y-2">
-        <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
+      <div
+        v-if="data && showPitches && pendingPitches.length"
+        class="shrink-0 space-y-2"
+      >
+        <h3
+          class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+        >
           Pitches Awaiting Your Vote
         </h3>
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -90,15 +102,23 @@
             class="rounded-2xl border border-warning/40 bg-warning/5 p-4 transition-shadow hover:shadow-md"
           >
             <div class="mb-2 flex items-start justify-between gap-2">
-              <h4 class="font-bold leading-tight text-base-content">{{ pitch.title }}</h4>
+              <h4 class="font-bold leading-tight text-base-content">
+                {{ pitch.title }}
+              </h4>
               <span class="badge badge-warning badge-sm shrink-0">vote</span>
             </div>
-            <p v-if="pitch.projectTarget" class="mb-2 text-xs text-base-content/50">
+            <p
+              v-if="pitch.projectTarget"
+              class="mb-2 text-xs text-base-content/50"
+            >
               <Icon name="kind-icon:folder" class="mr-0.5 inline size-3" />
               {{ pitch.projectTarget }}
               <span v-if="pitch.date" class="ml-2">· {{ pitch.date }}</span>
             </p>
-            <p v-if="pitch.idea" class="line-clamp-3 text-sm text-base-content/75">
+            <p
+              v-if="pitch.idea"
+              class="line-clamp-3 text-sm text-base-content/75"
+            >
               {{ pitch.idea }}
             </p>
           </article>
@@ -108,7 +128,9 @@
 
     <!-- Project card hand -->
     <div v-if="data && data.projects.length" class="project-hand shrink-0">
-      <div class="hand-scroll flex items-end gap-3 overflow-x-auto pb-3 pt-6 px-2">
+      <div
+        class="hand-scroll flex items-end gap-3 overflow-x-auto pb-3 pt-6 px-2"
+      >
         <button
           v-for="(project, index) in data.projects"
           :key="project.slug"
@@ -124,7 +146,9 @@
         >
           <div class="card-flip relative w-full">
             <!-- Card front -->
-            <div class="card-face card-front relative flex w-full flex-col overflow-hidden rounded-2xl shadow-md">
+            <div
+              class="card-face card-front relative flex w-full flex-col overflow-hidden rounded-2xl shadow-md"
+            >
               <div class="relative overflow-hidden" style="aspect-ratio: 2/3">
                 <img
                   :src="cardBackSrc(index)"
@@ -139,7 +163,9 @@
                 />
 
                 <!-- Large kind icon, centered -->
-                <div class="absolute inset-0 flex items-center justify-center pb-8">
+                <div
+                  class="absolute inset-0 flex items-center justify-center pb-8"
+                >
                   <Icon
                     :name="kindIcon(project.kind)"
                     class="transition-transform duration-300 group-hover:scale-125"
@@ -149,8 +175,12 @@
                 </div>
 
                 <!-- Bottom overlay: progress + alert badges -->
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent px-2 pb-2 pt-6">
-                  <div class="mb-1.5 h-1.5 overflow-hidden rounded-full bg-white/20">
+                <div
+                  class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 via-black/50 to-transparent px-2 pb-2 pt-6"
+                >
+                  <div
+                    class="mb-1.5 h-1.5 overflow-hidden rounded-full bg-white/20"
+                  >
                     <div
                       class="h-full rounded-full transition-all duration-700"
                       :class="kindProgressClass(project.kind)"
@@ -158,10 +188,16 @@
                     />
                   </div>
                   <div class="flex flex-wrap gap-0.5">
-                    <span v-if="blockedCount(project) > 0" class="badge badge-error badge-xs">
+                    <span
+                      v-if="blockedCount(project) > 0"
+                      class="badge badge-error badge-xs"
+                    >
                       {{ blockedCount(project) }} ✗
                     </span>
-                    <span v-if="needsHumanCount(project) > 0" class="badge badge-accent badge-xs">
+                    <span
+                      v-if="needsHumanCount(project) > 0"
+                      class="badge badge-accent badge-xs"
+                    >
                       {{ needsHumanCount(project) }} 👤
                     </span>
                   </div>
@@ -173,24 +209,34 @@
                     v-if="selectedProject?.slug === project.slug"
                     class="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-primary shadow"
                   >
-                    <Icon name="kind-icon:check" class="size-3 text-primary-content" />
+                    <Icon
+                      name="kind-icon:check"
+                      class="size-3 text-primary-content"
+                    />
                   </div>
                 </Transition>
               </div>
 
               <!-- Card footer label -->
               <div class="bg-base-100 px-2 py-1.5 rounded-b-2xl">
-                <p class="truncate text-center text-[0.6rem] font-black leading-none text-base-content/80" :title="project.name || project.slug">
+                <p
+                  class="truncate text-center text-[0.6rem] font-black leading-none text-base-content/80"
+                  :title="project.name || project.slug"
+                >
                   {{ project.name || project.slug }}
                 </p>
-                <p class="text-center text-[0.55rem] leading-none text-base-content/40 mt-0.5">
+                <p
+                  class="text-center text-[0.55rem] leading-none text-base-content/40 mt-0.5"
+                >
                   {{ project.progress }}%
                 </p>
               </div>
             </div>
 
             <!-- Card back (revealed during flip animation) -->
-            <div class="card-face card-back absolute inset-0 flex flex-col overflow-hidden rounded-2xl shadow-md">
+            <div
+              class="card-face card-back absolute inset-0 flex flex-col overflow-hidden rounded-2xl shadow-md"
+            >
               <div class="relative min-h-0 flex-1 overflow-hidden">
                 <img
                   :src="cardBackSrc(index)"
@@ -200,7 +246,9 @@
               </div>
               <div class="bg-base-100 px-2 py-1.5 rounded-b-2xl">
                 <p class="text-center text-[0.6rem] leading-none">&nbsp;</p>
-                <p class="text-center text-[0.55rem] leading-none mt-0.5">&nbsp;</p>
+                <p class="text-center text-[0.55rem] leading-none mt-0.5">
+                  &nbsp;
+                </p>
               </div>
             </div>
           </div>
@@ -231,7 +279,9 @@
         class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto"
       >
         <!-- Detail header -->
-        <div class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3">
+        <div
+          class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3"
+        >
           <div
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border"
             :class="kindIconClass(selectedProject.kind)"
@@ -243,10 +293,14 @@
               {{ selectedProject.name || selectedProject.slug }}
             </h3>
             <p class="text-xs text-base-content/50">
-              {{ selectedProject.progress }}% complete · {{ selectedProject.tasks.length }} tasks
+              {{ selectedProject.progress }}% complete ·
+              {{ selectedProject.tasks.length }} tasks
             </p>
           </div>
-          <span class="badge badge-sm shrink-0" :class="kindBadgeClass(selectedProject.kind)">
+          <span
+            class="badge badge-sm shrink-0"
+            :class="kindBadgeClass(selectedProject.kind)"
+          >
             {{ selectedProject.kind }}
           </span>
           <button
@@ -279,7 +333,9 @@
           <!-- Section header + edit toggle -->
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:dream" class="size-4 text-primary" />
-            <h4 class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60">
+            <h4
+              class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60"
+            >
               Project Intent
             </h4>
             <button
@@ -287,7 +343,10 @@
               class="btn btn-ghost btn-xs rounded-xl gap-1"
               @click="dreamEditMode = !dreamEditMode"
             >
-              <Icon :name="dreamEditMode ? 'kind-icon:x' : 'kind-icon:edit'" class="size-3" />
+              <Icon
+                :name="dreamEditMode ? 'kind-icon:x' : 'kind-icon:edit'"
+                class="size-3"
+              />
               {{ dreamEditMode ? 'Cancel' : 'Edit' }}
             </button>
           </div>
@@ -298,11 +357,20 @@
             <button
               type="button"
               class="btn btn-sm rounded-xl gap-2 transition-colors"
-              :class="linkedDream.isPublic ? 'btn-success' : 'btn-ghost border border-base-300'"
+              :class="
+                linkedDream.isPublic
+                  ? 'btn-success'
+                  : 'btn-ghost border border-base-300'
+              "
               :disabled="dreamSaving"
               @click="patchDream({ isPublic: !linkedDream.isPublic })"
             >
-              <Icon :name="linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'" class="size-3.5" />
+              <Icon
+                :name="
+                  linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
+                "
+                class="size-3.5"
+              />
               {{ linkedDream.isPublic ? 'Public' : 'Private' }}
             </button>
 
@@ -310,7 +378,11 @@
             <button
               type="button"
               class="btn btn-sm rounded-xl gap-2 transition-colors"
-              :class="linkedDream.isMature ? 'btn-warning' : 'btn-ghost border border-base-300'"
+              :class="
+                linkedDream.isMature
+                  ? 'btn-warning'
+                  : 'btn-ghost border border-base-300'
+              "
               :disabled="dreamSaving"
               @click="patchDream({ isMature: !linkedDream.isMature })"
             >
@@ -322,7 +394,11 @@
             <button
               type="button"
               class="btn btn-sm rounded-xl gap-2 transition-colors"
-              :class="linkedDream.allowReviews ? 'btn-accent' : 'btn-ghost border border-base-300'"
+              :class="
+                linkedDream.allowReviews
+                  ? 'btn-accent'
+                  : 'btn-ghost border border-base-300'
+              "
               :disabled="dreamSaving"
               @click="patchDream({ allowReviews: !linkedDream.allowReviews })"
             >
@@ -335,7 +411,15 @@
               class="select select-sm rounded-xl border-base-300 bg-base-200 text-xs font-semibold"
               :value="linkedDream.projectStatus ?? 'ACTIVE'"
               :disabled="dreamSaving"
-              @change="patchDream({ projectStatus: ($event.target as HTMLSelectElement).value as 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' })"
+              @change="
+                patchDream({
+                  projectStatus: ($event.target as HTMLSelectElement).value as
+                    | 'ACTIVE'
+                    | 'PAUSED'
+                    | 'DONE'
+                    | 'ARCHIVED',
+                })
+              "
             >
               <option value="ACTIVE">ACTIVE</option>
               <option value="PAUSED">PAUSED</option>
@@ -343,21 +427,37 @@
               <option value="ARCHIVED">ARCHIVED</option>
             </select>
 
-            <span v-if="dreamSaving" class="loading loading-spinner loading-xs self-center text-primary" />
-            <span v-if="dreamSaveMessage" class="self-center text-xs" :class="dreamSaveError ? 'text-error' : 'text-success'">
+            <span
+              v-if="dreamSaving"
+              class="loading loading-spinner loading-xs self-center text-primary"
+            />
+            <span
+              v-if="dreamSaveMessage"
+              class="self-center text-xs"
+              :class="dreamSaveError ? 'text-error' : 'text-success'"
+            >
               {{ dreamSaveMessage }}
             </span>
           </div>
 
           <!-- ── Read-only view ──────────────────────────────────────────── -->
           <template v-if="!dreamEditMode">
-            <p v-if="linkedDream.description" class="text-sm text-base-content/80">
+            <p
+              v-if="linkedDream.description"
+              class="text-sm text-base-content/80"
+            >
               {{ linkedDream.description }}
             </p>
-            <p v-else-if="linkedDream.pitch" class="text-sm italic text-base-content/60">
+            <p
+              v-else-if="linkedDream.pitch"
+              class="text-sm italic text-base-content/60"
+            >
               {{ linkedDream.pitch }}
             </p>
-            <div v-if="linkedDream.liveUrl || linkedDream.repoUrl" class="flex flex-wrap gap-2">
+            <div
+              v-if="linkedDream.liveUrl || linkedDream.repoUrl"
+              class="flex flex-wrap gap-2"
+            >
               <a
                 v-if="linkedDream.liveUrl"
                 :href="linkedDream.liveUrl"
@@ -386,7 +486,9 @@
             <div class="space-y-3">
               <div class="form-control">
                 <label class="label py-0.5">
-                  <span class="label-text text-xs font-semibold">Description</span>
+                  <span class="label-text text-xs font-semibold"
+                    >Description</span
+                  >
                 </label>
                 <textarea
                   v-model="dreamEditForm.description"
@@ -398,7 +500,9 @@
 
               <div class="form-control">
                 <label class="label py-0.5">
-                  <span class="label-text text-xs font-semibold">Intent / Pitch</span>
+                  <span class="label-text text-xs font-semibold"
+                    >Intent / Pitch</span
+                  >
                 </label>
                 <textarea
                   v-model="dreamEditForm.pitch"
@@ -410,7 +514,9 @@
 
               <div class="form-control">
                 <label class="label py-0.5">
-                  <span class="label-text text-xs font-semibold">Flavor Text</span>
+                  <span class="label-text text-xs font-semibold"
+                    >Flavor Text</span
+                  >
                 </label>
                 <input
                   v-model="dreamEditForm.flavorText"
@@ -423,7 +529,9 @@
               <div class="grid grid-cols-2 gap-3">
                 <div class="form-control">
                   <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">Live URL</span>
+                    <span class="label-text text-xs font-semibold"
+                      >Live URL</span
+                    >
                   </label>
                   <input
                     v-model="dreamEditForm.liveUrl"
@@ -434,7 +542,9 @@
                 </div>
                 <div class="form-control">
                   <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">Repo URL</span>
+                    <span class="label-text text-xs font-semibold"
+                      >Repo URL</span
+                    >
                   </label>
                   <input
                     v-model="dreamEditForm.repoUrl"
@@ -459,7 +569,10 @@
                   :disabled="dreamSaving"
                   @click="saveDreamEdit"
                 >
-                  <span v-if="dreamSaving" class="loading loading-spinner loading-xs" />
+                  <span
+                    v-if="dreamSaving"
+                    class="loading loading-spinner loading-xs"
+                  />
                   Save
                 </button>
               </div>
@@ -473,8 +586,10 @@
           class="shrink-0 rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
         >
           <Icon name="kind-icon:dream" class="mx-auto mb-1 size-5 opacity-40" />
-          No Project Dream linked for <strong>{{ selectedProject.slug }}</strong> — run
-          <code class="rounded bg-base-200 px-1">addProjects.http</code> to seed it.
+          No Project Dream linked for
+          <strong>{{ selectedProject.slug }}</strong> — run
+          <code class="rounded bg-base-200 px-1">addProjects.http</code> to seed
+          it.
         </div>
 
         <!-- Notes from Silas -->
@@ -482,7 +597,11 @@
           v-if="selectedProject.notesFromSilas"
           class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
         >
-          <p class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70">Notes from Silas</p>
+          <p
+            class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70"
+          >
+            Notes from Silas
+          </p>
           {{ selectedProject.notesFromSilas }}
         </div>
 
@@ -490,7 +609,9 @@
         <div class="grid min-h-0 gap-4 pb-4 sm:grid-cols-2">
           <!-- Milestones -->
           <div v-if="selectedProject.milestones.length">
-            <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
+            <h4
+              class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+            >
               Milestones
             </h4>
             <div class="space-y-2">
@@ -507,9 +628,14 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="truncate text-sm font-semibold">{{ m.title }}</p>
-                  <p class="text-xs text-base-content/50">weight {{ m.weight }}</p>
+                  <p class="text-xs text-base-content/50">
+                    weight {{ m.weight }}
+                  </p>
                 </div>
-                <span class="badge badge-sm shrink-0" :class="milestoneBadgeClass(m.status)">
+                <span
+                  class="badge badge-sm shrink-0"
+                  :class="milestoneBadgeClass(m.status)"
+                >
                   {{ m.status }}
                 </span>
               </div>
@@ -518,7 +644,9 @@
 
           <!-- Tasks -->
           <div v-if="selectedProject.tasks.length">
-            <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
+            <h4
+              class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+            >
               Tasks ({{ selectedProject.tasks.length }})
             </h4>
             <div class="space-y-2">
@@ -535,16 +663,27 @@
                     <Icon :name="taskIcon(task.status)" class="size-3" />
                   </div>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold leading-snug">{{ task.title }}</p>
-                    <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50">
+                    <p class="text-sm font-semibold leading-snug">
+                      {{ task.title }}
+                    </p>
+                    <div
+                      class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
+                    >
                       <span>{{ task.id }}</span>
                       <span v-if="task.milestone">· {{ task.milestone }}</span>
-                      <span v-if="task.gateHuman" class="text-accent">· gate</span>
+                      <span v-if="task.gateHuman" class="text-accent"
+                        >· gate</span
+                      >
                       <span v-if="task.owner">· {{ task.owner }}</span>
-                      <span v-if="task.passes > 0" class="text-warning">· pass {{ task.passes }}/3</span>
+                      <span v-if="task.passes > 0" class="text-warning"
+                        >· pass {{ task.passes }}/3</span
+                      >
                     </div>
                   </div>
-                  <span class="badge badge-sm shrink-0" :class="taskBadgeClass(task.status)">
+                  <span
+                    class="badge badge-sm shrink-0"
+                    :class="taskBadgeClass(task.status)"
+                  >
                     {{ task.status }}
                   </span>
                 </div>
@@ -561,8 +700,13 @@
       class="flex flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-200"
     >
       <div class="text-center">
-        <Icon name="kind-icon:gearhammer" class="mx-auto mb-2 size-8 opacity-40" />
-        <p class="text-sm text-base-content/50">No projects found in Conductor.</p>
+        <Icon
+          name="kind-icon:gearhammer"
+          class="mx-auto mb-2 size-8 opacity-40"
+        />
+        <p class="text-sm text-base-content/50">
+          No projects found in Conductor.
+        </p>
       </div>
     </div>
   </section>
@@ -571,7 +715,10 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
-import type { ConductorProject, ConductorData } from '@/server/api/conductor/projects.get'
+import type {
+  ConductorProject,
+  ConductorData,
+} from '@/server/api/conductor/projects.get'
 import { useDreamStore } from '@/stores/dreamStore'
 
 withDefaults(
@@ -581,9 +728,12 @@ withDefaults(
   { showHeader: true },
 )
 
-const { data, pending, error, refresh } = await useFetch<ConductorData>('/api/conductor/projects', {
-  lazy: true,
-})
+const { data, pending, error, refresh } = await useFetch<ConductorData>(
+  '/api/conductor/projects',
+  {
+    lazy: true,
+  },
+)
 
 const dreamStore = useDreamStore()
 
@@ -609,9 +759,11 @@ onBeforeUnmount(() => {
 
 const linkedDream = computed(() => {
   if (!selectedProject.value) return null
-  return dreamStore.projectDreams.find(
-    (d) => d.slug === selectedProject.value!.slug,
-  ) ?? null
+  return (
+    dreamStore.projectDreams.find(
+      (d) => d.slug === selectedProject.value!.slug,
+    ) ?? null
+  )
 })
 
 // Edit state
@@ -682,7 +834,9 @@ async function patchDream(patch: ProjectPatch) {
   }
 
   if (saveMessageTimer) clearTimeout(saveMessageTimer)
-  saveMessageTimer = setTimeout(() => { dreamSaveMessage.value = '' }, 3000)
+  saveMessageTimer = setTimeout(() => {
+    dreamSaveMessage.value = ''
+  }, 3000)
 }
 
 async function saveDreamEdit() {
@@ -742,7 +896,8 @@ const totalDone = computed(
 const totalNeedsHuman = computed(
   () =>
     data.value?.projects.reduce(
-      (acc, p) => acc + p.tasks.filter((t) => t.status === 'needs-human').length,
+      (acc, p) =>
+        acc + p.tasks.filter((t) => t.status === 'needs-human').length,
       0,
     ) ?? 0,
 )
@@ -755,7 +910,15 @@ function needsHumanCount(p: ConductorProject) {
   return p.tasks.filter((t) => t.status === 'needs-human').length
 }
 
-const STATUS_ORDER = ['done', 'review', 'claimed', 'ready', 'waiting', 'blocked', 'needs-human']
+const STATUS_ORDER = [
+  'done',
+  'review',
+  'claimed',
+  'ready',
+  'waiting',
+  'blocked',
+  'needs-human',
+]
 
 function taskStatusSummary(p: ConductorProject): [string, number][] {
   const counts: Record<string, number> = {}
@@ -957,7 +1120,11 @@ function milestoneBadgeClass(status: string) {
   height: 6px;
   margin: -3px 0 0 -3px;
   border-radius: 9999px;
-  background: radial-gradient(circle, hsl(var(--p, 280 90% 70%)) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    hsl(var(--p, 280 90% 70%)) 0%,
+    transparent 70%
+  );
   box-shadow:
     0 0 6px 2px hsl(var(--p, 280 90% 70%) / 0.8),
     0 0 12px 4px hsl(var(--s, 200 90% 70%) / 0.5);
@@ -1035,7 +1202,9 @@ function milestoneBadgeClass(status: string) {
 /* ── Transitions ─────────────────────────────────────── */
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: opacity 0.2s ease, max-height 0.25s ease;
+  transition:
+    opacity 0.2s ease,
+    max-height 0.25s ease;
   overflow: hidden;
   max-height: 2000px;
 }
@@ -1046,10 +1215,14 @@ function milestoneBadgeClass(status: string) {
 }
 
 .detail-slide-enter-active {
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
 }
 .detail-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .detail-slide-enter-from,
 .detail-slide-leave-to {
@@ -1058,10 +1231,14 @@ function milestoneBadgeClass(status: string) {
 }
 
 .pop-enter-active {
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0, 0.2, 1.4);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0.2, 1.4);
 }
 .pop-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 .pop-enter-from,
 .pop-leave-to {

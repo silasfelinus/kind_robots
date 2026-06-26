@@ -6,9 +6,7 @@
       class="flex min-h-88 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
     >
       <div class="mx-auto flex max-w-lg flex-col items-center gap-4">
-        <div
-          class="flex size-16 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning shadow-lg"
-        >
+        <div class="flex size-16 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning shadow-lg">
           <Icon name="kind-icon:lock" class="size-8" />
         </div>
         <div class="space-y-2">
@@ -16,10 +14,6 @@
           <p class="text-sm leading-relaxed text-base-content/70">
             This is Silas&apos;s private Conductor cockpit: project progress,
             agent tasks, roadmap state, and pitches waiting for human judgment.
-          </p>
-          <p class="text-xs text-base-content/45">
-            The robots are friendly. The dashboard is not public. Tiny velvet
-            rope, tiny clipboard, tiny security butterfly.
           </p>
         </div>
       </div>
@@ -31,15 +25,8 @@
         <h2 class="text-lg font-semibold">Conductor Workspace</h2>
         <span class="badge badge-primary badge-sm ml-1">ADMIN</span>
         <div class="ml-auto flex items-center gap-2">
-          <span v-if="data?.fetchedAt" class="text-xs text-base-content/50">
-            Updated {{ fetchedLabel }}
-          </span>
-          <button
-            class="btn btn-ghost btn-sm rounded-xl"
-            type="button"
-            :disabled="pending"
-            @click="refreshWorkspace"
-          >
+          <span v-if="data?.fetchedAt" class="text-xs text-base-content/50">Updated {{ fetchedLabel }}</span>
+          <button class="btn btn-ghost btn-sm rounded-xl" type="button" :disabled="pending" @click="refreshWorkspace">
             <span v-if="pending" class="loading loading-spinner loading-xs" />
             <Icon v-else name="kind-icon:refresh" class="size-4" />
             Refresh
@@ -47,26 +34,17 @@
         </div>
       </header>
 
-      <div
-        v-if="error"
-        class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-sm text-error"
-      >
+      <div v-if="error" class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-sm text-error">
         <Icon name="kind-icon:warning" class="mr-1 inline size-4" />
         {{ error.message }}
       </div>
 
-      <div
-        v-if="pending && !data"
-        class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4"
-      >
-        <div
-          v-for="n in 4"
-          :key="n"
-          class="h-20 animate-pulse rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-        />
+      <div v-if="pending && !data" class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
+        <div v-for="n in 4" :key="n" class="h-20 animate-pulse rounded-2xl border border-base-300 bg-base-200" />
       </div>
 
       <div v-if="data" class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+
         <!-- OVERVIEW -->
         <div v-if="viewMode === 'overview'" class="flex flex-col gap-4 pb-4">
           <div class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
@@ -78,39 +56,35 @@
               <p class="text-2xl font-black text-success">{{ totalDone }}</p>
               <p class="text-xs font-semibold text-base-content/60">Tasks Done</p>
             </div>
-            <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-              <p class="text-2xl font-black text-warning">{{ totalNeedsHuman }}</p>
-              <p class="text-xs font-semibold text-base-content/60">Needs You</p>
-            </div>
             <button
               type="button"
               class="rounded-2xl border px-4 py-3 text-left transition-colors"
-              :class="
-                hasBrainstormContent
-                  ? 'cursor-pointer border-secondary/60 bg-secondary/10 hover:border-secondary'
-                  : 'border-base-300 bg-base-200'
-              "
-              :disabled="!hasBrainstormContent"
-              @click="goToBrainstorm"
+              :class="todoStore.openTodos.length ? 'cursor-pointer border-primary/40 bg-primary/5 hover:border-primary/60' : 'border-base-300 bg-base-200'"
+              @click="goTo('tasks')"
             >
-              <p class="text-2xl font-black text-secondary">
-                {{ pendingPitches.length + brainstormProjects.length }}
+              <p class="text-2xl font-black text-primary">{{ todoStore.openTodos.length }}</p>
+              <p class="text-xs font-semibold text-base-content/60">
+                Open Tasks
+                <Icon v-if="todoStore.openTodos.length" name="kind-icon:chevron-right" class="ml-0.5 inline size-3" />
               </p>
+            </button>
+            <button
+              type="button"
+              class="rounded-2xl border px-4 py-3 text-left transition-colors"
+              :class="hasBrainstormContent ? 'cursor-pointer border-secondary/60 bg-secondary/10 hover:border-secondary' : 'border-base-300 bg-base-200'"
+              :disabled="!hasBrainstormContent"
+              @click="goTo('brainstorm')"
+            >
+              <p class="text-2xl font-black text-secondary">{{ pendingPitches.length + brainstormProjects.length }}</p>
               <p class="text-xs font-semibold text-base-content/60">
                 Brainstorm
-                <Icon
-                  v-if="hasBrainstormContent"
-                  name="kind-icon:chevron-right"
-                  class="ml-0.5 inline size-3"
-                />
+                <Icon v-if="hasBrainstormContent" name="kind-icon:chevron-right" class="ml-0.5 inline size-3" />
               </p>
             </button>
           </div>
 
           <div v-if="activeProjects.length" class="space-y-2">
-            <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
-              Active Projects
-            </h3>
+            <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Active Projects</h3>
             <div class="grid gap-2 sm:grid-cols-2">
               <button
                 v-for="project in activeProjects"
@@ -119,16 +93,8 @@
                 class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-primary/5"
                 @click="selectProject(project.slug)"
               >
-                <div
-                  class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border"
-                  :class="kindIconClass(project.kind)"
-                >
-                  <img
-                    v-if="projectDreamForSlug(project.slug)?.imagePath"
-                    :src="projectDreamForSlug(project.slug)!.imagePath!"
-                    :alt="project.name"
-                    class="h-full w-full object-cover"
-                  />
+                <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border" :class="kindIconClass(project.kind)">
+                  <img v-if="projectDreamForSlug(project.slug)?.imagePath" :src="projectDreamForSlug(project.slug)!.imagePath!" :alt="project.name" class="h-full w-full object-cover" />
                   <div v-else class="flex h-full w-full items-center justify-center">
                     <Icon :name="kindIcon(project.kind)" class="size-5" />
                   </div>
@@ -136,59 +102,136 @@
                 <div class="min-w-0 flex-1">
                   <p class="truncate text-sm font-bold">{{ project.name || project.slug }}</p>
                   <div class="mt-1 h-1 overflow-hidden rounded-full bg-base-300">
-                    <div
-                      class="h-full rounded-full"
-                      :class="kindProgressClass(project.kind)"
-                      :style="{ width: `${project.progress}%` }"
-                    />
+                    <div class="h-full rounded-full" :class="kindProgressClass(project.kind)" :style="{ width: `${project.progress}%` }" />
                   </div>
                 </div>
                 <div class="flex shrink-0 flex-col items-end gap-1">
                   <span class="text-xs text-base-content/50">{{ project.progress }}%</span>
-                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-xs">
-                    {{ blockedCount(project) }} blocked
-                  </span>
-                  <span
-                    v-else-if="needsHumanCount(project) > 0"
-                    class="badge badge-accent badge-xs"
-                  >
-                    {{ needsHumanCount(project) }} need you
-                  </span>
+                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-xs">{{ blockedCount(project) }} blocked</span>
+                  <span v-else-if="needsHumanCount(project) > 0" class="badge badge-accent badge-xs">{{ needsHumanCount(project) }} need you</span>
                 </div>
               </button>
             </div>
           </div>
+        </div>
 
-          <div
-            v-if="!activeProjects.length"
-            class="flex flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-200 py-12"
-          >
-            <div class="text-center">
-              <Icon name="kind-icon:gearhammer" class="mx-auto mb-2 size-8 opacity-40" />
-              <p class="text-sm text-base-content/50">No active projects found.</p>
+        <!-- TASKS -->
+        <div v-else-if="viewMode === 'tasks'" class="flex flex-col gap-4 pb-4">
+          <div class="flex items-center gap-2">
+            <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="goToOverview">
+              <Icon name="kind-icon:chevron-left" class="size-4" /> Overview
+            </button>
+            <h3 class="text-sm font-bold">Tasks</h3>
+            <span v-if="todoStore.openTodos.length" class="badge badge-primary badge-sm">{{ todoStore.openTodos.length }} open</span>
+            <span v-if="todoStore.loading" class="loading loading-spinner loading-xs ml-auto text-primary" />
+          </div>
+
+          <!-- Quick add -->
+          <form class="flex gap-2" @submit.prevent="submitNewTodo">
+            <input
+              v-model="newTodoTitle"
+              type="text"
+              placeholder="Add a task..."
+              class="input input-bordered input-sm flex-1 rounded-xl"
+              :disabled="todoStore.loading"
+            />
+            <select v-model="newTodoPriority" class="select select-bordered select-sm rounded-xl">
+              <option value="HIGH">High</option>
+              <option value="NORMAL">Normal</option>
+              <option value="LOW">Low</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm rounded-xl" :disabled="!newTodoTitle.trim() || todoStore.loading">
+              Add
+            </button>
+          </form>
+
+          <!-- Filter tabs -->
+          <div role="tablist" class="tabs tabs-boxed w-fit">
+            <button
+              v-for="f in todoFilterOptions"
+              :key="f"
+              type="button"
+              role="tab"
+              class="tab text-xs"
+              :class="todoFilter === f ? 'tab-active' : ''"
+              @click="todoFilter = f"
+            >
+              {{ f.charAt(0) + f.slice(1).toLowerCase() }}
+              <span v-if="f === 'OPEN' && todoStore.openTodos.length" class="ml-1 badge badge-xs badge-primary">
+                {{ todoStore.openTodos.length }}
+              </span>
+            </button>
+          </div>
+
+          <!-- List -->
+          <div class="space-y-2">
+            <div
+              v-if="todoStore.loading && !filteredTodos.length"
+              v-for="n in 3"
+              :key="n"
+              class="h-12 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+            />
+
+            <div
+              v-for="todo in filteredTodos"
+              :key="todo.id"
+              class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-2.5 transition-colors"
+              :class="todo.status === 'DONE' ? 'opacity-60' : ''"
+            >
+              <button
+                type="button"
+                class="shrink-0 transition-colors"
+                :class="todo.status === 'DONE' ? 'text-success' : 'text-base-content/30 hover:text-success'"
+                @click="todoStore.toggleDone(todo)"
+              >
+                <Icon :name="todo.status === 'DONE' ? 'kind-icon:check-circle' : 'kind-icon:circle'" class="size-5" />
+              </button>
+
+              <span class="min-w-0 flex-1 truncate text-sm" :class="todo.status === 'DONE' ? 'line-through text-base-content/40' : ''">
+                {{ todo.title }}
+              </span>
+
+              <span v-if="todo.priority === 'HIGH'" class="badge badge-error badge-xs shrink-0">high</span>
+              <span v-else-if="todo.priority === 'LOW'" class="badge badge-ghost badge-xs shrink-0">low</span>
+
+              <div class="flex shrink-0 gap-1">
+                <button
+                  v-if="todo.status !== 'ARCHIVED'"
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
+                  title="Archive"
+                  @click="todoStore.archiveTodo(todo.id)"
+                >
+                  <Icon name="kind-icon:archive" class="size-3" />
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
+                  title="Delete"
+                  @click="todoStore.deleteTodo(todo.id)"
+                >
+                  <Icon name="kind-icon:x" class="size-3" />
+                </button>
+              </div>
             </div>
+
+            <p v-if="!todoStore.loading && !filteredTodos.length" class="py-6 text-center text-sm text-base-content/50">
+              No {{ todoFilter.toLowerCase() }} tasks.
+            </p>
           </div>
         </div>
 
         <!-- BRAINSTORM -->
         <div v-else-if="viewMode === 'brainstorm'" class="flex flex-col gap-4 pb-4">
           <div class="flex items-center gap-2">
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm rounded-xl"
-              @click="goToOverview"
-            >
-              <Icon name="kind-icon:chevron-left" class="size-4" />
-              Overview
+            <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="goToOverview">
+              <Icon name="kind-icon:chevron-left" class="size-4" /> Overview
             </button>
             <h3 class="text-sm font-bold">Brainstorm</h3>
           </div>
 
-          <!-- Future project ideas (BRAINSTORM status) -->
           <div v-if="brainstormProjects.length" class="space-y-2">
-            <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
-              Future Project Ideas
-            </h4>
+            <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Future Project Ideas</h4>
             <div class="grid gap-2 sm:grid-cols-2">
               <button
                 v-for="project in brainstormProjects"
@@ -197,15 +240,8 @@
                 class="flex items-center gap-3 rounded-2xl border border-secondary/30 bg-secondary/5 px-4 py-3 text-left transition-colors hover:border-secondary/60"
                 @click="selectProject(project.slug)"
               >
-                <div
-                  class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-secondary/30 bg-secondary/10"
-                >
-                  <img
-                    v-if="projectDreamForSlug(project.slug)?.imagePath"
-                    :src="projectDreamForSlug(project.slug)!.imagePath!"
-                    :alt="project.name"
-                    class="h-full w-full object-cover"
-                  />
+                <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-secondary/30 bg-secondary/10">
+                  <img v-if="projectDreamForSlug(project.slug)?.imagePath" :src="projectDreamForSlug(project.slug)!.imagePath!" :alt="project.name" class="h-full w-full object-cover" />
                   <div v-else class="flex h-full w-full items-center justify-center text-secondary">
                     <Icon :name="kindIcon(project.kind)" class="size-5" />
                   </div>
@@ -219,15 +255,11 @@
             </div>
           </div>
 
-          <!-- Pitches to vote on -->
           <div v-if="allPitches.length" class="space-y-2">
             <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
               Pitches Awaiting Vote
-              <span v-if="pendingPitches.length" class="ml-1 badge badge-warning badge-xs">
-                {{ pendingPitches.length }} pending
-              </span>
+              <span v-if="pendingPitches.length" class="ml-1 badge badge-warning badge-xs">{{ pendingPitches.length }} pending</span>
             </h4>
-
             <div class="grid gap-4 sm:grid-cols-2">
               <article
                 v-for="pitch in allPitches"
@@ -236,281 +268,124 @@
                 :class="pitchArticleClass(pitch.slug)"
               >
                 <div class="flex items-start justify-between gap-2">
-                  <h4 class="font-bold leading-tight text-base-content">{{ pitch.title }}</h4>
-                  <span
-                    class="badge badge-sm shrink-0"
-                    :class="pitchVotedChoice(pitch.slug) ? 'badge-ghost' : 'badge-warning'"
-                  >
+                  <h4 class="font-bold leading-tight">{{ pitch.title }}</h4>
+                  <span class="badge badge-sm shrink-0" :class="pitchVotedChoice(pitch.slug) ? 'badge-ghost' : 'badge-warning'">
                     {{ pitchVotedChoice(pitch.slug) ?? 'vote' }}
                   </span>
                 </div>
-
                 <p v-if="pitch.projectTarget" class="text-xs text-base-content/50">
                   <Icon name="kind-icon:folder" class="mr-0.5 inline size-3" />
                   {{ pitch.projectTarget }}
                   <span v-if="pitch.date" class="ml-2">&middot; {{ pitch.date }}</span>
                 </p>
-
                 <div v-if="editingPitchSlug === pitch.slug" class="flex flex-col gap-2">
-                  <textarea
-                    v-model="pitchEditTexts[pitch.slug]"
-                    class="textarea textarea-bordered rounded-xl text-sm"
-                    rows="4"
-                    placeholder="Describe the idea..."
-                  />
+                  <textarea v-model="pitchEditTexts[pitch.slug]" class="textarea textarea-bordered rounded-xl text-sm" rows="4" />
                   <div class="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-xs rounded-xl"
-                      @click="editingPitchSlug = ''"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-primary btn-xs rounded-xl"
-                      @click="editingPitchSlug = ''"
-                    >
-                      Done
-                    </button>
+                    <button type="button" class="btn btn-ghost btn-xs rounded-xl" @click="editingPitchSlug = ''">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-xs rounded-xl" @click="editingPitchSlug = ''">Done</button>
                   </div>
                 </div>
                 <div v-else class="group/idea relative">
-                  <p class="text-sm text-base-content/75">
-                    {{ pitchEditTexts[pitch.slug] ?? pitch.idea }}
-                  </p>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs absolute right-0 top-0 rounded-lg opacity-0 transition-opacity group-hover/idea:opacity-100"
-                    @click="startEditPitch(pitch)"
-                  >
+                  <p class="text-sm text-base-content/75">{{ pitchEditTexts[pitch.slug] ?? pitch.idea }}</p>
+                  <button type="button" class="btn btn-ghost btn-xs absolute right-0 top-0 rounded-lg opacity-0 transition-opacity group-hover/idea:opacity-100" @click="startEditPitch(pitch)">
                     <Icon name="kind-icon:edit" class="size-3" />
                   </button>
                 </div>
-
-                <p v-if="pitch.whyDoIt" class="text-xs italic text-base-content/50">
-                  {{ pitch.whyDoIt }}
-                </p>
-
+                <p v-if="pitch.whyDoIt" class="text-xs italic text-base-content/50">{{ pitch.whyDoIt }}</p>
                 <div v-if="!pitchVotedChoice(pitch.slug)" class="flex gap-2 pt-1">
-                  <button
-                    type="button"
-                    class="btn btn-success btn-sm flex-1 gap-1 rounded-xl"
-                    @click="voteOnPitch(pitch.slug, 'approved')"
-                  >
-                    <Icon name="kind-icon:check" class="size-3.5" />
-                    Approve
+                  <button type="button" class="btn btn-success btn-sm flex-1 gap-1 rounded-xl" @click="voteOnPitch(pitch.slug, 'approved')">
+                    <Icon name="kind-icon:check" class="size-3.5" /> Approve
                   </button>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-sm flex-1 gap-1 rounded-xl border border-base-300"
-                    @click="voteOnPitch(pitch.slug, 'passed')"
-                  >
-                    <Icon name="kind-icon:x" class="size-3.5" />
-                    Pass
+                  <button type="button" class="btn btn-ghost btn-sm flex-1 gap-1 rounded-xl border border-base-300" @click="voteOnPitch(pitch.slug, 'passed')">
+                    <Icon name="kind-icon:x" class="size-3.5" /> Pass
                   </button>
                 </div>
                 <div v-else class="flex items-center justify-between pt-1">
-                  <span
-                    class="text-xs font-semibold"
-                    :class="pitchVotedChoice(pitch.slug) === 'approved' ? 'text-success' : 'text-base-content/40'"
-                  >
-                    <Icon
-                      :name="pitchVotedChoice(pitch.slug) === 'approved' ? 'kind-icon:check' : 'kind-icon:x'"
-                      class="mr-1 inline size-3"
-                    />
+                  <span class="text-xs font-semibold" :class="pitchVotedChoice(pitch.slug) === 'approved' ? 'text-success' : 'text-base-content/40'">
+                    <Icon :name="pitchVotedChoice(pitch.slug) === 'approved' ? 'kind-icon:check' : 'kind-icon:x'" class="mr-1 inline size-3" />
                     {{ pitchVotedChoice(pitch.slug) === 'approved' ? 'Approved' : 'Passed' }}
                   </span>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs rounded-xl"
-                    @click="clearVote(pitch.slug)"
-                  >
-                    Undo
-                  </button>
+                  <button type="button" class="btn btn-ghost btn-xs rounded-xl" @click="clearVote(pitch.slug)">Undo</button>
                 </div>
               </article>
             </div>
           </div>
 
-          <div
-            v-if="!allPitches.length && !brainstormProjects.length"
-            class="py-8 text-center text-sm text-base-content/50"
-          >
+          <p v-if="!allPitches.length && !brainstormProjects.length" class="py-8 text-center text-sm text-base-content/50">
             Nothing in the brainstorm queue.
-          </div>
+          </p>
         </div>
 
         <!-- PROJECT DETAIL -->
         <div v-else-if="selectedProject" class="flex flex-col gap-4 pb-4">
-          <div
-            class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3"
-          >
-            <div
-              class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border"
-              :class="kindIconClass(selectedProject.kind)"
-            >
-              <img
-                v-if="linkedDream?.imagePath"
-                :src="linkedDream.imagePath"
-                :alt="selectedProject.name"
-                class="h-full w-full object-cover"
-              />
+          <div class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3">
+            <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border" :class="kindIconClass(selectedProject.kind)">
+              <img v-if="linkedDream?.imagePath" :src="linkedDream.imagePath" :alt="selectedProject.name" class="h-full w-full object-cover" />
               <div v-else class="flex h-full w-full items-center justify-center">
                 <Icon :name="kindIcon(selectedProject.kind)" class="size-5" />
               </div>
             </div>
             <div class="min-w-0 flex-1">
-              <h3 class="truncate text-lg font-black">
-                {{ selectedProject.name || selectedProject.slug }}
-              </h3>
-              <p class="text-xs text-base-content/50">
-                {{ selectedProject.progress }}% complete &middot;
-                {{ selectedProject.tasks.length }} tasks
-              </p>
+              <h3 class="truncate text-lg font-black">{{ selectedProject.name || selectedProject.slug }}</h3>
+              <p class="text-xs text-base-content/50">{{ selectedProject.progress }}% complete &middot; {{ selectedProject.tasks.length }} tasks</p>
             </div>
-            <span
-              v-if="linkedDream?.projectStatus === 'BRAINSTORM'"
-              class="badge badge-secondary badge-sm shrink-0"
-            >
-              brainstorm
-            </span>
-            <span v-else class="badge badge-sm shrink-0" :class="kindBadgeClass(selectedProject.kind)">
-              {{ selectedProject.kind }}
-            </span>
-            <button
-              class="btn btn-ghost btn-sm rounded-xl"
-              type="button"
-              @click="goToOverview"
-            >
+            <span v-if="linkedDream?.projectStatus === 'BRAINSTORM'" class="badge badge-secondary badge-sm shrink-0">brainstorm</span>
+            <span v-else class="badge badge-sm shrink-0" :class="kindBadgeClass(selectedProject.kind)">{{ selectedProject.kind }}</span>
+            <button class="btn btn-ghost btn-sm rounded-xl" type="button" @click="goToOverview">
               <Icon name="kind-icon:x" class="size-4" />
             </button>
           </div>
 
           <div class="flex shrink-0 flex-wrap gap-2">
-            <span
-              v-for="[status, count] in taskStatusSummary(selectedProject)"
-              :key="status"
-              class="badge badge-sm gap-1"
-              :class="taskBadgeClass(status)"
-            >
+            <span v-for="[status, count] in taskStatusSummary(selectedProject)" :key="status" class="badge badge-sm gap-1" :class="taskBadgeClass(status)">
               <Icon :name="taskIcon(status)" class="size-3" />
               {{ count }} {{ status }}
             </span>
           </div>
 
-          <div
-            v-if="linkedDream"
-            class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
+          <div v-if="linkedDream" class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4">
             <div class="flex items-center gap-2">
               <Icon name="kind-icon:dream" class="size-4 text-primary" />
-              <h4 class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60">
-                Project Intent
-              </h4>
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs gap-1 rounded-xl"
-                @click="dreamEditMode = !dreamEditMode"
-              >
-                <Icon
-                  :name="dreamEditMode ? 'kind-icon:x' : 'kind-icon:edit'"
-                  class="size-3"
-                />
+              <h4 class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60">Project Intent</h4>
+              <button type="button" class="btn btn-ghost btn-xs gap-1 rounded-xl" @click="dreamEditMode = !dreamEditMode">
+                <Icon :name="dreamEditMode ? 'kind-icon:x' : 'kind-icon:edit'" class="size-3" />
                 {{ dreamEditMode ? 'Cancel' : 'Edit' }}
               </button>
             </div>
 
             <div class="flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="btn btn-sm gap-2 rounded-xl transition-colors"
-                :class="linkedDream.isPublic ? 'btn-success' : 'btn-ghost border border-base-300'"
-                :disabled="dreamSaving"
-                @click="patchDream({ isPublic: !linkedDream.isPublic })"
-              >
-                <Icon
-                  :name="linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'"
-                  class="size-3.5"
-                />
+              <button type="button" class="btn btn-sm gap-2 rounded-xl" :class="linkedDream.isPublic ? 'btn-success' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ isPublic: !linkedDream.isPublic })">
+                <Icon :name="linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'" class="size-3.5" />
                 {{ linkedDream.isPublic ? 'Public' : 'Private' }}
               </button>
-
-              <button
-                type="button"
-                class="btn btn-sm gap-2 rounded-xl transition-colors"
-                :class="linkedDream.isMature ? 'btn-warning' : 'btn-ghost border border-base-300'"
-                :disabled="dreamSaving"
-                @click="patchDream({ isMature: !linkedDream.isMature })"
-              >
+              <button type="button" class="btn btn-sm gap-2 rounded-xl" :class="linkedDream.isMature ? 'btn-warning' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ isMature: !linkedDream.isMature })">
                 <Icon name="kind-icon:warning" class="size-3.5" />
                 {{ linkedDream.isMature ? 'Mature' : 'Safe' }}
               </button>
-
-              <button
-                type="button"
-                class="btn btn-sm gap-2 rounded-xl transition-colors"
-                :class="linkedDream.allowReviews ? 'btn-accent' : 'btn-ghost border border-base-300'"
-                :disabled="dreamSaving"
-                @click="patchDream({ allowReviews: !linkedDream.allowReviews })"
-              >
+              <button type="button" class="btn btn-sm gap-2 rounded-xl" :class="linkedDream.allowReviews ? 'btn-accent' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ allowReviews: !linkedDream.allowReviews })">
                 <Icon name="kind-icon:chat" class="size-3.5" />
                 {{ linkedDream.allowReviews ? 'Reviews On' : 'Reviews Off' }}
               </button>
-
-              <select
-                class="select select-sm rounded-xl border-base-300 bg-base-200 text-xs font-semibold"
-                :value="linkedDream.projectStatus ?? 'ACTIVE'"
-                :disabled="dreamSaving"
-                @change="handleProjectStatusChange"
-              >
+              <select class="select select-sm rounded-xl border-base-300 bg-base-200 text-xs font-semibold" :value="linkedDream.projectStatus ?? 'ACTIVE'" :disabled="dreamSaving" @change="handleProjectStatusChange">
                 <option value="ACTIVE">ACTIVE</option>
                 <option value="PAUSED">PAUSED</option>
                 <option value="BRAINSTORM">BRAINSTORM</option>
                 <option value="DONE">DONE</option>
                 <option value="ARCHIVED">ARCHIVED</option>
               </select>
-
-              <span
-                v-if="dreamSaving"
-                class="loading loading-spinner loading-xs self-center text-primary"
-              />
-              <span
-                v-if="dreamSaveMessage"
-                class="self-center text-xs"
-                :class="dreamSaveError ? 'text-error' : 'text-success'"
-              >
-                {{ dreamSaveMessage }}
-              </span>
+              <span v-if="dreamSaving" class="loading loading-spinner loading-xs self-center text-primary" />
+              <span v-if="dreamSaveMessage" class="self-center text-xs" :class="dreamSaveError ? 'text-error' : 'text-success'">{{ dreamSaveMessage }}</span>
             </div>
 
             <template v-if="!dreamEditMode">
-              <p v-if="linkedDream.description" class="text-sm text-base-content/80">
-                {{ linkedDream.description }}
-              </p>
-              <p v-else-if="linkedDream.pitch" class="text-sm italic text-base-content/60">
-                {{ linkedDream.pitch }}
-              </p>
+              <p v-if="linkedDream.description" class="text-sm text-base-content/80">{{ linkedDream.description }}</p>
+              <p v-else-if="linkedDream.pitch" class="text-sm italic text-base-content/60">{{ linkedDream.pitch }}</p>
               <div v-if="linkedDream.liveUrl || linkedDream.repoUrl" class="flex flex-wrap gap-2">
-                <a
-                  v-if="linkedDream.liveUrl"
-                  :href="linkedDream.liveUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-xs btn-outline gap-1"
-                >
-                  <Icon name="kind-icon:external-link" class="size-3" />
-                  Live Site
+                <a v-if="linkedDream.liveUrl" :href="linkedDream.liveUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline gap-1">
+                  <Icon name="kind-icon:external-link" class="size-3" /> Live Site
                 </a>
-                <a
-                  v-if="linkedDream.repoUrl"
-                  :href="linkedDream.repoUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-xs btn-outline gap-1"
-                >
-                  <Icon name="kind-icon:code" class="size-3" />
-                  Repo
+                <a v-if="linkedDream.repoUrl" :href="linkedDream.repoUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline gap-1">
+                  <Icon name="kind-icon:code" class="size-3" /> Repo
                 </a>
               </div>
             </template>
@@ -518,175 +393,90 @@
             <template v-else>
               <div class="space-y-3">
                 <div class="form-control">
-                  <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">Description</span>
-                  </label>
-                  <textarea
-                    v-model="dreamEditForm.description"
-                    class="textarea textarea-bordered rounded-xl text-sm"
-                    rows="3"
-                    placeholder="What is this project? What problem does it solve?"
-                  />
+                  <label class="label py-0.5"><span class="label-text text-xs font-semibold">Description</span></label>
+                  <textarea v-model="dreamEditForm.description" class="textarea textarea-bordered rounded-xl text-sm" rows="3" placeholder="What is this project?" />
                 </div>
                 <div class="form-control">
-                  <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">Intent / Pitch</span>
-                  </label>
-                  <textarea
-                    v-model="dreamEditForm.pitch"
-                    class="textarea textarea-bordered rounded-xl text-sm"
-                    rows="2"
-                    placeholder="One-line seed: what is the core constraint or north star?"
-                  />
+                  <label class="label py-0.5"><span class="label-text text-xs font-semibold">Intent / Pitch</span></label>
+                  <textarea v-model="dreamEditForm.pitch" class="textarea textarea-bordered rounded-xl text-sm" rows="2" placeholder="Core constraint or north star" />
                 </div>
                 <div class="form-control">
-                  <label class="label py-0.5">
-                    <span class="label-text text-xs font-semibold">Flavor Text</span>
-                  </label>
-                  <input
-                    v-model="dreamEditForm.flavorText"
-                    type="text"
-                    class="input input-bordered rounded-xl text-sm"
-                    placeholder="Short tagline shown on the card"
-                  />
+                  <label class="label py-0.5"><span class="label-text text-xs font-semibold">Flavor Text</span></label>
+                  <input v-model="dreamEditForm.flavorText" type="text" class="input input-bordered rounded-xl text-sm" placeholder="Short tagline" />
                 </div>
                 <div class="grid gap-3 sm:grid-cols-2">
                   <div class="form-control">
-                    <label class="label py-0.5">
-                      <span class="label-text text-xs font-semibold">Live URL</span>
-                    </label>
-                    <input
-                      v-model="dreamEditForm.liveUrl"
-                      type="url"
-                      class="input input-bordered rounded-xl text-sm"
-                      placeholder="https://..."
-                    />
+                    <label class="label py-0.5"><span class="label-text text-xs font-semibold">Live URL</span></label>
+                    <input v-model="dreamEditForm.liveUrl" type="url" class="input input-bordered rounded-xl text-sm" placeholder="https://..." />
                   </div>
                   <div class="form-control">
-                    <label class="label py-0.5">
-                      <span class="label-text text-xs font-semibold">Repo URL</span>
-                    </label>
-                    <input
-                      v-model="dreamEditForm.repoUrl"
-                      type="url"
-                      class="input input-bordered rounded-xl text-sm"
-                      placeholder="https://github.com/..."
-                    />
+                    <label class="label py-0.5"><span class="label-text text-xs font-semibold">Repo URL</span></label>
+                    <input v-model="dreamEditForm.repoUrl" type="url" class="input input-bordered rounded-xl text-sm" placeholder="https://github.com/..." />
                   </div>
                 </div>
                 <div class="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-sm rounded-xl"
-                    @click="cancelDreamEdit"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-sm gap-1 rounded-xl"
-                    :disabled="dreamSaving"
-                    @click="saveDreamEdit"
-                  >
-                    <span v-if="dreamSaving" class="loading loading-spinner loading-xs" />
-                    Save
+                  <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="cancelDreamEdit">Cancel</button>
+                  <button type="button" class="btn btn-primary btn-sm gap-1 rounded-xl" :disabled="dreamSaving" @click="saveDreamEdit">
+                    <span v-if="dreamSaving" class="loading loading-spinner loading-xs" /> Save
                   </button>
                 </div>
               </div>
             </template>
           </div>
 
-          <div
-            v-else
-            class="shrink-0 rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
-          >
+          <div v-else class="shrink-0 rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40">
             <Icon name="kind-icon:dream" class="mx-auto mb-1 size-5 opacity-40" />
-            No Project Dream linked for <strong>{{ selectedProject.slug }}</strong> &mdash; run
-            <code class="rounded bg-base-200 px-1">addProjects.http</code> to seed it.
+            No dream linked for <strong>{{ selectedProject.slug }}</strong>
           </div>
 
-          <div
-            v-if="selectedProject.notesFromSilas"
-            class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
-          >
+          <div v-if="selectedProject.notesFromSilas" class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80">
             <p class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70">Notes from Silas</p>
             {{ selectedProject.notesFromSilas }}
           </div>
 
           <div class="grid min-h-0 gap-4 sm:grid-cols-2">
             <div v-if="selectedProject.milestones.length">
-              <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
-                Milestones
-              </h4>
+              <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">Milestones</h4>
               <div class="space-y-2">
-                <div
-                  v-for="milestone in selectedProject.milestones"
-                  :key="milestone.id"
-                  class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-                >
-                  <div
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
-                    :class="milestoneIconClass(milestone.status)"
-                  >
+                <div v-for="milestone in selectedProject.milestones" :key="milestone.id" class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+                  <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border" :class="milestoneIconClass(milestone.status)">
                     <Icon :name="milestoneIcon(milestone.status)" class="size-3.5" />
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-semibold">{{ milestone.title }}</p>
                     <p class="text-xs text-base-content/50">weight {{ milestone.weight }}</p>
                   </div>
-                  <span
-                    class="badge badge-sm shrink-0"
-                    :class="milestoneBadgeClass(milestone.status)"
-                  >
-                    {{ milestone.status }}
-                  </span>
+                  <span class="badge badge-sm shrink-0" :class="milestoneBadgeClass(milestone.status)">{{ milestone.status }}</span>
                 </div>
               </div>
             </div>
 
             <div v-if="selectedProject.tasks.length">
-              <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">
-                Tasks ({{ selectedProject.tasks.length }})
-              </h4>
+              <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">Tasks ({{ selectedProject.tasks.length }})</h4>
               <div class="space-y-2">
-                <div
-                  v-for="task in selectedProject.tasks"
-                  :key="task.id"
-                  class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-                >
+                <div v-for="task in selectedProject.tasks" :key="task.id" class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
                   <div class="flex items-start gap-3">
-                    <div
-                      class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
-                      :class="taskIconClass(task.status)"
-                    >
+                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border" :class="taskIconClass(task.status)">
                       <Icon :name="taskIcon(task.status)" class="size-3" />
                     </div>
                     <div class="min-w-0 flex-1">
                       <p class="text-sm font-semibold leading-snug">{{ task.title }}</p>
-                      <div
-                        class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
-                      >
+                      <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50">
                         <span>{{ task.id }}</span>
                         <span v-if="task.milestone">&middot; {{ task.milestone }}</span>
                         <span v-if="task.gateHuman" class="text-accent">&middot; gate</span>
                         <span v-if="task.owner">&middot; {{ task.owner }}</span>
-                        <span v-if="task.passes > 0" class="text-warning">
-                          &middot; pass {{ task.passes }}/3
-                        </span>
+                        <span v-if="task.passes > 0" class="text-warning">&middot; pass {{ task.passes }}/3</span>
                       </div>
                     </div>
-                    <span
-                      class="badge badge-sm shrink-0"
-                      :class="taskBadgeClass(task.status)"
-                    >
-                      {{ task.status }}
-                    </span>
+                    <span class="badge badge-sm shrink-0" :class="taskBadgeClass(task.status)">{{ task.status }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </template>
   </section>
@@ -702,14 +492,10 @@ import type {
 import { useDreamStore } from '@/stores/dreamStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useTodoStore } from '@/stores/todoStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
-withDefaults(
-  defineProps<{
-    showHeader?: boolean
-  }>(),
-  { showHeader: true },
-)
+withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
 
@@ -728,6 +514,7 @@ type ProjectPatch = {
 const userStore = useUserStore()
 const dreamStore = useDreamStore()
 const pageStore = usePageStore()
+const todoStore = useTodoStore()
 
 const dreamEditMode = ref(false)
 const dreamSaving = ref(false)
@@ -738,8 +525,12 @@ const dreamEditForm = ref<ProjectPatch>({})
 const editingPitchSlug = ref('')
 const pitchEditTexts = ref<Record<string, string>>({})
 const votedPitches = ref<Record<string, 'approved' | 'passed'>>({})
-
 const VOTE_STORAGE_KEY = 'kr.workspacePitchVotes'
+
+const newTodoTitle = ref('')
+const newTodoPriority = ref<'LOW' | 'NORMAL' | 'HIGH'>('NORMAL')
+const todoFilter = ref<'OPEN' | 'DONE' | 'ARCHIVED'>('OPEN')
+const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
 
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -750,101 +541,73 @@ const { data, pending, error, refresh } = await useFetch<ConductorData>(
 
 const projects = computed(() => data.value?.projects ?? [])
 const allPitches = computed(() => data.value?.pitches ?? [])
-const pendingPitches = computed(() =>
-  allPitches.value.filter((p) => p.status.includes('awaiting')),
-)
+const pendingPitches = computed(() => allPitches.value.filter((p) => p.status.includes('awaiting')))
 
 function projectDreamForSlug(slug: string) {
   return dreamStore.projectDreams.find((d) => d.slug === slug) ?? null
 }
 
 const activeProjects = computed(() =>
-  projects.value.filter((p) => {
-    const dream = projectDreamForSlug(p.slug)
-    return dream?.projectStatus !== 'BRAINSTORM'
-  }),
+  projects.value.filter((p) => projectDreamForSlug(p.slug)?.projectStatus !== 'BRAINSTORM'),
 )
 
 const brainstormProjects = computed(() =>
-  projects.value.filter((p) => {
-    const dream = projectDreamForSlug(p.slug)
-    return dream?.projectStatus === 'BRAINSTORM'
-  }),
+  projects.value.filter((p) => projectDreamForSlug(p.slug)?.projectStatus === 'BRAINSTORM'),
 )
 
 const hasBrainstormContent = computed(
   () => pendingPitches.value.length > 0 || brainstormProjects.value.length > 0,
 )
 
+const filteredTodos = computed(() => {
+  switch (todoFilter.value) {
+    case 'OPEN': return todoStore.openTodos
+    case 'DONE': return todoStore.doneTodos
+    case 'ARCHIVED': return todoStore.archivedTodos
+  }
+})
+
 const viewMode = computed(() => {
   const key = pageStore.workspaceCardKey
   if (!key || key === 'overview') return 'overview'
+  if (key === 'tasks') return 'tasks'
   if (key === 'brainstorm') return 'brainstorm'
   if (projects.value.some((p) => p.slug === key)) return key
   return 'overview'
 })
 
 const selectedProject = computed<ConductorProject | null>(() => {
-  if (viewMode.value === 'overview' || viewMode.value === 'brainstorm') return null
+  if (['overview', 'tasks', 'brainstorm'].includes(viewMode.value)) return null
   return projects.value.find((p) => p.slug === viewMode.value) ?? null
 })
 
-const linkedDream = computed(() => {
-  if (!selectedProject.value) return null
-  return projectDreamForSlug(selectedProject.value.slug)
-})
+const linkedDream = computed(() =>
+  selectedProject.value ? projectDreamForSlug(selectedProject.value.slug) : null,
+)
 
 const fetchedLabel = computed(() => {
   if (!data.value?.fetchedAt) return ''
-  return new Date(data.value.fetchedAt).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  return new Date(data.value.fetchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 })
 
 const totalDone = computed(() =>
-  activeProjects.value.reduce(
-    (sum, p) => sum + p.tasks.filter((t) => t.status === 'done').length,
-    0,
-  ),
-)
-
-const totalNeedsHuman = computed(() =>
-  activeProjects.value.reduce(
-    (sum, p) => sum + p.tasks.filter((t) => t.status === 'needs-human').length,
-    0,
-  ),
+  activeProjects.value.reduce((sum, p) => sum + p.tasks.filter((t) => t.status === 'done').length, 0),
 )
 
 const workspaceCards = computed<BuilderCard[]>(() => {
   if (!data.value) return []
 
-  function makeCard(
-    key: string,
-    label: string,
-    icon: string,
-    deckImage?: string,
-  ): BuilderCard {
-    return {
-      key,
-      label,
-      title: label,
-      icon,
-      tagline: '',
-      narrative: '',
-      restoresFields: [],
-      steps: [],
-      deckImage,
-      payload: {},
-    }
+  function makeCard(key: string, label: string, icon: string, deckImage?: string): BuilderCard {
+    return { key, label, title: label, icon, tagline: '', narrative: '', restoresFields: [], steps: [], deckImage, payload: {} }
   }
 
   const result: BuilderCard[] = [
+    makeCard('overview', 'Overview', 'kind-icon:gearhammer', '/images/projects/overview-card.webp'),
     makeCard(
-      'overview',
-      'Overview',
-      'kind-icon:gearhammer',
-      '/images/projects/overview-card.webp',
+      'tasks',
+      todoStore.openTodos.length ? `Tasks (${todoStore.openTodos.length})` : 'Tasks',
+      'kind-icon:check',
+      '/images/projects/tasks-card.webp',
     ),
   ]
 
@@ -861,27 +624,27 @@ const workspaceCards = computed<BuilderCard[]>(() => {
 
   activeProjects.value.forEach((project) => {
     const dream = projectDreamForSlug(project.slug)
-    result.push(
-      makeCard(
-        project.slug,
-        project.name || project.slug,
-        kindIcon(project.kind),
-        dream?.cardPath ?? undefined,
-      ),
-    )
+    result.push(makeCard(project.slug, project.name || project.slug, kindIcon(project.kind), dream?.cardPath ?? undefined))
   })
 
   return result
 })
 
 watch(
+  viewMode,
+  async (mode) => {
+    if (mode === 'tasks' && !todoStore.hasLoaded) {
+      await todoStore.fetchTodos(true)
+    }
+  },
+)
+
+watch(
   workspaceCards,
   (cards) => {
     if (cards.length) {
       pageStore.setCards(cards)
-      if (!pageStore.workspaceCardKey) {
-        pageStore.setWorkspaceCardKey('overview')
-      }
+      if (!pageStore.workspaceCardKey) pageStore.setWorkspaceCardKey('overview')
     }
   },
   { immediate: true },
@@ -892,13 +655,7 @@ watch(
   (dream) => {
     dreamEditMode.value = false
     dreamEditForm.value = dream
-      ? {
-          description: dream.description ?? '',
-          pitch: dream.pitch ?? '',
-          flavorText: dream.flavorText ?? '',
-          liveUrl: dream.liveUrl ?? '',
-          repoUrl: dream.repoUrl ?? '',
-        }
+      ? { description: dream.description ?? '', pitch: dream.pitch ?? '', flavorText: dream.flavorText ?? '', liveUrl: dream.liveUrl ?? '', repoUrl: dream.repoUrl ?? '' }
       : {}
   },
   { immediate: true },
@@ -906,17 +663,14 @@ watch(
 
 watch(
   () => userStore.isAdmin,
-  async (isAdmin) => {
-    if (isAdmin) await refreshWorkspace()
-  },
+  async (isAdmin) => { if (isAdmin) await refreshWorkspace() },
   { immediate: true },
 )
 
 onMounted(() => {
   try {
     const stored = localStorage.getItem(VOTE_STORAGE_KEY)
-    if (stored)
-      votedPitches.value = JSON.parse(stored) as Record<string, 'approved' | 'passed'>
+    if (stored) votedPitches.value = JSON.parse(stored) as Record<string, 'approved' | 'passed'>
   } catch {}
 })
 
@@ -927,25 +681,26 @@ onBeforeUnmount(() => {
 
 async function refreshWorkspace() {
   if (!userStore.isAdmin) return
-  await Promise.all([refresh(), ensureProjectDreams()])
+  const work: Promise<unknown>[] = [refresh(), ensureProjectDreams()]
+  if (todoStore.hasLoaded) work.push(todoStore.fetchTodos(true))
+  await Promise.all(work)
 }
 
 async function ensureProjectDreams() {
-  if (!dreamStore.hasLoaded) {
-    await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
-  }
+  if (!dreamStore.hasLoaded) await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
 }
 
-function selectProject(slug: string) {
-  pageStore.setWorkspaceCardKey(slug)
-}
+function selectProject(slug: string) { pageStore.setWorkspaceCardKey(slug) }
+function goToOverview() { pageStore.setWorkspaceCardKey('overview') }
+function goTo(key: string) { pageStore.setWorkspaceCardKey(key) }
 
-function goToOverview() {
-  pageStore.setWorkspaceCardKey('overview')
-}
-
-function goToBrainstorm() {
-  pageStore.setWorkspaceCardKey('brainstorm')
+async function submitNewTodo() {
+  const title = newTodoTitle.value.trim()
+  if (!title) return
+  await todoStore.createTodo({ title, priority: newTodoPriority.value })
+  newTodoTitle.value = ''
+  newTodoPriority.value = 'NORMAL'
+  todoFilter.value = 'OPEN'
 }
 
 function pitchVotedChoice(slug: string): 'approved' | 'passed' | null {
@@ -954,18 +709,14 @@ function pitchVotedChoice(slug: string): 'approved' | 'passed' | null {
 
 function voteOnPitch(slug: string, choice: 'approved' | 'passed') {
   votedPitches.value = { ...votedPitches.value, [slug]: choice }
-  try {
-    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value))
-  } catch {}
+  try { localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value)) } catch {}
 }
 
 function clearVote(slug: string) {
   const next = { ...votedPitches.value }
   delete next[slug]
   votedPitches.value = next
-  try {
-    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value))
-  } catch {}
+  try { localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value)) } catch {}
 }
 
 function pitchArticleClass(slug: string): string {
@@ -986,27 +737,17 @@ function cancelDreamEdit() {
   dreamEditMode.value = false
   const dream = linkedDream.value
   dreamEditForm.value = dream
-    ? {
-        description: dream.description ?? '',
-        pitch: dream.pitch ?? '',
-        flavorText: dream.flavorText ?? '',
-        liveUrl: dream.liveUrl ?? '',
-        repoUrl: dream.repoUrl ?? '',
-      }
+    ? { description: dream.description ?? '', pitch: dream.pitch ?? '', flavorText: dream.flavorText ?? '', liveUrl: dream.liveUrl ?? '', repoUrl: dream.repoUrl ?? '' }
     : {}
 }
 
 async function patchDream(patch: ProjectPatch) {
   if (!linkedDream.value) return
-
   dreamSaving.value = true
   dreamSaveMessage.value = ''
   dreamSaveError.value = false
-
   const result = await dreamStore.updateDream(linkedDream.value.id, patch)
-
   dreamSaving.value = false
-
   if (result?.success) {
     dreamSaveMessage.value = 'Saved'
     dreamSaveError.value = false
@@ -1014,11 +755,8 @@ async function patchDream(patch: ProjectPatch) {
     dreamSaveMessage.value = result?.message || 'Save failed'
     dreamSaveError.value = true
   }
-
   if (saveMessageTimer) clearTimeout(saveMessageTimer)
-  saveMessageTimer = setTimeout(() => {
-    dreamSaveMessage.value = ''
-  }, 3000)
+  saveMessageTimer = setTimeout(() => { dreamSaveMessage.value = '' }, 3000)
 }
 
 async function saveDreamEdit() {
@@ -1032,81 +770,66 @@ function handleProjectStatusChange(event: Event) {
   patchDream({ projectStatus: target.value as ProjectStatus })
 }
 
-function blockedCount(project: ConductorProject): number {
+function blockedCount(project: ConductorProject) {
   return project.tasks.filter((t) => t.status === 'blocked').length
 }
 
-function needsHumanCount(project: ConductorProject): number {
+function needsHumanCount(project: ConductorProject) {
   return project.tasks.filter((t) => t.status === 'needs-human').length
 }
 
-const statusOrder = [
-  'done', 'review', 'claimed', 'ready', 'waiting', 'blocked', 'needs-human',
-]
+const statusOrder = ['done', 'review', 'claimed', 'ready', 'waiting', 'blocked', 'needs-human']
 
 function taskStatusSummary(project: ConductorProject): [string, number][] {
   const counts: Record<string, number> = {}
-  for (const task of project.tasks) {
-    counts[task.status] = (counts[task.status] ?? 0) + 1
-  }
+  for (const task of project.tasks) counts[task.status] = (counts[task.status] ?? 0) + 1
   return Object.entries(counts).sort(([a], [b]) => {
-    const ai = statusOrder.indexOf(a)
-    const bi = statusOrder.indexOf(b)
+    const ai = statusOrder.indexOf(a), bi = statusOrder.indexOf(b)
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
   })
 }
 
-function kindIcon(kind: string): string {
+function kindIcon(kind: string) {
   if (kind === 'software') return 'kind-icon:code'
   if (kind === 'proposal') return 'kind-icon:sparkles'
   return 'kind-icon:document'
 }
 
-function kindProgressClass(kind: string): string {
+function kindProgressClass(kind: string) {
   if (kind === 'software') return 'bg-primary'
   if (kind === 'proposal') return 'bg-info'
   return 'bg-secondary'
 }
 
-function kindIconClass(kind: string): string {
+function kindIconClass(kind: string) {
   if (kind === 'software') return 'border-primary/40 bg-primary/10 text-primary'
   if (kind === 'proposal') return 'border-info/40 bg-info/10 text-info'
   return 'border-secondary/40 bg-secondary/10 text-secondary'
 }
 
-function kindBadgeClass(kind: string): string {
+function kindBadgeClass(kind: string) {
   if (kind === 'software') return 'badge-primary'
   if (kind === 'proposal') return 'badge-info'
   return 'badge-secondary'
 }
 
-function taskBadgeClass(status: string): string {
+function taskBadgeClass(status: string) {
   const map: Record<string, string> = {
-    done: 'badge-success',
-    review: 'badge-secondary',
-    claimed: 'badge-warning',
-    ready: 'badge-info',
-    waiting: 'badge-ghost',
-    blocked: 'badge-error',
-    'needs-human': 'badge-accent',
+    done: 'badge-success', review: 'badge-secondary', claimed: 'badge-warning',
+    ready: 'badge-info', waiting: 'badge-ghost', blocked: 'badge-error', 'needs-human': 'badge-accent',
   }
   return map[status] ?? 'badge-ghost'
 }
 
-function taskIcon(status: string): string {
+function taskIcon(status: string) {
   const map: Record<string, string> = {
-    done: 'kind-icon:check',
-    review: 'kind-icon:eye',
-    claimed: 'kind-icon:hammer',
-    ready: 'kind-icon:arrow-right',
-    waiting: 'kind-icon:clock',
-    blocked: 'kind-icon:warning',
-    'needs-human': 'kind-icon:user',
+    done: 'kind-icon:check', review: 'kind-icon:eye', claimed: 'kind-icon:hammer',
+    ready: 'kind-icon:arrow-right', waiting: 'kind-icon:clock', blocked: 'kind-icon:warning', 'needs-human': 'kind-icon:user',
   }
   return map[status] ?? 'kind-icon:sparkles'
 }
 
-function taskIconClass(status: string): string {
+function taskIconClass(status: string) {
   const map: Record<string, string> = {
     done: 'border-success/40 bg-success/10 text-success',
     review: 'border-secondary/40 bg-secondary/10 text-secondary',
@@ -1119,19 +842,19 @@ function taskIconClass(status: string): string {
   return map[status] ?? 'border-base-300 bg-base-200 text-base-content/40'
 }
 
-function milestoneIcon(status: string): string {
+function milestoneIcon(status: string) {
   if (status === 'done') return 'kind-icon:check'
   if (status === 'in-progress') return 'kind-icon:hammer'
   return 'kind-icon:clock'
 }
 
-function milestoneIconClass(status: string): string {
+function milestoneIconClass(status: string) {
   if (status === 'done') return 'border-success/40 bg-success/10 text-success'
   if (status === 'in-progress') return 'border-warning/40 bg-warning/10 text-warning'
   return 'border-base-300 bg-base-200 text-base-content/40'
 }
 
-function milestoneBadgeClass(status: string): string {
+function milestoneBadgeClass(status: string) {
   if (status === 'done') return 'badge-success'
   if (status === 'in-progress') return 'badge-warning'
   return 'badge-ghost'
@@ -1139,18 +862,7 @@ function milestoneBadgeClass(status: string): string {
 </script>
 
 <style scoped>
-.kind-glow-primary {
-  color: hsl(var(--p, 280 90% 70%));
-  filter: drop-shadow(0 0 10px hsl(var(--p, 280 90% 70%) / 0.9));
-}
-
-.kind-glow-secondary {
-  color: hsl(var(--s, 316 70% 60%));
-  filter: drop-shadow(0 0 10px hsl(var(--s, 316 70% 60%) / 0.9));
-}
-
-.kind-glow-info {
-  color: hsl(var(--in, 198 93% 60%));
-  filter: drop-shadow(0 0 10px hsl(var(--in, 198 93% 60%) / 0.9));
-}
+.kind-glow-primary { color: hsl(var(--p, 280 90% 70%)); filter: drop-shadow(0 0 10px hsl(var(--p, 280 90% 70%) / 0.9)); }
+.kind-glow-secondary { color: hsl(var(--s, 316 70% 60%)); filter: drop-shadow(0 0 10px hsl(var(--s, 316 70% 60%) / 0.9)); }
+.kind-glow-info { color: hsl(var(--in, 198 93% 60%)); filter: drop-shadow(0 0 10px hsl(var(--in, 198 93% 60%) / 0.9)); }
 </style>

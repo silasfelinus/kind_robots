@@ -19,6 +19,12 @@ type SheetProfile = {
 
 type ImageRecord = Record<string, unknown>
 
+type ImageCard = BuilderCard & {
+  image?: string
+  imagePath?: string
+  splashImage?: string
+}
+
 function stringValue(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
@@ -39,28 +45,34 @@ function conductorImagePath(slug: string, kind: 'icon' | 'card' | 'hero'): strin
 }
 
 function dreamImagePath(dream: DreamWithRelations | null, slug: string): string {
+  const artImage = recordValue(dream?.ArtImage)
+  const firstArtImage = recordValue(dream?.ArtImages?.[0])
+
   return firstString([
     dream?.heroPath,
     dream?.cardPath,
     dream?.imagePath,
     dream?.highlightImage,
-    dream?.ArtImage?.imagePath,
-    dream?.ArtImage?.path,
-    dream?.ArtImage?.fileName,
-    dream?.ArtImages?.[0]?.imagePath,
+    artImage?.imagePath,
+    artImage?.path,
+    artImage?.fileName,
+    firstArtImage?.imagePath,
+    firstArtImage?.path,
+    firstArtImage?.fileName,
     conductorImagePath(slug, 'hero'),
   ])
 }
 
 function cardImagePath(card: BuilderCard | null): string {
+  const imageCard = card as ImageCard | null
   const payload = recordValue(card?.payload)
 
   return firstString([
-    card?.heroImage,
-    card?.deckImage,
-    card?.image,
-    card?.imagePath,
-    card?.splashImage,
+    imageCard?.heroImage,
+    imageCard?.deckImage,
+    imageCard?.image,
+    imageCard?.imagePath,
+    imageCard?.splashImage,
     payload?.heroImage,
     payload?.deckImage,
     payload?.image,

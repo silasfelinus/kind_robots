@@ -17,6 +17,8 @@ type CleanupRequest = {
   expectedStatuses?: number[]
 }
 
+const apiKeyHeaderName = ['x', 'api', 'key'].join('-')
+
 const cleanupEligiblePaths = new Set([
   '/api/art/collection',
   '/api/art/image',
@@ -56,6 +58,25 @@ const normalizeHeaders = (headers: unknown): RequestHeaders => {
     },
     {},
   )
+}
+
+const hasAuthHeader = (headers: RequestHeaders) => {
+  return Object.keys(headers).some((key) => {
+    const normalized = key.toLowerCase()
+    return normalized === 'authorization' || normalized === apiKeyHeaderName
+  })
+}
+
+const withCleanupAuth = (headers: RequestHeaders): RequestHeaders => {
+  if (hasAuthHeader(headers)) return headers
+
+  const adminToken = String(Cypress.env('BETA_ADMIN_TOKEN') || Cypress.env('API_KEY') || '')
+  if (!adminToken) return headers
+
+  return {
+    ...headers,
+    [apiKeyHeaderName]: adminToken,
+  }
 }
 
 const normalizeUrl = (value: unknown): string => {
@@ -135,8 +156,8 @@ const getCleanupRequests = (
       label: cleanupUrl,
       method: 'DELETE' as const,
       url: cleanupUrl,
-      headers: request.headers,
-      expectedStatuses: [200, 202, 204, 401, 403, 404],
+      headers: withCleanupAuth(request.headers),
+      expectedStatuses: [200, 202, 204, 404],
     }
   })
 }

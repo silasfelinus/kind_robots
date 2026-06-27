@@ -156,14 +156,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
 const navStore = useNavStore()
+const route = useRoute()
 
 const { workspaceSheetOpen } = storeToRefs(navStore)
 
@@ -321,6 +323,14 @@ function setWorkspaceSheetOpen(value: boolean): void {
   navStore.setWorkspaceSheetOpen(value)
 }
 
+watch(
+  () => route.fullPath,
+  (path) => {
+    navStore.recordVisit(path)
+  },
+  { immediate: true },
+)
+
 useSeoMeta({
   title: () => pageStore.title || 'Kind Robots',
   description: () =>
@@ -417,14 +427,5 @@ onBeforeUnmount(() => {
 .kr-hand-slide-leave-to {
   opacity: 0;
   transform: translateY(1rem);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .kr-sheet-slide-enter-active,
-  .kr-sheet-slide-leave-active,
-  .kr-hand-slide-enter-active,
-  .kr-hand-slide-leave-active {
-    transition: none;
-  }
 }
 </style>

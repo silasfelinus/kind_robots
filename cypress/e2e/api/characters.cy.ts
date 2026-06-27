@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/character.cy.ts
 import {
+  adminHeaders,
   bearerHeaders,
   createLoggedInTestUser,
   deleteTestUser,
@@ -9,12 +10,12 @@ import {
 } from '../../support/api-auth'
 
 describe('Character Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/characters'
   const badJwt = 'definitely-not-valid'
   const uniqueCharacterName = `Character-${Date.now()}`
 
   let apiBase = ''
-  let setupAuth = ''
+  let baseUrl = ''
+  let adminToken = ''
   let userJwt = ''
   let createdUserId: number | undefined
   let characterId: number | undefined
@@ -22,26 +23,27 @@ describe('Character Management API Tests', () => {
   before(() => {
     getApiEnv().then((env) => {
       apiBase = env.apiBase
-      setupAuth = env.adminToken
+      adminToken = env.adminToken
+      baseUrl = `${apiBase}/characters`
     })
 
-    createLoggedInTestUser().then((auth) => {
+    createLoggedInTestUser({ fresh: true }).then((auth) => {
       userJwt = auth.token
       createdUserId = auth.id
     })
   })
 
   after(() => {
-    if (characterId) {
+    if (characterId && adminToken) {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${characterId}`,
-        headers: bearerHeaders(userJwt),
+        headers: adminHeaders(adminToken),
         failOnStatusCode: false,
       })
     }
 
-    deleteTestUser(apiBase, setupAuth, createdUserId)
+    deleteTestUser(apiBase, adminToken, createdUserId)
   })
 
   it('should not allow creating a character without an authorization token', () => {
@@ -95,12 +97,14 @@ describe('Character Management API Tests', () => {
         level: 1,
         isPublic: false,
       },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(201)
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
 
       characterId = response.body.data.id
+      expect(characterId).to.be.a('number').and.to.be.greaterThan(0)
     })
   })
 

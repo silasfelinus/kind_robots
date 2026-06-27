@@ -29,7 +29,7 @@
         <h2 class="text-lg font-semibold">Conductor Workspace</h2>
         <span class="badge badge-primary badge-sm ml-1">ADMIN</span>
         <div class="ml-auto flex items-center gap-2">
-          <span v-if="data?.fetchedAt" class="text-xs text-base-content/50"
+          <span v-if="conductorStore.fetchedAt" class="text-xs text-base-content/50"
             >Updated {{ fetchedLabel }}</span
           >
           <button
@@ -54,7 +54,7 @@
       </div>
 
       <div
-        v-if="pending && !data"
+        v-if="pending && !conductorStore.hasLoaded"
         class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4"
       >
         <div
@@ -64,7 +64,7 @@
         />
       </div>
 
-      <div v-if="data" class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div v-if="conductorStore.hasLoaded" class="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <!-- OVERVIEW -->
         <div v-if="viewMode === 'overview'" class="flex flex-col gap-6 pb-4">
           <div class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
@@ -1002,22 +1002,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import type {
-  ConductorData,
-  ConductorProject,
-  ConductorPitch,
-} from '@/server/api/conductor/projects.get'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import type { ConductorProject, ConductorPitch } from '@/server/api/conductor/projects.get'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
+import { useConductorStore } from '@/stores/conductorStore'
+import type { DreamPriority } from '@/stores/conductorStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
-type DreamPriority = 'LOW' | 'NORMAL' | 'HIGH'
 
 type ProjectPatch = {
   description?: string | null
@@ -1035,18 +1032,14 @@ const userStore = useUserStore()
 const dreamStore = useDreamStore()
 const pageStore = usePageStore()
 const todoStore = useTodoStore()
+const conductorStore = useConductorStore()
 
 const dreamSaving = ref(false)
 const dreamSaveMessage = ref('')
 const dreamSaveError = ref(false)
 
-const localPriorities = ref<Record<number, DreamPriority>>({})
-const LOCAL_PRIORITY_KEY = 'kr.projectPriorities'
-
 const editingPitchSlug = ref('')
 const pitchEditTexts = ref<Record<string, string>>({})
-const votedPitches = ref<Record<string, 'approved' | 'passed'>>({})
-const VOTE_STORAGE_KEY = 'kr.workspacePitchVotes'
 
 const newTodoTitle = ref('')
 const newTodoDescription = ref('')
@@ -1056,16 +1049,12 @@ const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
 
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
-const { data, pending, error, refresh } = await useFetch<ConductorData>(
-  '/api/conductor/projects',
-  { immediate: false, lazy: true },
-)
+const pending = computed(() => conductorStore.pending)
+const error = computed(() => conductorStore.error ? { message: conductorStore.error } : null)
 
-const projects = computed(() => data.value?.projects ?? [])
-const allPitches = computed(() => data.value?.pitches ?? [])
-const pendingPitches = computed(() =>
-  allPitches.value.filter((p) => p.status.includes('awaiting')),
-)
+const projects = computed(() => conductorStore.projects)
+const allPitches = computed(() => conductorStore.pitches)
+const pendingPitches = computed(() => conductorStore.pendingPitches)
 
 function projectDreamForSlug(slug: string) {
   return dreamStore.projectDreams.find((d) => d.slug === slug) ?? null
@@ -1128,8 +1117,8 @@ const linkedDream = computed(() =>
 )
 
 const fetchedLabel = computed(() => {
-  if (!data.value?.fetchedAt) return ''
-  return new Date(data.value.fetchedAt).toLocaleTimeString([], {
+  if (!conductorStore.fetchedAt) return ''
+  return new Date(conductorStore.fetchedAt).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   })
@@ -1143,7 +1132,7 @@ const totalDone = computed(() =>
 )
 
 const workspaceCards = computed<BuilderCard[]>(() => {
-  if (!data.value) return []
+  if (!conductorStore.hasLoaded) return []
   function makeCard(
     key: string,
     label: string,
@@ -1204,32 +1193,17 @@ const workspaceCards = computed<BuilderCard[]>(() => {
 })
 
 function getProjectPriority(dreamId?: number | null): DreamPriority {
-  if (!dreamId) return 'NORMAL'
-  return localPriorities.value[dreamId] ?? 'NORMAL'
+  return conductorStore.getProjectPriority(dreamId)
 }
 
 async function setPriority(dreamId: number, priority: DreamPriority) {
-  localPriorities.value = { ...localPriorities.value, [dreamId]: priority }
-  try {
-    localStorage.setItem(
-      LOCAL_PRIORITY_KEY,
-      JSON.stringify(localPriorities.value),
-    )
-  } catch {}
   dreamSaving.value = true
   dreamSaveMessage.value = ''
   dreamSaveError.value = false
-  try {
-    await $fetch(`/api/dreams/${dreamId}/priority`, {
-      method: 'PATCH',
-      body: { priority },
-    })
-    showSaveMessage('Priority saved')
-  } catch {
-    showSaveMessage('Priority save failed (local only)', true)
-  } finally {
-    dreamSaving.value = false
-  }
+  const result = await conductorStore.setProjectPriority(dreamId, priority)
+  dreamSaving.value = false
+  if (result.ok) showSaveMessage('Priority saved')
+  else showSaveMessage(result.message ?? 'Priority save failed', true)
 }
 
 async function autosave(field: keyof ProjectPatch, event: FocusEvent) {
@@ -1275,22 +1249,6 @@ watch(
   { immediate: true },
 )
 
-onMounted(() => {
-  try {
-    const sv = localStorage.getItem(VOTE_STORAGE_KEY)
-    if (sv)
-      votedPitches.value = JSON.parse(sv) as Record<
-        string,
-        'approved' | 'passed'
-      >
-  } catch {}
-  try {
-    const sp = localStorage.getItem(LOCAL_PRIORITY_KEY)
-    if (sp)
-      localPriorities.value = JSON.parse(sp) as Record<number, DreamPriority>
-  } catch {}
-})
-
 onBeforeUnmount(() => {
   if (saveMessageTimer) clearTimeout(saveMessageTimer)
   pageStore.clearCards()
@@ -1298,7 +1256,10 @@ onBeforeUnmount(() => {
 
 async function refreshWorkspace() {
   if (!userStore.isAdmin) return
-  const work: Promise<unknown>[] = [refresh(), ensureProjectDreams()]
+  const work: Promise<unknown>[] = [
+    conductorStore.fetchProjects(true),
+    ensureProjectDreams(),
+  ]
   if (todoStore.hasLoaded) work.push(todoStore.fetchTodos(true))
   await Promise.all(work)
 }
@@ -1333,23 +1294,15 @@ async function submitNewTodo() {
 }
 
 function pitchVotedChoice(slug: string): 'approved' | 'passed' | null {
-  return votedPitches.value[slug] ?? null
+  return conductorStore.pitchVote(slug)
 }
 
 function voteOnPitch(slug: string, choice: 'approved' | 'passed') {
-  votedPitches.value = { ...votedPitches.value, [slug]: choice }
-  try {
-    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value))
-  } catch {}
+  conductorStore.voteOnPitch(slug, choice)
 }
 
 function clearVote(slug: string) {
-  const next = { ...votedPitches.value }
-  delete next[slug]
-  votedPitches.value = next
-  try {
-    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votedPitches.value))
-  } catch {}
+  conductorStore.clearVote(slug)
 }
 
 function pitchArticleClass(slug: string): string {

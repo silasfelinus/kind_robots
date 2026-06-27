@@ -1,4 +1,3 @@
-// /server/api/dreams/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
@@ -46,10 +45,10 @@ type DreamPatchBody = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED'
+  allowReviews?: boolean
+  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
   repoUrl?: string | null
   liveUrl?: string | null
-  allowReviews?: boolean
   characterIds?: number[]
   rewardIds?: number[]
   artImageIds?: number[]
@@ -371,7 +370,7 @@ export default defineEventHandler(async (event) => {
       dataInput.isActive = body.isActive
     }
 
-    const validProjectStatuses = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED'] as const
+    const validProjectStatuses = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED', 'BRAINSTORM'] as const
     if (body.projectStatus !== undefined && validProjectStatuses.includes(body.projectStatus)) {
       dataInput.projectStatus = body.projectStatus
     }

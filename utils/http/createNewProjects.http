@@ -1,0 +1,92 @@
+# Create new brainstorm Dream entries
+# Run after migration is applied and server is running.
+# Set @token to your admin JWT before executing.
+
+@baseUrl = http://localhost:3000
+@token = YOUR_ADMIN_TOKEN_HERE
+
+###
+# 1. Art Generator Connect
+POST {{baseUrl}}/api/dreams
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Art Generator Connect",
+  "slug": "art-generator-connect",
+  "dreamType": "PROJECT",
+  "projectStatus": "BRAINSTORM",
+  "description": "Wire conductor Worker cycles into the existing SD / ComfyUI automated pipelines already running in kind_robots. Workers can request image generation by POSTing to the art API; the result URL is committed back to the project or stored as an ArtImage record.",
+  "pitch": "Let agents generate their own art — no manual prompting required.",
+  "flavorText": "The AI that paints itself.",
+  "isPublic": false
+}
+
+###
+# 2. Storymaker
+POST {{baseUrl}}/api/dreams
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Storymaker",
+  "slug": "storymaker",
+  "dreamType": "PROJECT",
+  "projectStatus": "BRAINSTORM",
+  "description": "Phase 3 of Kind Robots: a full collaborative storytelling engine built on Bots, Characters, Dreams, Rewards, Scenarios, and Chats. Two modes: Exquisite Corpse (async turn-taking) and Guided Adventure (LLM-narrated multi-stage journey). Solo or group play, branching choices, character stat spends, unlockable rewards.",
+  "pitch": "The experience layer that turns Kind Robots from an admin sandbox into something players actually love.",
+  "flavorText": "Every choice unlocks a new world.",
+  "isPublic": false
+}
+
+###
+# 3. Alexa Integration
+POST {{baseUrl}}/api/dreams
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Alexa Integration",
+  "slug": "alexa-integration",
+  "dreamType": "PROJECT",
+  "projectStatus": "BRAINSTORM",
+  "description": "Custom Alexa skill with a unique wake phrase routes voice commands through a relay service on Unraid. Intents: create todo, request art, ask LLM, check project status. Relay is a small Docker container on Unraid calling the kind_robots API with KR_API_TOKEN.",
+  "pitch": "Hands-free access to the entire Conductor system from anywhere in the house.",
+  "flavorText": "Hey — make it so.",
+  "isPublic": false
+}
+
+###
+# 4. Media Watchlist
+POST {{baseUrl}}/api/dreams
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Media Watchlist",
+  "slug": "media-watchlist",
+  "dreamType": "PROJECT",
+  "projectStatus": "BRAINSTORM",
+  "description": "Import 10+ years of Silas's media consumption log (books, games, movies, TV, comics, podcasts) into a structured DB. Features: browse/filter/stats views, Letterboxd sync, Comic Vine metadata, Tautulli Plex history pull, Amazon affiliate links, and a review editor for publishing takes to the site.",
+  "pitch": "A decade of media, finally organized and generating passive income.",
+  "flavorText": "Everything watched, read, and played — remembered.",
+  "isPublic": false
+}
+
+###
+# 5. Conductor App
+POST {{baseUrl}}/api/dreams
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Conductor App",
+  "slug": "conductor-app",
+  "dreamType": "PROJECT",
+  "projectStatus": "BRAINSTORM",
+  "description": "Flutter mobile/desktop app for the Conductor system. Login via kind_robots JWT. Dashboard: active projects, open todos, agent status. Create todos on the go, receive push notifications for blocked tasks and PR reviews, request art from phone camera, quick voice-to-todo.",
+  "pitch": "Conductor in your pocket — log a todo on a walk, approve a PR from the couch.",
+  "flavorText": "The control room, untethered.",
+  "repoUrl": "https://github.com/silasfelinus/conductor",
+  "isPublic": false
+}

@@ -24,7 +24,11 @@ function cleanString(value: unknown): string {
 }
 
 function imageSource(img: HTMLImageElement): string {
-  return cleanString(img.currentSrc) || cleanString(img.src) || cleanString(img.getAttribute('src'))
+  return (
+    cleanString(img.getAttribute('src')) ||
+    cleanString(img.currentSrc) ||
+    cleanString(img.src)
+  )
 }
 
 function hasImageExtension(src: string): boolean {

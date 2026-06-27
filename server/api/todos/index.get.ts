@@ -1,5 +1,5 @@
 // /server/api/todos/index.get.ts
-import { defineEventHandler, getQuery } from 'h3'
+import { defineEventHandler, getQuery, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -39,6 +39,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, data: sortTodos(todos) }
   } catch (error) {
+    if (error instanceof H3Error) throw error
     return errorHandler(error)
   }
 })

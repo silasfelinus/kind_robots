@@ -1,6 +1,12 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // /cypress/e2e/api/sheets.cy.ts
 /// <reference types="cypress" />
+
+import {
+  adminHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+} from '../../support/api-auth'
 
 interface ApiResponse<T = any> {
   success: boolean
@@ -10,21 +16,14 @@ interface ApiResponse<T = any> {
 }
 
 describe('Sheets API CRUD + Auth Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
-  const fallbackApiBase = 'https://kind-robots.vercel.app'
   const invalidToken = 'definitely-not-a-real-token'
 
-  let apiBase = fallbackApiBase
-  let sheetsUrl = `${fallbackApiBase}/api/sheets`
-  let dreamsUrl = `${fallbackApiBase}/api/dreams`
+  let apiBase = ''
+  let adminToken = ''
+  let sheetsUrl = ''
+  let dreamsUrl = ''
   let userToken = ''
+  let userId: number | undefined
   let dreamId = 0
   let pitchSheetId = 0
 
@@ -32,50 +31,48 @@ describe('Sheets API CRUD + Auth Tests', () => {
   const dreamTitle = `PitchSheet Cypress Dream ${time}`
 
   before(() => {
-    cy.env(['API_BASE']).then((env) => {
-      apiBase = String(env.API_BASE || fallbackApiBase)
-      sheetsUrl = `${apiBase}/api/sheets`
-      dreamsUrl = `${apiBase}/api/dreams`
-})
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
+    getApiEnv().then((env) => {
+      apiBase = env.apiBase
+      adminToken = env.adminToken
+      sheetsUrl = `${apiBase}/sheets`
+      dreamsUrl = `${apiBase}/dreams`
     })
-  })
 
+    createLoggedInTestUser({ fresh: true }).then((auth) => {
+      userToken = auth.token
+      userId = auth.id
+    })
 
+    cy.then(() => {
+      cy.request<ApiResponse>({
+        method: 'POST',
+        url: dreamsUrl,
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: {
+          title: dreamTitle,
+          slug: `pitchsheet-cypress-dream-${time}`,
+          dreamType: 'PITCH',
+          description: 'Temporary Dream created by the PitchSheet API Cypress test.',
+          pitch: 'A throwaway Dream used to verify PitchSheet backend behavior.',
+          flavorText: 'If you can read this in production, the cleanup goblin missed a spot.',
+          isPublic: true,
+          isActive: true,
+          isMature: false,
+          designer: 'cypress',
+        },
+        failOnStatusCode: false,
+      }).then((res) => {
+        expect(res.status, JSON.stringify(res.body)).to.eq(201)
+        expect(res.body.success).to.eq(true)
+        expect(res.body.data).to.have.property('id')
+        expect(res.body.data.title).to.eq(dreamTitle)
 
-
-
-  it('SETUP: creates a test Dream owned by the authenticated user', () => {
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: dreamsUrl,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: {
-        title: dreamTitle,
-        slug: `pitchsheet-cypress-dream-${time}`,
-        dreamType: 'PITCH',
-        description: 'Temporary Dream created by the PitchSheet API Cypress test.',
-        pitch: 'A throwaway Dream used to verify PitchSheet backend behavior.',
-        flavorText: 'If you can read this in production, the cleanup goblin missed a spot.',
-        isPublic: true,
-        isActive: true,
-        isMature: false,
-        designer: 'cypress',
-      },
-    }).then((res) => {
-      expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.have.property('id')
-      expect(res.body.data.title).to.eq(dreamTitle)
-
-      dreamId = res.body.data.id
-      expect(dreamId).to.be.a('number').and.to.be.greaterThan(0)
+        dreamId = res.body.data.id
+        expect(dreamId).to.be.a('number').and.to.be.greaterThan(0)
+      })
     })
   })
 
@@ -268,22 +265,24 @@ describe('Sheets API CRUD + Auth Tests', () => {
   })
 
   after(() => {
-    if (pitchSheetId && userToken) {
+    if (pitchSheetId && adminToken) {
       cy.request({
         method: 'DELETE',
         url: `${sheetsUrl}/${pitchSheetId}`,
-        headers: { Authorization: `Bearer ${userToken}` },
+        headers: adminHeaders(adminToken),
         failOnStatusCode: false,
       })
     }
 
-    if (dreamId && userToken) {
+    if (dreamId && adminToken) {
       cy.request({
         method: 'DELETE',
-        url: `${dreamsUrl}/${dreamId}`,
-        headers: { Authorization: `Bearer ${userToken}` },
+        url: `${dreamsUrl}/${dreamId}?hard=true`,
+        headers: adminHeaders(adminToken),
         failOnStatusCode: false,
       })
     }
+
+    deleteTestUser(apiBase, adminToken, userId)
   })
 })

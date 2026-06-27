@@ -381,16 +381,22 @@ export const tutorialChannels = {
   conductor: {
     key: 'conductor',
     title: 'Conductor',
-    hero: `${CONDUCTOR_IMAGE_BASE}/approval-portal-hero.webp`,
+    hero: `${CONDUCTOR_IMAGE_BASE}/conductor-hero.webp`,
     tagline: 'Steer agents, review work, and keep the human in the loop.',
     overview:
       'Conductor is the private cockpit for the agent loop. It gathers project progress, roadmap state, task gates, pitch voting, and anything that needs Silas before robots continue doing robot things.',
     sections: [
       {
-        key: 'workspace',
-        title: 'Workspace',
+        key: 'conductor',
+        title: 'Conductor',
         body: 'Review active projects, open project detail views, vote on brainstorm pitches, inspect blockers, and see which tasks need human judgment before the next agent pass.',
-        image: `${CONDUCTOR_IMAGE_BASE}/approval-portal-card.webp`,
+        image: `images/tutorials/conductor/conductor.webp`,
+      },
+      {
+        key: 'portos',
+        title: 'PortOS',
+        body: 'Add a PortOS server to use a host of services. For more information, visit https://github.com/atomantic/PortOS',
+        image: `images/tutorials/conductor/conductor.webp`,
       },
     ],
   },

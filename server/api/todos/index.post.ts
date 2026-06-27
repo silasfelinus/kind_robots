@@ -1,5 +1,5 @@
 // /server/api/todos/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { defineEventHandler, readBody, createError, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -53,6 +53,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return { success: true, message: 'Todo created.', data: todo }
   } catch (error) {
+    if (error instanceof H3Error) throw error
     return errorHandler(error)
   }
 })

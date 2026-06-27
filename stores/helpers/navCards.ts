@@ -12,6 +12,7 @@ import {
 } from '@/stores/helpers/dashboardHelper'
 import { deriveNavCard } from '@/stores/helpers/tabsToCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import { CONDUCTOR_DASHBOARD_KEY, CONDUCTOR_DEFAULT_TAB } from '@/stores/helpers/conductorTabs'
 
 export type NavCard = BuilderCard
 
@@ -22,39 +23,36 @@ export {
   NAV_IMAGE_EXTENSION,
 }
 
-const CONDUCTOR_IMAGE_BASE =
-  'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
-
 export const CONDUCTOR_NAV_CARD: NavCard = {
   key: 'conductor',
   label: 'Conductor',
   title: 'Conductor',
   icon: 'kind-icon:gearhammer',
   flourish: '⚙',
-  deckImage: `${CONDUCTOR_IMAGE_BASE}/approval-portal-card.webp`,
-  heroImage: `${CONDUCTOR_IMAGE_BASE}/approval-portal-hero.webp`,
-  tagline: 'Steer agents, review work, and keep the human in the loop.',
+  deckImage: getNavThumbImagePath('conductor'),
+  heroImage: getNavHeroImagePath('conductor'),
+  tagline: 'Steer agents, review work, and configure Portos.',
   narrative:
-    'Open the Conductor cockpit: project progress, pitches awaiting your vote, task gates, roadmap state, and the parts of the agent loop that need a human with a clipboard.',
+    'Open the Conductor cockpit: project progress, pitches awaiting your vote, task gates, roadmap state, Portos setup, and the pieces that need a human with a clipboard.',
   required: false,
   restoresFields: [],
   unlockCondition: 'always',
   payload: {
     path: '/conductor',
-    dashboardKey: 'wonder',
-    tab: 'workspace',
+    dashboardKey: CONDUCTOR_DASHBOARD_KEY,
+    tab: CONDUCTOR_DEFAULT_TAB,
   },
   steps: [
     {
       key: 'conductor',
       title: 'Conductor',
       narrative:
-        'Steer the agent loop, review project state, and decide what deserves human approval next.',
+        'Steer the agent loop, review project state, configure Portos, and decide what deserves human approval next.',
       inputType: 'custom',
       payload: {
         path: '/conductor',
-        dashboardKey: 'wonder',
-        tab: 'workspace',
+        dashboardKey: CONDUCTOR_DASHBOARD_KEY,
+        tab: CONDUCTOR_DEFAULT_TAB,
       },
     },
   ],

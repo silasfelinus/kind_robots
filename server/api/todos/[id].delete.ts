@@ -1,5 +1,5 @@
 // /server/api/todos/[id].delete.ts
-import { defineEventHandler, createError, getRouterParam } from 'h3'
+import { defineEventHandler, createError, getRouterParam, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, message: 'Todo deleted.' }
   } catch (error) {
+    if (error instanceof H3Error) throw error
     return errorHandler(error)
   }
 })

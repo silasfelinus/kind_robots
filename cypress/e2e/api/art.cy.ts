@@ -1,24 +1,22 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/art.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+
+import {
+  adminHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+} from '../../support/api-auth'
 
 let userId = 0
 
 describe('ArtImage Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    return createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
-  const apiRoot = 'https://kind-robots.vercel.app/api'
-  const artImageUrl = `${apiRoot}/art/image`
-  const artGenerateUrl = `${apiRoot}/art/generate`
   const invalidToken = 'someInvalidTokenValue'
   const adminUserId = 1
+
+  let apiRoot = ''
+  let artImageUrl = ''
+  let artGenerateUrl = ''
   let apiKey = ''
   let adminToken = ''
   let userToken = ''
@@ -28,16 +26,28 @@ describe('ArtImage Management API Tests', () => {
   let generatedPath = ''
 
   before(() => {
-    cy.env(['API_KEY', 'ADMIN_TOKEN', 'LOLA_TEST_SERVER_ID']).then((env) => {
-      apiKey = String(env.API_KEY || '')
-      adminToken = String(env.ADMIN_TOKEN || '')
+    getApiEnv().then((env) => {
+      apiRoot = env.apiBase
+      adminToken = env.adminToken
+      apiKey = env.adminToken
+      artImageUrl = `${apiRoot}/art/image`
+      artGenerateUrl = `${apiRoot}/art/generate`
+    })
+
+    cy.env(['API_KEY', 'LOLA_TEST_SERVER_ID']).then((env) => {
+      apiKey = String(env.API_KEY || apiKey)
 
       const parsedValue = Number(env.LOLA_TEST_SERVER_ID ?? 37)
       lolaTestServerId = Number.isFinite(parsedValue) ? parsedValue : 37
 
-      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+      expect(apiKey, 'API_KEY or ADMIN_TOKEN').to.be.a('string').and.not.be.empty
       expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
       expect(lolaTestServerId, 'LOLA_TEST_SERVER_ID').to.be.a('number')
+    })
+
+    createLoggedInTestUser({ fresh: true }).then((auth) => {
+      userToken = auth.token
+      userId = auth.id
     })
 
     cy.then(() => {
@@ -54,7 +64,7 @@ describe('ArtImage Management API Tests', () => {
           steps: 10,
           path: ' ',
           seed: -1,
-          userId: userId,
+          userId,
           imagePath: 'justfortesting',
         },
         failOnStatusCode: false,
@@ -79,29 +89,25 @@ describe('ArtImage Management API Tests', () => {
   })
 
   after(() => {
-    if (fixtureArtImageId) {
+    if (fixtureArtImageId && adminToken) {
       cy.request({
         method: 'DELETE',
         url: `${artImageUrl}/${fixtureArtImageId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
+        headers: adminHeaders(adminToken),
         failOnStatusCode: false,
       })
     }
 
-    if (generatedArtImageId) {
+    if (generatedArtImageId && adminToken) {
       cy.request({
         method: 'DELETE',
         url: `${artImageUrl}/${generatedArtImageId}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
+        headers: adminHeaders(adminToken),
         failOnStatusCode: false,
       })
     }
+
+    deleteTestUser(apiRoot, adminToken, userId)
   })
 
   it('should not allow generating an ArtImage without a bearer token', () => {

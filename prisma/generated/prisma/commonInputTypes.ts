@@ -314,6 +314,13 @@ export type EnumProjectStatusNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumProjectStatusNullableFilter<$PrismaModel> | $Enums.ProjectStatus | null
 }
 
+export type EnumDreamPriorityNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamPriority | Prisma.EnumDreamPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DreamPriority[] | null
+  notIn?: $Enums.DreamPriority[] | null
+  not?: Prisma.NestedEnumDreamPriorityNullableFilter<$PrismaModel> | $Enums.DreamPriority | null
+}
+
 export type EnumCreationSourceFilter<$PrismaModel = never> = {
   equals?: $Enums.CreationSource | Prisma.EnumCreationSourceFieldRefInput<$PrismaModel>
   in?: $Enums.CreationSource[]
@@ -339,6 +346,16 @@ export type EnumProjectStatusNullableWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProjectStatusNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProjectStatusNullableFilter<$PrismaModel>
+}
+
+export type EnumDreamPriorityNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamPriority | Prisma.EnumDreamPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DreamPriority[] | null
+  notIn?: $Enums.DreamPriority[] | null
+  not?: Prisma.NestedEnumDreamPriorityNullableWithAggregatesFilter<$PrismaModel> | $Enums.DreamPriority | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDreamPriorityNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDreamPriorityNullableFilter<$PrismaModel>
 }
 
 export type EnumCreationSourceWithAggregatesFilter<$PrismaModel = never> = {
@@ -1076,6 +1093,13 @@ export type NestedEnumProjectStatusNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumProjectStatusNullableFilter<$PrismaModel> | $Enums.ProjectStatus | null
 }
 
+export type NestedEnumDreamPriorityNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamPriority | Prisma.EnumDreamPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DreamPriority[] | null
+  notIn?: $Enums.DreamPriority[] | null
+  not?: Prisma.NestedEnumDreamPriorityNullableFilter<$PrismaModel> | $Enums.DreamPriority | null
+}
+
 export type NestedEnumCreationSourceFilter<$PrismaModel = never> = {
   equals?: $Enums.CreationSource | Prisma.EnumCreationSourceFieldRefInput<$PrismaModel>
   in?: $Enums.CreationSource[]
@@ -1101,6 +1125,16 @@ export type NestedEnumProjectStatusNullableWithAggregatesFilter<$PrismaModel = n
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProjectStatusNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProjectStatusNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumDreamPriorityNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamPriority | Prisma.EnumDreamPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DreamPriority[] | null
+  notIn?: $Enums.DreamPriority[] | null
+  not?: Prisma.NestedEnumDreamPriorityNullableWithAggregatesFilter<$PrismaModel> | $Enums.DreamPriority | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDreamPriorityNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDreamPriorityNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumCreationSourceWithAggregatesFilter<$PrismaModel = never> = {

@@ -125,6 +125,7 @@ export const ArtImageScalarFieldEnum = {
   thumbnailData: 'thumbnailData',
   isMature: 'isMature',
   isPublic: 'isPublic',
+  isActive: 'isActive',
   negativePrompt: 'negativePrompt',
   path: 'path',
   promptString: 'promptString',
@@ -134,7 +135,6 @@ export const ArtImageScalarFieldEnum = {
   serverName: 'serverName',
   serverUrl: 'serverUrl',
   steps: 'steps',
-  isActive: 'isActive',
   artPrompt: 'artPrompt'
 } as const
 

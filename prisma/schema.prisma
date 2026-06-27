@@ -35,7 +35,8 @@ model ArtImage {
   thumbnailData String? @db.Text
 
   isMature           Boolean?         @default(false)
-  isPublic           Boolean?         @default(false)
+  isPublic           Boolean?         @default(true)
+  isActive           Boolean?         @default(true)
   negativePrompt     String?          @db.Text
   path               String?          @db.VarChar(764)
   promptString       String?          @db.Text
@@ -45,7 +46,6 @@ model ArtImage {
   serverName         String?          @db.VarChar(256)
   serverUrl          String?          @db.VarChar(764)
   steps              Int?
-  isActive           Boolean
   artPrompt          String?          @db.Text
   ExpressionMedia    ExpressionMedia?
   CheckpointResource Resource?        @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])

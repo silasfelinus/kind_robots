@@ -28,28 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref } from 'vue'
 import ConductorPage from '@/components/pages/conductor-page.vue'
 import PortosPage from '@/components/pages/portos-page.vue'
-import {
-  CONDUCTOR_DASHBOARD_KEY,
-  conductorTabs,
-  resolveConductorTab,
-  type ConductorTabKey,
-} from '@/stores/helpers/conductorTabs'
-import { useNavStore } from '@/stores/navStore'
+import { conductorTabs, type ConductorTabKey } from '@/stores/helpers/conductorTabs'
 
-const navStore = useNavStore()
-
-const activeTab = computed<ConductorTabKey>(() =>
-  resolveConductorTab(navStore.dashboardTabs[CONDUCTOR_DASHBOARD_KEY]),
-)
+const activeTab = ref<ConductorTabKey>('conductor')
 
 function setActiveTab(tab: ConductorTabKey) {
-  navStore.dashboardTabs = {
-    ...navStore.dashboardTabs,
-    [CONDUCTOR_DASHBOARD_KEY]: tab,
-  }
-  navStore.syncDashboardTabs('conductor-manager')
+  activeTab.value = tab
 }
 </script>

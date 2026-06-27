@@ -59,7 +59,7 @@
       class="conductor-scroll pointer-events-auto flex touch-pan-x items-end gap-2 overflow-x-auto overscroll-x-contain overflow-y-visible px-1 pb-4"
     >
       <button
-        v-for="(card, index) in CONDUCTOR_CARDS"
+        v-for="(card, index) in cards"
         :key="card.key"
         type="button"
         class="group relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-3 hover:scale-[1.15] active:z-40 active:-translate-y-3 active:scale-[1.15]"
@@ -161,24 +161,33 @@
 import type { CSSProperties } from 'vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
-  CONDUCTOR_CARDS,
   KIND_LABEL,
   STATUS_CLASS,
   STATUS_LABEL,
   type ConductorCard,
   type ConductorProjectKind,
 } from '@/stores/helpers/conductorCards'
+import { useConductorStore } from '@/stores/conductorStore'
+import { usePageStore } from '@/stores/pageStore'
+
+const conductorStore = useConductorStore()
+const pageStore = usePageStore()
 
 const scrollEl = ref<HTMLElement | null>(null)
-const activeCardKey = ref(CONDUCTOR_CARDS[0]?.key ?? '')
 const flippingCardKey = ref('')
 const FLIP_DURATION_MS = 650
 let flipTimer: ReturnType<typeof setTimeout> | null = null
 
 const cardBackSrc = '/images/adventure/card/card-back1.webp'
 
+const cards = computed(() => conductorStore.conductorCards)
+
+const activeCardKey = computed(
+  () => pageStore.workspaceCardKey || cards.value[0]?.key || '',
+)
+
 const activeCard = computed(
-  () => CONDUCTOR_CARDS.find((c) => c.key === activeCardKey.value) ?? null,
+  () => cards.value.find((c) => c.key === activeCardKey.value) ?? null,
 )
 
 function sparkleStyle(n: number): CSSProperties {
@@ -206,7 +215,7 @@ function triggerFlip(cardKey: string): void {
 }
 
 function handleCardClick(card: ConductorCard): void {
-  activeCardKey.value = card.key
+  pageStore.setWorkspaceCardKey(card.key)
   triggerFlip(card.key)
 }
 
@@ -220,7 +229,7 @@ function thumbClass(cardKey: string): string {
 
 function originClass(index: number): string {
   if (index === 0) return 'origin-bottom-left'
-  if (index === CONDUCTOR_CARDS.length - 1) return 'origin-bottom-right'
+  if (index === cards.value.length - 1) return 'origin-bottom-right'
 
   return 'origin-bottom'
 }

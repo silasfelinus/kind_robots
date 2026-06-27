@@ -1012,6 +1012,7 @@ import { useDreamStore } from '@/stores/dreamStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
+import { useConductorStore } from '@/stores/conductorStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
@@ -1035,6 +1036,7 @@ const userStore = useUserStore()
 const dreamStore = useDreamStore()
 const pageStore = usePageStore()
 const todoStore = useTodoStore()
+const conductorStore = useConductorStore()
 
 const dreamSaving = ref(false)
 const dreamSaveMessage = ref('')
@@ -1251,6 +1253,10 @@ function showSaveMessage(msg: string, isError = false) {
     dreamSaveMessage.value = ''
   }, 3000)
 }
+
+watch(data, (newData) => {
+  if (newData) conductorStore.setData(newData)
+})
 
 watch(viewMode, async (mode) => {
   if (mode === 'tasks' && !todoStore.hasLoaded) await todoStore.fetchTodos(true)

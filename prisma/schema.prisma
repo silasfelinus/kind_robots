@@ -6,3 +6,917 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+/// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
+model ArtImage {
+  id                   Int           @id @default(autoincrement())
+  imageData            String?       @db.LongText
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime?     @default(now()) @updatedAt
+  userId               Int?          @default(10)
+  fileName             String?       @db.VarChar(764)
+  fileType             String        @default("png")
+  cfg                  Int?          @default(3)
+  cfgHalf              Boolean?      @default(false)
+  checkpoint           String?       @db.VarChar(256)
+  checkpointResourceId Int?
+  designer             String?       @db.VarChar(764)
+  genres               String?
+  imagePath            String?
+  isMature             Boolean?      @default(false)
+  isPublic             Boolean?      @default(false)
+  negativePrompt       String?       @db.Text
+  path                 String?       @db.VarChar(764)
+  promptString         String?       @db.Text
+  sampler              String?       @db.VarChar(764)
+  seed                 Int?          @default(-1)
+  serverId             Int?
+  serverName           String?       @db.VarChar(256)
+  serverUrl            String?       @db.VarChar(764)
+  steps                Int?
+  thumbnailData        String?       @db.MediumText
+  isActive             Boolean       @default(true)
+  artPrompt            ArtPrompt?    @relation(fields: [artPromptId], references: [id])
+  artPromptId          Int?
+  Dream                Dream?        @relation("DreamToArtImage", fields: [dreamId], references: [id])
+  dreamId              Int?
+  PrimaryDream         Dream?        @relation("DreamPrimaryArtImage")
+  Collection           ArtCollection? @relation(fields: [collectionId], references: [id])
+  collectionId         Int?
+  PrimaryCollection    ArtCollection? @relation("CollectionPrimaryArtImage")
+  Reactions            Reaction[]
+  Compositions         Composition[]
+  Checkpoints          AiCheckpoint[]
+  Servers              AiServer[]
+
+  @@index([artPromptId])
+  @@index([dreamId])
+  @@index([collectionId])
+  @@index([userId])
+}
+
+model ArtCollection {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int        @default(10)
+  name        String     @db.VarChar(255)
+  description String?    @db.Text
+  isPublic    Boolean    @default(true)
+  isMature    Boolean    @default(false)
+  isActive    Boolean    @default(true)
+  cardPath    String?    @db.VarChar(764)
+  imagePath   String?    @db.VarChar(764)
+  primaryImageId Int?
+  PrimaryImage ArtImage? @relation("CollectionPrimaryArtImage", fields: [primaryImageId], references: [id])
+  ArtImages   ArtImage[]
+  Dream       Dream?     @relation("DreamToArtCollection", fields: [dreamId], references: [id])
+  dreamId     Int?
+  PrimaryDream Dream?    @relation("DreamPrimaryArtCollection")
+  User        User       @relation(fields: [userId], references: [id])
+  Reactions   Reaction[]
+  Compositions Composition[]
+
+  @@index([userId])
+  @@index([dreamId])
+  @@index([primaryImageId])
+}
+
+model ArtPrompt {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int        @default(10)
+  prompt      String     @db.Text
+  negPrompt   String?    @db.Text
+  style       String?    @db.VarChar(255)
+  isPublic    Boolean    @default(true)
+  isMature    Boolean    @default(false)
+  isActive    Boolean    @default(true)
+  User        User       @relation(fields: [userId], references: [id])
+  ArtImages   ArtImage[]
+
+  @@index([userId])
+}
+
+model Bot {
+  id              Int        @id @default(autoincrement())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime?  @default(now()) @updatedAt
+  userId          Int        @default(10)
+  name            String     @unique @db.VarChar(255)
+  subtitle        String?    @db.VarChar(512)
+  description     String?    @db.Text
+  avatarImage     String?    @db.VarChar(764)
+  botType         String     @default("completion")
+  isPublic        Boolean    @default(true)
+  isMature        Boolean    @default(false)
+  isActive        Boolean    @default(true)
+  personality     String?    @db.Text
+  tagLine         String?    @db.VarChar(255)
+  sampleResponse  String?    @db.Text
+  UnderContext    String?    @db.Text
+  canDirectMessage Boolean   @default(false)
+  canLearnFromChat Boolean   @default(false)
+  canSuggestArt   Boolean    @default(false)
+  promptLayers    String?    @db.Text
+  Dataset         String?    @db.Text
+  trainingPath    String?    @db.VarChar(764)
+  cardPath        String?    @db.VarChar(764)
+  imagePath       String?    @db.VarChar(764)
+  theme           String?    @db.VarChar(255)
+  User            User       @relation(fields: [userId], references: [id])
+  Dream           Dream?     @relation(fields: [dreamId], references: [id])
+  dreamId         Int?
+  Chats           Chat[]
+  Reactions       Reaction[]
+  Compositions    Composition[]
+  Characters      Character[]
+
+  @@index([userId])
+  @@index([dreamId])
+}
+
+model Butterfly {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int        @default(10)
+  text        String     @db.Text
+  isPublic    Boolean    @default(true)
+  isActive    Boolean    @default(true)
+  User        User       @relation(fields: [userId], references: [id])
+  Reactions   Reaction[]
+
+  @@index([userId])
+}
+
+model Character {
+  id              Int        @id @default(autoincrement())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime?  @default(now()) @updatedAt
+  userId          Int        @default(10)
+  name            String     @db.VarChar(255)
+  subtitle        String?    @db.VarChar(512)
+  description     String?    @db.Text
+  personality     String?    @db.Text
+  tagLine         String?    @db.VarChar(255)
+  sampleResponse  String?    @db.Text
+  avatarImage     String?    @db.VarChar(764)
+  cardPath        String?    @db.VarChar(764)
+  imagePath       String?    @db.VarChar(764)
+  isPublic        Boolean    @default(true)
+  isMature        Boolean    @default(false)
+  isActive        Boolean    @default(true)
+  Bot             Bot?       @relation(fields: [botId], references: [id])
+  botId           Int?
+  Dream           Dream?     @relation("CharacterToDream", fields: [dreamId], references: [id])
+  dreamId         Int?
+  User            User       @relation(fields: [userId], references: [id])
+  Reactions       Reaction[]
+  Compositions    Composition[]
+  Chats           Chat[]
+
+  @@index([userId])
+  @@index([botId])
+  @@index([dreamId])
+}
+
+model Chat {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @default(now()) @updatedAt
+  userId       Int       @default(10)
+  botId        Int?
+  characterId  Int?
+  dreamId      Int?
+  scenarioId   Int?
+  parentId     Int?
+  username     String?   @db.VarChar(255)
+  botName      String?   @db.VarChar(255)
+  type         ChatType  @default(ToBot)
+  content      String    @db.Text
+  isPublic     Boolean   @default(true)
+  isMature     Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  User         User      @relation(fields: [userId], references: [id])
+  Bot          Bot?      @relation(fields: [botId], references: [id])
+  Character    Character? @relation(fields: [characterId], references: [id])
+  Dream        Dream?    @relation(fields: [dreamId], references: [id])
+  Scenario     Scenario? @relation(fields: [scenarioId], references: [id])
+  Parent       Chat?     @relation("ChatToChat", fields: [parentId], references: [id])
+  Children     Chat[]    @relation("ChatToChat")
+  Reactions    Reaction[]
+
+  @@index([userId])
+  @@index([botId])
+  @@index([characterId])
+  @@index([dreamId])
+  @@index([scenarioId])
+  @@index([parentId])
+}
+
+model Composition {
+  id              Int        @id @default(autoincrement())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime?  @default(now()) @updatedAt
+  userId          Int        @default(10)
+  artImageId      Int?
+  artCollectionId Int?
+  botId           Int?
+  characterId     Int?
+  dreamId         Int?
+  rewardId        Int?
+  scenarioId      Int?
+  promptId        Int?
+  title           String?    @db.VarChar(255)
+  content         String?    @db.Text
+  isPublic        Boolean    @default(true)
+  isMature        Boolean    @default(false)
+  isActive        Boolean    @default(true)
+  User            User       @relation(fields: [userId], references: [id])
+  ArtImage        ArtImage?  @relation(fields: [artImageId], references: [id])
+  ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
+  Bot             Bot?       @relation(fields: [botId], references: [id])
+  Character       Character? @relation(fields: [characterId], references: [id])
+  Dream           Dream?     @relation(fields: [dreamId], references: [id])
+  Reward          Reward?    @relation(fields: [rewardId], references: [id])
+  Scenario        Scenario?  @relation(fields: [scenarioId], references: [id])
+  Reactions       Reaction[]
+
+  @@index([userId])
+  @@index([artImageId])
+  @@index([artCollectionId])
+  @@index([botId])
+  @@index([characterId])
+  @@index([dreamId])
+  @@index([rewardId])
+  @@index([scenarioId])
+}
+
+model Dream {
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime?       @default(now()) @updatedAt
+  // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────
+  title           String          @db.VarChar(255)
+  slug            String?         @unique @db.VarChar(255)
+  dreamType       DreamType       @default(PITCH)
+  description     String?         @db.Text
+  pitch           String?         @db.Text
+  flavorText      String?         @db.VarChar(512)
+  examples        String?         @db.LongText
+  artPrompt       String?         @db.Text
+  imagePath       String?         @db.Text
+  cardPath        String?         @db.Text
+  heroPath        String?         @db.Text
+  // ── Project-specific (dreamType = PROJECT) ────────────────────────────────
+  projectStatus   ProjectStatus?
+  priority        DreamPriority?  @default(NORMAL)
+  repoUrl         String?         @db.VarChar(512)
+  liveUrl         String?         @db.VarChar(512)
+  allowReviews    Boolean         @default(false)
+  highlightImage  String?         @db.VarChar(256)
+  icon            String?
+  designer        String?         @db.VarChar(256)
+  creationSource  CreationSource  @default(HUMAN)
+  // ── Flags ─────────────────────────────────────────────────────────────────
+  userId          Int             @default(10)
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
+  isActive        Boolean         @default(true)
+  // ── Primary "main choice" FKs (one each) ──────────────────────────────────
+  artImageId      Int?
+  artCollectionId Int?
+  // ── Relations ─────────────────────────────────────────────────────────────
+  User            User            @relation(fields: [userId], references: [id])
+  ArtImage        ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
+  ArtCollection   ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
+  Scenarios       Scenario[]      @relation("DreamToScenario")
+  Reactions       Reaction[]
+  Compositions    Composition[]
+  Chats           Chat[]
+  // ── Many-relations (a Dream can govern many of each) ──────────────────────
+  ArtImages       ArtImage[]      @relation("DreamToArtImage")
+  ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
+  Characters      Character[]     @relation("CharacterToDream")
+  Rewards         Reward[]        @relation("DreamToReward")
+  Bots            Bot[]
+
+  PitchSheet PitchSheet?
+
+
+  RelationsFrom   DreamRelation[] @relation("DreamRelationFrom")  // edges where this dream is the subject
+  RelationsTo     DreamRelation[] @relation("DreamRelationTo")    // edges where this dream is the object
+
+  @@index([artImageId], map: "Dream_artImageId_fkey")
+  @@index([userId])
+  @@index([dreamType])
+  @@index([isPublic])
+  @@index([isActive])
+  @@index([artCollectionId])
+}
+
+model DreamRelation {
+  id        Int              @id @default(autoincrement())
+  fromId    Int
+  toId      Int
+  relType   DreamRelationType @default(RELATED)
+  note      String?          @db.VarChar(512)
+  createdAt DateTime         @default(now())
+  From      Dream            @relation("DreamRelationFrom", fields: [fromId], references: [id])
+  To        Dream            @relation("DreamRelationTo", fields: [toId], references: [id])
+
+  @@unique([fromId, toId, relType])
+  @@index([fromId])
+  @@index([toId])
+}
+
+model Expression {
+  id          Int            @id @default(autoincrement())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime?      @default(now()) @updatedAt
+  label       String         @db.VarChar(255)
+  kind        ExpressionKind @default(EMOTION)
+  value       Expression_    @default(NEUTRAL)
+  icon        String?        @db.VarChar(255)
+  isActive    Boolean        @default(true)
+}
+
+model ManaLedger {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  userId      Int
+  amount      Int
+  reason      ManaReason
+  note        String?    @db.VarChar(512)
+  User        User       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Pitch {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int        @default(10)
+  title       String     @db.VarChar(255)
+  content     String     @db.Text
+  isPublic    Boolean    @default(true)
+  isActive    Boolean    @default(true)
+  User        User       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model PitchSheet {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  dreamId     Int        @unique
+  content     String     @db.LongText
+  Dream       Dream      @relation(fields: [dreamId], references: [id])
+}
+
+model Post {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @default(now()) @updatedAt
+  userId      Int          @default(10)
+  title       String?      @db.VarChar(255)
+  content     String       @db.Text
+  audience    PostAudience @default(PUBLIC)
+  status      PostStatus   @default(DRAFT)
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  isActive    Boolean      @default(true)
+  User        User         @relation(fields: [userId], references: [id])
+  Targets     PostTarget[]
+  Reactions   Reaction[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([audience])
+}
+
+model PostTarget {
+  id         Int          @id @default(autoincrement())
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime?    @default(now()) @updatedAt
+  postId     Int
+  platform   SocialPlatform
+  status     TargetStatus @default(PENDING)
+  externalId String?      @db.VarChar(512)
+  error      String?      @db.Text
+  Post       Post         @relation(fields: [postId], references: [id])
+
+  @@index([postId])
+}
+
+model Prompt {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int        @default(10)
+  prompt      String     @db.Text
+  isPublic    Boolean    @default(true)
+  isActive    Boolean    @default(true)
+  User        User       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Reaction {
+  id               Int                      @id @default(autoincrement())
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime?                @default(now()) @updatedAt
+  userId           Int                      @default(10)
+  artImageId       Int?
+  artCollectionId  Int?
+  botId            Int?
+  butterflyId      Int?
+  characterId      Int?
+  chatId           Int?
+  compositionId    Int?
+  dreamId          Int?
+  postId           Int?
+  rewardId         Int?
+  scenarioId       Int?
+  reaction         ReactionType             @default(NEUTRAL)
+  reactionCategory Reaction_reactionCategory @default(ART_IMAGE)
+  title            String?                  @db.VarChar(255)
+  comment          String?                  @db.Text
+  isPublic         Boolean                  @default(true)
+  isActive         Boolean                  @default(true)
+  User             User                     @relation(fields: [userId], references: [id])
+  ArtImage         ArtImage?                @relation(fields: [artImageId], references: [id])
+  ArtCollection    ArtCollection?           @relation(fields: [artCollectionId], references: [id])
+  Bot              Bot?                     @relation(fields: [botId], references: [id])
+  Butterfly        Butterfly?               @relation(fields: [butterflyId], references: [id])
+  Character        Character?               @relation(fields: [characterId], references: [id])
+  Chat             Chat?                    @relation(fields: [chatId], references: [id])
+  Composition      Composition?             @relation(fields: [compositionId], references: [id])
+  Dream            Dream?                   @relation(fields: [dreamId], references: [id])
+  Post             Post?                    @relation(fields: [postId], references: [id])
+  Reward           Reward?                  @relation(fields: [rewardId], references: [id])
+  Scenario         Scenario?                @relation(fields: [scenarioId], references: [id])
+
+  @@index([userId])
+  @@index([artImageId])
+  @@index([artCollectionId])
+  @@index([botId])
+  @@index([butterflyId])
+  @@index([characterId])
+  @@index([chatId])
+  @@index([compositionId])
+  @@index([dreamId])
+  @@index([postId])
+  @@index([rewardId])
+  @@index([scenarioId])
+}
+
+model Relation {
+  id         Int            @id @default(autoincrement())
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime?      @default(now()) @updatedAt
+  userId     Int
+  targetId   Int
+  type       RelationType   @default(FRIEND)
+  status     RelationStatus @default(PENDING)
+  User       User           @relation("UserRelations", fields: [userId], references: [id])
+  Target     User           @relation("TargetRelations", fields: [targetId], references: [id])
+
+  @@unique([userId, targetId, type])
+  @@index([userId])
+  @@index([targetId])
+}
+
+model AiResource {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @default(now()) @updatedAt
+  name        String       @db.VarChar(255)
+  type        ResourceType @default(CHECKPOINT)
+  path        String?      @db.VarChar(764)
+  url         String?      @db.VarChar(764)
+  description String?      @db.Text
+  isActive    Boolean      @default(true)
+  ArtImages   ArtImage[]
+}
+
+model AiCheckpoint {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @default(now()) @updatedAt
+  name        String       @unique @db.VarChar(255)
+  description String?      @db.Text
+  path        String?      @db.VarChar(764)
+  url         String?      @db.VarChar(764)
+  isActive    Boolean      @default(true)
+  supportedServers SupportedServer[] @default([GENERIC])
+  ArtImages   ArtImage[]
+}
+
+model AiServer {
+  id           Int              @id @default(autoincrement())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime?        @default(now()) @updatedAt
+  name         String           @unique @db.VarChar(255)
+  description  String?          @db.Text
+  url          String           @db.VarChar(764)
+  type         ServerType       @default(A1111)
+  serverType   SupportedServer  @default(GENERIC)
+  accessMode   ServerAccessMode @default(LOCAL)
+  authType     ServerAuthType   @default(NONE)
+  apiKey       String?          @db.VarChar(512)
+  isActive     Boolean          @default(true)
+  status       ServerStatus     @default(UNKNOWN)
+  lastChecked  DateTime?
+  ArtImages    ArtImage[]
+}
+
+model Reward {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int        @default(10)
+  dreamId     Int?
+  name        String     @db.VarChar(255)
+  label       String?    @db.VarChar(255)
+  description String?    @db.Text
+  flavorText  String?    @db.VarChar(512)
+  power       String?    @db.VarChar(512)
+  rarity      Rarity     @default(COMMON)
+  type        RewardType @default(ITEM)
+  imagePath   String?    @db.VarChar(764)
+  cardPath    String?    @db.VarChar(764)
+  isPublic    Boolean    @default(true)
+  isMature    Boolean    @default(false)
+  isActive    Boolean    @default(true)
+  User        User       @relation(fields: [userId], references: [id])
+  Dream       Dream?     @relation("DreamToReward", fields: [dreamId], references: [id])
+  Reactions   Reaction[]
+  Compositions Composition[]
+
+  @@index([userId])
+  @@index([dreamId])
+}
+
+model Scenario {
+  id           Int                @id @default(autoincrement())
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime?          @default(now()) @updatedAt
+  userId       Int                @default(10)
+  dreamId      Int?
+  title        String             @db.VarChar(255)
+  subtitle     String?            @db.VarChar(512)
+  description  String?            @db.Text
+  prompt       String?            @db.Text
+  outputType   ScenarioOutputType @default(STORY)
+  imagePath    String?            @db.VarChar(764)
+  cardPath     String?            @db.VarChar(764)
+  isPublic     Boolean            @default(true)
+  isMature     Boolean            @default(false)
+  isActive     Boolean            @default(true)
+  User         User               @relation(fields: [userId], references: [id])
+  Dream        Dream?             @relation("DreamToScenario", fields: [dreamId], references: [id])
+  Chats        Chat[]
+  Reactions    Reaction[]
+  Compositions Composition[]
+
+  @@index([userId])
+  @@index([dreamId])
+}
+
+model Theme {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
+  userId      Int        @default(10)
+  name        String     @unique @db.VarChar(255)
+  description String?    @db.Text
+  palette     String?    @db.Text
+  isPublic    Boolean    @default(true)
+  isActive    Boolean    @default(true)
+  User        User       @relation(fields: [userId], references: [id])
+  Reactions   Reaction[]
+
+  @@index([userId])
+}
+
+model User {
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @default(now()) @updatedAt
+  username          String        @unique @db.VarChar(255)
+  email             String?       @unique @db.VarChar(255)
+  passwordHash      String?       @db.VarChar(255)
+  Role              Role          @default(GUEST)
+  bio               String?       @db.Text
+  avatarImage       String?       @db.VarChar(764)
+  cardPath          String?       @db.VarChar(764)
+  imagePath         String?       @db.VarChar(764)
+  mana              Int           @default(1000)
+  isPublic          Boolean       @default(true)
+  isMature          Boolean       @default(false)
+  isActive          Boolean       @default(true)
+  ArtImages         ArtImage[]
+  ArtCollections    ArtCollection[]
+  ArtPrompts        ArtPrompt[]
+  Bots              Bot[]
+  Butterflies       Butterfly[]
+  Characters        Character[]
+  Chats             Chat[]
+  Compositions      Composition[]
+  Dreams            Dream[]
+  ManaLedger        ManaLedger[]
+  Pitches           Pitch[]
+  Posts             Post[]
+  Prompts           Prompt[]
+  Reactions         Reaction[]
+  Rewards           Reward[]
+  Scenarios         Scenario[]
+  Themes            Theme[]
+  UserRelations     Relation[]    @relation("UserRelations")
+  TargetRelations   Relation[]    @relation("TargetRelations")
+  SocialLinks       SocialLink[]
+}
+
+model SocialLink {
+  id         Int            @id @default(autoincrement())
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime?      @default(now()) @updatedAt
+  userId     Int
+  platform   SocialPlatform
+  handle     String         @db.VarChar(255)
+  url        String?        @db.VarChar(764)
+  isPublic   Boolean        @default(true)
+  User       User           @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+enum DreamRelationType {
+  IS_A
+  APPEARS_IN
+  CONTAINS
+  RELATED
+  INSPIRED_BY
+}
+
+enum ExpressionKind {
+  EMOTION
+  ACTION
+}
+
+enum Expression_ {
+  NEUTRAL
+  JOYFUL
+  SORROWFUL
+  AFRAID
+  DISGUSTED
+  ENRAGED
+  SURPRISED
+  ANXIOUS
+  PROUD
+  LOVING
+  LAUGHING
+  CRYING
+  SLEEPING
+  THINKING
+  SHRUGGING
+  WINKING
+  FACEPALMING
+  CHEERING
+  WHISPERING
+  SHOUTING
+  CUSTOM
+}
+
+enum ManaReason {
+  SIGNUP_BONUS
+  CYCLE_REFILL
+  GENERATION_ART
+  GENERATION_TEXT
+  SOCIAL_REACTION
+  SOCIAL_SHARE
+  BOUNTY_CREATE
+  BOUNTY_REWARD
+  PURCHASE
+  SUBSCRIPTION_GRANT
+  ADMIN_REFUND
+  KARMA_CONVERSION
+  ADJUSTMENT
+}
+
+enum ScenarioOutputType {
+  STORY
+  ART
+  CHARACTER
+  REWARD
+  DREAM
+  SCENARIO
+  MIXED
+}
+
+enum SocialPlatform {
+  DISCORD
+  MASTODON
+  BLUESKY
+  REDDIT
+  FACEBOOK
+  INSTAGRAM
+  RSS
+}
+
+enum PostAudience {
+  PUBLIC
+  SOCIAL
+  WORK
+  FRIENDS
+  FAMILY
+  PRIVATE
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+}
+
+enum TargetStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+  COPIED
+}
+
+enum RelationType {
+  FRIEND
+  BLOCK
+  PARENT
+  CHILD
+  REFEREE
+}
+
+enum RelationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum ResourceType {
+  CHECKPOINT
+  EMBEDDING
+  LORA
+  LYCORIS
+  HYPERNETWORK
+  SAMPLER
+  CONTROLNET
+  URL
+  API
+}
+
+enum RewardType {
+  SKILL
+  ITEM
+  POWER
+  PET
+  MAGIC
+  FAVOR
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+  MYTHIC
+}
+
+enum ReactionType {
+  LOVED
+  CLAPPED
+  BOOED
+  HATED
+  NEUTRAL
+  FLAGGED
+}
+
+enum Role {
+  SYSTEM
+  USER
+  ASSISTANT
+  ADMIN
+  GUEST
+  BOT
+  DESIGNER
+  CHILD
+  FAMILY
+}
+
+enum ChatType {
+  ToBot
+  BotResponse
+  ToForum
+  ToUser
+  ToCharacter
+  Weirdlandia
+  Dream
+  Reward
+  Story
+  Scenario
+  Character
+  Bot
+}
+
+enum DreamType {
+  ART
+  BRAINSTORM
+  PROMPTBOT
+  NARRATOR
+  CHARACTER
+  PROJECT
+  REWARD
+  SCENARIO
+  LOCATION
+  PITCH
+  GENRE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  DONE
+  ARCHIVED
+  BRAINSTORM
+}
+
+enum DreamPriority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+enum CreationSource {
+  HUMAN
+  AI
+  HYBRID
+  UPLOAD
+  UNKNOWN
+}
+
+enum ServerType {
+  A1111
+  COMFY
+  OPENAI
+  ANTHROPIC
+  OLLAMA
+  CUSTOM
+}
+
+enum ServerAccessMode {
+  BROWSER
+  BACKEND
+  TAILSCALE
+  PUBLIC
+  LOCAL
+}
+
+enum ServerAuthType {
+  NONE
+  BEARER
+  HEADER
+  QUERY
+  API_KEY
+}
+
+enum ServerStatus {
+  ONLINE
+  OFFLINE
+  DEGRADED
+  UNKNOWN
+}
+
+enum SupportedServer {
+  SD15
+  SDXL
+  COMFY
+  FLUX
+  KONTEXT
+  GENERIC
+  UNKNOWN
+  OPENAI
+}
+
+enum CreationSource_ {
+  HUMAN
+  AI
+  HYBRID
+  UPLOAD
+  UNKNOWN
+}

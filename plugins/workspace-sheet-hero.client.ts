@@ -5,7 +5,8 @@ import { usePageStore } from '@/stores/pageStore'
 import { useSheetStore } from '@/stores/sheetStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
-const PROJECT_IMAGE_BASE = 'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
+const PROJECT_IMAGE_BASE =
+  'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 const WORKSPACE_OVERVIEW_HERO = '/images/dashboard-tabs/wonder/workspace.webp'
 
 type SheetProfile = {
@@ -40,11 +41,17 @@ function recordValue(value: unknown): ImageRecord | null {
     : null
 }
 
-function conductorImagePath(slug: string, kind: 'icon' | 'card' | 'hero'): string {
+function conductorImagePath(
+  slug: string,
+  kind: 'icon' | 'card' | 'hero',
+): string {
   return slug ? `${PROJECT_IMAGE_BASE}/${slug}-${kind}.webp` : ''
 }
 
-function dreamImagePath(dream: DreamWithRelations | null, slug: string): string {
+function dreamImagePath(
+  dream: DreamWithRelations | null,
+  slug: string,
+): string {
   const artImage = recordValue(dream?.ArtImage)
   const firstArtImage = recordValue(dream?.ArtImages?.[0])
 
@@ -121,7 +128,10 @@ function overviewProfile(card: BuilderCard | null): SheetProfile {
   }
 }
 
-function brainstormProfile(card: BuilderCard | null, dream: DreamWithRelations | null): SheetProfile {
+function brainstormProfile(
+  card: BuilderCard | null,
+  dream: DreamWithRelations | null,
+): SheetProfile {
   return {
     ...profileFromDream('brainstorm', card, dream),
     label: firstString([card?.label, 'Brainstorm']),
@@ -151,7 +161,8 @@ export default defineNuxtPlugin(() => {
     return (
       route.path === '/conductor' ||
       route.path === '/workspace' ||
-      (pageStore.dashboardKey === 'wonder' && pageStore.dashboardTab === 'workspace')
+      (pageStore.dashboardKey === 'wonder' &&
+        pageStore.dashboardTab === 'workspace')
     )
   })
 
@@ -162,7 +173,11 @@ export default defineNuxtPlugin(() => {
   })
 
   const activeDream = computed(() => {
-    return dreamStore.projectDreams.find((dream) => dream.slug === activeKey.value) ?? null
+    return (
+      dreamStore.projectDreams.find(
+        (dream) => dream.slug === activeKey.value,
+      ) ?? null
+    )
   })
 
   const sheetProfile = computed<SheetProfile | null>(() => {
@@ -176,7 +191,11 @@ export default defineNuxtPlugin(() => {
       return brainstormProfile(activeCard.value, activeDream.value)
     }
 
-    return profileFromDream(activeKey.value, activeCard.value, activeDream.value)
+    return profileFromDream(
+      activeKey.value,
+      activeCard.value,
+      activeDream.value,
+    )
   })
 
   watch(
@@ -185,14 +204,14 @@ export default defineNuxtPlugin(() => {
       const currentSource = sheetStore.override?.source ?? ''
 
       if (!profile) {
-        if (currentSource.startsWith('workspace-page:')) {
+        if (currentSource.startsWith('conductor-page:')) {
           sheetStore.clearSheet(currentSource)
         }
         return
       }
 
       sheetStore.setSheet({
-        source: `workspace-page:${profile.key}`,
+        source: `conductor-page:${profile.key}`,
         label: profile.label,
         title: profile.title,
         narrative: profile.narrative,

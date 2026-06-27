@@ -382,6 +382,41 @@ export const dashboardConfigs = {
     ],
   },
 
+  conductor: {
+    key: 'conductor',
+    label: 'Conductor',
+    defaultTab: 'conductor',
+    tabs: [
+      {
+        key: 'conductor',
+        label: 'Conductor',
+        icon: 'kind-icon:gearhammer',
+        title: 'Conductor',
+        summary: 'Private control panel for the Conductor agent network.',
+        image: tabImage('conductor', 'conductor'),
+        flourish: '⚙',
+        tagline: 'Steer the agents, vote on pitches, see what needs you.',
+        narrative:
+          'The private cockpit for the Conductor loop: project progress, pitches awaiting your vote, and what needs a human.',
+        route: '/conductor',
+      },
+      {
+        key: 'portos',
+        label: 'PortOS',
+        icon: 'kind-icon:portal',
+        title: 'PortOS',
+        summary: 'Private control panel for Port OS by atomantic',
+        image: tabImage('conductor', 'portos'),
+        flourish: '⚙',
+        tagline:
+          'Handle your AI agents with a massive control panel in one location',
+        narrative:
+          'Port OS was developed by Adam Eivy and is an extensive toolset of LLM tools for the purpose of story, comic, and video creation, as well as autonomous agents and a wealth of other services.',
+        route: '/conductor',
+      },
+    ],
+  },
+
   dream: {
     key: 'dream',
     label: 'Dream',
@@ -898,20 +933,6 @@ export const dashboardConfigs = {
         narrative:
           'Control the screen-effect layer, including matrix rain, firefly drift, butterflies, and ambient theater.',
         route: '/screenfx',
-      },
-      {
-        key: 'workspace',
-        label: 'Workspace',
-        icon: 'kind-icon:gearhammer',
-        title: 'Conductor Workspace',
-        summary: 'Private control panel for the Conductor agent network.',
-        image: tabImage('wonder', 'workspace'),
-        flourish: '⚙',
-        tagline: 'Steer the agents, vote on pitches, see what needs you.',
-        narrative:
-          'The private cockpit for the Conductor loop: project progress, pitches awaiting your vote, and what needs a human. Admin only.',
-        route: '/wonderlab',
-        requiredRole: 'ADMIN',
       },
     ],
   },

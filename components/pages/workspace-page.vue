@@ -46,7 +46,7 @@
       <div v-if="data" class="flex min-h-0 flex-1 flex-col overflow-y-auto">
 
         <!-- OVERVIEW -->
-        <div v-if="viewMode === 'overview'" class="flex flex-col gap-4 pb-4">
+        <div v-if="viewMode === 'overview'" class="flex flex-col gap-6 pb-4">
           <div class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
             <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
               <p class="text-2xl font-black text-primary">{{ activeProjects.length }}</p>
@@ -56,59 +56,48 @@
               <p class="text-2xl font-black text-success">{{ totalDone }}</p>
               <p class="text-xs font-semibold text-base-content/60">Tasks Done</p>
             </div>
-            <button
-              type="button"
-              class="rounded-2xl border px-4 py-3 text-left transition-colors"
-              :class="todoStore.openTodos.length ? 'cursor-pointer border-primary/40 bg-primary/5 hover:border-primary/60' : 'border-base-300 bg-base-200'"
-              @click="goTo('tasks')"
-            >
+            <button type="button" class="rounded-2xl border px-4 py-3 text-left transition-colors" :class="todoStore.openTodos.length ? 'cursor-pointer border-primary/40 bg-primary/5 hover:border-primary/60' : 'border-base-300 bg-base-200'" @click="goTo('tasks')">
               <p class="text-2xl font-black text-primary">{{ todoStore.openTodos.length }}</p>
-              <p class="text-xs font-semibold text-base-content/60">
-                Open Tasks
-                <Icon v-if="todoStore.openTodos.length" name="kind-icon:chevron-right" class="ml-0.5 inline size-3" />
-              </p>
+              <p class="text-xs font-semibold text-base-content/60">Open Tasks <Icon v-if="todoStore.openTodos.length" name="kind-icon:chevron-right" class="ml-0.5 inline size-3" /></p>
             </button>
-            <button
-              type="button"
-              class="rounded-2xl border px-4 py-3 text-left transition-colors"
-              :class="hasBrainstormContent ? 'cursor-pointer border-secondary/60 bg-secondary/10 hover:border-secondary' : 'border-base-300 bg-base-200'"
-              :disabled="!hasBrainstormContent"
-              @click="goTo('brainstorm')"
-            >
+            <button type="button" class="rounded-2xl border px-4 py-3 text-left transition-colors" :class="hasBrainstormContent ? 'cursor-pointer border-secondary/60 bg-secondary/10 hover:border-secondary' : 'border-base-300 bg-base-200'" :disabled="!hasBrainstormContent" @click="goTo('brainstorm')">
               <p class="text-2xl font-black text-secondary">{{ pendingPitches.length + brainstormProjects.length }}</p>
-              <p class="text-xs font-semibold text-base-content/60">
-                Brainstorm
-                <Icon v-if="hasBrainstormContent" name="kind-icon:chevron-right" class="ml-0.5 inline size-3" />
-              </p>
+              <p class="text-xs font-semibold text-base-content/60">Brainstorm <Icon v-if="hasBrainstormContent" name="kind-icon:chevron-right" class="ml-0.5 inline size-3" /></p>
             </button>
           </div>
 
-          <div v-if="activeProjects.length" class="space-y-2">
+          <div v-if="activeProjects.length" class="space-y-3">
             <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Active Projects</h3>
-            <div class="grid gap-2 sm:grid-cols-2">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <button
-                v-for="project in activeProjects"
+                v-for="project in sortedActiveProjects"
                 :key="project.slug"
                 type="button"
-                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-primary/5"
+                class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition-all hover:border-primary/50 hover:shadow-lg"
+                style="aspect-ratio: 2/3"
                 @click="selectProject(project.slug)"
               >
-                <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border" :class="kindIconClass(project.kind)">
-                  <img v-if="projectDreamForSlug(project.slug)?.imagePath" :src="projectDreamForSlug(project.slug)!.imagePath!" :alt="project.name" class="h-full w-full object-cover" />
-                  <div v-else class="flex h-full w-full items-center justify-center">
-                    <Icon :name="kindIcon(project.kind)" class="size-5" />
-                  </div>
+                <img v-if="projectDreamForSlug(project.slug)?.cardPath" :src="projectDreamForSlug(project.slug)!.cardPath!" :alt="project.name" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <div v-else class="absolute inset-0 flex items-center justify-center" :class="kindBgGradient(project.kind)">
+                  <Icon :name="kindIcon(project.kind)" class="size-16 opacity-20" />
                 </div>
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-bold">{{ project.name || project.slug }}</p>
-                  <div class="mt-1 h-1 overflow-hidden rounded-full bg-base-300">
-                    <div class="h-full rounded-full" :class="kindProgressClass(project.kind)" :style="{ width: `${project.progress}%` }" />
-                  </div>
+                <div class="absolute left-2 top-2">
+                  <span class="badge badge-sm font-bold" :class="priorityBadgeClass(getProjectPriority(projectDreamForSlug(project.slug)?.id))">{{ getProjectPriority(projectDreamForSlug(project.slug)?.id) }}</span>
                 </div>
-                <div class="flex shrink-0 flex-col items-end gap-1">
-                  <span class="text-xs text-base-content/50">{{ project.progress }}%</span>
-                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-xs">{{ blockedCount(project) }} blocked</span>
-                  <span v-else-if="needsHumanCount(project) > 0" class="badge badge-accent badge-xs">{{ needsHumanCount(project) }} need you</span>
+                <div v-if="blockedCount(project) > 0 || needsHumanCount(project) > 0" class="absolute right-2 top-2">
+                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-sm">{{ blockedCount(project) }} blocked</span>
+                  <span v-else class="badge badge-accent badge-sm">{{ needsHumanCount(project) }} need you</span>
+                </div>
+                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8">
+                  <div class="flex items-center gap-2">
+                    <img v-if="projectDreamForSlug(project.slug)?.imagePath" :src="projectDreamForSlug(project.slug)!.imagePath!" :alt="" class="size-7 shrink-0 rounded-lg border border-white/20 object-cover" />
+                    <div v-else class="flex size-7 shrink-0 items-center justify-center rounded-lg" :class="kindIconClass(project.kind)"><Icon :name="kindIcon(project.kind)" class="size-4" /></div>
+                    <p class="min-w-0 truncate text-sm font-bold leading-tight">{{ project.name || project.slug }}</p>
+                  </div>
+                  <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-base-content/20">
+                    <div class="h-full rounded-full transition-all" :class="kindProgressClass(project.kind)" :style="{ width: `${project.progress}%` }" />
+                  </div>
+                  <p class="mt-1 text-right text-xs font-semibold text-base-content/60">{{ project.progress }}%</p>
                 </div>
               </button>
             </div>
@@ -118,310 +107,182 @@
         <!-- TASKS -->
         <div v-else-if="viewMode === 'tasks'" class="flex flex-col gap-4 pb-4">
           <div class="flex items-center gap-2">
-            <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="goToOverview">
-              <Icon name="kind-icon:chevron-left" class="size-4" /> Overview
-            </button>
+            <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="goToOverview"><Icon name="kind-icon:chevron-left" class="size-4" /> Overview</button>
             <h3 class="text-sm font-bold">Tasks</h3>
             <span v-if="todoStore.openTodos.length" class="badge badge-primary badge-sm">{{ todoStore.openTodos.length }} open</span>
             <span v-if="todoStore.loading" class="loading loading-spinner loading-xs ml-auto text-primary" />
           </div>
-
-          <!-- Quick add -->
-          <form class="flex gap-2" @submit.prevent="submitNewTodo">
-            <input
-              v-model="newTodoTitle"
-              type="text"
-              placeholder="Add a task..."
-              class="input input-bordered input-sm flex-1 rounded-xl"
-              :disabled="todoStore.loading"
-            />
-            <select v-model="newTodoPriority" class="select select-bordered select-sm rounded-xl">
-              <option value="HIGH">High</option>
-              <option value="NORMAL">Normal</option>
-              <option value="LOW">Low</option>
-            </select>
-            <button type="submit" class="btn btn-primary btn-sm rounded-xl" :disabled="!newTodoTitle.trim() || todoStore.loading">
-              Add
-            </button>
+          <form class="rounded-2xl border border-base-300 bg-base-100 p-4 space-y-3" @submit.prevent="submitNewTodo">
+            <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">New Task</h4>
+            <input v-model="newTodoTitle" type="text" placeholder="What needs doing?" class="input input-bordered w-full rounded-xl" :disabled="todoStore.loading" />
+            <textarea v-model="newTodoDescription" placeholder="Context for the agent — project name, specific instructions, relevant files..." class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed" rows="3" :disabled="todoStore.loading" />
+            <div class="flex items-center gap-2">
+              <select v-model="newTodoPriority" class="select select-bordered select-sm rounded-xl">
+                <option value="HIGH">🔴 High priority</option>
+                <option value="NORMAL">🟡 Normal priority</option>
+                <option value="LOW">🟢 Low priority</option>
+              </select>
+              <button type="submit" class="btn btn-primary btn-sm ml-auto rounded-xl" :disabled="!newTodoTitle.trim() || todoStore.loading">
+                <Icon name="kind-icon:plus" class="size-4" /> Add Task
+              </button>
+            </div>
           </form>
-
-          <!-- Filter tabs -->
           <div role="tablist" class="tabs tabs-boxed w-fit">
-            <button
-              v-for="f in todoFilterOptions"
-              :key="f"
-              type="button"
-              role="tab"
-              class="tab text-xs"
-              :class="todoFilter === f ? 'tab-active' : ''"
-              @click="todoFilter = f"
-            >
+            <button v-for="f in todoFilterOptions" :key="f" type="button" role="tab" class="tab text-xs" :class="todoFilter === f ? 'tab-active' : ''" @click="todoFilter = f">
               {{ f.charAt(0) + f.slice(1).toLowerCase() }}
-              <span v-if="f === 'OPEN' && todoStore.openTodos.length" class="ml-1 badge badge-xs badge-primary">
-                {{ todoStore.openTodos.length }}
-              </span>
+              <span v-if="f === 'OPEN' && todoStore.openTodos.length" class="ml-1 badge badge-xs badge-primary">{{ todoStore.openTodos.length }}</span>
             </button>
           </div>
-
-          <!-- List -->
           <div class="space-y-2">
-            <div
-              v-if="todoStore.loading && !filteredTodos.length"
-              v-for="n in 3"
-              :key="n"
-              class="h-12 animate-pulse rounded-2xl border border-base-300 bg-base-200"
-            />
-
-            <div
-              v-for="todo in filteredTodos"
-              :key="todo.id"
-              class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-2.5 transition-colors"
-              :class="todo.status === 'DONE' ? 'opacity-60' : ''"
-            >
-              <button
-                type="button"
-                class="shrink-0 transition-colors"
-                :class="todo.status === 'DONE' ? 'text-success' : 'text-base-content/30 hover:text-success'"
-                @click="todoStore.toggleDone(todo)"
-              >
-                <Icon :name="todo.status === 'DONE' ? 'kind-icon:check-circle' : 'kind-icon:circle'" class="size-5" />
-              </button>
-
-              <span class="min-w-0 flex-1 truncate text-sm" :class="todo.status === 'DONE' ? 'line-through text-base-content/40' : ''">
-                {{ todo.title }}
-              </span>
-
-              <span v-if="todo.priority === 'HIGH'" class="badge badge-error badge-xs shrink-0">high</span>
-              <span v-else-if="todo.priority === 'LOW'" class="badge badge-ghost badge-xs shrink-0">low</span>
-
-              <div class="flex shrink-0 gap-1">
-                <button
-                  v-if="todo.status !== 'ARCHIVED'"
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
-                  title="Archive"
-                  @click="todoStore.archiveTodo(todo.id)"
-                >
-                  <Icon name="kind-icon:archive" class="size-3" />
+            <div v-if="todoStore.loading && !filteredTodos.length" v-for="n in 3" :key="n" class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200" />
+            <div v-for="todo in filteredTodos" :key="todo.id" class="flex flex-col gap-1 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 transition-colors" :class="todo.status === 'DONE' ? 'opacity-60' : ''">
+              <div class="flex items-center gap-3">
+                <button type="button" class="shrink-0 transition-colors" :class="todo.status === 'DONE' ? 'text-success' : 'text-base-content/30 hover:text-success'" @click="todoStore.toggleDone(todo)">
+                  <Icon :name="todo.status === 'DONE' ? 'kind-icon:check-circle' : 'kind-icon:circle'" class="size-5" />
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
-                  title="Delete"
-                  @click="todoStore.deleteTodo(todo.id)"
-                >
-                  <Icon name="kind-icon:x" class="size-3" />
-                </button>
+                <span class="min-w-0 flex-1 truncate text-sm font-medium" :class="todo.status === 'DONE' ? 'line-through text-base-content/40' : ''">{{ todo.title }}</span>
+                <span v-if="todo.priority === 'HIGH'" class="badge badge-error badge-xs shrink-0">🔴 high</span>
+                <span v-else-if="todo.priority === 'LOW'" class="badge badge-ghost badge-xs shrink-0">🟢 low</span>
+                <div class="flex shrink-0 gap-1">
+                  <button v-if="todo.status !== 'ARCHIVED'" type="button" class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content" title="Archive" @click="todoStore.archiveTodo(todo.id)"><Icon name="kind-icon:archive" class="size-3" /></button>
+                  <button type="button" class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error" title="Delete" @click="todoStore.deleteTodo(todo.id)"><Icon name="kind-icon:x" class="size-3" /></button>
+                </div>
               </div>
+              <p v-if="todo.description" class="ml-8 text-xs leading-relaxed text-base-content/50">{{ todo.description }}</p>
             </div>
-
-            <p v-if="!todoStore.loading && !filteredTodos.length" class="py-6 text-center text-sm text-base-content/50">
-              No {{ todoFilter.toLowerCase() }} tasks.
-            </p>
+            <p v-if="!todoStore.loading && !filteredTodos.length" class="py-6 text-center text-sm text-base-content/50">No {{ todoFilter.toLowerCase() }} tasks.</p>
           </div>
         </div>
 
         <!-- BRAINSTORM -->
         <div v-else-if="viewMode === 'brainstorm'" class="flex flex-col gap-4 pb-4">
           <div class="flex items-center gap-2">
-            <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="goToOverview">
-              <Icon name="kind-icon:chevron-left" class="size-4" /> Overview
-            </button>
+            <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="goToOverview"><Icon name="kind-icon:chevron-left" class="size-4" /> Overview</button>
             <h3 class="text-sm font-bold">Brainstorm</h3>
           </div>
-
           <div v-if="brainstormProjects.length" class="space-y-2">
             <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Future Project Ideas</h4>
-            <div class="grid gap-2 sm:grid-cols-2">
-              <button
-                v-for="project in brainstormProjects"
-                :key="project.slug"
-                type="button"
-                class="flex items-center gap-3 rounded-2xl border border-secondary/30 bg-secondary/5 px-4 py-3 text-left transition-colors hover:border-secondary/60"
-                @click="selectProject(project.slug)"
-              >
-                <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-secondary/30 bg-secondary/10">
-                  <img v-if="projectDreamForSlug(project.slug)?.imagePath" :src="projectDreamForSlug(project.slug)!.imagePath!" :alt="project.name" class="h-full w-full object-cover" />
-                  <div v-else class="flex h-full w-full items-center justify-center text-secondary">
-                    <Icon :name="kindIcon(project.kind)" class="size-5" />
-                  </div>
-                </div>
-                <div class="min-w-0 flex-1">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <button v-for="project in brainstormProjects" :key="project.slug" type="button" class="group relative overflow-hidden rounded-2xl border border-secondary/30 bg-secondary/5 text-left transition-all hover:border-secondary/60 hover:shadow-lg" style="aspect-ratio: 2/3" @click="selectProject(project.slug)">
+                <img v-if="projectDreamForSlug(project.slug)?.cardPath" :src="projectDreamForSlug(project.slug)!.cardPath!" :alt="project.name" class="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-300 group-hover:scale-105" />
+                <div v-else class="absolute inset-0 bg-gradient-to-br from-secondary/20 to-secondary/5" />
+                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8">
                   <p class="truncate text-sm font-bold">{{ project.name || project.slug }}</p>
                   <p class="text-xs text-base-content/50">{{ projectDreamForSlug(project.slug)?.flavorText ?? 'Future project' }}</p>
+                  <span class="badge badge-secondary badge-xs mt-1">brainstorm</span>
                 </div>
-                <span class="badge badge-secondary badge-xs shrink-0">brainstorm</span>
               </button>
             </div>
           </div>
-
           <div v-if="allPitches.length" class="space-y-2">
-            <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
-              Pitches Awaiting Vote
-              <span v-if="pendingPitches.length" class="ml-1 badge badge-warning badge-xs">{{ pendingPitches.length }} pending</span>
-            </h4>
+            <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Pitches Awaiting Vote <span v-if="pendingPitches.length" class="ml-1 badge badge-warning badge-xs">{{ pendingPitches.length }} pending</span></h4>
             <div class="grid gap-4 sm:grid-cols-2">
-              <article
-                v-for="pitch in allPitches"
-                :key="pitch.slug"
-                class="flex flex-col gap-3 rounded-2xl border p-4 transition-shadow"
-                :class="pitchArticleClass(pitch.slug)"
-              >
+              <article v-for="pitch in allPitches" :key="pitch.slug" class="flex flex-col gap-3 rounded-2xl border p-4 transition-shadow" :class="pitchArticleClass(pitch.slug)">
                 <div class="flex items-start justify-between gap-2">
                   <h4 class="font-bold leading-tight">{{ pitch.title }}</h4>
-                  <span class="badge badge-sm shrink-0" :class="pitchVotedChoice(pitch.slug) ? 'badge-ghost' : 'badge-warning'">
-                    {{ pitchVotedChoice(pitch.slug) ?? 'vote' }}
-                  </span>
+                  <span class="badge badge-sm shrink-0" :class="pitchVotedChoice(pitch.slug) ? 'badge-ghost' : 'badge-warning'">{{ pitchVotedChoice(pitch.slug) ?? 'vote' }}</span>
                 </div>
-                <p v-if="pitch.projectTarget" class="text-xs text-base-content/50">
-                  <Icon name="kind-icon:folder" class="mr-0.5 inline size-3" />
-                  {{ pitch.projectTarget }}
-                  <span v-if="pitch.date" class="ml-2">&middot; {{ pitch.date }}</span>
-                </p>
+                <p v-if="pitch.projectTarget" class="text-xs text-base-content/50"><Icon name="kind-icon:folder" class="mr-0.5 inline size-3" />{{ pitch.projectTarget }}<span v-if="pitch.date" class="ml-2">&middot; {{ pitch.date }}</span></p>
                 <div v-if="editingPitchSlug === pitch.slug" class="flex flex-col gap-2">
                   <textarea v-model="pitchEditTexts[pitch.slug]" class="textarea textarea-bordered rounded-xl text-sm" rows="4" />
-                  <div class="flex justify-end gap-2">
-                    <button type="button" class="btn btn-ghost btn-xs rounded-xl" @click="editingPitchSlug = ''">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-xs rounded-xl" @click="editingPitchSlug = ''">Done</button>
-                  </div>
+                  <div class="flex justify-end gap-2"><button type="button" class="btn btn-ghost btn-xs rounded-xl" @click="editingPitchSlug = ''">Cancel</button><button type="button" class="btn btn-primary btn-xs rounded-xl" @click="editingPitchSlug = ''">Done</button></div>
                 </div>
                 <div v-else class="group/idea relative">
                   <p class="text-sm text-base-content/75">{{ pitchEditTexts[pitch.slug] ?? pitch.idea }}</p>
-                  <button type="button" class="btn btn-ghost btn-xs absolute right-0 top-0 rounded-lg opacity-0 transition-opacity group-hover/idea:opacity-100" @click="startEditPitch(pitch)">
-                    <Icon name="kind-icon:edit" class="size-3" />
-                  </button>
+                  <button type="button" class="btn btn-ghost btn-xs absolute right-0 top-0 rounded-lg opacity-0 transition-opacity group-hover/idea:opacity-100" @click="startEditPitch(pitch)"><Icon name="kind-icon:edit" class="size-3" /></button>
                 </div>
                 <p v-if="pitch.whyDoIt" class="text-xs italic text-base-content/50">{{ pitch.whyDoIt }}</p>
                 <div v-if="!pitchVotedChoice(pitch.slug)" class="flex gap-2 pt-1">
-                  <button type="button" class="btn btn-success btn-sm flex-1 gap-1 rounded-xl" @click="voteOnPitch(pitch.slug, 'approved')">
-                    <Icon name="kind-icon:check" class="size-3.5" /> Approve
-                  </button>
-                  <button type="button" class="btn btn-ghost btn-sm flex-1 gap-1 rounded-xl border border-base-300" @click="voteOnPitch(pitch.slug, 'passed')">
-                    <Icon name="kind-icon:x" class="size-3.5" /> Pass
-                  </button>
+                  <button type="button" class="btn btn-success btn-sm flex-1 gap-1 rounded-xl" @click="voteOnPitch(pitch.slug, 'approved')"><Icon name="kind-icon:check" class="size-3.5" /> Approve</button>
+                  <button type="button" class="btn btn-ghost btn-sm flex-1 gap-1 rounded-xl border border-base-300" @click="voteOnPitch(pitch.slug, 'passed')"><Icon name="kind-icon:x" class="size-3.5" /> Pass</button>
                 </div>
                 <div v-else class="flex items-center justify-between pt-1">
-                  <span class="text-xs font-semibold" :class="pitchVotedChoice(pitch.slug) === 'approved' ? 'text-success' : 'text-base-content/40'">
-                    <Icon :name="pitchVotedChoice(pitch.slug) === 'approved' ? 'kind-icon:check' : 'kind-icon:x'" class="mr-1 inline size-3" />
-                    {{ pitchVotedChoice(pitch.slug) === 'approved' ? 'Approved' : 'Passed' }}
-                  </span>
+                  <span class="text-xs font-semibold" :class="pitchVotedChoice(pitch.slug) === 'approved' ? 'text-success' : 'text-base-content/40'"><Icon :name="pitchVotedChoice(pitch.slug) === 'approved' ? 'kind-icon:check' : 'kind-icon:x'" class="mr-1 inline size-3" />{{ pitchVotedChoice(pitch.slug) === 'approved' ? 'Approved' : 'Passed' }}</span>
                   <button type="button" class="btn btn-ghost btn-xs rounded-xl" @click="clearVote(pitch.slug)">Undo</button>
                 </div>
               </article>
             </div>
           </div>
-
-          <p v-if="!allPitches.length && !brainstormProjects.length" class="py-8 text-center text-sm text-base-content/50">
-            Nothing in the brainstorm queue.
-          </p>
+          <p v-if="!allPitches.length && !brainstormProjects.length" class="py-8 text-center text-sm text-base-content/50">Nothing in the brainstorm queue.</p>
         </div>
 
         <!-- PROJECT DETAIL -->
         <div v-else-if="selectedProject" class="flex flex-col gap-4 pb-4">
-          <div class="flex shrink-0 items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3">
-            <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border" :class="kindIconClass(selectedProject.kind)">
-              <img v-if="linkedDream?.imagePath" :src="linkedDream.imagePath" :alt="selectedProject.name" class="h-full w-full object-cover" />
-              <div v-else class="flex h-full w-full items-center justify-center">
-                <Icon :name="kindIcon(selectedProject.kind)" class="size-5" />
+          <div class="relative overflow-hidden rounded-2xl" style="min-height: 180px">
+            <img v-if="linkedDream?.heroPath" :src="linkedDream.heroPath" :alt="selectedProject.name" class="absolute inset-0 h-full w-full object-cover" />
+            <div v-else class="absolute inset-0" :class="kindBgGradient(selectedProject.kind)" />
+            <div class="absolute inset-0 bg-gradient-to-t from-base-300/90 via-base-300/30 to-transparent" />
+            <button class="absolute left-3 top-3 btn btn-ghost btn-sm rounded-xl bg-base-300/60 backdrop-blur-sm" type="button" @click="goToOverview"><Icon name="kind-icon:chevron-left" class="size-4" /> Back</button>
+            <div class="absolute inset-x-0 bottom-0 flex items-end gap-4 p-4">
+              <div class="relative size-16 shrink-0 overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl">
+                <img v-if="linkedDream?.imagePath" :src="linkedDream.imagePath" :alt="selectedProject.name" class="h-full w-full object-cover" />
+                <div v-else class="flex h-full w-full items-center justify-center" :class="kindIconClass(selectedProject.kind)"><Icon :name="kindIcon(selectedProject.kind)" class="size-8" /></div>
               </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="truncate text-xl font-black leading-tight">{{ selectedProject.name || selectedProject.slug }}</h3>
+                <p class="text-xs text-base-content/60">{{ selectedProject.progress }}% complete &middot; {{ selectedProject.tasks.length }} tasks</p>
+              </div>
+              <span v-if="linkedDream?.projectStatus === 'BRAINSTORM'" class="badge badge-secondary badge-sm shrink-0">brainstorm</span>
+              <span v-else class="badge badge-sm shrink-0" :class="kindBadgeClass(selectedProject.kind)">{{ selectedProject.kind }}</span>
             </div>
-            <div class="min-w-0 flex-1">
-              <h3 class="truncate text-lg font-black">{{ selectedProject.name || selectedProject.slug }}</h3>
-              <p class="text-xs text-base-content/50">{{ selectedProject.progress }}% complete &middot; {{ selectedProject.tasks.length }} tasks</p>
-            </div>
-            <span v-if="linkedDream?.projectStatus === 'BRAINSTORM'" class="badge badge-secondary badge-sm shrink-0">brainstorm</span>
-            <span v-else class="badge badge-sm shrink-0" :class="kindBadgeClass(selectedProject.kind)">{{ selectedProject.kind }}</span>
-            <button class="btn btn-ghost btn-sm rounded-xl" type="button" @click="goToOverview">
-              <Icon name="kind-icon:x" class="size-4" />
-            </button>
           </div>
 
           <div class="flex shrink-0 flex-wrap gap-2">
-            <span v-for="[status, count] in taskStatusSummary(selectedProject)" :key="status" class="badge badge-sm gap-1" :class="taskBadgeClass(status)">
-              <Icon :name="taskIcon(status)" class="size-3" />
-              {{ count }} {{ status }}
-            </span>
+            <span v-for="[status, count] in taskStatusSummary(selectedProject)" :key="status" class="badge badge-sm gap-1" :class="taskBadgeClass(status)"><Icon :name="taskIcon(status)" class="size-3" />{{ count }} {{ status }}</span>
+          </div>
+
+          <div v-if="linkedDream" class="flex shrink-0 flex-wrap items-center gap-2">
+            <select class="select select-bordered select-sm rounded-xl font-bold" :class="prioritySelectClass(getProjectPriority(linkedDream.id))" :value="getProjectPriority(linkedDream.id)" :disabled="dreamSaving" @change="handlePriorityChange">
+              <option value="HIGH">🔴 HIGH</option>
+              <option value="NORMAL">🟡 NORMAL</option>
+              <option value="LOW">🟢 LOW</option>
+            </select>
+            <select class="select select-bordered select-sm rounded-xl text-xs font-semibold" :value="linkedDream.projectStatus ?? 'ACTIVE'" :disabled="dreamSaving" @change="handleProjectStatusChange">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="PAUSED">PAUSED</option>
+              <option value="BRAINSTORM">BRAINSTORM</option>
+              <option value="DONE">DONE</option>
+              <option value="ARCHIVED">ARCHIVED</option>
+            </select>
+            <button type="button" class="btn btn-sm gap-1.5 rounded-xl" :class="linkedDream.isPublic ? 'btn-success' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ isPublic: !linkedDream.isPublic })"><Icon :name="linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'" class="size-3.5" />{{ linkedDream.isPublic ? 'Public' : 'Private' }}</button>
+            <button type="button" class="btn btn-sm gap-1.5 rounded-xl" :class="linkedDream.isMature ? 'btn-warning' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ isMature: !linkedDream.isMature })"><Icon name="kind-icon:warning" class="size-3.5" />{{ linkedDream.isMature ? 'Mature' : 'Safe' }}</button>
+            <button type="button" class="btn btn-sm gap-1.5 rounded-xl" :class="linkedDream.allowReviews ? 'btn-accent' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ allowReviews: !linkedDream.allowReviews })"><Icon name="kind-icon:chat" class="size-3.5" />{{ linkedDream.allowReviews ? 'Reviews On' : 'Reviews Off' }}</button>
+            <span v-if="dreamSaving" class="loading loading-spinner loading-xs self-center text-primary" />
+            <span v-if="dreamSaveMessage" class="self-center text-xs" :class="dreamSaveError ? 'text-error' : 'text-success'">{{ dreamSaveMessage }}</span>
           </div>
 
           <div v-if="linkedDream" class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4">
             <div class="flex items-center gap-2">
               <Icon name="kind-icon:dream" class="size-4 text-primary" />
-              <h4 class="flex-1 text-xs font-bold uppercase tracking-wide text-base-content/60">Project Intent</h4>
-              <button type="button" class="btn btn-ghost btn-xs gap-1 rounded-xl" @click="dreamEditMode = !dreamEditMode">
-                <Icon :name="dreamEditMode ? 'kind-icon:x' : 'kind-icon:edit'" class="size-3" />
-                {{ dreamEditMode ? 'Cancel' : 'Edit' }}
-              </button>
+              <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/60">Project Intent</h4>
+              <span class="ml-auto text-xs text-base-content/30">Click any field to edit — saves on blur</span>
             </div>
-
-            <div class="flex flex-wrap gap-2">
-              <button type="button" class="btn btn-sm gap-2 rounded-xl" :class="linkedDream.isPublic ? 'btn-success' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ isPublic: !linkedDream.isPublic })">
-                <Icon :name="linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'" class="size-3.5" />
-                {{ linkedDream.isPublic ? 'Public' : 'Private' }}
-              </button>
-              <button type="button" class="btn btn-sm gap-2 rounded-xl" :class="linkedDream.isMature ? 'btn-warning' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ isMature: !linkedDream.isMature })">
-                <Icon name="kind-icon:warning" class="size-3.5" />
-                {{ linkedDream.isMature ? 'Mature' : 'Safe' }}
-              </button>
-              <button type="button" class="btn btn-sm gap-2 rounded-xl" :class="linkedDream.allowReviews ? 'btn-accent' : 'btn-ghost border border-base-300'" :disabled="dreamSaving" @click="patchDream({ allowReviews: !linkedDream.allowReviews })">
-                <Icon name="kind-icon:chat" class="size-3.5" />
-                {{ linkedDream.allowReviews ? 'Reviews On' : 'Reviews Off' }}
-              </button>
-              <select class="select select-sm rounded-xl border-base-300 bg-base-200 text-xs font-semibold" :value="linkedDream.projectStatus ?? 'ACTIVE'" :disabled="dreamSaving" @change="handleProjectStatusChange">
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="PAUSED">PAUSED</option>
-                <option value="BRAINSTORM">BRAINSTORM</option>
-                <option value="DONE">DONE</option>
-                <option value="ARCHIVED">ARCHIVED</option>
-              </select>
-              <span v-if="dreamSaving" class="loading loading-spinner loading-xs self-center text-primary" />
-              <span v-if="dreamSaveMessage" class="self-center text-xs" :class="dreamSaveError ? 'text-error' : 'text-success'">{{ dreamSaveMessage }}</span>
+            <div class="form-control">
+              <label class="label py-0.5"><span class="label-text text-xs font-semibold">Description</span></label>
+              <textarea class="textarea textarea-bordered rounded-xl text-sm" rows="3" placeholder="What is this project?" :value="linkedDream.description ?? ''" :disabled="dreamSaving" @blur="autosave('description', $event)" />
             </div>
-
-            <template v-if="!dreamEditMode">
-              <p v-if="linkedDream.description" class="text-sm text-base-content/80">{{ linkedDream.description }}</p>
-              <p v-else-if="linkedDream.pitch" class="text-sm italic text-base-content/60">{{ linkedDream.pitch }}</p>
-              <div v-if="linkedDream.liveUrl || linkedDream.repoUrl" class="flex flex-wrap gap-2">
-                <a v-if="linkedDream.liveUrl" :href="linkedDream.liveUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline gap-1">
-                  <Icon name="kind-icon:external-link" class="size-3" /> Live Site
-                </a>
-                <a v-if="linkedDream.repoUrl" :href="linkedDream.repoUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline gap-1">
-                  <Icon name="kind-icon:code" class="size-3" /> Repo
-                </a>
+            <div class="form-control">
+              <label class="label py-0.5"><span class="label-text text-xs font-semibold">Intent / Pitch</span></label>
+              <textarea class="textarea textarea-bordered rounded-xl text-sm" rows="2" placeholder="Core constraint or north star" :value="linkedDream.pitch ?? ''" :disabled="dreamSaving" @blur="autosave('pitch', $event)" />
+            </div>
+            <div class="form-control">
+              <label class="label py-0.5"><span class="label-text text-xs font-semibold">Flavor Text</span></label>
+              <input type="text" class="input input-bordered rounded-xl text-sm" placeholder="Short tagline" :value="linkedDream.flavorText ?? ''" :disabled="dreamSaving" @blur="autosave('flavorText', $event)" />
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="form-control">
+                <label class="label py-0.5"><span class="label-text text-xs font-semibold">Live URL</span></label>
+                <input type="url" class="input input-bordered rounded-xl text-sm" placeholder="https://..." :value="linkedDream.liveUrl ?? ''" :disabled="dreamSaving" @blur="autosave('liveUrl', $event)" />
               </div>
-            </template>
-
-            <template v-else>
-              <div class="space-y-3">
-                <div class="form-control">
-                  <label class="label py-0.5"><span class="label-text text-xs font-semibold">Description</span></label>
-                  <textarea v-model="dreamEditForm.description" class="textarea textarea-bordered rounded-xl text-sm" rows="3" placeholder="What is this project?" />
-                </div>
-                <div class="form-control">
-                  <label class="label py-0.5"><span class="label-text text-xs font-semibold">Intent / Pitch</span></label>
-                  <textarea v-model="dreamEditForm.pitch" class="textarea textarea-bordered rounded-xl text-sm" rows="2" placeholder="Core constraint or north star" />
-                </div>
-                <div class="form-control">
-                  <label class="label py-0.5"><span class="label-text text-xs font-semibold">Flavor Text</span></label>
-                  <input v-model="dreamEditForm.flavorText" type="text" class="input input-bordered rounded-xl text-sm" placeholder="Short tagline" />
-                </div>
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div class="form-control">
-                    <label class="label py-0.5"><span class="label-text text-xs font-semibold">Live URL</span></label>
-                    <input v-model="dreamEditForm.liveUrl" type="url" class="input input-bordered rounded-xl text-sm" placeholder="https://..." />
-                  </div>
-                  <div class="form-control">
-                    <label class="label py-0.5"><span class="label-text text-xs font-semibold">Repo URL</span></label>
-                    <input v-model="dreamEditForm.repoUrl" type="url" class="input input-bordered rounded-xl text-sm" placeholder="https://github.com/..." />
-                  </div>
-                </div>
-                <div class="flex justify-end gap-2">
-                  <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="cancelDreamEdit">Cancel</button>
-                  <button type="button" class="btn btn-primary btn-sm gap-1 rounded-xl" :disabled="dreamSaving" @click="saveDreamEdit">
-                    <span v-if="dreamSaving" class="loading loading-spinner loading-xs" /> Save
-                  </button>
-                </div>
+              <div class="form-control">
+                <label class="label py-0.5"><span class="label-text text-xs font-semibold">Repo URL</span></label>
+                <input type="url" class="input input-bordered rounded-xl text-sm" placeholder="https://github.com/..." :value="linkedDream.repoUrl ?? ''" :disabled="dreamSaving" @blur="autosave('repoUrl', $event)" />
               </div>
-            </template>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <a v-if="linkedDream.liveUrl" :href="linkedDream.liveUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline gap-1"><Icon name="kind-icon:external-link" class="size-3" /> Live Site</a>
+              <a v-if="linkedDream.repoUrl" :href="linkedDream.repoUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline gap-1"><Icon name="kind-icon:code" class="size-3" /> Repo</a>
+            </div>
           </div>
 
           <div v-else class="shrink-0 rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40">
@@ -439,26 +300,18 @@
               <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">Milestones</h4>
               <div class="space-y-2">
                 <div v-for="milestone in selectedProject.milestones" :key="milestone.id" class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-                  <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border" :class="milestoneIconClass(milestone.status)">
-                    <Icon :name="milestoneIcon(milestone.status)" class="size-3.5" />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-semibold">{{ milestone.title }}</p>
-                    <p class="text-xs text-base-content/50">weight {{ milestone.weight }}</p>
-                  </div>
+                  <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border" :class="milestoneIconClass(milestone.status)"><Icon :name="milestoneIcon(milestone.status)" class="size-3.5" /></div>
+                  <div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold">{{ milestone.title }}</p><p class="text-xs text-base-content/50">weight {{ milestone.weight }}</p></div>
                   <span class="badge badge-sm shrink-0" :class="milestoneBadgeClass(milestone.status)">{{ milestone.status }}</span>
                 </div>
               </div>
             </div>
-
             <div v-if="selectedProject.tasks.length">
               <h4 class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50">Tasks ({{ selectedProject.tasks.length }})</h4>
               <div class="space-y-2">
                 <div v-for="task in selectedProject.tasks" :key="task.id" class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
                   <div class="flex items-start gap-3">
-                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border" :class="taskIconClass(task.status)">
-                      <Icon :name="taskIcon(task.status)" class="size-3" />
-                    </div>
+                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border" :class="taskIconClass(task.status)"><Icon :name="taskIcon(task.status)" class="size-3" /></div>
                     <div class="min-w-0 flex-1">
                       <p class="text-sm font-semibold leading-snug">{{ task.title }}</p>
                       <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50">
@@ -498,6 +351,7 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
+type DreamPriority = 'LOW' | 'NORMAL' | 'HIGH'
 
 type ProjectPatch = {
   description?: string | null
@@ -516,11 +370,12 @@ const dreamStore = useDreamStore()
 const pageStore = usePageStore()
 const todoStore = useTodoStore()
 
-const dreamEditMode = ref(false)
 const dreamSaving = ref(false)
 const dreamSaveMessage = ref('')
 const dreamSaveError = ref(false)
-const dreamEditForm = ref<ProjectPatch>({})
+
+const localPriorities = ref<Record<number, DreamPriority>>({})
+const LOCAL_PRIORITY_KEY = 'kr.projectPriorities'
 
 const editingPitchSlug = ref('')
 const pitchEditTexts = ref<Record<string, string>>({})
@@ -528,7 +383,8 @@ const votedPitches = ref<Record<string, 'approved' | 'passed'>>({})
 const VOTE_STORAGE_KEY = 'kr.workspacePitchVotes'
 
 const newTodoTitle = ref('')
-const newTodoPriority = ref<'LOW' | 'NORMAL' | 'HIGH'>('NORMAL')
+const newTodoDescription = ref('')
+const newTodoPriority = ref<DreamPriority>('NORMAL')
 const todoFilter = ref<'OPEN' | 'DONE' | 'ARCHIVED'>('OPEN')
 const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
 
@@ -549,6 +405,15 @@ function projectDreamForSlug(slug: string) {
 
 const activeProjects = computed(() =>
   projects.value.filter((p) => projectDreamForSlug(p.slug)?.projectStatus !== 'BRAINSTORM'),
+)
+
+const sortedActiveProjects = computed(() =>
+  [...activeProjects.value].sort((a, b) => {
+    const order: Record<DreamPriority, number> = { HIGH: 0, NORMAL: 1, LOW: 2 }
+    const pa = getProjectPriority(projectDreamForSlug(a.slug)?.id)
+    const pb = getProjectPriority(projectDreamForSlug(b.slug)?.id)
+    return (order[pa] ?? 1) - (order[pb] ?? 1)
+  }),
 )
 
 const brainstormProjects = computed(() =>
@@ -596,81 +461,82 @@ const totalDone = computed(() =>
 
 const workspaceCards = computed<BuilderCard[]>(() => {
   if (!data.value) return []
-
   function makeCard(key: string, label: string, icon: string, deckImage?: string): BuilderCard {
     return { key, label, title: label, icon, tagline: '', narrative: '', restoresFields: [], steps: [], deckImage, payload: {} }
   }
-
   const result: BuilderCard[] = [
     makeCard('overview', 'Overview', 'kind-icon:gearhammer', '/images/projects/overview-card.webp'),
-    makeCard(
-      'tasks',
-      todoStore.openTodos.length ? `Tasks (${todoStore.openTodos.length})` : 'Tasks',
-      'kind-icon:check',
-      '/images/projects/tasks-card.webp',
-    ),
+    makeCard('tasks', todoStore.openTodos.length ? `Tasks (${todoStore.openTodos.length})` : 'Tasks', 'kind-icon:check', '/images/projects/tasks-card.webp'),
   ]
-
   if (hasBrainstormContent.value) {
-    result.push(
-      makeCard(
-        'brainstorm',
-        `Brainstorm (${pendingPitches.value.length + brainstormProjects.value.length})`,
-        'kind-icon:sparkles',
-        '/images/projects/brainstorm-card.webp',
-      ),
-    )
+    result.push(makeCard('brainstorm', `Brainstorm (${pendingPitches.value.length + brainstormProjects.value.length})`, 'kind-icon:sparkles', '/images/projects/brainstorm-card.webp'))
   }
-
-  activeProjects.value.forEach((project) => {
+  sortedActiveProjects.value.forEach((project) => {
     const dream = projectDreamForSlug(project.slug)
     result.push(makeCard(project.slug, project.name || project.slug, kindIcon(project.kind), dream?.cardPath ?? undefined))
   })
-
   return result
 })
 
-watch(
-  viewMode,
-  async (mode) => {
-    if (mode === 'tasks' && !todoStore.hasLoaded) {
-      await todoStore.fetchTodos(true)
-    }
-  },
-)
+function getProjectPriority(dreamId?: number | null): DreamPriority {
+  if (!dreamId) return 'NORMAL'
+  return localPriorities.value[dreamId] ?? 'NORMAL'
+}
 
-watch(
-  workspaceCards,
-  (cards) => {
-    if (cards.length) {
-      pageStore.setCards(cards)
-      if (!pageStore.workspaceCardKey) pageStore.setWorkspaceCardKey('overview')
-    }
-  },
-  { immediate: true },
-)
+async function setPriority(dreamId: number, priority: DreamPriority) {
+  localPriorities.value = { ...localPriorities.value, [dreamId]: priority }
+  try { localStorage.setItem(LOCAL_PRIORITY_KEY, JSON.stringify(localPriorities.value)) } catch {}
+  dreamSaving.value = true
+  dreamSaveMessage.value = ''
+  dreamSaveError.value = false
+  try {
+    await $fetch(`/api/dreams/${dreamId}/priority`, { method: 'PATCH', body: { priority } })
+    showSaveMessage('Priority saved')
+  } catch {
+    showSaveMessage('Priority save failed (local only)', true)
+  } finally {
+    dreamSaving.value = false
+  }
+}
 
-watch(
-  linkedDream,
-  (dream) => {
-    dreamEditMode.value = false
-    dreamEditForm.value = dream
-      ? { description: dream.description ?? '', pitch: dream.pitch ?? '', flavorText: dream.flavorText ?? '', liveUrl: dream.liveUrl ?? '', repoUrl: dream.repoUrl ?? '' }
-      : {}
-  },
-  { immediate: true },
-)
+async function autosave(field: keyof ProjectPatch, event: FocusEvent) {
+  if (!linkedDream.value) return
+  const el = event.target as HTMLInputElement | HTMLTextAreaElement | null
+  if (!el) return
+  const value = el.value.trim() || null
+  const current = (linkedDream.value[field as keyof typeof linkedDream.value] ?? null) as string | null
+  if (value === current) return
+  await patchDream({ [field]: value })
+}
 
-watch(
-  () => userStore.isAdmin,
-  async (isAdmin) => { if (isAdmin) await refreshWorkspace() },
-  { immediate: true },
-)
+function showSaveMessage(msg: string, isError = false) {
+  dreamSaveMessage.value = msg
+  dreamSaveError.value = isError
+  if (saveMessageTimer) clearTimeout(saveMessageTimer)
+  saveMessageTimer = setTimeout(() => { dreamSaveMessage.value = '' }, 3000)
+}
+
+watch(viewMode, async (mode) => {
+  if (mode === 'tasks' && !todoStore.hasLoaded) await todoStore.fetchTodos(true)
+})
+
+watch(workspaceCards, (cards) => {
+  if (cards.length) {
+    pageStore.setCards(cards)
+    if (!pageStore.workspaceCardKey) pageStore.setWorkspaceCardKey('overview')
+  }
+}, { immediate: true })
+
+watch(() => userStore.isAdmin, async (isAdmin) => { if (isAdmin) await refreshWorkspace() }, { immediate: true })
 
 onMounted(() => {
   try {
-    const stored = localStorage.getItem(VOTE_STORAGE_KEY)
-    if (stored) votedPitches.value = JSON.parse(stored) as Record<string, 'approved' | 'passed'>
+    const sv = localStorage.getItem(VOTE_STORAGE_KEY)
+    if (sv) votedPitches.value = JSON.parse(sv) as Record<string, 'approved' | 'passed'>
+  } catch {}
+  try {
+    const sp = localStorage.getItem(LOCAL_PRIORITY_KEY)
+    if (sp) localPriorities.value = JSON.parse(sp) as Record<number, DreamPriority>
   } catch {}
 })
 
@@ -697,15 +563,14 @@ function goTo(key: string) { pageStore.setWorkspaceCardKey(key) }
 async function submitNewTodo() {
   const title = newTodoTitle.value.trim()
   if (!title) return
-  await todoStore.createTodo({ title, priority: newTodoPriority.value })
+  await todoStore.createTodo({ title, priority: newTodoPriority.value, description: newTodoDescription.value.trim() || null })
   newTodoTitle.value = ''
+  newTodoDescription.value = ''
   newTodoPriority.value = 'NORMAL'
   todoFilter.value = 'OPEN'
 }
 
-function pitchVotedChoice(slug: string): 'approved' | 'passed' | null {
-  return votedPitches.value[slug] ?? null
-}
+function pitchVotedChoice(slug: string): 'approved' | 'passed' | null { return votedPitches.value[slug] ?? null }
 
 function voteOnPitch(slug: string, choice: 'approved' | 'passed') {
   votedPitches.value = { ...votedPitches.value, [slug]: choice }
@@ -727,18 +592,8 @@ function pitchArticleClass(slug: string): string {
 }
 
 function startEditPitch(pitch: ConductorPitch) {
-  if (!pitchEditTexts.value[pitch.slug]) {
-    pitchEditTexts.value = { ...pitchEditTexts.value, [pitch.slug]: pitch.idea }
-  }
+  if (!pitchEditTexts.value[pitch.slug]) pitchEditTexts.value = { ...pitchEditTexts.value, [pitch.slug]: pitch.idea }
   editingPitchSlug.value = pitch.slug
-}
-
-function cancelDreamEdit() {
-  dreamEditMode.value = false
-  const dream = linkedDream.value
-  dreamEditForm.value = dream
-    ? { description: dream.description ?? '', pitch: dream.pitch ?? '', flavorText: dream.flavorText ?? '', liveUrl: dream.liveUrl ?? '', repoUrl: dream.repoUrl ?? '' }
-    : {}
 }
 
 async function patchDream(patch: ProjectPatch) {
@@ -748,20 +603,8 @@ async function patchDream(patch: ProjectPatch) {
   dreamSaveError.value = false
   const result = await dreamStore.updateDream(linkedDream.value.id, patch)
   dreamSaving.value = false
-  if (result?.success) {
-    dreamSaveMessage.value = 'Saved'
-    dreamSaveError.value = false
-  } else {
-    dreamSaveMessage.value = result?.message || 'Save failed'
-    dreamSaveError.value = true
-  }
-  if (saveMessageTimer) clearTimeout(saveMessageTimer)
-  saveMessageTimer = setTimeout(() => { dreamSaveMessage.value = '' }, 3000)
-}
-
-async function saveDreamEdit() {
-  await patchDream(dreamEditForm.value)
-  if (!dreamSaveError.value) dreamEditMode.value = false
+  if (result?.success) showSaveMessage('Saved')
+  else showSaveMessage(result?.message || 'Save failed', true)
 }
 
 function handleProjectStatusChange(event: Event) {
@@ -770,13 +613,14 @@ function handleProjectStatusChange(event: Event) {
   patchDream({ projectStatus: target.value as ProjectStatus })
 }
 
-function blockedCount(project: ConductorProject) {
-  return project.tasks.filter((t) => t.status === 'blocked').length
+function handlePriorityChange(event: Event) {
+  const target = event.target as HTMLSelectElement | null
+  if (!target || !linkedDream.value) return
+  setPriority(linkedDream.value.id, target.value as DreamPriority)
 }
 
-function needsHumanCount(project: ConductorProject) {
-  return project.tasks.filter((t) => t.status === 'needs-human').length
-}
+function blockedCount(project: ConductorProject) { return project.tasks.filter((t) => t.status === 'blocked').length }
+function needsHumanCount(project: ConductorProject) { return project.tasks.filter((t) => t.status === 'needs-human').length }
 
 const statusOrder = ['done', 'review', 'claimed', 'ready', 'waiting', 'blocked', 'needs-human']
 
@@ -787,6 +631,18 @@ function taskStatusSummary(project: ConductorProject): [string, number][] {
     const ai = statusOrder.indexOf(a), bi = statusOrder.indexOf(b)
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
   })
+}
+
+function priorityBadgeClass(priority: DreamPriority): string {
+  if (priority === 'HIGH') return 'badge-error'
+  if (priority === 'LOW') return 'badge-ghost'
+  return 'badge-warning'
+}
+
+function prioritySelectClass(priority: DreamPriority): string {
+  if (priority === 'HIGH') return 'border-error/50 text-error'
+  if (priority === 'LOW') return 'border-success/50 text-success'
+  return 'border-warning/50 text-warning'
 }
 
 function kindIcon(kind: string) {
@@ -811,6 +667,12 @@ function kindBadgeClass(kind: string) {
   if (kind === 'software') return 'badge-primary'
   if (kind === 'proposal') return 'badge-info'
   return 'badge-secondary'
+}
+
+function kindBgGradient(kind: string) {
+  if (kind === 'software') return 'bg-gradient-to-br from-primary/30 to-primary/10'
+  if (kind === 'proposal') return 'bg-gradient-to-br from-info/30 to-info/10'
+  return 'bg-gradient-to-br from-secondary/30 to-secondary/10'
 }
 
 function taskBadgeClass(status: string) {

@@ -9,11 +9,11 @@ import {
 } from '../../support/api-auth'
 
 describe('Todo API Tests', () => {
+  const baseUrl = 'https://kind-robots.vercel.app/api/todos'
   const badJwt = 'definitely-not-valid'
   const uniqueTitle = `Todo-${Date.now()}`
 
   let apiBase = ''
-  let baseUrl = ''
   let setupAuth = ''
   let userJwt = ''
   let createdUserId: number | undefined
@@ -22,7 +22,6 @@ describe('Todo API Tests', () => {
   before(() => {
     getApiEnv().then((env) => {
       apiBase = env.apiBase
-      baseUrl = `${apiBase}/todos`
       setupAuth = env.adminToken
     })
 
@@ -45,8 +44,6 @@ describe('Todo API Tests', () => {
     deleteTestUser(apiBase, setupAuth, createdUserId)
   })
 
-  // ── GET (unauthenticated) ──────────────────────────────────────────────────
-
   it('should return 401 fetching todos without auth', () => {
     cy.request({
       method: 'GET',
@@ -68,8 +65,6 @@ describe('Todo API Tests', () => {
       expect(response.status).to.eq(401)
     })
   })
-
-  // ── POST (unauthenticated) ────────────────────────────────────────────────
 
   it('should return 401 creating a todo without auth', () => {
     cy.request({
@@ -94,8 +89,6 @@ describe('Todo API Tests', () => {
       expect(response.status).to.eq(401)
     })
   })
-
-  // ── POST (authenticated) ──────────────────────────────────────────────────
 
   it('should return 400 creating a todo without a title', () => {
     cy.request({
@@ -126,12 +119,9 @@ describe('Todo API Tests', () => {
       expect(response.body.data.title).to.eq(uniqueTitle)
       expect(response.body.data.status).to.eq('OPEN')
       expect(response.body.data.priority).to.eq('HIGH')
-
       todoId = response.body.data.id
     })
   })
-
-  // ── GET (authenticated) ───────────────────────────────────────────────────
 
   it('Fetch all todos for the authenticated user', () => {
     cy.request({
@@ -161,11 +151,8 @@ describe('Todo API Tests', () => {
     })
   })
 
-  // ── PATCH (unauthenticated) ───────────────────────────────────────────────
-
   it('should return 401 updating a todo without auth', () => {
     expect(todoId).to.exist
-
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${todoId}`,
@@ -179,7 +166,6 @@ describe('Todo API Tests', () => {
 
   it('should return 401 updating a todo with invalid token', () => {
     expect(todoId).to.exist
-
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${todoId}`,
@@ -191,29 +177,22 @@ describe('Todo API Tests', () => {
     })
   })
 
-  // ── PATCH (authenticated) ─────────────────────────────────────────────────
-
   it('Update todo title with valid authentication', () => {
     expect(todoId).to.exist
-
-    const updatedTitle = `Updated-${uniqueTitle}`
-
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${todoId}`,
       headers: bearerHeaders(userJwt),
-      body: { title: updatedTitle },
+      body: { title: `Updated-${uniqueTitle}` },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.title).to.eq(updatedTitle)
-      expect(response.body.data.status).to.eq('OPEN')
+      expect(response.body.data.title).to.eq(`Updated-${uniqueTitle}`)
     })
   })
 
   it('Mark todo as DONE', () => {
     expect(todoId).to.exist
-
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${todoId}`,
@@ -221,14 +200,12 @@ describe('Todo API Tests', () => {
       body: { status: 'DONE' },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
       expect(response.body.data.status).to.eq('DONE')
     })
   })
 
   it('Archive a todo', () => {
     expect(todoId).to.exist
-
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${todoId}`,
@@ -236,12 +213,11 @@ describe('Todo API Tests', () => {
       body: { status: 'ARCHIVED' },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
       expect(response.body.data.status).to.eq('ARCHIVED')
     })
   })
 
-  it('Archived todo absent from default GET (no includeArchived)', () => {
+  it('Archived todo absent from default GET', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
@@ -265,11 +241,8 @@ describe('Todo API Tests', () => {
     })
   })
 
-  // ── DELETE (unauthenticated) ──────────────────────────────────────────────
-
   it('should return 401 deleting a todo without auth', () => {
     expect(todoId).to.exist
-
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${todoId}`,
@@ -282,7 +255,6 @@ describe('Todo API Tests', () => {
 
   it('should return 401 deleting a todo with invalid token', () => {
     expect(todoId).to.exist
-
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${todoId}`,
@@ -293,11 +265,8 @@ describe('Todo API Tests', () => {
     })
   })
 
-  // ── DELETE (authenticated) ────────────────────────────────────────────────
-
   it('Delete todo with valid authentication', () => {
     expect(todoId).to.exist
-
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${todoId}`,

@@ -14,4 +14,4 @@ loadingMessage: Loading conductor...
 refreshLabel: Refresh Conductor
 ---
 
-<conductor-manager />
+:conductor-manager

@@ -6,7 +6,7 @@
         <h2 class="text-xl font-black leading-tight">Agent Cockpit</h2>
       </div>
       <div role="tablist" class="tabs tabs-boxed w-fit max-w-full overflow-x-auto">
-        <button v-for="tab in conductorTabs" :key="tab.key" type="button" role="tab" class="tab gap-1 text-xs sm:text-sm" :class="activeTab === tab.key ? 'tab-active' : ''" @click="activeTab = tab.key">
+        <button v-for="tab in conductorTabs" :key="tab.key" type="button" role="tab" class="tab gap-1 text-xs sm:text-sm" :class="activeTab === tab.key ? 'tab-active' : ''" @click="setActiveTab(tab.key)">
           <Icon :name="tab.icon" class="size-4" />
           {{ tab.label }}
         </button>
@@ -28,10 +28,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import ConductorPage from '@/components/pages/conductor-page.vue'
 import PortosPage from '@/components/pages/portos-page.vue'
-import { conductorTabs, type ConductorTabKey } from '@/stores/helpers/conductorTabs'
+import {
+  CONDUCTOR_DASHBOARD_KEY,
+  conductorTabs,
+  resolveConductorTab,
+  type ConductorTabKey,
+} from '@/stores/helpers/conductorTabs'
+import { useNavStore } from '@/stores/navStore'
 
-const activeTab = ref<ConductorTabKey>('conductor')
+const navStore = useNavStore()
+
+const activeTab = computed<ConductorTabKey>(() =>
+  resolveConductorTab(navStore.dashboardTabs[CONDUCTOR_DASHBOARD_KEY]),
+)
+
+function setActiveTab(tab: ConductorTabKey) {
+  navStore.dashboardTabs = {
+    ...navStore.dashboardTabs,
+    [CONDUCTOR_DASHBOARD_KEY]: tab,
+  }
+  navStore.syncDashboardTabs('conductor-manager')
+}
 </script>

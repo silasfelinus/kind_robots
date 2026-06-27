@@ -9,36 +9,47 @@ datasource db {
 
 /// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
 model ArtImage {
-  id                   Int              @id @default(autoincrement())
-  imageData            String?          @db.LongText
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime?        @default(now()) @updatedAt
-  userId               Int?             @default(10)
-  fileName             String?          @db.VarChar(764)
-  fileType             String           @default("png")
-  cfg                  Int?             @default(3)
-  cfgHalf              Boolean?         @default(false)
-  checkpoint           String?          @db.VarChar(256)
+  id                   Int       @id @default(autoincrement())
+  imageData            String?   @db.LongText
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime? @default(now()) @updatedAt
+  userId               Int?      @default(10)
+  fileName             String?   @db.VarChar(764)
+  fileType             String    @default("png")
+  cfg                  Int?      @default(3)
+  cfgHalf              Boolean?  @default(false)
+  checkpoint           String?   @db.VarChar(256)
   checkpointResourceId Int?
-  designer             String?          @db.VarChar(764)
+  designer             String?   @db.VarChar(764)
   genres               String?
-  imagePath            String?
-  isMature             Boolean?         @default(false)
-  isPublic             Boolean?         @default(false)
-  negativePrompt       String?          @db.Text
-  path                 String?          @db.VarChar(764)
-  promptString         String?          @db.Text
-  sampler              String?          @db.VarChar(764)
-  seed                 Int?             @default(-1)
-  serverId             Int?
-  serverName           String?          @db.VarChar(256)
-  serverUrl            String?          @db.VarChar(764)
-  steps                Int?
-  isActive             Boolean
-  artPrompt            String?          @db.Text
-  ExpressionMedia      ExpressionMedia?
-  CheckpointResource   Resource?        @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
-  Server               Server?          @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
+
+  imagePath     String?
+  heroPath      String? @db.Text
+  cardPath      String? @db.Text
+  iconPath      String? @db.Text
+  thumbnailPath String? @db.Text
+
+  heroData      String? @db.Text
+  cardData      String? @db.Text
+  iconData      String? @db.Text
+  thumbnailData String? @db.Text
+
+  isMature           Boolean?         @default(false)
+  isPublic           Boolean?         @default(false)
+  negativePrompt     String?          @db.Text
+  path               String?          @db.VarChar(764)
+  promptString       String?          @db.Text
+  sampler            String?          @db.VarChar(764)
+  seed               Int?             @default(-1)
+  serverId           Int?
+  serverName         String?          @db.VarChar(256)
+  serverUrl          String?          @db.VarChar(764)
+  steps              Int?
+  isActive           Boolean
+  artPrompt          String?          @db.Text
+  ExpressionMedia    ExpressionMedia?
+  CheckpointResource Resource?        @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
+  Server             Server?          @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
 
   User           User?           @relation("ArtImageCreator", fields: [userId], references: [id])
   Bots           Bot[]

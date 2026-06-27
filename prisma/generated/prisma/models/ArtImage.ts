@@ -61,6 +61,14 @@ export type ArtImageMinAggregateOutputType = {
   designer: string | null
   genres: string | null
   imagePath: string | null
+  heroPath: string | null
+  cardPath: string | null
+  iconPath: string | null
+  thumbnailPath: string | null
+  heroData: string | null
+  cardData: string | null
+  iconData: string | null
+  thumbnailData: string | null
   isMature: boolean | null
   isPublic: boolean | null
   negativePrompt: string | null
@@ -91,6 +99,14 @@ export type ArtImageMaxAggregateOutputType = {
   designer: string | null
   genres: string | null
   imagePath: string | null
+  heroPath: string | null
+  cardPath: string | null
+  iconPath: string | null
+  thumbnailPath: string | null
+  heroData: string | null
+  cardData: string | null
+  iconData: string | null
+  thumbnailData: string | null
   isMature: boolean | null
   isPublic: boolean | null
   negativePrompt: string | null
@@ -121,6 +137,14 @@ export type ArtImageCountAggregateOutputType = {
   designer: number
   genres: number
   imagePath: number
+  heroPath: number
+  cardPath: number
+  iconPath: number
+  thumbnailPath: number
+  heroData: number
+  cardData: number
+  iconData: number
+  thumbnailData: number
   isMature: number
   isPublic: number
   negativePrompt: number
@@ -173,6 +197,14 @@ export type ArtImageMinAggregateInputType = {
   designer?: true
   genres?: true
   imagePath?: true
+  heroPath?: true
+  cardPath?: true
+  iconPath?: true
+  thumbnailPath?: true
+  heroData?: true
+  cardData?: true
+  iconData?: true
+  thumbnailData?: true
   isMature?: true
   isPublic?: true
   negativePrompt?: true
@@ -203,6 +235,14 @@ export type ArtImageMaxAggregateInputType = {
   designer?: true
   genres?: true
   imagePath?: true
+  heroPath?: true
+  cardPath?: true
+  iconPath?: true
+  thumbnailPath?: true
+  heroData?: true
+  cardData?: true
+  iconData?: true
+  thumbnailData?: true
   isMature?: true
   isPublic?: true
   negativePrompt?: true
@@ -233,6 +273,14 @@ export type ArtImageCountAggregateInputType = {
   designer?: true
   genres?: true
   imagePath?: true
+  heroPath?: true
+  cardPath?: true
+  iconPath?: true
+  thumbnailPath?: true
+  heroData?: true
+  cardData?: true
+  iconData?: true
+  thumbnailData?: true
   isMature?: true
   isPublic?: true
   negativePrompt?: true
@@ -350,6 +398,14 @@ export type ArtImageGroupByOutputType = {
   designer: string | null
   genres: string | null
   imagePath: string | null
+  heroPath: string | null
+  cardPath: string | null
+  iconPath: string | null
+  thumbnailPath: string | null
+  heroData: string | null
+  cardData: string | null
+  iconData: string | null
+  thumbnailData: string | null
   isMature: boolean | null
   isPublic: boolean | null
   negativePrompt: string | null
@@ -403,6 +459,14 @@ export type ArtImageWhereInput = {
   designer?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   genres?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  thumbnailPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  heroData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  cardData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  iconData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isMature?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   isPublic?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   negativePrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -454,6 +518,14 @@ export type ArtImageOrderByWithRelationInput = {
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   genres?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroData?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardData?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconData?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailData?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   negativePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -509,6 +581,14 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   designer?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   genres?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  thumbnailPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  heroData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  cardData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  iconData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isMature?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   isPublic?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   negativePrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -560,6 +640,14 @@ export type ArtImageOrderByWithAggregationInput = {
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   genres?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroData?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardData?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconData?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailData?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   negativePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -598,6 +686,14 @@ export type ArtImageScalarWhereWithAggregatesInput = {
   designer?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   genres?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  heroPath?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  cardPath?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  iconPath?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  thumbnailPath?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  heroData?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  cardData?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  iconData?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
+  thumbnailData?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   isMature?: Prisma.BoolNullableWithAggregatesFilter<"ArtImage"> | boolean | null
   isPublic?: Prisma.BoolNullableWithAggregatesFilter<"ArtImage"> | boolean | null
   negativePrompt?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
@@ -625,6 +721,14 @@ export type ArtImageCreateInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -675,6 +779,14 @@ export type ArtImageUncheckedCreateInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -720,6 +832,14 @@ export type ArtImageUpdateInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -770,6 +890,14 @@ export type ArtImageUncheckedUpdateInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -818,6 +946,14 @@ export type ArtImageCreateManyInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -845,6 +981,14 @@ export type ArtImageUpdateManyMutationInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -874,6 +1018,14 @@ export type ArtImageUncheckedUpdateManyInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -910,6 +1062,14 @@ export type ArtImageCountOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   genres?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
+  thumbnailPath?: Prisma.SortOrder
+  heroData?: Prisma.SortOrder
+  cardData?: Prisma.SortOrder
+  iconData?: Prisma.SortOrder
+  thumbnailData?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   negativePrompt?: Prisma.SortOrder
@@ -950,6 +1110,14 @@ export type ArtImageMaxOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   genres?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
+  thumbnailPath?: Prisma.SortOrder
+  heroData?: Prisma.SortOrder
+  cardData?: Prisma.SortOrder
+  iconData?: Prisma.SortOrder
+  thumbnailData?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   negativePrompt?: Prisma.SortOrder
@@ -980,6 +1148,14 @@ export type ArtImageMinOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   genres?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
+  thumbnailPath?: Prisma.SortOrder
+  heroData?: Prisma.SortOrder
+  cardData?: Prisma.SortOrder
+  iconData?: Prisma.SortOrder
+  thumbnailData?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   negativePrompt?: Prisma.SortOrder
@@ -1552,6 +1728,14 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -1601,6 +1785,14 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -1672,6 +1864,14 @@ export type ArtImageScalarWhereInput = {
   designer?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   genres?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  thumbnailPath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  heroData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  cardData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  iconData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
+  thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isMature?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   isPublic?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   negativePrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -1699,6 +1899,14 @@ export type ArtImageCreateWithoutBotsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -1748,6 +1956,14 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -1808,6 +2024,14 @@ export type ArtImageUpdateWithoutBotsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1857,6 +2081,14 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1901,6 +2133,14 @@ export type ArtImageCreateWithoutCharactersInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -1950,6 +2190,14 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2010,6 +2258,14 @@ export type ArtImageUpdateWithoutCharactersInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2059,6 +2315,14 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2103,6 +2367,14 @@ export type ArtImageCreateWithoutChatsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2152,6 +2424,14 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2212,6 +2492,14 @@ export type ArtImageUpdateWithoutChatsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2261,6 +2549,14 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2305,6 +2601,14 @@ export type ArtImageCreateWithoutComponentsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2354,6 +2658,14 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2414,6 +2726,14 @@ export type ArtImageUpdateWithoutComponentsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2463,6 +2783,14 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2507,6 +2835,14 @@ export type ArtImageCreateWithoutCompositionsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2556,6 +2892,14 @@ export type ArtImageUncheckedCreateWithoutCompositionsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2616,6 +2960,14 @@ export type ArtImageUpdateWithoutCompositionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2665,6 +3017,14 @@ export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2709,6 +3069,14 @@ export type ArtImageCreateWithoutDreamsPrimaryInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2758,6 +3126,14 @@ export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2807,6 +3183,14 @@ export type ArtImageCreateWithoutDreamsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2856,6 +3240,14 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -2916,6 +3308,14 @@ export type ArtImageUpdateWithoutDreamsPrimaryInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2965,6 +3365,14 @@ export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3025,6 +3433,14 @@ export type ArtImageCreateWithoutExpressionMediaInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3074,6 +3490,14 @@ export type ArtImageUncheckedCreateWithoutExpressionMediaInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3134,6 +3558,14 @@ export type ArtImageUpdateWithoutExpressionMediaInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3183,6 +3615,14 @@ export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3227,6 +3667,14 @@ export type ArtImageCreateWithoutMilestonesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3276,6 +3724,14 @@ export type ArtImageUncheckedCreateWithoutMilestonesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3336,6 +3792,14 @@ export type ArtImageUpdateWithoutMilestonesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3385,6 +3849,14 @@ export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3429,6 +3901,14 @@ export type ArtImageCreateWithoutPitchSheetsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3478,6 +3958,14 @@ export type ArtImageUncheckedCreateWithoutPitchSheetsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3538,6 +4026,14 @@ export type ArtImageUpdateWithoutPitchSheetsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3587,6 +4083,14 @@ export type ArtImageUncheckedUpdateWithoutPitchSheetsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3631,6 +4135,14 @@ export type ArtImageCreateWithoutPromptsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3680,6 +4192,14 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3740,6 +4260,14 @@ export type ArtImageUpdateWithoutPromptsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3789,6 +4317,14 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3833,6 +4369,14 @@ export type ArtImageCreateWithoutReactionsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3882,6 +4426,14 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -3942,6 +4494,14 @@ export type ArtImageUpdateWithoutReactionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3991,6 +4551,14 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4035,6 +4603,14 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4083,6 +4659,14 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4138,6 +4722,14 @@ export type ArtImageCreateWithoutLoraResourcesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4187,6 +4779,14 @@ export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4236,6 +4836,14 @@ export type ArtImageCreateWithoutResourcesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4285,6 +4893,14 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4377,6 +4993,14 @@ export type ArtImageUpdateWithoutResourcesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4426,6 +5050,14 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4470,6 +5102,14 @@ export type ArtImageCreateWithoutRewardsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4519,6 +5159,14 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4579,6 +5227,14 @@ export type ArtImageUpdateWithoutRewardsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4628,6 +5284,14 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4672,6 +5336,14 @@ export type ArtImageCreateWithoutScenariosInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4721,6 +5393,14 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4781,6 +5461,14 @@ export type ArtImageUpdateWithoutScenariosInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4830,6 +5518,14 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4874,6 +5570,14 @@ export type ArtImageCreateWithoutServerInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4923,6 +5627,14 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -4993,6 +5705,14 @@ export type ArtImageCreateWithoutUserInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -5041,6 +5761,14 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -5096,6 +5824,14 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -5145,6 +5881,14 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -5221,6 +5965,14 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5270,6 +6022,14 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5314,6 +6074,14 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5363,6 +6131,14 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5410,6 +6186,14 @@ export type ArtImageUncheckedUpdateManyWithoutArtCollectionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5437,6 +6221,14 @@ export type ArtImageUpdateWithoutDreamsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5486,6 +6278,14 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5533,6 +6333,14 @@ export type ArtImageUncheckedUpdateManyWithoutDreamsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5562,6 +6370,14 @@ export type ArtImageCreateManyCheckpointResourceInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -5589,6 +6405,14 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5637,6 +6461,14 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5684,6 +6516,14 @@ export type ArtImageUncheckedUpdateManyWithoutCheckpointResourceInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5711,6 +6551,14 @@ export type ArtImageUpdateWithoutLoraResourcesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5760,6 +6608,14 @@ export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5807,6 +6663,14 @@ export type ArtImageUncheckedUpdateManyWithoutLoraResourcesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5837,6 +6701,14 @@ export type ArtImageCreateManyServerInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -5863,6 +6735,14 @@ export type ArtImageUpdateWithoutServerInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5912,6 +6792,14 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5959,6 +6847,14 @@ export type ArtImageUncheckedUpdateManyWithoutServerInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5987,6 +6883,14 @@ export type ArtImageCreateManyUserInput = {
   designer?: string | null
   genres?: string | null
   imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
   isMature?: boolean | null
   isPublic?: boolean | null
   negativePrompt?: string | null
@@ -6014,6 +6918,14 @@ export type ArtImageUpdateWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6062,6 +6974,14 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6109,6 +7029,14 @@ export type ArtImageUncheckedUpdateManyWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6314,6 +7242,14 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   designer?: boolean
   genres?: boolean
   imagePath?: boolean
+  heroPath?: boolean
+  cardPath?: boolean
+  iconPath?: boolean
+  thumbnailPath?: boolean
+  heroData?: boolean
+  cardData?: boolean
+  iconData?: boolean
+  thumbnailData?: boolean
   isMature?: boolean
   isPublic?: boolean
   negativePrompt?: boolean
@@ -6368,6 +7304,14 @@ export type ArtImageSelectScalar = {
   designer?: boolean
   genres?: boolean
   imagePath?: boolean
+  heroPath?: boolean
+  cardPath?: boolean
+  iconPath?: boolean
+  thumbnailPath?: boolean
+  heroData?: boolean
+  cardData?: boolean
+  iconData?: boolean
+  thumbnailData?: boolean
   isMature?: boolean
   isPublic?: boolean
   negativePrompt?: boolean
@@ -6383,7 +7327,7 @@ export type ArtImageSelectScalar = {
   artPrompt?: boolean
 }
 
-export type ArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "imageData" | "createdAt" | "updatedAt" | "userId" | "fileName" | "fileType" | "cfg" | "cfgHalf" | "checkpoint" | "checkpointResourceId" | "designer" | "genres" | "imagePath" | "isMature" | "isPublic" | "negativePrompt" | "path" | "promptString" | "sampler" | "seed" | "serverId" | "serverName" | "serverUrl" | "steps" | "isActive" | "artPrompt", ExtArgs["result"]["artImage"]>
+export type ArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "imageData" | "createdAt" | "updatedAt" | "userId" | "fileName" | "fileType" | "cfg" | "cfgHalf" | "checkpoint" | "checkpointResourceId" | "designer" | "genres" | "imagePath" | "heroPath" | "cardPath" | "iconPath" | "thumbnailPath" | "heroData" | "cardData" | "iconData" | "thumbnailData" | "isMature" | "isPublic" | "negativePrompt" | "path" | "promptString" | "sampler" | "seed" | "serverId" | "serverName" | "serverUrl" | "steps" | "isActive" | "artPrompt", ExtArgs["result"]["artImage"]>
 export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ExpressionMedia?: boolean | Prisma.ArtImage$ExpressionMediaArgs<ExtArgs>
   CheckpointResource?: boolean | Prisma.ArtImage$CheckpointResourceArgs<ExtArgs>
@@ -6449,6 +7393,14 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     designer: string | null
     genres: string | null
     imagePath: string | null
+    heroPath: string | null
+    cardPath: string | null
+    iconPath: string | null
+    thumbnailPath: string | null
+    heroData: string | null
+    cardData: string | null
+    iconData: string | null
+    thumbnailData: string | null
     isMature: boolean | null
     isPublic: boolean | null
     negativePrompt: string | null
@@ -6866,6 +7818,14 @@ export interface ArtImageFieldRefs {
   readonly designer: Prisma.FieldRef<"ArtImage", 'String'>
   readonly genres: Prisma.FieldRef<"ArtImage", 'String'>
   readonly imagePath: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly heroPath: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly cardPath: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly iconPath: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly thumbnailPath: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly heroData: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly cardData: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly iconData: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly thumbnailData: Prisma.FieldRef<"ArtImage", 'String'>
   readonly isMature: Prisma.FieldRef<"ArtImage", 'Boolean'>
   readonly isPublic: Prisma.FieldRef<"ArtImage", 'Boolean'>
   readonly negativePrompt: Prisma.FieldRef<"ArtImage", 'String'>

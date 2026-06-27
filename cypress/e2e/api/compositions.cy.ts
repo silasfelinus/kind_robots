@@ -1,10 +1,16 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // @ts-nocheck
 /* eslint-disable */
 // test-ignore
 
 // /cypress/e2e/api/composition.cy.ts
 /// <reference types="cypress" />
+
+import {
+  adminHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+} from '../../support/api-auth'
 
 interface ApiResponse<T = any> {
   success: boolean
@@ -13,46 +19,32 @@ interface ApiResponse<T = any> {
   statusCode?: number
 }
 
-let userId = 0
-
 describe('[Composition] API Full CRUD + Auth Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
   const modelName = 'composition'
-  const fallbackApiBase = 'https://kind-robots.vercel.app'
   const invalidToken = 'definitely-not-a-real-token'
-  const testUserId = 9
 
-  let apiBase = fallbackApiBase
-  let baseUrl = `${fallbackApiBase}/api/${modelName}s`
+  let apiBase = ''
+  let adminToken = ''
+  let baseUrl = ''
   let userToken = ''
-  let itemId: number
+  let userId = 0
+  let itemId: number | undefined
 
   const time = Date.now()
   const itemTitle = `COMPOSITION-${time}`
 
   before(() => {
-    cy.env(['API_BASE']).then((env) => {
-      apiBase = String(env.API_BASE || fallbackApiBase)
-      baseUrl = `${apiBase}/api/${modelName}s`
-})
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
+    getApiEnv().then((env) => {
+      apiBase = env.apiBase
+      adminToken = env.adminToken
+      baseUrl = `${apiBase}/${modelName}s`
+    })
+
+    createLoggedInTestUser({ fresh: true }).then((auth) => {
+      userToken = auth.token
+      userId = auth.id
     })
   })
-
-
-
-
 
   it('POST: rejects without auth', () => {
     cy.request<ApiResponse>({
@@ -62,7 +54,7 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
       body: {
         title: `Unauth-${itemTitle}`,
         characterBlurb: 'A ghost',
-        userId: testUserId,
+        userId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -82,7 +74,7 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
       body: {
         title: `Bad-${itemTitle}`,
         characterBlurb: 'A ghost',
-        userId: testUserId,
+        userId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -105,7 +97,7 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
         characterBlurb: 'A weary cartographer with ink-stained hands.',
         dreamBlurb: 'A floating market above the clouds.',
         isPublic: true,
-        userId: testUserId,
+        userId,
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
@@ -117,6 +109,8 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: fetches all public compositions', () => {
+    expect(itemId).to.be.a('number')
+
     cy.request<ApiResponse<any[]>>({ method: 'GET', url: baseUrl }).then(
       (res) => {
         expect(res.status).to.eq(200)
@@ -130,6 +124,8 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: fetches by ID', () => {
+    expect(itemId).to.be.a('number')
+
     cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/${itemId}`,
@@ -141,6 +137,8 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   it('PATCH: rejects update without auth', () => {
+    expect(itemId).to.be.a('number')
+
     cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${itemId}`,
@@ -153,6 +151,8 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   it('PATCH: updates with valid auth (saving synthesis output)', () => {
+    expect(itemId).to.be.a('number')
+
     cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${itemId}`,
@@ -175,6 +175,8 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   it('DELETE: rejects without auth', () => {
+    expect(itemId).to.be.a('number')
+
     cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${itemId}`,
@@ -186,6 +188,8 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   it('DELETE: hard deletes with valid auth', () => {
+    expect(itemId).to.be.a('number')
+
     cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${itemId}`,
@@ -197,6 +201,8 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   it('GET: deleted record returns 404', () => {
+    expect(itemId).to.be.a('number')
+
     cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/${itemId}`,
@@ -209,12 +215,15 @@ describe('[Composition] API Full CRUD + Auth Tests', () => {
   })
 
   after(() => {
-    if (!itemId || !userToken) return
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${itemId}`,
-      headers: { Authorization: `Bearer ${userToken}` },
-      failOnStatusCode: false,
-    })
+    if (itemId && adminToken) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${itemId}`,
+        headers: adminHeaders(adminToken),
+        failOnStatusCode: false,
+      })
+    }
+
+    deleteTestUser(apiBase, adminToken, userId)
   })
 })

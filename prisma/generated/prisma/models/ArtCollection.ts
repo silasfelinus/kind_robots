@@ -596,6 +596,10 @@ export type ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput = {
   deleteMany?: Prisma.ArtCollectionScalarWhereInput | Prisma.ArtCollectionScalarWhereInput[]
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type ArtCollectionCreateNestedOneWithoutDreamsPrimaryInput = {
   create?: Prisma.XOR<Prisma.ArtCollectionCreateWithoutDreamsPrimaryInput, Prisma.ArtCollectionUncheckedCreateWithoutDreamsPrimaryInput>
   connectOrCreate?: Prisma.ArtCollectionCreateOrConnectWithoutDreamsPrimaryInput

@@ -126,7 +126,6 @@ export const ArtImageScalarFieldEnum = {
   serverName: 'serverName',
   serverUrl: 'serverUrl',
   steps: 'steps',
-  thumbnailData: 'thumbnailData',
   isActive: 'isActive',
   artPrompt: 'artPrompt'
 } as const
@@ -347,6 +346,7 @@ export const DreamScalarFieldEnum = {
   cardPath: 'cardPath',
   heroPath: 'heroPath',
   projectStatus: 'projectStatus',
+  priority: 'priority',
   repoUrl: 'repoUrl',
   liveUrl: 'liveUrl',
   allowReviews: 'allowReviews',
@@ -922,7 +922,6 @@ export const ArtImageOrderByRelevanceFieldEnum = {
   sampler: 'sampler',
   serverName: 'serverName',
   serverUrl: 'serverUrl',
-  thumbnailData: 'thumbnailData',
   artPrompt: 'artPrompt'
 } as const
 

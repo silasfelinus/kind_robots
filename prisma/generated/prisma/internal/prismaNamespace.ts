@@ -2545,7 +2545,6 @@ export const ArtImageScalarFieldEnum = {
   serverName: 'serverName',
   serverUrl: 'serverUrl',
   steps: 'steps',
-  thumbnailData: 'thumbnailData',
   isActive: 'isActive',
   artPrompt: 'artPrompt'
 } as const
@@ -2766,6 +2765,7 @@ export const DreamScalarFieldEnum = {
   cardPath: 'cardPath',
   heroPath: 'heroPath',
   projectStatus: 'projectStatus',
+  priority: 'priority',
   repoUrl: 'repoUrl',
   liveUrl: 'liveUrl',
   allowReviews: 'allowReviews',
@@ -3341,7 +3341,6 @@ export const ArtImageOrderByRelevanceFieldEnum = {
   sampler: 'sampler',
   serverName: 'serverName',
   serverUrl: 'serverUrl',
-  thumbnailData: 'thumbnailData',
   artPrompt: 'artPrompt'
 } as const
 
@@ -3875,6 +3874,13 @@ export type EnumDreamTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'ProjectStatus'
  */
 export type EnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DreamPriority'
+ */
+export type EnumDreamPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamPriority'>
     
 
 

@@ -89,6 +89,7 @@ export default defineNuxtConfig({
     authSecret: process.env.AUTH_SECRET || '',
     jwtSecret: process.env.JWT_SECRET || '',
     serverSecretKey: process.env.SERVER_SECRET_KEY || '',
+    githubToken: process.env.GITHUB_TOKEN || '',
   },
 
   devtools: {

@@ -66,8 +66,8 @@ export const CONDUCTOR_CARDS: ConductorCard[] = [
     restoresFields: [],
   },
   {
-    key: 'humboldt-poop-scoop-cms',
-    label: 'Poop Scoop CMS',
+    key: 'humboldt-scoop-cms',
+    label: 'Humboldt Scoop CMS',
     title: 'Customer Management',
     icon: 'kind-icon:toolbox',
     tagline: 'Simple self-hostable CMS',
@@ -77,9 +77,9 @@ export const CONDUCTOR_CARDS: ConductorCard[] = [
     taskStatus: 'ready',
     priority: 2,
     narrative:
-      'Building the customer-management tool for the poop-scoop business. Simple and self-hostable with dummy data only until approved.',
+      'Building the customer-management tool for Humboldt Scoop. Simple and self-hostable with dummy data only until approved.',
     description:
-      'Building the customer-management tool for the poop-scoop business. Simple and self-hostable with dummy data only until approved.',
+      'Building the customer-management tool for Humboldt Scoop. Simple and self-hostable with dummy data only until approved.',
     steps: [],
     restoresFields: [],
   },

@@ -43,20 +43,64 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 
 const flipped = ref(false)
 const hydrated = ref(false)
 const resolvedImage = ref<string | null>(null)
 
 const userStore = useUserStore()
+const artStore = useArtStore()
 const errorStore = useErrorStore()
 
 const FALLBACK = '/images/kindart.webp'
 
+function looksLikeBase64(value: string): boolean {
+  const compact = value.replace(/\s+/g, '')
+  return compact.length >= 64 && compact.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/.test(compact)
+}
+
+function asImageSource(value?: string | null): string {
+  const clean = value?.trim() || ''
+  if (!clean || clean === 'undefined' || clean === 'UNDEFINED') return ''
+  if (clean.startsWith('data:image/')) return clean
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('/')) return clean
+  if (clean.startsWith('./') || clean.startsWith('images/') || /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(clean)) {
+    return `/${clean.replace(/^\/+/, '').replace(/^\.\//, '')}`
+  }
+  return looksLikeBase64(clean) ? `data:image/png;base64,${clean}` : ''
+}
+
+function imageSourceFromArt(image?: ArtImage | null): string {
+  return (
+    asImageSource(image?.imageData) ||
+    asImageSource(image?.imagePath) ||
+    asImageSource(image?.path) ||
+    asImageSource(image?.thumbnailData)
+  )
+}
+
 async function fetchAvatar() {
-  const result = await userStore.userImage()
-  resolvedImage.value = result === FALLBACK ? null : result
+  const user = userStore.user
+  if (!user) {
+    resolvedImage.value = null
+    return
+  }
+
+  if (user.artImageId) {
+    const image = await artStore.getArtImageById(user.artImageId, {
+      includeImageData: true,
+      includeThumbnailData: true,
+    })
+    const source = imageSourceFromArt(image) || asImageSource(user.avatarImage)
+    resolvedImage.value = source && source !== FALLBACK ? source : null
+    return
+  }
+
+  const source = asImageSource(user.avatarImage)
+  resolvedImage.value = source && source !== FALLBACK ? source : null
 }
 
 watch(

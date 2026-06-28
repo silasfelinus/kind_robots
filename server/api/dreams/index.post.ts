@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { enforceProjectCap } from '@/server/utils/projectCap'
 import type {
   CreationSource,
   DreamType,
@@ -69,6 +70,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const dreamTypeNormalized = normalizeDreamType(body.dreamType)
+    if (dreamTypeNormalized === 'PROJECT') {
+      const isAdmin = user.Role === 'ADMIN' || user.id === 1
+      await enforceProjectCap({ userId: user.id, userRole: user.Role, isAdmin })
+    }
+
     const userRecord = await prisma.user.findUnique({
       where: { id: user.id },
       select: { username: true },
@@ -110,7 +117,7 @@ export default defineEventHandler(async (event) => {
     const dataInput: Prisma.DreamCreateInput = {
       title,
       slug,
-      dreamType: normalizeDreamType(body.dreamType),
+      dreamType: dreamTypeNormalized,
       creationSource: normalizeCreationSource(body.creationSource),
       description: normalizeOptionalText(body.description) ?? null,
       pitch: normalizeOptionalText(body.pitch) ?? null,

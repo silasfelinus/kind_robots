@@ -20,7 +20,7 @@
         <div v-for="n in 4" :key="n" class="h-20 animate-pulse rounded-2xl border border-base-300 bg-base-200" />
       </div>
       <template v-else>
-        <div v-if="projectGalleryMode === 'icons'" class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+        <div v-if="projectGalleryMode === 'icons'" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <div
             v-for="dream in dreamStore.publicProjectDreams"
             :key="dream.id"
@@ -28,6 +28,7 @@
           >
             <img :src="projectIconPath(dream.slug)" :alt="dream.title" class="size-12 rounded-xl border border-base-300 object-cover" />
             <p class="w-full truncate text-xs font-semibold">{{ dream.title }}</p>
+            <p v-if="dream.flavorText" class="line-clamp-2 w-full text-xs text-base-content/50">{{ dream.flavorText }}</p>
           </div>
         </div>
         <div v-else-if="projectGalleryMode === 'list'" class="flex flex-col gap-2">
@@ -339,7 +340,7 @@
             </div>
 
             <!-- Icons -->
-            <div v-else-if="projectGalleryMode === 'icons'" class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+            <div v-else-if="projectGalleryMode === 'icons'" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               <button
                 v-for="project in sortedActiveProjects"
                 :key="project.slug"
@@ -349,6 +350,8 @@
               >
                 <img :src="projectIconPath(project.slug)" :alt="project.name" class="size-12 rounded-xl border border-base-300 object-cover" />
                 <p class="w-full truncate text-xs font-semibold">{{ project.name || project.slug }}</p>
+                <p v-if="projectDreamForSlug(project.slug)?.flavorText" class="line-clamp-2 w-full text-xs text-base-content/50">{{ projectDreamForSlug(project.slug)?.flavorText }}</p>
+                <span class="badge badge-xs" :class="priorityBadgeClass(getProjectPriority(projectDreamForSlug(project.slug)?.id))">{{ getProjectPriority(projectDreamForSlug(project.slug)?.id) }}</span>
               </button>
             </div>
 
@@ -438,46 +441,85 @@
             />
             <textarea
               v-model="newTodoDescription"
-              placeholder="Context for the agent — project name, specific instructions, relevant files..."
+              :placeholder="newTodoCategory === 'AGENT' ? 'Context for the agent — project name, specific instructions, relevant files...' : newTodoCategory === 'KAIZEN' ? 'What improvement do you want to make?' : 'What do you need to do?'"
               class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed"
               rows="3"
               :disabled="todoStore.loading"
             />
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <select
+                v-model="newTodoCategory"
+                class="select select-bordered select-sm rounded-xl"
+              >
+                <option value="AGENT">🤖 Agent Task</option>
+                <option value="KAIZEN">✨ Kaizen</option>
+                <option value="HONEYDO">🍯 Honey Do</option>
+              </select>
               <select
                 v-model="newTodoPriority"
                 class="select select-bordered select-sm rounded-xl"
               >
-                <option value="HIGH">🔴 High priority</option>
-                <option value="NORMAL">🟡 Normal priority</option>
-                <option value="LOW">🟢 Low priority</option>
+                <option value="HIGH">🔴 High</option>
+                <option value="NORMAL">🟡 Normal</option>
+                <option value="LOW">🟢 Low</option>
               </select>
               <button
                 type="submit"
                 class="btn btn-primary btn-sm ml-auto rounded-xl"
                 :disabled="!newTodoTitle.trim() || todoStore.loading"
               >
-                <Icon name="kind-icon:plus" class="size-4" /> Add Task
+                <Icon name="kind-icon:plus" class="size-4" /> Add
               </button>
             </div>
           </form>
-          <div role="tablist" class="tabs tabs-boxed w-fit">
-            <button
-              v-for="f in todoFilterOptions"
-              :key="f"
-              type="button"
-              role="tab"
-              class="tab text-xs"
-              :class="todoFilter === f ? 'tab-active' : ''"
-              @click="todoFilter = f"
-            >
-              {{ f.charAt(0) + f.slice(1).toLowerCase() }}
-              <span
-                v-if="f === 'OPEN' && todoStore.openTodos.length"
-                class="ml-1 badge badge-xs badge-primary"
-                >{{ todoStore.openTodos.length }}</span
+
+          <!-- Category tabs (only for OPEN filter) -->
+          <div class="flex items-center gap-2">
+            <div v-if="todoFilter === 'OPEN'" role="tablist" class="tabs tabs-boxed">
+              <button
+                type="button"
+                role="tab"
+                class="tab gap-1 text-xs"
+                :class="taskTab === 'AGENT' ? 'tab-active' : ''"
+                @click="taskTab = 'AGENT'"
               >
-            </button>
+                🤖 Agent
+                <span v-if="todoStore.agentTodos.length" class="badge badge-xs badge-primary">{{ todoStore.agentTodos.length }}</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                class="tab gap-1 text-xs"
+                :class="taskTab === 'KAIZEN' ? 'tab-active' : ''"
+                @click="taskTab = 'KAIZEN'"
+              >
+                ✨ Kaizen
+                <span v-if="todoStore.kaizenTodos.length" class="badge badge-xs badge-secondary">{{ todoStore.kaizenTodos.length }}</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                class="tab gap-1 text-xs"
+                :class="taskTab === 'HONEYDO' ? 'tab-active' : ''"
+                @click="taskTab = 'HONEYDO'"
+              >
+                🍯 Honey Do
+                <span v-if="todoStore.honeyDoTodos.length" class="badge badge-xs badge-accent">{{ todoStore.honeyDoTodos.length }}</span>
+              </button>
+            </div>
+            <div role="tablist" class="tabs tabs-boxed ml-auto">
+              <button
+                v-for="f in todoFilterOptions"
+                :key="f"
+                type="button"
+                role="tab"
+                class="tab text-xs"
+                :class="todoFilter === f ? 'tab-active' : ''"
+                @click="todoFilter = f"
+              >
+                {{ f.charAt(0) + f.slice(1).toLowerCase() }}
+              </button>
+            </div>
           </div>
           <div class="space-y-2">
             <div
@@ -531,6 +573,8 @@
                   class="badge badge-ghost badge-xs shrink-0"
                   >🟢 low</span
                 >
+                <span v-if="todoFilter !== 'OPEN' && todo.category === 'KAIZEN'" class="badge badge-secondary badge-xs shrink-0">✨ kaizen</span>
+                <span v-else-if="todoFilter !== 'OPEN' && todo.category === 'HONEYDO'" class="badge badge-accent badge-xs shrink-0">🍯 honey do</span>
                 <div class="flex shrink-0 gap-1">
                   <button
                     v-if="todo.status !== 'ARCHIVED'"
@@ -757,8 +801,27 @@
               </article>
             </div>
           </div>
+          <!-- All-voted state: prompt for new pitches -->
+          <div
+            v-if="allPitchesVoted && allPitches.length"
+            class="rounded-2xl border border-secondary/40 bg-secondary/5 p-6 text-center"
+          >
+            <Icon name="kind-icon:sparkles" class="mx-auto mb-2 size-8 text-secondary/60" />
+            <p class="mb-1 font-bold text-base-content/80">All pitches voted on!</p>
+            <p class="mb-4 text-sm text-base-content/50">Request a new batch for the agent to generate.</p>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm gap-1.5 rounded-xl"
+              :disabled="requestingPitches || todoStore.loading"
+              @click="requestNewPitches"
+            >
+              <span v-if="requestingPitches" class="loading loading-spinner loading-xs" />
+              <Icon v-else name="kind-icon:sparkles" class="size-4" />
+              Request New Pitches
+            </button>
+          </div>
           <p
-            v-if="!allPitches.length && !brainstormProjects.length"
+            v-else-if="!allPitches.length && !brainstormProjects.length"
             class="py-8 text-center text-sm text-base-content/50"
           >
             Nothing in the brainstorm queue.
@@ -946,101 +1009,105 @@
                 >Click any field to edit — saves on blur</span
               >
             </div>
-            <div class="form-control">
-              <label class="label py-0.5"
-                ><span class="label-text text-xs font-semibold"
-                  >Description</span
-                ></label
-              >
-              <textarea
-                class="textarea textarea-bordered rounded-xl text-sm"
-                rows="3"
-                placeholder="What is this project?"
-                :value="linkedDream.description ?? ''"
-                :disabled="dreamSaving"
-                @blur="autosave('description', $event)"
-              />
-            </div>
-            <div class="form-control">
-              <label class="label py-0.5"
-                ><span class="label-text text-xs font-semibold"
-                  >Intent / Pitch</span
-                ></label
-              >
-              <textarea
-                class="textarea textarea-bordered rounded-xl text-sm"
-                rows="2"
-                placeholder="Core constraint or north star"
-                :value="linkedDream.pitch ?? ''"
-                :disabled="dreamSaving"
-                @blur="autosave('pitch', $event)"
-              />
-            </div>
-            <div class="form-control">
-              <label class="label py-0.5"
-                ><span class="label-text text-xs font-semibold"
-                  >Flavor Text</span
-                ></label
-              >
-              <input
-                type="text"
-                class="input input-bordered rounded-xl text-sm"
-                placeholder="Short tagline"
-                :value="linkedDream.flavorText ?? ''"
-                :disabled="dreamSaving"
-                @blur="autosave('flavorText', $event)"
-              />
-            </div>
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div class="form-control">
-                <label class="label py-0.5"
-                  ><span class="label-text text-xs font-semibold"
-                    >Live URL</span
-                  ></label
-                >
-                <input
-                  type="url"
-                  class="input input-bordered rounded-xl text-sm"
-                  placeholder="https://..."
-                  :value="linkedDream.liveUrl ?? ''"
-                  :disabled="dreamSaving"
-                  @blur="autosave('liveUrl', $event)"
-                />
+            <div class="xl:grid xl:grid-cols-2 xl:gap-4">
+              <div class="space-y-3">
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Description</span
+                    ></label
+                  >
+                  <textarea
+                    class="textarea textarea-bordered rounded-xl text-sm"
+                    rows="5"
+                    placeholder="What is this project?"
+                    :value="linkedDream.description ?? ''"
+                    :disabled="dreamSaving"
+                    @blur="autosave('description', $event)"
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Intent / Pitch</span
+                    ></label
+                  >
+                  <textarea
+                    class="textarea textarea-bordered rounded-xl text-sm"
+                    rows="4"
+                    placeholder="Core constraint or north star"
+                    :value="linkedDream.pitch ?? ''"
+                    :disabled="dreamSaving"
+                    @blur="autosave('pitch', $event)"
+                  />
+                </div>
               </div>
-              <div class="form-control">
-                <label class="label py-0.5"
-                  ><span class="label-text text-xs font-semibold"
-                    >Repo URL</span
-                  ></label
-                >
-                <input
-                  type="url"
-                  class="input input-bordered rounded-xl text-sm"
-                  placeholder="https://github.com/..."
-                  :value="linkedDream.repoUrl ?? ''"
-                  :disabled="dreamSaving"
-                  @blur="autosave('repoUrl', $event)"
-                />
+              <div class="mt-3 space-y-3 xl:mt-0">
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Flavor Text</span
+                    ></label
+                  >
+                  <input
+                    type="text"
+                    class="input input-bordered rounded-xl text-sm"
+                    placeholder="Short tagline"
+                    :value="linkedDream.flavorText ?? ''"
+                    :disabled="dreamSaving"
+                    @blur="autosave('flavorText', $event)"
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Live URL</span
+                    ></label
+                  >
+                  <input
+                    type="url"
+                    class="input input-bordered rounded-xl text-sm"
+                    placeholder="https://..."
+                    :value="linkedDream.liveUrl ?? ''"
+                    :disabled="dreamSaving"
+                    @blur="autosave('liveUrl', $event)"
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Repo URL</span
+                    ></label
+                  >
+                  <input
+                    type="url"
+                    class="input input-bordered rounded-xl text-sm"
+                    placeholder="https://github.com/..."
+                    :value="linkedDream.repoUrl ?? ''"
+                    :disabled="dreamSaving"
+                    @blur="autosave('repoUrl', $event)"
+                  />
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <a
+                    v-if="linkedDream.liveUrl"
+                    :href="linkedDream.liveUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-xs btn-outline gap-1"
+                    ><Icon name="kind-icon:external-link" class="size-3" /> Live
+                    Site</a
+                  >
+                  <a
+                    v-if="linkedDream.repoUrl"
+                    :href="linkedDream.repoUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-xs btn-outline gap-1"
+                    ><Icon name="kind-icon:code" class="size-3" /> Repo</a
+                  >
+                </div>
               </div>
-            </div>
-            <div class="flex flex-wrap gap-2 pt-1">
-              <a
-                v-if="linkedDream.liveUrl"
-                :href="linkedDream.liveUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-xs btn-outline gap-1"
-                ><Icon name="kind-icon:external-link" class="size-3" /> Live
-                Site</a
-              >
-              <a
-                v-if="linkedDream.repoUrl"
-                :href="linkedDream.repoUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-xs btn-outline gap-1"
-                ><Icon name="kind-icon:code" class="size-3" /> Repo</a
-              >
             </div>
           </div>
 
@@ -1167,6 +1234,7 @@ import { useDreamStore } from '@/stores/dreamStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
+import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import type { DreamPriority } from '@/stores/conductorStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
@@ -1226,8 +1294,11 @@ const pitchEditTexts = ref<Record<string, string>>({})
 const newTodoTitle = ref('')
 const newTodoDescription = ref('')
 const newTodoPriority = ref<DreamPriority>('NORMAL')
+const newTodoCategory = ref<TodoCategory>('AGENT')
 const todoFilter = ref<'OPEN' | 'DONE' | 'ARCHIVED'>('OPEN')
 const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
+const taskTab = ref<'AGENT' | 'KAIZEN' | 'HONEYDO'>('AGENT')
+const requestingPitches = ref(false)
 
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -1298,15 +1369,40 @@ const hasBrainstormContent = computed(
 )
 
 const filteredTodos = computed(() => {
+  let base: typeof todoStore.todos
   switch (todoFilter.value) {
-    case 'OPEN':
-      return todoStore.openTodos
-    case 'DONE':
-      return todoStore.doneTodos
-    case 'ARCHIVED':
-      return todoStore.archivedTodos
+    case 'OPEN':   base = todoStore.openTodos; break
+    case 'DONE':   base = todoStore.doneTodos; break
+    case 'ARCHIVED': base = todoStore.archivedTodos; break
+    default: base = todoStore.openTodos
+  }
+  if (todoFilter.value !== 'OPEN') return base
+  switch (taskTab.value) {
+    case 'KAIZEN':  return todoStore.kaizenTodos
+    case 'HONEYDO': return todoStore.honeyDoTodos
+    default:        return todoStore.agentTodos
   }
 })
+
+const allPitchesVoted = computed(() =>
+  allPitches.value.length > 0 &&
+  allPitches.value.every((p) => Boolean(pitchVotedChoice(p.slug))),
+)
+
+async function requestNewPitches() {
+  requestingPitches.value = true
+  try {
+    await todoStore.createTodo({
+      title: 'Generate new brainstorm pitches',
+      description: 'All current pitches have been voted on. Please generate another batch of pitches per the brainstorm roadmap guidelines.',
+      priority: 'HIGH',
+      category: 'AGENT',
+    })
+    if (!todoStore.hasLoaded) await todoStore.fetchTodos(true)
+  } finally {
+    requestingPitches.value = false
+  }
+}
 
 const viewMode = computed(() => {
   const key = pageStore.workspaceCardKey
@@ -1440,6 +1536,10 @@ function showSaveMessage(msg: string, isError = false) {
 
 watch(viewMode, async (mode) => {
   if (mode === 'tasks' && !todoStore.hasLoaded) await todoStore.fetchTodos(true)
+})
+
+watch(taskTab, (tab) => {
+  newTodoCategory.value = tab
 })
 
 watch(
@@ -1579,11 +1679,13 @@ async function submitNewTodo() {
   await todoStore.createTodo({
     title,
     priority: newTodoPriority.value,
+    category: newTodoCategory.value,
     description: newTodoDescription.value.trim() || null,
   })
   newTodoTitle.value = ''
   newTodoDescription.value = ''
   newTodoPriority.value = 'NORMAL'
+  newTodoCategory.value = taskTab.value
   todoFilter.value = 'OPEN'
 }
 

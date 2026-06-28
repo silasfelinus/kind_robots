@@ -5,6 +5,7 @@ import { performFetch, handleError } from './utils'
 
 export type TodoStatus = 'OPEN' | 'DONE' | 'ARCHIVED'
 export type TodoPriority = 'LOW' | 'NORMAL' | 'HIGH'
+export type TodoCategory = 'AGENT' | 'KAIZEN' | 'HONEYDO'
 
 export interface Todo {
   id: number
@@ -14,6 +15,7 @@ export interface Todo {
   description: string | null
   status: TodoStatus
   priority: TodoPriority
+  category: TodoCategory
   dueDate: string | null
   icon: string | null
   imagePath: string | null
@@ -24,6 +26,7 @@ export type TodoCreate = {
   title: string
   description?: string | null
   priority?: TodoPriority
+  category?: TodoCategory
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
@@ -34,6 +37,7 @@ export type TodoUpdate = {
   description?: string | null
   status?: TodoStatus
   priority?: TodoPriority
+  category?: TodoCategory
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
@@ -53,6 +57,16 @@ export const useTodoStore = defineStore('todoStore', () => {
   )
   const archivedTodos = computed(() =>
     todos.value.filter((t) => t.status === 'ARCHIVED'),
+  )
+
+  const agentTodos = computed(() =>
+    openTodos.value.filter((t) => !t.category || t.category === 'AGENT'),
+  )
+  const kaizenTodos = computed(() =>
+    openTodos.value.filter((t) => t.category === 'KAIZEN'),
+  )
+  const honeyDoTodos = computed(() =>
+    openTodos.value.filter((t) => t.category === 'HONEYDO'),
   )
 
   async function fetchTodos(includeArchived = false): Promise<void> {
@@ -174,6 +188,9 @@ export const useTodoStore = defineStore('todoStore', () => {
     openTodos,
     doneTodos,
     archivedTodos,
+    agentTodos,
+    kaizenTodos,
+    honeyDoTodos,
     fetchTodos,
     createTodo,
     updateTodo,

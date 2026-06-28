@@ -3,18 +3,35 @@
   <div ref="menuRef" class="relative flex">
     <button
       ref="buttonRef"
-      class="btn btn-sm flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center rounded-xl p-0 sm:h-full sm:w-full sm:min-w-0 sm:flex-1"
+      class="btn flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border px-1.5 py-1.5 transition-all hover:-translate-y-0.5 hover:shadow-sm w-14 xl:w-[4.25rem]"
       :class="
         showMenu
-          ? 'btn-secondary'
-          : 'btn-ghost border border-base-300 bg-base-100'
+          ? 'btn-secondary border-secondary bg-secondary text-secondary-content shadow-sm'
+          : 'btn-ghost border-base-300 bg-base-100'
       "
       type="button"
       :aria-expanded="showMenu"
       :title="`Explore: ${activeChannel.label}`"
       @click.stop="toggleMenu"
     >
-      <Icon :name="activeChannel.icon" class="h-6 w-6 shrink-0" />
+      <span
+        class="flex h-7 w-7 xl:h-8 xl:w-8 shrink-0 items-center justify-center rounded-lg border bg-base-200"
+        :class="
+          showMenu
+            ? 'border-secondary-content/20 bg-secondary-content/10'
+            : 'border-base-300/60'
+        "
+      >
+        <Icon
+          :name="activeChannel.icon"
+          class="h-4 w-4 xl:h-[1.125rem] xl:w-[1.125rem] shrink-0"
+        />
+      </span>
+      <span
+        class="max-w-full truncate text-[0.5rem] xl:text-[0.55rem] font-black uppercase tracking-wide leading-none"
+      >
+        {{ activeChannel.label }}
+      </span>
     </button>
 
     <Teleport to="body">

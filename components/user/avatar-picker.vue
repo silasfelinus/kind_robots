@@ -88,29 +88,15 @@
       <!-- GALLERY TAB -->
       <div
         v-show="activeTab === 'gallery'"
-        class="flex h-full min-h-0 flex-col gap-2"
+        class="flex h-full min-h-0 flex-col gap-3"
       >
-        <!-- Collection selector -->
-        <div class="flex shrink-0 items-center gap-2">
-          <label
-            class="input input-bordered input-sm flex flex-1 items-center gap-1.5 bg-base-100"
-          >
-            <Icon
-              name="kind-icon:search"
-              class="h-3.5 w-3.5 shrink-0 text-base-content/40"
-            />
-            <input
-              v-model="gallerySearch"
-              type="search"
-              class="min-w-0 flex-1 bg-transparent"
-              placeholder="Search images…"
-            />
-          </label>
-
+        <!-- Selectors row -->
+        <div class="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
           <select
             v-model="selectedCollectionId"
-            class="select select-bordered select-sm max-w-48 bg-base-100 font-semibold"
+            class="select select-bordered select-sm flex-1 bg-base-100 font-semibold"
             title="Collection"
+            :disabled="isLoadingGallery"
           >
             <option
               v-for="option in collectionOptions"
@@ -121,89 +107,92 @@
             </option>
           </select>
 
-          <button
-            class="btn btn-ghost btn-sm rounded-lg"
-            type="button"
-            :disabled="isLoadingGallery"
-            title="Refresh"
-            @click="refreshGallery(true)"
-          >
-            <span
-              v-if="isLoadingGallery"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-          </button>
+          <div class="flex flex-1 items-center gap-2">
+            <select
+              v-model="selectedImageId"
+              class="select select-bordered select-sm flex-1 bg-base-100"
+              title="Image"
+              :disabled="isLoadingGallery || !galleryImages.length"
+            >
+              <option v-if="!galleryImages.length" :value="null" disabled>
+                No images
+              </option>
+              <option
+                v-for="image in galleryImages"
+                :key="image.id"
+                :value="image.id"
+              >
+                {{ image.fileName || image.promptString?.slice(0, 40) || `Image #${image.id}` }}
+              </option>
+            </select>
+
+            <button
+              class="btn btn-ghost btn-sm rounded-lg"
+              type="button"
+              :disabled="isLoadingGallery"
+              title="Refresh"
+              @click="refreshGallery(true)"
+            >
+              <span v-if="isLoadingGallery" class="loading loading-spinner loading-xs" />
+              <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        <!-- Image grid -->
-        <div class="min-h-0 flex-1 overflow-y-auto rounded-xl bg-base-100 p-2">
+        <!-- Single image preview -->
+        <div class="flex min-h-0 flex-1 flex-col items-center gap-3">
           <div
             v-if="isLoadingGallery"
-            class="flex h-full min-h-40 items-center justify-center"
+            class="flex flex-1 items-center justify-center"
           >
             <span class="loading loading-spinner loading-lg text-primary" />
           </div>
 
           <div
             v-else-if="!galleryImages.length"
-            class="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-center text-base-content/55"
+            class="flex flex-1 flex-col items-center justify-center gap-2 text-center text-base-content/55"
           >
             <Icon name="kind-icon:gallery" class="h-10 w-10 text-primary/60" />
-            <p class="text-sm font-bold text-base-content">
-              No images here yet.
-            </p>
-            <p class="text-xs">
-              Try the Upload or Generate tab to make your first one.
-            </p>
+            <p class="text-sm font-bold text-base-content">No images here yet.</p>
+            <p class="text-xs">Try the Upload or Generate tab to make your first one.</p>
           </div>
 
-          <div
-            v-else
-            class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5"
-          >
-            <button
-              v-for="image in galleryImages"
-              :key="image.id"
-              class="group relative aspect-square overflow-hidden rounded-xl border-2 transition focus:outline-none focus:ring-2 focus:ring-primary"
-              :class="
-                pendingId === image.id
-                  ? 'border-primary ring-2 ring-primary'
-                  : 'border-base-300 hover:border-primary/60'
-              "
-              type="button"
-              :disabled="isApplying"
-              :title="
-                image.promptString || image.fileName || `Image #${image.id}`
-              "
-              @click="chooseFromGallery(image)"
-            >
+          <template v-else-if="selectedGalleryImage">
+            <div class="relative aspect-square w-full max-w-xs overflow-hidden rounded-2xl border-2 border-primary/30 bg-base-300 shadow-lg">
               <img
-                :src="thumbFor(image)"
-                :alt="image.promptString || `Image ${image.id}`"
-                class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                :src="thumbFor(selectedGalleryImage)"
+                :alt="selectedGalleryImage.promptString || `Image ${selectedGalleryImage.id}`"
+                class="h-full w-full object-cover"
                 loading="lazy"
                 decoding="async"
-                @error="onThumbError($event, image)"
+                @error="onThumbError($event, selectedGalleryImage)"
               />
-
               <span
-                class="pointer-events-none absolute inset-0 flex items-center justify-center bg-primary/0 transition group-hover:bg-primary/30"
-              >
-                <Icon
-                  name="kind-icon:check"
-                  class="h-6 w-6 scale-0 text-primary-content drop-shadow transition group-hover:scale-100"
-                />
-              </span>
-
-              <span
-                v-if="pendingId === image.id && isApplying"
+                v-if="pendingId === selectedGalleryImage.id && isApplying"
                 class="absolute inset-0 flex items-center justify-center bg-base-100/70"
               >
-                <span class="loading loading-spinner loading-sm text-primary" />
+                <span class="loading loading-spinner loading-lg text-primary" />
               </span>
+            </div>
+
+            <p
+              v-if="selectedGalleryImage.promptString"
+              class="line-clamp-2 max-w-xs text-center text-xs text-base-content/55"
+            >
+              {{ selectedGalleryImage.promptString }}
+            </p>
+
+            <button
+              type="button"
+              class="btn btn-primary rounded-xl px-8"
+              :disabled="isApplying"
+              @click="chooseFromGallery(selectedGalleryImage)"
+            >
+              <span v-if="isApplying" class="loading loading-spinner loading-sm" />
+              <Icon v-else name="kind-icon:check" class="h-4 w-4" />
+              Use this avatar
             </button>
-          </div>
+          </template>
         </div>
       </div>
 
@@ -276,8 +265,8 @@ const userStore = useUserStore()
 const uploadStore = useUploadStore()
 
 const activeTab = ref<TabValue>('gallery')
-const gallerySearch = ref('')
 const selectedCollectionId = ref<number>(-1)
+const selectedImageId = ref<number | null>(null)
 const isLoadingGallery = ref(false)
 const isApplying = ref(false)
 const pendingId = ref<number | null>(null)
@@ -330,6 +319,11 @@ const activeCollection = computed<ArtCollection | null>(() => {
   )
 })
 
+const selectedGalleryImage = computed<ArtImage | null>(() => {
+  if (selectedImageId.value === null) return galleryImages.value[0] ?? null
+  return galleryImages.value.find((img) => img.id === selectedImageId.value) ?? galleryImages.value[0] ?? null
+})
+
 const galleryImages = computed<ArtImage[]>(() => {
   const base = activeCollection.value
     ? collectionImages(activeCollection.value)
@@ -337,26 +331,7 @@ const galleryImages = computed<ArtImage[]>(() => {
         .map((image) => localHydrated.value[image.id] || image)
         .sort((a, b) => b.id - a.id)
 
-  const query = gallerySearch.value.trim().toLowerCase()
-  const matureSafe = base.filter(
-    (image) => userStore.showMature || !image.isMature,
-  )
-
-  if (!query) return matureSafe
-
-  return matureSafe.filter((image) =>
-    [
-      image.id,
-      image.fileName,
-      image.promptString,
-      image.designer,
-      image.checkpoint,
-    ]
-      .filter((v) => v !== null && v !== undefined)
-      .join(' ')
-      .toLowerCase()
-      .includes(query),
-  )
+  return base.filter((image) => userStore.showMature || !image.isMature)
 })
 
 // ── Image source helpers (mirror image-card's resolution, thumb-first) ────
@@ -595,6 +570,13 @@ watch(
   () => {
     configureUploadTarget()
     initPreview()
+  },
+)
+
+watch(
+  () => selectedCollectionId.value,
+  () => {
+    selectedImageId.value = null
   },
 )
 </script>

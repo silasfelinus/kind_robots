@@ -189,6 +189,73 @@
             </button>
           </div>
 
+          <!-- New Project on-ramp -->
+          <div class="shrink-0">
+            <div v-if="!showNewProjectForm" class="flex items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                :disabled="atProjectCap"
+                @click="showNewProjectForm = true"
+              >
+                <Icon name="kind-icon:plus" class="size-4" /> New Project
+              </button>
+              <p v-if="atProjectCap" class="text-xs text-warning">
+                Free accounts are limited to {{ FREE_PROJECT_LIMIT }} active projects.
+                <a href="/subscribe" class="font-semibold underline">Upgrade</a> to add more.
+              </p>
+            </div>
+            <form
+              v-else
+              class="space-y-3 rounded-2xl border border-primary/30 bg-base-100 p-4"
+              @submit.prevent="createNewProject"
+            >
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">New Project</h4>
+                <button type="button" class="btn btn-ghost btn-xs rounded-lg" @click="cancelNewProject">
+                  <Icon name="kind-icon:x" class="size-3" />
+                </button>
+              </div>
+              <input
+                v-model="newProjectTitle"
+                type="text"
+                placeholder="Project title (required)"
+                class="input input-bordered w-full rounded-xl"
+                :disabled="creatingProject"
+                required
+                autofocus
+              />
+              <textarea
+                v-model="newProjectDescription"
+                placeholder="What does this project do? (optional)"
+                class="textarea textarea-bordered w-full rounded-xl text-sm"
+                rows="2"
+                :disabled="creatingProject"
+              />
+              <input
+                v-model="newProjectFlavorText"
+                type="text"
+                placeholder="One-line tagline (optional)"
+                class="input input-bordered input-sm w-full rounded-xl"
+                :disabled="creatingProject"
+              />
+              <div class="flex items-center gap-2">
+                <span v-if="newProjectError" class="flex-1 text-xs text-error">{{ newProjectError }}</span>
+                <div class="ml-auto flex gap-2">
+                  <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="cancelNewProject">Cancel</button>
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-sm rounded-xl"
+                    :disabled="!newProjectTitle.trim() || creatingProject"
+                  >
+                    <span v-if="creatingProject" class="loading loading-spinner loading-xs" />
+                    Create
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           <div v-if="activeProjects.length" class="space-y-3">
             <div class="flex items-center gap-2">
               <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
@@ -1127,6 +1194,7 @@ const todoStore = useTodoStore()
 const conductorStore = useConductorStore()
 
 const CONDUCTOR_IMG_BASE = 'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
+const FREE_PROJECT_LIMIT = 2
 
 type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
 const galleryModeOptions: { value: GalleryMode; label: string }[] = [
@@ -1140,6 +1208,13 @@ const projectGalleryMode = ref<GalleryMode>('cards')
 const syncingMissing = ref(false)
 const syncMessage = ref('')
 const syncError = ref(false)
+
+const showNewProjectForm = ref(false)
+const newProjectTitle = ref('')
+const newProjectDescription = ref('')
+const newProjectFlavorText = ref('')
+const creatingProject = ref(false)
+const newProjectError = ref('')
 
 const dreamSaving = ref(false)
 const dreamSaveMessage = ref('')
@@ -1203,6 +1278,20 @@ const missingProjectSlugs = computed(() => {
   const dbSlugs = new Set(dreamStore.projectDreams.map((d) => d.slug))
   return conductorStore.projects.filter((p) => !dbSlugs.has(p.slug)).map((p) => p.slug)
 })
+
+const activeProjectCount = computed(() =>
+  dreamStore.projectDreams.filter(
+    (d) => d.projectStatus === 'ACTIVE' || d.projectStatus === 'PAUSED',
+  ).length,
+)
+
+const atProjectCap = computed(
+  () =>
+    !userStore.isAdmin &&
+    !userStore.isFamily &&
+    !userStore.isMember &&
+    activeProjectCount.value >= FREE_PROJECT_LIMIT,
+)
 
 const hasBrainstormContent = computed(
   () => pendingPitches.value.length > 0 || brainstormProjects.value.length > 0,
@@ -1422,6 +1511,45 @@ async function syncMissingProjects() {
     syncMessage.value = 'Sync failed'
   } finally {
     syncingMissing.value = false
+  }
+}
+
+function cancelNewProject() {
+  showNewProjectForm.value = false
+  newProjectTitle.value = ''
+  newProjectDescription.value = ''
+  newProjectFlavorText.value = ''
+  newProjectError.value = ''
+}
+
+async function createNewProject() {
+  const title = newProjectTitle.value.trim()
+  if (!title) return
+  creatingProject.value = true
+  newProjectError.value = ''
+  try {
+    const res = await $fetch<{ success: boolean; message?: string }>('/api/dreams', {
+      method: 'POST',
+      body: {
+        title,
+        description: newProjectDescription.value.trim() || null,
+        flavorText: newProjectFlavorText.value.trim() || null,
+        dreamType: 'PROJECT',
+        isPublic: true,
+        isActive: true,
+      },
+    })
+    if (res.success) {
+      cancelNewProject()
+      await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
+    } else {
+      newProjectError.value = res.message || 'Failed to create project.'
+    }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    newProjectError.value = msg.includes('403') ? 'Project limit reached. Archive a project or upgrade.' : (msg || 'Failed to create project.')
+  } finally {
+    creatingProject.value = false
   }
 }
 

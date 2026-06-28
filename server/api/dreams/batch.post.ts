@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { enforceProjectCap } from '@/server/utils/projectCap'
 import type {
   CreationSource,
   DreamPriority,
@@ -97,6 +98,8 @@ async function createDreamFromInput(
   body: DreamMutationInput,
   callerUserId: number,
   sender: string,
+  callerRole: string,
+  callerIsAdmin: boolean,
 ) {
   const userId = (body.userId && Number.isInteger(body.userId) && body.userId > 0)
     ? body.userId
@@ -108,6 +111,11 @@ async function createDreamFromInput(
       statusCode: 400,
       message: 'The "title" field is required.',
     })
+  }
+
+  const dreamTypeNormalized = normalizeDreamType(body.dreamType)
+  if (dreamTypeNormalized === 'PROJECT') {
+    await enforceProjectCap({ userId, userRole: callerRole, isAdmin: callerIsAdmin })
   }
 
   const slug = body.slug?.trim()
@@ -145,7 +153,7 @@ async function createDreamFromInput(
   const dataInput: Prisma.DreamCreateInput = {
     title,
     slug,
-    dreamType: normalizeDreamType(body.dreamType),
+    dreamType: dreamTypeNormalized,
     creationSource: normalizeCreationSource(body.creationSource),
     description: normalizeOptionalText(body.description) ?? null,
     pitch: normalizeOptionalText(body.pitch) ?? null,
@@ -293,13 +301,14 @@ export default defineEventHandler(async (event) => {
       select: { username: true },
     })
 
+    const callerIsAdmin = user.Role === 'ADMIN' || user.id === 1
     const sender = userRecord?.username || `User ${user.id}`
     const dreams = []
     const errors: DreamBatchError[] = []
 
     for (const [index, dreamData] of dreamsData.entries()) {
       try {
-        const dream = await createDreamFromInput(dreamData, user.id, sender)
+        const dream = await createDreamFromInput(dreamData, user.id, sender, user.Role, callerIsAdmin)
         dreams.push(dream)
       } catch (error: unknown) {
         const handled = errorHandler(error)

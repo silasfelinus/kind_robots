@@ -19,16 +19,28 @@
         <Icon name="kind-icon:arrow-left" class="h-5 w-5" />
       </button>
 
-      <channel-select class="header-control-item min-w-0 shrink-0" />
+      <channel-select class="shrink-0" />
 
-      <div v-if="resolvedTabs.length" class="dropdown min-w-0 flex-1 xl:hidden">
+      <!-- Unified tab selector — same layout at every breakpoint, scales up on larger screens -->
+      <div v-if="resolvedTabs.length" class="dropdown min-w-0 flex-1">
         <button
           tabindex="0"
           type="button"
-          class="btn flex h-10 min-h-10 w-full max-w-full items-center justify-start gap-2 rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm sm:h-11 sm:min-h-11"
+          class="btn relative flex h-10 min-h-10 w-full max-w-full items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
         >
+          <img
+            v-if="activeTabConfig.image"
+            :src="activeTabConfig.image"
+            :alt="activeTabConfig.title || activeTabConfig.label"
+            class="absolute inset-0 -z-10 h-full w-full object-cover opacity-15 xl:opacity-20"
+          />
+
           <span
-            class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200 sm:h-9 sm:w-9"
+            class="absolute inset-0 -z-10 bg-linear-to-r from-base-100/95 via-base-100/80 to-base-100/40"
+          />
+
+          <span
+            class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
           >
             <img
               v-if="activeTabConfig.image"
@@ -42,7 +54,7 @@
             >
               <Icon
                 :name="activeTabConfig.icon || fallbackIcon"
-                class="h-4 w-4 text-base-100 drop-shadow sm:h-5 sm:w-5"
+                class="h-4 w-4 text-base-100 drop-shadow xl:h-5 xl:w-5"
               />
             </span>
           </span>
@@ -55,10 +67,15 @@
               {{ shellTitle }}
             </span>
 
-            <span class="max-w-full truncate text-sm font-black sm:text-base">
+            <span class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg">
               {{ activeTitle }}
             </span>
           </span>
+
+          <Icon
+            name="kind-icon:chevron-down"
+            class="h-3.5 w-3.5 shrink-0 text-base-content/50 xl:h-4 xl:w-4"
+          />
         </button>
 
         <ul
@@ -68,7 +85,7 @@
           <li v-for="tab in resolvedTabs" :key="tab.key">
             <button
               type="button"
-              class="flex min-h-12 items-center gap-2 rounded-xl"
+              class="flex min-h-12 items-center gap-2 rounded-xl xl:min-h-14"
               :class="
                 activeTabKey === tab.key
                   ? 'active bg-primary text-primary-content'
@@ -77,7 +94,7 @@
               @click="selectTabFromDropdown(tab.key)"
             >
               <span
-                class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-base-200"
+                class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-base-200 xl:h-10 xl:w-10"
               >
                 <img
                   v-if="tab.image"
@@ -97,7 +114,7 @@
               </span>
 
               <span class="flex min-w-0 flex-col items-start">
-                <span class="max-w-full truncate text-sm font-black">
+                <span class="max-w-full truncate text-sm font-black xl:text-base">
                   {{ tab.label }}
                 </span>
 
@@ -115,7 +132,7 @@
 
       <section
         v-else
-        class="flex min-w-0 flex-1 flex-col justify-center leading-tight xl:max-w-80 xl:shrink-0 xl:flex-none"
+        class="flex min-w-0 flex-1 flex-col justify-center leading-tight"
       >
         <p
           v-if="shellTitle"
@@ -128,59 +145,6 @@
           {{ activeTitle }}
         </h1>
       </section>
-
-      <nav
-        v-if="resolvedTabs.length"
-        class="hidden min-w-0 flex-1 items-stretch overflow-hidden rounded-2xl bg-base-200/70 p-1 xl:flex xl:min-h-13"
-        aria-label="Dashboard tabs"
-      >
-        <div class="grid min-w-0 flex-1 gap-1" :class="desktopTabGridClass">
-          <button
-            v-for="tab in resolvedTabs"
-            :key="tab.key"
-            type="button"
-            class="group relative isolate flex min-h-11 min-w-0 items-center gap-2 overflow-hidden rounded-xl border px-2 py-1 text-left font-black normal-case leading-tight transition-all hover:-translate-y-0.5 hover:shadow-md"
-            :class="
-              activeTabKey === tab.key
-                ? 'border-primary bg-primary text-primary-content shadow-sm'
-                : 'border-base-300 bg-base-100 text-base-content hover:border-primary/40'
-            "
-            @click="setTab(tab.key)"
-          >
-            <img
-              v-if="tab.image"
-              :src="tab.image"
-              :alt="tab.title || tab.label"
-              class="absolute inset-0 -z-10 h-full w-full object-cover opacity-25 transition-all duration-300 group-hover:scale-105 group-hover:opacity-45"
-              :class="activeTabKey === tab.key ? 'opacity-40' : ''"
-            />
-
-            <span
-              class="absolute inset-0 -z-10 bg-linear-to-r from-base-100/95 via-base-100/80 to-base-100/45"
-              :class="
-                activeTabKey === tab.key
-                  ? 'from-primary via-primary/90 to-primary/55'
-                  : ''
-              "
-            />
-
-            <span
-              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border backdrop-blur-sm"
-              :class="
-                activeTabKey === tab.key
-                  ? 'border-primary-content/40 bg-primary-content/20 text-primary-content'
-                  : 'border-base-300 bg-base-100/80 text-base-content'
-              "
-            >
-              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
-            </span>
-
-            <span class="min-w-0 flex-1 truncate text-sm drop-shadow-sm 2xl:text-base">
-              {{ tab.label }}
-            </span>
-          </button>
-        </div>
-      </nav>
 
       <section class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5">
         <server-selector class="header-control-item min-w-0" />
@@ -233,19 +197,6 @@ const resolvedDashboardKey = computed<DashboardKey | null>(() => {
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   const key = resolvedDashboardKey.value
   return key ? navStore.getDashboardTabs(key) : []
-})
-
-const desktopTabGridClass = computed(() => {
-  const count = resolvedTabs.value.length
-
-  if (count >= 7) return 'grid-cols-4 grid-rows-2'
-  if (count >= 6) return 'grid-cols-3 grid-rows-2'
-  if (count === 5) return 'grid-cols-5'
-  if (count === 4) return 'grid-cols-4'
-  if (count === 3) return 'grid-cols-3'
-  if (count === 2) return 'grid-cols-2'
-
-  return 'grid-cols-1'
 })
 
 const routeRequestedTabKey = computed(() => {
@@ -414,18 +365,18 @@ function goBack(): void {
 @media (min-width: 1280px) {
   .header-control-strip :deep(.btn),
   .header-control-item :deep(.btn) {
-    min-height: 2.5rem;
-    height: 2.5rem;
-    min-width: 2.5rem;
-    width: 2.5rem;
+    min-height: 2.75rem;
+    height: 2.75rem;
+    min-width: 2.75rem;
+    width: 2.75rem;
   }
 
   .header-control-strip :deep(.login-switcher-avatar),
   .header-control-item :deep(.login-switcher-avatar) {
-    width: 2.5rem;
-    min-width: 2.5rem;
-    height: 2.5rem;
-    min-height: 2.5rem;
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
   }
 }
 </style>

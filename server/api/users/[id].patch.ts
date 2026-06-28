@@ -50,6 +50,22 @@ function normalizeSmartBar(v: unknown): string | null {
   return uniqueIds.length ? uniqueIds.join(',') : ''
 }
 
+function normalizeOptionalId(v: unknown): number | null | undefined {
+  if (v == null || v === '') return null
+
+  const id = Number(v)
+
+  return Number.isInteger(id) && id > 0 ? id : undefined
+}
+
+function isOversizedAvatarPayload(value: unknown): boolean {
+  if (typeof value !== 'string') return false
+
+  const clean = value.trim()
+
+  return clean.startsWith('data:image/') || clean.length > 5000
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const userId = Number(event.context.params?.id)
@@ -85,9 +101,9 @@ export default defineEventHandler(async (event) => {
     ])
 
     const JSONISH = new Set(['vibes', 'artModels', 'textModels', 'blockList'])
-
     const BOOLS = new Set(['isPublic', 'showMature', 'customIcons', 'isMember'])
     const DATES = new Set(['memberUntil'])
+    const IDS = new Set(['artImageId'])
 
     const updateData: Record<string, unknown> = {}
 
@@ -96,6 +112,12 @@ export default defineEventHandler(async (event) => {
 
       if (k === 'smartBar') {
         updateData[k] = normalizeSmartBar(v)
+        continue
+      }
+
+      if (IDS.has(k)) {
+        const id = normalizeOptionalId(v)
+        if (id !== undefined) updateData[k] = id
         continue
       }
 
@@ -118,6 +140,18 @@ export default defineEventHandler(async (event) => {
       }
 
       updateData[k] = v
+    }
+
+    if (isOversizedAvatarPayload(updateData.avatarImage)) {
+      if (updateData.artImageId) {
+        delete updateData.avatarImage
+      } else {
+        throw createError({
+          statusCode: 400,
+          message:
+            'Avatar image payload is too large. Save the image as ArtImage and set artImageId instead.',
+        })
+      }
     }
 
     if (Object.keys(updateData).length === 0) {

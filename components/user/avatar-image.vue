@@ -1,6 +1,6 @@
 <!-- /components/content/story/avatar-image.vue -->
 <template>
-  <div v-if="hydrated" class="relative w-full h-full">
+  <div v-if="hydrated" class="relative h-full w-full">
     <div class="flip-card h-full w-full" @click.stop="handleAvatarClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
@@ -8,29 +8,31 @@
             v-if="resolvedImage"
             :src="resolvedImage"
             alt="Avatar"
-            class="w-full h-full object-cover shadow-lg hover:shadow-xl"
+            class="h-full w-full object-cover shadow-lg hover:shadow-xl"
             draggable="false"
+            @error="resolvedImage = null"
           />
           <div
             v-else
-            class="w-full h-full flex items-center justify-center bg-base-300"
+            class="flex h-full w-full items-center justify-center bg-base-300"
           >
-            <Icon name="kind-icon:person" class="w-full h-full text-accent" />
+            <Icon name="kind-icon:person" class="h-full w-full text-accent" />
           </div>
         </div>
         <div class="flip-card-back">
           <img
             v-if="resolvedImage"
             :src="resolvedImage"
-            alt="Avatar (back)"
-            class="w-full h-full object-cover shadow-lg hover:shadow-xl"
+            alt="Avatar back"
+            class="h-full w-full object-cover shadow-lg hover:shadow-xl"
             draggable="false"
+            @error="resolvedImage = null"
           />
           <div
             v-else
-            class="w-full h-full flex items-center justify-center bg-base-300"
+            class="flex h-full w-full items-center justify-center bg-base-300"
           >
-            <Icon name="kind-icon:person" class="w-full h-full text-accent" />
+            <Icon name="kind-icon:person" class="h-full w-full text-accent" />
           </div>
         </div>
       </div>
@@ -39,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
@@ -52,19 +54,15 @@ const errorStore = useErrorStore()
 
 const FALLBACK = '/images/kindart.webp'
 
-const fetchAvatar = async () => {
+async function fetchAvatar() {
   const result = await userStore.userImage()
   resolvedImage.value = result === FALLBACK ? null : result
-  console.debug('[avatar-image] resolvedImage →', resolvedImage.value)
 }
 
 watch(
-  () => [userStore.user?.artImageId, userStore.user?.avatarImage],
-  async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
-    console.info(
-      `[avatar-image] User image changed — artImageId: ${oldArtId} → ${newArtId}, avatarImage: ${oldAvatar} → ${newAvatar}`,
-    )
-    await fetchAvatar()
+  () => [userStore.user?.id, userStore.user?.artImageId, userStore.user?.avatarImage],
+  () => {
+    void fetchAvatar()
   },
 )
 
@@ -73,10 +71,8 @@ onMounted(async () => {
   await fetchAvatar()
 })
 
-const handleAvatarClick = () => {
+function handleAvatarClick() {
   try {
-    console.group('[avatar-image] click debug')
-    console.groupEnd()
     flipped.value = !flipped.value
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to toggle'

@@ -107,6 +107,8 @@
           class="pointer-events-none absolute inset-y-0 right-0 z-40 transition-[width] duration-300 ease-out"
           :style="{ width: narratorRailWidth }"
           :coexist="isXl"
+          :open="bottomMode === 'narrator-open'"
+          :dock-visible="bottomMode === 'narrator-compact' || bottomMode === 'narrator-open'"
           @update:open="setNarratorOpen"
           @update:rendered="setNarratorRendered"
           @update:compact-message-visible="setNarratorCompactMessageVisible"
@@ -130,17 +132,17 @@
         </Transition>
       </section>
 
-      <div class="pointer-events-auto fixed bottom-3 left-3 z-40">
+      <!-- Bottom-right cycling FAB -->
+      <div class="pointer-events-auto fixed bottom-3 right-3 z-50">
         <button
           type="button"
-          class="btn btn-primary btn-circle btn-sm shadow-2xl"
-          :class="handOpen ? 'btn-active' : ''"
-          :aria-expanded="handOpen"
-          aria-label="Toggle workspace hand"
-          title="Toggle workspace hand"
-          @click="toggleHand"
+          class="btn btn-circle btn-sm shadow-2xl"
+          :class="bottomMode === 'closed' ? 'btn-ghost border border-base-300 bg-base-100' : 'btn-primary'"
+          :aria-label="bottomFabLabel"
+          :title="bottomFabLabel"
+          @click="cycleBottomMode"
         >
-          <Icon name="kind-icon:card" class="h-5 w-5" />
+          <Icon :name="bottomFabIcon" class="h-5 w-5" />
         </button>
       </div>
 
@@ -215,10 +217,15 @@ function syncBreakpoints(): void {
   if (xlMedia) isXl.value = xlMedia.matches
 }
 
-const handOpen = ref(false)
-const narratorOpen = ref(false)
+type BottomMode = 'closed' | 'hand' | 'narrator-compact' | 'narrator-open'
+const bottomMode = ref<BottomMode>('closed')
 const narratorRendered = ref(false)
 const narratorCompactMessageVisible = ref(false)
+
+const handOpen = computed(() => bottomMode.value === 'hand')
+const narratorOpen = computed(
+  () => bottomMode.value === 'narrator-compact' || bottomMode.value === 'narrator-open',
+)
 
 const SHEET_W_MD = '20rem'
 const SHEET_W_XL = '24rem'
@@ -230,6 +237,7 @@ const HAND_PANEL_H = '11.5rem'
 
 const narratorCircle = computed(() => {
   if (!narratorRendered.value) return '0px'
+  if (bottomMode.value === 'closed' || bottomMode.value === 'hand') return '0px'
 
   return isMd.value ? NARRATOR_CIRCLE_MD : NARRATOR_CIRCLE_MOBILE
 })
@@ -298,19 +306,46 @@ const footerVars = computed<CSSProperties>(() => {
   } as CSSProperties
 })
 
-function toggleHand(): void {
-  handOpen.value = !handOpen.value
+const BOTTOM_MODES: BottomMode[] = ['closed', 'hand', 'narrator-compact', 'narrator-open']
+
+const bottomFabIcon = computed(() => {
+  switch (bottomMode.value) {
+    case 'hand': return 'kind-icon:card'
+    case 'narrator-compact': return 'kind-icon:robot-color'
+    case 'narrator-open': return 'kind-icon:close'
+    default: return 'kind-icon:sparkles'
+  }
+})
+
+const bottomFabLabel = computed(() => {
+  switch (bottomMode.value) {
+    case 'hand': return 'Cards open — click for narrator'
+    case 'narrator-compact': return 'Narrator docked — click to open'
+    case 'narrator-open': return 'Narrator open — click to close'
+    default: return 'Open workspace tools'
+  }
+})
+
+function cycleBottomMode(): void {
+  const idx = BOTTOM_MODES.indexOf(bottomMode.value)
+  bottomMode.value = BOTTOM_MODES[(idx + 1) % BOTTOM_MODES.length]
 }
 
 function setNarratorOpen(value: boolean): void {
-  narratorOpen.value = value
+  if (value) {
+    bottomMode.value = 'narrator-open'
+  } else if (bottomMode.value === 'narrator-open') {
+    bottomMode.value = 'narrator-compact'
+  }
 }
 
 function setNarratorRendered(value: boolean): void {
   narratorRendered.value = value
 
   if (!value) {
-    narratorOpen.value = false
+    if (bottomMode.value === 'narrator-compact' || bottomMode.value === 'narrator-open') {
+      bottomMode.value = 'closed'
+    }
     narratorCompactMessageVisible.value = false
   }
 }
@@ -356,7 +391,7 @@ onMounted(async () => {
   mdMedia.addEventListener('change', syncBreakpoints)
   xlMedia.addEventListener('change', syncBreakpoints)
 
-  if (isXl.value) handOpen.value = true
+  if (isXl.value) bottomMode.value = 'hand'
 
   failsafeTimeoutId = setTimeout(() => {
     showLoader.value = false

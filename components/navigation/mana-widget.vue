@@ -1,14 +1,14 @@
 <template>
-  <div ref="root" class="relative">
+  <div ref="root" class="mana-widget relative">
     <button
-      class="btn btn-sm btn-ghost btn-square rounded-full sm:btn-auto sm:w-full sm:justify-center sm:gap-2 sm:rounded-xl sm:px-3"
+      class="btn btn-sm btn-ghost gap-1 rounded-xl px-2"
       :class="{ 'animate-pulse': manaStore.refillReady && !manaStore.isFamily }"
       type="button"
       title="Mana"
       @click="toggle"
     >
       <span class="mana-icon text-lg leading-none">⚡</span>
-      <span class="hidden font-semibold tabular-nums sm:inline">
+      <span class="font-semibold tabular-nums">
         {{ manaStore.isFamily ? '∞' : manaStore.balance }}
       </span>
     </button>

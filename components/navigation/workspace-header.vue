@@ -149,7 +149,7 @@
       <section class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5">
         <server-selector class="header-control-item min-w-0" />
         <login-switcher class="header-control-item min-w-0" />
-        <mana-widget class="header-control-item min-w-0" />
+        <mana-widget class="shrink-0" />
       </section>
     </div>
   </header>
@@ -362,6 +362,14 @@ function goBack(): void {
   padding-right: 0;
 }
 
+.header-control-strip :deep(.mana-widget .btn) {
+  width: auto;
+  min-width: 2.25rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  gap: 0.25rem;
+}
+
 @media (min-width: 1280px) {
   .header-control-strip :deep(.btn),
   .header-control-item :deep(.btn) {
@@ -369,6 +377,13 @@ function goBack(): void {
     height: 2.75rem;
     min-width: 2.75rem;
     width: 2.75rem;
+  }
+
+  .header-control-strip :deep(.mana-widget .btn) {
+    width: auto;
+    min-width: 2.75rem;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
   }
 
   .header-control-strip :deep(.login-switcher-avatar),

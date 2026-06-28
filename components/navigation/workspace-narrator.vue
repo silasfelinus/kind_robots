@@ -547,7 +547,7 @@
     </Transition>
 
     <div
-      v-if="!isOpen"
+      v-if="!isOpen && dockVisible"
       class="pointer-events-auto absolute bottom-3 right-3 z-50 flex items-end gap-2"
     >
       <Transition name="narrator-toast">
@@ -711,10 +711,12 @@ const props = withDefaults(
   defineProps<{
     open?: boolean
     coexist?: boolean
+    dockVisible?: boolean
   }>(),
   {
     open: false,
     coexist: false,
+    dockVisible: true,
   },
 )
 
@@ -1200,6 +1202,8 @@ watch(
   (value) => {
     if (value && !isOpen.value) {
       isOpen.value = true
+    } else if (!value && isOpen.value) {
+      closePanel(false)
     }
   },
 )

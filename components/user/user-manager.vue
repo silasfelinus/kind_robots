@@ -16,17 +16,8 @@
         Refresh
       </button>
 
-      <NuxtLink
-        v-if="isGuest"
-        to="/login"
-        class="btn btn-primary btn-sm rounded-xl"
-      >
-        <Icon name="kind-icon:login" class="size-4" />
-        Log In
-      </NuxtLink>
-
       <button
-        v-else
+        v-if="!isGuest"
         class="btn btn-error btn-sm rounded-xl"
         type="button"
         :disabled="isLoggingOut"
@@ -54,7 +45,26 @@
     </div>
 
     <section
-      v-if="activeTab === 'dashboard'"
+      v-if="activeTab === 'dashboard' && isGuest"
+      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 rounded-2xl border border-base-300 bg-base-200 p-8"
+    >
+      <div class="flex flex-col items-center gap-3 text-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15">
+          <Icon name="kind-icon:user" class="h-8 w-8 text-primary" />
+        </div>
+        <h2 class="text-xl font-black text-base-content">Welcome, guest</h2>
+        <p class="max-w-xs text-sm text-base-content/60">
+          Log in to save your progress, set an avatar, and access your full account.
+        </p>
+      </div>
+      <NuxtLink to="/login" class="btn btn-primary rounded-xl px-8">
+        <Icon name="kind-icon:login" class="size-5" />
+        Log In
+      </NuxtLink>
+    </section>
+
+    <section
+      v-else-if="activeTab === 'dashboard'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
       <user-dashboard class="min-h-0 flex-1" />

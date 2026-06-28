@@ -139,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoginManagerStore } from '@/stores/loginStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -171,6 +171,15 @@ function logout() {
   store.close()
   userStore.logout()
 }
+
+watch(
+  () => userStore.userId,
+  (newId) => {
+    if (newId) {
+      store.captureCurrentSession()
+    }
+  },
+)
 
 onMounted(() => {
   store.initialize()

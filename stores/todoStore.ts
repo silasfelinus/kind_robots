@@ -1,6 +1,7 @@
 // /stores/todoStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { performFetch, handleError } from './utils'
 
 export type TodoStatus = 'OPEN' | 'DONE' | 'ARCHIVED'
 export type TodoPriority = 'LOW' | 'NORMAL' | 'HIGH'
@@ -42,23 +43,38 @@ export const useTodoStore = defineStore('todoStore', () => {
   const todos = ref<Todo[]>([])
   const loading = ref(false)
   const hasLoaded = ref(false)
+  const lastError = ref<string | null>(null)
 
-  const openTodos = computed(() => todos.value.filter((t) => t.status === 'OPEN'))
-  const doneTodos = computed(() => todos.value.filter((t) => t.status === 'DONE'))
-  const archivedTodos = computed(() => todos.value.filter((t) => t.status === 'ARCHIVED'))
+  const openTodos = computed(() =>
+    todos.value.filter((t) => t.status === 'OPEN'),
+  )
+  const doneTodos = computed(() =>
+    todos.value.filter((t) => t.status === 'DONE'),
+  )
+  const archivedTodos = computed(() =>
+    todos.value.filter((t) => t.status === 'ARCHIVED'),
+  )
 
   async function fetchTodos(includeArchived = false): Promise<void> {
     loading.value = true
+    lastError.value = null
+
     try {
-      const res = await $fetch<{ success: boolean; data: Todo[] }>(
+      const res = await performFetch<Todo[]>(
         `/api/todos${includeArchived ? '?includeArchived=1' : ''}`,
       )
-      if (res.success) {
-        todos.value = res.data
-        hasLoaded.value = true
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to fetch todos')
       }
-    } catch (err) {
-      console.error('fetchTodos failed:', err)
+
+      todos.value = res.data
+      hasLoaded.value = true
+    } catch (error) {
+      handleError(error, 'fetchTodos')
+      lastError.value =
+        error instanceof Error ? error.message : 'Failed to fetch todos'
+      console.error('fetchTodos failed:', error)
     } finally {
       loading.value = false
     }
@@ -66,57 +82,84 @@ export const useTodoStore = defineStore('todoStore', () => {
 
   async function createTodo(data: TodoCreate): Promise<Todo | null> {
     loading.value = true
+    lastError.value = null
+
     try {
-      const res = await $fetch<{ success: boolean; data: Todo }>('/api/todos', {
+      const res = await performFetch<Todo>('/api/todos', {
         method: 'POST',
-        body: data,
+        body: JSON.stringify(data),
       })
-      if (res.success && res.data) {
-        todos.value = [res.data, ...todos.value]
-        return res.data
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to create todo')
       }
-    } catch (err) {
-      console.error('createTodo failed:', err)
+
+      todos.value = [res.data, ...todos.value]
+      return res.data
+    } catch (error) {
+      handleError(error, 'createTodo')
+      lastError.value =
+        error instanceof Error ? error.message : 'Failed to create todo'
+      console.error('createTodo failed:', error)
+      return null
     } finally {
       loading.value = false
     }
-    return null
   }
 
   async function updateTodo(id: number, data: TodoUpdate): Promise<boolean> {
+    lastError.value = null
+
     try {
-      const res = await $fetch<{ success: boolean; data: Todo }>(`/api/todos/${id}`, {
+      const res = await performFetch<Todo>(`/api/todos/${id}`, {
         method: 'PATCH',
-        body: data,
+        body: JSON.stringify(data),
       })
-      if (res.success && res.data) {
-        const idx = todos.value.findIndex((t) => t.id === id)
-        if (idx !== -1) todos.value[idx] = res.data
-        return true
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to update todo')
       }
-    } catch (err) {
-      console.error('updateTodo failed:', err)
+
+      const idx = todos.value.findIndex((t) => t.id === id)
+      if (idx !== -1) todos.value[idx] = res.data
+
+      return true
+    } catch (error) {
+      handleError(error, 'updateTodo')
+      lastError.value =
+        error instanceof Error ? error.message : 'Failed to update todo'
+      console.error('updateTodo failed:', error)
+      return false
     }
-    return false
   }
 
   async function deleteTodo(id: number): Promise<boolean> {
+    lastError.value = null
+
     try {
-      const res = await $fetch<{ success: boolean }>(`/api/todos/${id}`, {
+      const res = await performFetch(`/api/todos/${id}`, {
         method: 'DELETE',
       })
-      if (res.success) {
-        todos.value = todos.value.filter((t) => t.id !== id)
-        return true
+
+      if (!res.success) {
+        throw new Error(res.message || 'Failed to delete todo')
       }
-    } catch (err) {
-      console.error('deleteTodo failed:', err)
+
+      todos.value = todos.value.filter((t) => t.id !== id)
+      return true
+    } catch (error) {
+      handleError(error, 'deleteTodo')
+      lastError.value =
+        error instanceof Error ? error.message : 'Failed to delete todo'
+      console.error('deleteTodo failed:', error)
+      return false
     }
-    return false
   }
 
   async function toggleDone(todo: Todo): Promise<boolean> {
-    return updateTodo(todo.id, { status: todo.status === 'DONE' ? 'OPEN' : 'DONE' })
+    return updateTodo(todo.id, {
+      status: todo.status === 'DONE' ? 'OPEN' : 'DONE',
+    })
   }
 
   async function archiveTodo(id: number): Promise<boolean> {
@@ -127,6 +170,7 @@ export const useTodoStore = defineStore('todoStore', () => {
     todos,
     loading,
     hasLoaded,
+    lastError,
     openTodos,
     doneTodos,
     archivedTodos,

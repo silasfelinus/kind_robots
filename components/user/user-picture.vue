@@ -21,14 +21,57 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 
 const userStore = useUserStore()
+const artStore = useArtStore()
 const size = 40
 const fallbackAvatar = '/images/kindart.webp'
 const avatarImage = ref<string | null>(fallbackAvatar)
 
+function looksLikeBase64(value: string): boolean {
+  const compact = value.replace(/\s+/g, '')
+  return compact.length >= 64 && compact.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/.test(compact)
+}
+
+function asImageSource(value?: string | null): string {
+  const clean = value?.trim() || ''
+  if (!clean || clean === 'undefined' || clean === 'UNDEFINED') return ''
+  if (clean.startsWith('data:image/')) return clean
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('/')) return clean
+  if (clean.startsWith('./') || clean.startsWith('images/') || /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(clean)) {
+    return `/${clean.replace(/^\/+/, '').replace(/^\.\//, '')}`
+  }
+  return looksLikeBase64(clean) ? `data:image/png;base64,${clean}` : ''
+}
+
+function imageSourceFromArt(image?: ArtImage | null): string {
+  return (
+    asImageSource(image?.thumbnailData) ||
+    asImageSource(image?.imageData) ||
+    asImageSource(image?.imagePath) ||
+    asImageSource(image?.path)
+  )
+}
+
 async function refreshAvatar() {
-  avatarImage.value = await userStore.userImage()
+  const user = userStore.user
+  if (!user) {
+    avatarImage.value = fallbackAvatar
+    return
+  }
+
+  if (user.artImageId) {
+    const image = await artStore.getArtImageById(user.artImageId, {
+      includeImageData: true,
+      includeThumbnailData: true,
+    })
+    avatarImage.value = imageSourceFromArt(image) || asImageSource(user.avatarImage) || fallbackAvatar
+    return
+  }
+
+  avatarImage.value = asImageSource(user.avatarImage) || fallbackAvatar
 }
 
 watch(

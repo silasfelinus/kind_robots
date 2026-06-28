@@ -19,6 +19,8 @@ import {
   normalizeSlug,
 } from './index'
 
+type StarterArtVariant = 'card' | 'icon' | 'hero'
+
 type DreamMutationInput = {
   title?: string
   slug?: string | null
@@ -30,6 +32,8 @@ type DreamMutationInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
   highlightImage?: string | null
   icon?: string | null
   designer?: string | null
@@ -46,6 +50,7 @@ type DreamMutationInput = {
   isMature?: boolean
   isActive?: boolean
   createCollection?: boolean
+  seedStarterImages?: boolean
 }
 
 type DreamBatchBody =
@@ -61,6 +66,8 @@ type DreamBatchError = {
   statusCode: number
 }
 
+const starterArtVariants: StarterArtVariant[] = ['card', 'icon', 'hero']
+
 function getDreamsFromBody(body: DreamBatchBody): DreamMutationInput[] {
   if (Array.isArray(body)) return body
 
@@ -69,6 +76,107 @@ function getDreamsFromBody(body: DreamBatchBody): DreamMutationInput[] {
   }
 
   return []
+}
+
+function collectionImagePath(slug: string, variant: StarterArtVariant) {
+  return `/images/artcollections/${slug}/${slug}-${variant}.webp`
+}
+
+function starterPromptForVariant(
+  body: DreamMutationInput,
+  title: string,
+  variant: StarterArtVariant,
+) {
+  const basePrompt = normalizeOptionalText(body.artPrompt)
+  const description = normalizeOptionalText(body.description)
+  const pitch = normalizeOptionalText(body.pitch)
+  const source = basePrompt || description || pitch || title
+
+  if (variant === 'card') {
+    return `Professional portrait card illustration for ${title}. Use this Dream seed as the visual brief: ${source}. Premium Kind Robots project-card key art, crisp focal subject, polished modern image generation quality, no readable text, no logo, no watermark, no collage, 2:3 portrait composition.`
+  }
+
+  if (variant === 'icon') {
+    return `Premium square app icon for ${title}. Distill this Dream seed into one instantly readable symbol: ${source}. Strong silhouette, tactile dimensional polish, friendly Kind Robots visual language, no readable text, no logo, no watermark, no collage, square composition.`
+  }
+
+  return `High-end wide hero illustration for ${title}. Expand this Dream seed into a cinematic banner scene: ${source}. Studio-quality product and game key art, expressive staging, atmospheric depth, no readable text, no logo, no watermark, no collage, 16:9 landscape composition.`
+}
+
+function pathForDreamImage(
+  body: DreamMutationInput,
+  slug: string,
+  variant: StarterArtVariant,
+) {
+  if (variant === 'card') {
+    return normalizeOptionalText(body.cardPath) || collectionImagePath(slug, variant)
+  }
+
+  if (variant === 'hero') {
+    return normalizeOptionalText(body.heroPath) || collectionImagePath(slug, variant)
+  }
+
+  return collectionImagePath(slug, variant)
+}
+
+async function createStarterArtImages({
+  body,
+  dreamId,
+  artCollectionId,
+  title,
+  slug,
+  userId,
+  sender,
+  isPublic,
+  isMature,
+}: {
+  body: DreamMutationInput
+  dreamId: number
+  artCollectionId?: number | null
+  title: string
+  slug: string
+  userId: number
+  sender: string
+  isPublic: boolean
+  isMature: boolean
+}) {
+  if (!artCollectionId || body.seedStarterImages === false) return null
+
+  let primaryCardArtImageId: number | null = null
+
+  for (const variant of starterArtVariants) {
+    const imagePath = pathForDreamImage(body, slug, variant)
+    const prompt = starterPromptForVariant(body, title, variant)
+    const image = await prisma.artImage.create({
+      data: {
+        fileName: `${slug}-${variant}.webp`,
+        fileType: 'webp',
+        imagePath,
+        path: imagePath,
+        promptString: prompt,
+        artPrompt: prompt,
+        designer: sender,
+        isPublic,
+        isMature,
+        User: {
+          connect: { id: userId },
+        },
+        Dreams: {
+          connect: { id: dreamId },
+        },
+        ArtCollections: {
+          connect: { id: artCollectionId },
+        },
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (variant === 'card') primaryCardArtImageId = image.id
+  }
+
+  return primaryCardArtImageId
 }
 
 async function createDreamFromInput(
@@ -95,12 +203,15 @@ async function createDreamFromInput(
 
   const artImageId = normalizeNullableId(body.artImageId)
   let artCollectionId = normalizeNullableId(body.artCollectionId)
+  const shouldCreateCollection = body.createCollection !== false
 
-  if (body.createCollection && !artCollectionId) {
+  if (shouldCreateCollection && !artCollectionId) {
     const collection = await prisma.artCollection.create({
       data: {
-        label: `${title} Collection`,
-        description: `Curated art for ${title}`,
+        label: `${title} Inspiration`,
+        description: `Card, icon, hero, screenshots, mockups, and inspiration art for ${title}. Drop additional files into public/images/artcollections/${slug}/ and attach matching ArtImage rows to keep this collection in parity with the filesystem.`,
+        imagePath: collectionImagePath(slug, 'card'),
+        artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
         userId,
         username: sender,
         isPublic,
@@ -116,6 +227,8 @@ async function createDreamFromInput(
   const rewardIds = normalizeIdArray(body.rewardIds)
   const artImageIds = normalizeIdArray(body.artImageIds)
   const artCollectionIds = normalizeIdArray(body.artCollectionIds)
+  const cardPath = normalizeOptionalText(body.cardPath) ?? collectionImagePath(slug, 'card')
+  const heroPath = normalizeOptionalText(body.heroPath) ?? collectionImagePath(slug, 'hero')
 
   const dataInput: Prisma.DreamCreateInput = {
     title,
@@ -127,7 +240,9 @@ async function createDreamFromInput(
     flavorText: normalizeOptionalText(body.flavorText) ?? null,
     examples: normalizeOptionalText(body.examples) ?? null,
     artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
-    imagePath: normalizeOptionalText(body.imagePath) ?? null,
+    imagePath: normalizeOptionalText(body.imagePath) ?? cardPath,
+    cardPath,
+    heroPath,
     highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
     icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
     designer: normalizeOptionalText(body.designer) ?? sender,
@@ -193,6 +308,29 @@ async function createDreamFromInput(
     include: dreamInclude,
   })
 
+  const primaryCardArtImageId = await createStarterArtImages({
+    body,
+    dreamId: data.id,
+    artCollectionId: data.artCollectionId,
+    title,
+    slug,
+    userId,
+    sender,
+    isPublic,
+    isMature,
+  })
+
+  if (!data.artImageId && primaryCardArtImageId) {
+    await prisma.dream.update({
+      where: { id: data.id },
+      data: {
+        ArtImage: {
+          connect: { id: primaryCardArtImageId },
+        },
+      },
+    })
+  }
+
   if (data.artImageId && data.artCollectionId) {
     await prisma.artCollection.update({
       where: { id: data.artCollectionId },
@@ -212,14 +350,17 @@ async function createDreamFromInput(
       title,
       userId,
       dreamId: data.id,
-      artImageId: data.artImageId ?? undefined,
+      artImageId: primaryCardArtImageId ?? data.artImageId ?? undefined,
       isPublic: data.isPublic,
       isMature: data.isMature,
       channel: `dream-${data.id}`,
     },
   })
 
-  return data
+  return prisma.dream.findUniqueOrThrow({
+    where: { id: data.id },
+    include: dreamInclude,
+  })
 }
 
 export default defineEventHandler(async (event) => {

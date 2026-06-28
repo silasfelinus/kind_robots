@@ -10,6 +10,7 @@ type TodoPatchBody = {
   description?: string | null
   status?: 'OPEN' | 'DONE' | 'ARCHIVED'
   priority?: 'LOW' | 'NORMAL' | 'HIGH'
+  category?: 'AGENT' | 'KAIZEN' | 'HONEYDO'
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
@@ -46,6 +47,9 @@ export default defineEventHandler(async (event) => {
     const priority = ['LOW', 'NORMAL', 'HIGH'].includes(body.priority ?? '')
       ? body.priority!
       : current.priority
+    const category = ['AGENT', 'KAIZEN', 'HONEYDO'].includes(body.category ?? '')
+      ? body.category!
+      : (current.category ?? 'AGENT')
     const dueDate = 'dueDate' in body ? (body.dueDate ?? null) : current.dueDate
     const icon = 'icon' in body ? (body.icon ?? null) : current.icon
     const imagePath = 'imagePath' in body ? (body.imagePath ?? null) : current.imagePath
@@ -56,6 +60,7 @@ export default defineEventHandler(async (event) => {
         description = ${description},
         status      = ${status},
         priority    = ${priority},
+        category    = ${category},
         dueDate     = ${dueDate},
         icon        = ${icon},
         imagePath   = ${imagePath},

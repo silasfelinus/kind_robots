@@ -84,12 +84,12 @@ export default defineNuxtConfig({
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
     githubId: process.env.GITHUB_ID || '',
     githubSecret: process.env.GITHUB_SECRET || '',
+    githubToken: process.env.GITHUB_TOKEN || '',
     googleId: process.env.GOOGLE_ID || '',
     googleSecret: process.env.GOOGLE_SECRET || '',
     authSecret: process.env.AUTH_SECRET || '',
     jwtSecret: process.env.JWT_SECRET || '',
     serverSecretKey: process.env.SERVER_SECRET_KEY || '',
-    githubToken: process.env.GITHUB_TOKEN || '',
   },
 
   devtools: {

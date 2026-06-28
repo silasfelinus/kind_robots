@@ -3,11 +3,11 @@
   <div ref="menuRef" class="relative flex">
     <button
       ref="buttonRef"
-      class="btn flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border px-1.5 py-1.5 transition-all hover:-translate-y-0.5 hover:shadow-sm w-14 xl:w-[4.25rem]"
+      class="flex h-10 w-14 shrink-0 cursor-pointer select-none flex-col items-center justify-center gap-0.5 rounded-xl border px-1.5 py-1 transition-all hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95 sm:h-11 xl:h-14 xl:w-[4.5rem] xl:gap-1 xl:py-1.5"
       :class="
         showMenu
-          ? 'btn-secondary border-secondary bg-secondary text-secondary-content shadow-sm'
-          : 'btn-ghost border-base-300 bg-base-100'
+          ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
+          : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
       "
       type="button"
       :aria-expanded="showMenu"
@@ -15,20 +15,20 @@
       @click.stop="toggleMenu"
     >
       <span
-        class="flex h-7 w-7 xl:h-8 xl:w-8 shrink-0 items-center justify-center rounded-lg border bg-base-200"
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border sm:h-7 sm:w-7 xl:h-9 xl:w-9"
         :class="
           showMenu
-            ? 'border-secondary-content/20 bg-secondary-content/10'
-            : 'border-base-300/60'
+            ? 'border-secondary-content/30 bg-secondary-content/15'
+            : 'border-base-300/70 bg-base-200'
         "
       >
         <Icon
           :name="activeChannel.icon"
-          class="h-4 w-4 xl:h-[1.125rem] xl:w-[1.125rem] shrink-0"
+          class="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 xl:h-5 xl:w-5"
         />
       </span>
       <span
-        class="max-w-full truncate text-[0.5rem] xl:text-[0.55rem] font-black uppercase tracking-wide leading-none"
+        class="max-w-full truncate text-[0.5rem] font-black uppercase leading-none tracking-wide xl:text-[0.6rem]"
       >
         {{ activeChannel.label }}
       </span>

@@ -84,7 +84,7 @@ model ArtCollection {
   isMature      Boolean    @default(false)
   isPublic      Boolean    @default(true)
   imagePath     String?    @db.VarChar(764)
-  description   String?
+  description   String?    @db.Text
   username      String?
   isActive      Boolean    @default(true)
   artPrompt     String?    @db.Text

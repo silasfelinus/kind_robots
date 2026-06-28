@@ -3,10 +3,13 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { enforceProjectCap } from '@/server/utils/projectCap'
 import type {
   CreationSource,
+  DreamPriority,
   DreamType,
   Prisma,
+  ProjectStatus,
 } from '~/prisma/generated/prisma/client'
 import {
   dreamInclude,
@@ -37,6 +40,11 @@ type DreamMutationInput = {
   highlightImage?: string | null
   icon?: string | null
   designer?: string | null
+  repoUrl?: string | null
+  liveUrl?: string | null
+  projectStatus?: ProjectStatus | string | null
+  priority?: DreamPriority | string | null
+  allowReviews?: boolean
   artImageId?: number | null
   artCollectionId?: number | null
   scenarioId?: number | null
@@ -50,6 +58,7 @@ type DreamMutationInput = {
   isMature?: boolean
   isActive?: boolean
   createCollection?: boolean
+  userId?: number
   seedStarterImages?: boolean
 }
 
@@ -76,6 +85,20 @@ function getDreamsFromBody(body: DreamBatchBody): DreamMutationInput[] {
   }
 
   return []
+}
+
+function normalizeProjectStatus(raw: unknown): ProjectStatus | undefined {
+  const valid: ProjectStatus[] = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED', 'BRAINSTORM']
+  const s = String(raw ?? '').trim().toUpperCase()
+
+  return valid.includes(s as ProjectStatus) ? (s as ProjectStatus) : undefined
+}
+
+function normalizeProjectPriority(raw: unknown): DreamPriority | undefined {
+  const valid: DreamPriority[] = ['LOW', 'NORMAL', 'HIGH']
+  const s = String(raw ?? '').trim().toUpperCase()
+
+  return valid.includes(s as DreamPriority) ? (s as DreamPriority) : undefined
 }
 
 function collectionImagePath(slug: string, variant: StarterArtVariant) {
@@ -181,15 +204,32 @@ async function createStarterArtImages({
 
 async function createDreamFromInput(
   body: DreamMutationInput,
-  userId: number,
+  callerUserId: number,
   sender: string,
+  callerRole: string,
+  callerIsAdmin: boolean,
 ) {
+  const userId =
+    callerIsAdmin && body.userId && Number.isInteger(body.userId) && body.userId > 0
+      ? body.userId
+      : callerUserId
+
   const title = body.title?.trim()
 
   if (!title) {
     throw createError({
       statusCode: 400,
       message: 'The "title" field is required.',
+    })
+  }
+
+  const dreamTypeNormalized = normalizeDreamType(body.dreamType)
+
+  if (dreamTypeNormalized === 'PROJECT') {
+    await enforceProjectCap({
+      userId,
+      userRole: callerRole,
+      isAdmin: callerIsAdmin,
     })
   }
 
@@ -233,7 +273,7 @@ async function createDreamFromInput(
   const dataInput: Prisma.DreamCreateInput = {
     title,
     slug,
-    dreamType: normalizeDreamType(body.dreamType),
+    dreamType: dreamTypeNormalized,
     creationSource: normalizeCreationSource(body.creationSource),
     description: normalizeOptionalText(body.description) ?? null,
     pitch: normalizeOptionalText(body.pitch) ?? null,
@@ -246,6 +286,11 @@ async function createDreamFromInput(
     highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
     icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
     designer: normalizeOptionalText(body.designer) ?? sender,
+    repoUrl: normalizeOptionalText(body.repoUrl) ?? null,
+    liveUrl: normalizeOptionalText(body.liveUrl) ?? null,
+    projectStatus: normalizeProjectStatus(body.projectStatus),
+    priority: normalizeProjectPriority(body.priority) ?? 'NORMAL',
+    allowReviews: body.allowReviews ?? false,
     isPublic,
     isMature,
     isActive,
@@ -402,13 +447,21 @@ export default defineEventHandler(async (event) => {
       select: { username: true },
     })
 
+    const callerIsAdmin = user.Role === 'ADMIN' || user.id === 1
     const sender = userRecord?.username || `User ${user.id}`
     const dreams = []
     const errors: DreamBatchError[] = []
 
     for (const [index, dreamData] of dreamsData.entries()) {
       try {
-        const dream = await createDreamFromInput(dreamData, user.id, sender)
+        const dream = await createDreamFromInput(
+          dreamData,
+          user.id,
+          sender,
+          user.Role,
+          callerIsAdmin,
+        )
+
         dreams.push(dream)
       } catch (error: unknown) {
         const handled = errorHandler(error)

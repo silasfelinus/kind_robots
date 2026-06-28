@@ -1,26 +1,82 @@
 <!-- /components/pages/conductor-page.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
-    <div
-      v-if="!userStore.isAdmin"
-      class="flex min-h-88 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
-    >
-      <div class="mx-auto flex max-w-lg flex-col items-center gap-4">
-        <div
-          class="flex size-16 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 text-warning shadow-lg"
-        >
-          <Icon name="kind-icon:lock" class="size-8" />
+    <div v-if="!userStore.isAdmin" class="flex flex-col gap-6">
+      <header v-if="showHeader" class="flex shrink-0 items-center gap-2">
+        <Icon name="kind-icon:gearhammer" class="size-5 text-primary" />
+        <h2 class="text-lg font-semibold">Projects</h2>
+        <div class="ml-auto flex items-center gap-1">
+          <button
+            v-for="mode in galleryModeOptions"
+            :key="mode.value"
+            type="button"
+            class="btn btn-xs rounded-xl"
+            :class="projectGalleryMode === mode.value ? 'btn-primary' : 'btn-ghost'"
+            @click="projectGalleryMode = mode.value"
+          >{{ mode.label }}</button>
         </div>
-        <div class="space-y-2">
-          <h2 class="text-2xl font-black text-warning">
-            Admin access required
-          </h2>
-          <p class="text-sm leading-relaxed text-base-content/70">
-            This is Silas&apos;s private Conductor cockpit: project progress,
-            agent tasks, roadmap state, and pitches waiting for human judgment.
-          </p>
-        </div>
+      </header>
+      <div v-if="!dreamStore.hasLoaded" class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
+        <div v-for="n in 4" :key="n" class="h-20 animate-pulse rounded-2xl border border-base-300 bg-base-200" />
       </div>
+      <template v-else>
+        <div v-if="projectGalleryMode === 'icons'" class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+          <div
+            v-for="dream in dreamStore.publicProjectDreams"
+            :key="dream.id"
+            class="group flex flex-col items-center gap-2 rounded-2xl border border-base-300 bg-base-200 p-3 text-center transition-all hover:border-primary/40 hover:shadow-md"
+          >
+            <img :src="projectIconPath(dream.slug)" :alt="dream.title" class="size-12 rounded-xl border border-base-300 object-cover" />
+            <p class="w-full truncate text-xs font-semibold">{{ dream.title }}</p>
+          </div>
+        </div>
+        <div v-else-if="projectGalleryMode === 'list'" class="flex flex-col gap-2">
+          <div
+            v-for="dream in dreamStore.publicProjectDreams"
+            :key="dream.id"
+            class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+          >
+            <img :src="projectIconPath(dream.slug)" :alt="dream.title" class="size-9 shrink-0 rounded-xl border border-base-300 object-cover" />
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-bold">{{ dream.title }}</p>
+              <p class="truncate text-xs text-base-content/50">{{ dream.flavorText }}</p>
+            </div>
+            <span v-if="dream.projectStatus" class="badge badge-xs shrink-0 opacity-60">{{ dream.projectStatus }}</span>
+          </div>
+        </div>
+        <div v-else-if="projectGalleryMode === 'heroes'" class="grid gap-4 sm:grid-cols-2">
+          <div
+            v-for="dream in dreamStore.publicProjectDreams"
+            :key="dream.id"
+            class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
+            style="aspect-ratio: 16/9"
+          >
+            <img :src="projectHeroPath(dream.slug)" :alt="dream.title" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+            <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-12">
+              <p class="truncate text-sm font-bold">{{ dream.title }}</p>
+              <p class="text-xs text-base-content/60">{{ dream.flavorText }}</p>
+            </div>
+          </div>
+        </div>
+        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            v-for="dream in dreamStore.publicProjectDreams"
+            :key="dream.id"
+            class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
+            style="aspect-ratio: 2/3"
+          >
+            <img :src="projectCardPath(dream.slug)" :alt="dream.title" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+            <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8">
+              <div class="flex items-center gap-2">
+                <img :src="projectIconPath(dream.slug)" alt="" class="size-7 shrink-0 rounded-lg border border-white/20 object-cover" />
+                <p class="min-w-0 truncate text-sm font-bold leading-tight">{{ dream.title }}</p>
+              </div>
+              <p class="mt-1 text-xs text-base-content/60">{{ dream.flavorText }}</p>
+            </div>
+          </div>
+        </div>
+        <p v-if="!dreamStore.publicProjectDreams.length" class="py-8 text-center text-sm text-base-content/50">No public projects yet.</p>
+      </template>
     </div>
 
     <template v-else>
@@ -133,13 +189,92 @@
             </button>
           </div>
 
-          <div v-if="activeProjects.length" class="space-y-3">
-            <h3
-              class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+          <!-- New Project on-ramp -->
+          <div class="shrink-0">
+            <div v-if="!showNewProjectForm" class="flex items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                :disabled="atProjectCap"
+                @click="showNewProjectForm = true"
+              >
+                <Icon name="kind-icon:plus" class="size-4" /> New Project
+              </button>
+              <p v-if="atProjectCap" class="text-xs text-warning">
+                Free accounts are limited to {{ FREE_PROJECT_LIMIT }} active projects.
+                <a href="/subscribe" class="font-semibold underline">Upgrade</a> to add more.
+              </p>
+            </div>
+            <form
+              v-else
+              class="space-y-3 rounded-2xl border border-primary/30 bg-base-100 p-4"
+              @submit.prevent="createNewProject"
             >
-              Active Projects
-            </h3>
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">New Project</h4>
+                <button type="button" class="btn btn-ghost btn-xs rounded-lg" @click="cancelNewProject">
+                  <Icon name="kind-icon:x" class="size-3" />
+                </button>
+              </div>
+              <input
+                v-model="newProjectTitle"
+                type="text"
+                placeholder="Project title (required)"
+                class="input input-bordered w-full rounded-xl"
+                :disabled="creatingProject"
+                required
+                autofocus
+              />
+              <textarea
+                v-model="newProjectDescription"
+                placeholder="What does this project do? (optional)"
+                class="textarea textarea-bordered w-full rounded-xl text-sm"
+                rows="2"
+                :disabled="creatingProject"
+              />
+              <input
+                v-model="newProjectFlavorText"
+                type="text"
+                placeholder="One-line tagline (optional)"
+                class="input input-bordered input-sm w-full rounded-xl"
+                :disabled="creatingProject"
+              />
+              <div class="flex items-center gap-2">
+                <span v-if="newProjectError" class="flex-1 text-xs text-error">{{ newProjectError }}</span>
+                <div class="ml-auto flex gap-2">
+                  <button type="button" class="btn btn-ghost btn-sm rounded-xl" @click="cancelNewProject">Cancel</button>
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-sm rounded-xl"
+                    :disabled="!newProjectTitle.trim() || creatingProject"
+                  >
+                    <span v-if="creatingProject" class="loading loading-spinner loading-xs" />
+                    Create
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div v-if="activeProjects.length" class="space-y-3">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">
+                Active Projects
+              </h3>
+              <div class="ml-auto flex items-center gap-1">
+                <button
+                  v-for="mode in galleryModeOptions"
+                  :key="mode.value"
+                  type="button"
+                  class="btn btn-xs rounded-xl"
+                  :class="projectGalleryMode === mode.value ? 'btn-primary' : 'btn-ghost'"
+                  @click="projectGalleryMode = mode.value"
+                >{{ mode.label }}</button>
+              </div>
+            </div>
+
+            <!-- Cards -->
+            <div v-if="projectGalleryMode === 'cards'" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <button
                 v-for="project in sortedActiveProjects"
                 :key="project.slug"
@@ -149,88 +284,117 @@
                 @click="selectProject(project.slug)"
               >
                 <img
-                  v-if="projectDreamForSlug(project.slug)?.cardPath"
-                  :src="projectDreamForSlug(project.slug)!.cardPath!"
+                  :src="projectCardPath(project.slug)"
                   :alt="project.name"
                   class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                <div
-                  v-else
-                  class="absolute inset-0 flex items-center justify-center"
-                  :class="kindBgGradient(project.kind)"
-                >
-                  <Icon
-                    :name="kindIcon(project.kind)"
-                    class="size-16 opacity-20"
-                  />
-                </div>
                 <div class="absolute left-2 top-2">
                   <span
                     class="badge badge-sm font-bold"
-                    :class="
-                      priorityBadgeClass(
-                        getProjectPriority(
-                          projectDreamForSlug(project.slug)?.id,
-                        ),
-                      )
-                    "
-                    >{{
-                      getProjectPriority(projectDreamForSlug(project.slug)?.id)
-                    }}</span
-                  >
+                    :class="priorityBadgeClass(getProjectPriority(projectDreamForSlug(project.slug)?.id))"
+                  >{{ getProjectPriority(projectDreamForSlug(project.slug)?.id) }}</span>
                 </div>
-                <div
-                  v-if="
-                    blockedCount(project) > 0 || needsHumanCount(project) > 0
-                  "
-                  class="absolute right-2 top-2"
-                >
-                  <span
-                    v-if="blockedCount(project) > 0"
-                    class="badge badge-error badge-sm"
-                    >{{ blockedCount(project) }} blocked</span
-                  >
-                  <span v-else class="badge badge-accent badge-sm"
-                    >{{ needsHumanCount(project) }} need you</span
-                  >
+                <div v-if="blockedCount(project) > 0 || needsHumanCount(project) > 0" class="absolute right-2 top-2">
+                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-sm">{{ blockedCount(project) }} blocked</span>
+                  <span v-else class="badge badge-accent badge-sm">{{ needsHumanCount(project) }} need you</span>
                 </div>
-                <div
-                  class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8"
-                >
+                <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8">
                   <div class="flex items-center gap-2">
-                    <img
-                      v-if="projectDreamForSlug(project.slug)?.imagePath"
-                      :src="projectDreamForSlug(project.slug)!.imagePath!"
-                      alt=""
-                      class="size-7 shrink-0 rounded-lg border border-white/20 object-cover"
-                    />
-                    <div
-                      v-else
-                      class="flex size-7 shrink-0 items-center justify-center rounded-lg"
-                      :class="kindIconClass(project.kind)"
-                    >
-                      <Icon :name="kindIcon(project.kind)" class="size-4" />
-                    </div>
-                    <p class="min-w-0 truncate text-sm font-bold leading-tight">
-                      {{ project.name || project.slug }}
-                    </p>
+                    <img :src="projectIconPath(project.slug)" alt="" class="size-7 shrink-0 rounded-lg border border-white/20 object-cover" />
+                    <p class="min-w-0 truncate text-sm font-bold leading-tight">{{ project.name || project.slug }}</p>
                   </div>
-                  <div
-                    class="mt-2 h-1.5 overflow-hidden rounded-full bg-base-content/20"
-                  >
-                    <div
-                      class="h-full rounded-full transition-all"
-                      :class="kindProgressClass(project.kind)"
-                      :style="{ width: `${project.progress}%` }"
-                    />
+                  <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-base-content/20">
+                    <div class="h-full rounded-full transition-all" :class="kindProgressClass(project.kind)" :style="{ width: `${project.progress}%` }" />
                   </div>
-                  <p
-                    class="mt-1 text-right text-xs font-semibold text-base-content/60"
-                  >
-                    {{ project.progress }}%
-                  </p>
+                  <p class="mt-1 text-right text-xs font-semibold text-base-content/60">{{ project.progress }}%</p>
                 </div>
               </button>
+            </div>
+
+            <!-- Heroes -->
+            <div v-else-if="projectGalleryMode === 'heroes'" class="grid gap-4 sm:grid-cols-2">
+              <button
+                v-for="project in sortedActiveProjects"
+                :key="project.slug"
+                type="button"
+                class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition-all hover:border-primary/50 hover:shadow-lg"
+                style="aspect-ratio: 16/9"
+                @click="selectProject(project.slug)"
+              >
+                <img :src="projectHeroPath(project.slug)" :alt="project.name" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <div v-if="blockedCount(project) > 0 || needsHumanCount(project) > 0" class="absolute right-2 top-2">
+                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-sm">{{ blockedCount(project) }} blocked</span>
+                  <span v-else class="badge badge-accent badge-sm">{{ needsHumanCount(project) }} need you</span>
+                </div>
+                <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8">
+                  <div class="flex items-center gap-2">
+                    <img :src="projectIconPath(project.slug)" alt="" class="size-7 shrink-0 rounded-lg border border-white/20 object-cover" />
+                    <p class="min-w-0 truncate text-sm font-bold leading-tight">{{ project.name || project.slug }}</p>
+                  </div>
+                  <div class="mt-1 h-1 overflow-hidden rounded-full bg-base-content/20">
+                    <div class="h-full rounded-full transition-all" :class="kindProgressClass(project.kind)" :style="{ width: `${project.progress}%` }" />
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <!-- Icons -->
+            <div v-else-if="projectGalleryMode === 'icons'" class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+              <button
+                v-for="project in sortedActiveProjects"
+                :key="project.slug"
+                type="button"
+                class="group flex flex-col items-center gap-2 rounded-2xl border border-base-300 bg-base-200 p-3 text-center transition-all hover:border-primary/40 hover:shadow-md"
+                @click="selectProject(project.slug)"
+              >
+                <img :src="projectIconPath(project.slug)" :alt="project.name" class="size-12 rounded-xl border border-base-300 object-cover" />
+                <p class="w-full truncate text-xs font-semibold">{{ project.name || project.slug }}</p>
+              </button>
+            </div>
+
+            <!-- List -->
+            <div v-else class="flex flex-col gap-2">
+              <button
+                v-for="project in sortedActiveProjects"
+                :key="project.slug"
+                type="button"
+                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-left transition-all hover:border-primary/40"
+                @click="selectProject(project.slug)"
+              >
+                <img :src="projectIconPath(project.slug)" :alt="project.name" class="size-9 shrink-0 rounded-xl object-cover" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-bold">{{ project.name || project.slug }}</p>
+                  <p class="text-xs text-base-content/50">{{ projectDreamForSlug(project.slug)?.flavorText }}</p>
+                </div>
+                <div class="flex shrink-0 flex-col items-end gap-1">
+                  <span class="badge badge-xs" :class="priorityBadgeClass(getProjectPriority(projectDreamForSlug(project.slug)?.id))">{{ getProjectPriority(projectDreamForSlug(project.slug)?.id) }}</span>
+                  <span v-if="blockedCount(project) > 0" class="badge badge-error badge-xs">{{ blockedCount(project) }} blocked</span>
+                  <span v-else-if="needsHumanCount(project) > 0" class="badge badge-accent badge-xs">{{ needsHumanCount(project) }} need you</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Missing from DB -->
+          <div v-if="missingProjectSlugs.length" class="space-y-2">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Not in DB</h3>
+              <span class="badge badge-warning badge-xs">{{ missingProjectSlugs.length }}</span>
+              <div class="ml-auto flex items-center gap-2">
+                <span v-if="syncMessage" class="text-xs" :class="syncError ? 'text-error' : 'text-success'">{{ syncMessage }}</span>
+                <button
+                  type="button"
+                  class="btn btn-warning btn-xs rounded-xl"
+                  :disabled="syncingMissing"
+                  @click="syncMissingProjects"
+                >
+                  <span v-if="syncingMissing" class="loading loading-spinner loading-xs" />
+                  Sync to DB
+                </button>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span v-for="slug in missingProjectSlugs" :key="slug" class="badge badge-outline badge-sm">{{ slug }}</span>
             </div>
           </div>
         </div>
@@ -434,14 +598,9 @@
                 @click="selectProject(project.slug)"
               >
                 <img
-                  v-if="projectDreamForSlug(project.slug)?.cardPath"
-                  :src="projectDreamForSlug(project.slug)!.cardPath!"
+                  :src="projectCardPath(project.slug)"
                   :alt="project.name"
                   class="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-300 group-hover:scale-105"
-                />
-                <div
-                  v-else
-                  class="absolute inset-0 bg-linear-to-br from-secondary/20 to-secondary/5"
                 />
                 <div
                   class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8"
@@ -1002,7 +1161,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { ConductorProject, ConductorPitch } from '@/server/api/conductor/projects.get'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useUserStore } from '@/stores/userStore'
@@ -1034,6 +1193,29 @@ const pageStore = usePageStore()
 const todoStore = useTodoStore()
 const conductorStore = useConductorStore()
 
+const CONDUCTOR_IMG_BASE = 'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
+const FREE_PROJECT_LIMIT = 2
+
+type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
+const galleryModeOptions: { value: GalleryMode; label: string }[] = [
+  { value: 'cards', label: 'Cards' },
+  { value: 'heroes', label: 'Heroes' },
+  { value: 'icons', label: 'Icons' },
+  { value: 'list', label: 'List' },
+]
+const projectGalleryMode = ref<GalleryMode>('cards')
+
+const syncingMissing = ref(false)
+const syncMessage = ref('')
+const syncError = ref(false)
+
+const showNewProjectForm = ref(false)
+const newProjectTitle = ref('')
+const newProjectDescription = ref('')
+const newProjectFlavorText = ref('')
+const creatingProject = ref(false)
+const newProjectError = ref('')
+
 const dreamSaving = ref(false)
 const dreamSaveMessage = ref('')
 const dreamSaveError = ref(false)
@@ -1060,6 +1242,16 @@ function projectDreamForSlug(slug: string) {
   return dreamStore.projectDreams.find((d) => d.slug === slug) ?? null
 }
 
+function projectCardPath(slug: string): string {
+  return projectDreamForSlug(slug)?.cardPath ?? `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`
+}
+function projectHeroPath(slug: string): string {
+  return projectDreamForSlug(slug)?.heroPath ?? `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`
+}
+function projectIconPath(slug: string): string {
+  return projectDreamForSlug(slug)?.imagePath ?? `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`
+}
+
 const activeProjects = computed(() =>
   projects.value.filter(
     (p) => projectDreamForSlug(p.slug)?.projectStatus !== 'BRAINSTORM',
@@ -1079,6 +1271,26 @@ const brainstormProjects = computed(() =>
   projects.value.filter(
     (p) => projectDreamForSlug(p.slug)?.projectStatus === 'BRAINSTORM',
   ),
+)
+
+const missingProjectSlugs = computed(() => {
+  if (!conductorStore.hasLoaded || !dreamStore.hasLoaded) return []
+  const dbSlugs = new Set(dreamStore.projectDreams.map((d) => d.slug))
+  return conductorStore.projects.filter((p) => !dbSlugs.has(p.slug)).map((p) => p.slug)
+})
+
+const activeProjectCount = computed(() =>
+  dreamStore.projectDreams.filter(
+    (d) => d.projectStatus === 'ACTIVE' || d.projectStatus === 'PAUSED',
+  ).length,
+)
+
+const atProjectCap = computed(
+  () =>
+    !userStore.isAdmin &&
+    !userStore.isFamily &&
+    !userStore.isMember &&
+    activeProjectCount.value >= FREE_PROJECT_LIMIT,
 )
 
 const hasBrainstormContent = computed(
@@ -1268,6 +1480,88 @@ async function ensureProjectDreams() {
   if (!dreamStore.hasLoaded)
     await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
 }
+
+async function syncMissingProjects() {
+  if (!missingProjectSlugs.value.length) return
+  syncingMissing.value = true
+  syncMessage.value = ''
+  syncError.value = false
+  try {
+    const dreams = missingProjectSlugs.value.map((slug) => {
+      const project = conductorStore.projects.find((p) => p.slug === slug)
+      return {
+        title: project?.name || slug,
+        slug,
+        dreamType: 'PROJECT',
+        imagePath: `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`,
+        cardPath: `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`,
+        heroPath: `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`,
+        isPublic: true,
+        isMature: false,
+        isActive: true,
+        userId: 1,
+      }
+    })
+    await $fetch('/api/dreams/batch', { method: 'POST', body: { dreams } })
+    await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
+    syncMessage.value = `Synced ${dreams.length} project(s)`
+    setTimeout(() => { syncMessage.value = '' }, 4000)
+  } catch {
+    syncError.value = true
+    syncMessage.value = 'Sync failed'
+  } finally {
+    syncingMissing.value = false
+  }
+}
+
+function cancelNewProject() {
+  showNewProjectForm.value = false
+  newProjectTitle.value = ''
+  newProjectDescription.value = ''
+  newProjectFlavorText.value = ''
+  newProjectError.value = ''
+}
+
+async function createNewProject() {
+  const title = newProjectTitle.value.trim()
+  if (!title) return
+  creatingProject.value = true
+  newProjectError.value = ''
+  try {
+    const res = await $fetch<{ success: boolean; message?: string }>('/api/dreams', {
+      method: 'POST',
+      body: {
+        title,
+        description: newProjectDescription.value.trim() || null,
+        flavorText: newProjectFlavorText.value.trim() || null,
+        dreamType: 'PROJECT',
+        isPublic: true,
+        isActive: true,
+      },
+    })
+    if (res.success) {
+      cancelNewProject()
+      await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
+    } else {
+      newProjectError.value = res.message || 'Failed to create project.'
+    }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    newProjectError.value = msg.includes('403') ? 'Project limit reached. Archive a project or upgrade.' : (msg || 'Failed to create project.')
+  } finally {
+    creatingProject.value = false
+  }
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('conductor-gallery-mode') as GalleryMode | null
+  if (saved && ['cards', 'heroes', 'icons', 'list'].includes(saved)) projectGalleryMode.value = saved
+  if (!userStore.isAdmin && !dreamStore.hasLoaded) dreamStore.fetchDreams({ dreamType: 'PROJECT' })
+})
+
+watch(projectGalleryMode, (mode) => {
+  localStorage.setItem('conductor-gallery-mode', mode)
+})
 
 function selectProject(slug: string) {
   pageStore.setWorkspaceCardKey(slug)

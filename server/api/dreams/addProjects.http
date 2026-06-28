@@ -26,7 +26,8 @@ x-admin-token: {{admintoken}}
       "isPublic": true,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
     },
     {
       "title": "Humboldt Scoop",
@@ -44,7 +45,8 @@ x-admin-token: {{admintoken}}
       "isPublic": true,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
     },
     {
       "title": "Poop Scoop CMS",
@@ -62,7 +64,8 @@ x-admin-token: {{admintoken}}
       "isPublic": false,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
     },
     {
       "title": "Approval Portal",
@@ -80,7 +83,8 @@ x-admin-token: {{admintoken}}
       "isPublic": true,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
     },
     {
       "title": "Digital Storefront",
@@ -97,7 +101,8 @@ x-admin-token: {{admintoken}}
       "isPublic": true,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
     },
     {
       "title": "Brainstorm",
@@ -114,7 +119,8 @@ x-admin-token: {{admintoken}}
       "isPublic": true,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
     },
     {
       "title": "Mermaids of Venice",
@@ -131,7 +137,8 @@ x-admin-token: {{admintoken}}
       "isPublic": true,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
     },
     {
       "title": "Coat Dance",
@@ -148,7 +155,135 @@ x-admin-token: {{admintoken}}
       "isPublic": true,
       "isMature": false,
       "isActive": true,
-      "allowReviews": false
+      "allowReviews": false,
+      "userId": 1
+    },
+    {
+      "title": "Sketchy",
+      "slug": "sketchy",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "An AI-assisted drawing practice app. Gives assignments tuned to the user's skill level, then uses AI to judge submitted work and recommend the next study. Free users get a limited number of critique requests per day; paid users get higher limits aligned with the Kind Robots token economy.",
+      "pitch": "Keep the interface friendly, minimalist, and encouraging. The AI judge critiques constructively and identifies growth — not a cruel art-school goblin.",
+      "flavorText": "Better lines through helpful criticism.",
+      "imagePath": "{{imgbase}}/sketchy-icon.webp",
+      "cardPath": "{{imgbase}}/sketchy-card.webp",
+      "heroPath": "{{imgbase}}/sketchy-hero.webp",
+      "icon": "kind-icon:pencil",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false,
+      "userId": 1
+    },
+    {
+      "title": "Storymaker",
+      "slug": "storymaker",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "Collaborative storytelling built on Kind Robots' Bots, Characters, Dreams, Rewards, Scenarios, and Chats. Supports Exquisite Corpse and Guided Adventure modes with async-first play, branching choices, custom inputs, rewards, inventory, and reusable story state.",
+      "pitch": "Build on what's already there — Bots, Characters, Scenarios. Don't reinvent the shared backend.",
+      "flavorText": "Stories that never quite end.",
+      "imagePath": "{{imgbase}}/storymaker-icon.webp",
+      "cardPath": "{{imgbase}}/storymaker-card.webp",
+      "heroPath": "{{imgbase}}/storymaker-hero.webp",
+      "icon": "kind-icon:book",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false,
+      "userId": 1
+    },
+    {
+      "title": "Media Watchlist",
+      "slug": "media-watchlist",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "Structured personal media archive. Parses and imports Silas's long-running log of books, games, movies, TV, comics, and podcasts into structured data with browse/filter views, stats, review editing, and optional enrichment from Letterboxd, Comic Vine, and Tautulli.",
+      "pitch": "Source of truth is Silas's existing log files. Import first, enrich second, affiliate links last.",
+      "flavorText": "Everything Silas has ever watched, read, or played — indexed.",
+      "imagePath": "{{imgbase}}/media-watchlist-icon.webp",
+      "cardPath": "{{imgbase}}/media-watchlist-card.webp",
+      "heroPath": "{{imgbase}}/media-watchlist-hero.webp",
+      "icon": "kind-icon:list",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false,
+      "userId": 1
+    },
+    {
+      "title": "Conductor App",
+      "slug": "conductor-app",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "A polished native client for Conductor — mobile and desktop. Covers the project dashboard, todos, approvals, art requests, and notification strategy, all reading from the conductor repo as source of truth.",
+      "pitch": "Define the app shape and API contract before implementation. No inventing a parallel backend.",
+      "flavorText": "The cockpit in your pocket.",
+      "imagePath": "{{imgbase}}/conductor-app-icon.webp",
+      "cardPath": "{{imgbase}}/conductor-app-card.webp",
+      "heroPath": "{{imgbase}}/conductor-app-hero.webp",
+      "icon": "kind-icon:phone",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false,
+      "userId": 1
+    },
+    {
+      "title": "Alexa Integration",
+      "slug": "alexa-integration",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "A safe voice-command interface for Conductor. Covers command design, project status readouts, todo creation, art request handoff, and review gates — design-first before any live service work.",
+      "pitch": "Design the command list and user flows first. No live service work until the relay design is reviewed.",
+      "flavorText": "Conductor, by voice.",
+      "imagePath": "{{imgbase}}/alexa-integration-icon.webp",
+      "cardPath": "{{imgbase}}/alexa-integration-card.webp",
+      "heroPath": "{{imgbase}}/alexa-integration-hero.webp",
+      "icon": "kind-icon:mic",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false,
+      "userId": 1
+    },
+    {
+      "title": "Art Generator Connect",
+      "slug": "art-generator-connect",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "Wires Conductor Worker cycles into the existing Kind Robots SD / ComfyUI art generation pipelines. Workers request image generation and commit or record the resulting asset without adding new rendering infrastructure.",
+      "pitch": "Map existing art API contracts first. Do not add new rendering infrastructure.",
+      "flavorText": "Agent asks. Art happens.",
+      "imagePath": "{{imgbase}}/art-generator-connect-icon.webp",
+      "cardPath": "{{imgbase}}/art-generator-connect-card.webp",
+      "heroPath": "{{imgbase}}/art-generator-connect-hero.webp",
+      "icon": "kind-icon:image",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false,
+      "userId": 1
+    },
+    {
+      "title": "Conductor",
+      "slug": "conductor",
+      "dreamType": "PROJECT",
+      "projectStatus": "ACTIVE",
+      "description": "Improvements to the Conductor / AI_Networker system itself — CI, scripts, ops tooling. Small, reversible changes that keep the agent loop healthy. Nothing touching billing, secrets, or deploys without needs-human.",
+      "pitch": "Keep changes small and reversible. The system that manages agents should be the most carefully maintained.",
+      "flavorText": "The railroad that runs the trains.",
+      "imagePath": "{{imgbase}}/conductor-icon.webp",
+      "cardPath": "{{imgbase}}/conductor-card.webp",
+      "heroPath": "{{imgbase}}/conductor-hero.webp",
+      "icon": "kind-icon:gearhammer",
+      "repoUrl": "https://github.com/silasfelinus/conductor",
+      "isPublic": true,
+      "isMature": false,
+      "isActive": true,
+      "allowReviews": false,
+      "userId": 1
     }
   ]
 }

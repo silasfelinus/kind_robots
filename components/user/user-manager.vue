@@ -17,7 +17,7 @@
       </button>
 
       <button
-        v-else
+        v-if="!isGuest"
         class="btn btn-error btn-sm rounded-xl"
         type="button"
         :disabled="isLoggingOut"

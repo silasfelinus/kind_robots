@@ -1,225 +1,62 @@
-<!-- /components/content/navigation/channel-select.vue -->
+<!-- /components/navigation/channel-select.vue -->
 <template>
-  <div ref="menuRef" class="relative flex">
+  <div class="dropdown">
     <button
-      ref="buttonRef"
-      class="flex h-10 w-14 shrink-0 cursor-pointer select-none flex-col items-center justify-center gap-0.5 rounded-xl border px-1.5 py-1 transition-all hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95 sm:h-11 xl:h-14 xl:w-[4.5rem] xl:gap-1 xl:py-1.5"
-      :class="
-        showMenu
-          ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
-          : 'border-base-300 bg-base-100 text-base-content hover:bg-base-200'
-      "
+      tabindex="0"
       type="button"
-      :aria-expanded="showMenu"
-      :title="`Explore: ${activeChannel.label}`"
-      @click.stop="toggleMenu"
+      class="flex h-10 min-h-10 shrink-0 items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
+      :title="`Channel: ${activeChannel.label}`"
     >
       <span
-        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border sm:h-7 sm:w-7 xl:h-9 xl:w-9"
-        :class="
-          showMenu
-            ? 'border-secondary-content/30 bg-secondary-content/15'
-            : 'border-base-300/70 bg-base-200'
-        "
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
       >
         <Icon
           :name="activeChannel.icon"
-          class="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 xl:h-5 xl:w-5"
+          class="h-4 w-4 shrink-0 xl:h-5 xl:w-5"
         />
       </span>
-      <span
-        class="max-w-full truncate text-[0.5rem] font-black uppercase leading-none tracking-wide xl:text-[0.6rem]"
-      >
+
+      <span class="truncate text-sm font-black sm:text-base xl:text-lg">
         {{ activeChannel.label }}
       </span>
+
+      <Icon
+        name="kind-icon:chevron-down"
+        class="h-3.5 w-3.5 shrink-0 text-base-content/50 xl:h-4 xl:w-4"
+      />
     </button>
 
-    <Teleport to="body">
-      <Transition name="fade-up">
-        <div
-          v-if="showMenu"
-          ref="panelRef"
-          class="fixed z-110 max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-120 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl sm:max-h-[calc(100dvh-2rem)]"
-          :style="menuStyle"
-          @click.stop
+    <ul
+      tabindex="0"
+      class="menu dropdown-content z-110 mt-2 max-h-[min(32rem,calc(100dvh-5rem))] w-[min(14rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+    >
+      <li v-for="channel in allChannels" :key="channel.key">
+        <NuxtLink
+          :to="channel.path"
+          class="flex min-h-11 items-center gap-2 rounded-xl xl:min-h-12"
+          :class="
+            isChannelActive(channel)
+              ? 'bg-primary text-primary-content'
+              : ''
+          "
+          @click="closeDropdown"
         >
-          <div
-            class="flex items-center gap-2 border-b border-base-300 bg-base-200/70 px-3 py-2"
+          <span
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-base-300/50 bg-base-200 xl:h-9 xl:w-9"
           >
-            <NuxtLink
-              :to="homeChannel.path"
-              class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-sm"
-              :class="
-                isChannelActive(homeChannel)
-                  ? 'border-primary bg-primary text-primary-content shadow-sm'
-                  : 'border-base-300 bg-base-100 text-base-content'
-              "
-              :title="homeChannel.label"
-              @click="closeMenu"
-            >
-              <Icon
-                :name="homeChannel.icon"
-                class="h-4 w-4 transition-transform group-hover:scale-110"
-              />
-            </NuxtLink>
-
-            <div class="flex min-w-0 flex-1 flex-col items-center">
-              <p
-                class="text-[0.55rem] font-black uppercase tracking-[0.24em] text-base-content/40"
-              >
-                Explore
-              </p>
-              <p class="truncate text-sm font-black text-base-content">
-                {{ activeChannel.label }}
-              </p>
-            </div>
-
-            <NuxtLink
-              :to="sanctuaryChannel.path"
-              class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm"
-              :class="
-                isChannelActive(sanctuaryChannel)
-                  ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
-                  : 'border-base-300 bg-base-100 text-base-content'
-              "
-              :title="sanctuaryChannel.label"
-              @click="closeMenu"
-            >
-              <Icon
-                :name="sanctuaryChannel.icon"
-                class="h-4 w-4 transition-transform group-hover:scale-110"
-              />
-            </NuxtLink>
-          </div>
-
-          <div class="space-y-3 p-2 sm:p-3">
-            <section
-              class="rounded-2xl border border-primary/30 bg-primary/10 p-2 sm:p-3"
-            >
-              <div class="mb-2 flex items-center justify-between gap-2 px-1">
-                <p
-                  class="text-[0.6rem] font-black uppercase tracking-widest text-primary"
-                >
-                  Creation Tools
-                </p>
-                <p class="text-[0.58rem] font-bold text-base-content/45">
-                  Conductor · Lab · Builder · Art · Bots
-                </p>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                <NuxtLink
-                  v-for="channel in creationChannels"
-                  :key="channel.key"
-                  :to="channel.path"
-                  class="group relative flex min-h-24 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-md sm:min-h-28"
-                  :class="
-                    isChannelActive(channel)
-                      ? 'border-primary bg-primary text-primary-content shadow-sm'
-                      : 'border-primary/20 bg-linear-to-b from-base-100 to-primary/5 text-base-content'
-                  "
-                  @click="closeMenu"
-                >
-                  <span
-                    class="absolute inset-x-4 top-0 h-px bg-primary/40 opacity-0 transition-opacity group-hover:opacity-100"
-                  />
-
-                  <span
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110"
-                    :class="
-                      isChannelActive(channel)
-                        ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
-                        : 'border-primary/20 bg-base-100 text-primary'
-                    "
-                  >
-                    <Icon :name="channel.icon" class="h-5 w-5" />
-                  </span>
-
-                  <span class="max-w-full truncate text-sm font-black">
-                    {{ channel.label }}
-                  </span>
-
-                  <span
-                    v-if="channel.summary"
-                    class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-primary/95 px-2 text-center text-[0.6rem] font-semibold leading-snug text-primary-content opacity-0 transition-opacity group-hover:opacity-100"
-                  >
-                    {{ channel.summary }}
-                  </span>
-                </NuxtLink>
-              </div>
-            </section>
-
-            <section
-              class="rounded-2xl border border-secondary/30 bg-secondary/10 p-2 sm:p-3"
-            >
-              <div class="mb-2 flex items-center justify-between gap-2 px-1">
-                <p
-                  class="text-[0.6rem] font-black uppercase tracking-widest text-secondary"
-                >
-                  World Content
-                </p>
-                <p class="text-[0.58rem] font-bold text-base-content/45">
-                  Rewards · Dreams · Characters · Scenarios
-                </p>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <NuxtLink
-                  v-for="channel in worldChannels"
-                  :key="channel.key"
-                  :to="channel.path"
-                  class="group relative flex min-h-24 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border p-2 text-center transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md sm:min-h-28"
-                  :class="
-                    isChannelActive(channel)
-                      ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
-                      : 'border-secondary/20 bg-linear-to-b from-base-100 to-secondary/5 text-base-content'
-                  "
-                  @click="closeMenu"
-                >
-                  <span
-                    class="absolute inset-x-4 top-0 h-px bg-secondary/40 opacity-0 transition-opacity group-hover:opacity-100"
-                  />
-
-                  <span
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-all group-hover:scale-110"
-                    :class="
-                      isChannelActive(channel)
-                        ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
-                        : 'border-secondary/20 bg-base-100 text-secondary'
-                    "
-                  >
-                    <Icon :name="channel.icon" class="h-5 w-5" />
-                  </span>
-
-                  <span class="max-w-full truncate text-sm font-black">
-                    {{ channel.label }}
-                  </span>
-
-                  <span
-                    v-if="channel.summary"
-                    class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-secondary/95 px-2 text-center text-[0.6rem] font-semibold leading-snug text-secondary-content opacity-0 transition-opacity group-hover:opacity-100"
-                  >
-                    {{ channel.summary }}
-                  </span>
-                </NuxtLink>
-              </div>
-            </section>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+            <Icon :name="channel.icon" class="h-4 w-4 shrink-0" />
+          </span>
+          <span class="truncate text-sm font-black xl:text-base">
+            {{ channel.label }}
+          </span>
+        </NuxtLink>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  type CSSProperties,
-} from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 type ChannelRoute = {
@@ -227,227 +64,90 @@ type ChannelRoute = {
   label: string
   path: string
   icon: string
-  summary?: string
 }
 
 const route = useRoute()
 
-const showMenu = ref(false)
-const menuRef = ref<HTMLElement | null>(null)
-const buttonRef = ref<HTMLElement | null>(null)
-const panelRef = ref<HTMLElement | null>(null)
-
-const menuStyle = ref<CSSProperties>({
-  left: '0.5rem',
-  top: '3.5rem',
-})
-
-const homeChannel: ChannelRoute = {
-  key: 'home',
-  label: 'Home',
-  path: '/',
-  icon: 'kind-icon:home',
-}
-
-const sanctuaryChannel: ChannelRoute = {
-  key: 'sanctuary',
-  label: 'Sanctuary',
-  path: '/sanctuary',
-  icon: 'kind-icon:butterfly',
-  summary: 'Help us reach our goal to make the world a better place.',
-}
-
-const utilityChannels: ChannelRoute[] = [homeChannel, sanctuaryChannel]
-
-const conductorChannel: ChannelRoute = {
-  key: 'conductor',
-  label: 'Conductor',
-  path: '/conductor',
-  icon: 'kind-icon:gearhammer',
-  summary: 'Steer agents, review work, and approve what needs a human.',
-}
-
-const labChannel: ChannelRoute = {
-  key: 'lab',
-  label: 'Lab',
-  path: '/memory',
-  icon: 'kind-icon:dungeon',
-  summary: 'Explore behind the scenes, and play our match game.',
-}
-
-const builderChannel: ChannelRoute = {
-  key: 'builder',
-  label: 'Builder',
-  path: '/builder',
-  icon: 'kind-icon:blueprint',
-  summary: 'Build easily with our step by step builder.',
-}
-
-const artChannel: ChannelRoute = {
-  key: 'art',
-  label: 'Art',
-  path: '/art',
-  icon: 'kind-icon:palette',
-  summary: 'Generate and browse AI artwork.',
-}
-
-const botsChannel: ChannelRoute = {
-  key: 'bots',
-  label: 'Narrators',
-  path: '/bots',
-  icon: 'kind-icon:robot-color',
-  summary:
-    'Build and interact with the customized hosts that provide a unique flavor to every dream',
-}
-
-const rewardsChannel: ChannelRoute = {
-  key: 'rewards',
-  label: 'Rewards',
-  path: '/rewards',
-  icon: 'kind-icon:trophy',
-  summary: 'Earn and collect rewards for your creations.',
-}
-
-const dreamsChannel: ChannelRoute = {
-  key: 'dreams',
-  label: 'Pitches',
-  path: '/dreams',
-  icon: 'kind-icon:moon',
-  summary: 'Explore imagined places and dreamscapes.',
-}
-
-const charactersChannel: ChannelRoute = {
-  key: 'characters',
-  label: 'Characters',
-  path: '/characters',
-  icon: 'kind-icon:mask',
-  summary: 'Design and meet the cast of your world.',
-}
-
-const scenariosChannel: ChannelRoute = {
-  key: 'scenarios',
-  label: 'Stories',
-  path: '/stories',
-  icon: 'kind-icon:story',
-  summary: 'Create story situations, prompts, encounters, and playable scenes.',
-}
-
-const creationChannels: ChannelRoute[] = [
-  conductorChannel,
-  labChannel,
-  builderChannel,
-  artChannel,
-  botsChannel,
+const allChannels: ChannelRoute[] = [
+  { key: 'home', label: 'Home', path: '/', icon: 'kind-icon:home' },
+  {
+    key: 'sanctuary',
+    label: 'Sanctuary',
+    path: '/sanctuary',
+    icon: 'kind-icon:butterfly',
+  },
+  {
+    key: 'conductor',
+    label: 'Conductor',
+    path: '/conductor',
+    icon: 'kind-icon:gearhammer',
+  },
+  {
+    key: 'lab',
+    label: 'Lab',
+    path: '/memory',
+    icon: 'kind-icon:dungeon',
+  },
+  {
+    key: 'builder',
+    label: 'Builder',
+    path: '/builder',
+    icon: 'kind-icon:blueprint',
+  },
+  {
+    key: 'art',
+    label: 'Art',
+    path: '/art',
+    icon: 'kind-icon:palette',
+  },
+  {
+    key: 'bots',
+    label: 'Narrators',
+    path: '/bots',
+    icon: 'kind-icon:robot-color',
+  },
+  {
+    key: 'dreams',
+    label: 'Pitches',
+    path: '/dreams',
+    icon: 'kind-icon:moon',
+  },
+  {
+    key: 'characters',
+    label: 'Characters',
+    path: '/characters',
+    icon: 'kind-icon:mask',
+  },
+  {
+    key: 'scenarios',
+    label: 'Stories',
+    path: '/stories',
+    icon: 'kind-icon:story',
+  },
+  {
+    key: 'rewards',
+    label: 'Rewards',
+    path: '/rewards',
+    icon: 'kind-icon:trophy',
+  },
 ]
 
-const worldChannels: ChannelRoute[] = [
-  dreamsChannel,
-  charactersChannel,
-  scenariosChannel,
-  rewardsChannel,
-]
+const fallbackChannel: ChannelRoute = allChannels[0]
 
-const allChannels = computed<ChannelRoute[]>(() => [
-  ...utilityChannels,
-  ...creationChannels,
-  ...worldChannels,
-])
-
-const fallbackChannel: ChannelRoute = {
-  key: 'home',
-  label: 'Home',
-  path: '/',
-  icon: 'kind-icon:home',
-}
-
-const activeChannel = computed<ChannelRoute>(() => {
-  return (
-    allChannels.value.find((channel) => isChannelActive(channel)) ??
-    fallbackChannel
-  )
-})
+const activeChannel = computed<ChannelRoute>(
+  () =>
+    allChannels.find((channel) => isChannelActive(channel)) ?? fallbackChannel,
+)
 
 function isChannelActive(channel: ChannelRoute): boolean {
   if (route.path === channel.path) return true
   return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
+function closeDropdown(): void {
+  if (typeof document !== 'undefined') {
+    const el = document.activeElement as HTMLElement | null
+    el?.blur()
+  }
 }
-
-function updateMenuPosition(): void {
-  const button = buttonRef.value
-  if (!button) return
-
-  const rect = button.getBoundingClientRect()
-  const viewportWidth = window.innerWidth
-  const viewportHeight = window.innerHeight
-  const margin = 8
-  const menuWidth = Math.min(480, viewportWidth - margin * 2)
-  const estimatedMenuHeight = Math.min(500, viewportHeight - margin * 2)
-
-  const left = clamp(
-    rect.right - menuWidth,
-    margin,
-    viewportWidth - menuWidth - margin,
-  )
-
-  const opensDown = rect.bottom + margin + estimatedMenuHeight <= viewportHeight
-
-  menuStyle.value = opensDown
-    ? {
-        left: `${left}px`,
-        top: `${rect.bottom + margin}px`,
-      }
-    : {
-        left: `${left}px`,
-        bottom: `${viewportHeight - rect.top + margin}px`,
-      }
-}
-
-async function toggleMenu(): Promise<void> {
-  showMenu.value = !showMenu.value
-
-  if (!showMenu.value) return
-
-  await nextTick()
-  updateMenuPosition()
-}
-
-function closeMenu(): void {
-  showMenu.value = false
-}
-
-function handleDocumentClick(event: MouseEvent): void {
-  const target = event.target
-  if (!(target instanceof Node)) return
-  if (menuRef.value?.contains(target)) return
-  if (panelRef.value?.contains(target)) return
-  closeMenu()
-}
-
-function handleWindowChange(): void {
-  if (!showMenu.value) return
-  updateMenuPosition()
-}
-
-function handleKeydown(event: KeyboardEvent): void {
-  if (event.key !== 'Escape') return
-  closeMenu()
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleDocumentClick)
-  document.addEventListener('keydown', handleKeydown)
-  window.addEventListener('resize', handleWindowChange)
-  window.addEventListener('scroll', handleWindowChange, true)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleDocumentClick)
-  document.removeEventListener('keydown', handleKeydown)
-  window.removeEventListener('resize', handleWindowChange)
-  window.removeEventListener('scroll', handleWindowChange, true)
-})
 </script>

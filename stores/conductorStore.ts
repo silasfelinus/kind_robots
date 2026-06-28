@@ -62,7 +62,9 @@ export const useConductorStore = defineStore('conductor', () => {
     }
   }
 
-  // ── Pitch votes (localStorage-backed) ─────────────────────────────────────
+  // ── Pitch votes ───────────────────────────────────────────────────────────
+  // Stored in localStorage for instant UI feedback; each vote is also
+  // persisted to the conductor repo via the pitch-vote API so agents see it.
   const votedPitches = ref<Record<string, PitchVote>>(
     lsGet<Record<string, PitchVote>>(VOTE_KEY) ?? {},
   )
@@ -74,13 +76,19 @@ export const useConductorStore = defineStore('conductor', () => {
   function voteOnPitch(slug: string, choice: PitchVote): void {
     votedPitches.value = { ...votedPitches.value, [slug]: choice }
     lsSet(VOTE_KEY, votedPitches.value)
+    $fetch('/api/conductor/pitch-vote', {
+      method: 'POST',
+      body: { slug, vote: choice },
+    }).catch((err) => {
+      console.error('[conductor] pitch vote failed to persist to repo:', err)
+    })
   }
 
   function clearVote(slug: string): void {
     const next = { ...votedPitches.value }
     delete next[slug]
     votedPitches.value = next
-    lsSet(VOTE_KEY, votedPitches.value)
+    lsSet(VOTE_KEY, next)
   }
 
   // ── Project priorities (localStorage-backed, synced to API) ───────────────

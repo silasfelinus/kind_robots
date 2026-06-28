@@ -63,11 +63,14 @@
         <select
           v-if="showControls"
           v-model="layoutMode"
-          class="select select-bordered select-sm h-9 w-24 shrink-0 rounded-2xl bg-base-200"
+          class="select select-bordered select-sm h-9 w-28 shrink-0 rounded-2xl bg-base-200"
           aria-label="Dream gallery layout"
         >
           <option value="grid">Grid</option>
           <option value="row">Row</option>
+          <option value="reel">Reel</option>
+          <option value="hero">Hero</option>
+          <option value="swipe">Swipe</option>
         </select>
 
         <button
@@ -320,12 +323,13 @@
 
       <div v-else class="flex flex-col gap-3">
         <dream-sheet-toolbar
-          v-if="showSheetToolbar"
+          v-if="showSheetToolbar && isClassicLayout"
           :dreams="filteredDreams"
           :auto-refresh="autoLoadSheets"
         />
 
-        <div :class="layoutClass">
+        <!-- Classic grid / row views -->
+        <div v-if="isClassicLayout" :class="layoutClass">
           <dream-card
             v-for="dream in filteredDreams"
             :key="dream.id"
@@ -349,6 +353,22 @@
             @delete="handleDreamDeleted"
           />
         </div>
+
+        <slot-reel-gallery
+          v-if="layoutMode === 'reel'"
+          :items="showcaseItems"
+          @select="({ id }) => selectDreamAndOpen(Number(id))"
+        />
+        <hero-showcase
+          v-if="layoutMode === 'hero'"
+          :items="showcaseItems"
+          @select="({ id }) => selectDreamAndOpen(Number(id))"
+        />
+        <swipe-deck
+          v-if="layoutMode === 'swipe'"
+          :items="showcaseItems"
+          @select="({ id }) => selectDreamAndOpen(Number(id))"
+        />
       </div>
     </section>
   </section>
@@ -437,7 +457,9 @@ const searchQuery = ref('')
 const showMineOnly = ref(false)
 const showArchived = ref(false)
 const isLoading = ref(false)
-const layoutMode = ref<'grid' | 'row'>(props.variant === 'row' ? 'row' : 'grid')
+const layoutMode = ref<'grid' | 'row' | 'reel' | 'hero' | 'swipe'>(
+  props.variant === 'row' ? 'row' : 'grid',
+)
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
 
@@ -454,11 +476,24 @@ const isCompact = computed(() => {
   return props.compact || props.variant === 'row' || isDropdownMode.value
 })
 
+const isClassicLayout = computed(
+  () => layoutMode.value === 'grid' || layoutMode.value === 'row',
+)
+
 const layoutClass = computed(() => {
   return layoutMode.value === 'row' || props.variant === 'row'
     ? 'dream-row'
     : 'dream-grid'
 })
+
+const showcaseItems = computed(() =>
+  filteredDreams.value.map((dream) => ({
+    id: dream.id,
+    title: getDreamTitle(dream),
+    imagePath: previewImage(dream),
+    description: getDreamDescription(dream),
+  })),
+)
 
 const currentUserId = computed(() => {
   return userStore.userId ?? userStore.user?.id ?? null

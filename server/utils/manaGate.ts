@@ -58,6 +58,7 @@ export async function manaGate(
     useOwnResource: input.useOwnResource ?? false,
     isAdmin: auth.isAdmin,
     isServerKey: auth.isServerKey,
+    userRole: user.Role,
     kind: input.kind,
   })
 
@@ -112,12 +113,14 @@ async function isFreeGeneration(input: {
   useOwnResource: boolean
   isAdmin: boolean
   isServerKey: boolean
+  userRole?: string | null
   kind: ManaGateKind
 }): Promise<boolean> {
   if (input.kind === 'free') return true
   if (input.useOwnResource) return true
   if (input.isAdmin) return true
   if (input.isServerKey) return true
+  if (String(input.userRole ?? '').toUpperCase() === 'FAMILY') return true
 
   return await isFreeServerForUser({
     userId: input.userId,

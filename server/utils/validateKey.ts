@@ -1,5 +1,5 @@
 // /server/utils/validateKey.ts
-import { getHeader, type H3Event } from 'h3'
+import { getCookie, getHeader, type H3Event } from 'h3'
 import prisma from './prisma'
 import { verifyJwtToken } from '@/server/api/auth'
 import { userIsAdmin } from './authUser'
@@ -26,23 +26,26 @@ function readRequestToken(event: H3Event): string {
     getHeader(event, 'authorization') ||
       getHeader(event, 'x-beta-admin-token') ||
       getHeader(event, 'x-admin-token') ||
-      getHeader(event, 'x-api-key'),
+      getHeader(event, 'x-api-key') ||
+      getCookie(event, 'kind-session') ||
+      getCookie(event, 'token') ||
+      getCookie(event, 'auth-token'),
   )
 }
 
 function getConfiguredBetaAdminToken(): string {
   return String(
-    config.betaAdminToken ||
-      config.adminToken ||
-      process.env.BETA_ADMIN_TOKEN ||
+    process.env.BETA_ADMIN_TOKEN ||
       process.env.ADMIN_TOKEN ||
+      config.betaAdminToken ||
+      config.adminToken ||
       '',
   ).trim()
 }
 
 function getBetaAdminUserId(): number {
   const raw = Number(
-    config.betaAdminUserId || process.env.BETA_ADMIN_USER_ID || 1,
+    process.env.BETA_ADMIN_USER_ID || config.betaAdminUserId || 1,
   )
 
   return Number.isInteger(raw) && raw > 0 ? raw : 1
@@ -103,8 +106,8 @@ export async function validateApiKeyString(
   const clean = cleanToken(token)
 
   return (
-    (await validateJwtString(clean)) ??
-    (await validateBetaAdminString(clean)) ?? {
+    (await validateBetaAdminString(clean)) ??
+    (await validateJwtString(clean)) ?? {
       isValid: false,
     }
   )

@@ -95,7 +95,13 @@ export const useUserStore = defineStore('userStore', () => {
   const karma = computed(() => user.value?.karma ?? 1000)
   const mana = computed(() => user.value?.mana ?? 0)
   const role = computed(() => user.value?.Role ?? 'USER')
-  const isAdmin = computed(() => user.value?.Role === 'ADMIN')
+  const isAdmin = computed(() => user.value?.Role === 'ADMIN' || user.value?.id === 1)
+  const isFamily = computed(() => user.value?.Role === 'FAMILY')
+  const isMember = computed(
+    () =>
+      user.value?.isMember === true &&
+      (!user.value?.memberUntil || new Date(user.value.memberUntil) > new Date()),
+  )
   const avatarImage = computed(() => user.value?.avatarImage ?? 'default')
   const apiKey = computed(() => user.value?.apiKey ?? null)
   const showMature = computed(() => user.value?.showMature ?? false)
@@ -838,6 +844,8 @@ export const useUserStore = defineStore('userStore', () => {
     mana,
     role,
     isAdmin,
+    isFamily,
+    isMember,
     avatarImage,
     apiKey,
     showMature,

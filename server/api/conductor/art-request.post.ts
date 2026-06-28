@@ -5,6 +5,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '@/server/utils/error'
 import { userIsAdmin } from '@/server/utils/authUser'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
 
 const GITHUB_API = 'https://api.github.com'
 const KIND_ROBOTS_REPO = 'silasfelinus/kind_robots'
@@ -31,6 +32,11 @@ type MissingArtRequestBody = {
   variant?: string
   size?: string
   prompt?: string
+  pageTitle?: string
+  pageDescription?: string
+  nearestHeading?: string
+  nearbyText?: string
+  imageClass?: string
 }
 
 type GitHubFile = {
@@ -264,7 +270,7 @@ function yamlFolded(key: string, value: string, indent = '    '): string {
   return `${key}: >\n${indent}${clean}`
 }
 
-function buildPrompt(body: MissingArtRequestBody, target: ImageTarget): string {
+function buildFallbackPrompt(body: MissingArtRequestBody, target: ImageTarget): string {
   const explicit = cleanString(body.prompt)
   if (explicit) return explicit
 
@@ -285,13 +291,15 @@ function buildPrompt(body: MissingArtRequestBody, target: ImageTarget): string {
   return `polished web illustration for ${label}, clear subject, cohesive Kind Robots visual style, no text`
 }
 
-function buildEntry(body: MissingArtRequestBody, target: ImageTarget): ArtQueueEntry {
+async function buildEntry(body: MissingArtRequestBody, target: ImageTarget): Promise<ArtQueueEntry> {
   const repoName = target.targetRepo.split('/').pop() ?? 'repo'
   const hash = createHash('sha1')
     .update(`${target.targetRepo}:${target.imagePath}:${target.sourceUrl}`)
     .digest('hex')
     .slice(0, 8)
   const id = `${slugify(`${repoName}-${target.slug}-${target.variant}`)}-${hash}`
+  const fallbackPrompt = buildFallbackPrompt(body, target)
+  const prompt = await buildContextualArtPrompt(body, target, fallbackPrompt)
 
   return {
     id,
@@ -304,7 +312,7 @@ function buildEntry(body: MissingArtRequestBody, target: ImageTarget): ArtQueueE
     variant: target.variant,
     size: target.size,
     label: cleanString(body.alt || body.label) || titleFromSlug(target.slug),
-    prompt: buildPrompt(body, target),
+    prompt,
   }
 }
 
@@ -420,7 +428,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const entry = buildEntry(body, target)
+    const entry = await buildEntry(body, target)
     const result = await updateConductorQueue(entry, token)
 
     event.node.res.statusCode = result.created ? 201 : 200

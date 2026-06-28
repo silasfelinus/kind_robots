@@ -5,8 +5,10 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type {
   CreationSource,
+  DreamPriority,
   DreamType,
   Prisma,
+  ProjectStatus,
 } from '~/prisma/generated/prisma/client'
 import {
   dreamInclude,
@@ -30,9 +32,16 @@ type DreamMutationInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
   highlightImage?: string | null
   icon?: string | null
   designer?: string | null
+  repoUrl?: string | null
+  liveUrl?: string | null
+  projectStatus?: ProjectStatus | string | null
+  priority?: DreamPriority | string | null
+  allowReviews?: boolean
   artImageId?: number | null
   artCollectionId?: number | null
   scenarioId?: number | null
@@ -46,6 +55,7 @@ type DreamMutationInput = {
   isMature?: boolean
   isActive?: boolean
   createCollection?: boolean
+  userId?: number
 }
 
 type DreamBatchBody =
@@ -71,11 +81,26 @@ function getDreamsFromBody(body: DreamBatchBody): DreamMutationInput[] {
   return []
 }
 
+function normalizeProjectStatus(raw: unknown): ProjectStatus | undefined {
+  const valid: ProjectStatus[] = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED', 'BRAINSTORM']
+  const s = String(raw ?? '').trim().toUpperCase()
+  return valid.includes(s as ProjectStatus) ? (s as ProjectStatus) : undefined
+}
+
+function normalizeProjectPriority(raw: unknown): DreamPriority | undefined {
+  const valid: DreamPriority[] = ['LOW', 'NORMAL', 'HIGH']
+  const s = String(raw ?? '').trim().toUpperCase()
+  return valid.includes(s as DreamPriority) ? (s as DreamPriority) : undefined
+}
+
 async function createDreamFromInput(
   body: DreamMutationInput,
-  userId: number,
+  callerUserId: number,
   sender: string,
 ) {
+  const userId = (body.userId && Number.isInteger(body.userId) && body.userId > 0)
+    ? body.userId
+    : callerUserId
   const title = body.title?.trim()
 
   if (!title) {
@@ -128,9 +153,16 @@ async function createDreamFromInput(
     examples: normalizeOptionalText(body.examples) ?? null,
     artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
     imagePath: normalizeOptionalText(body.imagePath) ?? null,
+    cardPath: normalizeOptionalText(body.cardPath) ?? null,
+    heroPath: normalizeOptionalText(body.heroPath) ?? null,
     highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
     icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
     designer: normalizeOptionalText(body.designer) ?? sender,
+    repoUrl: normalizeOptionalText(body.repoUrl) ?? null,
+    liveUrl: normalizeOptionalText(body.liveUrl) ?? null,
+    projectStatus: normalizeProjectStatus(body.projectStatus),
+    priority: normalizeProjectPriority(body.priority) ?? 'NORMAL',
+    allowReviews: body.allowReviews ?? false,
     isPublic,
     isMature,
     isActive,

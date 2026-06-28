@@ -1,7 +1,7 @@
 <!-- /components/content/navigation/workspace-header.vue -->
 <template>
   <header
-    class="relative z-50 mb-2 shrink-0 overflow-visible rounded-2xl border border-base-300/70 bg-base-100/95 shadow-sm backdrop-blur"
+    class="relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-base-300/70 bg-base-100/95 shadow-sm backdrop-blur"
   >
     <fx-region region="header" />
 
@@ -80,7 +80,7 @@
 
         <ul
           tabindex="0"
-          class="menu dropdown-content z-110 mt-2 max-h-80 w-[min(24rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+          class="menu dropdown-content z-40 mt-2 max-h-80 w-[min(24rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         >
           <li v-for="tab in resolvedTabs" :key="tab.key">
             <button

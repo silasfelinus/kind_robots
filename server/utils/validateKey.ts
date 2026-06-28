@@ -27,6 +27,7 @@ function readRequestToken(event: H3Event): string {
       getHeader(event, 'x-beta-admin-token') ||
       getHeader(event, 'x-admin-token') ||
       getHeader(event, 'x-api-key') ||
+      getCookie(event, 'kind-session') ||
       getCookie(event, 'token') ||
       getCookie(event, 'auth-token'),
   )

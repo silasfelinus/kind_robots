@@ -1,4 +1,4 @@
-<!-- /components/servers/server-selector.vue -->
+<!-- /components/navigation/server-selector.vue -->
 <template>
   <div class="relative inline-flex shrink-0">
     <button
@@ -22,9 +22,7 @@
             <h2 class="truncate text-lg font-black text-primary sm:text-xl">
               Server Connections
             </h2>
-            <p
-              class="mt-1 text-xs leading-snug text-base-content/60 sm:text-sm"
-            >
+            <p class="mt-1 text-xs leading-snug text-base-content/60 sm:text-sm">
               Pick defaults, save provider keys, and manage local endpoints.
             </p>
           </div>
@@ -43,11 +41,9 @@
           <div
             v-if="statusMessage"
             class="rounded-2xl border p-3 text-sm font-bold"
-            :class="
-              statusTone === 'success'
-                ? 'border-success/40 bg-success/10 text-success'
-                : 'border-error/40 bg-error/10 text-error'
-            "
+            :class="statusTone === 'success'
+              ? 'border-success/40 bg-success/10 text-success'
+              : 'border-error/40 bg-error/10 text-error'"
           >
             {{ statusMessage }}
           </div>
@@ -65,7 +61,7 @@
                   :key="server.id"
                   :value="server.id"
                 >
-                  {{ server.label || server.title }} · {{ server.serverType }}
+                  {{ serverOptionLabel(server) }}
                 </option>
               </select>
             </label>
@@ -82,7 +78,7 @@
                   :key="server.id"
                   :value="server.id"
                 >
-                  {{ server.label || server.title }} · {{ server.serverType }}
+                  {{ serverOptionLabel(server) }}
                 </option>
               </select>
             </label>
@@ -97,9 +93,7 @@
           </section>
 
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <div
-              class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-            >
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0">
                 <h3 class="font-black text-primary">Connections</h3>
                 <p class="text-sm leading-snug text-base-content/60">
@@ -118,42 +112,24 @@
             </div>
 
             <div class="mt-3 grid gap-3">
-              <article
-                class="rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
+              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">OpenAI</p>
                     <p class="text-xs leading-snug text-base-content/60">
-                      {{
-                        serverHasKey(openAiTextServer)
-                          ? 'Text saved'
-                          : 'No text key saved'
-                      }}
+                      {{ serverHasKey(openAiTextServer) ? 'Text saved' : 'No text key saved' }}
                       ·
-                      {{
-                        serverHasKey(openAiArtServer)
-                          ? 'Images saved'
-                          : 'No image key saved'
-                      }}
+                      {{ serverHasKey(openAiArtServer) ? 'Images saved' : 'No image key saved' }}
                     </p>
                   </div>
 
                   <span
                     class="badge shrink-0"
-                    :class="
-                      serverHasKey(openAiTextServer) ||
-                      serverHasKey(openAiArtServer)
-                        ? 'badge-success'
-                        : 'badge-ghost'
-                    "
+                    :class="serverHasKey(openAiTextServer) || serverHasKey(openAiArtServer)
+                      ? 'badge-success'
+                      : 'badge-ghost'"
                   >
-                    {{
-                      serverHasKey(openAiTextServer) ||
-                      serverHasKey(openAiArtServer)
-                        ? 'saved'
-                        : 'empty'
-                    }}
+                    {{ serverHasKey(openAiTextServer) || serverHasKey(openAiArtServer) ? 'saved' : 'empty' }}
                   </span>
                 </div>
 
@@ -177,11 +153,7 @@
                     type="password"
                     name="openai-api-key"
                     autocomplete="new-password"
-                    :placeholder="
-                      openAiTextServer || openAiArtServer
-                        ? '••••••••••••••••'
-                        : 'OpenAI API key'
-                    "
+                    :placeholder="openAiTextServer || openAiArtServer ? '••••••••••••••••' : 'OpenAI API key'"
                   />
 
                   <button
@@ -194,28 +166,18 @@
                 </form>
               </article>
 
-              <article
-                class="rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
+              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">Anthropic</p>
                     <p class="text-xs leading-snug text-base-content/60">
-                      {{
-                        serverHasKey(anthropicServer)
-                          ? 'Key saved'
-                          : 'No key saved'
-                      }}
+                      {{ serverHasKey(anthropicServer) ? 'Key saved' : 'No key saved' }}
                     </p>
                   </div>
 
                   <span
                     class="badge shrink-0"
-                    :class="
-                      serverHasKey(anthropicServer)
-                        ? 'badge-success'
-                        : 'badge-ghost'
-                    "
+                    :class="serverHasKey(anthropicServer) ? 'badge-success' : 'badge-ghost'"
                   >
                     {{ serverHasKey(anthropicServer) ? 'saved' : 'empty' }}
                   </span>
@@ -241,9 +203,7 @@
                     type="password"
                     name="anthropic-api-key"
                     autocomplete="new-password"
-                    :placeholder="
-                      anthropicServer ? '••••••••••••••••' : 'Anthropic API key'
-                    "
+                    :placeholder="anthropicServer ? '••••••••••••••••' : 'Anthropic API key'"
                   />
 
                   <button
@@ -261,16 +221,12 @@
                 :key="server.id"
                 class="rounded-2xl border border-base-300 bg-base-100 p-3"
               >
-                <div
-                  class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-                >
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div class="min-w-0">
                     <p class="truncate font-black">
-                      {{ server.label || server.title }}
+                      {{ serverName(server) }}
                     </p>
-                    <p
-                      class="wrap-break-word text-xs leading-snug text-base-content/60"
-                    >
+                    <p class="wrap-break-word text-xs leading-snug text-base-content/60">
                       {{ localServerLabel(server.serverType) }}
                       <span v-if="server.baseUrl"> · {{ server.baseUrl }}</span>
                     </p>
@@ -556,8 +512,7 @@ const servers = computed(() => {
   return serverStore.servers
     .filter((server) => server && server.id)
     .sort((a, b) => {
-      const activeSort =
-        Number(Boolean(b.isActive)) - Number(Boolean(a.isActive))
+      const activeSort = Number(Boolean(b.isActive)) - Number(Boolean(a.isActive))
 
       if (activeSort) {
         return activeSort
@@ -625,19 +580,7 @@ function cleanUrl(value: string) {
   return value.trim().replace(/\/+$/, '')
 }
 
-function defaultLocalLabel(serverType: LocalServerType) {
-  if (serverType === 'A1111') {
-    return 'Stable Diffusion'
-  }
-
-  if (serverType === 'COMFY') {
-    return 'ComfyUI'
-  }
-
-  return 'Ollama'
-}
-
-function localServerLabel(serverType: string) {
+function serverTypeLabel(serverType: string) {
   if (serverType === 'A1111') {
     return 'Stable Diffusion'
   }
@@ -650,7 +593,42 @@ function localServerLabel(serverType: string) {
     return 'Ollama'
   }
 
+  if (serverType === 'OPENAI') {
+    return 'OpenAI'
+  }
+
+  if (serverType === 'ANTHROPIC') {
+    return 'Anthropic'
+  }
+
+  if (serverType === 'CUSTOM') {
+    return 'Custom'
+  }
+
   return serverType
+}
+
+function serverName(server: Server) {
+  return String(server.label || server.title || server.model || 'Unnamed Server')
+}
+
+function serverOptionLabel(server: Server) {
+  const name = serverName(server)
+  const type = serverTypeLabel(String(server.serverType || ''))
+
+  if (!type || name.toLowerCase().includes(type.toLowerCase())) {
+    return name
+  }
+
+  return `${name} · ${type}`
+}
+
+function defaultLocalLabel(serverType: LocalServerType) {
+  return serverTypeLabel(serverType)
+}
+
+function localServerLabel(serverType: string) {
+  return serverTypeLabel(serverType)
 }
 
 function defaultEndpointPath(serverType: LocalServerType) {
@@ -697,24 +675,17 @@ async function deleteServer(id: number) {
   return await serverStore.deleteServer(id)
 }
 
-async function upsertServer(
-  existingId: number | undefined,
-  body: Partial<Server>,
-) {
+async function upsertServer(existingId: number | undefined, body: Partial<Server>) {
   if (existingId) {
-    return await serverStore.updateServer(existingId, body)
+    return await updateServer(existingId, body)
   }
 
-  return await serverStore.addServer(body)
+  return await createServer(body)
 }
 
 async function saveSelections() {
-  const artResult = await serverStore.setActiveArtServer(
-    selectedArtServerId.value,
-  )
-  const textResult = await serverStore.setActiveTextServer(
-    selectedTextServerId.value,
-  )
+  const artResult = await serverStore.setActiveArtServer(selectedArtServerId.value)
+  const textResult = await serverStore.setActiveTextServer(selectedTextServerId.value)
 
   if (!artResult.success) {
     setStatus(artResult.message || 'Unable to save art server.', 'error')
@@ -733,6 +704,16 @@ async function saveSelections() {
   }
 
   setStatus('Default servers saved.')
+}
+
+function serverHasKey(server: Server | undefined) {
+  if (!server) {
+    return false
+  }
+
+  const maybeServer = server as Server & { hasApiKey?: boolean }
+
+  return Boolean(maybeServer.hasApiKey || server.apiKey)
 }
 
 async function saveOpenAi() {
@@ -800,7 +781,7 @@ async function saveOpenAi() {
     )
 
     if (!imageResult.success) {
-      throw new Error(textResult.message || 'Unable to save OpenAI image key.')
+      throw new Error(imageResult.message || 'Unable to save OpenAI image key.')
     }
 
     openAiKey.value = ''
@@ -814,16 +795,6 @@ async function saveOpenAi() {
   } finally {
     isSaving.value = false
   }
-}
-
-function serverHasKey(server: Server | undefined) {
-  if (!server) {
-    return false
-  }
-
-  const maybeServer = server as Server & { hasApiKey?: boolean }
-
-  return Boolean(maybeServer.hasApiKey || server.apiKey)
 }
 
 async function saveAnthropic() {
@@ -886,7 +857,7 @@ async function saveLocalServer() {
     const label = newLocal.label || defaultLocalLabel(newLocal.serverType)
     const baseUrl = cleanUrl(newLocal.baseUrl)
 
-    const result = await serverStore.addServer({
+    const result = await createServer({
       title: label,
       label,
       description: `Private ${label} endpoint.`,
@@ -911,7 +882,7 @@ async function saveLocalServer() {
     }
 
     cancelAddLocal()
-    await serverStore.fetchAllServers(true)
+    await refreshServers()
     setStatus(`${label} saved.`)
   } catch (error) {
     setStatus(
@@ -962,16 +933,17 @@ async function saveEditedServer() {
   statusMessage.value = ''
 
   try {
+    const baseUrl = cleanUrl(editForm.baseUrl)
     const result = await updateServer(editingServerId.value, {
       title: editForm.label,
       label: editForm.label,
       accessMode: editForm.accessMode,
-      baseUrl: cleanUrl(editForm.baseUrl),
+      baseUrl,
       endpointPath: editForm.endpointPath,
       healthPath: editForm.healthPath,
       model: editForm.model,
       notes: editForm.notes,
-      apiLink: cleanUrl(editForm.baseUrl),
+      apiLink: baseUrl,
     })
 
     if (!result.success) {

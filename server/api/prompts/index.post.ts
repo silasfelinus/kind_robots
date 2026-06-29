@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { awardKarma } from '../../utils/karma'
 import type { Prisma, Prompt } from '~/prisma/generated/prisma/client'
 
 type PromptCreateBody = Partial<Prompt> & {
@@ -169,6 +170,10 @@ export default defineEventHandler(async (event) => {
         },
       },
     })
+
+    if (data.isPublic) {
+      awardKarma({ userId, reason: 'CONTENT_CREATED_PUBLIC', refId: String(data.id) }).catch(() => {})
+    }
 
     event.node.res.statusCode = 201
 

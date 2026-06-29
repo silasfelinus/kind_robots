@@ -45,8 +45,8 @@
     <div
       v-if="showImage"
       :class="[
-        'relative min-h-0 w-full flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-        compact ? 'h-52' : 'h-80',
+        'relative w-full overflow-hidden rounded-2xl border border-base-300 bg-base-300',
+        compact ? 'h-44 sm:h-48' : 'aspect-[2/3]',
       ]"
     >
       <img
@@ -117,7 +117,7 @@
 
     <div
       v-else
-      class="flex min-h-56 flex-1 flex-col justify-end rounded-2xl border border-base-300 bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3"
+      :class="['flex flex-col justify-end rounded-2xl border border-base-300 bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3', compact ? 'h-44 sm:h-48' : 'aspect-[2/3]']"
     >
       <h2
         class="line-clamp-2 text-xl font-black leading-tight text-base-content"

@@ -2,6 +2,8 @@
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { sendWelcomeMessage } from '../../utils/welcomeMessage'
+import prisma from '../../utils/prisma'
+import { awardKarma } from '../../utils/karma'
 import { createUser } from '.'
 
 export default defineEventHandler(async (event) => {
@@ -51,6 +53,36 @@ export default defineEventHandler(async (event) => {
           '⚠️ Failed to send welcome message (registration still succeeded):',
           welcomeError,
         )
+      }
+
+      // Referral attribution. Non-fatal: failure here never blocks registration.
+      if (userData.referralCode && typeof userData.referralCode === 'string') {
+        try {
+          const referrer = await prisma.user.findFirst({
+            where: { referralCode: userData.referralCode },
+            select: { id: true },
+          })
+          if (referrer) {
+            await prisma.referral.create({
+              data: {
+                referrerId: referrer.id,
+                referredId: result.user.id,
+                codeUsed: userData.referralCode,
+              },
+            })
+            await awardKarma({
+              userId: referrer.id,
+              reason: 'REFERRAL_SIGNUP',
+              refId: String(result.user.id),
+            })
+            console.log(`🎁 Referral recorded: referrer=${referrer.id} new_user=${result.user.id}`)
+          }
+        } catch (referralError) {
+          console.error(
+            '⚠️ Failed to process referral (registration still succeeded):',
+            referralError,
+          )
+        }
       }
 
       return {

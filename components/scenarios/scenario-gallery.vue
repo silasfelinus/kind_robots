@@ -538,8 +538,8 @@ function handleScenarioDeleted(id: number) {
 <style scoped>
 .scenario-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+  gap: 0.75rem;
   align-items: start;
 }
 
@@ -553,15 +553,15 @@ function handleScenarioDeleted(id: number) {
 
 .scenario-row > * {
   scroll-snap-align: start;
-  min-width: min(220px, 70vw);
-  max-width: 280px;
+  min-width: min(180px, 70vw);
+  max-width: 240px;
   flex-shrink: 0;
 }
 
 .character-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+  gap: 0.75rem;
   align-items: stretch;
 }
 </style>

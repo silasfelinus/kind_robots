@@ -31,7 +31,7 @@
     <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
       <div
         v-if="store.visibleCards.length"
-        class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+        class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
       >
         <builder-card
           v-for="card in store.visibleCards"

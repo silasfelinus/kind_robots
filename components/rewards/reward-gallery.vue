@@ -658,8 +658,8 @@ function handleRewardDeleted(id: number) {
 <style scoped>
 .reward-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
+  gap: 0.75rem;
 }
 
 .reward-row {
@@ -670,7 +670,7 @@ function handleRewardDeleted(id: number) {
 }
 
 .reward-row > * {
-  min-width: min(240px, 85vw);
-  max-width: 340px;
+  min-width: min(200px, 80vw);
+  max-width: 280px;
 }
 </style>

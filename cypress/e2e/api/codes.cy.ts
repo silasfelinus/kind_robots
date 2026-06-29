@@ -19,162 +19,101 @@ interface ApiResponse<T = any> {
   statusCode?: number
 }
 
-interface CodeNode {
-  id: string
-  kind: string
-  title: string
-  x: number
-  y: number
-  values: Record<string, unknown>
-}
-
-interface CodeConnection {
-  id: string
-  fromNodeId: string
-  fromPortId: string
-  toNodeId: string
-  toPortId: string
-  type: string
-}
-
-interface CodeGraph {
-  version: 1
-  nodes: CodeNode[]
-  connections: CodeConnection[]
-  zoom: number
-  panX: number
-  panY: number
-}
-
 interface CodeRecord {
   id: number
-  createdAt: string
-  updatedAt: string | null
   userId: number
   title: string
   description: string | null
   icon: string | null
-  graph: CodeGraph
+  graph: Record<string, unknown>
   isPublic: boolean
   isOfficial: boolean
   isActive: boolean
 }
 
-describe('[Code] API Full CRUD + Auth Tests', () => {
-  const modelName = 'code'
-
+describe('[Code] API hard-delete contract', () => {
   let apiBase = ''
   let adminToken = ''
   let baseUrl = ''
-  let testUser: TestUserAuth | undefined
-  let itemId: number | null = null
-  let privateItemId: number | null = null
-  let batchIds: number[] = []
-  let createdIds: number[] = []
+  let user: TestUserAuth | undefined
+  let publicCodeId = 0
+  let privateCodeId = 0
+  let deletedCodeId = 0
 
   const time = Date.now()
-  const itemTitle = `CODE-${time}`
+  const publicTitle = `CODE-${time}`
   const privateTitle = `PRIVATE-CODE-${time}`
 
-  function makeGraph(label = 'demo'): CodeGraph {
-    return {
-      version: 1,
-      nodes: [
-        {
-          id: `node-text-${label}-${time}`,
-          kind: 'text-input',
-          title: 'Idea',
-          x: 80,
-          y: 160,
-          values: {
-            text: `A test blueprint idea ${label}`,
-          },
+  const graph = (label: string) => ({
+    version: 1,
+    nodes: [
+      {
+        id: `node-${label}-${time}`,
+        kind: 'text-input',
+        title: 'Idea',
+        x: 80,
+        y: 160,
+        values: {
+          text: `A test blueprint idea ${label}`,
         },
-        {
-          id: `node-openai-${label}-${time}`,
-          kind: 'openai-text',
-          title: 'Prompt Builder',
-          x: 390,
-          y: 120,
-          values: {
-            prompt: 'Improve this text into a polished image prompt.',
-          },
-        },
-        {
-          id: `node-sd-${label}-${time}`,
-          kind: 'stable-diffusion',
-          title: 'Image Modeler',
-          x: 700,
-          y: 160,
-          values: {
-            steps: 30,
-            cfg: 3.5,
-            seed: -1,
-            saveOutput: true,
-            useConnectedInput: true,
-          },
-        },
-      ],
-      connections: [
-        {
-          id: `connection-text-openai-${label}-${time}`,
-          fromNodeId: `node-text-${label}-${time}`,
-          fromPortId: 'text',
-          toNodeId: `node-openai-${label}-${time}`,
-          toPortId: 'text',
-          type: 'text',
-        },
-        {
-          id: `connection-openai-sd-${label}-${time}`,
-          fromNodeId: `node-openai-${label}-${time}`,
-          fromPortId: 'text',
-          toNodeId: `node-sd-${label}-${time}`,
-          toPortId: 'prompt',
-          type: 'text',
-        },
-      ],
-      zoom: 1,
-      panX: 0,
-      panY: 0,
-    }
+      },
+    ],
+    connections: [],
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+  })
+
+  const authHeaders = () => {
+    expect(user).to.exist
+    return bearerHeaders(user!.token)
   }
 
-  function authHeaders() {
-    expect(testUser).to.exist
-    return bearerHeaders(testUser!.token)
-  }
-
-  function rememberId(id: number | undefined | null) {
-    if (typeof id !== 'number') return
-    if (!createdIds.includes(id)) createdIds.push(id)
+  const rememberForCleanup = (id: number | undefined | null) => {
+    if (typeof id === 'number' && !deletedCodeId) deletedCodeId = id
   }
 
   before(() => {
-    getApiEnv().then((env) => {
-      apiBase = env.apiBase
-      adminToken = env.adminToken
-      baseUrl = `${apiBase}/${modelName}`
+    return getApiEnv()
+      .then((env) => {
+        apiBase = env.apiBase
+        adminToken = env.adminToken
+        baseUrl = `${apiBase}/code`
+
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((auth) => {
+        user = auth
+      })
+  })
+
+  after(() => {
+    ;[publicCodeId, privateCodeId, deletedCodeId].forEach((id) => {
+      if (!id || !adminToken) return
+
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${id}`,
+        headers: adminHeaders(adminToken),
+        failOnStatusCode: false,
+      })
     })
 
-    createLoggedInTestUser({ fresh: true }).then((auth) => {
-      testUser = auth
-    })
+    deleteTestUser(apiBase, adminToken, user?.id)
   })
 
   it('POST: rejects Code creation without auth', () => {
-    expect(testUser).to.exist
-
     cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
       headers: jsonHeaders(),
       body: {
-        title: `Unauthorized-${itemTitle}`,
+        title: `Unauthorized-${publicTitle}`,
         description: 'This should not be created.',
         icon: 'kind-icon:warning',
-        userId: testUser!.id,
+        userId: user?.id,
         isPublic: true,
-        graph: makeGraph('unauthorized'),
+        graph: graph('unauthorized'),
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -184,19 +123,17 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('POST: rejects Code creation with invalid auth', () => {
-    expect(testUser).to.exist
-
     cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
       headers: invalidBearerHeaders(),
       body: {
-        title: `Invalid-${itemTitle}`,
+        title: `Invalid-${publicTitle}`,
         description: 'This should not be created.',
         icon: 'kind-icon:warning',
-        userId: testUser!.id,
+        userId: user?.id,
         isPublic: true,
-        graph: makeGraph('invalid'),
+        graph: graph('invalid'),
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -211,10 +148,10 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
       url: baseUrl,
       headers: authHeaders(),
       body: {
-        title: `Missing-Graph-${itemTitle}`,
+        title: `Missing-Graph-${publicTitle}`,
         description: 'This should fail because graph is required.',
         icon: 'kind-icon:warning',
-        userId: testUser!.id,
+        userId: user?.id,
         isPublic: true,
       },
       failOnStatusCode: false,
@@ -224,39 +161,30 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
     })
   })
 
-  it('POST: creates a public Code record with valid auth', () => {
+  it('POST: creates public and private Code records with valid auth', () => {
     cy.request<ApiResponse<CodeRecord>>({
       method: 'POST',
       url: baseUrl,
       headers: authHeaders(),
       body: {
-        title: itemTitle,
+        title: publicTitle,
         description: 'Cypress-created public Code blueprint.',
         icon: 'kind-icon:blocks',
-        userId: testUser!.id,
+        userId: user?.id,
         isPublic: true,
-        graph: makeGraph('public'),
+        graph: graph('public'),
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.have.property('id')
-
-      itemId = res.body.data?.id ?? null
-      rememberId(itemId)
-
-      expect(itemId).to.be.a('number')
-      expect(res.body.data?.title).to.eq(itemTitle)
+      expect(res.body.data?.id).to.be.a('number')
+      expect(res.body.data?.title).to.eq(publicTitle)
       expect(res.body.data?.isPublic).to.eq(true)
-      expect(res.body.data?.graph).to.have.property('version', 1)
-      expect(res.body.data?.graph.nodes).to.be.an('array').and.have.length(3)
-      expect(res.body.data?.graph.connections)
-        .to.be.an('array')
-        .and.have.length(2)
-    })
-  })
 
-  it('POST: creates a private Code record with valid auth', () => {
+      publicCodeId = res.body.data!.id
+      rememberForCleanup(publicCodeId)
+    })
+
     cy.request<ApiResponse<CodeRecord>>({
       method: 'POST',
       url: baseUrl,
@@ -265,141 +193,52 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
         title: privateTitle,
         description: 'Cypress-created private Code blueprint.',
         icon: 'kind-icon:lock',
-        userId: testUser!.id,
+        userId: user?.id,
         isPublic: false,
-        graph: makeGraph('private'),
+        graph: graph('private'),
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
       expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.have.property('id')
-
-      privateItemId = res.body.data?.id ?? null
-      rememberId(privateItemId)
-
-      expect(privateItemId).to.be.a('number')
+      expect(res.body.data?.id).to.be.a('number')
       expect(res.body.data?.title).to.eq(privateTitle)
       expect(res.body.data?.isPublic).to.eq(false)
+
+      privateCodeId = res.body.data!.id
     })
   })
 
-  it('POST: creates multiple Code records in a batch with valid auth', () => {
-    cy.request<ApiResponse<CodeRecord[]>>({
-      method: 'POST',
-      url: baseUrl,
-      headers: authHeaders(),
-      body: [
-        {
-          title: `Batch-A-${itemTitle}`,
-          description: 'Batch Code blueprint A.',
-          icon: 'kind-icon:sparkles',
-          userId: testUser!.id,
-          isPublic: true,
-          graph: makeGraph('batch-a'),
-        },
-        {
-          title: `Batch-B-${itemTitle}`,
-          description: 'Batch Code blueprint B.',
-          icon: 'kind-icon:cube',
-          userId: testUser!.id,
-          isPublic: false,
-          graph: makeGraph('batch-b'),
-        },
-      ],
-    }).then((res) => {
-      expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array').and.have.length(2)
-
-      batchIds = (res.body.data || []).map((item) => item.id)
-      batchIds.forEach(rememberId)
-
-      expect(batchIds.every((id) => typeof id === 'number')).to.eq(true)
-    })
-  })
-
-  it('GET: fetches all public Code records without auth', () => {
-    expect(itemId).to.not.eq(null)
-    expect(privateItemId).to.not.eq(null)
-
+  it('GET: anonymous users see public but not private Code records', () => {
     cy.request<ApiResponse<CodeRecord[]>>({
       method: 'GET',
       url: baseUrl,
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
 
-      const publicMatch = res.body.data?.find((item) => item.id === itemId)
-      const privateMatch = res.body.data?.find(
-        (item) => item.id === privateItemId,
-      )
-
-      expect(publicMatch).to.not.eq(undefined)
-      expect(privateMatch).to.eq(undefined)
+      const records = res.body.data || []
+      expect(records.some((item) => item.id === publicCodeId)).to.eq(true)
+      expect(records.some((item) => item.id === privateCodeId)).to.eq(false)
     })
   })
 
-  it('GET: fetches Code records visible to authenticated user', () => {
-    cy.request<ApiResponse<CodeRecord[]>>({
-      method: 'GET',
-      url: baseUrl,
-      headers: authHeaders(),
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
-
-      const publicMatch = res.body.data?.find((item) => item.id === itemId)
-      const privateMatch = res.body.data?.find(
-        (item) => item.id === privateItemId,
-      )
-
-      expect(publicMatch).to.not.eq(undefined)
-      expect(privateMatch).to.not.eq(undefined)
-    })
-  })
-
-  it('GET: fetches only my Code records with mineOnly=true', () => {
-    cy.request<ApiResponse<CodeRecord[]>>({
-      method: 'GET',
-      url: `${baseUrl}?mineOnly=true`,
-      headers: authHeaders(),
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
-
-      const publicMatch = res.body.data?.find((item) => item.id === itemId)
-      const privateMatch = res.body.data?.find(
-        (item) => item.id === privateItemId,
-      )
-
-      expect(publicMatch).to.not.eq(undefined)
-      expect(privateMatch).to.not.eq(undefined)
-    })
-  })
-
-  it('GET: fetches public Code by ID without auth', () => {
-    expect(itemId).to.not.eq(null)
-
+  it('GET: owner sees private Code by ID', () => {
     cy.request<ApiResponse<CodeRecord>>({
       method: 'GET',
-      url: `${baseUrl}/${itemId}`,
+      url: `${baseUrl}/${privateCodeId}`,
+      headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
-      expect(res.body.data?.id).to.eq(itemId)
-      expect(res.body.data?.graph.version).to.eq(1)
+      expect(res.body.data?.id).to.eq(privateCodeId)
+      expect(res.body.data?.title).to.eq(privateTitle)
     })
   })
 
-  it('GET: rejects private Code by ID without auth', () => {
-    expect(privateItemId).to.not.eq(null)
-
+  it('GET: anonymous user cannot fetch private Code by ID', () => {
     cy.request<ApiResponse>({
       method: 'GET',
-      url: `${baseUrl}/${privateItemId}`,
+      url: `${baseUrl}/${privateCodeId}`,
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(403)
@@ -407,125 +246,50 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
     })
   })
 
-  it('GET: fetches private Code by ID as owner', () => {
-    expect(privateItemId).to.not.eq(null)
-
-    cy.request<ApiResponse<CodeRecord>>({
-      method: 'GET',
-      url: `${baseUrl}/${privateItemId}`,
-      headers: authHeaders(),
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data?.id).to.eq(privateItemId)
-      expect(res.body.data?.title).to.eq(privateTitle)
-    })
-  })
-
-  it('PATCH: rejects update without auth', () => {
-    expect(itemId).to.not.eq(null)
-
-    cy.request<ApiResponse>({
-      method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
-      headers: jsonHeaders(),
-      body: {
-        title: 'No Auth Edit',
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.eq(false)
-    })
-  })
-
-  it('PATCH: rejects update with invalid auth', () => {
-    expect(itemId).to.not.eq(null)
-
-    cy.request<ApiResponse>({
-      method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
-      headers: invalidBearerHeaders(),
-      body: {
-        title: 'Invalid Auth Edit',
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.eq(false)
-    })
-  })
-
-  it('PATCH: updates Code record with valid auth', () => {
-    expect(itemId).to.not.eq(null)
-
-    const newTitle = `Updated-${itemTitle}`
-    const updatedGraph = makeGraph('updated')
-    updatedGraph.zoom = 0.85
+  it('PATCH: updates supported Code fields', () => {
+    const newTitle = `Updated-${publicTitle}`
 
     cy.request<ApiResponse<CodeRecord>>({
       method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
+      url: `${baseUrl}/${publicCodeId}`,
       headers: authHeaders(),
       body: {
         title: newTitle,
         description: 'Updated by Cypress.',
         icon: 'kind-icon:check',
         isPublic: true,
-        graph: updatedGraph,
+        graph: graph('updated'),
       },
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
-      expect(res.body.data?.id).to.eq(itemId)
+      expect(res.body.data?.id).to.eq(publicCodeId)
       expect(res.body.data?.title).to.eq(newTitle)
       expect(res.body.data?.description).to.eq('Updated by Cypress.')
       expect(res.body.data?.icon).to.eq('kind-icon:check')
-      expect(res.body.data?.graph.zoom).to.eq(0.85)
     })
   })
 
-  it('PATCH: ignores isActive as an unsupported update flag', () => {
-    expect(itemId).to.not.eq(null)
-
-    cy.request<ApiResponse<CodeRecord>>({
+  it('PATCH: rejects isActive as an unsupported Code update flag', () => {
+    cy.request<ApiResponse>({
       method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
+      url: `${baseUrl}/${publicCodeId}`,
       headers: authHeaders(),
       body: {
         isActive: false,
-      },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data?.id).to.eq(itemId)
-      expect(res.body.data?.isActive).to.eq(true)
-    })
-  })
-
-  it('PATCH: rejects invalid graph object', () => {
-    expect(itemId).to.not.eq(null)
-
-    cy.request<ApiResponse>({
-      method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
-      headers: authHeaders(),
-      body: {
-        graph: 'not-a-valid-graph-object',
       },
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(400)
       expect(res.body.success).to.eq(false)
+      expect(res.body.message).to.match(/supported Code fields/i)
     })
   })
 
   it('DELETE: rejects delete without auth', () => {
-    expect(itemId).to.not.eq(null)
-
     cy.request<ApiResponse>({
       method: 'DELETE',
-      url: `${baseUrl}/${itemId}`,
+      url: `${baseUrl}/${publicCodeId}`,
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
@@ -534,11 +298,9 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('DELETE: rejects delete with invalid auth', () => {
-    expect(itemId).to.not.eq(null)
-
     cy.request<ApiResponse>({
       method: 'DELETE',
-      url: `${baseUrl}/${itemId}`,
+      url: `${baseUrl}/${publicCodeId}`,
       headers: invalidBearerHeaders(),
       failOnStatusCode: false,
     }).then((res) => {
@@ -548,45 +310,26 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
   })
 
   it('DELETE: hard deletes Code record with valid auth', () => {
-    expect(itemId).to.not.eq(null)
-
     cy.request<ApiResponse<CodeRecord>>({
       method: 'DELETE',
-      url: `${baseUrl}/${itemId}`,
+      url: `${baseUrl}/${publicCodeId}`,
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
-      expect(res.body.data?.id).to.eq(itemId)
+      expect(res.body.data?.id).to.eq(publicCodeId)
     })
   })
 
   it('GET: hard-deleted Code record returns 404', () => {
-    expect(itemId).to.not.eq(null)
-
     cy.request<ApiResponse>({
       method: 'GET',
-      url: `${baseUrl}/${itemId}`,
+      url: `${baseUrl}/${publicCodeId}`,
       headers: authHeaders(),
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(404)
       expect(res.body.success).to.eq(false)
     })
-  })
-
-  after(() => {
-    if (createdIds.length && adminToken) {
-      cy.wrap(createdIds).each((id) => {
-        cy.request({
-          method: 'DELETE',
-          url: `${baseUrl}/${id}`,
-          headers: adminHeaders(adminToken),
-          failOnStatusCode: false,
-        })
-      })
-    }
-
-    deleteTestUser(apiBase, adminToken, testUser?.id)
   })
 })

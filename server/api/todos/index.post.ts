@@ -9,6 +9,7 @@ type TodoCreateBody = {
   title: string
   description?: string | null
   priority?: 'LOW' | 'NORMAL' | 'HIGH'
+  category?: 'AGENT' | 'KAIZEN' | 'HONEYDO'
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
@@ -30,13 +31,18 @@ export default defineEventHandler(async (event) => {
       ? body.priority!
       : 'NORMAL'
 
+    const category = ['AGENT', 'KAIZEN', 'HONEYDO'].includes(body.category ?? '')
+      ? body.category!
+      : 'AGENT'
+
     await prisma.$executeRaw`
-      INSERT INTO \`Todo\` (title, description, status, priority, dueDate, icon, imagePath, userId, createdAt, updatedAt)
+      INSERT INTO \`Todo\` (title, description, status, priority, category, dueDate, icon, imagePath, userId, createdAt, updatedAt)
       VALUES (
         ${title},
         ${body.description ?? null},
         'OPEN',
         ${priority},
+        ${category},
         ${body.dueDate ?? null},
         ${body.icon ?? null},
         ${body.imagePath ?? null},

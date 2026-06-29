@@ -81,7 +81,8 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
-  UserRelation: 'UserRelation'
+  UserRelation: 'UserRelation',
+  Todo: 'Todo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -885,6 +886,24 @@ export const UserRelationScalarFieldEnum = {
 export type UserRelationScalarFieldEnum = (typeof UserRelationScalarFieldEnum)[keyof typeof UserRelationScalarFieldEnum]
 
 
+export const TodoScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  priority: 'priority',
+  category: 'category',
+  dueDate: 'dueDate',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  userId: 'userId'
+} as const
+
+export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1396,4 +1415,14 @@ export const UserRelationOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserRelationOrderByRelevanceFieldEnum = (typeof UserRelationOrderByRelevanceFieldEnum)[keyof typeof UserRelationOrderByRelevanceFieldEnum]
+
+
+export const TodoOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  icon: 'icon',
+  imagePath: 'imagePath'
+} as const
+
+export type TodoOrderByRelevanceFieldEnum = (typeof TodoOrderByRelevanceFieldEnum)[keyof typeof TodoOrderByRelevanceFieldEnum]
 

@@ -414,6 +414,8 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
+  KarmaTransaction: 'KarmaTransaction',
+  Referral: 'Referral',
   UserRelation: 'UserRelation',
   Todo: 'Todo'
 } as const
@@ -431,7 +433,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation" | "todo"
+    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "karmaTransaction" | "referral" | "userRelation" | "todo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2415,6 +2417,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KarmaTransaction: {
+      payload: Prisma.$KarmaTransactionPayload<ExtArgs>
+      fields: Prisma.KarmaTransactionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KarmaTransactionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KarmaTransactionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload>
+        }
+        findFirst: {
+          args: Prisma.KarmaTransactionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KarmaTransactionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload>
+        }
+        findMany: {
+          args: Prisma.KarmaTransactionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload>[]
+        }
+        create: {
+          args: Prisma.KarmaTransactionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload>
+        }
+        createMany: {
+          args: Prisma.KarmaTransactionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.KarmaTransactionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload>
+        }
+        update: {
+          args: Prisma.KarmaTransactionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload>
+        }
+        deleteMany: {
+          args: Prisma.KarmaTransactionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KarmaTransactionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.KarmaTransactionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KarmaTransactionPayload>
+        }
+        aggregate: {
+          args: Prisma.KarmaTransactionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKarmaTransaction>
+        }
+        groupBy: {
+          args: Prisma.KarmaTransactionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KarmaTransactionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KarmaTransactionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KarmaTransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    Referral: {
+      payload: Prisma.$ReferralPayload<ExtArgs>
+      fields: Prisma.ReferralFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReferralFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReferralFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload>
+        }
+        findFirst: {
+          args: Prisma.ReferralFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReferralFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload>
+        }
+        findMany: {
+          args: Prisma.ReferralFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload>[]
+        }
+        create: {
+          args: Prisma.ReferralCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload>
+        }
+        createMany: {
+          args: Prisma.ReferralCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ReferralDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload>
+        }
+        update: {
+          args: Prisma.ReferralUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReferralDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReferralUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ReferralUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferralPayload>
+        }
+        aggregate: {
+          args: Prisma.ReferralAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReferral>
+        }
+        groupBy: {
+          args: Prisma.ReferralGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReferralGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReferralCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReferralCountAggregateOutputType> | number
+        }
+      }
+    }
     UserRelation: {
       payload: Prisma.$UserRelationPayload<ExtArgs>
       fields: Prisma.UserRelationFieldRefs
@@ -3066,7 +3200,19 @@ export const PromptScalarFieldEnum = {
   isPublic: 'isPublic',
   isActive: 'isActive',
   artPrompt: 'artPrompt',
-  imagePath: 'imagePath'
+  imagePath: 'imagePath',
+  serverId: 'serverId',
+  artStatus: 'artStatus',
+  batchId: 'batchId',
+  batchIndex: 'batchIndex',
+  queuePosition: 'queuePosition',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  errorMessage: 'errorMessage',
+  notifiedAt: 'notifiedAt',
+  isBounty: 'isBounty',
+  bountyStatus: 'bountyStatus',
+  claimerId: 'claimerId'
 } as const
 
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
@@ -3350,10 +3496,37 @@ export const UserScalarFieldEnum = {
   manaCap: 'manaCap',
   lastManaRefill: 'lastManaRefill',
   signupBonusGiven: 'signupBonusGiven',
-  isGuest: 'isGuest'
+  isGuest: 'isGuest',
+  referralCode: 'referralCode'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const KarmaTransactionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  amount: 'amount',
+  reason: 'reason',
+  balanceAfter: 'balanceAfter',
+  refId: 'refId',
+  note: 'note'
+} as const
+
+export type KarmaTransactionScalarFieldEnum = (typeof KarmaTransactionScalarFieldEnum)[keyof typeof KarmaTransactionScalarFieldEnum]
+
+
+export const ReferralScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  referrerId: 'referrerId',
+  referredId: 'referredId',
+  codeUsed: 'codeUsed',
+  cutRate: 'cutRate'
+} as const
+
+export type ReferralScalarFieldEnum = (typeof ReferralScalarFieldEnum)[keyof typeof ReferralScalarFieldEnum]
 
 
 export const UserRelationScalarFieldEnum = {
@@ -3726,7 +3899,9 @@ export type PitchSheetOrderByRelevanceFieldEnum = (typeof PitchSheetOrderByRelev
 export const PromptOrderByRelevanceFieldEnum = {
   prompt: 'prompt',
   artPrompt: 'artPrompt',
-  imagePath: 'imagePath'
+  imagePath: 'imagePath',
+  batchId: 'batchId',
+  errorMessage: 'errorMessage'
 } as const
 
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
@@ -3889,10 +4064,26 @@ export const UserOrderByRelevanceFieldEnum = {
   textModels: 'textModels',
   vibes: 'vibes',
   hiddenServerIds: 'hiddenServerIds',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  referralCode: 'referralCode'
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const KarmaTransactionOrderByRelevanceFieldEnum = {
+  refId: 'refId',
+  note: 'note'
+} as const
+
+export type KarmaTransactionOrderByRelevanceFieldEnum = (typeof KarmaTransactionOrderByRelevanceFieldEnum)[keyof typeof KarmaTransactionOrderByRelevanceFieldEnum]
+
+
+export const ReferralOrderByRelevanceFieldEnum = {
+  codeUsed: 'codeUsed'
+} as const
+
+export type ReferralOrderByRelevanceFieldEnum = (typeof ReferralOrderByRelevanceFieldEnum)[keyof typeof ReferralOrderByRelevanceFieldEnum]
 
 
 export const UserRelationOrderByRelevanceFieldEnum = {
@@ -4038,6 +4229,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
 
 
 /**
+ * Reference to a field of type 'ArtStatus'
+ */
+export type EnumArtStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ArtStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'BountyStatus'
+ */
+export type EnumBountyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BountyStatus'>
+    
+
+
+/**
  * Reference to a field of type 'ReactionType'
  */
 export type EnumReactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReactionType'>
@@ -4139,6 +4344,13 @@ export type EnumTargetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'Role'
  */
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
+    
+
+
+/**
+ * Reference to a field of type 'KarmaReason'
+ */
+export type EnumKarmaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KarmaReason'>
     
 
 
@@ -4316,6 +4528,8 @@ export type GlobalOmitConfig = {
   socialTarget?: Prisma.SocialTargetOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
+  karmaTransaction?: Prisma.KarmaTransactionOmit
+  referral?: Prisma.ReferralOmit
   userRelation?: Prisma.UserRelationOmit
   todo?: Prisma.TodoOmit
 }

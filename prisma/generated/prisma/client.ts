@@ -209,6 +209,16 @@ export type Theme = Prisma.ThemeModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model KarmaTransaction
+ * Economy: karma ledger — separate from mana, tracks community contribution score
+ */
+export type KarmaTransaction = Prisma.KarmaTransactionModel
+/**
+ * Model Referral
+ * Referral tracking — data layer only; cut payment logic is needs-human
+ */
+export type Referral = Prisma.ReferralModel
+/**
  * Model UserRelation
  * Directed relationship between two users with a typed role.
  * One row per (userId, relatedUserId, type). Symmetric types (FRIEND) are

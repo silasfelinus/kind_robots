@@ -249,7 +249,8 @@ export const DreamType = {
   SCENARIO: 'SCENARIO',
   LOCATION: 'LOCATION',
   PITCH: 'PITCH',
-  GENRE: 'GENRE'
+  GENRE: 'GENRE',
+  WISH: 'WISH'
 } as const
 
 export type DreamType = (typeof DreamType)[keyof typeof DreamType]
@@ -391,3 +392,43 @@ export const TodoCategory = {
 } as const
 
 export type TodoCategory = (typeof TodoCategory)[keyof typeof TodoCategory]
+
+
+export const ArtStatus = {
+  PENDING: 'PENDING',
+  QUEUED: 'QUEUED',
+  GENERATING: 'GENERATING',
+  DONE: 'DONE',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ArtStatus = (typeof ArtStatus)[keyof typeof ArtStatus]
+
+
+export const BountyStatus = {
+  OPEN: 'OPEN',
+  CLAIMED: 'CLAIMED',
+  FULFILLED: 'FULFILLED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type BountyStatus = (typeof BountyStatus)[keyof typeof BountyStatus]
+
+
+export const KarmaReason = {
+  REACTION_GIVEN: 'REACTION_GIVEN',
+  REACTION_RECEIVED: 'REACTION_RECEIVED',
+  CONTENT_CREATED_PUBLIC: 'CONTENT_CREATED_PUBLIC',
+  CONTENT_SHARED: 'CONTENT_SHARED',
+  GENERATION_COMPLETED: 'GENERATION_COMPLETED',
+  BOUNTY_POSTED: 'BOUNTY_POSTED',
+  BOUNTY_FULFILLED: 'BOUNTY_FULFILLED',
+  BOUNTY_CLAIMED: 'BOUNTY_CLAIMED',
+  REFERRAL_SIGNUP: 'REFERRAL_SIGNUP',
+  REFERRAL_CUT: 'REFERRAL_CUT',
+  ADMIN_ADJUSTMENT: 'ADMIN_ADJUSTMENT'
+} as const
+
+export type KarmaReason = (typeof KarmaReason)[keyof typeof KarmaReason]

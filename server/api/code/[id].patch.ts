@@ -14,7 +14,6 @@ type CodePatchBody = Partial<
     | 'graph'
     | 'isPublic'
     | 'isOfficial'
-    | 'isActive'
   >
 >
 
@@ -53,7 +52,7 @@ export default defineEventHandler(async (event) => {
       where: { id },
     })
 
-    if (!existingCode || !existingCode.isActive) {
+    if (!existingCode) {
       throw createError({
         statusCode: 404,
         message: 'Code not found.',
@@ -113,10 +112,6 @@ export default defineEventHandler(async (event) => {
 
     if (typeof body.isPublic === 'boolean') {
       data.isPublic = body.isPublic
-    }
-
-    if (typeof body.isActive === 'boolean') {
-      data.isActive = body.isActive
     }
 
     if (typeof body.isOfficial === 'boolean') {

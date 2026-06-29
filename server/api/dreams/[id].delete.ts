@@ -1,22 +1,15 @@
 // /server/api/dreams/[id].delete.ts
-import { defineEventHandler, createError, getQuery } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
-import { assertDreamAccess, dreamInclude, getDreamId } from './index'
-
-function parseBoolean(value: unknown): boolean {
-  return value !== 'soft-delete-disabled'
-}
+import { assertDreamAccess, getDreamId } from './index'
 
 export default defineEventHandler(async (event) => {
   let id = 0
 
   try {
     id = getDreamId(event)
-
-    const query = getQuery(event)
-    const hardDelete = parseBoolean(query.hard)
 
     const auth = await requireApiUser(event)
     const user = auth.user
@@ -27,10 +20,7 @@ export default defineEventHandler(async (event) => {
         id: true,
         title: true,
         userId: true,
-        artImageId: true,
-        isActive: true,
         isPublic: true,
-        isMature: true,
       },
     })
 
@@ -50,40 +40,6 @@ export default defineEventHandler(async (event) => {
 
     const actor = user.username || `User ${user.id}`
 
-    if (!hardDelete) {
-      const data = await prisma.dream.update({
-        where: { id },
-        data: {
-          isActive: false,
-        },
-        include: dreamInclude,
-      })
-
-      await prisma.chat.create({
-        data: {
-          type: 'Dream',
-          sender: actor,
-          content: `Dream archived: ${dream.title}`,
-          title: dream.title,
-          userId: user.id,
-          dreamId: id,
-          artImageId: dream.artImageId ?? undefined,
-          isPublic: dream.isPublic,
-          isMature: dream.isMature,
-          channel: `dream-${id}`,
-        },
-      })
-
-      event.node.res.statusCode = 200
-
-      return {
-        success: true,
-        message: `Dream "${dream.title}" archived successfully by ${actor}.`,
-        data,
-        statusCode: 200,
-      }
-    }
-
     const data = await prisma.$transaction(async (tx) => {
       await tx.chat.updateMany({
         where: { dreamId: id },
@@ -95,9 +51,7 @@ export default defineEventHandler(async (event) => {
         data: { dreamId: null },
       })
 
-      await tx.reaction.deleteMany({
-        where: { dreamId: id },
-      })
+      await tx.reaction.deleteMany({ where: { dreamId: id } })
 
       await tx.dream.update({
         where: { id },
@@ -110,16 +64,14 @@ export default defineEventHandler(async (event) => {
         },
       })
 
-      return tx.dream.delete({
-        where: { id },
-      })
+      return tx.dream.delete({ where: { id } })
     })
 
     event.node.res.statusCode = 200
 
     return {
       success: true,
-      message: `Dream "${dream.title}" permanently deleted by ${actor}.`,
+      message: `Dream "${dream.title}" deleted by ${actor}.`,
       data,
       statusCode: 200,
     }

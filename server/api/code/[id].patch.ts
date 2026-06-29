@@ -125,6 +125,13 @@ export default defineEventHandler(async (event) => {
       data.isOfficial = body.isOfficial
     }
 
+    if (Object.keys(data).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No supported Code fields provided for update.',
+      })
+    }
+
     const updated = await prisma.code.update({
       where: { id },
       data,

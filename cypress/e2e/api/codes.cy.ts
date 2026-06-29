@@ -1,7 +1,3 @@
-// /cypress/e2e/api/codes.cy.ts
-
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-
 /// <reference types="cypress" />
 
 import {
@@ -489,6 +485,24 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
     })
   })
 
+  it('PATCH: ignores isActive as an unsupported update flag', () => {
+    expect(itemId).to.not.eq(null)
+
+    cy.request<ApiResponse<CodeRecord>>({
+      method: 'PATCH',
+      url: `${baseUrl}/${itemId}`,
+      headers: authHeaders(),
+      body: {
+        isActive: false,
+      },
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.success).to.eq(true)
+      expect(res.body.data?.id).to.eq(itemId)
+      expect(res.body.data?.isActive).to.eq(true)
+    })
+  })
+
   it('PATCH: rejects invalid graph object', () => {
     expect(itemId).to.not.eq(null)
 
@@ -533,7 +547,7 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
     })
   })
 
-  it('DELETE: soft deletes Code record with valid auth', () => {
+  it('DELETE: hard deletes Code record with valid auth', () => {
     expect(itemId).to.not.eq(null)
 
     cy.request<ApiResponse<CodeRecord>>({
@@ -544,11 +558,10 @@ describe('[Code] API Full CRUD + Auth Tests', () => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
       expect(res.body.data?.id).to.eq(itemId)
-      expect(res.body.data?.isActive).to.eq(false)
     })
   })
 
-  it('GET: soft-deleted Code record returns 404', () => {
+  it('GET: hard-deleted Code record returns 404', () => {
     expect(itemId).to.not.eq(null)
 
     cy.request<ApiResponse>({

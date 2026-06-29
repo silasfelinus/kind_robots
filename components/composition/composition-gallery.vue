@@ -316,8 +316,8 @@ function handleDeleted(id: number) {
 <style scoped>
 .composition-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  gap: 0.75rem;
 }
 .composition-row {
   display: flex;
@@ -326,7 +326,7 @@ function handleDeleted(id: number) {
   padding-bottom: 0.5rem;
 }
 .composition-row > * {
-  min-width: min(260px, 85vw);
-  max-width: 360px;
+  min-width: min(210px, 80vw);
+  max-width: 300px;
 }
 </style>

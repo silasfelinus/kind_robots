@@ -107,8 +107,8 @@
           class="pointer-events-none absolute inset-y-0 right-0 z-40 transition-[width] duration-300 ease-out"
           :style="{ width: narratorRailWidth }"
           :coexist="isXl"
-          :open="bottomMode === 'narrator-open'"
-          :dock-visible="bottomMode === 'narrator-compact' || bottomMode === 'narrator-open'"
+          :open="narratorPanelOpen"
+          :dock-visible="narratorDockActive"
           @update:open="setNarratorOpen"
           @update:rendered="setNarratorRendered"
           @update:compact-message-visible="setNarratorCompactMessageVisible"
@@ -132,7 +132,6 @@
         </Transition>
       </section>
 
-      <!-- Bottom-right cycling FAB -->
       <div class="pointer-events-auto fixed bottom-3 right-3 z-50">
         <button
           type="button"
@@ -223,8 +222,9 @@ const narratorRendered = ref(false)
 const narratorCompactMessageVisible = ref(false)
 
 const handOpen = computed(() => bottomMode.value === 'hand')
-const narratorOpen = computed(
-  () => bottomMode.value === 'narrator-compact' || bottomMode.value === 'narrator-open',
+const narratorPanelOpen = computed(() => bottomMode.value === 'narrator-open')
+const narratorDockActive = computed(
+  () => bottomMode.value === 'narrator-compact' || narratorPanelOpen.value,
 )
 
 const SHEET_W_MD = '20rem'
@@ -237,7 +237,7 @@ const HAND_PANEL_H = '11.5rem'
 
 const narratorCircle = computed(() => {
   if (!narratorRendered.value) return '0px'
-  if (bottomMode.value === 'closed' || bottomMode.value === 'hand') return '0px'
+  if (!narratorDockActive.value) return '0px'
 
   return isMd.value ? NARRATOR_CIRCLE_MD : NARRATOR_CIRCLE_MOBILE
 })
@@ -249,7 +249,7 @@ const sheetWidth = computed(() => {
 })
 
 const narratorWidth = computed(() => {
-  if (!narratorOpen.value) return '0px'
+  if (!narratorPanelOpen.value) return '0px'
   if (!isMd.value) return '100vw'
 
   return isXl.value ? NARRATOR_W_XL : NARRATOR_W
@@ -257,24 +257,16 @@ const narratorWidth = computed(() => {
 
 const narratorRailWidth = computed(() => {
   if (!narratorRendered.value) return '0px'
+  if (narratorPanelOpen.value) return 'min(100%, var(--narrator-w))'
+  if (narratorDockActive.value) return 'var(--narrator-circle)'
 
-  return narratorOpen.value
-    ? 'min(100%, var(--narrator-w))'
-    : 'var(--narrator-circle)'
+  return '0px'
 })
 
 const narratorFooterReserve = computed(() => {
   if (!isMd.value) return '0px'
 
-  if (narratorOpen.value) {
-    return 'var(--narrator-w)'
-  }
-
-  if (narratorCompactMessageVisible.value && narratorRendered.value) {
-    return 'max(var(--narrator-circle), calc((100vw - var(--sheet-w)) / 2))'
-  }
-
-  return narratorRendered.value ? 'var(--narrator-circle)' : '0px'
+  return narratorPanelOpen.value ? 'var(--narrator-w)' : '0px'
 })
 
 const footerOpen = computed(() => handOpen.value)
@@ -424,7 +416,7 @@ onBeforeUnmount(() => {
 @media (min-width: 768px) {
   .kr-main {
     padding-left: var(--sheet-w);
-    padding-right: max(var(--narrator-w), var(--narrator-circle));
+    padding-right: var(--narrator-w);
   }
 }
 

@@ -699,8 +699,8 @@ function handleCharacterDeleted(id: number) {
 <style scoped>
 .character-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+  gap: 0.75rem;
 }
 
 .character-row {
@@ -711,7 +711,7 @@ function handleCharacterDeleted(id: number) {
 }
 
 .character-row > * {
-  min-width: min(240px, 85vw);
-  max-width: 360px;
+  min-width: min(200px, 80vw);
+  max-width: 280px;
 }
 </style>

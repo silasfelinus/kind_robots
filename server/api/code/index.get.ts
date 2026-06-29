@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
 
   try {
     const query = getQuery(event)
-    const includeInactive = query.includeInactive === 'true'
     const officialOnly = query.officialOnly === 'true'
     const mineOnly = query.mineOnly === 'true'
 
@@ -19,10 +18,6 @@ export default defineEventHandler(async (event) => {
     const isAdmin = currentUser?.Role === 'ADMIN'
 
     const where: Prisma.CodeWhereInput = {}
-
-    if (!includeInactive || !isAdmin) {
-      where.isActive = true
-    }
 
     if (officialOnly) {
       where.isOfficial = true

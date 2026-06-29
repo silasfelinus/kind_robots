@@ -1416,3 +1416,38 @@ enum SupportedServer {
   UNKNOWN
   OPENAI
 }
+
+enum TodoStatus {
+  OPEN
+  DONE
+  ARCHIVED
+}
+
+enum TodoPriority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+enum TodoCategory {
+  AGENT
+  KAIZEN
+  HONEYDO
+}
+
+model Todo {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @default(now()) @updatedAt
+  title       String       @db.VarChar(512)
+  description String?      @db.Text
+  status      TodoStatus   @default(OPEN)
+  priority    TodoPriority @default(NORMAL)
+  category    TodoCategory @default(AGENT)
+  dueDate     DateTime?
+  icon        String?      @db.VarChar(128)
+  imagePath   String?      @db.VarChar(764)
+  userId      Int?         @default(1)
+
+  @@index([userId])
+}

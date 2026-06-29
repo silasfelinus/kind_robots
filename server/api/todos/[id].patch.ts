@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
     `
 
     const [updated] = await prisma.$queryRaw<Todo[]>`
-      SELECT * FROM \`Todo\` WHERE id = ${id}
+      SELECT * FROM \`Todo\` WHERE id = ${id} AND userId = ${userId}
     `
 
     return { success: true, message: 'Todo updated.', data: updated }

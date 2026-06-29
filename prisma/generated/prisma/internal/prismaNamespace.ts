@@ -414,7 +414,8 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
-  UserRelation: 'UserRelation'
+  UserRelation: 'UserRelation',
+  Todo: 'Todo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -430,7 +431,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation"
+    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "userRelation" | "todo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2480,6 +2481,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Todo: {
+      payload: Prisma.$TodoPayload<ExtArgs>
+      fields: Prisma.TodoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TodoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TodoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload>
+        }
+        findFirst: {
+          args: Prisma.TodoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TodoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload>
+        }
+        findMany: {
+          args: Prisma.TodoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload>[]
+        }
+        create: {
+          args: Prisma.TodoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload>
+        }
+        createMany: {
+          args: Prisma.TodoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TodoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload>
+        }
+        update: {
+          args: Prisma.TodoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload>
+        }
+        deleteMany: {
+          args: Prisma.TodoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TodoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TodoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TodoPayload>
+        }
+        aggregate: {
+          args: Prisma.TodoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTodo>
+        }
+        groupBy: {
+          args: Prisma.TodoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TodoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TodoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TodoCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3304,6 +3371,24 @@ export const UserRelationScalarFieldEnum = {
 export type UserRelationScalarFieldEnum = (typeof UserRelationScalarFieldEnum)[keyof typeof UserRelationScalarFieldEnum]
 
 
+export const TodoScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  priority: 'priority',
+  category: 'category',
+  dueDate: 'dueDate',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  userId: 'userId'
+} as const
+
+export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3817,6 +3902,16 @@ export const UserRelationOrderByRelevanceFieldEnum = {
 export type UserRelationOrderByRelevanceFieldEnum = (typeof UserRelationOrderByRelevanceFieldEnum)[keyof typeof UserRelationOrderByRelevanceFieldEnum]
 
 
+export const TodoOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  icon: 'icon',
+  imagePath: 'imagePath'
+} as const
+
+export type TodoOrderByRelevanceFieldEnum = (typeof TodoOrderByRelevanceFieldEnum)[keyof typeof TodoOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -4060,6 +4155,27 @@ export type EnumRelationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 export type EnumRelationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RelationStatus'>
     
 
+
+/**
+ * Reference to a field of type 'TodoStatus'
+ */
+export type EnumTodoStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TodoStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'TodoPriority'
+ */
+export type EnumTodoPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TodoPriority'>
+    
+
+
+/**
+ * Reference to a field of type 'TodoCategory'
+ */
+export type EnumTodoCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TodoCategory'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -4201,6 +4317,7 @@ export type GlobalOmitConfig = {
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
   userRelation?: Prisma.UserRelationOmit
+  todo?: Prisma.TodoOmit
 }
 
 /* Types for Logging */

@@ -364,3 +364,30 @@ export const SupportedServer = {
 } as const
 
 export type SupportedServer = (typeof SupportedServer)[keyof typeof SupportedServer]
+
+
+export const TodoStatus = {
+  OPEN: 'OPEN',
+  DONE: 'DONE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type TodoStatus = (typeof TodoStatus)[keyof typeof TodoStatus]
+
+
+export const TodoPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH'
+} as const
+
+export type TodoPriority = (typeof TodoPriority)[keyof typeof TodoPriority]
+
+
+export const TodoCategory = {
+  AGENT: 'AGENT',
+  KAIZEN: 'KAIZEN',
+  HONEYDO: 'HONEYDO'
+} as const
+
+export type TodoCategory = (typeof TodoCategory)[keyof typeof TodoCategory]

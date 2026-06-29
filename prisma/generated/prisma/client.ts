@@ -217,3 +217,8 @@ export type User = Prisma.UserModel
  * not implicit M2M) so we can attach status + timestamps + future metadata.
  */
 export type UserRelation = Prisma.UserRelationModel
+/**
+ * Model Todo
+ * 
+ */
+export type Todo = Prisma.TodoModel

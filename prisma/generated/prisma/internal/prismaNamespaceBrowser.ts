@@ -81,6 +81,8 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
+  KarmaTransaction: 'KarmaTransaction',
+  Referral: 'Referral',
   UserRelation: 'UserRelation',
   Todo: 'Todo'
 } as const
@@ -581,7 +583,19 @@ export const PromptScalarFieldEnum = {
   isPublic: 'isPublic',
   isActive: 'isActive',
   artPrompt: 'artPrompt',
-  imagePath: 'imagePath'
+  imagePath: 'imagePath',
+  serverId: 'serverId',
+  artStatus: 'artStatus',
+  batchId: 'batchId',
+  batchIndex: 'batchIndex',
+  queuePosition: 'queuePosition',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  errorMessage: 'errorMessage',
+  notifiedAt: 'notifiedAt',
+  isBounty: 'isBounty',
+  bountyStatus: 'bountyStatus',
+  claimerId: 'claimerId'
 } as const
 
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
@@ -865,10 +879,37 @@ export const UserScalarFieldEnum = {
   manaCap: 'manaCap',
   lastManaRefill: 'lastManaRefill',
   signupBonusGiven: 'signupBonusGiven',
-  isGuest: 'isGuest'
+  isGuest: 'isGuest',
+  referralCode: 'referralCode'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const KarmaTransactionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  amount: 'amount',
+  reason: 'reason',
+  balanceAfter: 'balanceAfter',
+  refId: 'refId',
+  note: 'note'
+} as const
+
+export type KarmaTransactionScalarFieldEnum = (typeof KarmaTransactionScalarFieldEnum)[keyof typeof KarmaTransactionScalarFieldEnum]
+
+
+export const ReferralScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  referrerId: 'referrerId',
+  referredId: 'referredId',
+  codeUsed: 'codeUsed',
+  cutRate: 'cutRate'
+} as const
+
+export type ReferralScalarFieldEnum = (typeof ReferralScalarFieldEnum)[keyof typeof ReferralScalarFieldEnum]
 
 
 export const UserRelationScalarFieldEnum = {
@@ -1241,7 +1282,9 @@ export type PitchSheetOrderByRelevanceFieldEnum = (typeof PitchSheetOrderByRelev
 export const PromptOrderByRelevanceFieldEnum = {
   prompt: 'prompt',
   artPrompt: 'artPrompt',
-  imagePath: 'imagePath'
+  imagePath: 'imagePath',
+  batchId: 'batchId',
+  errorMessage: 'errorMessage'
 } as const
 
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
@@ -1404,10 +1447,26 @@ export const UserOrderByRelevanceFieldEnum = {
   textModels: 'textModels',
   vibes: 'vibes',
   hiddenServerIds: 'hiddenServerIds',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  referralCode: 'referralCode'
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const KarmaTransactionOrderByRelevanceFieldEnum = {
+  refId: 'refId',
+  note: 'note'
+} as const
+
+export type KarmaTransactionOrderByRelevanceFieldEnum = (typeof KarmaTransactionOrderByRelevanceFieldEnum)[keyof typeof KarmaTransactionOrderByRelevanceFieldEnum]
+
+
+export const ReferralOrderByRelevanceFieldEnum = {
+  codeUsed: 'codeUsed'
+} as const
+
+export type ReferralOrderByRelevanceFieldEnum = (typeof ReferralOrderByRelevanceFieldEnum)[keyof typeof ReferralOrderByRelevanceFieldEnum]
 
 
 export const UserRelationOrderByRelevanceFieldEnum = {

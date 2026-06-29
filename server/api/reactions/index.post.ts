@@ -3,6 +3,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'
+import { awardKarma } from '../../utils/karma'
 import {
   ReactionType,
   Reaction_reactionCategory,
@@ -269,6 +270,10 @@ export default defineEventHandler(async (event) => {
           data: mutationData,
         })
       : await prisma.reaction.create({ data: mutationData })
+
+    if (!existingReaction) {
+      awardKarma({ userId: user.id, reason: 'REACTION_GIVEN', refId: String(data.id) }).catch(() => {})
+    }
 
     event.node.res.statusCode = existingReaction ? 200 : 201
 

@@ -341,6 +341,28 @@ export const dashboardConfigs = {
     ],
   },
 
+  conductor: {
+    key: 'conductor',
+    label: 'Conductor',
+    defaultTab: 'conductor',
+    tabs: [
+      {
+        key: 'conductor',
+        label: 'Conductor',
+        icon: 'kind-icon:gearhammer',
+        title: 'Conductor Workspace',
+        summary: 'Steer agents, review roadmap state, and handle human gates.',
+        image: tabImage('conductor', 'conductor'),
+        flourish: '⚙',
+        tagline: 'Steer agents, review work, and keep the human in the loop.',
+        narrative:
+          'Review Conductor project progress, pitches awaiting your vote, task gates, roadmap state, and the agent-loop items that need a human checkpoint.',
+        route: '/conductor',
+        requiredRole: 'ADMIN',
+      },
+    ],
+  },
+
   composition: {
     key: 'composition',
     label: 'Composition Manager',

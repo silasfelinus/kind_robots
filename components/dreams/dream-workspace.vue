@@ -104,6 +104,10 @@
 
       <div v-else-if="workspaceStore.dreamPanel === 'art'" class="grid gap-3">
         <dream-art-chooser />
+        <dream-inspire-button
+          v-if="dreamStore.selectedDream?.slug"
+          :slug="dreamStore.selectedDream.slug"
+        />
         <dream-list list-type="art" view-mode="grid" :show-refresh="false" />
       </div>
 

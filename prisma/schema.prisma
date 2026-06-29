@@ -311,21 +311,21 @@ model Composition {
   isMature       Boolean    @default(false)
   isActive       Boolean    @default(true)
   designer       String?    @default("system") @db.VarChar(255)
-  // ── Ingredient FKs (all optional) ──────────────────────────────────────────────────────────────────────
+  // ── Ingredient FKs (all optional) ─────────────────────────────────────────────────────────────────────────────────────
   characterId    Int?
   dreamId        Int?
   scenarioId     Int?
   rewardId       Int?
-  // ── Freeform overrides (used when no FK is set, or to override) ───────────────────────────────────────────────────
+  // ── Freeform overrides (used when no FK is set, or to override) ────────────────────────────────────────────────────────────────────────────────────────────────
   characterBlurb String?    @db.VarChar(512)
   dreamBlurb     String?    @db.VarChar(512)
   scenarioBlurb  String?    @db.VarChar(512)
   rewardBlurb    String?    @db.VarChar(512)
-  // ── Outputs ───────────────────────────────────────────────────────────────────────────────
+  // ── Outputs ───────────────────────────────────────────────────────────────────────────────────────────
   narrativeText  String?    @db.Text
   artPrompt      String?    @db.Text
   imagePath      String?    @db.VarChar(764)
-  // ── Relations ───────────────────────────────────────────────────────────────────────────────
+  // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
   userId         Int?
   User           User?      @relation(fields: [userId], references: [id])
   artImageId     Int?       @unique
@@ -353,7 +353,7 @@ model Dream {
   id              Int             @id @default(autoincrement())
   createdAt       DateTime        @default(now())
   updatedAt       DateTime?       @default(now()) @updatedAt
-  // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────
+  // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────────────
   title           String          @db.VarChar(255)
   slug            String?         @unique @db.VarChar(255)
   dreamType       DreamType       @default(PITCH)
@@ -365,7 +365,7 @@ model Dream {
   imagePath       String?         @db.Text
   cardPath        String?         @db.Text
   heroPath        String?         @db.Text
-  // ── Project-specific (dreamType = PROJECT) ────────────────────────────────
+  // ── Project-specific (dreamType = PROJECT) ────────────────────────────────────────
   projectStatus   ProjectStatus?
   priority        DreamPriority?  @default(NORMAL)
   repoUrl         String?         @db.VarChar(512)
@@ -375,15 +375,15 @@ model Dream {
   icon            String?
   designer        String?         @db.VarChar(256)
   creationSource  CreationSource  @default(HUMAN)
-  // ── Flags ─────────────────────────────────────────────────────────────────
+  // ── Flags ──────────────────────────────────────────────────────────────────────────────────
   userId          Int             @default(10)
   isPublic        Boolean         @default(true)
   isMature        Boolean         @default(false)
   isActive        Boolean         @default(true)
-  // ── Primary "main choice" FKs (one each) ──────────────────────────────────
+  // ── Primary "main choice" FKs (one each) ───────────────────────────────────────────
   artImageId      Int?
   artCollectionId Int?
-  // ── Relations ─────────────────────────────────────────────────────────────
+  // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
   User            User            @relation(fields: [userId], references: [id])
   ArtImage        ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
   ArtCollection   ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
@@ -391,7 +391,7 @@ model Dream {
   Reactions       Reaction[]
   Compositions    Composition[]
   Chats           Chat[]
-  // ── Many-relations (a Dream can govern many of each) ──────────────────────
+  // ── Many-relations (a Dream can govern many of each) ──────────────────────────────────────────────
   ArtImages       ArtImage[]      @relation("DreamToArtImage")
   ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
   Characters      Character[]     @relation("CharacterToDream")
@@ -749,28 +749,48 @@ model PitchSheet {
 
 /// this is an art or text prompt to an ai to generate new media
 model Prompt {
-  id             Int            @id @default(autoincrement())
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime?      @default(now()) @updatedAt
-  prompt         String         @db.Text
-  userId         Int?           @default(1)
+  id             Int           @id @default(autoincrement())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime?     @default(now()) @updatedAt
+  prompt         String        @db.Text
+  userId         Int?          @default(1)
   botId          Int?
   artImageId     Int?
   creationSource CreationSource @default(HUMAN)
-  isMature       Boolean        @default(false)
-  isPublic       Boolean        @default(true)
-  isActive       Boolean        @default(true)
-  artPrompt      String?        @db.Text
-  imagePath      String?        @db.VarChar(764)
+  isMature       Boolean       @default(false)
+  isPublic       Boolean       @default(true)
+  isActive       Boolean       @default(true)
+  artPrompt      String?       @db.Text
+  imagePath      String?       @db.VarChar(764)
+  // Art queue fields
+  serverId       Int?
+  artStatus      ArtStatus?
+  batchId        String?
+  batchIndex     Int?
+  queuePosition  Int?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  errorMessage   String?       @db.Text
+  notifiedAt     DateTime?
+  // Bounty fields
+  isBounty       Boolean       @default(false)
+  bountyStatus   BountyStatus?
+  claimerId      Int?
   Chats          Chat[]
-  ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
-  Bot            Bot?           @relation(fields: [botId], references: [id])
-  User           User?          @relation(fields: [userId], references: [id])
+  ArtImage       ArtImage?     @relation(fields: [artImageId], references: [id])
+  Bot            Bot?          @relation(fields: [botId], references: [id])
+  User           User?         @relation("PromptUser", fields: [userId], references: [id])
+  Server         Server?       @relation("PromptServer", fields: [serverId], references: [id])
+  Claimer        User?         @relation("PromptClaimer", fields: [claimerId], references: [id])
   Reactions      Reaction[]
 
   @@index([userId], map: "Prompt_userId_fkey")
   @@index([artImageId], map: "Prompt_artImageId_fkey")
   @@index([botId], map: "Prompt_botId_fkey")
+  @@index([serverId])
+  @@index([claimerId])
+  @@index([artStatus])
+  @@index([batchId])
 }
 
 model Reaction {
@@ -989,6 +1009,7 @@ model Server {
   ArtImages ArtImage[] @relation("ArtImageGeneratorServer")
   Bots      Bot[]
   Chats     Chat[]
+  Prompts   Prompt[]   @relation("PromptServer")
   user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   Resources Resource[] @relation("ResourceToServer")
 
@@ -1180,7 +1201,9 @@ model User {
   lastManaRefill        DateTime?
   signupBonusGiven      Boolean           @default(false)
   isGuest               Boolean           @default(false) // ip-temp users
+  referralCode          String?           @unique @db.VarChar(64)
   ManaTransactions      ManaTransaction[]
+  KarmaTransactions     KarmaTransaction[]
   ArtCollections        ArtCollection[]
   ArtImages             ArtImage[]        @relation("ArtImageCreator")
   Bots                  Bot[]
@@ -1188,7 +1211,8 @@ model User {
   Dreams                Dream[]
   Logs                  Log[]
   Milestones            MilestoneRecord[]
-  Prompts               Prompt[]
+  Prompts               Prompt[]          @relation("PromptUser")
+  ClaimedPrompts        Prompt[]          @relation("PromptClaimer")
   Reactions             Reaction[]
   Resources             Resource[]
   Rewards               Reward[]
@@ -1200,6 +1224,8 @@ model User {
   Codes                 Code[]
   Compositions          Composition[]
   PitchSheets           PitchSheet[]
+  ReferralsMade         Referral[]        @relation("ReferralsMade")
+  ReferredBy            Referral?         @relation("ReferredBy")
 
   RelationsOwned    UserRelation[] @relation("UserRelationOwner")
   RelationsReceived UserRelation[] @relation("UserRelationTarget")
@@ -1208,6 +1234,35 @@ model User {
   characters  Character[]
 
   @@index([artImageId], map: "User_artImageId_fkey")
+}
+
+/// Economy: karma ledger — separate from mana, tracks community contribution score
+model KarmaTransaction {
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  userId       Int
+  amount       Int
+  reason       KarmaReason
+  balanceAfter Int
+  refId        String?
+  note         String?     @db.Text
+  User         User        @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+/// Referral tracking — data layer only; cut payment logic is needs-human
+model Referral {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  referrerId Int
+  referredId Int      @unique
+  codeUsed   String?  @db.VarChar(64)
+  cutRate    Float    @default(0.05)
+  Referrer   User     @relation("ReferralsMade", fields: [referrerId], references: [id])
+  Referred   User     @relation("ReferredBy", fields: [referredId], references: [id])
+
+  @@index([referrerId])
 }
 
 enum RelationType {
@@ -1451,4 +1506,35 @@ model Todo {
   userId      Int?         @default(1)
 
   @@index([userId])
+}
+
+enum ArtStatus {
+  PENDING
+  QUEUED
+  GENERATING
+  DONE
+  FAILED
+  CANCELLED
+}
+
+enum BountyStatus {
+  OPEN
+  CLAIMED
+  FULFILLED
+  EXPIRED
+  CANCELLED
+}
+
+enum KarmaReason {
+  REACTION_GIVEN
+  REACTION_RECEIVED
+  CONTENT_CREATED_PUBLIC
+  CONTENT_SHARED
+  GENERATION_COMPLETED
+  BOUNTY_POSTED
+  BOUNTY_FULFILLED
+  BOUNTY_CLAIMED
+  REFERRAL_SIGNUP
+  REFERRAL_CUT
+  ADMIN_ADJUSTMENT
 }

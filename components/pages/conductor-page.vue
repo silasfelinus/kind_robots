@@ -522,12 +522,13 @@
             </div>
           </div>
           <div class="space-y-2">
-            <div
-              v-if="todoStore.loading && !filteredTodos.length"
-              v-for="n in 3"
-              :key="n"
-              class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200"
-            />
+            <template v-if="todoStore.loading && !filteredTodos.length">
+              <div
+                v-for="n in 3"
+                :key="n"
+                class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+              />
+            </template>
             <div
               v-for="todo in filteredTodos"
               :key="todo.id"
@@ -1369,14 +1370,8 @@ const hasBrainstormContent = computed(
 )
 
 const filteredTodos = computed(() => {
-  let base: typeof todoStore.todos
-  switch (todoFilter.value) {
-    case 'OPEN':   base = todoStore.openTodos; break
-    case 'DONE':   base = todoStore.doneTodos; break
-    case 'ARCHIVED': base = todoStore.archivedTodos; break
-    default: base = todoStore.openTodos
-  }
-  if (todoFilter.value !== 'OPEN') return base
+  if (todoFilter.value === 'DONE') return todoStore.doneTodos
+  if (todoFilter.value === 'ARCHIVED') return todoStore.archivedTodos
   switch (taskTab.value) {
     case 'KAIZEN':  return todoStore.kaizenTodos
     case 'HONEYDO': return todoStore.honeyDoTodos
@@ -1398,7 +1393,6 @@ async function requestNewPitches() {
       priority: 'HIGH',
       category: 'AGENT',
     })
-    if (!todoStore.hasLoaded) await todoStore.fetchTodos(true)
   } finally {
     requestingPitches.value = false
   }
@@ -1676,12 +1670,13 @@ function goTo(key: string) {
 async function submitNewTodo() {
   const title = newTodoTitle.value.trim()
   if (!title) return
-  await todoStore.createTodo({
+  const created = await todoStore.createTodo({
     title,
     priority: newTodoPriority.value,
     category: newTodoCategory.value,
     description: newTodoDescription.value.trim() || null,
   })
+  if (!created) return
   newTodoTitle.value = ''
   newTodoDescription.value = ''
   newTodoPriority.value = 'NORMAL'

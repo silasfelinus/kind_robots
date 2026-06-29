@@ -29,11 +29,10 @@ export default defineEventHandler(async (event) => {
       select: {
         id: true,
         userId: true,
-        isActive: true,
       },
     })
 
-    if (!existingCode || !existingCode.isActive) {
+    if (!existingCode) {
       throw createError({
         statusCode: 404,
         message: 'Code not found.',
@@ -50,17 +49,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.code.update({
-      where: { id },
-      data: {
-        isActive: false,
-      },
-    })
+    const data = await prisma.code.delete({ where: { id } })
 
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: `Code with ID ${id} successfully deactivated.`,
+      message: `Code with ID ${id} successfully deleted.`,
       data,
       statusCode: 200,
     }

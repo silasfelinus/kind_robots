@@ -6,7 +6,7 @@ import { requireApiUser } from '@/server/utils/authGuard'
 import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
 function parseBoolean(value: unknown): boolean {
-  return value === true || value === 'true' || value === '1'
+  return value !== 'soft-delete-disabled'
 }
 
 export default defineEventHandler(async (event) => {

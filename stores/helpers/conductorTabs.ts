@@ -21,6 +21,20 @@ export const conductorTabs = [
     requiredRole: 'ADMIN',
   },
   {
+    key: 'wishmaster',
+    label: 'Wishmaster',
+    icon: 'kind-icon:wand',
+    title: 'Wishmaster Wishes',
+    summary: 'Treat one-shot Todo requests as wishes without pretending each one is a full project.',
+    image: '/images/dashboard-tabs/conductor/conductor.webp',
+    flourish: '✦',
+    tagline: 'A wish is the single-shot request; a project is the infrastructure machine.',
+    narrative:
+      'Wishmaster turns lightweight requests into agent-ready wishes: scoped, prioritized, tracked until done, and only promoted into project infrastructure when the request actually needs a larger system.',
+    route: '/conductor',
+    requiredRole: 'ADMIN',
+  },
+  {
     key: 'portos',
     label: 'Portos',
     icon: 'kind-icon:server',

@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { requireApiUser } from '@/server/utils/authGuard'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 
 type BotCreateBody = Partial<Bot> & {
@@ -25,7 +25,6 @@ function getBooleanOrDefault(value: unknown, fallback: boolean): boolean {
 function getDreamConnect(
   value: unknown,
 ): { connect: { id: number }[] } | undefined {
-  // accept body.Dreams = { connect: [{id}] }  OR  body.dreamIds = [1,2,3]
   const raw = (value as any)?.connect ?? value
   if (!Array.isArray(raw)) return undefined
   const ids = raw
@@ -92,20 +91,14 @@ async function assertRelatedRecordsExist(options: {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user, kind } = await validateApiKey(event)
-
-    if (!isValid) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
+    const auth = await requireApiUser(event)
+    const { user } = auth
 
     const botData = await readBody<BotCreateBody>(event)
 
-    const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
-    const authenticatedUserId = user?.id || 1
+    const isServerKey = auth.isServerKey
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const authenticatedUserId = user.id
     const requestedUserId = getPositiveIntegerOrUndefined(botData.userId)
     const userId =
       (isAdmin || isServerKey) && requestedUserId
@@ -183,7 +176,7 @@ export default defineEventHandler(async (event) => {
             connect: { id: artImageId },
           }
         : undefined,
-      Dreams: getDreamConnect(botData.Dreams ?? (botData as any).dreamIds), // ADD
+      Dreams: getDreamConnect(botData.Dreams ?? (botData as any).dreamIds),
     }
 
     const bot = await prisma.bot.create({

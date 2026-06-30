@@ -22,6 +22,8 @@ export const DREAM_TYPES = [
 
 export type DreamType = (typeof DREAM_TYPES)[number]
 
+type DreamWithRequiredSlug<T> = T & { slug: string }
+
 export const CREATION_SOURCES = [
   'HUMAN',
   'AI',
@@ -129,11 +131,25 @@ export function sortDreamsByNewest<T extends { id: number }>(a: T, b: T) {
 }
 
 export function filterDreamsByType<T extends Partial<Dream>>(
+  type: 'PROJECT',
+  dreams: T[],
+): DreamWithRequiredSlug<T>[]
+export function filterDreamsByType<T extends Partial<Dream>>(
   type: DreamType,
   dreams: T[],
-) {
-  return dreams.filter(
+): T[]
+export function filterDreamsByType<T extends Partial<Dream>>(
+  type: DreamType,
+  dreams: T[],
+): T[] | DreamWithRequiredSlug<T>[] {
+  const typedDreams = dreams.filter(
     (dream) => parseDreamType(dream.dreamType as string) === type,
+  )
+
+  if (type !== 'PROJECT') return typedDreams
+
+  return typedDreams.filter(
+    (dream): dream is DreamWithRequiredSlug<T> => Boolean(cleanString(dream.slug)),
   )
 }
 

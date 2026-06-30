@@ -29,11 +29,15 @@ export type AggregateTodo = {
 export type TodoAvgAggregateOutputType = {
   id: number | null
   userId: number | null
+  dreamId: number | null
+  order: number | null
 }
 
 export type TodoSumAggregateOutputType = {
   id: number | null
   userId: number | null
+  dreamId: number | null
+  order: number | null
 }
 
 export type TodoMinAggregateOutputType = {
@@ -49,6 +53,8 @@ export type TodoMinAggregateOutputType = {
   icon: string | null
   imagePath: string | null
   userId: number | null
+  dreamId: number | null
+  order: number | null
 }
 
 export type TodoMaxAggregateOutputType = {
@@ -64,6 +70,8 @@ export type TodoMaxAggregateOutputType = {
   icon: string | null
   imagePath: string | null
   userId: number | null
+  dreamId: number | null
+  order: number | null
 }
 
 export type TodoCountAggregateOutputType = {
@@ -79,6 +87,8 @@ export type TodoCountAggregateOutputType = {
   icon: number
   imagePath: number
   userId: number
+  dreamId: number
+  order: number
   _all: number
 }
 
@@ -86,11 +96,15 @@ export type TodoCountAggregateOutputType = {
 export type TodoAvgAggregateInputType = {
   id?: true
   userId?: true
+  dreamId?: true
+  order?: true
 }
 
 export type TodoSumAggregateInputType = {
   id?: true
   userId?: true
+  dreamId?: true
+  order?: true
 }
 
 export type TodoMinAggregateInputType = {
@@ -106,6 +120,8 @@ export type TodoMinAggregateInputType = {
   icon?: true
   imagePath?: true
   userId?: true
+  dreamId?: true
+  order?: true
 }
 
 export type TodoMaxAggregateInputType = {
@@ -121,6 +137,8 @@ export type TodoMaxAggregateInputType = {
   icon?: true
   imagePath?: true
   userId?: true
+  dreamId?: true
+  order?: true
 }
 
 export type TodoCountAggregateInputType = {
@@ -136,6 +154,8 @@ export type TodoCountAggregateInputType = {
   icon?: true
   imagePath?: true
   userId?: true
+  dreamId?: true
+  order?: true
   _all?: true
 }
 
@@ -238,6 +258,8 @@ export type TodoGroupByOutputType = {
   icon: string | null
   imagePath: string | null
   userId: number | null
+  dreamId: number | null
+  order: number | null
   _count: TodoCountAggregateOutputType | null
   _avg: TodoAvgAggregateOutputType | null
   _sum: TodoSumAggregateOutputType | null
@@ -329,6 +351,8 @@ export type TodoOrderByWithAggregationInput = {
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  order?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TodoCountOrderByAggregateInput
   _avg?: Prisma.TodoAvgOrderByAggregateInput
   _max?: Prisma.TodoMaxOrderByAggregateInput
@@ -352,6 +376,8 @@ export type TodoScalarWhereWithAggregatesInput = {
   icon?: Prisma.StringNullableWithAggregatesFilter<"Todo"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Todo"> | string | null
   userId?: Prisma.IntNullableWithAggregatesFilter<"Todo"> | number | null
+  dreamId?: Prisma.IntNullableWithAggregatesFilter<"Todo"> | number | null
+  order?: Prisma.IntNullableWithAggregatesFilter<"Todo"> | number | null
 }
 
 export type TodoCreateInput = {
@@ -366,6 +392,8 @@ export type TodoCreateInput = {
   icon?: string | null
   imagePath?: string | null
   userId?: number | null
+  dreamId?: number | null
+  order?: number | null
 }
 
 export type TodoUncheckedCreateInput = {
@@ -381,6 +409,8 @@ export type TodoUncheckedCreateInput = {
   icon?: string | null
   imagePath?: string | null
   userId?: number | null
+  dreamId?: number | null
+  order?: number | null
 }
 
 export type TodoUpdateInput = {
@@ -395,6 +425,8 @@ export type TodoUpdateInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type TodoUncheckedUpdateInput = {
@@ -410,6 +442,8 @@ export type TodoUncheckedUpdateInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type TodoCreateManyInput = {
@@ -425,6 +459,8 @@ export type TodoCreateManyInput = {
   icon?: string | null
   imagePath?: string | null
   userId?: number | null
+  dreamId?: number | null
+  order?: number | null
 }
 
 export type TodoUpdateManyMutationInput = {
@@ -439,6 +475,8 @@ export type TodoUpdateManyMutationInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type TodoUncheckedUpdateManyInput = {
@@ -454,6 +492,8 @@ export type TodoUncheckedUpdateManyInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type TodoOrderByRelevanceInput = {
@@ -475,11 +515,15 @@ export type TodoCountOrderByAggregateInput = {
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  dreamId?: Prisma.SortOrder
+  order?: Prisma.SortOrder
 }
 
 export type TodoAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  dreamId?: Prisma.SortOrder
+  order?: Prisma.SortOrder
 }
 
 export type TodoMaxOrderByAggregateInput = {
@@ -495,6 +539,8 @@ export type TodoMaxOrderByAggregateInput = {
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  dreamId?: Prisma.SortOrder
+  order?: Prisma.SortOrder
 }
 
 export type TodoMinOrderByAggregateInput = {
@@ -510,11 +556,15 @@ export type TodoMinOrderByAggregateInput = {
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  dreamId?: Prisma.SortOrder
+  order?: Prisma.SortOrder
 }
 
 export type TodoSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  dreamId?: Prisma.SortOrder
+  order?: Prisma.SortOrder
 }
 
 export type EnumTodoStatusFieldUpdateOperationsInput = {
@@ -544,6 +594,8 @@ export type TodoSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   icon?: boolean
   imagePath?: boolean
   userId?: boolean
+  dreamId?: boolean
+  order?: boolean
 }, ExtArgs["result"]["todo"]>
 
 
@@ -561,9 +613,11 @@ export type TodoSelectScalar = {
   icon?: boolean
   imagePath?: boolean
   userId?: boolean
+  dreamId?: boolean
+  order?: boolean
 }
 
-export type TodoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "status" | "priority" | "category" | "dueDate" | "icon" | "imagePath" | "userId", ExtArgs["result"]["todo"]>
+export type TodoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "status" | "priority" | "category" | "dueDate" | "icon" | "imagePath" | "userId" | "dreamId" | "order", ExtArgs["result"]["todo"]>
 
 export type $TodoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Todo"
@@ -581,6 +635,8 @@ export type $TodoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     icon: string | null
     imagePath: string | null
     userId: number | null
+    dreamId: number | null
+    order: number | null
   }, ExtArgs["result"]["todo"]>
   composites: {}
 }
@@ -962,6 +1018,8 @@ export interface TodoFieldRefs {
   readonly icon: Prisma.FieldRef<"Todo", 'String'>
   readonly imagePath: Prisma.FieldRef<"Todo", 'String'>
   readonly userId: Prisma.FieldRef<"Todo", 'Int'>
+  readonly dreamId: Prisma.FieldRef<"Todo", 'Int'>
+  readonly order: Prisma.FieldRef<"Todo", 'Int'>
 }
     
 

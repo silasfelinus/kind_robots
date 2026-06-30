@@ -2,7 +2,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import { requireApiUser } from '@/server/utils/authGuard'
 import { buildPitchSheetFromDream } from '@/server/utils/pitchSheets/defaults'
 import { sanitizePitchSheetPayload } from '@/server/utils/pitchSheets/payload'
 
@@ -18,13 +18,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { isValid, user } = await validateApiKey(event)
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
+    const { user } = await requireApiUser(event)
 
     const dream = await prisma.dream.findUnique({ where: { id: dreamId } })
     if (!dream) {

@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import { requireApiUser } from '@/server/utils/authGuard'
 import { enforceProjectCap } from '@/server/utils/projectCap'
 import type {
   CreationSource,
@@ -51,15 +51,7 @@ type DreamCreateBody = {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
+    const { user } = await requireApiUser(event)
     const body = await readBody<DreamCreateBody>(event)
     const title = body.title?.trim()
 

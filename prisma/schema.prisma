@@ -267,7 +267,7 @@ model Code {
   isOfficial  Boolean  @default(false)
   isActive    Boolean  @default(true)
   isMature    Boolean  @default(false)
-  User        User     @relation(fields: [userId], references: [id])
+ User  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([isPublic])

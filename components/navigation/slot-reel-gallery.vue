@@ -2,7 +2,7 @@
 <template>
   <div ref="containerEl" class="relative h-full min-h-72 overflow-hidden rounded-2xl bg-base-300/40">
     <div class="pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-gradient-to-b from-base-100 to-transparent" />
-    <div class="pointer-events-none absolute inset-x-0 bottom-0 r-20 h-24 bg-gradient-to-t from-base-100 to-transparent" />
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-base-100 to-transparent" />
 
     <div
       class="pointer-events-none absolute inset-x-2 z-10 rounded-xl ring-1 ring-primary/50"
@@ -77,7 +77,8 @@ const props = withDefaults(
   {
     itemH: 176,
   },
-J
+)
+
 defineEmits<{
   select: [{ id: number | string }]
 }>()
@@ -122,7 +123,7 @@ const columns = computed<GalleryItem[][]>(() => {
 
 const unitH = computed(() => props.itemH + ITEM_GAP)
 
-const windowStyle = computed<CSSProperties>() => ({
+const windowStyle = computed<CSSProperties>(() => ({
   top: '88px',
   height: `${props.itemH}px`,
   boxShadow: '0 0 32px 6px hsl(var(--p) / 0.12)',

@@ -31,9 +31,9 @@ export const CONDUCTOR_NAV_CARD: NavCard = {
   flourish: '⚙',
   deckImage: getNavThumbImagePath('conductor'),
   heroImage: getNavHeroImagePath('conductor'),
-  tagline: 'Steer agents, review work, and configure Portos.',
+  tagline: 'Steer agents, review work, make wishes, and configure Portos.',
   narrative:
-    'Open the Conductor cockpit: project progress, pitches awaiting your vote, task gates, roadmap state, Portos setup, and the pieces that need a human with a clipboard.',
+    'Open the Conductor cockpit: project progress, Wishmaster one-shot requests, pitches awaiting your vote, task gates, roadmap state, Portos setup, and the pieces that need a human with a clipboard.',
   required: false,
   restoresFields: [],
   unlockCondition: 'always',
@@ -47,7 +47,7 @@ export const CONDUCTOR_NAV_CARD: NavCard = {
       key: 'conductor',
       title: 'Conductor',
       narrative:
-        'Steer the agent loop, review project state, configure Portos, and decide what deserves human approval next.',
+        'Steer the agent loop, review project state, make one-shot Wishmaster requests, configure Portos, and decide what deserves human approval next.',
       inputType: 'custom',
       payload: {
         path: '/conductor',

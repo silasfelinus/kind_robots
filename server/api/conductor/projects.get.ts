@@ -24,6 +24,10 @@ export interface ConductorTask {
   passes: number
   stakes?: string
   gateHuman: boolean
+  note?: string
+  dependsOn?: string | string[] | null
+  approvedByHuman?: boolean
+  updated?: string | null
 }
 
 export interface ConductorProjectAssets {
@@ -164,15 +168,42 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
         i++
         while (i < lines.length && /^    /.test(lines[i]!)) {
           const tline = lines[i]!
-          if (/^    \w+:\s*[>|]/.test(tline)) {
+          // Block scalar (note: > or note: |) — capture content instead of skipping
+          const blockScalarMatch = tline.match(/^    ([\w-]+):\s*[>|]\s*$/)
+          if (blockScalarMatch) {
+            const rawKey = blockScalarMatch[1]!
+            const camelKey = rawKey.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
             i++
-            while (i < lines.length && /^      /.test(lines[i]!)) i++
+            const buf: string[] = []
+            while (i < lines.length && /^      /.test(lines[i]!)) {
+              buf.push(lines[i]!.replace(/^      /, '').trimEnd())
+              i++
+            }
+            t[camelKey] = buf.join(' ').trim()
+            continue
+          }
+          // Block sequence for depends_on: followed by - items
+          if (/^    depends_on:\s*$/.test(tline)) {
+            i++
+            const items: string[] = []
+            while (i < lines.length && /^      - /.test(lines[i]!)) {
+              items.push(lines[i]!.replace(/^      - /, '').trim())
+              i++
+            }
+            t['dependsOn'] = items
             continue
           }
           parseKV(tline.trim(), t)
           i++
         }
         if (t['id']) {
+          const rawDependsOn = t['dependsOn'] ?? t['depends_on']
+          const dependsOn: string | string[] | null =
+            Array.isArray(rawDependsOn)
+              ? rawDependsOn
+              : typeof rawDependsOn === 'string' && rawDependsOn
+                ? rawDependsOn
+                : null
           result.tasks.push({
             id: t['id'] as string,
             milestone: (t['milestone'] as string) || '',
@@ -181,7 +212,11 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
             owner: t['owner'] === 'null' || t['owner'] == null ? null : (t['owner'] as string),
             passes: Number(t['passes']) || 0,
             stakes: t['stakes'] as string | undefined,
-            gateHuman: t['gate_human'] === 'true' || t['gate_human'] === true,
+            gateHuman: t['gateHuman'] === 'true' || t['gateHuman'] === true || t['gate_human'] === 'true' || t['gate_human'] === true,
+            note: t['note'] as string | undefined,
+            dependsOn,
+            approvedByHuman: t['approvedByHuman'] === 'true' || t['approvedByHuman'] === true || t['approved_by_human'] === 'true' || t['approved_by_human'] === true,
+            updated: (t['updated'] as string | null | undefined) ?? null,
           })
         }
       }

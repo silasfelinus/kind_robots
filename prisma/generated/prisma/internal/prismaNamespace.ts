@@ -3556,7 +3556,9 @@ export const TodoScalarFieldEnum = {
   dueDate: 'dueDate',
   icon: 'icon',
   imagePath: 'imagePath',
-  userId: 'userId'
+  userId: 'userId',
+  dreamId: 'dreamId',
+  order: 'order'
 } as const
 
 export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]

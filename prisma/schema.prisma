@@ -399,6 +399,7 @@ model Dream {
   Bots            Bot[]
 
   PitchSheet PitchSheet?
+  Todos      Todo[]
 
   RelationsFrom DreamRelation[] @relation("DreamRelationFrom") // edges where this dream is the subject
   RelationsTo   DreamRelation[] @relation("DreamRelationTo") // edges where this dream is the object
@@ -1489,6 +1490,7 @@ enum TodoCategory {
   AGENT
   KAIZEN
   HONEYDO
+  DESIRED_FEATURE
 }
 
 model Todo {
@@ -1504,8 +1506,12 @@ model Todo {
   icon        String?      @db.VarChar(128)
   imagePath   String?      @db.VarChar(764)
   userId      Int?         @default(1)
+  dreamId     Int?         // project scope: links to a PROJECT Dream
+  order       Int?         // display order within category (used by DESIRED_FEATURE)
+  Dream       Dream?       @relation(fields: [dreamId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([dreamId])
 }
 
 enum ArtStatus {

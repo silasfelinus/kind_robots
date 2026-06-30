@@ -5,7 +5,7 @@ import { performFetch, handleError } from './utils'
 
 export type TodoStatus = 'OPEN' | 'DONE' | 'ARCHIVED'
 export type TodoPriority = 'LOW' | 'NORMAL' | 'HIGH'
-export type TodoCategory = 'AGENT' | 'KAIZEN' | 'HONEYDO'
+export type TodoCategory = 'AGENT' | 'KAIZEN' | 'HONEYDO' | 'DESIRED_FEATURE'
 
 export interface Todo {
   id: number
@@ -20,6 +20,8 @@ export interface Todo {
   icon: string | null
   imagePath: string | null
   userId: number | null
+  dreamId: number | null   // project scope (PROJECT Dream)
+  order: number | null     // display order (DESIRED_FEATURE)
 }
 
 export type TodoCreate = {
@@ -30,6 +32,8 @@ export type TodoCreate = {
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
+  dreamId?: number | null
+  order?: number | null
 }
 
 export type TodoUpdate = {
@@ -41,6 +45,8 @@ export type TodoUpdate = {
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
+  dreamId?: number | null
+  order?: number | null
 }
 
 export const useTodoStore = defineStore('todoStore', () => {
@@ -68,6 +74,37 @@ export const useTodoStore = defineStore('todoStore', () => {
   const honeyDoTodos = computed(() =>
     openTodos.value.filter((t) => t.category === 'HONEYDO'),
   )
+
+  function dreamKaizens(dreamId: number) {
+    return computed(() =>
+      openTodos.value.filter((t) => t.dreamId === dreamId && t.category === 'KAIZEN'),
+    )
+  }
+
+  function dreamFeatures(dreamId: number) {
+    return computed(() =>
+      todos.value
+        .filter((t) => t.dreamId === dreamId && t.category === 'DESIRED_FEATURE')
+        .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999)),
+    )
+  }
+
+  async function fetchDreamTodos(dreamId: number): Promise<void> {
+    loading.value = true
+    lastError.value = null
+    try {
+      const res = await performFetch<Todo[]>(`/api/todos/dream/${dreamId}`)
+      if (!res.success || !res.data) throw new Error(res.message || 'Failed to fetch dream todos')
+      // Merge into main list (replace existing dream-scoped entries, keep others)
+      const others = todos.value.filter((t) => t.dreamId !== dreamId)
+      todos.value = [...others, ...res.data]
+    } catch (error) {
+      handleError(error, 'fetchDreamTodos')
+      lastError.value = error instanceof Error ? error.message : 'Failed to fetch dream todos'
+    } finally {
+      loading.value = false
+    }
+  }
 
   async function fetchTodos(includeArchived = false): Promise<void> {
     loading.value = true
@@ -191,7 +228,10 @@ export const useTodoStore = defineStore('todoStore', () => {
     agentTodos,
     kaizenTodos,
     honeyDoTodos,
+    dreamKaizens,
+    dreamFeatures,
     fetchTodos,
+    fetchDreamTodos,
     createTodo,
     updateTodo,
     deleteTodo,

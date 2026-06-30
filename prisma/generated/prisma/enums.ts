@@ -388,7 +388,8 @@ export type TodoPriority = (typeof TodoPriority)[keyof typeof TodoPriority]
 export const TodoCategory = {
   AGENT: 'AGENT',
   KAIZEN: 'KAIZEN',
-  HONEYDO: 'HONEYDO'
+  HONEYDO: 'HONEYDO',
+  DESIRED_FEATURE: 'DESIRED_FEATURE'
 } as const
 
 export type TodoCategory = (typeof TodoCategory)[keyof typeof TodoCategory]

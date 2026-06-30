@@ -1,6 +1,7 @@
 // /stores/todoStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { isWishTodo, makeWishTodo, type WishCreate, type WishTodo } from '@/stores/helpers/wishmaster'
 import { performFetch, handleError } from './utils'
 
 export type TodoStatus = 'OPEN' | 'DONE' | 'ARCHIVED'
@@ -43,6 +44,9 @@ export type TodoUpdate = {
   imagePath?: string | null
 }
 
+export type Wish = WishTodo
+export type WishUpdate = TodoUpdate
+
 export const useTodoStore = defineStore('todoStore', () => {
   const todos = ref<Todo[]>([])
   const loading = ref(false)
@@ -67,6 +71,19 @@ export const useTodoStore = defineStore('todoStore', () => {
   )
   const honeyDoTodos = computed(() =>
     openTodos.value.filter((t) => t.category === 'HONEYDO'),
+  )
+
+  const wishes = computed(() =>
+    todos.value.filter(isWishTodo),
+  )
+  const openWishes = computed(() =>
+    openTodos.value.filter(isWishTodo),
+  )
+  const doneWishes = computed(() =>
+    doneTodos.value.filter(isWishTodo),
+  )
+  const archivedWishes = computed(() =>
+    archivedTodos.value.filter(isWishTodo),
   )
 
   async function fetchTodos(includeArchived = false): Promise<void> {
@@ -121,6 +138,11 @@ export const useTodoStore = defineStore('todoStore', () => {
     }
   }
 
+  async function createWish(data: WishCreate): Promise<Wish | null> {
+    const todo = await createTodo(makeWishTodo(data))
+    return todo && isWishTodo(todo) ? todo : null
+  }
+
   async function updateTodo(id: number, data: TodoUpdate): Promise<boolean> {
     lastError.value = null
 
@@ -145,6 +167,10 @@ export const useTodoStore = defineStore('todoStore', () => {
       console.error('updateTodo failed:', error)
       return false
     }
+  }
+
+  async function updateWish(id: number, data: WishUpdate): Promise<boolean> {
+    return updateTodo(id, { ...data, category: 'AGENT' })
   }
 
   async function deleteTodo(id: number): Promise<boolean> {
@@ -180,6 +206,18 @@ export const useTodoStore = defineStore('todoStore', () => {
     return updateTodo(id, { status: 'ARCHIVED' })
   }
 
+  async function completeWish(todo: Wish): Promise<boolean> {
+    return updateTodo(todo.id, { status: 'DONE' })
+  }
+
+  async function archiveWish(id: number): Promise<boolean> {
+    return archiveTodo(id)
+  }
+
+  async function deleteWish(id: number): Promise<boolean> {
+    return deleteTodo(id)
+  }
+
   return {
     todos,
     loading,
@@ -191,11 +229,20 @@ export const useTodoStore = defineStore('todoStore', () => {
     agentTodos,
     kaizenTodos,
     honeyDoTodos,
+    wishes,
+    openWishes,
+    doneWishes,
+    archivedWishes,
     fetchTodos,
     createTodo,
+    createWish,
     updateTodo,
+    updateWish,
     deleteTodo,
     toggleDone,
     archiveTodo,
+    completeWish,
+    archiveWish,
+    deleteWish,
   }
 })

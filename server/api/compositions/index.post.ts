@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { requireApiUser } from '@/server/utils/authGuard'
 import type { Composition, Prisma } from '~/prisma/generated/prisma/client'
 
 type CompositionCreateBody = Partial<Composition>
@@ -178,14 +178,8 @@ async function normalizeComposition(
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user, kind } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
+    const auth = await requireApiUser(event)
+    const { user } = auth
 
     const body = await readBody<
       CompositionCreateBody | CompositionCreateBody[]
@@ -196,7 +190,7 @@ export default defineEventHandler(async (event) => {
       : undefined
 
     const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    const isServerKey = kind === 'server'
+    const isServerKey = auth.isServerKey
 
     const userId =
       (isAdmin || isServerKey) && requestedUserId ? requestedUserId : user.id

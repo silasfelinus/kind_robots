@@ -5,7 +5,7 @@ import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 
 const todoPriorities = ['LOW', 'NORMAL', 'HIGH'] as const
-const todoCategories = ['AGENT', 'KAIZEN', 'HONEYDO'] as const
+const todoCategories = ['AGENT', 'KAIZEN', 'HONEYDO', 'DESIRED_FEATURE'] as const
 
 type TodoPriorityValue = (typeof todoPriorities)[number]
 type TodoCategoryValue = (typeof todoCategories)[number]
@@ -18,6 +18,8 @@ type TodoCreateBody = {
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
+  dreamId?: number | null
+  order?: number | null
 }
 
 function normalizeDueDate(value?: string | null): Date | null {
@@ -56,6 +58,10 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'title is required' })
     }
 
+    const dreamId = body.dreamId && Number.isInteger(body.dreamId) && body.dreamId > 0
+      ? body.dreamId : null
+    const order = body.order != null && Number.isInteger(body.order) ? body.order : null
+
     const todo = await prisma.todo.create({
       data: {
         title,
@@ -67,6 +73,8 @@ export default defineEventHandler(async (event) => {
         icon: body.icon ?? null,
         imagePath: body.imagePath ?? null,
         userId,
+        dreamId,
+        order,
       },
     })
 

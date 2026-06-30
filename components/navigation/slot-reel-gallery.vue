@@ -1,22 +1,15 @@
-<!-- /components/navigation/slot-reel-gallery.vue
-     Infinitely looping vertical reels, slot-machine style.
-     Each column scrolls at a different speed. Hover pauses a column.
-     Click selects/emits an item. -->
+<!-- /components/navigation/slot-reel-gallery.vue -->
 <template>
   <div ref="containerEl" class="relative h-full min-h-72 overflow-hidden rounded-2xl bg-base-300/40">
-    <!-- Top fade mask -->
     <div class="pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-gradient-to-b from-base-100 to-transparent" />
-    <!-- Bottom fade mask -->
     <div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-base-100 to-transparent" />
 
-    <!-- Selection window — glowing band in the center -->
     <div
       class="pointer-events-none absolute inset-x-2 z-10 rounded-xl ring-1 ring-primary/50"
       :style="windowStyle"
       aria-hidden="true"
     />
 
-    <!-- Reel columns -->
     <div class="flex h-full gap-2 p-2">
       <div
         v-for="(col, ci) in columns"
@@ -45,7 +38,6 @@
             >
               <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
             </div>
-            <!-- Title bar -->
             <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-base-300/90 to-transparent px-2 pb-1.5 pt-8">
               <p class="truncate text-center text-xs font-black text-base-content drop-shadow">
                 {{ item.title || `#${item.id}` }}
@@ -56,7 +48,6 @@
       </div>
     </div>
 
-    <!-- Empty state -->
     <div
       v-if="!items.length"
       class="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 text-center"
@@ -93,7 +84,6 @@ defineEmits<{
 }>()
 
 const ITEM_GAP = 8
-// Pixels per second for each column — intentionally varied for the reel feel
 const COL_SPEEDS_PX_S = [28, 20, 15, 24]
 
 const containerEl = ref<HTMLElement | null>(null)
@@ -121,10 +111,9 @@ const columns = computed<GalleryItem[][]>(() => {
   const cols: GalleryItem[][] = Array.from({ length: count }, () => [])
 
   props.items.forEach((item, i) => {
-    cols[i % count].push(item)
+    cols[i % count]!.push(item)
   })
 
-  // Duplicate for seamless loop; pad short columns to at least 4 visible items
   return cols.map((col) => {
     let base = col
     while (base.length < 4) base = [...base, ...base]
@@ -134,7 +123,6 @@ const columns = computed<GalleryItem[][]>(() => {
 
 const unitH = computed(() => props.itemH + ITEM_GAP)
 
-// Glowing band positioned just below the top fade
 const windowStyle = computed<CSSProperties>(() => ({
   top: '88px',
   height: `${props.itemH}px`,
@@ -143,7 +131,7 @@ const windowStyle = computed<CSSProperties>(() => ({
 
 function trackStyle(ci: number, singleCount: number): CSSProperties {
   const singleH = singleCount * unitH.value
-  const speed = COL_SPEEDS_PX_S[ci % COL_SPEEDS_PX_S.length]
+  const speed = COL_SPEEDS_PX_S[ci % COL_SPEEDS_PX_S.length] ?? 20
   const durationMs = Math.max(3000, Math.round((singleH / speed) * 1000))
 
   return {
@@ -167,9 +155,6 @@ function trackStyle(ci: number, singleCount: number): CSSProperties {
   animation-play-state: paused;
 }
 
-/* margin-bottom on EVERY item (including last of each copy) keeps the gap
-   between copy-1 and copy-2 identical to gaps within each copy, giving
-   a seamless wrap at translateY(-single-h). */
 .reel-item {
   height: var(--item-h);
   flex-shrink: 0;

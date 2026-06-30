@@ -186,6 +186,39 @@ function buildTargetWhere(
   return { [expectedField]: expectedId }
 }
 
+async function getContentOwnerId(
+  category: Reaction_reactionCategory,
+  targets: ReturnType<typeof getTargetFields>,
+): Promise<number | null> {
+  const expectedField = getExpectedTargetField(category)
+  if (!expectedField) return null
+  const targetId = targets[expectedField]
+  if (!targetId) return null
+  // Component model has no userId field
+  if (expectedField === 'componentId') return null
+
+  const modelMap: Record<string, { findUnique: (args: unknown) => Promise<unknown> }> = {
+    artImageId: prisma.artImage,
+    artCollectionId: prisma.artCollection,
+    botId: prisma.bot,
+    characterId: prisma.character,
+    chatId: prisma.chat,
+    compositionId: prisma.composition,
+    dreamId: prisma.dream,
+    promptId: prisma.prompt,
+    resourceId: prisma.resource,
+    rewardId: prisma.reward,
+    scenarioId: prisma.scenario,
+    themeId: prisma.theme,
+  }
+
+  const model = modelMap[expectedField]
+  if (!model) return null
+
+  const result = await model.findUnique({ where: { id: targetId }, select: { userId: true } }) as { userId?: number | null } | null
+  return result?.userId ?? null
+}
+
 async function assertReactionTargetExists(
   category: Reaction_reactionCategory,
   targets: ReturnType<typeof getTargetFields>,
@@ -273,6 +306,12 @@ export default defineEventHandler(async (event) => {
 
     if (!existingReaction) {
       awardKarma({ userId: user.id, reason: 'REACTION_GIVEN', refId: String(data.id) }).catch(() => {})
+      // Award content owner for receiving a reaction (fire-and-forget; gated by KARMA_LIVE)
+      getContentOwnerId(reactionCategory, targets).then((ownerId) => {
+        if (ownerId && ownerId !== user.id) {
+          awardKarma({ userId: ownerId, reason: 'REACTION_RECEIVED', refId: String(data.id) }).catch(() => {})
+        }
+      }).catch(() => {})
     }
 
     event.node.res.statusCode = existingReaction ? 200 : 201

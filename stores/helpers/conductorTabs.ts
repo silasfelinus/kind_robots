@@ -26,7 +26,7 @@ export const conductorTabs = [
     icon: 'kind-icon:wand',
     title: 'Wishmaster Wishes',
     summary: 'Treat one-shot Todo requests as wishes without pretending each one is a full project.',
-    image: '/images/dashboard-tabs/conductor/wishmaster.webp',
+    image: '/images/dashboard-tabs/conductor/conductor.webp',
     flourish: '✦',
     tagline: 'A wish is the single-shot request; a project is the infrastructure machine.',
     narrative:

@@ -453,6 +453,13 @@
             </div>
           </div>
 
+          <!-- Honeydo inbox context banner (t-003) -->
+          <div v-if="taskTab === 'HONEYDO' && todoFilter === 'OPEN'" class="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3">
+            <p class="text-xs font-semibold text-accent/80">🍯 Honey-Do Queue</p>
+            <p class="mt-0.5 text-xs text-base-content/50">Action items your AI assigned to you. These help your projects along — check them off as you go.</p>
+            <p v-if="highPriorityHoneyDos > 0" class="mt-1 text-xs font-semibold text-error">{{ highPriorityHoneyDos }} high-priority item{{ highPriorityHoneyDos > 1 ? 's' : '' }} need your attention.</p>
+          </div>
+
           <div class="space-y-2">
             <template v-if="todoStore.loading && !filteredTodos.length">
               <div v-for="n in 3" :key="n" class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200" />
@@ -460,8 +467,12 @@
             <div
               v-for="todo in filteredTodos"
               :key="todo.id"
-              class="flex flex-col gap-1 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 transition-colors"
-              :class="todo.status === 'DONE' ? 'opacity-60' : ''"
+              class="flex flex-col gap-1 rounded-2xl border px-4 py-3 transition-colors"
+              :class="[
+                todo.status === 'DONE' ? 'opacity-60 border-base-300 bg-base-100' :
+                (todo.category === 'HONEYDO' && todo.priority === 'HIGH') ? 'border-error/30 bg-error/5' :
+                'border-base-300 bg-base-100'
+              ]"
             >
               <div class="flex items-center gap-3">
                 <button
@@ -502,9 +513,14 @@
               </div>
               <p v-if="todo.description" class="ml-8 text-xs leading-relaxed text-base-content/50">{{ todo.description }}</p>
             </div>
-            <p v-if="!todoStore.loading && !filteredTodos.length" class="py-6 text-center text-sm text-base-content/50">
-              No {{ todoFilter.toLowerCase() }} tasks.
-            </p>
+            <div v-if="!todoStore.loading && !filteredTodos.length" class="py-8 text-center">
+              <template v-if="taskTab === 'HONEYDO' && todoFilter === 'OPEN'">
+                <Icon name="kind-icon:check-circle" class="mx-auto mb-2 size-8 text-success/40" />
+                <p class="text-sm font-semibold text-base-content/50">No honey-dos right now.</p>
+                <p class="mt-1 text-xs text-base-content/30">When your AI assigns you an action item, it shows up here.</p>
+              </template>
+              <p v-else class="text-sm text-base-content/50">No {{ todoFilter.toLowerCase() }} tasks.</p>
+            </div>
           </div>
         </div>
 
@@ -1132,6 +1148,10 @@ const filteredTodos = computed(() => {
     default:        return todoStore.agentTodos
   }
 })
+
+const highPriorityHoneyDos = computed(() =>
+  todoStore.honeyDoTodos.filter((t) => t.priority === 'HIGH').length,
+)
 
 const allPitchesVoted = computed(() =>
   allPitches.value.length > 0 &&

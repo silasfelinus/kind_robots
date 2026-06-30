@@ -1,7 +1,7 @@
 // /server/api/characters/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { requireApiUser } from '@/server/utils/authGuard'
 import prisma from '../../utils/prisma'
 import type {
   Prisma,
@@ -78,15 +78,7 @@ function cleanShortText(value: unknown): string | null {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
+    const { user } = await requireApiUser(event)
     const characterData = await readBody<CharacterCreateBody>(event)
 
     if (!characterData.name || typeof characterData.name !== 'string') {

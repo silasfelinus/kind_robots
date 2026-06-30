@@ -804,6 +804,14 @@
                         <span v-if="task.owner">&middot; {{ task.owner }}</span>
                         <span v-if="task.passes > 0" class="text-warning">&middot; pass {{ task.passes }}/3</span>
                       </div>
+                      <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
+                        <span v-if="task.stakes && task.stakes !== 'reversible'" class="badge badge-xs" :class="stakesBadgeClass(task.stakes)">{{ task.stakes }}</span>
+                        <span v-if="task.dependsOn" class="text-base-content/30">depends: {{ Array.isArray(task.dependsOn) ? task.dependsOn.join(', ') : task.dependsOn }}</span>
+                        <span v-if="task.gateHuman && task.approvedByHuman" class="text-success">✓ approved</span>
+                        <span v-if="task.gateHuman && !task.approvedByHuman" class="text-accent/70">awaiting approval</span>
+                        <span v-if="task.updated" class="ml-auto text-base-content/25">{{ relativeTime(task.updated) }}</span>
+                      </div>
+                      <p v-if="task.note" class="mt-1.5 line-clamp-3 text-xs leading-relaxed text-base-content/50">{{ task.note }}</p>
                     </div>
                     <span class="badge badge-sm shrink-0" :class="taskBadgeClass(task.status)">{{ task.status }}</span>
                   </div>
@@ -1341,6 +1349,26 @@ function taskBadgeClass(status: string) {
     ready: 'badge-info', waiting: 'badge-ghost', blocked: 'badge-error', 'needs-human': 'badge-accent',
   }
   return map[status] ?? 'badge-ghost'
+}
+function stakesBadgeClass(stakes: string): string {
+  if (stakes === 'irreversible') return 'badge-error'
+  if (stakes === 'outward-facing') return 'badge-warning'
+  if (stakes === 'needs-human') return 'badge-accent'
+  return 'badge-ghost'
+}
+function relativeTime(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const ms = Date.now() - new Date(iso).getTime()
+  const s = Math.round(ms / 1000)
+  if (s < 60) return 'just now'
+  const m = Math.round(s / 60)
+  if (m < 60) return `${m}m ago`
+  const h = Math.round(m / 60)
+  if (h < 24) return `${h}h ago`
+  const d = Math.round(h / 24)
+  if (d < 30) return `${d}d ago`
+  const mo = Math.round(d / 30)
+  return `${mo}mo ago`
 }
 function taskIcon(status: string) {
   const map: Record<string, string> = {

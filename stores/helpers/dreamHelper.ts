@@ -17,6 +17,7 @@ export const DREAM_TYPES = [
   'LOCATION',
   'PITCH',
   'GENRE',
+  'WISH',
 ] as const satisfies readonly PrismaDreamType[]
 
 export type DreamType = (typeof DREAM_TYPES)[number]
@@ -68,6 +69,7 @@ const DREAM_TYPE_LABELS: Record<DreamType, string> = {
   LOCATION: 'Location',
   PITCH: 'Pitch',
   GENRE: 'Genre',
+  WISH: 'Wish',
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -276,6 +276,8 @@ export type TodoWhereInput = {
   icon?: Prisma.StringNullableFilter<"Todo"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Todo"> | string | null
   userId?: Prisma.IntNullableFilter<"Todo"> | number | null
+  dreamId?: Prisma.IntNullableFilter<"Todo"> | number | null
+  order?: Prisma.IntNullableFilter<"Todo"> | number | null
 }
 
 export type TodoOrderByWithRelationInput = {
@@ -291,6 +293,8 @@ export type TodoOrderByWithRelationInput = {
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  order?: Prisma.SortOrderInput | Prisma.SortOrder
   _relevance?: Prisma.TodoOrderByRelevanceInput
 }
 

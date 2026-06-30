@@ -197,7 +197,8 @@ async function getContentOwnerId(
   // Component model has no userId field
   if (expectedField === 'componentId') return null
 
-  const modelMap: Record<string, { findUnique: (args: unknown) => Promise<unknown> }> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const modelMap: Record<string, { findUnique: (args: any) => Promise<unknown> }> = {
     artImageId: prisma.artImage,
     artCollectionId: prisma.artCollection,
     botId: prisma.bot,

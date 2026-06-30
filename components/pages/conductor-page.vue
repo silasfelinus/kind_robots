@@ -1683,8 +1683,8 @@ async function moveFeatureUp(index: number) {
   const features = projectFeatures.value
   if (index === 0) return
   await Promise.all([
-    todoStore.updateTodo(features[index].id, { order: index - 1 }),
-    todoStore.updateTodo(features[index - 1].id, { order: index }),
+    todoStore.updateTodo(features[index]!.id, { order: index - 1 }),
+    todoStore.updateTodo(features[index - 1]!.id, { order: index }),
   ])
   if (linkedDream.value) await todoStore.fetchDreamTodos(linkedDream.value.id)
 }
@@ -1693,8 +1693,8 @@ async function moveFeatureDown(index: number) {
   const features = projectFeatures.value
   if (index >= features.length - 1) return
   await Promise.all([
-    todoStore.updateTodo(features[index].id, { order: index + 1 }),
-    todoStore.updateTodo(features[index + 1].id, { order: index }),
+    todoStore.updateTodo(features[index]!.id, { order: index + 1 }),
+    todoStore.updateTodo(features[index + 1]!.id, { order: index }),
   ])
   if (linkedDream.value) await todoStore.fetchDreamTodos(linkedDream.value.id)
 }

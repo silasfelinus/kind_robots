@@ -29,6 +29,7 @@ export const dreamTypes: DreamType[] = [
   'LOCATION',
   'PITCH',
   'GENRE',
+  'WISH',
 ]
 
 export const creationSources: CreationSource[] = [

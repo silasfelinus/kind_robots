@@ -106,7 +106,7 @@ export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {
   if (!auth) {
     throw createError({
       statusCode: 401,
-      message: 'Invalid or expired authorization token.',
+      message: 'Invalid or expired token.',
     })
   }
 

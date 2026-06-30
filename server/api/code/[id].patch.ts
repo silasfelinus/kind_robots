@@ -14,7 +14,6 @@ type CodePatchBody = Partial<
     | 'graph'
     | 'isPublic'
     | 'isOfficial'
-    | 'isActive'
   >
 >
 
@@ -53,7 +52,7 @@ export default defineEventHandler(async (event) => {
       where: { id },
     })
 
-    if (!existingCode || !existingCode.isActive) {
+    if (!existingCode) {
       throw createError({
         statusCode: 404,
         message: 'Code not found.',
@@ -115,10 +114,6 @@ export default defineEventHandler(async (event) => {
       data.isPublic = body.isPublic
     }
 
-    if (typeof body.isActive === 'boolean') {
-      data.isActive = body.isActive
-    }
-
     if (typeof body.isOfficial === 'boolean') {
       if (!isAdmin) {
         throw createError({
@@ -128,6 +123,13 @@ export default defineEventHandler(async (event) => {
       }
 
       data.isOfficial = body.isOfficial
+    }
+
+    if (Object.keys(data).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No supported Code fields provided for update.',
+      })
     }
 
     const updated = await prisma.code.update({

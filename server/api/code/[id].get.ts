@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
       where: { id },
     })
 
-    if (!data || !data.isActive) {
+    if (!data) {
       throw createError({
         statusCode: 404,
         message: `Code with ID ${id} not found.`,

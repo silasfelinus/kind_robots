@@ -3,16 +3,45 @@ import { defineEventHandler, readBody, createError, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
-import type { Todo } from '@/stores/todoStore'
+
+const todoPriorities = ['LOW', 'NORMAL', 'HIGH'] as const
+const todoCategories = ['AGENT', 'KAIZEN', 'HONEYDO'] as const
+
+type TodoPriorityValue = (typeof todoPriorities)[number]
+type TodoCategoryValue = (typeof todoCategories)[number]
 
 type TodoCreateBody = {
   title: string
   description?: string | null
-  priority?: 'LOW' | 'NORMAL' | 'HIGH'
-  category?: 'AGENT' | 'KAIZEN' | 'HONEYDO'
+  priority?: TodoPriorityValue
+  category?: TodoCategoryValue
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
+}
+
+function normalizeDueDate(value?: string | null): Date | null {
+  if (!value) return null
+
+  const dueDate = new Date(value)
+
+  if (Number.isNaN(dueDate.getTime())) {
+    throw createError({ statusCode: 400, message: 'dueDate must be a valid date' })
+  }
+
+  return dueDate
+}
+
+function normalizePriority(value?: TodoPriorityValue): TodoPriorityValue {
+  return todoPriorities.includes(value as TodoPriorityValue)
+    ? (value as TodoPriorityValue)
+    : 'NORMAL'
+}
+
+function normalizeCategory(value?: TodoCategoryValue): TodoCategoryValue {
+  return todoCategories.includes(value as TodoCategoryValue)
+    ? (value as TodoCategoryValue)
+    : 'AGENT'
 }
 
 export default defineEventHandler(async (event) => {
@@ -27,39 +56,33 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'title is required' })
     }
 
-    const priority = ['LOW', 'NORMAL', 'HIGH'].includes(body.priority ?? '')
-      ? body.priority!
-      : 'NORMAL'
-
-    const category = ['AGENT', 'KAIZEN', 'HONEYDO'].includes(body.category ?? '')
-      ? body.category!
-      : 'AGENT'
-
-    await prisma.$executeRaw`
-      INSERT INTO \`Todo\` (title, description, status, priority, category, dueDate, icon, imagePath, userId, createdAt, updatedAt)
-      VALUES (
-        ${title},
-        ${body.description ?? null},
-        'OPEN',
-        ${priority},
-        ${category},
-        ${body.dueDate ?? null},
-        ${body.icon ?? null},
-        ${body.imagePath ?? null},
-        ${userId},
-        NOW(3),
-        NOW(3)
-      )
-    `
-
-    const [todo] = await prisma.$queryRaw<Todo[]>`
-      SELECT * FROM \`Todo\` WHERE id = LAST_INSERT_ID()
-    `
+    const todo = await prisma.todo.create({
+      data: {
+        title,
+        description: body.description ?? null,
+        status: 'OPEN',
+        priority: normalizePriority(body.priority),
+        category: normalizeCategory(body.category),
+        dueDate: normalizeDueDate(body.dueDate),
+        icon: body.icon ?? null,
+        imagePath: body.imagePath ?? null,
+        userId,
+      },
+    })
 
     event.node.res.statusCode = 201
     return { success: true, message: 'Todo created.', data: todo }
   } catch (error) {
     if (error instanceof H3Error) throw error
-    return errorHandler(error)
+
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+
+    return {
+      success: false,
+      message: handled.message || 'Failed to create Todo.',
+      data: null,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

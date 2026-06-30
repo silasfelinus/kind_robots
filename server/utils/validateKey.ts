@@ -1,5 +1,5 @@
 // /server/utils/validateKey.ts
-import { getCookie, getHeader, type H3Event } from 'h3'
+import { getHeader, type H3Event } from 'h3'
 import prisma from './prisma'
 import { verifyJwtToken } from '@/server/api/auth'
 import { userIsAdmin } from './authUser'
@@ -26,10 +26,7 @@ function readRequestToken(event: H3Event): string {
     getHeader(event, 'authorization') ||
       getHeader(event, 'x-beta-admin-token') ||
       getHeader(event, 'x-admin-token') ||
-      getHeader(event, 'x-api-key') ||
-      getCookie(event, 'kind-session') ||
-      getCookie(event, 'token') ||
-      getCookie(event, 'auth-token'),
+      getHeader(event, 'x-api-key'),
   )
 }
 

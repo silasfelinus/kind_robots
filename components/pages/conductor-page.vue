@@ -819,6 +819,165 @@
               </div>
             </div>
           </div>
+
+          <!-- PROJECT TASK CREATION (t-002) -->
+          <div v-if="linkedDream" class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4">
+            <h4 class="mb-3 text-xs font-bold uppercase tracking-wide text-base-content/50">Add Task to This Project</h4>
+            <form class="space-y-2" @submit.prevent="submitProjectTask">
+              <input
+                v-model="projectTaskTitle"
+                type="text"
+                placeholder="What needs doing?"
+                class="input input-bordered w-full rounded-xl text-sm"
+                :disabled="projectTaskSubmitting"
+              />
+              <textarea
+                v-model="projectTaskDescription"
+                placeholder="Optional context..."
+                class="textarea textarea-bordered w-full rounded-xl text-sm"
+                rows="2"
+                :disabled="projectTaskSubmitting"
+              />
+              <div class="flex flex-wrap items-center gap-2">
+                <select v-model="projectTaskCategory" class="select select-bordered select-sm rounded-xl">
+                  <option value="AGENT">🤖 Agent Task</option>
+                  <option value="KAIZEN">✨ Kaizen</option>
+                  <option value="HONEYDO">🍯 Honey Do</option>
+                  <option value="DESIRED_FEATURE">⭐ Feature Idea</option>
+                </select>
+                <select v-model="projectTaskPriority" class="select select-bordered select-sm rounded-xl">
+                  <option value="HIGH">🔴 High</option>
+                  <option value="NORMAL">🟡 Normal</option>
+                  <option value="LOW">🟢 Low</option>
+                </select>
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-sm ml-auto rounded-xl"
+                  :disabled="!projectTaskTitle.trim() || projectTaskSubmitting"
+                >
+                  <span v-if="projectTaskSubmitting" class="loading loading-spinner loading-xs" />
+                  Add Task
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- KAIZEN + POLISH PROMPT (t-004, t-006) -->
+          <div v-if="linkedDream" class="shrink-0 space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4">
+            <div class="flex items-center gap-2">
+              <Icon name="kind-icon:sparkles" class="size-4 text-secondary" />
+              <h4 class="text-xs font-bold uppercase tracking-wide text-secondary/70">Kaizen — Improvements</h4>
+            </div>
+            <div v-if="projectKaizens.length" class="space-y-2">
+              <div
+                v-for="kaizen in projectKaizens"
+                :key="kaizen.id"
+                class="flex items-start gap-2 rounded-xl border border-secondary/20 bg-base-100 px-3 py-2"
+              >
+                <Icon name="kind-icon:sparkles" class="mt-0.5 size-3.5 shrink-0 text-secondary/50" />
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm leading-snug">{{ kaizen.title }}</p>
+                  <p v-if="kaizen.description" class="mt-0.5 text-xs text-base-content/50">{{ kaizen.description }}</p>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-lg text-success"
+                  :disabled="todoStore.loading"
+                  @click="todoStore.updateTodo(kaizen.id, { status: 'DONE' })"
+                >done</button>
+              </div>
+            </div>
+            <p v-else class="text-xs text-base-content/40">No active kaizens for this project.</p>
+            <form class="flex flex-col gap-2" @submit.prevent="submitPolishPrompt">
+              <label class="label py-0"><span class="label-text text-xs font-semibold text-secondary/80">How can I make this look better?</span></label>
+              <div class="flex gap-2">
+                <input
+                  v-model="polishPrompt"
+                  type="text"
+                  placeholder="Any visual or UX idea for this project..."
+                  class="input input-bordered input-sm flex-1 rounded-xl text-sm"
+                  :disabled="polishSubmitting"
+                />
+                <button
+                  type="submit"
+                  class="btn btn-secondary btn-sm rounded-xl"
+                  :disabled="!polishPrompt.trim() || polishSubmitting"
+                >
+                  <span v-if="polishSubmitting" class="loading loading-spinner loading-xs" />
+                  <Icon v-else name="kind-icon:sparkles" class="size-3.5" />
+                </button>
+              </div>
+              <p v-if="polishMessage" class="text-xs text-success">{{ polishMessage }}</p>
+            </form>
+          </div>
+
+          <!-- DESIRED FEATURES (t-007) -->
+          <div v-if="linkedDream" class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+            <div class="flex items-center gap-2">
+              <Icon name="kind-icon:check" class="size-4 text-primary" />
+              <h4 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Feature Wishlist</h4>
+            </div>
+            <div v-if="projectFeatures.length" class="space-y-1.5">
+              <div
+                v-for="(feature, idx) in projectFeatures"
+                :key="feature.id"
+                class="group flex items-center gap-2 rounded-xl border px-3 py-2 transition-colors"
+                :class="feature.status === 'ARCHIVED' ? 'border-base-300/50 bg-base-200/50 opacity-50' : 'border-base-300 bg-base-200'"
+              >
+                <div class="flex shrink-0 flex-col">
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs h-4 min-h-0 rounded px-1 py-0 opacity-40 hover:opacity-100 disabled:opacity-20"
+                    :disabled="idx === 0 || todoStore.loading"
+                    @click="moveFeatureUp(idx)"
+                  >▲</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs h-4 min-h-0 rounded px-1 py-0 opacity-40 hover:opacity-100 disabled:opacity-20"
+                    :disabled="idx === projectFeatures.length - 1 || todoStore.loading"
+                    @click="moveFeatureDown(idx)"
+                  >▼</button>
+                </div>
+                <p
+                  class="min-w-0 flex-1 text-sm leading-snug"
+                  :class="feature.status === 'ARCHIVED' ? 'line-through text-base-content/40' : ''"
+                >{{ feature.title }}</p>
+                <div v-if="feature.status !== 'ARCHIVED'" class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-lg text-xs text-primary"
+                    :disabled="todoStore.loading"
+                    @click="promoteFeatureToTask(feature.id)"
+                  >→ task</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-lg text-xs text-base-content/30"
+                    :disabled="todoStore.loading"
+                    @click="retireFeature(feature.id)"
+                  >retire</button>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-xs text-base-content/40">No feature ideas yet.</p>
+            <form class="flex gap-2" @submit.prevent="addDesiredFeature">
+              <input
+                v-model="newFeatureTitle"
+                type="text"
+                placeholder="New feature idea..."
+                class="input input-bordered input-sm flex-1 rounded-xl text-sm"
+                :disabled="newFeatureSubmitting"
+              />
+              <button
+                type="submit"
+                class="btn btn-outline btn-sm rounded-xl"
+                :disabled="!newFeatureTitle.trim() || newFeatureSubmitting"
+              >
+                <span v-if="newFeatureSubmitting" class="loading loading-spinner loading-xs" />
+                Add
+              </button>
+            </form>
+          </div>
+
         </div>
       </div>
     </template>
@@ -1400,5 +1559,123 @@ function milestoneBadgeClass(status: string) {
   if (status === 'done') return 'badge-success'
   if (status === 'in-progress') return 'badge-warning'
   return 'badge-ghost'
+}
+
+// Project-scoped task creation (t-002)
+const projectTaskTitle = ref('')
+const projectTaskDescription = ref('')
+const projectTaskCategory = ref<TodoCategory>('AGENT')
+const projectTaskPriority = ref<DreamPriority>('NORMAL')
+const projectTaskSubmitting = ref(false)
+
+// Kaizen / polish prompt (t-004, t-006)
+const polishPrompt = ref('')
+const polishSubmitting = ref(false)
+const polishMessage = ref('')
+
+// Desired features (t-007)
+const newFeatureTitle = ref('')
+const newFeatureSubmitting = ref(false)
+
+const projectKaizens = computed(() => {
+  if (!linkedDream.value) return []
+  const dreamId = linkedDream.value.id
+  return todoStore.openTodos.filter((t) => t.dreamId === dreamId && t.category === 'KAIZEN')
+})
+
+const projectFeatures = computed(() => {
+  if (!linkedDream.value) return []
+  const dreamId = linkedDream.value.id
+  return [...todoStore.todos.filter((t) => t.dreamId === dreamId && t.category === 'DESIRED_FEATURE')]
+    .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999))
+})
+
+watch(linkedDream, async (dream) => {
+  if (dream?.id) await todoStore.fetchDreamTodos(dream.id)
+}, { immediate: true })
+
+async function submitProjectTask() {
+  if (!linkedDream.value || !projectTaskTitle.value.trim()) return
+  projectTaskSubmitting.value = true
+  try {
+    await todoStore.createTodo({
+      title: projectTaskTitle.value.trim(),
+      description: projectTaskDescription.value.trim() || null,
+      category: projectTaskCategory.value,
+      priority: projectTaskPriority.value,
+      dreamId: linkedDream.value.id,
+    })
+    projectTaskTitle.value = ''
+    projectTaskDescription.value = ''
+    projectTaskCategory.value = 'AGENT'
+    projectTaskPriority.value = 'NORMAL'
+  } finally {
+    projectTaskSubmitting.value = false
+  }
+}
+
+async function submitPolishPrompt() {
+  if (!linkedDream.value || !polishPrompt.value.trim()) return
+  polishSubmitting.value = true
+  polishMessage.value = ''
+  try {
+    await todoStore.createTodo({
+      title: polishPrompt.value.trim(),
+      category: 'KAIZEN',
+      priority: 'NORMAL',
+      dreamId: linkedDream.value.id,
+    })
+    polishPrompt.value = ''
+    polishMessage.value = 'Kaizen logged!'
+    setTimeout(() => { polishMessage.value = '' }, 3000)
+  } finally {
+    polishSubmitting.value = false
+  }
+}
+
+async function addDesiredFeature() {
+  if (!linkedDream.value || !newFeatureTitle.value.trim()) return
+  newFeatureSubmitting.value = true
+  try {
+    await todoStore.createTodo({
+      title: newFeatureTitle.value.trim(),
+      category: 'DESIRED_FEATURE',
+      priority: 'NORMAL',
+      dreamId: linkedDream.value.id,
+      order: projectFeatures.value.length,
+    })
+    newFeatureTitle.value = ''
+    await todoStore.fetchDreamTodos(linkedDream.value.id)
+  } finally {
+    newFeatureSubmitting.value = false
+  }
+}
+
+async function promoteFeatureToTask(featureId: number) {
+  await todoStore.updateTodo(featureId, { category: 'AGENT' })
+}
+
+async function retireFeature(featureId: number) {
+  await todoStore.updateTodo(featureId, { status: 'ARCHIVED' })
+}
+
+async function moveFeatureUp(index: number) {
+  const features = projectFeatures.value
+  if (index === 0) return
+  await Promise.all([
+    todoStore.updateTodo(features[index].id, { order: index - 1 }),
+    todoStore.updateTodo(features[index - 1].id, { order: index }),
+  ])
+  if (linkedDream.value) await todoStore.fetchDreamTodos(linkedDream.value.id)
+}
+
+async function moveFeatureDown(index: number) {
+  const features = projectFeatures.value
+  if (index >= features.length - 1) return
+  await Promise.all([
+    todoStore.updateTodo(features[index].id, { order: index + 1 }),
+    todoStore.updateTodo(features[index + 1].id, { order: index }),
+  ])
+  if (linkedDream.value) await todoStore.fetchDreamTodos(linkedDream.value.id)
 }
 </script>

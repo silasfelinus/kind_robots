@@ -34,11 +34,7 @@
         <NuxtLink
           :to="channel.path"
           class="flex min-h-11 items-center gap-2 rounded-xl xl:min-h-12"
-          :class="
-            isChannelActive(channel)
-              ? 'bg-primary text-primary-content'
-              : ''
-          "
+          :class="isChannelActive(channel) ? 'bg-primary text-primary-content' : ''"
           @click="closeDropdown"
         >
           <span
@@ -70,73 +66,22 @@ const route = useRoute()
 
 const allChannels: ChannelRoute[] = [
   { key: 'home', label: 'Home', path: '/', icon: 'kind-icon:home' },
-  {
-    key: 'sanctuary',
-    label: 'Sanctuary',
-    path: '/sanctuary',
-    icon: 'kind-icon:butterfly',
-  },
-  {
-    key: 'conductor',
-    label: 'Conductor',
-    path: '/conductor',
-    icon: 'kind-icon:gearhammer',
-  },
-  {
-    key: 'lab',
-    label: 'Lab',
-    path: '/memory',
-    icon: 'kind-icon:dungeon',
-  },
-  {
-    key: 'builder',
-    label: 'Builder',
-    path: '/builder',
-    icon: 'kind-icon:blueprint',
-  },
-  {
-    key: 'art',
-    label: 'Art',
-    path: '/art',
-    icon: 'kind-icon:palette',
-  },
-  {
-    key: 'bots',
-    label: 'Narrators',
-    path: '/bots',
-    icon: 'kind-icon:robot-color',
-  },
-  {
-    key: 'dreams',
-    label: 'Pitches',
-    path: '/dreams',
-    icon: 'kind-icon:moon',
-  },
-  {
-    key: 'characters',
-    label: 'Characters',
-    path: '/characters',
-    icon: 'kind-icon:mask',
-  },
-  {
-    key: 'scenarios',
-    label: 'Stories',
-    path: '/stories',
-    icon: 'kind-icon:story',
-  },
-  {
-    key: 'rewards',
-    label: 'Rewards',
-    path: '/rewards',
-    icon: 'kind-icon:trophy',
-  },
+  { key: 'sanctuary', label: 'Sanctuary', path: '/sanctuary', icon: 'kind-icon:butterfly' },
+  { key: 'conductor', label: 'Conductor', path: '/conductor', icon: 'kind-icon:gearhammer' },
+  { key: 'lab', label: 'Lab', path: '/memory', icon: 'kind-icon:dungeon' },
+  { key: 'builder', label: 'Builder', path: '/builder', icon: 'kind-icon:blueprint' },
+  { key: 'art', label: 'Art', path: '/art', icon: 'kind-icon:palette' },
+  { key: 'bots', label: 'Narrators', path: '/bots', icon: 'kind-icon:robot-color' },
+  { key: 'dreams', label: 'Pitches', path: '/dreams', icon: 'kind-icon:moon' },
+  { key: 'characters', label: 'Characters', path: '/characters', icon: 'kind-icon:mask' },
+  { key: 'scenarios', label: 'Stories', path: '/stories', icon: 'kind-icon:story' },
+  { key: 'rewards', label: 'Rewards', path: '/rewards', icon: 'kind-icon:trophy' },
 ]
 
-const fallbackChannel: ChannelRoute = allChannels[0]
+const fallbackChannel: ChannelRoute = allChannels[0]!
 
 const activeChannel = computed<ChannelRoute>(
-  () =>
-    allChannels.find((channel) => isChannelActive(channel)) ?? fallbackChannel,
+  () => allChannels.find((channel) => isChannelActive(channel)) ?? fallbackChannel,
 )
 
 function isChannelActive(channel: ChannelRoute): boolean {

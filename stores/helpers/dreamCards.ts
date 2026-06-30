@@ -35,6 +35,7 @@ const DREAM_TYPE_SUBTEXT: Record<DreamType, string> = {
   PITCH:
     'The classic one-sentence seed. Small enough to carry; dangerous enough to grow.',
   GENRE: 'A genre, trope cluster, stylistic lane, or taste-map marker.',
+  WISH: 'A direct request, intention, or desired outcome ready to become a useful Dream.',
 }
 
 export const DREAM_TYPE_CHOICES: DreamTypeChoice[] = DREAM_TYPES.map(

@@ -1,7 +1,7 @@
 // prisma/seeds/inspiration-prompts.ts
 // Run: npx ts-node prisma/seeds/inspiration-prompts.ts
 // Or call seedInspirationPrompts() from your main seed script.
-import { PrismaClient } from '../generated/prisma'
+import { PrismaClient } from '../generated/prisma/client'
 
 const prisma = new PrismaClient()
 

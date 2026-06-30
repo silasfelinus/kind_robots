@@ -320,7 +320,7 @@ const bottomFabLabel = computed(() => {
 
 function cycleBottomMode(): void {
   const idx = BOTTOM_MODES.indexOf(bottomMode.value)
-  bottomMode.value = BOTTOM_MODES[(idx + 1) % BOTTOM_MODES.length]
+  bottomMode.value = BOTTOM_MODES[(idx + 1) % BOTTOM_MODES.length]!
 }
 
 function setNarratorOpen(value: boolean): void {

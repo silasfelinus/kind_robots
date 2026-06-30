@@ -10,10 +10,11 @@ type TodoPatchBody = {
   description?: string | null
   status?: 'OPEN' | 'DONE' | 'ARCHIVED'
   priority?: 'LOW' | 'NORMAL' | 'HIGH'
-  category?: 'AGENT' | 'KAIZEN' | 'HONEYDO'
+  category?: 'AGENT' | 'KAIZEN' | 'HONEYDO' | 'DESIRED_FEATURE'
   dueDate?: string | null
   icon?: string | null
   imagePath?: string | null
+  order?: number | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -47,12 +48,13 @@ export default defineEventHandler(async (event) => {
     const priority = ['LOW', 'NORMAL', 'HIGH'].includes(body.priority ?? '')
       ? body.priority!
       : current.priority
-    const category = ['AGENT', 'KAIZEN', 'HONEYDO'].includes(body.category ?? '')
+    const category = ['AGENT', 'KAIZEN', 'HONEYDO', 'DESIRED_FEATURE'].includes(body.category ?? '')
       ? body.category!
       : (current.category ?? 'AGENT')
     const dueDate = 'dueDate' in body ? (body.dueDate ?? null) : current.dueDate
     const icon = 'icon' in body ? (body.icon ?? null) : current.icon
     const imagePath = 'imagePath' in body ? (body.imagePath ?? null) : current.imagePath
+    const order = 'order' in body ? (body.order ?? null) : (current as Todo & { order?: number | null }).order ?? null
 
     await prisma.$executeRaw`
       UPDATE \`Todo\` SET
@@ -64,6 +66,7 @@ export default defineEventHandler(async (event) => {
         dueDate     = ${dueDate},
         icon        = ${icon},
         imagePath   = ${imagePath},
+        \`order\`   = ${order},
         updatedAt   = NOW(3)
       WHERE id = ${id} AND userId = ${userId}
     `

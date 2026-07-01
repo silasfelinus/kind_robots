@@ -9,12 +9,43 @@ import type {
   ConductorProject,
   ConductorPitch,
 } from '@/server/api/conductor/projects.get'
+import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 
 export type DreamPriority = 'LOW' | 'NORMAL' | 'HIGH'
 export type PitchVote = 'approved' | 'passed'
 
 const VOTE_KEY = 'kr.workspacePitchVotes'
 const PRIORITY_KEY = 'kr.projectPriorities'
+const CONDUCTOR_IMG_BASE =
+  'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
+
+const fallbackProjects: ConductorProject[] = CONDUCTOR_CARDS.map((card) => ({
+  slug: card.key,
+  name: card.label || card.title || card.key,
+  kind: card.projectKind,
+  milestones: [],
+  tasks: [
+    {
+      id: `${card.key}-fallback`,
+      milestone: 'fallback',
+      title: card.description || card.title || card.label || card.key,
+      status: card.taskStatus,
+      owner: null,
+      passes: 0,
+      stakes: card.tagline,
+      gateHuman: card.taskStatus === 'needs-human',
+      note: card.description,
+      dependsOn: null,
+      approvedByHuman: false,
+      updated: null,
+    },
+  ],
+  progress: card.taskStatus === 'done' ? 100 : 0,
+  imagePath: `${CONDUCTOR_IMG_BASE}/${card.key}-icon.webp`,
+  cardPath: `${CONDUCTOR_IMG_BASE}/${card.key}-card.webp`,
+  heroPath: `${CONDUCTOR_IMG_BASE}/${card.key}-hero.webp`,
+  notesFromSilas: card.description,
+}))
 
 function lsGet<T>(key: string): T | null {
   if (!import.meta.client) return null
@@ -39,10 +70,15 @@ export const useConductorStore = defineStore('conductor', () => {
   const pending = ref(false)
   const error = ref<string | null>(null)
 
-  const projects = computed<ConductorProject[]>(() => data.value?.projects ?? [])
+  const liveProjects = computed<ConductorProject[]>(() => data.value?.projects ?? [])
+  const projects = computed<ConductorProject[]>(() =>
+    liveProjects.value.length ? liveProjects.value : fallbackProjects,
+  )
   const pitches = computed<ConductorPitch[]>(() => data.value?.pitches ?? [])
   const fetchedAt = computed(() => data.value?.fetchedAt ?? null)
-  const hasLoaded = computed(() => data.value !== null)
+  const hasLoaded = computed(
+    () => data.value !== null || fallbackProjects.length > 0,
+  )
 
   const pendingPitches = computed(() =>
     pitches.value.filter((p) => p.status.includes('awaiting')),
@@ -50,13 +86,17 @@ export const useConductorStore = defineStore('conductor', () => {
 
   async function fetchProjects(force = false): Promise<void> {
     if (pending.value) return
-    if (hasLoaded.value && !force) return
+    if (data.value !== null && !force) return
     pending.value = true
     error.value = null
     try {
       data.value = await $fetch<ConductorData>('/api/conductor/projects')
     } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
+      error.value = fallbackProjects.length
+        ? null
+        : e instanceof Error
+          ? e.message
+          : String(e)
     } finally {
       pending.value = false
     }

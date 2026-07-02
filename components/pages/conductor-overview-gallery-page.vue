@@ -63,6 +63,8 @@
 
       <div class="flex-1" />
 
+      <KaizenPopup />
+
       <div class="flex items-center gap-0.5">
         <button
           v-for="mode in galleryModeOptions"
@@ -172,14 +174,13 @@
 
       <section
         v-else-if="projectGalleryMode === 'cards'"
-        class="project-card-scroll flex h-full snap-x snap-proximity gap-4 overflow-x-auto overscroll-x-contain pb-1"
-        @wheel="handleCardWheel"
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
       >
         <button
           v-for="item in galleryItems"
           :key="item.slug"
           type="button"
-          class="group relative aspect-[2/3] h-full max-w-[85vw] min-h-[24rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl"
+          class="group relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl"
           @click="openProject(item)"
         >
           <img
@@ -539,6 +540,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
 import { useUserStore } from '@/stores/userStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import KaizenPopup from '@/components/pages/kaizen-popup.vue'
 
 const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
@@ -917,18 +919,6 @@ function modeButtonClass(mode: GalleryMode) {
     : 'btn-ghost'
 }
 
-// Mouse wheels only emit vertical deltas, so translate them into horizontal
-// travel for the card strip. Trackpads with real horizontal deltas pass through.
-function handleCardWheel(event: WheelEvent) {
-  if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
-
-  const el = event.currentTarget as HTMLElement | null
-  if (!el || el.scrollWidth <= el.clientWidth) return
-
-  event.preventDefault()
-  el.scrollLeft += event.deltaY
-}
-
 function priorityBadgeClass(priority: DreamPriority): string {
   if (priority === 'HIGH') return 'badge-error'
   if (priority === 'LOW') return 'badge-ghost'
@@ -957,9 +947,3 @@ function getDreamTitle(dream?: DreamWithRelations | null) {
   return dream?.title || dream?.slug || ''
 }
 </script>
-
-<style scoped>
-.project-card-scroll {
-  scrollbar-width: thin;
-}
-</style>

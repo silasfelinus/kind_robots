@@ -46,6 +46,33 @@ section:has(img[src*="projects/images"]) .grid:has(> div > img[src*="-icon"]) {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
 }
 
+section:has(div[class*="xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"]) {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+section:has(div[class*="xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"]) > div[class*="overflow-y-auto"] {
+  flex: 0 0 auto;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+section:has(div[class*="xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"]) div[class*="min-h-[180px]"][class*="rounded-2xl"] {
+  min-height: 7rem !important;
+}
+
+@media (min-width: 640px) {
+  section:has(div[class*="xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"]) div[class*="min-h-[180px]"][class*="rounded-2xl"] {
+    min-height: 8rem !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  section:has(div[class*="xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"]) div[class*="min-h-[180px]"][class*="rounded-2xl"] {
+    min-height: 9rem !important;
+  }
+}
+
 @layer base {
   body {
     @apply text-sm md:text-base lg:text-lg xl:text-xl;

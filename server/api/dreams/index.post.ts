@@ -47,6 +47,8 @@ type DreamCreateBody = {
   isMature?: boolean
   isActive?: boolean
   createCollection?: boolean
+  goal?: string | null
+  waypoints?: string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -120,6 +122,8 @@ export default defineEventHandler(async (event) => {
       highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
       icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
       designer: normalizeOptionalText(body.designer) ?? sender,
+      goal: normalizeOptionalText(body.goal) ?? null,
+      waypoints: normalizeOptionalText(body.waypoints) ?? null,
       isPublic,
       isMature,
       isActive,

@@ -1,8 +1,11 @@
 import { conductorGet, conductorPut } from '~/server/utils/conductor-github'
+import { requireAdminApiUser } from '@/server/utils/authGuard'
 
 type PitchVote = 'approved' | 'passed'
 
 export default defineEventHandler(async (event) => {
+  await requireAdminApiUser(event)
+
   const { slug, vote } = await readBody<{ slug: string; vote: PitchVote }>(event)
 
   if (!slug?.trim()) {

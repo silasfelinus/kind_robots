@@ -1,7 +1,10 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { conductorGet, conductorPut } from '~/server/utils/conductor-github'
+import { requireAdminApiUser } from '@/server/utils/authGuard'
 
 export default defineEventHandler(async (event) => {
+  await requireAdminApiUser(event)
+
   const body = await readBody(event)
   const message = String(body?.message ?? '').trim()
   if (!message) throw createError({ statusCode: 400, message: 'message required' })

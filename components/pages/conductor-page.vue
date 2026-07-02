@@ -1501,15 +1501,15 @@
             />
           </div>
 
-          <!-- ROADMAP PINS + PROJECT ASSISTANT -->
+          <!-- WAYPOINTS + PROJECT ASSISTANT -->
           <div
             v-if="linkedDream"
             class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
           >
-            <ConductorProjectPins
+            <ConductorProjectWaypoints
               :dream-id="linkedDream.id"
               :dream-title="linkedDream.title || selectedProject.slug"
-              :pins="linkedDream.pins"
+              :waypoints="linkedDream.waypoints"
             />
             <ConductorProjectChat
               :dream-id="linkedDream.id"
@@ -1918,7 +1918,7 @@ import { useConductorStore } from '@/stores/conductorStore'
 import type { DreamPriority } from '@/stores/conductorStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import ConductorArtGallery from '@/components/pages/conductor-art-gallery.vue'
-import ConductorProjectPins from '@/components/pages/conductor-project-pins.vue'
+import ConductorProjectWaypoints from '@/components/pages/conductor-project-waypoints.vue'
 import ConductorProjectChat from '@/components/pages/conductor-project-chat.vue'
 import KaizenPopup from '@/components/pages/kaizen-popup.vue'
 
@@ -2141,7 +2141,8 @@ const projectContextText = computed(() => {
   if (dream.goal) lines.push(`Goal (100% looks like): ${dream.goal}`)
   if (dream.pitch) lines.push(`Pitch: ${dream.pitch}`)
   if (dream.description) lines.push(`Description: ${dream.description}`)
-  if (dream.pins) lines.push(`Roadmap pins (✓ = done): ${dream.pins}`)
+  if (dream.waypoints)
+    lines.push(`Waypoints (✓ = done, ~ = in progress): ${dream.waypoints}`)
   if (project.notesFromSilas)
     lines.push(`Notes from Silas: ${project.notesFromSilas}`)
 

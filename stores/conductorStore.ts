@@ -10,6 +10,7 @@ import type {
   ConductorPitch,
 } from '@/server/api/conductor/projects.get'
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
+import { performFetch } from '@/stores/utils'
 
 export type DreamPriority = 'LOW' | 'NORMAL' | 'HIGH'
 export type PitchVote = 'approved' | 'passed'
@@ -116,9 +117,10 @@ export const useConductorStore = defineStore('conductor', () => {
   function voteOnPitch(slug: string, choice: PitchVote): void {
     votedPitches.value = { ...votedPitches.value, [slug]: choice }
     lsSet(VOTE_KEY, votedPitches.value)
-    $fetch('/api/conductor/pitch-vote', {
+    // pitch-vote is admin-gated server-side; send the signed-in user's JWT.
+    performFetch('/api/conductor/pitch-vote', {
       method: 'POST',
-      body: { slug, vote: choice },
+      body: JSON.stringify({ slug, vote: choice }),
     }).catch((err) => {
       console.error('[conductor] pitch vote failed to persist to repo:', err)
     })

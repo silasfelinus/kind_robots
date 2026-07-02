@@ -1,4 +1,5 @@
 import { conductorGet, conductorPut } from '~/server/utils/conductor-github'
+import { requireAdminApiUser } from '@/server/utils/authGuard'
 
 const VALID_STATUSES = ['active', 'paused', 'retired', 'finished'] as const
 const VALID_PRIORITIES = ['low', 'normal', 'high', 'urgent'] as const
@@ -15,6 +16,8 @@ interface OverrideEntry {
 }
 
 export default defineEventHandler(async (event) => {
+  await requireAdminApiUser(event)
+
   const body = await readBody<Record<string, OverrideEntry>>(event)
 
   const lines = [

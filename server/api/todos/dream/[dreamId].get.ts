@@ -7,7 +7,7 @@ import { requireApiUser } from '@/server/utils/authGuard'
 
 export default defineEventHandler(async (event) => {
   try {
-    await requireApiUser(event)
+    const auth = await requireApiUser(event)
 
     const dreamId = Number(event.context.params?.dreamId)
     if (!Number.isInteger(dreamId) || dreamId <= 0) {
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const todos = await prisma.todo.findMany({
-      where: { dreamId },
+      where: { dreamId, userId: auth.user.id },
       orderBy: [
         { order: 'asc' },
         { priority: 'asc' },

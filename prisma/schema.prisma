@@ -370,7 +370,7 @@ model Dream {
   projectStatus   ProjectStatus?
   priority        DreamPriority?  @default(NORMAL)
   goal            String?         @db.Text // what 100% completion looks like, concretely
-  pins            String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix marks a pin done
+  waypoints       String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix = done, "~ " prefix = in progress
   repoUrl         String?         @db.VarChar(512)
   liveUrl         String?         @db.VarChar(512)
   allowReviews    Boolean         @default(false)

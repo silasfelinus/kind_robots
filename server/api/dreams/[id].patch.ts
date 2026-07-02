@@ -50,7 +50,7 @@ type DreamPatchBody = {
   repoUrl?: string | null
   liveUrl?: string | null
   goal?: string | null
-  pins?: string | null
+  waypoints?: string | null
   characterIds?: number[]
   rewardIds?: number[]
   artImageIds?: number[]
@@ -221,7 +221,7 @@ function getUpdateSummary(body: DreamPatchBody): string {
     body.repoUrl !== undefined ||
     body.liveUrl !== undefined ||
     body.goal !== undefined ||
-    body.pins !== undefined
+    body.waypoints !== undefined
   ) {
     changes.push('project')
   }
@@ -400,8 +400,8 @@ export default defineEventHandler(async (event) => {
       setTextField(dataInput, 'goal', body.goal)
     }
 
-    if (body.pins !== undefined) {
-      setTextField(dataInput, 'pins', body.pins)
+    if (body.waypoints !== undefined) {
+      setTextField(dataInput, 'waypoints', body.waypoints)
     }
 
     if (typeof body.allowReviews === 'boolean') {

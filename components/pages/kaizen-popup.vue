@@ -39,12 +39,12 @@
           Kaizen means "change for the better" — the practice of improving
           through many small, incremental steps rather than heroic leaps. It is
           the founding principle of this whole workspace: every project here
-          moves forward one tiny, finishable step at a time. A roadmap pin
-          checked, a honey-do answered, a single task reviewed — each one is
-          small enough to actually happen today, and together they compound into
-          finished projects. When something feels too big, we don't push harder;
-          we cut a smaller step. Progress you can repeat beats progress you have
-          to summon.
+          moves forward one tiny, finishable step at a time. A waypoint reached,
+          a honey-do answered, a single task reviewed — each one is small enough
+          to actually happen today, and together they compound into finished
+          projects. When something feels too big, we don't push harder; we cut a
+          smaller step. Progress you can repeat beats progress you have to
+          summon.
         </p>
         <p class="mt-3 text-xs italic text-base-content/50">
           "A journey of a thousand miles begins with a single step — and then

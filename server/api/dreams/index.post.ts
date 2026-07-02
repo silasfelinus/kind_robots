@@ -48,7 +48,7 @@ type DreamCreateBody = {
   isActive?: boolean
   createCollection?: boolean
   goal?: string | null
-  pins?: string | null
+  waypoints?: string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -123,7 +123,7 @@ export default defineEventHandler(async (event) => {
       icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
       designer: normalizeOptionalText(body.designer) ?? sender,
       goal: normalizeOptionalText(body.goal) ?? null,
-      pins: normalizeOptionalText(body.pins) ?? null,
+      waypoints: normalizeOptionalText(body.waypoints) ?? null,
       isPublic,
       isMature,
       isActive,

@@ -112,3 +112,18 @@ export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {
 
   return auth
 }
+
+export async function requireAdminApiUser(
+  event: H3Event,
+): Promise<AuthGuardResult> {
+  const auth = await requireApiUser(event)
+
+  if (!auth.isAdmin) {
+    throw createError({
+      statusCode: 403,
+      message: 'Admin access required.',
+    })
+  }
+
+  return auth
+}

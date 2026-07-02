@@ -1,6 +1,9 @@
 import { conductorPut } from '~/server/utils/conductor-github'
+import { requireAdminApiUser } from '@/server/utils/authGuard'
 
 export default defineEventHandler(async (event) => {
+  await requireAdminApiUser(event)
+
   const { message, project } = await readBody<{ message: string; project?: string }>(event)
 
   if (!message?.trim()) {

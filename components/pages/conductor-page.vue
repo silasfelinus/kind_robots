@@ -184,6 +184,9 @@
         >
       </template>
 
+      <!-- Kaizen philosophy popup -->
+      <KaizenPopup />
+
       <!-- Gallery mode toggle -->
       <div class="flex items-center gap-0.5">
         <button
@@ -1368,6 +1371,21 @@
               <div class="form-control">
                 <label class="label py-0.5"
                   ><span class="label-text text-xs font-semibold"
+                    >Goal — what does 100% look like?</span
+                  ></label
+                >
+                <textarea
+                  class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
+                  rows="3"
+                  placeholder="One clear paragraph: what precisely does this project look like when it's complete?"
+                  :value="linkedDream.goal ?? ''"
+                  :disabled="dreamSaving"
+                  @blur="autosave('goal', $event)"
+                />
+              </div>
+              <div class="form-control">
+                <label class="label py-0.5"
+                  ><span class="label-text text-xs font-semibold"
                     >Description</span
                   ></label
                 >
@@ -1480,6 +1498,23 @@
               :hero-path="projectHeroPath(selectedProject.slug)"
               :card-path="projectCardPath(selectedProject.slug)"
               :icon-path="projectIconPath(selectedProject.slug)"
+            />
+          </div>
+
+          <!-- ROADMAP PINS + PROJECT ASSISTANT -->
+          <div
+            v-if="linkedDream"
+            class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+          >
+            <ConductorProjectPins
+              :dream-id="linkedDream.id"
+              :dream-title="linkedDream.title || selectedProject.slug"
+              :pins="linkedDream.pins"
+            />
+            <ConductorProjectChat
+              :dream-id="linkedDream.id"
+              :dream-title="linkedDream.title || selectedProject.slug"
+              :project-context="projectContextText"
             />
           </div>
 
@@ -1883,12 +1918,16 @@ import { useConductorStore } from '@/stores/conductorStore'
 import type { DreamPriority } from '@/stores/conductorStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import ConductorArtGallery from '@/components/pages/conductor-art-gallery.vue'
+import ConductorProjectPins from '@/components/pages/conductor-project-pins.vue'
+import ConductorProjectChat from '@/components/pages/conductor-project-chat.vue'
+import KaizenPopup from '@/components/pages/kaizen-popup.vue'
 
 type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
 
 type ProjectPatch = {
   description?: string | null
   pitch?: string | null
+  goal?: string | null
   flavorText?: string | null
   liveUrl?: string | null
   repoUrl?: string | null
@@ -2089,6 +2128,36 @@ const linkedDream = computed(() =>
     ? projectDreamForSlug(selectedProject.value.slug)
     : null,
 )
+
+// Compact project state handed to the Project Assistant as system context.
+const projectContextText = computed(() => {
+  const project = selectedProject.value
+  const dream = linkedDream.value
+  if (!project || !dream) return ''
+
+  const lines: string[] = [
+    `Project: ${dream.title || project.slug} (${project.kind}, ${project.progress}% complete)`,
+  ]
+  if (dream.goal) lines.push(`Goal (100% looks like): ${dream.goal}`)
+  if (dream.pitch) lines.push(`Pitch: ${dream.pitch}`)
+  if (dream.description) lines.push(`Description: ${dream.description}`)
+  if (dream.pins) lines.push(`Roadmap pins (✓ = done): ${dream.pins}`)
+  if (project.notesFromSilas)
+    lines.push(`Notes from Silas: ${project.notesFromSilas}`)
+
+  const summary = taskStatusSummary(project)
+    .map(([status, count]) => `${count} ${status}`)
+    .join(', ')
+  if (summary) lines.push(`Tasks: ${summary}`)
+
+  const needsHuman = project.tasks
+    .filter((task) => task.status === 'needs-human')
+    .map((task) => `- ${task.id}: ${task.title}`)
+  if (needsHuman.length)
+    lines.push(`Waiting on a human decision:\n${needsHuman.join('\n')}`)
+
+  return lines.join('\n')
+})
 
 // Banner art failure flags — reset whenever the selected project changes so a
 // missing image for one project doesn't blank the banner for the next.

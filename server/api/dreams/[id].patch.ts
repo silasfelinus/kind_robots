@@ -49,6 +49,8 @@ type DreamPatchBody = {
   projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
   repoUrl?: string | null
   liveUrl?: string | null
+  goal?: string | null
+  pins?: string | null
   characterIds?: number[]
   rewardIds?: number[]
   artImageIds?: number[]
@@ -217,7 +219,9 @@ function getUpdateSummary(body: DreamPatchBody): string {
   if (
     body.projectStatus !== undefined ||
     body.repoUrl !== undefined ||
-    body.liveUrl !== undefined
+    body.liveUrl !== undefined ||
+    body.goal !== undefined ||
+    body.pins !== undefined
   ) {
     changes.push('project')
   }
@@ -370,8 +374,17 @@ export default defineEventHandler(async (event) => {
       dataInput.isActive = body.isActive
     }
 
-    const validProjectStatuses = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED', 'BRAINSTORM'] as const
-    if (body.projectStatus !== undefined && validProjectStatuses.includes(body.projectStatus)) {
+    const validProjectStatuses = [
+      'ACTIVE',
+      'PAUSED',
+      'DONE',
+      'ARCHIVED',
+      'BRAINSTORM',
+    ] as const
+    if (
+      body.projectStatus !== undefined &&
+      validProjectStatuses.includes(body.projectStatus)
+    ) {
       dataInput.projectStatus = body.projectStatus
     }
 
@@ -381,6 +394,14 @@ export default defineEventHandler(async (event) => {
 
     if (body.liveUrl !== undefined) {
       setTextField(dataInput, 'liveUrl', body.liveUrl)
+    }
+
+    if (body.goal !== undefined) {
+      setTextField(dataInput, 'goal', body.goal)
+    }
+
+    if (body.pins !== undefined) {
+      setTextField(dataInput, 'pins', body.pins)
     }
 
     if (typeof body.allowReviews === 'boolean') {

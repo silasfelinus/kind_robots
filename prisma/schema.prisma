@@ -369,6 +369,8 @@ model Dream {
   // ── Project-specific (dreamType = PROJECT) ────────────────────────────────────────
   projectStatus   ProjectStatus?
   priority        DreamPriority?  @default(NORMAL)
+  goal            String?         @db.Text // what 100% completion looks like, concretely
+  pins            String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix marks a pin done
   repoUrl         String?         @db.VarChar(512)
   liveUrl         String?         @db.VarChar(512)
   allowReviews    Boolean         @default(false)

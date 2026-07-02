@@ -9,10 +9,11 @@
 // Slugs are optional, so collisions are skipped rather than suffixed — the
 // first record wins and the rest stay unslugged for a human to resolve.
 //
-// Usage:
-//   npx ts-node utils/scripts/backfillSlugs.ts            # dry run (default)
-//   npx ts-node utils/scripts/backfillSlugs.ts --write    # apply
-//   npx ts-node utils/scripts/backfillSlugs.ts --write --collections-all
+// Usage (tsx, not ts-node — the repo is ESM and ts-node can't resolve the
+// generated client's extensionless imports under Node's ESM loader):
+//   npm run backfill:slugs                     # dry run (default)
+//   npm run backfill:slugs -- --write          # apply
+//   npm run backfill:slugs -- --write --collections-all
 //     (also slug per-user generated collections, scoped as <slug>-u<userId>)
 
 import 'dotenv/config'

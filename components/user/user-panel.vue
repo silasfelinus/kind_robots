@@ -11,10 +11,6 @@
           {{ profileTitle }}
         </h2>
 
-        <p class="text-sm text-base-content/60">
-          Account settings only. No gallery goblins in this room.
-        </p>
-
         <p
           v-if="userStore.user?.artImageId"
           class="mt-1 text-xs font-semibold text-success"
@@ -48,9 +44,6 @@
     >
       <div class="mb-4">
         <h3 class="text-lg font-black">Profile Details</h3>
-        <p class="text-sm text-base-content/60">
-          The usual mortal paperwork, now with fewer layout crimes.
-        </p>
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">

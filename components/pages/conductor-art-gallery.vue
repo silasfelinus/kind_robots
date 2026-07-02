@@ -1,25 +1,25 @@
 <!-- /components/pages/conductor-art-gallery.vue -->
 <template>
   <section
-    class="flex min-h-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+    class="flex min-h-0 min-w-0 flex-col gap-3 overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
     @mouseenter="paused = true"
     @mouseleave="paused = false"
   >
-    <div class="flex items-center gap-2">
+    <div class="flex min-w-0 items-center gap-2">
       <Icon name="kind-icon:image" class="size-4 text-secondary" />
       <h4
-        class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+        class="min-w-0 truncate text-xs font-bold uppercase tracking-wide text-base-content/60"
       >
         Inspiration Gallery
       </h4>
       <span
         v-if="matchedCollection"
-        class="badge badge-secondary badge-xs"
+        class="badge badge-secondary badge-xs shrink-0"
         :title="`Art collection: ${matchedCollection.label}`"
       >
         {{ collectionSlideCount }} from collection
       </span>
-      <span v-if="slides.length" class="ml-auto text-xs text-base-content/40">
+      <span v-if="slides.length" class="ml-auto shrink-0 text-xs text-base-content/40">
         {{ activeIndex + 1 }} / {{ slides.length }}
       </span>
     </div>
@@ -81,13 +81,13 @@
 
     <div
       v-if="slides.length > 1"
-      class="flex shrink-0 gap-1.5 overflow-x-auto pb-1"
+      class="flex shrink-0 flex-wrap justify-center gap-1.5 overflow-x-hidden pb-1"
     >
       <button
         v-for="(slide, index) in slides"
         :key="slide.src"
         type="button"
-        class="relative size-12 shrink-0 overflow-hidden rounded-lg border transition-all"
+        class="relative size-12 overflow-hidden rounded-lg border transition-all"
         :class="
           index === activeIndex
             ? 'border-primary ring-2 ring-primary/40'

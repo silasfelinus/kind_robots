@@ -73,6 +73,7 @@ const sweepTargets: SweepTarget[] = [
   { label: 'servers', path: '/server' },
   { label: 'components', path: '/components' },
   { label: 'reactions', path: '/reactions' },
+  { label: 'milestones', path: '/milestones' },
 ]
 
 const cypressFixturePattern = /cypress|relationship-\d+|reaction-fixture-|pancake-sunrise-collection|justfortesting|Bad-Server-/i
@@ -148,6 +149,7 @@ const stringifySearchableRecord = (record: ApiRecord) =>
     record.imagePath,
     record.promptString,
     record.artPrompt,
+    record.triggerCode,
     record.description,
     record.notes,
     record.designer,

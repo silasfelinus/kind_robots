@@ -1,10 +1,12 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/milestones.cy.ts
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Milestone Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/milestones'
+  // triggerCode is unique in the schema — a fixed value would collide with
+  // real milestones (or leftovers from a crashed run), so mint one per run.
+  const triggerCode = `cypress-milestone-${Date.now()}`
 
   let apiKey = ''
   let milestoneId: number
@@ -43,9 +45,9 @@ describe('Milestone Management API Tests', () => {
       },
       body: [
         {
-          label: 'Artist!',
+          label: 'Cypress Artist!',
           message: 'You made Art!',
-          triggerCode: 'Artist',
+          triggerCode,
           icon: 'kind-icon:palette-color',
           karma: 10,
           isRepeatable: true,
@@ -63,6 +65,7 @@ describe('Milestone Management API Tests', () => {
       milestoneId = response.body.data[0].id
 
       expect(milestoneId).to.be.a('number')
+      expect(response.body.data[0].triggerCode).to.eq(triggerCode)
     })
   })
 
@@ -80,7 +83,7 @@ describe('Milestone Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.have.property('id')
-      expect(response.body.data.label).to.eq('Artist!')
+      expect(response.body.data.label).to.eq('Cypress Artist!')
       expect(response.body.data).to.have.property('isActive')
     })
   })
@@ -95,7 +98,7 @@ describe('Milestone Management API Tests', () => {
         'Content-Type': 'application/json',
       },
       body: {
-        label: 'Master Artist!',
+        label: 'Cypress Master Artist!',
         message: 'You created a masterpiece!',
         karma: 20,
       },
@@ -113,7 +116,7 @@ describe('Milestone Management API Tests', () => {
       }).then((getResponse) => {
         expect(getResponse.status).to.eq(200)
         expect(getResponse.body.success).to.be.true
-        expect(getResponse.body.data.label).to.eq('Master Artist!')
+        expect(getResponse.body.data.label).to.eq('Cypress Master Artist!')
         expect(getResponse.body.data.message).to.eq(
           'You created a masterpiece!',
         )

@@ -107,6 +107,7 @@ export function fromSeedScenario(scenario: ScenarioSeedInput): ScenarioView {
     createdAt: scenario.createdAt ?? new Date(0),
     updatedAt: scenario.updatedAt ?? null,
     title: scenario.title ?? '',
+    slug: scenario.slug ?? null,
     outputType: scenario.outputType ?? 'STORY',
     description: scenario.description ?? '',
     intros: parseIntros(scenario.intros),

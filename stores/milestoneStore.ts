@@ -9,6 +9,7 @@ import { useUserStore } from './userStore'
 import { useErrorStore } from './errorStore'
 import { milestoneData } from './../training/milestoneData'
 import { performFetch, handleError } from './utils'
+import { slugify } from '~/utils/slugify'
 import type { ApiResponse } from '~/types/api'
 
 type UserScore = {
@@ -730,6 +731,29 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     }
   }
 
+  // Trigger a milestone by its unique triggerCode instead of a magic numeric
+  // id. Codes are canonical slugs (see utils/slugify), so call sites survive
+  // reseeded databases where ids shift.
+  async function rewardMilestoneByCode(code: string) {
+    const target = slugify(code)
+    if (!target) return
+
+    if (!milestones.value.length) {
+      await fetchMilestones()
+    }
+
+    const milestone = milestones.value.find(
+      (entry) => slugify(entry.triggerCode ?? '') === target,
+    )
+
+    if (!milestone) {
+      console.warn(`[milestoneStore] No milestone with triggerCode "${target}"`)
+      return
+    }
+
+    return rewardMilestone(milestone.id)
+  }
+
   async function clearAllMilestoneRecords() {
     try {
       const response = await performFetch(`/api/milestones/records/clear/`, {
@@ -780,6 +804,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     updateMilestonesFromData,
     deactivateMilestone,
     rewardMilestone,
+    rewardMilestoneByCode,
     migratePendingGuestMilestones,
 
     addMilestoneRecord,

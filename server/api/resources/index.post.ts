@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { normalizeSlugInput } from '~/utils/slugify'
 import type {
   Prisma,
   Resource,
@@ -198,6 +199,7 @@ async function buildCreateInput(
 
   return {
     name,
+    slug: normalizeSlugInput(entry.slug) ?? undefined,
     customLabel: getStringOrNull(entry.customLabel),
     MediaPath: getStringOrNull(entry.MediaPath),
     customUrl: getStringOrNull(entry.customUrl),
@@ -296,7 +298,6 @@ export default defineEventHandler(async (event) => {
                   title: true,
                   label: true,
                   serverType: true,
-                
                 },
               },
               UsedInImages: {
@@ -356,7 +357,6 @@ export default defineEventHandler(async (event) => {
             title: true,
             label: true,
             serverType: true,
-        
           },
         },
         UsedInImages: {

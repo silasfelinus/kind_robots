@@ -4,140 +4,127 @@
     class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
   >
     <header
-      class="shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
+      class="flex shrink-0 flex-wrap items-center gap-x-2.5 gap-y-1 rounded-xl border border-base-300/70 bg-base-100/90 px-3 py-1.5"
     >
-      <div class="relative isolate">
-        <div
-          class="absolute inset-0 bg-linear-to-br from-primary/10 via-secondary/5 to-accent/10"
+      <span class="flex items-center gap-1.5">
+        <Icon
+          name="kind-icon:gearhammer"
+          class="size-3.5 shrink-0 text-primary/70"
         />
+        <span class="text-xs font-semibold text-base-content/50">
+          {{ userStore.isAdmin ? 'Conductor' : 'Projects' }}
+        </span>
+      </span>
 
-        <div class="relative flex flex-col gap-3 p-3 sm:p-4">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p
-                class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary/70"
-              >
-                <Icon name="kind-icon:gearhammer" class="h-4 w-4" />
-                {{ userStore.isAdmin ? 'Conductor workspace' : 'Project gallery' }}
-              </p>
-
-              <h1
-                class="mt-1 text-2xl font-black leading-tight text-base-content sm:text-3xl"
-              >
-                Production-grade project galleries
-              </h1>
-
-              <p
-                class="mt-1 max-w-3xl text-sm font-medium leading-relaxed text-base-content/65"
-              >
-                Swap from image-first cards to text-first lists without losing
-                context. Tiny goblin UX crime scene: cleaned.
-              </p>
-            </div>
-
-            <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
-              <button
-                v-if="userStore.isAdmin"
-                type="button"
-                class="btn btn-primary btn-sm rounded-2xl text-white"
-                @click="startProjectDream"
-              >
-                <Icon name="kind-icon:plus" class="h-4 w-4" />
-                New project
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-ghost btn-sm rounded-2xl"
-                :disabled="isLoading"
-                @click="refreshGallery"
-              >
-                <span v-if="isLoading" class="loading loading-spinner loading-xs" />
-                <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              v-for="mode in galleryModeOptions"
-              :key="mode.value"
-              type="button"
-              class="btn btn-sm rounded-2xl"
-              :class="modeButtonClass(mode.value)"
-              :title="mode.label"
-              @click="projectGalleryMode = mode.value"
+      <template v-if="galleryItems.length">
+        <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
+        <span class="flex items-baseline gap-0.5">
+          <span class="text-sm font-black leading-none text-primary">{{
+            galleryItems.length
+          }}</span>
+          <span class="text-[0.62rem] font-semibold text-base-content/50">
+            project{{ galleryItems.length === 1 ? '' : 's' }}
+          </span>
+        </span>
+        <template v-if="humanQueueCount">
+          <span class="text-[0.7rem] text-base-content/20">·</span>
+          <span class="flex items-baseline gap-0.5">
+            <span class="text-sm font-black leading-none text-accent">{{
+              humanQueueCount
+            }}</span>
+            <span class="text-[0.62rem] font-semibold text-base-content/50"
+              >need you</span
             >
-              <Icon :name="mode.icon" class="h-4 w-4" />
-              <span class="font-black">{{ mode.abbr }}</span>
-              <span class="hidden text-xs font-semibold sm:inline">
-                {{ mode.label }}
-              </span>
-            </button>
-
-            <span class="ml-auto badge badge-primary badge-lg rounded-2xl">
-              {{ galleryItems.length }} project{{ galleryItems.length === 1 ? '' : 's' }}
-            </span>
-
-            <button
-              v-if="userStore.isAdmin"
-              type="button"
-              class="btn btn-outline btn-sm rounded-2xl"
-              @click="goToTasks"
+          </span>
+        </template>
+        <template v-if="blockedQueueCount">
+          <span class="text-[0.7rem] text-base-content/20">·</span>
+          <span class="flex items-baseline gap-0.5">
+            <span class="text-sm font-black leading-none text-error">{{
+              blockedQueueCount
+            }}</span>
+            <span class="text-[0.62rem] font-semibold text-base-content/50"
+              >blocked</span
             >
-              <Icon name="kind-icon:check" class="h-4 w-4" />
-              Tasks
-              <span
-                v-if="todoStore.openTodos.length"
-                class="badge badge-warning badge-sm"
-              >
-                {{ todoStore.openTodos.length }}
-              </span>
-            </button>
+          </span>
+        </template>
+        <span class="hidden text-[0.7rem] text-base-content/20 sm:inline"
+          >·</span
+        >
+        <span class="hidden items-baseline gap-0.5 sm:flex">
+          <span class="text-sm font-black leading-none text-info"
+            >{{ averageProgress }}%</span
+          >
+          <span class="text-[0.62rem] font-semibold text-base-content/50"
+            >avg</span
+          >
+        </span>
+      </template>
 
-            <button
-              v-if="userStore.isAdmin && brainstormCount"
-              type="button"
-              class="btn btn-secondary btn-sm rounded-2xl"
-              @click="goToBrainstorm"
-            >
-              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              Brainstorm
-              <span class="badge badge-sm">{{ brainstormCount }}</span>
-            </button>
-          </div>
+      <div class="flex-1" />
 
-          <div class="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
-            <div class="rounded-2xl border border-base-300 bg-base-200/70 p-3">
-              <p class="font-black text-base-content/40">Visible</p>
-              <p class="mt-1 text-xl font-black text-primary">
-                {{ galleryItems.length }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200/70 p-3">
-              <p class="font-black text-base-content/40">Need human</p>
-              <p class="mt-1 text-xl font-black text-accent">
-                {{ humanQueueCount }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200/70 p-3">
-              <p class="font-black text-base-content/40">Blocked</p>
-              <p class="mt-1 text-xl font-black text-error">
-                {{ blockedQueueCount }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200/70 p-3">
-              <p class="font-black text-base-content/40">Avg progress</p>
-              <p class="mt-1 text-xl font-black text-info">
-                {{ averageProgress }}%
-              </p>
-            </div>
-          </div>
-        </div>
+      <div class="flex items-center gap-0.5">
+        <button
+          v-for="mode in galleryModeOptions"
+          :key="mode.value"
+          type="button"
+          class="btn btn-xs rounded-md px-1.5"
+          :class="modeButtonClass(mode.value)"
+          :title="mode.label"
+          @click="projectGalleryMode = mode.value"
+        >
+          {{ mode.abbr }}
+        </button>
       </div>
+
+      <button
+        v-if="userStore.isAdmin"
+        type="button"
+        class="btn btn-ghost btn-xs gap-1 rounded-lg"
+        @click="goToTasks"
+      >
+        <Icon name="kind-icon:check" class="size-3" />
+        Tasks
+        <span
+          v-if="todoStore.openTodos.length"
+          class="badge badge-warning badge-xs"
+        >
+          {{ todoStore.openTodos.length }}
+        </span>
+      </button>
+
+      <button
+        v-if="userStore.isAdmin && brainstormCount"
+        type="button"
+        class="btn btn-ghost btn-xs gap-1 rounded-lg"
+        @click="goToBrainstorm"
+      >
+        <Icon name="kind-icon:sparkles" class="size-3" />
+        <span class="hidden sm:inline">Brainstorm</span>
+        <span class="badge badge-secondary badge-xs">{{
+          brainstormCount
+        }}</span>
+      </button>
+
+      <button
+        v-if="userStore.isAdmin"
+        type="button"
+        class="btn btn-primary btn-xs gap-1 rounded-lg"
+        @click="startProjectDream"
+      >
+        <Icon name="kind-icon:plus" class="size-3" />
+        New
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-ghost btn-xs rounded-lg"
+        :disabled="isLoading"
+        @click="refreshGallery"
+      >
+        <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+        <Icon v-else name="kind-icon:refresh" class="size-3.5" />
+      </button>
     </header>
 
     <main
@@ -185,13 +172,14 @@
 
       <section
         v-else-if="projectGalleryMode === 'cards'"
-        class="project-card-scroll flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4"
+        class="project-card-scroll flex h-full snap-x snap-proximity gap-4 overflow-x-auto overscroll-x-contain pb-1"
+        @wheel="handleCardWheel"
       >
         <button
           v-for="item in galleryItems"
           :key="item.slug"
           type="button"
-          class="group relative min-h-[28rem] min-w-[82vw] snap-start overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl sm:min-w-[22rem] md:min-w-[24rem] lg:min-w-[26rem]"
+          class="group relative aspect-[2/3] h-full max-w-[85vw] min-h-[24rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl"
           @click="openProject(item)"
         >
           <img
@@ -204,7 +192,9 @@
             class="absolute inset-0 bg-linear-to-t from-base-300 via-base-300/40 to-transparent"
           />
 
-          <div class="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
+          <div
+            class="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3"
+          >
             <span
               class="badge badge-sm rounded-2xl font-black"
               :class="priorityBadgeClass(item.priority)"
@@ -212,7 +202,10 @@
               {{ item.priority }}
             </span>
 
-            <span v-if="item.blocked" class="badge badge-error badge-sm rounded-2xl">
+            <span
+              v-if="item.blocked"
+              class="badge badge-error badge-sm rounded-2xl"
+            >
               {{ item.blocked }} blocked
             </span>
             <span
@@ -237,7 +230,9 @@
                 >
                   {{ item.title }}
                 </p>
-                <p class="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-base-content/70">
+                <p
+                  class="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-base-content/70"
+                >
                   {{ item.flavor }}
                 </p>
               </div>
@@ -253,7 +248,9 @@
                 <span>{{ item.progress }}%</span>
               </div>
 
-              <div class="mt-2 h-2 overflow-hidden rounded-full bg-base-content/15">
+              <div
+                class="mt-2 h-2 overflow-hidden rounded-full bg-base-content/15"
+              >
                 <div
                   class="h-full rounded-full transition-all"
                   :class="kindProgressClass(item.kind)"
@@ -286,7 +283,9 @@
             class="absolute inset-0 bg-linear-to-t from-base-300 via-base-300/45 to-transparent"
           />
 
-          <div class="absolute inset-x-0 bottom-0 p-4 transition-all duration-300">
+          <div
+            class="absolute inset-x-0 bottom-0 p-4 transition-all duration-300"
+          >
             <div class="flex items-end gap-3">
               <img
                 :src="item.iconPath"
@@ -295,10 +294,14 @@
               />
 
               <div class="min-w-0">
-                <p class="text-2xl font-black leading-tight text-base-content drop-shadow">
+                <p
+                  class="text-2xl font-black leading-tight text-base-content drop-shadow"
+                >
                   {{ item.title }}
                 </p>
-                <p class="line-clamp-2 text-sm font-semibold text-base-content/65">
+                <p
+                  class="line-clamp-2 text-sm font-semibold text-base-content/65"
+                >
                   {{ item.flavor }}
                 </p>
               </div>
@@ -307,7 +310,9 @@
             <div
               class="mt-3 max-h-0 overflow-hidden rounded-2xl border border-base-content/10 bg-base-100/85 opacity-0 shadow-sm backdrop-blur transition-all duration-300 group-hover:max-h-72 group-hover:p-3 group-hover:opacity-100 group-focus-visible:max-h-72 group-focus-visible:p-3 group-focus-visible:opacity-100"
             >
-              <p class="line-clamp-4 text-sm font-semibold leading-relaxed text-base-content/75">
+              <p
+                class="line-clamp-4 text-sm font-semibold leading-relaxed text-base-content/75"
+              >
                 {{ item.details }}
               </p>
 
@@ -373,13 +378,17 @@
               <p class="line-clamp-2 text-lg font-black leading-tight">
                 {{ item.title }}
               </p>
-              <p class="mt-1 text-xs font-bold uppercase tracking-widest text-base-content/40">
+              <p
+                class="mt-1 text-xs font-bold uppercase tracking-widest text-base-content/40"
+              >
                 {{ item.kindLabel }}
               </p>
             </div>
           </div>
 
-          <p class="line-clamp-3 text-sm font-semibold leading-relaxed text-base-content/70">
+          <p
+            class="line-clamp-3 text-sm font-semibold leading-relaxed text-base-content/70"
+          >
             {{ item.details }}
           </p>
 
@@ -393,7 +402,10 @@
             <span class="badge badge-ghost badge-sm rounded-2xl">
               {{ item.status }}
             </span>
-            <span v-if="item.totalTasks" class="badge badge-info badge-sm rounded-2xl">
+            <span
+              v-if="item.totalTasks"
+              class="badge badge-info badge-sm rounded-2xl"
+            >
               {{ item.totalTasks }} tasks
             </span>
             <span
@@ -422,14 +434,18 @@
           class="group grid gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 text-left shadow-sm transition-all hover:border-primary/50 hover:bg-base-100 hover:shadow-md md:grid-cols-[11rem_1fr_auto]"
           @click="openProject(item)"
         >
-          <div class="relative min-h-36 overflow-hidden rounded-2xl bg-base-300 md:min-h-full">
+          <div
+            class="relative min-h-36 overflow-hidden rounded-2xl bg-base-300 md:min-h-full"
+          >
             <img
               :src="item.heroPath"
               :alt="item.title"
               class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
 
-            <div class="absolute inset-0 bg-linear-to-t from-base-300/80 to-transparent" />
+            <div
+              class="absolute inset-0 bg-linear-to-t from-base-300/80 to-transparent"
+            />
 
             <img
               :src="item.iconPath"
@@ -449,7 +465,10 @@
               <span class="badge badge-ghost badge-sm rounded-2xl">
                 {{ item.kindLabel }}
               </span>
-              <span v-if="item.status" class="badge badge-outline badge-sm rounded-2xl">
+              <span
+                v-if="item.status"
+                class="badge badge-outline badge-sm rounded-2xl"
+              >
                 {{ item.status }}
               </span>
             </div>
@@ -460,7 +479,9 @@
             <p class="mt-1 text-sm font-bold text-primary/80">
               {{ item.flavor }}
             </p>
-            <p class="mt-2 line-clamp-3 text-sm leading-relaxed text-base-content/70">
+            <p
+              class="mt-2 line-clamp-3 text-sm leading-relaxed text-base-content/70"
+            >
               {{ item.details }}
             </p>
             <p
@@ -474,9 +495,15 @@
           <aside
             class="flex flex-row flex-wrap items-end gap-2 md:w-36 md:flex-col md:flex-nowrap md:items-stretch"
           >
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center">
-              <p class="text-2xl font-black text-primary">{{ item.progress }}%</p>
-              <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
+            <div
+              class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
+            >
+              <p class="text-2xl font-black text-primary">
+                {{ item.progress }}%
+              </p>
+              <p
+                class="text-xs font-black uppercase tracking-widest text-base-content/40"
+              >
                 progress
               </p>
             </div>
@@ -567,7 +594,9 @@ const userStore = useUserStore()
 const projectGalleryMode = ref<GalleryMode>('cards')
 
 const isLoading = computed(() => conductorStore.pending || dreamStore.loading)
-const errorMessage = computed(() => conductorStore.error || dreamStore.error || '')
+const errorMessage = computed(
+  () => conductorStore.error || dreamStore.error || '',
+)
 const brainstormCount = computed(
   () => conductorStore.pendingPitches.length + brainstormProjects.value.length,
 )
@@ -588,8 +617,12 @@ const sortedActiveProjects = computed(() => {
   const order: Record<DreamPriority, number> = { HIGH: 0, NORMAL: 1, LOW: 2 }
 
   return [...activeProjects.value].sort((a, b) => {
-    const aPriority = conductorStore.getProjectPriority(projectDreamForSlug(a.slug)?.id)
-    const bPriority = conductorStore.getProjectPriority(projectDreamForSlug(b.slug)?.id)
+    const aPriority = conductorStore.getProjectPriority(
+      projectDreamForSlug(a.slug)?.id,
+    )
+    const bPriority = conductorStore.getProjectPriority(
+      projectDreamForSlug(b.slug)?.id,
+    )
 
     return (order[aPriority] ?? 1) - (order[bPriority] ?? 1)
   })
@@ -659,7 +692,9 @@ const workspaceCards = computed<BuilderCard[]>(() => {
   }
 
   for (const item of galleryItems.value) {
-    cards.push(makeCard(item.slug, item.title, kindIcon(item.kind), item.cardPath))
+    cards.push(
+      makeCard(item.slug, item.title, kindIcon(item.kind), item.cardPath),
+    )
   }
 
   return cards
@@ -684,7 +719,9 @@ watch(projectGalleryMode, (mode) => {
 
 onMounted(async () => {
   if (import.meta.client) {
-    const saved = localStorage.getItem('conductor-gallery-mode') as GalleryMode | null
+    const saved = localStorage.getItem(
+      'conductor-gallery-mode',
+    ) as GalleryMode | null
     if (saved && galleryModeOptions.some((mode) => mode.value === saved)) {
       projectGalleryMode.value = saved
     }
@@ -703,7 +740,11 @@ async function ensureData(force = false) {
     return
   }
 
-  if (force || !dreamStore.hasLoaded || !dreamStore.publicProjectDreams.length) {
+  if (
+    force ||
+    !dreamStore.hasLoaded ||
+    !dreamStore.publicProjectDreams.length
+  ) {
     await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
   }
 }
@@ -749,7 +790,10 @@ function itemFromProject(project: ConductorProject): ProjectGalleryItem {
   return {
     slug: project.slug,
     title: project.name || getDreamTitle(dream) || project.slug,
-    flavor: dream?.flavorText || project.notesFromSilas || 'Active Kind Robots project.',
+    flavor:
+      dream?.flavorText ||
+      project.notesFromSilas ||
+      'Active Kind Robots project.',
     details,
     notes: project.notesFromSilas || '',
     kind: project.kind || 'project',
@@ -785,7 +829,8 @@ function itemFromDream(dream: DreamWithRelations): ProjectGalleryItem {
   return {
     slug: dream.slug || `dream-${dream.id}`,
     title: getDreamTitle(dream),
-    flavor: dream.flavorText || dream.pitch || 'Public project from Kind Robots.',
+    flavor:
+      dream.flavorText || dream.pitch || 'Public project from Kind Robots.',
     details:
       dream.description ||
       dream.pitch ||
@@ -805,7 +850,8 @@ function itemFromDream(dream: DreamWithRelations): ProjectGalleryItem {
     done: dream.projectStatus === 'DONE' ? 1 : 0,
     totalTasks: 0,
     dreamId: dream.id,
-    iconPath: dream.imagePath || `${CONDUCTOR_IMG_BASE}/${dream.slug}-icon.webp`,
+    iconPath:
+      dream.imagePath || `${CONDUCTOR_IMG_BASE}/${dream.slug}-icon.webp`,
     cardPath: dream.cardPath || `${CONDUCTOR_IMG_BASE}/${dream.slug}-card.webp`,
     heroPath: dream.heroPath || `${CONDUCTOR_IMG_BASE}/${dream.slug}-hero.webp`,
     liveUrl: dream.liveUrl || '',
@@ -866,7 +912,21 @@ function goToBrainstorm() {
 }
 
 function modeButtonClass(mode: GalleryMode) {
-  return projectGalleryMode.value === mode ? 'btn-primary text-white' : 'btn-ghost'
+  return projectGalleryMode.value === mode
+    ? 'btn-primary text-white'
+    : 'btn-ghost'
+}
+
+// Mouse wheels only emit vertical deltas, so translate them into horizontal
+// travel for the card strip. Trackpads with real horizontal deltas pass through.
+function handleCardWheel(event: WheelEvent) {
+  if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
+
+  const el = event.currentTarget as HTMLElement | null
+  if (!el || el.scrollWidth <= el.clientWidth) return
+
+  event.preventDefault()
+  el.scrollLeft += event.deltaY
 }
 
 function priorityBadgeClass(priority: DreamPriority): string {

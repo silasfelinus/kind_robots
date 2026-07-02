@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { normalizeSlugInput } from '~/utils/slugify'
 import { Prisma } from '~/prisma/generated/prisma/client'
 import type {
   Scenario,
@@ -10,6 +11,7 @@ import type {
 
 type ScenarioPostInput = {
   title?: unknown
+  slug?: unknown
   description?: unknown
   intros?: unknown
   outputType?: unknown // ← NEW
@@ -203,6 +205,7 @@ function buildScenarioCreateInput(
   return {
     User: { connect: { id: authenticatedUserId } },
     title,
+    slug: normalizeSlugInput(scenarioData.slug) ?? undefined,
     description: normalizeString(scenarioData.description),
     intros: normalizeIntros(scenarioData.intros),
     outputType: normalizeOutputType(scenarioData.outputType), // ← NEW

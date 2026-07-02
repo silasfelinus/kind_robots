@@ -81,6 +81,7 @@ model ArtCollection {
   updatedAt     DateTime?  @default(now()) @updatedAt
   userId        Int        @default(10)
   label         String?
+  slug          String?    @unique @db.VarChar(255)
   isMature      Boolean    @default(false)
   isPublic      Boolean    @default(true)
   imagePath     String?    @db.VarChar(764)
@@ -583,7 +584,7 @@ model Milestone {
   karma            Int               @default(0)
   pageHint         String?           @db.VarChar(764)
   subtleHint       String?           @db.VarChar(764)
-  triggerCode      String?           @db.VarChar(764)
+  triggerCode      String?           @unique(length: 255) @db.VarChar(764)
   tooltip          String?           @db.VarChar(764)
   isActive         Boolean           @default(false)
   isRepeatable     Boolean           @default(true)
@@ -855,6 +856,7 @@ model Resource {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime?       @default(now()) @updatedAt
   name            String          @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
+  slug            String?         @unique @db.VarChar(255)
   customLabel     String?         @db.VarChar(764)
   MediaPath       String?         @db.VarChar(764)
   customUrl       String?         @db.VarChar(764)
@@ -927,6 +929,7 @@ model Scenario {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime?          @default(now()) @updatedAt
   title        String
+  slug         String?            @unique @db.VarChar(255)
   description  String             @db.Text
   intros       String             @db.Text
   userId       Int

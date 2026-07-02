@@ -42,6 +42,7 @@ export type ArtCollectionMinAggregateOutputType = {
   updatedAt: Date | null
   userId: number | null
   label: string | null
+  slug: string | null
   isMature: boolean | null
   isPublic: boolean | null
   imagePath: string | null
@@ -57,6 +58,7 @@ export type ArtCollectionMaxAggregateOutputType = {
   updatedAt: Date | null
   userId: number | null
   label: string | null
+  slug: string | null
   isMature: boolean | null
   isPublic: boolean | null
   imagePath: string | null
@@ -72,6 +74,7 @@ export type ArtCollectionCountAggregateOutputType = {
   updatedAt: number
   userId: number
   label: number
+  slug: number
   isMature: number
   isPublic: number
   imagePath: number
@@ -99,6 +102,7 @@ export type ArtCollectionMinAggregateInputType = {
   updatedAt?: true
   userId?: true
   label?: true
+  slug?: true
   isMature?: true
   isPublic?: true
   imagePath?: true
@@ -114,6 +118,7 @@ export type ArtCollectionMaxAggregateInputType = {
   updatedAt?: true
   userId?: true
   label?: true
+  slug?: true
   isMature?: true
   isPublic?: true
   imagePath?: true
@@ -129,6 +134,7 @@ export type ArtCollectionCountAggregateInputType = {
   updatedAt?: true
   userId?: true
   label?: true
+  slug?: true
   isMature?: true
   isPublic?: true
   imagePath?: true
@@ -231,6 +237,7 @@ export type ArtCollectionGroupByOutputType = {
   updatedAt: Date | null
   userId: number
   label: string | null
+  slug: string | null
   isMature: boolean
   isPublic: boolean
   imagePath: string | null
@@ -269,6 +276,7 @@ export type ArtCollectionWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"ArtCollection"> | Date | string | null
   userId?: Prisma.IntFilter<"ArtCollection"> | number
   label?: Prisma.StringNullableFilter<"ArtCollection"> | string | null
+  slug?: Prisma.StringNullableFilter<"ArtCollection"> | string | null
   isMature?: Prisma.BoolFilter<"ArtCollection"> | boolean
   isPublic?: Prisma.BoolFilter<"ArtCollection"> | boolean
   imagePath?: Prisma.StringNullableFilter<"ArtCollection"> | string | null
@@ -289,6 +297,7 @@ export type ArtCollectionOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -306,6 +315,7 @@ export type ArtCollectionOrderByWithRelationInput = {
 
 export type ArtCollectionWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  slug?: string
   AND?: Prisma.ArtCollectionWhereInput | Prisma.ArtCollectionWhereInput[]
   OR?: Prisma.ArtCollectionWhereInput[]
   NOT?: Prisma.ArtCollectionWhereInput | Prisma.ArtCollectionWhereInput[]
@@ -325,7 +335,7 @@ export type ArtCollectionWhereUniqueInput = Prisma.AtLeast<{
   Dreams?: Prisma.DreamListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
-}, "id">
+}, "id" | "slug">
 
 export type ArtCollectionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -333,6 +343,7 @@ export type ArtCollectionOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -356,6 +367,7 @@ export type ArtCollectionScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ArtCollection"> | Date | string | null
   userId?: Prisma.IntWithAggregatesFilter<"ArtCollection"> | number
   label?: Prisma.StringNullableWithAggregatesFilter<"ArtCollection"> | string | null
+  slug?: Prisma.StringNullableWithAggregatesFilter<"ArtCollection"> | string | null
   isMature?: Prisma.BoolWithAggregatesFilter<"ArtCollection"> | boolean
   isPublic?: Prisma.BoolWithAggregatesFilter<"ArtCollection"> | boolean
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"ArtCollection"> | string | null
@@ -369,6 +381,7 @@ export type ArtCollectionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -389,6 +402,7 @@ export type ArtCollectionUncheckedCreateInput = {
   updatedAt?: Date | string | null
   userId?: number
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -406,6 +420,7 @@ export type ArtCollectionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -426,6 +441,7 @@ export type ArtCollectionUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -445,6 +461,7 @@ export type ArtCollectionCreateManyInput = {
   updatedAt?: Date | string | null
   userId?: number
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -458,6 +475,7 @@ export type ArtCollectionUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -473,6 +491,7 @@ export type ArtCollectionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -504,6 +523,7 @@ export type ArtCollectionCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -524,6 +544,7 @@ export type ArtCollectionMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -539,6 +560,7 @@ export type ArtCollectionMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -716,6 +738,7 @@ export type ArtCollectionCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -735,6 +758,7 @@ export type ArtCollectionUncheckedCreateWithoutArtImagesInput = {
   updatedAt?: Date | string | null
   userId?: number
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -777,6 +801,7 @@ export type ArtCollectionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"ArtCollection"> | Date | string | null
   userId?: Prisma.IntFilter<"ArtCollection"> | number
   label?: Prisma.StringNullableFilter<"ArtCollection"> | string | null
+  slug?: Prisma.StringNullableFilter<"ArtCollection"> | string | null
   isMature?: Prisma.BoolFilter<"ArtCollection"> | boolean
   isPublic?: Prisma.BoolFilter<"ArtCollection"> | boolean
   imagePath?: Prisma.StringNullableFilter<"ArtCollection"> | string | null
@@ -790,6 +815,7 @@ export type ArtCollectionCreateWithoutDreamsPrimaryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -809,6 +835,7 @@ export type ArtCollectionUncheckedCreateWithoutDreamsPrimaryInput = {
   updatedAt?: Date | string | null
   userId?: number
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -830,6 +857,7 @@ export type ArtCollectionCreateWithoutDreamsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -849,6 +877,7 @@ export type ArtCollectionUncheckedCreateWithoutDreamsInput = {
   updatedAt?: Date | string | null
   userId?: number
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -881,6 +910,7 @@ export type ArtCollectionUpdateWithoutDreamsPrimaryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -900,6 +930,7 @@ export type ArtCollectionUncheckedUpdateWithoutDreamsPrimaryInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -932,6 +963,7 @@ export type ArtCollectionCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -951,6 +983,7 @@ export type ArtCollectionUncheckedCreateWithoutReactionsInput = {
   updatedAt?: Date | string | null
   userId?: number
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -983,6 +1016,7 @@ export type ArtCollectionUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1002,6 +1036,7 @@ export type ArtCollectionUncheckedUpdateWithoutReactionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1018,6 +1053,7 @@ export type ArtCollectionCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -1036,6 +1072,7 @@ export type ArtCollectionUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -1079,6 +1116,7 @@ export type ArtCollectionUpdateWithoutArtImagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1098,6 +1136,7 @@ export type ArtCollectionUncheckedUpdateWithoutArtImagesInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1116,6 +1155,7 @@ export type ArtCollectionUncheckedUpdateManyWithoutArtImagesInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1129,6 +1169,7 @@ export type ArtCollectionUpdateWithoutDreamsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1148,6 +1189,7 @@ export type ArtCollectionUncheckedUpdateWithoutDreamsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1166,6 +1208,7 @@ export type ArtCollectionUncheckedUpdateManyWithoutDreamsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1180,6 +1223,7 @@ export type ArtCollectionCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label?: string | null
+  slug?: string | null
   isMature?: boolean
   isPublic?: boolean
   imagePath?: string | null
@@ -1193,6 +1237,7 @@ export type ArtCollectionUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1211,6 +1256,7 @@ export type ArtCollectionUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1229,6 +1275,7 @@ export type ArtCollectionUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1302,6 +1349,7 @@ export type ArtCollectionSelect<ExtArgs extends runtime.Types.Extensions.Interna
   updatedAt?: boolean
   userId?: boolean
   label?: boolean
+  slug?: boolean
   isMature?: boolean
   isPublic?: boolean
   imagePath?: boolean
@@ -1325,6 +1373,7 @@ export type ArtCollectionSelectScalar = {
   updatedAt?: boolean
   userId?: boolean
   label?: boolean
+  slug?: boolean
   isMature?: boolean
   isPublic?: boolean
   imagePath?: boolean
@@ -1334,7 +1383,7 @@ export type ArtCollectionSelectScalar = {
   artPrompt?: boolean
 }
 
-export type ArtCollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "label" | "isMature" | "isPublic" | "imagePath" | "description" | "username" | "isActive" | "artPrompt", ExtArgs["result"]["artCollection"]>
+export type ArtCollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "label" | "slug" | "isMature" | "isPublic" | "imagePath" | "description" | "username" | "isActive" | "artPrompt", ExtArgs["result"]["artCollection"]>
 export type ArtCollectionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   DreamsPrimary?: boolean | Prisma.ArtCollection$DreamsPrimaryArgs<ExtArgs>
@@ -1359,6 +1408,7 @@ export type $ArtCollectionPayload<ExtArgs extends runtime.Types.Extensions.Inter
     updatedAt: Date | null
     userId: number
     label: string | null
+    slug: string | null
     isMature: boolean
     isPublic: boolean
     imagePath: string | null
@@ -1745,6 +1795,7 @@ export interface ArtCollectionFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"ArtCollection", 'DateTime'>
   readonly userId: Prisma.FieldRef<"ArtCollection", 'Int'>
   readonly label: Prisma.FieldRef<"ArtCollection", 'String'>
+  readonly slug: Prisma.FieldRef<"ArtCollection", 'String'>
   readonly isMature: Prisma.FieldRef<"ArtCollection", 'Boolean'>
   readonly isPublic: Prisma.FieldRef<"ArtCollection", 'Boolean'>
   readonly imagePath: Prisma.FieldRef<"ArtCollection", 'String'>

@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import type { Prisma, Milestone } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { slugify } from '~/utils/slugify'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -74,7 +75,11 @@ async function createMilestonesBatch(
 
     try {
       const milestone = await prisma.milestone.create({
-        data: data as Prisma.MilestoneCreateInput,
+        data: {
+          ...(data as Prisma.MilestoneCreateInput),
+          // triggerCode is the unique trigger key — enforce canonical slug form
+          triggerCode: slugify(String(data.triggerCode)),
+        },
       })
       createdMilestones.push(milestone)
     } catch (error) {

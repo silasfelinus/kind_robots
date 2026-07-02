@@ -150,6 +150,7 @@ export const ArtCollectionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   userId: 'userId',
   label: 'label',
+  slug: 'slug',
   isMature: 'isMature',
   isPublic: 'isPublic',
   imagePath: 'imagePath',
@@ -634,6 +635,7 @@ export const ResourceScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   name: 'name',
+  slug: 'slug',
   customLabel: 'customLabel',
   MediaPath: 'MediaPath',
   customUrl: 'customUrl',
@@ -686,6 +688,7 @@ export const ScenarioScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   title: 'title',
+  slug: 'slug',
   description: 'description',
   intros: 'intros',
   userId: 'userId',
@@ -1008,6 +1011,7 @@ export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevance
 
 export const ArtCollectionOrderByRelevanceFieldEnum = {
   label: 'label',
+  slug: 'slug',
   imagePath: 'imagePath',
   description: 'description',
   username: 'username',
@@ -1301,6 +1305,7 @@ export type ReactionOrderByRelevanceFieldEnum = (typeof ReactionOrderByRelevance
 
 export const ResourceOrderByRelevanceFieldEnum = {
   name: 'name',
+  slug: 'slug',
   customLabel: 'customLabel',
   MediaPath: 'MediaPath',
   customUrl: 'customUrl',
@@ -1333,6 +1338,7 @@ export type RewardOrderByRelevanceFieldEnum = (typeof RewardOrderByRelevanceFiel
 
 export const ScenarioOrderByRelevanceFieldEnum = {
   title: 'title',
+  slug: 'slug',
   description: 'description',
   intros: 'intros',
   imagePath: 'imagePath',

@@ -43,6 +43,7 @@ export type ResourceMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   name: string | null
+  slug: string | null
   customLabel: string | null
   MediaPath: string | null
   customUrl: string | null
@@ -67,6 +68,7 @@ export type ResourceMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   name: string | null
+  slug: string | null
   customLabel: string | null
   MediaPath: string | null
   customUrl: string | null
@@ -91,6 +93,7 @@ export type ResourceCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   name: number
+  slug: number
   customLabel: number
   MediaPath: number
   customUrl: number
@@ -129,6 +132,7 @@ export type ResourceMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   name?: true
+  slug?: true
   customLabel?: true
   MediaPath?: true
   customUrl?: true
@@ -153,6 +157,7 @@ export type ResourceMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   name?: true
+  slug?: true
   customLabel?: true
   MediaPath?: true
   customUrl?: true
@@ -177,6 +182,7 @@ export type ResourceCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   name?: true
+  slug?: true
   customLabel?: true
   MediaPath?: true
   customUrl?: true
@@ -288,6 +294,7 @@ export type ResourceGroupByOutputType = {
   createdAt: Date
   updatedAt: Date | null
   name: string
+  slug: string | null
   customLabel: string | null
   MediaPath: string | null
   customUrl: string | null
@@ -335,6 +342,7 @@ export type ResourceWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Resource"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Resource"> | Date | string | null
   name?: Prisma.StringFilter<"Resource"> | string
+  slug?: Prisma.StringNullableFilter<"Resource"> | string | null
   customLabel?: Prisma.StringNullableFilter<"Resource"> | string | null
   MediaPath?: Prisma.StringNullableFilter<"Resource"> | string | null
   customUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
@@ -365,6 +373,7 @@ export type ResourceOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   customLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   MediaPath?: Prisma.SortOrderInput | Prisma.SortOrder
   customUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -394,6 +403,7 @@ export type ResourceOrderByWithRelationInput = {
 export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   name?: string
+  slug?: string
   AND?: Prisma.ResourceWhereInput | Prisma.ResourceWhereInput[]
   OR?: Prisma.ResourceWhereInput[]
   NOT?: Prisma.ResourceWhereInput | Prisma.ResourceWhereInput[]
@@ -422,13 +432,14 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Servers?: Prisma.ServerListRelationFilter
-}, "id" | "name">
+}, "id" | "name" | "slug">
 
 export type ResourceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   customLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   MediaPath?: Prisma.SortOrderInput | Prisma.SortOrder
   customUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -461,6 +472,7 @@ export type ResourceScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Resource"> | Date | string
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Resource"> | Date | string | null
   name?: Prisma.StringWithAggregatesFilter<"Resource"> | string
+  slug?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   customLabel?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   MediaPath?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   customUrl?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
@@ -484,6 +496,7 @@ export type ResourceCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -512,6 +525,7 @@ export type ResourceUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -539,6 +553,7 @@ export type ResourceUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -567,6 +582,7 @@ export type ResourceUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -595,6 +611,7 @@ export type ResourceCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -618,6 +635,7 @@ export type ResourceUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -640,6 +658,7 @@ export type ResourceUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -685,6 +704,7 @@ export type ResourceCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   customLabel?: Prisma.SortOrder
   MediaPath?: Prisma.SortOrder
   customUrl?: Prisma.SortOrder
@@ -715,6 +735,7 @@ export type ResourceMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   customLabel?: Prisma.SortOrder
   MediaPath?: Prisma.SortOrder
   customUrl?: Prisma.SortOrder
@@ -739,6 +760,7 @@ export type ResourceMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   customLabel?: Prisma.SortOrder
   MediaPath?: Prisma.SortOrder
   customUrl?: Prisma.SortOrder
@@ -968,6 +990,7 @@ export type ResourceCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -995,6 +1018,7 @@ export type ResourceUncheckedCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1026,6 +1050,7 @@ export type ResourceCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1053,6 +1078,7 @@ export type ResourceUncheckedCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1089,6 +1115,7 @@ export type ResourceCreateWithoutUsedInImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1116,6 +1143,7 @@ export type ResourceUncheckedCreateWithoutUsedInImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1158,6 +1186,7 @@ export type ResourceUpdateWithoutArtImagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1185,6 +1214,7 @@ export type ResourceUncheckedUpdateWithoutArtImagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1231,6 +1261,7 @@ export type ResourceScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Resource"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Resource"> | Date | string | null
   name?: Prisma.StringFilter<"Resource"> | string
+  slug?: Prisma.StringNullableFilter<"Resource"> | string | null
   customLabel?: Prisma.StringNullableFilter<"Resource"> | string | null
   MediaPath?: Prisma.StringNullableFilter<"Resource"> | string | null
   customUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
@@ -1270,6 +1301,7 @@ export type ResourceCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1297,6 +1329,7 @@ export type ResourceUncheckedCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1339,6 +1372,7 @@ export type ResourceUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1366,6 +1400,7 @@ export type ResourceUncheckedUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1392,6 +1427,7 @@ export type ResourceCreateWithoutServersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1419,6 +1455,7 @@ export type ResourceUncheckedCreateWithoutServersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1466,6 +1503,7 @@ export type ResourceCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1493,6 +1531,7 @@ export type ResourceUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1546,6 +1585,7 @@ export type ResourceCreateManyArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1568,6 +1608,7 @@ export type ResourceUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1595,6 +1636,7 @@ export type ResourceUncheckedUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1622,6 +1664,7 @@ export type ResourceUncheckedUpdateManyWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1644,6 +1687,7 @@ export type ResourceUpdateWithoutUsedInImagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1671,6 +1715,7 @@ export type ResourceUncheckedUpdateWithoutUsedInImagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1698,6 +1743,7 @@ export type ResourceUncheckedUpdateManyWithoutUsedInImagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1721,6 +1767,7 @@ export type ResourceUpdateWithoutServersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1748,6 +1795,7 @@ export type ResourceUncheckedUpdateWithoutServersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1775,6 +1823,7 @@ export type ResourceUncheckedUpdateManyWithoutServersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1799,6 +1848,7 @@ export type ResourceCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
+  slug?: string | null
   customLabel?: string | null
   MediaPath?: string | null
   customUrl?: string | null
@@ -1821,6 +1871,7 @@ export type ResourceUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1848,6 +1899,7 @@ export type ResourceUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1875,6 +1927,7 @@ export type ResourceUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MediaPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1956,6 +2009,7 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   updatedAt?: boolean
   name?: boolean
+  slug?: boolean
   customLabel?: boolean
   MediaPath?: boolean
   customUrl?: boolean
@@ -1989,6 +2043,7 @@ export type ResourceSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   name?: boolean
+  slug?: boolean
   customLabel?: boolean
   MediaPath?: boolean
   customUrl?: boolean
@@ -2008,7 +2063,7 @@ export type ResourceSelectScalar = {
   artPrompt?: boolean
 }
 
-export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isMature" | "resourceType" | "userId" | "artImageId" | "imagePath" | "generation" | "supportedServer" | "isPublic" | "isActive" | "artPrompt", ExtArgs["result"]["resource"]>
+export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "slug" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isMature" | "resourceType" | "userId" | "artImageId" | "imagePath" | "generation" | "supportedServer" | "isPublic" | "isActive" | "artPrompt", ExtArgs["result"]["resource"]>
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImages?: boolean | Prisma.Resource$ArtImagesArgs<ExtArgs>
   UsedInImages?: boolean | Prisma.Resource$UsedInImagesArgs<ExtArgs>
@@ -2034,6 +2089,7 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     createdAt: Date
     updatedAt: Date | null
     name: string
+    slug: string | null
     customLabel: string | null
     MediaPath: string | null
     customUrl: string | null
@@ -2430,6 +2486,7 @@ export interface ResourceFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Resource", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Resource", 'DateTime'>
   readonly name: Prisma.FieldRef<"Resource", 'String'>
+  readonly slug: Prisma.FieldRef<"Resource", 'String'>
   readonly customLabel: Prisma.FieldRef<"Resource", 'String'>
   readonly MediaPath: Prisma.FieldRef<"Resource", 'String'>
   readonly customUrl: Prisma.FieldRef<"Resource", 'String'>

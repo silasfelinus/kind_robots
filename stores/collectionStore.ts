@@ -4,6 +4,7 @@ import { computed, reactive, ref, toRefs, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { performFetch, handleError } from './utils'
+import { slugify } from '~/utils/slugify'
 import {
   isArtInCollection,
   findCollectionByUserAndLabel,
@@ -315,6 +316,20 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     return state.collections.find((collection) => {
       return collection.id === collectionId
     })
+  }
+
+  // Slug is the stable cross-system key (conductor projects, dreams). Falls
+  // back to a slugified label match so unslugged legacy collections still bind.
+  function findCollectionBySlug(slug: string): ArtCollection | undefined {
+    const target = slugify(slug)
+    if (!target) return undefined
+
+    return (
+      state.collections.find((collection) => collection.slug === target) ??
+      state.collections.find(
+        (collection) => slugify(collection.label ?? '') === target,
+      )
+    )
   }
 
   function getCurrentUserId(): number {
@@ -1018,6 +1033,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     resetCollectionFetchState,
 
     findCollectionById: findCollectionByIdLocal,
+    findCollectionBySlug,
     findCollectionByUserAndLabel,
 
     isArtInCollection,

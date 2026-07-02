@@ -100,6 +100,7 @@ export default defineEventHandler(async (event) => {
       updatedAt: true,
       userId: true,
       label: true,
+      slug: true,
       isMature: true,
       isPublic: true,
       isActive: true,

@@ -73,7 +73,7 @@
         No inspiration art yet.
       </p>
       <p class="max-w-xs text-xs text-base-content/35">
-        Create an art collection named
+        Give an art collection the slug (or name)
         <strong class="text-base-content/60">{{ slug }}</strong> and its images
         will slideshow here.
       </p>
@@ -125,13 +125,6 @@ const activeIndex = ref(0)
 const paused = ref(false)
 const failedSrcs = ref<Set<string>>(new Set())
 
-function normalizeKey(value: string | null | undefined): string {
-  return String(value ?? '')
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_]+/g, '-')
-}
-
 function normalizeImageSrc(value: string | null | undefined): string {
   if (!value) return ''
   const trimmed = value.trim()
@@ -149,17 +142,12 @@ function normalizeImageSrc(value: string | null | undefined): string {
   return `/images/${clean}`
 }
 
+// Prefer the stable slug binding; the store helper falls back to a slugified
+// label match so unslugged legacy collections still show.
 const matchedCollection = computed(() => {
-  const target = normalizeKey(props.slug)
-  if (!target) return null
-  const collections = Array.isArray(collectionStore.collections)
-    ? collectionStore.collections
-    : []
-  return (
-    collections.find(
-      (collection) => normalizeKey(collection.label) === target,
-    ) ?? null
-  )
+  // Touch collections so this recomputes when fetchCollections resolves.
+  void collectionStore.collections
+  return collectionStore.findCollectionBySlug?.(props.slug) ?? null
 })
 
 const collectionSlides = computed<Slide[]>(() => {

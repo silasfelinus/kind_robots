@@ -3,11 +3,13 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { normalizeSlugInput } from '~/utils/slugify'
 import { Prisma } from '~/prisma/generated/prisma/client'
 import type { ScenarioOutputType } from '~/prisma/generated/prisma/client'
 
 type ScenarioPatchInput = {
   title?: unknown
+  slug?: unknown
   description?: unknown
   intros?: unknown
   outputType?: unknown // ← NEW
@@ -284,6 +286,7 @@ async function buildScenarioUpdateInput(
   const data: Prisma.ScenarioUpdateInput = {}
 
   if ('title' in body) data.title = normalizeRequiredString(body.title, 'title')
+  if ('slug' in body) data.slug = normalizeSlugInput(body.slug)
   if ('description' in body) {
     data.description = normalizeString(body.description, 'description')
   }

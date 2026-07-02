@@ -45,6 +45,7 @@ export type ScenarioMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   title: string | null
+  slug: string | null
   description: string | null
   intros: string | null
   userId: number | null
@@ -69,6 +70,7 @@ export type ScenarioMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   title: string | null
+  slug: string | null
   description: string | null
   intros: string | null
   userId: number | null
@@ -93,6 +95,7 @@ export type ScenarioCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   title: number
+  slug: number
   description: number
   intros: number
   userId: number
@@ -134,6 +137,7 @@ export type ScenarioMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   title?: true
+  slug?: true
   description?: true
   intros?: true
   userId?: true
@@ -158,6 +162,7 @@ export type ScenarioMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   title?: true
+  slug?: true
   description?: true
   intros?: true
   userId?: true
@@ -182,6 +187,7 @@ export type ScenarioCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   title?: true
+  slug?: true
   description?: true
   intros?: true
   userId?: true
@@ -294,6 +300,7 @@ export type ScenarioGroupByOutputType = {
   createdAt: Date
   updatedAt: Date | null
   title: string
+  slug: string | null
   description: string
   intros: string
   userId: number
@@ -342,6 +349,7 @@ export type ScenarioWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Scenario"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Scenario"> | Date | string | null
   title?: Prisma.StringFilter<"Scenario"> | string
+  slug?: Prisma.StringNullableFilter<"Scenario"> | string | null
   description?: Prisma.StringFilter<"Scenario"> | string
   intros?: Prisma.StringFilter<"Scenario"> | string
   userId?: Prisma.IntFilter<"Scenario"> | number
@@ -373,6 +381,7 @@ export type ScenarioOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
   intros?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -402,6 +411,7 @@ export type ScenarioOrderByWithRelationInput = {
 
 export type ScenarioWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  slug?: string
   AND?: Prisma.ScenarioWhereInput | Prisma.ScenarioWhereInput[]
   OR?: Prisma.ScenarioWhereInput[]
   NOT?: Prisma.ScenarioWhereInput | Prisma.ScenarioWhereInput[]
@@ -432,13 +442,14 @@ export type ScenarioWhereUniqueInput = Prisma.AtLeast<{
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Characters?: Prisma.CharacterListRelationFilter
   Compositions?: Prisma.CompositionListRelationFilter
-}, "id">
+}, "id" | "slug">
 
 export type ScenarioOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
   intros?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -472,6 +483,7 @@ export type ScenarioScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Scenario"> | Date | string
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Scenario"> | Date | string | null
   title?: Prisma.StringWithAggregatesFilter<"Scenario"> | string
+  slug?: Prisma.StringNullableWithAggregatesFilter<"Scenario"> | string | null
   description?: Prisma.StringWithAggregatesFilter<"Scenario"> | string
   intros?: Prisma.StringWithAggregatesFilter<"Scenario"> | string
   userId?: Prisma.IntWithAggregatesFilter<"Scenario"> | number
@@ -496,6 +508,7 @@ export type ScenarioCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   imagePath?: string | null
@@ -525,6 +538,7 @@ export type ScenarioUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -553,6 +567,7 @@ export type ScenarioUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -582,6 +597,7 @@ export type ScenarioUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -611,6 +627,7 @@ export type ScenarioCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -635,6 +652,7 @@ export type ScenarioUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -658,6 +676,7 @@ export type ScenarioUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -704,6 +723,7 @@ export type ScenarioCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
   intros?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -736,6 +756,7 @@ export type ScenarioMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
   intros?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -760,6 +781,7 @@ export type ScenarioMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
   intros?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -986,6 +1008,7 @@ export type ScenarioCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   imagePath?: string | null
@@ -1014,6 +1037,7 @@ export type ScenarioUncheckedCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -1071,6 +1095,7 @@ export type ScenarioScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Scenario"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Scenario"> | Date | string | null
   title?: Prisma.StringFilter<"Scenario"> | string
+  slug?: Prisma.StringNullableFilter<"Scenario"> | string | null
   description?: Prisma.StringFilter<"Scenario"> | string
   intros?: Prisma.StringFilter<"Scenario"> | string
   userId?: Prisma.IntFilter<"Scenario"> | number
@@ -1095,6 +1120,7 @@ export type ScenarioCreateWithoutCharactersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   imagePath?: string | null
@@ -1123,6 +1149,7 @@ export type ScenarioUncheckedCreateWithoutCharactersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -1171,6 +1198,7 @@ export type ScenarioCreateWithoutCompositionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   imagePath?: string | null
@@ -1199,6 +1227,7 @@ export type ScenarioUncheckedCreateWithoutCompositionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -1242,6 +1271,7 @@ export type ScenarioUpdateWithoutCompositionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1270,6 +1300,7 @@ export type ScenarioUncheckedUpdateWithoutCompositionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1297,6 +1328,7 @@ export type ScenarioCreateWithoutDreamsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   imagePath?: string | null
@@ -1325,6 +1357,7 @@ export type ScenarioUncheckedCreateWithoutDreamsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -1373,6 +1406,7 @@ export type ScenarioCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   imagePath?: string | null
@@ -1401,6 +1435,7 @@ export type ScenarioUncheckedCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -1444,6 +1479,7 @@ export type ScenarioUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1472,6 +1508,7 @@ export type ScenarioUncheckedUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1499,6 +1536,7 @@ export type ScenarioCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   imagePath?: string | null
@@ -1527,6 +1565,7 @@ export type ScenarioUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   artImageId?: number | null
@@ -1581,6 +1620,7 @@ export type ScenarioCreateManyArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   userId: number
@@ -1604,6 +1644,7 @@ export type ScenarioUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1632,6 +1673,7 @@ export type ScenarioUncheckedUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1660,6 +1702,7 @@ export type ScenarioUncheckedUpdateManyWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1683,6 +1726,7 @@ export type ScenarioUpdateWithoutCharactersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1711,6 +1755,7 @@ export type ScenarioUncheckedUpdateWithoutCharactersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1739,6 +1784,7 @@ export type ScenarioUncheckedUpdateManyWithoutCharactersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1763,6 +1809,7 @@ export type ScenarioUpdateWithoutDreamsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1791,6 +1838,7 @@ export type ScenarioUncheckedUpdateWithoutDreamsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1819,6 +1867,7 @@ export type ScenarioUncheckedUpdateManyWithoutDreamsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1844,6 +1893,7 @@ export type ScenarioCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
+  slug?: string | null
   description: string
   intros: string
   artImageId?: number | null
@@ -1867,6 +1917,7 @@ export type ScenarioUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1895,6 +1946,7 @@ export type ScenarioUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1923,6 +1975,7 @@ export type ScenarioUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2005,6 +2058,7 @@ export type ScenarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   updatedAt?: boolean
   title?: boolean
+  slug?: boolean
   description?: boolean
   intros?: boolean
   userId?: boolean
@@ -2039,6 +2093,7 @@ export type ScenarioSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   title?: boolean
+  slug?: boolean
   description?: boolean
   intros?: boolean
   userId?: boolean
@@ -2059,7 +2114,7 @@ export type ScenarioSelectScalar = {
   outputType?: boolean
 }
 
-export type ScenarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "intros" | "userId" | "artImageId" | "imagePath" | "locations" | "artPrompt" | "genres" | "inspirations" | "isMature" | "isPublic" | "isActive" | "difficulty" | "tier" | "group" | "secretNotes" | "cast" | "outputType", ExtArgs["result"]["scenario"]>
+export type ScenarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "intros" | "userId" | "artImageId" | "imagePath" | "locations" | "artPrompt" | "genres" | "inspirations" | "isMature" | "isPublic" | "isActive" | "difficulty" | "tier" | "group" | "secretNotes" | "cast" | "outputType", ExtArgs["result"]["scenario"]>
 export type ScenarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Dreams?: boolean | Prisma.Scenario$DreamsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Scenario$ReactionsArgs<ExtArgs>
@@ -2085,6 +2140,7 @@ export type $ScenarioPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     createdAt: Date
     updatedAt: Date | null
     title: string
+    slug: string | null
     description: string
     intros: string
     userId: number
@@ -2482,6 +2538,7 @@ export interface ScenarioFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Scenario", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Scenario", 'DateTime'>
   readonly title: Prisma.FieldRef<"Scenario", 'String'>
+  readonly slug: Prisma.FieldRef<"Scenario", 'String'>
   readonly description: Prisma.FieldRef<"Scenario", 'String'>
   readonly intros: Prisma.FieldRef<"Scenario", 'String'>
   readonly userId: Prisma.FieldRef<"Scenario", 'Int'>

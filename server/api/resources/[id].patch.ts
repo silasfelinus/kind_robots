@@ -2,6 +2,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { normalizeSlugInput } from '~/utils/slugify'
 import { validateApiKey } from '../../utils/validateKey'
 import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
 
@@ -129,6 +130,7 @@ export default defineEventHandler(async (event) => {
 
     const updateData: Prisma.ResourceUpdateInput = {
       name: resourceFields.name,
+      slug: normalizeSlugInput(resourceFields.slug),
       customLabel: resourceFields.customLabel,
       MediaPath: resourceFields.MediaPath,
       customUrl: resourceFields.customUrl,

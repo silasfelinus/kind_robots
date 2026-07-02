@@ -39,6 +39,7 @@ const artCollectionSelect = {
   updatedAt: true,
   userId: true,
   label: true,
+  slug: true,
   isMature: true,
   isPublic: true,
   isActive: true,

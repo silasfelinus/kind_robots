@@ -340,6 +340,7 @@ export type MilestoneOrderByWithRelationInput = {
 
 export type MilestoneWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  triggerCode?: string
   AND?: Prisma.MilestoneWhereInput | Prisma.MilestoneWhereInput[]
   OR?: Prisma.MilestoneWhereInput[]
   NOT?: Prisma.MilestoneWhereInput | Prisma.MilestoneWhereInput[]
@@ -351,7 +352,6 @@ export type MilestoneWhereUniqueInput = Prisma.AtLeast<{
   karma?: Prisma.IntFilter<"Milestone"> | number
   pageHint?: Prisma.StringNullableFilter<"Milestone"> | string | null
   subtleHint?: Prisma.StringNullableFilter<"Milestone"> | string | null
-  triggerCode?: Prisma.StringNullableFilter<"Milestone"> | string | null
   tooltip?: Prisma.StringNullableFilter<"Milestone"> | string | null
   isActive?: Prisma.BoolFilter<"Milestone"> | boolean
   isRepeatable?: Prisma.BoolFilter<"Milestone"> | boolean
@@ -360,7 +360,7 @@ export type MilestoneWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Milestone"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   MilestoneRecords?: Prisma.MilestoneRecordListRelationFilter
-}, "id">
+}, "id" | "triggerCode">
 
 export type MilestoneOrderByWithAggregationInput = {
   id?: Prisma.SortOrder

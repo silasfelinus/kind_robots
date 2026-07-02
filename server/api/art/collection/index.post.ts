@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
+import { normalizeSlugInput } from '~/utils/slugify'
 
 const artImageListSelect = {
   id: true,
@@ -40,6 +41,7 @@ const artCollectionSelect = {
   updatedAt: true,
   userId: true,
   label: true,
+  slug: true,
   isMature: true,
   isPublic: true,
   isActive: true,
@@ -62,6 +64,7 @@ const artCollectionSelect = {
 type CreateCollectionBody = {
   artImageIds?: unknown
   label?: unknown
+  slug?: unknown
   description?: unknown
   isPublic?: unknown
   isMature?: unknown
@@ -143,6 +146,8 @@ export default defineEventHandler(async (event) => {
         ? body.label.trim()
         : 'untitled collection'
 
+    const slug = normalizeSlugInput(body.slug)
+
     const description =
       typeof body.description === 'string' ? body.description.trim() : undefined
 
@@ -153,6 +158,7 @@ export default defineEventHandler(async (event) => {
       data: {
         userId: user.id,
         label,
+        slug: slug ?? undefined,
         description,
         artPrompt,
         isPublic: typeof body.isPublic === 'boolean' ? body.isPublic : true,

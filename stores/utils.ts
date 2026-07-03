@@ -3,6 +3,33 @@ import { useUserStore } from '~/stores/userStore'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
 import type { ApiResponse } from '~/types/api'
 
+// Circuit breaker: after several consecutive transport-level failures
+// (timeouts, refused connections — not HTTP error responses), stop hammering
+// the API for a cool-off window so a dead database doesn't turn every page
+// into a pile of 10-second hangs. Client-only; server module state is shared
+// across requests and must not be poisoned by one bad render.
+const CIRCUIT_THRESHOLD = 3
+const CIRCUIT_COOLDOWN_MS = 30_000
+let consecutiveTransportFailures = 0
+let circuitOpenUntil = 0
+
+function circuitIsOpen(): boolean {
+  return import.meta.client && Date.now() < circuitOpenUntil
+}
+
+function recordTransportFailure(): void {
+  if (!import.meta.client) return
+  consecutiveTransportFailures += 1
+  if (consecutiveTransportFailures >= CIRCUIT_THRESHOLD) {
+    circuitOpenUntil = Date.now() + CIRCUIT_COOLDOWN_MS
+  }
+}
+
+function recordTransportSuccess(): void {
+  consecutiveTransportFailures = 0
+  circuitOpenUntil = 0
+}
+
 export async function performFetch<T = unknown>(
   url: string,
   options: RequestInit = {},
@@ -25,6 +52,14 @@ export async function performFetch<T = unknown>(
 
   if (token && !normalizedHeaders.has('Authorization')) {
     normalizedHeaders.set('Authorization', `Bearer ${token}`)
+  }
+
+  if (circuitIsOpen()) {
+    return {
+      success: false,
+      status: 503,
+      message: `Skipped ${url}: API unreachable, cooling off before retrying`,
+    }
   }
 
   const maxAttempts = Math.max(1, retries)
@@ -61,16 +96,27 @@ export async function performFetch<T = unknown>(
           ? (parsedBody as Record<string, unknown>)
           : {}
 
+      // Reaching the server at all closes the circuit, even on an HTTP error.
+      recordTransportSuccess()
+
+      // Many endpoints follow the app convention of replying HTTP 200 with
+      // { success: false, statusCode } in the body — honor both fields so a
+      // body-level failure is never reported as a successful fetch.
+      const bodySuccess =
+        typeof body.success === 'boolean' ? body.success : true
+      const effectiveStatus =
+        typeof body.statusCode === 'number' ? body.statusCode : res.status
+
       return {
-        success: res.ok,
-        status: res.status,
+        success: res.ok && bodySuccess,
+        status: effectiveStatus,
         data: (body.data ?? parsedBody) as T,
         message:
           typeof body.message === 'string'
             ? body.message
-            : res.ok
+            : res.ok && bodySuccess
               ? 'Request completed successfully'
-              : `Request failed with status ${res.status}`,
+              : `Request failed with status ${effectiveStatus}`,
         user: body.user as ApiResponse<T>['user'],
         token: typeof body.token === 'string' ? body.token : undefined,
         usernames: Array.isArray(body.usernames)
@@ -84,6 +130,8 @@ export async function performFetch<T = unknown>(
       const isLastAttempt = attempt >= maxAttempts
 
       if (isLastAttempt || isAbortError) {
+        recordTransportFailure()
+
         const message = isAbortError
           ? `Request timed out after ${timeout}ms`
           : err instanceof Error

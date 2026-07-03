@@ -26,6 +26,16 @@ export type SerendipityStorySeed = {
   surprise: boolean
 }
 
+// A pickable story ingredient sourced from a LOCATION or GENRE Dream.
+// The seed references Dreams by slug; the ingredient carries the display
+// text the prompt needs so the engine never re-reads the Dream record.
+export type SerendipityIngredient = {
+  slug: string
+  title: string
+  description?: string | null
+  flavorText?: string | null
+}
+
 export type SerendipityQuestion = {
   prompt: string
   realWorldKind:
@@ -65,6 +75,8 @@ export type SerendipitySession = {
   userId: number
   projectSlug?: string
   seed: SerendipityStorySeed
+  location?: SerendipityIngredient
+  genre?: SerendipityIngredient
   beats: SerendipityBeat[]
   status: 'draft' | 'active' | 'paused' | 'complete'
   createdAt: string
@@ -170,14 +182,33 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
     saveToLocalStorage()
   }
 
-  function buildSeedDescription(seed: SerendipityStorySeed): string {
+  function describeIngredient(ingredient: SerendipityIngredient): string {
+    return [ingredient.title, ingredient.description, ingredient.flavorText]
+      .filter(Boolean)
+      .join(' — ')
+  }
+
+  function buildSeedDescription(): string {
+    const active = session.value
+    if (!active) return ''
+    const seed = active.seed
     const parts = [`The story's tone is ${seed.tone}.`]
+    if (active.location) {
+      parts.push(
+        `The story is set in this place (make it vivid, stay true to it): ${describeIngredient(active.location)}.`,
+      )
+    }
+    if (active.genre) {
+      parts.push(
+        `Tell it in this story grammar, honoring its pacing and tropes: ${describeIngredient(active.genre)}.`,
+      )
+    }
     if (seed.vibeTags.length) {
       parts.push(
         `Let these vibe words color the texture (tone guidance, not plot instructions): ${seed.vibeTags.join(', ')}.`,
       )
     }
-    if (seed.surprise) {
+    if (seed.surprise && !active.location && !active.genre) {
       parts.push(
         'The protagonist asked to be surprised — pick the setting and story grammar yourself, something unexpected but compatible.',
       )
@@ -185,10 +216,10 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
     return parts.join(' ')
   }
 
-  function buildOpeningPrompt(seed: SerendipityStorySeed): string {
+  function buildOpeningPrompt(): string {
     return `${PERSONA}
 
-${buildSeedDescription(seed)}
+${buildSeedDescription()}
 
 Write the opening scene: set the place, invite the protagonist in, and end with one question.`
   }
@@ -205,7 +236,7 @@ Write the opening scene: set the place, invite the protagonist in, and end with 
       .join('\n\n')
     return `${PERSONA}
 
-${buildSeedDescription(session.value!.seed)}
+${buildSeedDescription()}
 
 The story so far:
 ${recap}
@@ -267,10 +298,14 @@ Continue the story with the next beat, honoring their answer, and end with one n
     vibeTags?: string[]
     projectSlug?: string
     surprise?: boolean
+    location?: SerendipityIngredient
+    genre?: SerendipityIngredient
   }): Promise<boolean> {
     const seed: SerendipityStorySeed = {
       userId: userStore.userId ?? userStore.user?.id ?? 10,
       projectSlug: input.projectSlug,
+      locationDreamSlug: input.location?.slug,
+      genreDreamSlug: input.genre?.slug,
       vibeTags: input.vibeTags ?? [],
       tone: input.tone,
       surprise: input.surprise ?? false,
@@ -280,13 +315,15 @@ Continue the story with the next beat, honoring their answer, and end with one n
       userId: seed.userId,
       projectSlug: seed.projectSlug,
       seed,
+      location: input.location,
+      genre: input.genre,
       beats: [],
       status: 'active',
       createdAt: nowIso(),
       updatedAt: nowIso(),
     }
     saveToLocalStorage()
-    return await weaveBeat(buildOpeningPrompt(seed))
+    return await weaveBeat(buildOpeningPrompt())
   }
 
   async function answerCurrentBeat(text: string): Promise<boolean> {

@@ -268,10 +268,11 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
     resolveQuestionContext(currentBeat.value?.question),
   )
 
-  // ── Story ledger (t-006 demo, dry-run only) ────────────────────────────
-  // Every captured answer that is waiting on the human gate, with the write
-  // that WOULD happen once Silas approves the wiring. No write path exists
-  // in this build — the ledger is the demo of the flow.
+  // ── Story ledger (t-006, wiring approved by Silas 2026-07-03) ──────────
+  // Every captured hook answer with its write-back state. Writes happen only
+  // through the explicit per-item Apply action below — never automatically
+  // on answering — per the approved design in conductor
+  // projects/serendipity/docs/write-back-design.md.
   const pendingWriteBacks = computed(() => {
     const items: {
       beatId: string
@@ -279,10 +280,11 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
       title: string
       answer: string
       proposedWrite: string
+      status: SerendipityAnswer['writeBackStatus']
     }[] = []
     for (const beat of session.value?.beats ?? []) {
       const question = beat.question
-      if (!beat.answer || beat.answer.writeBackStatus !== 'pending-human-gate')
+      if (!beat.answer || beat.answer.writeBackStatus === 'not-applicable')
         continue
       if (
         question.realWorldKind !== 'honeydo' &&
@@ -297,12 +299,67 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
         answer: beat.answer.text,
         proposedWrite:
           question.realWorldKind === 'honeydo'
-            ? `Would mark honey-do #${question.todoId} done, with this answer attached as the note.`
-            : `Would record this decision on conductor task ${question.conductorTaskId} as a new AGENT todo for review — the roadmap itself is only ever edited by Silas or the agents in conductor.`,
+            ? `Marks honey-do #${question.todoId} done, with this answer attached as the note.`
+            : `Records this decision on conductor task ${question.conductorTaskId} as a new AGENT todo for review — the roadmap itself is only ever edited by Silas or the agents in conductor.`,
+        status: beat.answer.writeBackStatus,
       })
     }
     return items
   })
+
+  // Applies one captured answer to the real world (t-006 approved wiring).
+  async function applyWriteBack(beatId: string): Promise<boolean> {
+    const beat = session.value?.beats.find((entry) => entry.id === beatId)
+    if (
+      !session.value ||
+      !beat?.answer ||
+      beat.answer.writeBackStatus !== 'pending-human-gate'
+    )
+      return false
+    const question = beat.question
+    beat.answer.writeBackStatus = 'queued'
+    saveToLocalStorage()
+    try {
+      let ok = false
+      if (question.realWorldKind === 'honeydo' && question.todoId != null) {
+        const todo = todoStore.todos.find(
+          (entry) => entry.id === question.todoId,
+        )
+        const note = `Story answer (serendipity): ${beat.answer.text}`
+        ok = await todoStore.updateTodo(question.todoId, {
+          status: 'DONE',
+          description: todo?.description
+            ? `${todo.description}\n\n${note}`
+            : note,
+        })
+      } else if (
+        question.realWorldKind === 'needs-human' &&
+        question.conductorTaskId
+      ) {
+        const context = resolveQuestionContext(question)
+        const created = await todoStore.createTodo({
+          title: `Story decision on ${question.projectSlug}/${question.conductorTaskId}: ${beat.answer.text.slice(0, 80)}`,
+          description: `Captured by Serendipity for conductor task ${question.projectSlug}/${question.conductorTaskId} ("${context?.title ?? ''}").\n\nProtagonist's answer: ${beat.answer.text}\n\nThe conductor task stays needs-human until Silas edits the roadmap.`,
+          category: 'AGENT',
+          dreamId: projectDreamId.value,
+        })
+        ok = created !== null
+      }
+      beat.answer.writeBackStatus = ok ? 'written' : 'pending-human-gate'
+      if (!ok)
+        errorMessage.value =
+          'The write did not land — it stays in the ledger to retry.'
+      session.value.updatedAt = nowIso()
+      saveToLocalStorage()
+      return ok
+    } catch (error) {
+      beat.answer.writeBackStatus = 'pending-human-gate'
+      errorMessage.value =
+        error instanceof Error ? error.message : 'The write did not land.'
+      saveToLocalStorage()
+      return false
+    }
+  }
 
   async function loadRealSurfaces(): Promise<void> {
     await Promise.all([
@@ -614,6 +671,7 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
     availableHooks,
     currentHookContext,
     pendingWriteBacks,
+    applyWriteBack,
     loadRealSurfaces,
     restoreFromLocalStorage,
     resetSession,

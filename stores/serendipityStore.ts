@@ -6,6 +6,9 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useChatStore } from '@/stores/chatStore'
+import { useConductorStore } from '@/stores/conductorStore'
+import { useDreamStore } from '@/stores/dreamStore'
+import { useTodoStore } from '@/stores/todoStore'
 import { useUserStore } from '@/stores/userStore'
 
 export type SerendipityTone =
@@ -34,6 +37,19 @@ export type SerendipityIngredient = {
   title: string
   description?: string | null
   flavorText?: string | null
+}
+
+// A real action surface the story can weave into a question (t-005).
+// Read-only: hooks are surfaced and phrased in-world; answers are captured
+// on the beat and never written back to todos or roadmaps here (t-006 gates
+// write-back behind human approval).
+export type SerendipityRealHook = {
+  kind: 'honeydo' | 'needs-human'
+  title: string
+  detail?: string | null
+  todoId?: number
+  conductorTaskId?: string
+  projectSlug: string
 }
 
 export type SerendipityQuestion = {
@@ -128,6 +144,9 @@ function extractQuestion(narrative: string): string {
 
 export const useSerendipityStore = defineStore('serendipityStore', () => {
   const chatStore = useChatStore()
+  const conductorStore = useConductorStore()
+  const dreamStore = useDreamStore()
+  const todoStore = useTodoStore()
   const userStore = useUserStore()
 
   const session = ref<SerendipitySession | null>(null)
@@ -159,6 +178,109 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
   )
 
   const isComplete = computed(() => session.value?.status === 'complete')
+
+  // ── Real-world hooks (t-005, read-only) ────────────────────────────────
+  // Hooks already woven into this session's beats are excluded via the
+  // todoId/conductorTaskId stamped on each beat's question.
+  const usedHookKeys = computed(() => {
+    const keys = new Set<string>()
+    for (const beat of session.value?.beats ?? []) {
+      if (beat.question.todoId != null) keys.add(`todo:${beat.question.todoId}`)
+      if (beat.question.conductorTaskId)
+        keys.add(`task:${beat.question.conductorTaskId}`)
+    }
+    return keys
+  })
+
+  const projectDreamId = computed(() => {
+    const slug = session.value?.projectSlug
+    if (!slug) return null
+    const dream = dreamStore.dreams.find(
+      (entry) => entry.dreamType === 'PROJECT' && entry.slug === slug,
+    )
+    return dream?.id ?? null
+  })
+
+  const availableHooks = computed<SerendipityRealHook[]>(() => {
+    const slug = session.value?.projectSlug
+    if (!slug) return []
+    const hooks: SerendipityRealHook[] = []
+    for (const todo of todoStore.honeyDoTodos) {
+      // Project-scoped honeydos first-class; unscoped ones ride along.
+      if (todo.dreamId != null && todo.dreamId !== projectDreamId.value)
+        continue
+      if (usedHookKeys.value.has(`todo:${todo.id}`)) continue
+      hooks.push({
+        kind: 'honeydo',
+        title: todo.title,
+        detail: todo.description ?? null,
+        todoId: todo.id,
+        projectSlug: slug,
+      })
+    }
+    const project = conductorStore.projects.find((entry) => entry.slug === slug)
+    for (const task of project?.tasks ?? []) {
+      if (task.status !== 'needs-human') continue
+      if (usedHookKeys.value.has(`task:${task.id}`)) continue
+      hooks.push({
+        kind: 'needs-human',
+        title: task.title,
+        detail: task.note ?? null,
+        conductorTaskId: task.id,
+        projectSlug: slug,
+      })
+    }
+    return hooks
+  })
+
+  function nextHook(): SerendipityRealHook | null {
+    return availableHooks.value[0] ?? null
+  }
+
+  // The brief's guardrail: always show the real task/todo context near a
+  // woven question. Resolves the current beat's ids back to display titles.
+  const currentHookContext = computed(() => {
+    const question = currentBeat.value?.question
+    if (!question || question.realWorldKind === 'preference') return null
+    if (question.todoId != null) {
+      const todo = todoStore.todos.find((entry) => entry.id === question.todoId)
+      return {
+        kind: question.realWorldKind,
+        title: todo?.title ?? 'a real to-do',
+      }
+    }
+    if (question.conductorTaskId) {
+      const project = conductorStore.projects.find(
+        (entry) => entry.slug === question.projectSlug,
+      )
+      const task = project?.tasks.find(
+        (entry) => entry.id === question.conductorTaskId,
+      )
+      return {
+        kind: question.realWorldKind,
+        title: task?.title ?? 'a real decision',
+      }
+    }
+    return null
+  })
+
+  async function loadRealSurfaces(): Promise<void> {
+    await Promise.all([
+      todoStore.hasLoaded ? Promise.resolve() : todoStore.fetchTodos(),
+      conductorStore.hasLoaded
+        ? Promise.resolve()
+        : conductorStore.fetchProjects(),
+    ])
+  }
+
+  function hookInstruction(hook: SerendipityRealHook): string {
+    const surface =
+      hook.kind === 'honeydo'
+        ? 'a small real to-do the protagonist can help with'
+        : "a real decision that is waiting on the protagonist's judgment"
+    const detail = hook.detail ? ` Context: ${hook.detail}` : ''
+    return `This beat's question must, in-world, present ${surface}. The real item is: "${hook.title}".${detail} Summarize the real decision plainly inside the story's voice — no jargon, no task ids — and frame it so the protagonist can answer in a sentence or two. Do not imply anything is approved or done by their answer.`
+  }
 
   const canClose = computed(() => {
     const active = session.value
@@ -231,10 +353,11 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
     return parts.join(' ')
   }
 
-  function buildOpeningPrompt(): string {
+  function buildOpeningPrompt(hook: SerendipityRealHook | null = null): string {
+    const hookPart = hook ? `\n\n${hookInstruction(hook)}` : ''
     return `${PERSONA}
 
-${buildSeedDescription()}
+${buildSeedDescription()}${hookPart}
 
 Write the opening scene: set the place, invite the protagonist in, and end with one question.`
   }
@@ -292,13 +415,17 @@ Write the opening scene: set the place, invite the protagonist in, and end with 
     ].join('\n\n')
   }
 
-  function buildNextBeatPrompt(answerText: string): string {
+  function buildNextBeatPrompt(
+    answerText: string,
+    hook: SerendipityRealHook | null = null,
+  ): string {
     const beatCount = session.value?.beats.length ?? 0
+    const hookPart = hook ? `\n\n${hookInstruction(hook)}` : ''
     return `${PERSONA}
 
 ${buildSeedDescription()}
 
-${beatPhaseGuidance(beatCount)}
+${beatPhaseGuidance(beatCount)}${hookPart}
 
 The story so far:
 ${buildRecap()}
@@ -321,7 +448,11 @@ the threads gently, give the protagonist a small gift to carry out of the
 story, and end with warmth. This is the finale — do NOT end with a question.`
   }
 
-  async function weaveBeat(prompt: string, closing = false): Promise<boolean> {
+  async function weaveBeat(
+    prompt: string,
+    closing = false,
+    hook: SerendipityRealHook | null = null,
+  ): Promise<boolean> {
     if (!session.value) return false
     isWeaving.value = true
     errorMessage.value = ''
@@ -347,8 +478,10 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
         narrative,
         question: {
           prompt: closing ? '' : extractQuestion(narrative),
-          realWorldKind: 'preference',
+          realWorldKind: hook?.kind ?? 'preference',
           projectSlug: session.value.projectSlug,
+          todoId: hook?.todoId,
+          conductorTaskId: hook?.conductorTaskId,
         },
         createdAt: nowIso(),
       }
@@ -399,7 +532,8 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
       updatedAt: nowIso(),
     }
     saveToLocalStorage()
-    return await weaveBeat(buildOpeningPrompt())
+    const hook = nextHook()
+    return await weaveBeat(buildOpeningPrompt(hook), false, hook)
   }
 
   async function answerCurrentBeat(text: string): Promise<boolean> {
@@ -410,11 +544,17 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
     beat.answer = {
       text: trimmed,
       capturedAt: nowIso(),
-      writeBackStatus: 'not-applicable',
+      // Answers to real hooks are held for human review (t-006 gates the
+      // actual write-back); pure preference answers need no write path.
+      writeBackStatus:
+        beat.question.realWorldKind === 'preference'
+          ? 'not-applicable'
+          : 'pending-human-gate',
     }
     session.value.updatedAt = nowIso()
     saveToLocalStorage()
-    return await weaveBeat(buildNextBeatPrompt(trimmed))
+    const hook = nextHook()
+    return await weaveBeat(buildNextBeatPrompt(trimmed, hook), false, hook)
   }
 
   async function closeStory(): Promise<boolean> {
@@ -431,6 +571,9 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
     awaitingAnswer,
     isComplete,
     canClose,
+    availableHooks,
+    currentHookContext,
+    loadRealSurfaces,
     restoreFromLocalStorage,
     resetSession,
     beginStory,

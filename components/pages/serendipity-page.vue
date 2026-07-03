@@ -1,8 +1,10 @@
 <!-- /components/pages/serendipity-page.vue -->
-<!-- Serendipity (serendipity/t-002..t-004): themed intro with a Dreams-fed
-     theme picker + the full story weaving loop on chat streams (momentum,
-     answer-steered beats, gentle finale). Task weaving arrives with t-005.
-     Read-only — no writes to todos or roadmaps. -->
+<!-- Serendipity (serendipity/t-002..t-005): themed intro with a Dreams-fed
+     theme picker, the full story weaving loop on chat streams (momentum,
+     answer-steered beats, gentle finale), and real-task weaving: HONEYDO
+     todos and needs-human conductor tasks surface as in-world questions.
+     Read-only — answers are captured for review, never written back
+     (t-006 gates write-back behind human approval). -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -163,6 +165,28 @@
         Gathering places and story grammars from your Dreams…
       </p>
 
+      <label class="form-control w-full max-w-md">
+        <div class="label py-1">
+          <span class="label-text text-xs font-bold uppercase tracking-wide">
+            Project (optional — lets the story help for real)
+          </span>
+        </div>
+        <select
+          v-model="selectedProjectSlug"
+          class="select select-bordered w-full rounded-xl"
+          :disabled="store.isWeaving"
+        >
+          <option value="">A story just for me</option>
+          <option
+            v-for="project in conductorStore.projects"
+            :key="project.slug"
+            :value="project.slug"
+          >
+            {{ project.name || project.slug }}
+          </option>
+        </select>
+      </label>
+
       <label class="form-control w-full">
         <div class="label py-1">
           <span class="label-text text-xs font-bold uppercase tracking-wide">
@@ -250,6 +274,37 @@
           </span>
         </div>
 
+        <div
+          v-if="store.currentHookContext && store.awaitingAnswer"
+          class="flex items-start gap-2 rounded-2xl border border-info/30 bg-info/5 p-3"
+        >
+          <Icon
+            name="kind-icon:alert"
+            class="mt-0.5 size-4 shrink-0 text-info"
+          />
+          <div class="min-w-0 flex-1 text-xs leading-relaxed">
+            <p class="font-bold text-info">
+              This question is really about:
+              <span class="font-normal text-base-content/80">{{
+                store.currentHookContext.title
+              }}</span>
+              <span
+                class="badge badge-info badge-outline badge-xs ml-1 align-middle"
+              >
+                {{
+                  store.currentHookContext.kind === 'honeydo'
+                    ? 'honey-do'
+                    : 'needs a human'
+                }}
+              </span>
+            </p>
+            <p class="mt-0.5 text-base-content/50">
+              Your answer is kept for review — nothing is marked done or
+              approved by the story.
+            </p>
+          </div>
+        </div>
+
         <p v-if="store.errorMessage" class="text-xs text-error">
           {{ store.errorMessage }}
         </p>
@@ -294,6 +349,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useConductorStore } from '@/stores/conductorStore'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import {
   SERENDIPITY_TONES,
@@ -303,11 +359,13 @@ import {
 } from '@/stores/serendipityStore'
 
 const store = useSerendipityStore()
+const conductorStore = useConductorStore()
 const dreamStore = useDreamStore()
 
 const selectedTone = ref<SerendipityTone>('cozy')
 const selectedLocationSlug = ref<string | null>(null)
 const selectedGenreSlug = ref<string | null>(null)
+const selectedProjectSlug = ref('')
 const vibeInput = ref('')
 const answerInput = ref('')
 
@@ -373,6 +431,7 @@ async function begin(surprise: boolean) {
     surprise,
     location,
     genre,
+    projectSlug: selectedProjectSlug.value || undefined,
   })
 }
 
@@ -396,5 +455,6 @@ onMounted(() => {
   ) {
     dreamStore.fetchDreams({ limit: 200 })
   }
+  void store.loadRealSurfaces()
 })
 </script>

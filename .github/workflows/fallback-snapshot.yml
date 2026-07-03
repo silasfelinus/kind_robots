@@ -34,6 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      # prisma.config.ts resolves DATABASE_URL at config-load time, so every
+      # prisma-adjacent step needs it — not just the snapshot script.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,8 +58,6 @@ jobs:
 
       - name: Write fallback snapshots
         run: npx tsx utils/scripts/snapshotFallback.ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Commit snapshots if changed
         run: |

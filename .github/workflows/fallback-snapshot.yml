@@ -170,6 +170,11 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
         run: |
+          # Without pipefail a failed mysqldump still exits 0 through the
+          # gzip|openssl pipeline and uploads a ~200-byte encrypted-empty
+          # artifact that looks like a backup.
+          set -o pipefail
+
           # Parse mysql://user:pass@host:port/db (query string ignored)
           proto_stripped="${DATABASE_URL#mysql://}"
           creds="${proto_stripped%%@*}"
@@ -192,6 +197,12 @@ jobs:
             > dump.sql.gz.enc
 
           ls -lh dump.sql.gz.enc
+
+          size=$(stat -c%s dump.sql.gz.enc)
+          if [ "$size" -lt 10240 ]; then
+            echo "::error::dump.sql.gz.enc is only ${size} bytes — mysqldump produced no data."
+            exit 1
+          fi
 
       - name: Upload encrypted dump
         if: steps.gate.outputs.enabled == 'true'

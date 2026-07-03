@@ -88,3 +88,45 @@ export async function conductorPut(
     })
   }
 }
+
+export interface ConductorDirEntry {
+  name: string
+  type: 'file' | 'dir'
+}
+
+export async function conductorList(
+  path: string,
+): Promise<ConductorDirEntry[] | null> {
+  const { githubToken } = useRuntimeConfig()
+
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github.v3+json',
+  }
+
+  if (githubToken) {
+    headers.Authorization = `Bearer ${githubToken}`
+  }
+
+  const res = await fetch(
+    `https://api.github.com/repos/silasfelinus/conductor/contents/${path}`,
+    { headers },
+  )
+
+  if (res.status === 404) return null
+
+  if (!res.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `GitHub read error ${res.status}`,
+    })
+  }
+
+  const data = (await res.json()) as Array<{ name: string; type: string }>
+
+  if (!Array.isArray(data)) return null
+
+  return data.map((entry) => ({
+    name: entry.name,
+    type: entry.type === 'dir' ? 'dir' : 'file',
+  }))
+}

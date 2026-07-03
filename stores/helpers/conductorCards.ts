@@ -76,6 +76,16 @@ function card(
 
 export const CONDUCTOR_CARDS: ConductorCard[] = [
   card(
+    'appmaker',
+    'AppMaker',
+    'kind-icon:toolbox',
+    'The app factory',
+    'Create and manage apps on the conductor system: each app gets a workspace folder, a project roadmap, and a Dream sharing one slug — agents build, humans gate releases.',
+    'software',
+    'ready',
+    1,
+  ),
+  card(
     'challenge-center',
     'Challenge Center',
     'kind-icon:trophy',

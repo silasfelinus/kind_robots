@@ -1,12 +1,14 @@
 <template>
   <WishmasterPage v-if="pageStore.workspaceCardKey === 'wishmaster'" />
   <PortosPage v-else-if="pageStore.workspaceCardKey === 'portos'" />
+  <AppmakerPage v-else-if="pageStore.workspaceCardKey === 'appmaker'" />
   <ConductorOverviewGalleryPage v-else-if="showConductorGallery" />
   <ConductorPage v-else />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppmakerPage from '@/components/pages/appmaker-page.vue'
 import ConductorOverviewGalleryPage from '@/components/pages/conductor-overview-gallery-page.vue'
 import ConductorPage from '@/components/pages/conductor-page.vue'
 import PortosPage from '@/components/pages/portos-page.vue'

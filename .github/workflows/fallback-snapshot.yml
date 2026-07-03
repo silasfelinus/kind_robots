@@ -12,7 +12,8 @@ name: Nightly fallback snapshot & backup
 #     passphrase secret is missing: artifacts on a public repo are
 #     downloadable by anyone, so a plaintext dump must never be uploaded.
 #
-# Required secrets:
+# Required secrets (repository Actions secrets: Settings → Secrets and
+# variables → Actions → New repository secret):
 #   DATABASE_URL       mysql://user:pass@host:port/db (must accept
 #                      connections from GitHub-hosted runners)
 #   BACKUP_PASSPHRASE  symmetric key for the encrypted dump
@@ -39,6 +40,13 @@ jobs:
       # prisma-adjacent step needs it — not just the snapshot script.
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
+      - name: Require DATABASE_URL secret
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET: repo Settings → Secrets and variables → Actions → 'New repository secret'. (Vercel env vars, .env files, Codespaces/Dependabot secrets, and Actions *variables* do not resolve here.)"
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           ref: main

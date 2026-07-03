@@ -1,7 +1,8 @@
 <!-- /components/pages/serendipity-page.vue -->
-<!-- Serendipity scaffold (serendipity/t-002): themed intro + streamed story
-     loop on chat streams. Theme picker from Dreams arrives with t-003;
-     task weaving with t-005. Read-only — no writes to todos or roadmaps. -->
+<!-- Serendipity (serendipity/t-002 + t-003): themed intro with a Dreams-fed
+     theme picker (LOCATION and GENRE dreams as story ingredients) + streamed
+     story loop on chat streams. Task weaving arrives with t-005.
+     Read-only — no writes to todos or roadmaps. -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -61,6 +62,98 @@
         </button>
       </div>
 
+      <div v-if="locationDreams.length" class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span
+            class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+          >
+            Place
+          </span>
+          <span class="text-[0.7rem] text-base-content/40">
+            from your LOCATION dreams
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-sm rounded-xl"
+            :class="
+              !selectedLocationSlug
+                ? 'btn-secondary'
+                : 'btn-ghost border border-base-300'
+            "
+            @click="selectedLocationSlug = null"
+          >
+            Anywhere
+          </button>
+          <button
+            v-for="dream in locationDreams"
+            :key="dream.slug ?? dream.id"
+            type="button"
+            class="btn btn-sm rounded-xl"
+            :class="
+              dream.slug === selectedLocationSlug
+                ? 'btn-secondary'
+                : 'btn-ghost border border-base-300'
+            "
+            :title="dream.flavorText ?? dream.description ?? undefined"
+            @click="selectedLocationSlug = dream.slug"
+          >
+            {{ dream.title }}
+          </button>
+        </div>
+      </div>
+
+      <div v-if="genreDreams.length" class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span
+            class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+          >
+            Story grammar
+          </span>
+          <span class="text-[0.7rem] text-base-content/40">
+            from your GENRE dreams
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-sm rounded-xl"
+            :class="
+              !selectedGenreSlug
+                ? 'btn-secondary'
+                : 'btn-ghost border border-base-300'
+            "
+            @click="selectedGenreSlug = null"
+          >
+            Any tale
+          </button>
+          <button
+            v-for="dream in genreDreams"
+            :key="dream.slug ?? dream.id"
+            type="button"
+            class="btn btn-sm rounded-xl"
+            :class="
+              dream.slug === selectedGenreSlug
+                ? 'btn-secondary'
+                : 'btn-ghost border border-base-300'
+            "
+            :title="dream.flavorText ?? dream.description ?? undefined"
+            @click="selectedGenreSlug = dream.slug"
+          >
+            {{ dream.title }}
+          </button>
+        </div>
+      </div>
+
+      <p
+        v-if="dreamStore.loading"
+        class="flex items-center gap-2 text-xs text-base-content/50"
+      >
+        <span class="loading loading-spinner loading-xs" />
+        Gathering places and story grammars from your Dreams…
+      </p>
+
       <label class="form-control w-full">
         <div class="label py-1">
           <span class="label-text text-xs font-bold uppercase tracking-wide">
@@ -103,8 +196,13 @@
         >
           <Icon name="kind-icon:wand" class="size-4" /> Surprise me
         </button>
-        <p class="text-xs text-base-content/50">
-          Soon: pick places and genres from your Dreams.
+        <p
+          v-if="
+            !locationDreams.length && !genreDreams.length && !dreamStore.loading
+          "
+          class="text-xs text-base-content/50"
+        >
+          Add LOCATION or GENRE dreams to unlock places and story grammars.
         </p>
       </div>
     </div>
@@ -175,18 +273,51 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import {
   SERENDIPITY_TONES,
   useSerendipityStore,
+  type SerendipityIngredient,
   type SerendipityTone,
 } from '@/stores/serendipityStore'
 
 const store = useSerendipityStore()
+const dreamStore = useDreamStore()
 
 const selectedTone = ref<SerendipityTone>('cozy')
+const selectedLocationSlug = ref<string | null>(null)
+const selectedGenreSlug = ref<string | null>(null)
 const vibeInput = ref('')
 const answerInput = ref('')
+
+const locationDreams = computed(() =>
+  dreamStore.dreams.filter(
+    (dream) => dream.dreamType === 'LOCATION' && dream.isActive && dream.slug,
+  ),
+)
+const genreDreams = computed(() =>
+  dreamStore.dreams.filter(
+    (dream) => dream.dreamType === 'GENRE' && dream.isActive && dream.slug,
+  ),
+)
+
+function toIngredient(
+  dream: DreamWithRelations | undefined,
+): SerendipityIngredient | undefined {
+  if (!dream?.slug) return undefined
+  return {
+    slug: dream.slug,
+    title: dream.title,
+    description: dream.description,
+    flavorText: dream.flavorText,
+  }
+}
+
+function pickRandom<T>(items: T[]): T | undefined {
+  if (!items.length) return undefined
+  return items[Math.floor(Math.random() * items.length)]
+}
 
 function parseVibes(): string[] {
   return vibeInput.value
@@ -202,7 +333,27 @@ async function begin(surprise: boolean) {
         Math.floor(Math.random() * SERENDIPITY_TONES.length)
       ] ?? 'surprising')
     : selectedTone.value
-  await store.beginStory({ tone, vibeTags: parseVibes(), surprise })
+  const location = surprise
+    ? toIngredient(pickRandom(locationDreams.value))
+    : toIngredient(
+        locationDreams.value.find(
+          (dream) => dream.slug === selectedLocationSlug.value,
+        ),
+      )
+  const genre = surprise
+    ? toIngredient(pickRandom(genreDreams.value))
+    : toIngredient(
+        genreDreams.value.find(
+          (dream) => dream.slug === selectedGenreSlug.value,
+        ),
+      )
+  await store.beginStory({
+    tone,
+    vibeTags: parseVibes(),
+    surprise,
+    location,
+    genre,
+  })
 }
 
 async function submitAnswer() {
@@ -219,5 +370,11 @@ function startOver() {
 
 onMounted(() => {
   store.restoreFromLocalStorage()
+  if (
+    !dreamStore.hasLoaded ||
+    (!locationDreams.value.length && !genreDreams.value.length)
+  ) {
+    dreamStore.fetchDreams({ limit: 200 })
+  }
 })
 </script>

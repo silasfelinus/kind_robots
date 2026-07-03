@@ -1,10 +1,11 @@
 <!-- /components/pages/serendipity-page.vue -->
-<!-- Serendipity (serendipity/t-002..t-005): themed intro with a Dreams-fed
+<!-- Serendipity (serendipity/t-002..t-006): themed intro with a Dreams-fed
      theme picker, the full story weaving loop on chat streams (momentum,
-     answer-steered beats, gentle finale), and real-task weaving: HONEYDO
-     todos and needs-human conductor tasks surface as in-world questions.
-     Read-only — answers are captured for review, never written back
-     (t-006 gates write-back behind human approval). -->
+     answer-steered beats, gentle finale), real-task weaving (HONEYDO todos
+     and needs-human conductor tasks as in-world questions), and the Story
+     ledger's per-item Apply write-back (t-006 wiring approved by Silas
+     2026-07-03): honey-dos are marked done, needs-human decisions become
+     AGENT todos. The app never edits conductor roadmap YAML. -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -325,7 +326,9 @@
           >
             <div class="mb-2 flex items-center gap-2">
               <Icon name="kind-icon:stars" class="size-4 text-secondary" />
-              <h3 class="text-xs font-bold uppercase tracking-wide text-secondary">
+              <h3
+                class="text-xs font-bold uppercase tracking-wide text-secondary"
+              >
                 What the story learned
               </h3>
             </div>
@@ -342,7 +345,7 @@
           </div>
         </div>
 
-        <!-- Story ledger: t-006 write-back demo, dry-run only -->
+        <!-- Story ledger: t-006, approved wiring — explicit per-item Apply -->
         <div
           v-if="store.pendingWriteBacks.length"
           class="space-y-2 rounded-2xl border border-warning/30 bg-warning/5 p-4"
@@ -350,32 +353,56 @@
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:gearhammer" class="size-4 text-warning" />
             <h3 class="text-xs font-bold uppercase tracking-wide text-warning">
-              Story ledger — answers waiting on the human gate
+              Story ledger — answers the story collected
             </h3>
           </div>
           <p class="text-[0.7rem] leading-relaxed text-base-content/50">
-            The story collected these while you played. Nothing below has been
-            written anywhere — write-back ships only after Silas approves the
-            wiring (serendipity/t-006). This panel is the demo of that flow.
+            Nothing is written automatically. Apply an answer to make it real;
+            until then it just waits here.
           </p>
           <article
             v-for="item in store.pendingWriteBacks"
             :key="item.beatId"
             class="rounded-xl border border-base-300 bg-base-100 p-3 text-xs leading-relaxed"
           >
-            <p class="font-bold">
-              {{ item.title }}
-              <span
-                class="badge badge-warning badge-outline badge-xs ml-1 align-middle"
-              >
-                {{ item.kind === 'honeydo' ? 'honey-do' : 'needs a human' }}
-              </span>
-            </p>
-            <p class="mt-1 text-base-content/70">“{{ item.answer }}”</p>
-            <p class="mt-1 text-base-content/50">
-              <span class="font-semibold">Dry run:</span>
-              {{ item.proposedWrite }}
-            </p>
+            <div class="flex items-start gap-2">
+              <div class="min-w-0 flex-1">
+                <p class="font-bold">
+                  {{ item.title }}
+                  <span
+                    class="badge badge-warning badge-outline badge-xs ml-1 align-middle"
+                  >
+                    {{ item.kind === 'honeydo' ? 'honey-do' : 'needs a human' }}
+                  </span>
+                </p>
+                <p class="mt-1 text-base-content/70">“{{ item.answer }}”</p>
+                <p class="mt-1 text-base-content/50">
+                  <span class="font-semibold">Apply will:</span>
+                  {{ item.proposedWrite }}
+                </p>
+              </div>
+              <div class="shrink-0">
+                <span
+                  v-if="item.status === 'written'"
+                  class="badge badge-success badge-sm rounded-xl"
+                >
+                  written
+                </span>
+                <button
+                  v-else
+                  type="button"
+                  class="btn btn-warning btn-xs rounded-xl"
+                  :disabled="item.status === 'queued'"
+                  @click="store.applyWriteBack(item.beatId)"
+                >
+                  <span
+                    v-if="item.status === 'queued'"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  <template v-else>Apply</template>
+                </button>
+              </div>
+            </div>
           </article>
         </div>
       </div>
@@ -455,8 +482,10 @@ const sessionRecap = computed(() => {
   const items: { label: string; value: string }[] = [
     { label: 'Tone', value: active.seed.tone },
   ]
-  if (active.location) items.push({ label: 'Place', value: active.location.title })
-  if (active.genre) items.push({ label: 'Story grammar', value: active.genre.title })
+  if (active.location)
+    items.push({ label: 'Place', value: active.location.title })
+  if (active.genre)
+    items.push({ label: 'Story grammar', value: active.genre.title })
   if (active.seed.vibeTags.length) {
     items.push({ label: 'Vibes', value: active.seed.vibeTags.join(', ') })
   }

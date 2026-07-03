@@ -24,7 +24,7 @@
     "migration": "./scripts/migration.sh",
     "prisma:migrate:dev": "prisma migrate dev",
     "postinstall": "nuxi prepare",
-    "backup": "ts-node server/utils/backupDatabase.ts",
+    "snapshot:fallback": "tsx utils/scripts/snapshotFallback.ts",
     "backfill:slugs": "tsx utils/scripts/backfillSlugs.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

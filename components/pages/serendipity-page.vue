@@ -1,7 +1,7 @@
 <!-- /components/pages/serendipity-page.vue -->
-<!-- Serendipity (serendipity/t-002 + t-003): themed intro with a Dreams-fed
-     theme picker (LOCATION and GENRE dreams as story ingredients) + streamed
-     story loop on chat streams. Task weaving arrives with t-005.
+<!-- Serendipity (serendipity/t-002..t-004): themed intro with a Dreams-fed
+     theme picker + the full story weaving loop on chat streams (momentum,
+     answer-steered beats, gentle finale). Task weaving arrives with t-005.
      Read-only — no writes to todos or roadmaps. -->
 <template>
   <section
@@ -25,15 +25,24 @@
           the protagonist.
         </p>
       </div>
-      <button
-        v-if="store.session"
-        type="button"
-        class="btn btn-ghost btn-sm rounded-xl"
-        :disabled="store.isWeaving"
-        @click="startOver"
-      >
-        <Icon name="kind-icon:wand" class="size-4" /> New story
-      </button>
+      <div v-if="store.session" class="flex shrink-0 gap-2">
+        <button
+          v-if="store.canClose"
+          type="button"
+          class="btn btn-ghost btn-sm rounded-xl"
+          @click="store.closeStory()"
+        >
+          <Icon name="kind-icon:moon" class="size-4" /> Bring it to a close
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm rounded-xl"
+          :disabled="store.isWeaving"
+          @click="startOver"
+        >
+          <Icon name="kind-icon:wand" class="size-4" /> New story
+        </button>
+      </div>
     </header>
 
     <!-- Intro screen -->
@@ -244,9 +253,20 @@
         <p v-if="store.errorMessage" class="text-xs text-error">
           {{ store.errorMessage }}
         </p>
+
+        <div
+          v-if="store.isComplete"
+          class="rounded-2xl border border-secondary/30 bg-secondary/5 p-4 text-center"
+        >
+          <p class="text-sm font-bold text-secondary">The End</p>
+          <p class="mt-1 text-xs text-base-content/60">
+            This story is complete. Open another door whenever you like.
+          </p>
+        </div>
       </div>
 
       <form
+        v-if="!store.isComplete"
         class="flex items-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-3"
         @submit.prevent="submitAnswer"
       >

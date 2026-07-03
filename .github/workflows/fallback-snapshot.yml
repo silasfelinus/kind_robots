@@ -65,6 +65,64 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      # Diagnoses connectivity without leaking infrastructure into public
+      # logs: prints only record counts, error codes, and timings — never the
+      # host or any address.
+      - name: Connectivity probe
+        continue-on-error: true
+        run: |
+          node - <<'EOF'
+          const net = require('net')
+          const dns = require('dns/promises')
+          const url = new URL(process.env.DATABASE_URL)
+          const host = url.hostname
+          const port = Number(url.port || 3306)
+          const probe = (opts, label) =>
+            new Promise((resolve) => {
+              const t0 = Date.now()
+              let settled = false
+              const done = (msg) => {
+                if (settled) return
+                settled = true
+                console.log(label, msg, `${Date.now() - t0}ms`)
+                try { s.destroy() } catch {}
+                resolve()
+              }
+              const s = net.connect({ host, port, ...opts })
+              s.once('connect', () => done('CONNECTED'))
+              s.once('error', (e) =>
+                done('ERROR ' + (e.code || (e.errors && e.errors.map((x) => x.code).join(',')) || e.constructor.name)),
+              )
+              setTimeout(() => done('TIMEOUT'), 12000)
+            })
+          ;(async () => {
+            for (const [label, fn] of [['A', () => dns.resolve4(host)], ['AAAA', () => dns.resolve6(host)]]) {
+              try { console.log(label, 'records:', (await fn()).length) }
+              catch (e) { console.log(label, 'lookup error:', e.code) }
+            }
+            await probe({ family: 4 }, 'connect ipv4:')
+            await probe({ family: 6 }, 'connect ipv6:')
+            await probe({}, 'connect default:')
+            await probe({ autoSelectFamily: false }, 'connect noAutoSelect:')
+          })()
+          EOF
+
+          sudo apt-get install -y -q mysql-client >/dev/null 2>&1 || true
+          proto_stripped="${DATABASE_URL#mysql://}"
+          creds="${proto_stripped%%@*}"
+          rest="${proto_stripped#*@}"
+          DB_USER="${creds%%:*}"
+          export MYSQL_PWD="${creds#*:}"
+          hostport="${rest%%/*}"
+          DB_HOST="${hostport%%:*}"
+          DB_PORT="${hostport#*:}"
+          [ "$DB_PORT" = "$DB_HOST" ] && DB_PORT=3306
+          if mysql --connect-timeout=12 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -e 'SELECT 1' >/dev/null 2>&1; then
+            echo "mysql CLI: ok"
+          else
+            echo "mysql CLI: fail (exit $?)"
+          fi
+
       - name: Write fallback snapshots
         run: npx tsx utils/scripts/snapshotFallback.ts
 

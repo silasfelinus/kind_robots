@@ -237,10 +237,8 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
     return availableHooks.value[0] ?? null
   }
 
-  // The brief's guardrail: always show the real task/todo context near a
-  // woven question. Resolves the current beat's ids back to display titles.
-  const currentHookContext = computed(() => {
-    const question = currentBeat.value?.question
+  // Resolves a woven question's ids back to a display title.
+  function resolveQuestionContext(question: SerendipityQuestion | undefined) {
     if (!question || question.realWorldKind === 'preference') return null
     if (question.todoId != null) {
       const todo = todoStore.todos.find((entry) => entry.id === question.todoId)
@@ -262,6 +260,48 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
       }
     }
     return null
+  }
+
+  // The brief's guardrail: always show the real task/todo context near a
+  // woven question.
+  const currentHookContext = computed(() =>
+    resolveQuestionContext(currentBeat.value?.question),
+  )
+
+  // ── Story ledger (t-006 demo, dry-run only) ────────────────────────────
+  // Every captured answer that is waiting on the human gate, with the write
+  // that WOULD happen once Silas approves the wiring. No write path exists
+  // in this build — the ledger is the demo of the flow.
+  const pendingWriteBacks = computed(() => {
+    const items: {
+      beatId: string
+      kind: 'honeydo' | 'needs-human'
+      title: string
+      answer: string
+      proposedWrite: string
+    }[] = []
+    for (const beat of session.value?.beats ?? []) {
+      const question = beat.question
+      if (!beat.answer || beat.answer.writeBackStatus !== 'pending-human-gate')
+        continue
+      if (
+        question.realWorldKind !== 'honeydo' &&
+        question.realWorldKind !== 'needs-human'
+      )
+        continue
+      const context = resolveQuestionContext(question)
+      items.push({
+        beatId: beat.id,
+        kind: question.realWorldKind,
+        title: context?.title ?? 'a real item',
+        answer: beat.answer.text,
+        proposedWrite:
+          question.realWorldKind === 'honeydo'
+            ? `Would mark honey-do #${question.todoId} done, with this answer attached as the note.`
+            : `Would record this decision on conductor task ${question.conductorTaskId} as a new AGENT todo for review — the roadmap itself is only ever edited by Silas or the agents in conductor.`,
+      })
+    }
+    return items
   })
 
   async function loadRealSurfaces(): Promise<void> {
@@ -573,6 +613,7 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
     canClose,
     availableHooks,
     currentHookContext,
+    pendingWriteBacks,
     loadRealSurfaces,
     restoreFromLocalStorage,
     resetSession,

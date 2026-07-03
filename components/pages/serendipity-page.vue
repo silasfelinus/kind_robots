@@ -318,6 +318,43 @@
             This story is complete. Open another door whenever you like.
           </p>
         </div>
+
+        <!-- Story ledger: t-006 write-back demo, dry-run only -->
+        <div
+          v-if="store.pendingWriteBacks.length"
+          class="space-y-2 rounded-2xl border border-warning/30 bg-warning/5 p-4"
+        >
+          <div class="flex items-center gap-2">
+            <Icon name="kind-icon:gearhammer" class="size-4 text-warning" />
+            <h3 class="text-xs font-bold uppercase tracking-wide text-warning">
+              Story ledger — answers waiting on the human gate
+            </h3>
+          </div>
+          <p class="text-[0.7rem] leading-relaxed text-base-content/50">
+            The story collected these while you played. Nothing below has been
+            written anywhere — write-back ships only after Silas approves the
+            wiring (serendipity/t-006). This panel is the demo of that flow.
+          </p>
+          <article
+            v-for="item in store.pendingWriteBacks"
+            :key="item.beatId"
+            class="rounded-xl border border-base-300 bg-base-100 p-3 text-xs leading-relaxed"
+          >
+            <p class="font-bold">
+              {{ item.title }}
+              <span
+                class="badge badge-warning badge-outline badge-xs ml-1 align-middle"
+              >
+                {{ item.kind === 'honeydo' ? 'honey-do' : 'needs a human' }}
+              </span>
+            </p>
+            <p class="mt-1 text-base-content/70">“{{ item.answer }}”</p>
+            <p class="mt-1 text-base-content/50">
+              <span class="font-semibold">Dry run:</span>
+              {{ item.proposedWrite }}
+            </p>
+          </article>
+        </div>
       </div>
 
       <form

@@ -12,6 +12,7 @@ import {
   seedBotsHelper,
 } from './helpers/botHelper'
 import { performFetch, handleError } from './utils'
+import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { useServerStore } from './serverStore'
 import { useUserStore } from './userStore'
 
@@ -119,6 +120,9 @@ export const useBotStore = defineStore('botStore', () => {
   const isInitializing = ref(false)
   const isSaving = ref(false)
   const lastError = ref<string | null>(null)
+  // True while the list is showing nightly snapshot rows instead of live
+  // data (fresh visit with the database unreachable). Cleared by fetchBots.
+  const usingSnapshot = ref(false)
 
   const pendingLaunchMessage = ref('')
 
@@ -465,6 +469,19 @@ export const useBotStore = defineStore('botStore', () => {
 
         hydrateFromLocalStorage()
 
+        // First visit (or cleared storage): paint from the nightly snapshot
+        // so the page has real bots even if the database is down. The next
+        // successful fetchBots replaces these rows and clears the flag.
+        if (bots.value.length === 0) {
+          const snapshotRows = await loadSnapshot<Bot>('bots')
+
+          if (snapshotRows.length && bots.value.length === 0) {
+            bots.value = snapshotRows.slice().sort(sortBots)
+            usingSnapshot.value = true
+            markSnapshotActive('bots', true)
+          }
+        }
+
         if (options.initializeServerStore === true) {
           await serverStore.initialize({
             fetchRemote: true,
@@ -517,6 +534,8 @@ export const useBotStore = defineStore('botStore', () => {
         if (response.success && Array.isArray(response.data)) {
           bots.value = response.data.slice().sort(sortBots)
           isLoaded.value = true
+          usingSnapshot.value = false
+          markSnapshotActive('bots', false)
           persist()
 
           return bots.value
@@ -909,6 +928,7 @@ export const useBotStore = defineStore('botStore', () => {
     isLoaded,
     isInitialized,
     isInitializing,
+    usingSnapshot,
     lastError,
     error,
     pendingLaunchMessage,

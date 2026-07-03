@@ -47,9 +47,10 @@ jobs:
             exit 1
           fi
 
+      # No explicit ref: scheduled runs check out main (the default branch),
+      # while a workflow_dispatch on a branch tests that branch's script.
+      # Only main runs are allowed to commit (guard on the commit step).
       - uses: actions/checkout@v4
-        with:
-          ref: main
 
       - uses: actions/setup-node@v4
         with:
@@ -68,6 +69,7 @@ jobs:
         run: npx tsx utils/scripts/snapshotFallback.ts
 
       - name: Commit snapshots if changed
+        if: github.ref == 'refs/heads/main'
         run: |
           if git diff --quiet -- stores/fallback; then
             echo "No snapshot changes today."

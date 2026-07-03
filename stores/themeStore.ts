@@ -2,6 +2,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch, nextTick } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
+import {
+  loadSnapshot,
+  markSnapshotActive,
+} from '@/stores/helpers/snapshotLoader'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type { Theme } from '~/prisma/generated/prisma/client'
@@ -121,6 +125,9 @@ export const useThemeStore = defineStore('themeStore', () => {
   const initializing = ref(false)
   const loadingThemes = ref(false)
   const lastError = ref<string | null>(null)
+  // True while sharedThemes holds nightly snapshot rows because the live
+  // fetch failed (database down). Cleared by the next successful getThemes.
+  const usingSnapshot = ref(false)
 
   const initializePromise = ref<Promise<void> | null>(null)
   const getThemesPromise = ref<Promise<Theme[]> | null>(null)
@@ -377,6 +384,8 @@ export const useThemeStore = defineStore('themeStore', () => {
 
         if (success && data?.themes) {
           sharedThemes.value = data.themes
+          usingSnapshot.value = false
+          markSnapshotActive('themes', false)
           return sharedThemes.value
         }
 
@@ -384,6 +393,21 @@ export const useThemeStore = defineStore('themeStore', () => {
       } catch (error) {
         handleError(error, 'getThemes')
         setLastError(error, 'Failed to fetch themes')
+
+        // Database unreachable and nothing loaded yet: fall back to the
+        // nightly snapshot so theme pickers still have real content.
+        // getThemes' cache guard checks sharedThemes.length, so snapshot
+        // rows must only land here (after a failure), never before a fetch.
+        if (sharedThemes.value.length === 0) {
+          const snapshotRows = await loadSnapshot<Theme>('themes')
+
+          if (snapshotRows.length && sharedThemes.value.length === 0) {
+            sharedThemes.value = snapshotRows
+            usingSnapshot.value = true
+            markSnapshotActive('themes', true)
+          }
+        }
+
         return sharedThemes.value
       } finally {
         loadingThemes.value = false
@@ -571,6 +595,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     initialized,
     initializing,
     loadingThemes,
+    usingSnapshot,
     lastError,
     initializePromise,
     toggleMenu,

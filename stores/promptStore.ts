@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { ArtImage, Prompt } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
+import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { useUserStore } from './userStore'
 import {
   validatePromptString,
@@ -132,6 +133,9 @@ export const usePromptStore = defineStore('promptStore', () => {
   const isSaving = ref(false)
   const isGeneratingFields = ref(false)
   const lastError = ref<string | null>(null)
+  // True while the list is showing nightly snapshot rows instead of live
+  // data (fresh visit with the database unreachable). Cleared by fetchPrompts.
+  const usingSnapshot = ref(false)
 
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchPromise = ref<Promise<Prompt[]> | null>(null)
@@ -377,6 +381,19 @@ export const usePromptStore = defineStore('promptStore', () => {
 
         loadFromLocalStorage()
 
+        // First visit (or cleared storage): paint from the nightly snapshot
+        // so the page has real prompts even if the database is down. The
+        // next successful fetchPrompts replaces these rows and clears the flag.
+        if (prompts.value.length === 0) {
+          const snapshotRows = await loadSnapshot<Prompt>('prompts')
+
+          if (snapshotRows.length && prompts.value.length === 0) {
+            prompts.value = snapshotRows.slice().sort(sortPrompts)
+            usingSnapshot.value = true
+            markSnapshotActive('prompts', true)
+          }
+        }
+
         if (options.fetchRemote) {
           await fetchPrompts(Boolean(options.force))
         }
@@ -420,6 +437,8 @@ export const usePromptStore = defineStore('promptStore', () => {
 
         prompts.value = response.data.slice().sort(sortPrompts)
         hasLoaded.value = true
+        usingSnapshot.value = false
+        markSnapshotActive('prompts', false)
         syncToLocalStorage()
 
         return prompts.value
@@ -797,7 +816,9 @@ export const usePromptStore = defineStore('promptStore', () => {
     return result.success
   }
 
-  async function promoteToDream(promptId?: number): Promise<PromptMutationResult> {
+  async function promoteToDream(
+    promptId?: number,
+  ): Promise<PromptMutationResult> {
     const id = promptId ?? selectedPrompt.value?.id
 
     if (!id) {
@@ -1038,6 +1059,7 @@ export const usePromptStore = defineStore('promptStore', () => {
     loading,
     isSaving,
     isGeneratingFields,
+    usingSnapshot,
     lastError,
     initializePromise,
     fetchPromise,

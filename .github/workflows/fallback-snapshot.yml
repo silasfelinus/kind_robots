@@ -1,0 +1,126 @@
+name: Nightly fallback snapshot & backup
+
+# Two independent nightly jobs:
+#
+#   snapshot — dumps public rows (per-model field allowlists, isPublic only)
+#     to stores/fallback/*.json and commits the result. Git history becomes a
+#     rolling, versioned record of public content, and every deploy ships
+#     with yesterday's data baked in for database-outage fallback.
+#
+#   dump — full mysqldump for disaster recovery, encrypted with
+#     BACKUP_PASSPHRASE before upload. Skipped (with a warning) if the
+#     passphrase secret is missing: artifacts on a public repo are
+#     downloadable by anyone, so a plaintext dump must never be uploaded.
+#
+# Required secrets:
+#   DATABASE_URL       mysql://user:pass@host:port/db (must accept
+#                      connections from GitHub-hosted runners)
+#   BACKUP_PASSPHRASE  symmetric key for the encrypted dump
+#
+# Restore a dump:
+#   openssl enc -d -aes-256-cbc -pbkdf2 -in dump.sql.gz.enc -pass env:BACKUP_PASSPHRASE | gunzip | mysql ...
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # daily, 09:17 UTC ≈ 1:17am Pacific
+  workflow_dispatch:
+
+concurrency:
+  group: fallback-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Write fallback snapshots
+        run: npx tsx utils/scripts/snapshotFallback.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Commit snapshots if changed
+        run: |
+          if git diff --quiet -- stores/fallback; then
+            echo "No snapshot changes today."
+            exit 0
+          fi
+          git config user.name "kind-robots-snapshot[bot]"
+          git config user.email "snapshot-bot@users.noreply.github.com"
+          git add stores/fallback
+          git commit -m "chore: nightly public-content fallback snapshot"
+          git push origin main
+
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for passphrase
+        id: gate
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::warning::BACKUP_PASSPHRASE secret is not set — skipping database dump (refusing to upload plaintext)."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install mysql client
+        if: steps.gate.outputs.enabled == 'true'
+        run: sudo apt-get update -q && sudo apt-get install -y -q mysql-client
+
+      - name: Dump and encrypt database
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          # Parse mysql://user:pass@host:port/db (query string ignored)
+          proto_stripped="${DATABASE_URL#mysql://}"
+          creds="${proto_stripped%%@*}"
+          rest="${proto_stripped#*@}"
+          DB_USER="${creds%%:*}"
+          export MYSQL_PWD="${creds#*:}"
+          hostport="${rest%%/*}"
+          DB_HOST="${hostport%%:*}"
+          DB_PORT="${hostport#*:}"
+          [ "$DB_PORT" = "$DB_HOST" ] && DB_PORT=3306
+          db_and_query="${rest#*/}"
+          DB_NAME="${db_and_query%%\?*}"
+
+          mysqldump \
+            --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" \
+            --single-transaction --skip-lock-tables --routines --triggers \
+            "$DB_NAME" \
+            | gzip \
+            | openssl enc -aes-256-cbc -pbkdf2 -pass env:BACKUP_PASSPHRASE \
+            > dump.sql.gz.enc
+
+          ls -lh dump.sql.gz.enc
+
+      - name: Upload encrypted dump
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: dump.sql.gz.enc
+          retention-days: 30

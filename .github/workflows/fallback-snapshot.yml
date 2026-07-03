@@ -141,6 +141,12 @@ jobs:
 
   dump:
     runs-on: ubuntu-latest
+    # Serialized after snapshot: when both jobs hit the database at the same
+    # time from different runner IPs, the host drops new TCP connections for
+    # one of them (anti-flood behavior on the DB host — confirmed by a probe
+    # where even the mysql CLI timed out while a concurrent dump ran).
+    needs: snapshot
+    if: always()
     steps:
       - name: Check for passphrase
         id: gate

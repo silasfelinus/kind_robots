@@ -313,9 +313,15 @@ export const useChatStore = defineStore('chatStore', () => {
     }
 
     if (userStore.token) {
-      const tokenIsValid = await userStore.validateAndFetchUserData()
+      const validation = await userStore.validateAndFetchUserData()
 
-      if (tokenIsValid) return
+      if (validation === 'valid') return
+
+      if (validation === 'unavailable') {
+        throw new Error(
+          'The sign-in service is unreachable right now. Please try again in a moment.',
+        )
+      }
 
       userStore.logout()
     }

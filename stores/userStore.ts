@@ -33,6 +33,11 @@ type InitializeOptions = {
   force?: boolean
 }
 
+// 'invalid' means the server definitively rejected the token; 'unavailable'
+// means we couldn't get an answer (timeout, network, database down). Only
+// 'invalid' may cost the user their stored session.
+type TokenValidation = 'valid' | 'invalid' | 'unavailable'
+
 const fallbackAvatar = '/images/kindart.webp'
 
 function stableStringify(value: unknown): string {
@@ -81,7 +86,7 @@ export const useUserStore = defineStore('userStore', () => {
   const initialized = ref(false)
 
   const initializePromise = ref<Promise<void> | null>(null)
-  const validatePromise = ref<Promise<boolean> | null>(null)
+  const validatePromise = ref<Promise<TokenValidation> | null>(null)
   const fetchUsersPromise = ref<Promise<User[]> | null>(null)
   const patchUserPromise = ref<Promise<User | null> | null>(null)
   const queuedUserPatch = ref<UserPatch>({})
@@ -95,12 +100,15 @@ export const useUserStore = defineStore('userStore', () => {
   const karma = computed(() => user.value?.karma ?? 1000)
   const mana = computed(() => user.value?.mana ?? 0)
   const role = computed(() => user.value?.Role ?? 'USER')
-  const isAdmin = computed(() => user.value?.Role === 'ADMIN' || user.value?.id === 1)
+  const isAdmin = computed(
+    () => user.value?.Role === 'ADMIN' || user.value?.id === 1,
+  )
   const isFamily = computed(() => user.value?.Role === 'FAMILY')
   const isMember = computed(
     () =>
       user.value?.isMember === true &&
-      (!user.value?.memberUntil || new Date(user.value.memberUntil) > new Date()),
+      (!user.value?.memberUntil ||
+        new Date(user.value.memberUntil) > new Date()),
   )
   const avatarImage = computed(() => user.value?.avatarImage ?? 'default')
   const apiKey = computed(() => user.value?.apiKey ?? null)
@@ -396,11 +404,19 @@ export const useUserStore = defineStore('userStore', () => {
 
         token.value = tokenToUse
 
-        const success = await validateAndFetchUserData()
+        const validation = await validateAndFetchUserData()
 
-        if (!success) {
+        if (validation === 'invalid') {
           clearAuthStorage()
           resetSessionState(false)
+          initialized.value = true
+          return
+        }
+
+        if (validation === 'unavailable') {
+          // Server or database is unreachable — keep the stored token so the
+          // session survives the outage. The user browses as a guest until a
+          // later validateAndFetchUserData call succeeds.
           initialized.value = true
           return
         }
@@ -425,9 +441,9 @@ export const useUserStore = defineStore('userStore', () => {
     return initializePromise.value
   }
 
-  async function validateAndFetchUserData(): Promise<boolean> {
+  async function validateAndFetchUserData(): Promise<TokenValidation> {
     if (!token.value) {
-      return false
+      return 'invalid'
     }
 
     if (validatePromise.value) {
@@ -450,15 +466,23 @@ export const useUserStore = defineStore('userStore', () => {
           }
 
           lastError.value = null
-          return true
+          return 'valid'
         }
 
         lastError.value = res.message || 'Invalid token'
-        return false
+
+        // 400/401/403/404 are definitive rejections. Timeouts (408), server
+        // errors (5xx), and circuit-breaker skips (503) are outages — the
+        // token may still be perfectly good.
+        const status = res.status ?? 0
+        const definitivelyRejected =
+          status >= 400 && status < 500 && status !== 408
+
+        return definitivelyRejected ? 'invalid' : 'unavailable'
       } catch (error) {
         handleError(error, 'validateAndFetchUserData')
         lastError.value = 'Validation error'
-        return false
+        return 'unavailable'
       } finally {
         validatePromise.value = null
       }

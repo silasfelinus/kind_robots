@@ -311,12 +311,35 @@
 
         <div
           v-if="store.isComplete"
-          class="rounded-2xl border border-secondary/30 bg-secondary/5 p-4 text-center"
+          class="space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4"
         >
-          <p class="text-sm font-bold text-secondary">The End</p>
-          <p class="mt-1 text-xs text-base-content/60">
-            This story is complete. Open another door whenever you like.
-          </p>
+          <div class="text-center">
+            <p class="text-sm font-bold text-secondary">The End</p>
+            <p class="mt-1 text-xs text-base-content/60">
+              This story is complete. Open another door whenever you like.
+            </p>
+          </div>
+          <div
+            v-if="sessionRecap.length"
+            class="rounded-2xl border border-base-300 bg-base-100 p-3 text-left"
+          >
+            <div class="mb-2 flex items-center gap-2">
+              <Icon name="kind-icon:stars" class="size-4 text-secondary" />
+              <h3 class="text-xs font-bold uppercase tracking-wide text-secondary">
+                What the story learned
+              </h3>
+            </div>
+            <dl class="grid gap-2 text-xs leading-relaxed sm:grid-cols-2">
+              <div
+                v-for="item in sessionRecap"
+                :key="item.label"
+                class="rounded-xl border border-base-300 bg-base-200/50 p-2"
+              >
+                <dt class="font-bold text-base-content/70">{{ item.label }}</dt>
+                <dd class="mt-0.5 text-base-content/60">{{ item.value }}</dd>
+              </div>
+            </dl>
+          </div>
         </div>
 
         <!-- Story ledger: t-006 write-back demo, dry-run only -->
@@ -416,6 +439,41 @@ const genreDreams = computed(() =>
     (dream) => dream.dreamType === 'GENRE' && dream.isActive && dream.slug,
   ),
 )
+
+const sessionRecap = computed(() => {
+  const active = store.session
+  if (!active || active.status !== 'complete') return []
+  const answeredBeats = active.beats.filter((beat) => beat.answer?.text)
+  const preferenceAnswers = answeredBeats
+    .filter((beat) => beat.question.realWorldKind === 'preference')
+    .map((beat) => beat.answer?.text.trim())
+    .filter(Boolean)
+    .slice(0, 3)
+  const realThreadCount = answeredBeats.filter(
+    (beat) => beat.question.realWorldKind !== 'preference',
+  ).length
+  const items: { label: string; value: string }[] = [
+    { label: 'Tone', value: active.seed.tone },
+  ]
+  if (active.location) items.push({ label: 'Place', value: active.location.title })
+  if (active.genre) items.push({ label: 'Story grammar', value: active.genre.title })
+  if (active.seed.vibeTags.length) {
+    items.push({ label: 'Vibes', value: active.seed.vibeTags.join(', ') })
+  }
+  if (preferenceAnswers.length) {
+    items.push({
+      label: 'Preference clues',
+      value: preferenceAnswers.join(' • '),
+    })
+  }
+  if (realThreadCount) {
+    items.push({
+      label: 'Real-world threads',
+      value: `${realThreadCount} answer${realThreadCount === 1 ? '' : 's'} held for review`,
+    })
+  }
+  return items
+})
 
 function toIngredient(
   dream: DreamWithRelations | undefined,

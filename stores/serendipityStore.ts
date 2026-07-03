@@ -1,5 +1,5 @@
 // /stores/serendipityStore.ts
-// Serendipity story sessions (serendipity/t-002 scaffold).
+// Serendipity story sessions (serendipity/t-002..t-004).
 // App-owned session state per the approved experience brief:
 // conductor projects/serendipity/docs/serendipity-experience.md.
 // Read-only against real task state — no writes to todos or roadmaps here.
@@ -151,9 +151,24 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
   const awaitingAnswer = computed(
     () =>
       Boolean(
-        session.value && currentBeat.value && !currentBeat.value.answer,
+        session.value &&
+        session.value.status === 'active' &&
+        currentBeat.value &&
+        !currentBeat.value.answer,
       ) && !isWeaving.value,
   )
+
+  const isComplete = computed(() => session.value?.status === 'complete')
+
+  const canClose = computed(() => {
+    const active = session.value
+    return Boolean(
+      active &&
+      active.status === 'active' &&
+      active.beats.length >= 2 &&
+      !isWeaving.value,
+    )
+  })
 
   function saveToLocalStorage() {
     if (typeof localStorage === 'undefined') return
@@ -224,29 +239,89 @@ ${buildSeedDescription()}
 Write the opening scene: set the place, invite the protagonist in, and end with one question.`
   }
 
-  function buildNextBeatPrompt(answerText: string): string {
+  // Momentum guidance: the story should feel like it is going somewhere.
+  function beatPhaseGuidance(beatCount: number): string {
+    if (beatCount <= 1) {
+      return 'The story is young — widen the world a little and build momentum.'
+    }
+    if (beatCount <= 3) {
+      return 'The story is rising — raise what is at stake for the protagonist, gently.'
+    }
+    if (beatCount <= 5) {
+      return 'The story is deep — start braiding earlier threads and answers back in.'
+    }
+    return 'The story is long and rich — begin bending toward a resolution the protagonist can feel coming.'
+  }
+
+  // Keep prompts bounded on long stories: full text for the opening scene and
+  // the most recent beats, one-line question/answer pairs for the middle.
+  const RECAP_FULL_BEATS = 4
+
+  function buildRecap(): string {
     const beats = session.value?.beats ?? []
-    const recap = beats
+    if (beats.length <= RECAP_FULL_BEATS + 1) {
+      return beats
+        .map((beat) => {
+          const answer = beat.answer
+            ? `\nThe protagonist answered: ${beat.answer.text}`
+            : ''
+          return `${beat.narrative}${answer}`
+        })
+        .join('\n\n')
+    }
+    const opening = beats[0]
+    const middle = beats.slice(1, -RECAP_FULL_BEATS)
+    const recent = beats.slice(-RECAP_FULL_BEATS)
+    const middleLines = middle
       .map((beat) => {
-        const answer = beat.answer
-          ? `\nThe protagonist answered: ${beat.answer.text}`
-          : ''
-        return `${beat.narrative}${answer}`
+        const answer = beat.answer ? ` They answered: ${beat.answer.text}` : ''
+        return `- The story asked: ${beat.question.prompt}${answer}`
       })
-      .join('\n\n')
+      .join('\n')
+    return [
+      `How it began:\n${opening?.narrative ?? ''}`,
+      `What happened along the way:\n${middleLines}`,
+      recent
+        .map((beat) => {
+          const answer = beat.answer
+            ? `\nThe protagonist answered: ${beat.answer.text}`
+            : ''
+          return `${beat.narrative}${answer}`
+        })
+        .join('\n\n'),
+    ].join('\n\n')
+  }
+
+  function buildNextBeatPrompt(answerText: string): string {
+    const beatCount = session.value?.beats.length ?? 0
     return `${PERSONA}
 
 ${buildSeedDescription()}
 
+${beatPhaseGuidance(beatCount)}
+
 The story so far:
-${recap}
+${buildRecap()}
 
 The protagonist just answered: ${answerText}
 
 Continue the story with the next beat, honoring their answer, and end with one new question.`
   }
 
-  async function weaveBeat(prompt: string): Promise<boolean> {
+  function buildClosingPrompt(): string {
+    return `${PERSONA}
+
+${buildSeedDescription()}
+
+The story so far:
+${buildRecap()}
+
+The protagonist is ready for the story to end. Write the final beat: resolve
+the threads gently, give the protagonist a small gift to carry out of the
+story, and end with warmth. This is the finale — do NOT end with a question.`
+  }
+
+  async function weaveBeat(prompt: string, closing = false): Promise<boolean> {
     if (!session.value) return false
     isWeaving.value = true
     errorMessage.value = ''
@@ -271,12 +346,13 @@ Continue the story with the next beat, honoring their answer, and end with one n
         sessionId: session.value.id,
         narrative,
         question: {
-          prompt: extractQuestion(narrative),
+          prompt: closing ? '' : extractQuestion(narrative),
           realWorldKind: 'preference',
           projectSlug: session.value.projectSlug,
         },
         createdAt: nowIso(),
       }
+      if (closing) session.value.status = 'complete'
       session.value.beats.push(beat)
       session.value.updatedAt = nowIso()
       saveToLocalStorage()
@@ -329,7 +405,8 @@ Continue the story with the next beat, honoring their answer, and end with one n
   async function answerCurrentBeat(text: string): Promise<boolean> {
     const beat = currentBeat.value
     const trimmed = text.trim()
-    if (!session.value || !beat || beat.answer || !trimmed) return false
+    if (!awaitingAnswer.value || !session.value || !beat || !trimmed)
+      return false
     beat.answer = {
       text: trimmed,
       capturedAt: nowIso(),
@@ -340,6 +417,11 @@ Continue the story with the next beat, honoring their answer, and end with one n
     return await weaveBeat(buildNextBeatPrompt(trimmed))
   }
 
+  async function closeStory(): Promise<boolean> {
+    if (!canClose.value) return false
+    return await weaveBeat(buildClosingPrompt(), true)
+  }
+
   return {
     session,
     isWeaving,
@@ -347,9 +429,12 @@ Continue the story with the next beat, honoring their answer, and end with one n
     streamingText,
     currentBeat,
     awaitingAnswer,
+    isComplete,
+    canClose,
     restoreFromLocalStorage,
     resetSession,
     beginStory,
     answerCurrentBeat,
+    closeStory,
   }
 })

@@ -127,10 +127,19 @@ jobs:
               setTimeout(() => done('TIMEOUT'), 12000)
             })
           ;(async () => {
-            for (const [label, fn] of [['A', () => dns.resolve4(host)], ['AAAA', () => dns.resolve6(host)]]) {
-              try { console.log(label, 'records:', (await fn()).length) }
-              catch (e) { console.log(label, 'lookup error:', e.code) }
+            // Booleans only — enough to tell "still pointing at the public
+            // host" apart from "tailnet address but the node is unreachable".
+            console.log('host is a .ts.net MagicDNS name:', host.endsWith('.ts.net'))
+            const inCgnat = (ip) => {
+              const [a, b] = ip.split('.').map(Number)
+              return a === 100 && b >= 64 && b <= 127
             }
+            try {
+              const addrs = await dns.resolve4(host)
+              console.log('A records:', addrs.length, '| all tailnet (100.64/10):', addrs.every(inCgnat))
+            } catch (e) { console.log('A lookup error:', e.code) }
+            try { console.log('AAAA records:', (await dns.resolve6(host)).length) }
+            catch (e) { console.log('AAAA lookup error:', e.code) }
             await probe({ family: 4 }, 'connect ipv4:')
             await probe({ family: 6 }, 'connect ipv6:')
             await probe({}, 'connect default:')
@@ -148,6 +157,14 @@ jobs:
           DB_HOST="${hostport%%:*}"
           DB_PORT="${hostport#*:}"
           [ "$DB_PORT" = "$DB_HOST" ] && DB_PORT=3306
+          if command -v tailscale >/dev/null 2>&1; then
+            if tailscale ping -c 2 --timeout 3s "$DB_HOST" >/dev/null 2>&1; then
+              echo "tailscale ping: ok"
+            else
+              echo "tailscale ping: fail (host is not a reachable tailnet node)"
+            fi
+          fi
+
           if mysql --connect-timeout=12 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -e 'SELECT 1' >/dev/null 2>&1; then
             echo "mysql CLI: ok"
           else

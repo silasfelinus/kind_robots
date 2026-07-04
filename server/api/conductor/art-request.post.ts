@@ -316,21 +316,23 @@ async function buildEntry(body: MissingArtRequestBody, target: ImageTarget): Pro
   }
 }
 
+// Entries must sit at column 0 to match the existing `requests:` list style in
+// conductor's art-prompts.yaml — mixed indentation breaks the YAML parser there.
 function renderRequestEntry(entry: ArtQueueEntry): string {
   const lines = [
-    `  - id: ${yamlQuoted(entry.id)}`,
-    `    source: ${yamlQuoted(entry.source)}`,
-    `    status: ${yamlQuoted(entry.status)}`,
-    `    target_repo: ${yamlQuoted(entry.target_repo)}`,
-    `    image_path: ${yamlQuoted(entry.image_path)}`,
-    `    source_url: ${yamlQuoted(entry.source_url)}`,
+    `- id: ${yamlQuoted(entry.id)}`,
+    `  source: ${yamlQuoted(entry.source)}`,
+    `  status: ${yamlQuoted(entry.status)}`,
+    `  target_repo: ${yamlQuoted(entry.target_repo)}`,
+    `  image_path: ${yamlQuoted(entry.image_path)}`,
+    `  source_url: ${yamlQuoted(entry.source_url)}`,
   ]
 
-  if (entry.page_url) lines.push(`    page_url: ${yamlQuoted(entry.page_url)}`)
-  lines.push(`    variant: ${yamlQuoted(entry.variant)}`)
-  if (entry.size) lines.push(`    size: ${yamlQuoted(entry.size)}`)
-  if (entry.label) lines.push(`    label: ${yamlQuoted(entry.label)}`)
-  lines.push(`    ${yamlFolded('prompt', entry.prompt, '      ')}`)
+  if (entry.page_url) lines.push(`  page_url: ${yamlQuoted(entry.page_url)}`)
+  lines.push(`  variant: ${yamlQuoted(entry.variant)}`)
+  if (entry.size) lines.push(`  size: ${yamlQuoted(entry.size)}`)
+  if (entry.label) lines.push(`  label: ${yamlQuoted(entry.label)}`)
+  lines.push(`  ${yamlFolded('prompt', entry.prompt, '    ')}`)
 
   return lines.join('\n')
 }

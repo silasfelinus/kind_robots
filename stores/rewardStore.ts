@@ -7,6 +7,7 @@ import type {
   RewardType,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
+import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { useNavStore } from '@/stores/navStore'
 
 const isClient = typeof window !== 'undefined'
@@ -256,6 +257,7 @@ function createDefaultRewardForm(): RewardForm {
 
 export const useRewardStore = defineStore('rewardStore', () => {
   const rewards = ref<Reward[]>([])
+  const usingSnapshot = ref(false)
   const selectedReward = ref<Reward | null>(null)
   const rewardForm = ref<RewardForm>({})
   const error = ref<string | null>(null)
@@ -432,6 +434,20 @@ export const useRewardStore = defineStore('rewardStore', () => {
           loadFromLocalStorage()
         }
 
+        // First visit (or cleared storage): paint from the nightly snapshot
+        // so the page has real rewards even if the database is down. The
+        // next successful fetchRewards replaces these rows and clears the
+        // flag (its cache guard keys off hasLoaded, which stays false here).
+        if (rewards.value.length === 0) {
+          const snapshotRows = await loadSnapshot<Reward>('rewards')
+
+          if (snapshotRows.length && rewards.value.length === 0) {
+            mergeRewards(snapshotRows)
+            usingSnapshot.value = true
+            markSnapshotActive('rewards', true)
+          }
+        }
+
         if (shouldFetchRemote) {
           await fetchRewards(Boolean(options.force))
         }
@@ -477,6 +493,8 @@ export const useRewardStore = defineStore('rewardStore', () => {
 
         mergeRewards(res.data)
         hasLoaded.value = true
+        usingSnapshot.value = false
+        markSnapshotActive('rewards', false)
 
         return rewards.value
       } catch (caughtError) {
@@ -819,6 +837,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
 
   return {
     rewards,
+    usingSnapshot,
     selectedReward,
     rewardForm,
     error,

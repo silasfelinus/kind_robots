@@ -30,8 +30,20 @@ import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
+// The mariadb driver's default connectTimeout is 1000ms, and GitHub-hosted
+// runners take longer than that to open a socket to the database host — every
+// model failed with "failed to create socket" until this was raised. Query
+// params survive the adapter's mysql:// → mariadb:// rewrite.
+const withConnectTimeout = (url: string, ms: number): string => {
+  const parsed = new URL(url)
+  if (!parsed.searchParams.has('connectTimeout')) {
+    parsed.searchParams.set('connectTimeout', String(ms))
+  }
+  return parsed.toString()
+}
+
 const prisma = new PrismaClient({
-  adapter: new PrismaMariaDb(databaseUrl),
+  adapter: new PrismaMariaDb(withConnectTimeout(databaseUrl, 30_000)),
 })
 
 const dryRun = process.argv.includes('--dry-run')

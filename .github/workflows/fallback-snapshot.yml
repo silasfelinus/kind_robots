@@ -12,11 +12,25 @@ name: Nightly fallback snapshot & backup
 #     passphrase secret is missing: artifacts on a public repo are
 #     downloadable by anyone, so a plaintext dump must never be uploaded.
 #
+# The database lives on a home Unraid box that is not reachable from
+# GitHub-hosted runner IPs, so both jobs join the Tailscale tailnet as an
+# ephemeral node for the duration of the run and reach MariaDB over it.
+#
 # Required secrets (repository Actions secrets: Settings → Secrets and
 # variables → Actions → New repository secret):
-#   DATABASE_URL       mysql://user:pass@host:port/db (must accept
-#                      connections from GitHub-hosted runners)
-#   BACKUP_PASSPHRASE  symmetric key for the encrypted dump
+#   DATABASE_URL         mysql://user:pass@host:port/db — host must be the
+#                        Unraid machine's tailnet address (MagicDNS name or
+#                        100.x.y.z IP), NOT its public hostname
+#   BACKUP_PASSPHRASE    symmetric key for the encrypted dump
+#   TS_OAUTH_CLIENT_ID   Tailscale OAuth client (scope: Auth Keys, with
+#   TS_OAUTH_SECRET      tag:ci) — admin console → Settings → OAuth clients.
+#                        The tailnet ACL must define the tag, e.g.
+#                        "tagOwners": { "tag:ci": ["autogroup:admin"] }
+#
+# MariaDB must also accept tailnet connections: the container's 3306 mapped
+# on the Unraid host is reachable at the host's tailnet IP as long as
+# Tailscale runs on the host; the DB user's allowed host must cover the
+# tailnet source (e.g. '%' or '100.64.0.0/10' addresses).
 #
 # Restore a dump:
 #   openssl enc -d -aes-256-cbc -pbkdf2 -in dump.sql.gz.enc -pass env:BACKUP_PASSPHRASE | gunzip | mysql ...
@@ -40,10 +54,17 @@ jobs:
       # prisma-adjacent step needs it — not just the snapshot script.
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
-      - name: Require DATABASE_URL secret
+      - name: Require secrets
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET: repo Settings → Secrets and variables → Actions → 'New repository secret'. (Vercel env vars, .env files, Codespaces/Dependabot secrets, and Actions *variables* do not resolve here.)"
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. Create a Tailscale OAuth client (admin console → Settings → OAuth clients, scope 'Auth Keys' with tag:ci) and add both as repository Actions secrets."
             exit 1
           fi
 
@@ -64,6 +85,16 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
+
+      # Join the tailnet as an ephemeral node (auto-removed after the run).
+      # Placed after the npm/prisma steps so the tailnet session stays as
+      # short as possible — only the probe and snapshot steps need it.
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
 
       # Diagnoses connectivity without leaking infrastructure into public
       # logs: prints only record counts, error codes, and timings — never the
@@ -159,6 +190,14 @@ jobs:
           else
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Connect to Tailscale
+        if: steps.gate.outputs.enabled == 'true'
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
 
       - name: Install mysql client
         if: steps.gate.outputs.enabled == 'true'

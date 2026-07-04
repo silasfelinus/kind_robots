@@ -1,6 +1,8 @@
 <!-- /components/pages/conductor-page.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden">
+    <SnapshotModeBanner />
+
     <!-- COCKPIT BAR: unified slim context strip -->
     <div
       class="flex shrink-0 flex-wrap items-center gap-x-2.5 gap-y-1 rounded-xl border border-base-300/70 bg-base-100/90 px-3 py-1.5"
@@ -1921,6 +1923,7 @@ import ConductorArtGallery from '@/components/pages/conductor-art-gallery.vue'
 import ConductorProjectWaypoints from '@/components/pages/conductor-project-waypoints.vue'
 import ConductorProjectChat from '@/components/pages/conductor-project-chat.vue'
 import KaizenPopup from '@/components/pages/kaizen-popup.vue'
+import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
 
 type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
 

@@ -300,44 +300,54 @@ model Component {
 }
 
 model Composition {
-  id             Int        @id @default(autoincrement())
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  id             Int               @id @default(autoincrement())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
   // Core fields
-  title          String     @db.VarChar(255)
-  description    String?    @db.VarChar(512)
-  label          String?    @db.VarChar(255)
+  title          String            @db.VarChar(255)
+  description    String?           @db.VarChar(512)
+  label          String?           @db.VarChar(255)
   // What to generate
-  mode           String     @default("both") @db.VarChar(64)
+  mode           String            @default("both") @db.VarChar(64)
   // 'narrative' | 'art' | 'both'
   // Flags
-  isPublic       Boolean    @default(true)
-  isMature       Boolean    @default(false)
-  isActive       Boolean    @default(true)
-  designer       String?    @default("system") @db.VarChar(255)
+  isPublic       Boolean           @default(true)
+  isMature       Boolean           @default(false)
+  isActive       Boolean           @default(true)
+  designer       String?           @default("system") @db.VarChar(255)
   // ── Ingredient FKs (all optional) ─────────────────────────────────────────────────────────────────────────────────────
   characterId    Int?
   dreamId        Int?
   scenarioId     Int?
   rewardId       Int?
   // ── Freeform overrides (used when no FK is set, or to override) ────────────────────────────────────────────────────────────────────────────────────────────────
-  characterBlurb String?    @db.VarChar(512)
-  dreamBlurb     String?    @db.VarChar(512)
-  scenarioBlurb  String?    @db.VarChar(512)
-  rewardBlurb    String?    @db.VarChar(512)
+  characterBlurb String?           @db.VarChar(512)
+  dreamBlurb     String?           @db.VarChar(512)
+  scenarioBlurb  String?           @db.VarChar(512)
+  rewardBlurb    String?           @db.VarChar(512)
   // ── Outputs ───────────────────────────────────────────────────────────────────────────────────────────
-  narrativeText  String?    @db.Text
-  artPrompt      String?    @db.Text
-  imagePath      String?    @db.VarChar(764)
+  narrativeText  String?           @db.Text
+  artPrompt      String?           @db.Text
+  imagePath      String?           @db.VarChar(764)
+  // ── Wishmaster (scope approved by Silas 2026-07-04) ─────────────────────────────
+  wishText       String?           @db.Text // raw unmodified user wish, separate from agent-interpreted blurbs
+  status         CompositionStatus @default(DRAFT)
+  stepLog        Json? // pipeline audit trail for multi-pass generation
+  userApproved   Boolean           @default(false) // user confirmed the assembled plan + cost estimate
+  approvedAt     DateTime?
+  manaCharged    Int? // economy reconciliation anchor
+  bountyId       Int? // Prompt id of the bounty this wish settles against (plain column by design)
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
   userId         Int?
-  User           User?      @relation(fields: [userId], references: [id])
-  artImageId     Int?       @unique
-  ArtImage       ArtImage?  @relation(fields: [artImageId], references: [id])
-  Character      Character? @relation(fields: [characterId], references: [id])
-  Dream          Dream?     @relation(fields: [dreamId], references: [id])
-  Scenario       Scenario?  @relation(fields: [scenarioId], references: [id])
-  Reward         Reward?    @relation(fields: [rewardId], references: [id])
+  User           User?             @relation(fields: [userId], references: [id])
+  artImageId     Int?              @unique
+  ArtImage       ArtImage?         @relation(fields: [artImageId], references: [id])
+  outputDreamId  Int?              @unique // the Dream this wish spawned (distinct from ingredient dreamId)
+  OutputDream    Dream?            @relation("CompositionOutputDream", fields: [outputDreamId], references: [id])
+  Character      Character?        @relation(fields: [characterId], references: [id])
+  Dream          Dream?            @relation(fields: [dreamId], references: [id])
+  Scenario       Scenario?         @relation(fields: [scenarioId], references: [id])
+  Reward         Reward?           @relation(fields: [rewardId], references: [id])
   Reactions      Reaction[]
 
   @@index([userId])
@@ -354,55 +364,56 @@ model Composition {
 /// ArtImages / ArtCollections / Characters / Rewards, while also designating a
 /// primary "main choice" for each via the singular FK fields.
 model Dream {
-  id              Int             @id @default(autoincrement())
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime?       @default(now()) @updatedAt
+  id                Int             @id @default(autoincrement())
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime?       @default(now()) @updatedAt
   // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────────────
-  title           String          @db.VarChar(255)
-  slug            String?         @unique @db.VarChar(255)
-  dreamType       DreamType       @default(PITCH)
-  description     String?         @db.Text
-  pitch           String?         @db.Text
-  flavorText      String?         @db.VarChar(512)
-  examples        String?         @db.LongText
-  artPrompt       String?         @db.Text
-  imagePath       String?         @db.Text
-  cardPath        String?         @db.Text
-  heroPath        String?         @db.Text
+  title             String          @db.VarChar(255)
+  slug              String?         @unique @db.VarChar(255)
+  dreamType         DreamType       @default(PITCH)
+  description       String?         @db.Text
+  pitch             String?         @db.Text
+  flavorText        String?         @db.VarChar(512)
+  examples          String?         @db.LongText
+  artPrompt         String?         @db.Text
+  imagePath         String?         @db.Text
+  cardPath          String?         @db.Text
+  heroPath          String?         @db.Text
   // ── Project-specific (dreamType = PROJECT) ────────────────────────────────────────
-  projectStatus   ProjectStatus?
-  priority        DreamPriority?  @default(NORMAL)
-  goal            String?         @db.Text // what 100% completion looks like, concretely
-  waypoints       String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix = done, "~ " prefix = in progress
-  repoUrl         String?         @db.VarChar(512)
-  liveUrl         String?         @db.VarChar(512)
-  allowReviews    Boolean         @default(false)
-  highlightImage  String?         @db.VarChar(256)
-  icon            String?
-  designer        String?         @db.VarChar(256)
-  creationSource  CreationSource  @default(HUMAN)
+  projectStatus     ProjectStatus?
+  priority          DreamPriority?  @default(NORMAL)
+  goal              String?         @db.Text // what 100% completion looks like, concretely
+  waypoints         String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix = done, "~ " prefix = in progress
+  repoUrl           String?         @db.VarChar(512)
+  liveUrl           String?         @db.VarChar(512)
+  allowReviews      Boolean         @default(false)
+  highlightImage    String?         @db.VarChar(256)
+  icon              String?
+  designer          String?         @db.VarChar(256)
+  creationSource    CreationSource  @default(HUMAN)
   // ── Flags ──────────────────────────────────────────────────────────────────────────────────
-  userId          Int             @default(10)
-  isPublic        Boolean         @default(true)
-  isMature        Boolean         @default(false)
-  isActive        Boolean         @default(true)
+  userId            Int             @default(10)
+  isPublic          Boolean         @default(true)
+  isMature          Boolean         @default(false)
+  isActive          Boolean         @default(true)
   // ── Primary "main choice" FKs (one each) ───────────────────────────────────────────
-  artImageId      Int?
-  artCollectionId Int?
+  artImageId        Int?
+  artCollectionId   Int?
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
-  User            User            @relation(fields: [userId], references: [id])
-  ArtImage        ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
-  ArtCollection   ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
-  Scenarios       Scenario[]      @relation("DreamToScenario")
-  Reactions       Reaction[]
-  Compositions    Composition[]
-  Chats           Chat[]
+  User              User            @relation(fields: [userId], references: [id])
+  ArtImage          ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
+  ArtCollection     ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
+  Scenarios         Scenario[]      @relation("DreamToScenario")
+  Reactions         Reaction[]
+  Compositions      Composition[]
+  SourceComposition Composition?    @relation("CompositionOutputDream")
+  Chats             Chat[]
   // ── Many-relations (a Dream can govern many of each) ──────────────────────────────────────────────
-  ArtImages       ArtImage[]      @relation("DreamToArtImage")
-  ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
-  Characters      Character[]     @relation("CharacterToDream")
-  Rewards         Reward[]        @relation("DreamToReward")
-  Bots            Bot[]
+  ArtImages         ArtImage[]      @relation("DreamToArtImage")
+  ArtCollections    ArtCollection[] @relation("DreamToArtCollection")
+  Characters        Character[]     @relation("CharacterToDream")
+  Rewards           Reward[]        @relation("DreamToReward")
+  Bots              Bot[]
 
   PitchSheet PitchSheet?
   Todos      Todo[]
@@ -1560,6 +1571,14 @@ enum KarmaReason {
   REFERRAL_SIGNUP
   REFERRAL_CUT
   ADMIN_ADJUSTMENT
+}
+
+enum CompositionStatus {
+  DRAFT
+  PENDING
+  RUNNING
+  DONE
+  FAILED
 }
 
 // ── Challenge Center (challenge-center project) ─────────────────────────────────

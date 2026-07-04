@@ -3,6 +3,10 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Character, Rarity } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
+import {
+  loadSnapshot,
+  markSnapshotActive,
+} from '@/stores/helpers/snapshotLoader'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useGeneratorStore } from '@/stores/generatorStore'
@@ -146,6 +150,7 @@ function normalizeCharacterId(
 
 export const useCharacterStore = defineStore('characterStore', () => {
   const characters = ref<Character[]>([])
+  const usingSnapshot = ref(false)
   const selectedCharacter = ref<Character | null>(null)
   const characterForm = ref<Partial<Character>>({})
   const generatedCharacter = ref<Partial<Character> | null>(null)
@@ -291,6 +296,20 @@ export const useCharacterStore = defineStore('characterStore', () => {
           loadFromLocalStorage()
         }
 
+        // First visit (or cleared storage): paint from the nightly snapshot
+        // so the page has real characters even if the database is down. The
+        // next successful fetchCharacters replaces these rows and clears the
+        // flag (its cache guard keys off hasLoaded, which stays false here).
+        if (characters.value.length === 0) {
+          const snapshotRows = await loadSnapshot<Character>('characters')
+
+          if (snapshotRows.length && characters.value.length === 0) {
+            characters.value = snapshotRows.slice().sort(sortCharacters)
+            usingSnapshot.value = true
+            markSnapshotActive('characters', true)
+          }
+        }
+
         if (shouldFetchRemote) {
           await fetchCharacters(Boolean(options.force))
         }
@@ -345,6 +364,8 @@ export const useCharacterStore = defineStore('characterStore', () => {
         if (response.success && response.data) {
           characters.value = response.data.slice().sort(sortCharacters)
           hasLoaded.value = true
+          usingSnapshot.value = false
+          markSnapshotActive('characters', false)
           syncToLocalStorage()
 
           return characters.value
@@ -852,6 +873,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
 
   return {
     characters,
+    usingSnapshot,
     selectedCharacter,
     selectedCharacterId,
     characterForm,

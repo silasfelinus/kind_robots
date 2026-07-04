@@ -7,6 +7,10 @@ import type {
   Scenario,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
+import {
+  loadSnapshot,
+  markSnapshotActive,
+} from '@/stores/helpers/snapshotLoader'
 import { useSheetStore } from '@/stores/sheetStore'
 import { scenarios as seedScenarios } from '@/utils/sceneChoices'
 
@@ -222,6 +226,7 @@ function sortScenarios(
 
 export const useScenarioStore = defineStore('scenarioStore', () => {
   const scenarios = ref<ScenarioWithRelations[]>([])
+  const usingSnapshot = ref(false)
   const selectedScenario = ref<ScenarioWithRelations | null>(null)
   const fetchPromise = ref<Promise<ScenarioWithRelations[]> | null>(null)
   const fetchScenarioByIdPromises = ref<
@@ -395,6 +400,21 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
           applySeedScenarios()
         }
 
+        // First visit (or cleared storage): merge in the nightly snapshot so
+        // the page has real scenarios even if the database is down. Seed
+        // scenarios use non-positive ids, so "no id > 0" means no database
+        // row has ever loaded; fetchScenarios' cache guard requires
+        // hasLoaded, which stays false here, so the live fetch still runs.
+        if (!scenarios.value.some((scenario) => scenario.id > 0)) {
+          const snapshotRows = await loadSnapshot<Scenario>('scenarios')
+
+          if (snapshotRows.length) {
+            mergeScenarios(snapshotRows)
+            usingSnapshot.value = true
+            markSnapshotActive('scenarios', true)
+          }
+        }
+
         if (options.fetchRemote) {
           await fetchScenarios(Boolean(options.force))
         }
@@ -443,6 +463,8 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
         mergeScenarios(res.data)
         hasLoaded.value = true
+        usingSnapshot.value = false
+        markSnapshotActive('scenarios', false)
 
         return scenarios.value
       } catch (error) {
@@ -706,6 +728,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
   return {
     scenarios,
+    usingSnapshot,
     selectedScenario,
     scenarioForm,
     isSaving,

@@ -3,6 +3,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
+import {
+  loadSnapshot,
+  markSnapshotActive,
+} from '@/stores/helpers/snapshotLoader'
 import type { SmartIcon } from '~/prisma/generated/prisma/client'
 
 export type SmartIconForm = Partial<SmartIcon>
@@ -43,6 +47,7 @@ function sameIds(a: number[], b: number[]): boolean {
 
 export const useSmartbarStore = defineStore('smartbarStore', () => {
   const icons = ref<SmartIcon[]>([])
+  const usingSnapshot = ref(false)
   const selectedIcon = ref<SmartIcon | null>(null)
   const iconForm = ref<SmartIconForm>({})
 
@@ -226,12 +231,31 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
         }
 
         icons.value = res.data
+        usingSnapshot.value = false
+        markSnapshotActive('smartIcons', false)
         syncToLocalStorage()
 
         return icons.value
       } catch (error) {
         handleError(error, 'fetching icons')
         setLastError(error, 'Failed to fetch icons')
+
+        // Database unreachable and nothing loaded yet: fall back to the
+        // nightly snapshot. fetchIcons' cache guard checks icons.length, so
+        // snapshot rows must only land here (after a failure), never before
+        // a fetch — and they are deliberately NOT synced to localStorage,
+        // otherwise the next visit would hydrate them as user cache and the
+        // length guard would skip the live fetch permanently.
+        if (icons.value.length === 0) {
+          const snapshotRows = await loadSnapshot<SmartIcon>('smartIcons')
+
+          if (snapshotRows.length && icons.value.length === 0) {
+            icons.value = snapshotRows
+            usingSnapshot.value = true
+            markSnapshotActive('smartIcons', true)
+          }
+        }
+
         return icons.value
       } finally {
         loading.value = false
@@ -545,6 +569,7 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
 
   return {
     icons,
+    usingSnapshot,
     selectedIcon,
     iconForm,
     isSaving,

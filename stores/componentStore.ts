@@ -10,6 +10,10 @@ import {
   createOrUpdateComponent as helperCreateOrUpdate,
 } from '@/stores/helpers/componentHelper'
 import { performFetch } from '@/stores/utils'
+import {
+  loadSnapshot,
+  markSnapshotActive,
+} from '@/stores/helpers/snapshotLoader'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 interface Folder {
@@ -19,6 +23,7 @@ interface Folder {
 
 export const useComponentStore = defineStore('componentStore', () => {
   const components = ref<Component[]>([])
+  const usingSnapshot = ref(false)
   const selectedComponent = ref<Component | null>(null)
   const selectedFolder = ref<string | null>(null)
   const isInitialized = ref(false)
@@ -35,6 +40,8 @@ export const useComponentStore = defineStore('componentStore', () => {
       const data = await response.json()
       if (data.success && data.data) {
         components.value = data.data
+        usingSnapshot.value = false
+        markSnapshotActive('components', false)
         isInitialized.value = true
       } else {
         throw new Error('Failed to fetch components')
@@ -42,6 +49,19 @@ export const useComponentStore = defineStore('componentStore', () => {
     } catch (error) {
       isInitialized.value = false
       console.error('Initialization failed', error)
+
+      // Database unreachable and nothing loaded yet: fall back to the
+      // nightly snapshot. isInitialized stays false, so the next
+      // initialize() call still retries the live fetch.
+      if (components.value.length === 0) {
+        const snapshotRows = await loadSnapshot<Component>('components')
+
+        if (snapshotRows.length && components.value.length === 0) {
+          components.value = snapshotRows
+          usingSnapshot.value = true
+          markSnapshotActive('components', true)
+        }
+      }
     }
   }
 
@@ -241,6 +261,7 @@ export const useComponentStore = defineStore('componentStore', () => {
 
   return {
     components,
+    usingSnapshot,
     selectedComponent,
     selectedFolder,
     isInitialized,

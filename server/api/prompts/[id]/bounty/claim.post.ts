@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    // Award karma to claimer — gated by KARMA_LIVE; amounts need Silas sign-off before going live
+    // Award karma to claimer — amounts approved by Silas 2026-07-04; KARMA_LIVE enabled
     awardKarma({ userId: user.id, reason: 'BOUNTY_CLAIMED', refId: String(id) }).catch(() => {})
 
     event.node.res.statusCode = 200

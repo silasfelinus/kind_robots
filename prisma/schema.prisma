@@ -71,6 +71,11 @@ model ArtImage {
   Compositions         Composition[]
   PitchSheets          PitchSheet[]
 
+  LifeRunArt       LifeRunArt[]
+  LifeEndingIcons  LifeEnding[]      @relation("LifeEndingIconArtImage")
+  LifeEndingHeroes LifeEnding[]      @relation("LifeEndingHeroArtImage")
+  LifeAchievements LifeAchievement[]
+
   @@index([userId], map: "ArtImage_userId_fkey")
   @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
   @@index([serverId], map: "ArtImage_serverId_fkey")
@@ -95,6 +100,8 @@ model ArtCollection {
   Dreams        Dream[]    @relation("DreamToArtCollection")
   Reactions     Reaction[]
   ArtImages     ArtImage[] @relation("ArtCollectionToArtImage")
+
+  LifeRuns LifeRun[]
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }
@@ -144,6 +151,8 @@ model Bot {
   ChallengeSubmissions ChallengeSubmission[]
   ExpressionMedia      ExpressionMedia[]
   ExpressionTransition ExpressionTransition[]
+
+  LifeRuns LifeRun[]
 
   @@index([userId], map: "Bot_userId_fkey")
   @@index([serverId], map: "Bot_serverId_fkey")
@@ -198,6 +207,8 @@ model Character {
   ExpressionMedia      ExpressionMedia[]
   ExpressionTransition ExpressionTransition[]
 
+  LifeRuns LifeRun[]
+
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
   @@index([isActive])
@@ -245,6 +256,8 @@ model Chat {
   Server          Server?    @relation(fields: [serverId], references: [id])
   User            User?      @relation(fields: [userId], references: [id])
   Reactions       Reaction[]
+
+  LifeChoices LifeChoice[]
 
   @@index([serverId], map: "Chat_serverId_fkey")
   @@index([botId], map: "Chat_botId_fkey")
@@ -300,44 +313,54 @@ model Component {
 }
 
 model Composition {
-  id             Int        @id @default(autoincrement())
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  id             Int               @id @default(autoincrement())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
   // Core fields
-  title          String     @db.VarChar(255)
-  description    String?    @db.VarChar(512)
-  label          String?    @db.VarChar(255)
+  title          String            @db.VarChar(255)
+  description    String?           @db.VarChar(512)
+  label          String?           @db.VarChar(255)
   // What to generate
-  mode           String     @default("both") @db.VarChar(64)
+  mode           String            @default("both") @db.VarChar(64)
   // 'narrative' | 'art' | 'both'
   // Flags
-  isPublic       Boolean    @default(true)
-  isMature       Boolean    @default(false)
-  isActive       Boolean    @default(true)
-  designer       String?    @default("system") @db.VarChar(255)
+  isPublic       Boolean           @default(true)
+  isMature       Boolean           @default(false)
+  isActive       Boolean           @default(true)
+  designer       String?           @default("system") @db.VarChar(255)
   // ── Ingredient FKs (all optional) ─────────────────────────────────────────────────────────────────────────────────────
   characterId    Int?
   dreamId        Int?
   scenarioId     Int?
   rewardId       Int?
   // ── Freeform overrides (used when no FK is set, or to override) ────────────────────────────────────────────────────────────────────────────────────────────────
-  characterBlurb String?    @db.VarChar(512)
-  dreamBlurb     String?    @db.VarChar(512)
-  scenarioBlurb  String?    @db.VarChar(512)
-  rewardBlurb    String?    @db.VarChar(512)
+  characterBlurb String?           @db.VarChar(512)
+  dreamBlurb     String?           @db.VarChar(512)
+  scenarioBlurb  String?           @db.VarChar(512)
+  rewardBlurb    String?           @db.VarChar(512)
   // ── Outputs ───────────────────────────────────────────────────────────────────────────────────────────
-  narrativeText  String?    @db.Text
-  artPrompt      String?    @db.Text
-  imagePath      String?    @db.VarChar(764)
+  narrativeText  String?           @db.Text
+  artPrompt      String?           @db.Text
+  imagePath      String?           @db.VarChar(764)
+  // ── Wishmaster (scope approved by Silas 2026-07-04) ─────────────────────────────
+  wishText       String?           @db.Text // raw unmodified user wish, separate from agent-interpreted blurbs
+  status         CompositionStatus @default(DRAFT)
+  stepLog        Json? // pipeline audit trail for multi-pass generation
+  userApproved   Boolean           @default(false) // user confirmed the assembled plan + cost estimate
+  approvedAt     DateTime?
+  manaCharged    Int? // economy reconciliation anchor
+  bountyId       Int? // Prompt id of the bounty this wish settles against (plain column by design)
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
   userId         Int?
-  User           User?      @relation(fields: [userId], references: [id])
-  artImageId     Int?       @unique
-  ArtImage       ArtImage?  @relation(fields: [artImageId], references: [id])
-  Character      Character? @relation(fields: [characterId], references: [id])
-  Dream          Dream?     @relation(fields: [dreamId], references: [id])
-  Scenario       Scenario?  @relation(fields: [scenarioId], references: [id])
-  Reward         Reward?    @relation(fields: [rewardId], references: [id])
+  User           User?             @relation(fields: [userId], references: [id])
+  artImageId     Int?              @unique
+  ArtImage       ArtImage?         @relation(fields: [artImageId], references: [id])
+  outputDreamId  Int?              @unique // the Dream this wish spawned (distinct from ingredient dreamId)
+  OutputDream    Dream?            @relation("CompositionOutputDream", fields: [outputDreamId], references: [id])
+  Character      Character?        @relation(fields: [characterId], references: [id])
+  Dream          Dream?            @relation(fields: [dreamId], references: [id])
+  Scenario       Scenario?         @relation(fields: [scenarioId], references: [id])
+  Reward         Reward?           @relation(fields: [rewardId], references: [id])
   Reactions      Reaction[]
 
   @@index([userId])
@@ -354,61 +377,64 @@ model Composition {
 /// ArtImages / ArtCollections / Characters / Rewards, while also designating a
 /// primary "main choice" for each via the singular FK fields.
 model Dream {
-  id              Int             @id @default(autoincrement())
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime?       @default(now()) @updatedAt
+  id                Int             @id @default(autoincrement())
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime?       @default(now()) @updatedAt
   // ── Core idea / vibe (absorbed from Pitch) ────────────────────────────────────────
-  title           String          @db.VarChar(255)
-  slug            String?         @unique @db.VarChar(255)
-  dreamType       DreamType       @default(PITCH)
-  description     String?         @db.Text
-  pitch           String?         @db.Text
-  flavorText      String?         @db.VarChar(512)
-  examples        String?         @db.LongText
-  artPrompt       String?         @db.Text
-  imagePath       String?         @db.Text
-  cardPath        String?         @db.Text
-  heroPath        String?         @db.Text
+  title             String          @db.VarChar(255)
+  slug              String?         @unique @db.VarChar(255)
+  dreamType         DreamType       @default(PITCH)
+  description       String?         @db.Text
+  pitch             String?         @db.Text
+  flavorText        String?         @db.VarChar(512)
+  examples          String?         @db.LongText
+  artPrompt         String?         @db.Text
+  imagePath         String?         @db.Text
+  cardPath          String?         @db.Text
+  heroPath          String?         @db.Text
   // ── Project-specific (dreamType = PROJECT) ────────────────────────────────────────
-  projectStatus   ProjectStatus?
-  priority        DreamPriority?  @default(NORMAL)
-  goal            String?         @db.Text // what 100% completion looks like, concretely
-  waypoints       String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix = done, "~ " prefix = in progress
-  repoUrl         String?         @db.VarChar(512)
-  liveUrl         String?         @db.VarChar(512)
-  allowReviews    Boolean         @default(false)
-  highlightImage  String?         @db.VarChar(256)
-  icon            String?
-  designer        String?         @db.VarChar(256)
-  creationSource  CreationSource  @default(HUMAN)
+  projectStatus     ProjectStatus?
+  priority          DreamPriority?  @default(NORMAL)
+  goal              String?         @db.Text // what 100% completion looks like, concretely
+  waypoints         String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix = done, "~ " prefix = in progress
+  repoUrl           String?         @db.VarChar(512)
+  liveUrl           String?         @db.VarChar(512)
+  allowReviews      Boolean         @default(false)
+  highlightImage    String?         @db.VarChar(256)
+  icon              String?
+  designer          String?         @db.VarChar(256)
+  creationSource    CreationSource  @default(HUMAN)
   // ── Flags ──────────────────────────────────────────────────────────────────────────────────
-  userId          Int             @default(10)
-  isPublic        Boolean         @default(true)
-  isMature        Boolean         @default(false)
-  isActive        Boolean         @default(true)
+  userId            Int             @default(10)
+  isPublic          Boolean         @default(true)
+  isMature          Boolean         @default(false)
+  isActive          Boolean         @default(true)
   // ── Primary "main choice" FKs (one each) ───────────────────────────────────────────
-  artImageId      Int?
-  artCollectionId Int?
+  artImageId        Int?
+  artCollectionId   Int?
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
-  User            User            @relation(fields: [userId], references: [id])
-  ArtImage        ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
-  ArtCollection   ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
-  Scenarios       Scenario[]      @relation("DreamToScenario")
-  Reactions       Reaction[]
-  Compositions    Composition[]
-  Chats           Chat[]
+  User              User            @relation(fields: [userId], references: [id])
+  ArtImage          ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
+  ArtCollection     ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
+  Scenarios         Scenario[]      @relation("DreamToScenario")
+  Reactions         Reaction[]
+  Compositions      Composition[]
+  SourceComposition Composition?    @relation("CompositionOutputDream")
+  Chats             Chat[]
   // ── Many-relations (a Dream can govern many of each) ──────────────────────────────────────────────
-  ArtImages       ArtImage[]      @relation("DreamToArtImage")
-  ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
-  Characters      Character[]     @relation("CharacterToDream")
-  Rewards         Reward[]        @relation("DreamToReward")
-  Bots            Bot[]
+  ArtImages         ArtImage[]      @relation("DreamToArtImage")
+  ArtCollections    ArtCollection[] @relation("DreamToArtCollection")
+  Characters        Character[]     @relation("CharacterToDream")
+  Rewards           Reward[]        @relation("DreamToReward")
+  Bots              Bot[]
 
   PitchSheet PitchSheet?
   Todos      Todo[]
 
   RelationsFrom DreamRelation[] @relation("DreamRelationFrom") // edges where this dream is the subject
   RelationsTo   DreamRelation[] @relation("DreamRelationTo") // edges where this dream is the object
+
+  LifeRuns LifeRun[]
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])
@@ -599,6 +625,9 @@ model Milestone {
   ArtImage         ArtImage?         @relation(fields: [artImageId], references: [id])
   MilestoneRecords MilestoneRecord[]
 
+  LifeEndings      LifeEnding[]
+  LifeAchievements LifeAchievement[]
+
   @@index([artImageId], map: "Milestone_artImageId_fkey")
 }
 
@@ -646,6 +675,8 @@ model MilestoneRecord {
   isConfirmed Boolean   @default(false)
   Milestones  Milestone @relation(fields: [milestoneId], references: [id])
   User        User      @relation(fields: [userId], references: [id])
+
+  LifeAchievementUnlocks LifeAchievementUnlock[]
 
   @@index([milestoneId], map: "MilestoneRecord_milestoneId_fkey")
   @@index([userId], map: "MilestoneRecord_userId_fkey")
@@ -1250,6 +1281,9 @@ model User {
   SocialPosts SocialPost[]
   characters  Character[]
 
+  LifeRuns               LifeRun[]
+  LifeAchievementUnlocks LifeAchievementUnlock[]
+
   @@index([artImageId], map: "User_artImageId_fkey")
 }
 
@@ -1562,6 +1596,14 @@ enum KarmaReason {
   ADMIN_ADJUSTMENT
 }
 
+enum CompositionStatus {
+  DRAFT
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
 // ── Challenge Center (challenge-center project) ─────────────────────────────────
 // Agent-vs-agent benchmark arena. Challenges are issued, registered agent Bots
 // submit artifacts, users judge via the existing Reaction system
@@ -1633,4 +1675,235 @@ model ChallengeSubmission {
   @@index([artImageId], map: "ChallengeSubmission_artImageId_fkey")
   @@index([characterId], map: "ChallengeSubmission_characterId_fkey")
   @@index([scenarioId], map: "ChallengeSubmission_scenarioId_fkey")
+}
+
+// ── Da Vinci (da-vinci project) ──────────────────────────────────────────────────
+// Life-simulation runs: a seeded playthrough (LifeRun) advances by chapters of
+// choices (LifeChoice) that move stats (LifeStat), collects generated art along
+// the way (LifeRunArt), and resolves to an ending (LifeEnding) with achievements
+// (LifeAchievement / LifeAchievementUnlock). Piggybacks on the existing art,
+// milestone, chat, and user systems.
+
+enum LifeRunStatus {
+  ACTIVE
+  COMPLETE
+  ABANDONED
+}
+
+enum LifeVictoryType {
+  VICTORY
+  FAILURE
+  MIXED
+  SECRET
+}
+
+enum LifeArtSceneType {
+  MOMENT
+  DREAM
+  CHARACTER
+  CHOICE
+  THRESHOLD
+  ENDING
+  ICON
+  HERO
+}
+
+enum LifeAchievementType {
+  CHOICE
+  CHAPTER
+  STAT_THRESHOLD
+  ENDING
+  SECRET
+  FAILURE
+  VICTORY
+  COLLECTION
+}
+
+model LifeRun {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  userId Int
+  title  String        @db.VarChar(255)
+  status LifeRunStatus @default(ACTIVE)
+  seed   String        @db.VarChar(255)
+
+  protagonistName String? @db.VarChar(255)
+  currentAge      Int?
+  currentChapter  Int     @default(1)
+  genre           String? @db.VarChar(255)
+
+  dreamId         Int?
+  characterId     Int?
+  botId           Int?
+  artCollectionId Int?
+  endingId        Int?
+
+  outcomeKey    String? @db.VarChar(16)
+  summary       String? @db.Text
+  statsSnapshot Json?
+
+  User          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Dream         Dream?         @relation(fields: [dreamId], references: [id], onDelete: SetNull)
+  Character     Character?     @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  Bot           Bot?           @relation(fields: [botId], references: [id], onDelete: SetNull)
+  ArtCollection ArtCollection? @relation(fields: [artCollectionId], references: [id], onDelete: SetNull)
+  Ending        LifeEnding?    @relation(fields: [endingId], references: [id], onDelete: SetNull)
+
+  Choices LifeChoice[]
+  Stats   LifeStat[]
+  Art     LifeRunArt[]
+  Unlocks LifeAchievementUnlock[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([dreamId])
+  @@index([characterId])
+  @@index([botId])
+  @@index([artCollectionId])
+  @@index([endingId])
+  @@index([outcomeKey])
+}
+
+model LifeChoice {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  lifeRunId  Int
+  chatId     Int?
+  chapter    Int
+  prompt     String  @db.Text
+  choiceText String  @db.Text
+  resultText String? @db.Text
+  effects    Json?
+
+  LifeRun LifeRun @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
+  Chat    Chat?   @relation(fields: [chatId], references: [id], onDelete: SetNull)
+
+  @@index([lifeRunId])
+  @@index([chatId])
+  @@index([chapter])
+}
+
+model LifeStat {
+  id        Int    @id @default(autoincrement())
+  lifeRunId Int
+  key       String @db.VarChar(64)
+  value     Int    @default(0)
+
+  LifeRun LifeRun @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
+
+  @@unique([lifeRunId, key])
+  @@index([key])
+}
+
+model LifeEnding {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  title       String          @db.VarChar(255)
+  slug        String          @unique @db.VarChar(255)
+  outcomeKey  String          @unique @db.VarChar(16)
+  summary     String          @db.Text
+  victoryType LifeVictoryType @default(MIXED)
+
+  icon           String? @db.VarChar(764)
+  heroImage      String? @db.VarChar(764)
+  iconArtImageId Int?
+  heroArtImageId Int?
+  milestoneId    Int?
+
+  artPrompt String? @db.Text
+  metadata  Json?
+  isActive  Boolean @default(true)
+
+  IconArtImage ArtImage?  @relation("LifeEndingIconArtImage", fields: [iconArtImageId], references: [id], onDelete: SetNull)
+  HeroArtImage ArtImage?  @relation("LifeEndingHeroArtImage", fields: [heroArtImageId], references: [id], onDelete: SetNull)
+  Milestone    Milestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+
+  Runs         LifeRun[]
+  Achievements LifeAchievement[]
+
+  @@index([victoryType])
+  @@index([milestoneId])
+  @@index([iconArtImageId])
+  @@index([heroArtImageId])
+  @@index([isActive])
+}
+
+model LifeAchievement {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  title           String              @db.VarChar(255)
+  slug            String              @unique @db.VarChar(255)
+  achievementType LifeAchievementType
+  conditionKey    String?             @db.VarChar(255)
+  description     String?             @db.Text
+
+  icon        String? @db.VarChar(764)
+  imagePath   String? @db.VarChar(764)
+  artImageId  Int?
+  milestoneId Int?
+  endingId    Int?
+
+  metadata Json?
+  isActive Boolean @default(true)
+
+  ArtImage  ArtImage?               @relation(fields: [artImageId], references: [id], onDelete: SetNull)
+  Milestone Milestone?              @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  Ending    LifeEnding?             @relation(fields: [endingId], references: [id], onDelete: SetNull)
+  Unlocks   LifeAchievementUnlock[]
+
+  @@index([achievementType])
+  @@index([conditionKey])
+  @@index([artImageId])
+  @@index([milestoneId])
+  @@index([endingId])
+  @@index([isActive])
+}
+
+model LifeAchievementUnlock {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  userId            Int
+  lifeRunId         Int?
+  achievementId     Int
+  milestoneRecordId Int?
+
+  data Json?
+
+  User            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  LifeRun         LifeRun?         @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
+  Achievement     LifeAchievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  MilestoneRecord MilestoneRecord? @relation(fields: [milestoneRecordId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, achievementId, lifeRunId])
+  @@index([userId])
+  @@index([lifeRunId])
+  @@index([achievementId])
+  @@index([milestoneRecordId])
+}
+
+model LifeRunArt {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  lifeRunId  Int
+  artImageId Int
+  chapter    Int?
+  sceneType  LifeArtSceneType @default(MOMENT)
+  prompt     String           @db.Text
+
+  LifeRun  LifeRun  @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
+  ArtImage ArtImage @relation(fields: [artImageId], references: [id], onDelete: Cascade)
+
+  @@index([lifeRunId])
+  @@index([artImageId])
+  @@index([sceneType])
+  @@index([chapter])
 }

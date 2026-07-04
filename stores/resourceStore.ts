@@ -2,12 +2,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { performFetch, handleError } from './utils'
+import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { resourceData } from './../stores/seeds/seedResources'
 import type { Resource, Server } from '~/prisma/generated/prisma/client'
 import type { ServerRuntimeReport } from '@/stores/helpers/serverHelper'
 
 export const useResourceStore = defineStore('resourceStore', () => {
   const resources = ref<Resource[]>([])
+  const usingSnapshot = ref(false)
   const currentResource = ref<Resource | null>(null)
   const isInitialized = ref(false)
   const isLoading = ref(false)
@@ -29,6 +31,20 @@ export const useResourceStore = defineStore('resourceStore', () => {
 
         if (resources.value.length === 0) {
           await seedResources()
+        }
+
+        // Database unreachable (fetch and seeding both came back empty):
+        // fall back to the nightly snapshot. getResources' cache guard keys
+        // off hasLoaded, which stays false here, so the next call still
+        // fetches live and replaces these rows.
+        if (resources.value.length === 0) {
+          const snapshotRows = await loadSnapshot<Resource>('resources')
+
+          if (snapshotRows.length && resources.value.length === 0) {
+            resources.value = snapshotRows
+            usingSnapshot.value = true
+            markSnapshotActive('resources', true)
+          }
         }
 
         isInitialized.value = true
@@ -57,6 +73,8 @@ export const useResourceStore = defineStore('resourceStore', () => {
 
       resources.value = res.data || []
       hasLoaded.value = true
+      usingSnapshot.value = false
+      markSnapshotActive('resources', false)
       return resources.value
     })()
 
@@ -635,6 +653,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
 
   return {
     resources,
+    usingSnapshot,
     currentResource,
     isInitialized,
     isLoading,

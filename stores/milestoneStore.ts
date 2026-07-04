@@ -9,6 +9,7 @@ import { useUserStore } from './userStore'
 import { useErrorStore } from './errorStore'
 import { milestoneData } from './../training/milestoneData'
 import { performFetch, handleError } from './utils'
+import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { slugify } from '~/utils/slugify'
 import type { ApiResponse } from '~/types/api'
 
@@ -73,6 +74,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
   const milestones = ref<Milestone[]>([])
   const milestoneRecords = ref<MilestoneRecord[]>([])
+  const usingSnapshot = ref(false)
   const isInitialized = ref(false)
   const isInitializing = ref(false)
   const loadingMilestones = ref(false)
@@ -214,6 +216,8 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
         if (res.success && Array.isArray(res.data)) {
           milestones.value = res.data
+          usingSnapshot.value = false
+          markSnapshotActive('milestones', false)
           persist()
           return milestones.value
         }
@@ -222,6 +226,22 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
       } catch (error) {
         handleError(error, 'fetching milestones')
         setLastError(error, 'Failed to fetch milestones')
+
+        // Database unreachable and nothing loaded yet: fall back to the
+        // nightly snapshot. fetchMilestones' cache guard checks
+        // milestones.length, so snapshot rows must only land here (after a
+        // failure), never before a fetch — and they are not persisted, so
+        // the next page load still fetches live.
+        if (milestones.value.length === 0) {
+          const snapshotRows = await loadSnapshot<Milestone>('milestones')
+
+          if (snapshotRows.length && milestones.value.length === 0) {
+            milestones.value = snapshotRows
+            usingSnapshot.value = true
+            markSnapshotActive('milestones', true)
+          }
+        }
+
         return milestones.value
       } finally {
         loadingMilestones.value = false
@@ -781,6 +801,7 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
   return {
     milestones,
     milestoneRecords,
+    usingSnapshot,
     activeMilestones,
     unconfirmedMilestones,
     milestoneSummary,

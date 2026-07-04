@@ -253,9 +253,12 @@ jobs:
           db_and_query="${rest#*/}"
           DB_NAME="${db_and_query%%\?*}"
 
+          # --column-statistics=0: the runner's MySQL 8 mysqldump queries
+          # information_schema.COLUMN_STATISTICS, which MariaDB doesn't have.
           mysqldump \
             --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" \
             --single-transaction --skip-lock-tables --routines --triggers \
+            --column-statistics=0 \
             "$DB_NAME" \
             | gzip \
             | openssl enc -aes-256-cbc -pbkdf2 -pass env:BACKUP_PASSPHRASE \

@@ -1,9 +1,9 @@
 // /server/utils/karma.ts
-// needs-human: flip KARMA_LIVE to true to enable live economy writes
+// KARMA_LIVE enabled 2026-07-04 — amounts approved by Silas as tunable defaults.
 import prisma from './prisma'
 import type { KarmaReason } from '~/prisma/generated/prisma/client'
 
-const KARMA_LIVE = false
+const KARMA_LIVE = true
 
 // All amounts are named constants — Silas tunes the numbers
 export const KARMA_AMOUNTS: Record<KarmaReason, number> = {

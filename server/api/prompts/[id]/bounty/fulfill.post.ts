@@ -1,6 +1,6 @@
 // POST /api/prompts/:id/bounty/fulfill
 // Marks a claimed (or open) bounty as fulfilled; awards mana to claimer and poster from house pool.
-// IMPORTANT: Mana amounts below are placeholder drafts — Silas must approve before KARMA_LIVE is enabled.
+// Amounts approved by Silas 2026-07-04 as tunable defaults; KARMA_LIVE is enabled.
 import { createError, defineEventHandler } from 'h3'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
@@ -10,7 +10,7 @@ import { awardKarma } from '../../../../utils/karma'
 import { applyMana } from '../../../../utils/mana'
 import { BountyStatus } from '~/prisma/generated/prisma/client'
 
-// Draft placeholder amounts — needs Silas sign-off before KARMA_LIVE = true
+// Approved by Silas 2026-07-04 (tunable defaults)
 const BOUNTY_MANA_FULFILLER = 50  // mana to the person who delivered
 const BOUNTY_MANA_POSTER = 25     // mana returned to the bounty poster as a thank-you from the house
 

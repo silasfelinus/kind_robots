@@ -163,6 +163,15 @@ jobs:
             else
               echo "tailscale ping: fail (host is not a reachable tailnet node)"
             fi
+            # Counts and booleans only: is the DB host even a peer in the
+            # tailnet this runner joined, and does Tailscale think it is
+            # online? Distinguishes wrong-tailnet/wrong-IP from node-offline.
+            tailscale status --json | jq --arg h "$DB_HOST" '
+              {
+                "tailnet peers": (.Peer | length),
+                "db host is a peer": ([.Peer[]? | select((.TailscaleIPs[]? == $h) or (.DNSName | startswith($h + ".")))] | length > 0),
+                "peer reports online": ([.Peer[]? | select((.TailscaleIPs[]? == $h) or (.DNSName | startswith($h + ".")))] | first | .Online)
+              }'
           fi
 
           if mysql --connect-timeout=12 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -e 'SELECT 1' >/dev/null 2>&1; then

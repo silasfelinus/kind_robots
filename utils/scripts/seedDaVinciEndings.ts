@@ -12,37 +12,28 @@
 // heroArtImageId / artImageId — icon and hero images are seeded as path
 // strings only, until the local generator pipeline produces real files.
 //
+// Boundary: single-invocation only. The achievement find-then-write is not
+// atomic, so don't run two imports against the same database concurrently.
+//
 // Usage (tsx, not ts-node — the repo is ESM and ts-node can't resolve the
 // generated client's extensionless imports under Node's ESM loader):
 //   npm run seed:davinci -- tmp/davinci-endings.jsonl            # dry run (default)
 //   npm run seed:davinci -- tmp/davinci-endings.jsonl --write    # apply
+//
+// The parsing/validation/upsert pieces are exported for the regression check
+// (verifyDaVinciSeed.ts) so both scripts share one source of truth.
 
 import 'dotenv/config'
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import type { Prisma } from './../../prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-const databaseUrl = process.env.DATABASE_URL
-if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-
-const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
-
-const WRITE = process.argv.includes('--write')
-const filePath = ((): string => {
-  const arg = process.argv.slice(2).find((a) => !a.startsWith('--'))
-  if (!arg) {
-    throw new Error(
-      'Usage: npm run seed:davinci -- <path/to/davinci-endings.json|jsonl> [--write]',
-    )
-  }
-  return arg
-})()
-
 const VICTORY_TYPES = ['VICTORY', 'FAILURE', 'MIXED', 'SECRET'] as const
 type VictoryType = (typeof VICTORY_TYPES)[number]
 
-interface EndingPayload {
+export interface EndingPayload {
   title: string
   slug: string
   outcomeKey: string
@@ -75,7 +66,13 @@ interface EndingPayload {
   }
 }
 
-function parseEndings(raw: string): EndingPayload[] {
+export function createSeedPrismaClient(): PrismaClient {
+  const databaseUrl = process.env.DATABASE_URL
+  if (!databaseUrl) throw new Error('DATABASE_URL is missing')
+  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+}
+
+export function parseEndings(raw: string): EndingPayload[] {
   const trimmed = raw.trim()
   // Whole-file JSON: either {"endings": [...]} or a bare array.
   if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
@@ -99,7 +96,7 @@ function parseEndings(raw: string): EndingPayload[] {
     })
 }
 
-function validate(ending: EndingPayload, index: number): void {
+export function validate(ending: EndingPayload, index: number): void {
   const where = `ending #${index} (${ending.outcomeKey ?? 'missing outcomeKey'})`
   if (!/^[01]{10}$/.test(ending.outcomeKey ?? '')) {
     throw new Error(`${where}: outcomeKey must be a 10-bit binary string`)
@@ -125,7 +122,20 @@ function validate(ending: EndingPayload, index: number): void {
   }
 }
 
-async function importEnding(ending: EndingPayload) {
+export function loadSeedFile(filePath: string): EndingPayload[] {
+  const endings = parseEndings(readFileSync(filePath, 'utf-8'))
+  endings.forEach(validate)
+  const outcomeKeys = endings.map((ending) => ending.outcomeKey)
+  if (new Set(outcomeKeys).size !== outcomeKeys.length) {
+    throw new Error('Duplicate outcomeKeys in seed file')
+  }
+  return endings
+}
+
+export async function importEnding(
+  prisma: PrismaClient,
+  ending: EndingPayload,
+): Promise<void> {
   const m = ending.milestone
   const milestoneData = {
     label: m.label,
@@ -180,6 +190,7 @@ async function importEnding(ending: EndingPayload) {
   // conditionKey is derived from outcomeKey and stable across regenerations,
   // while the slug embeds the (theoretically tunable) title — so match on
   // conditionKey first to avoid duplicating achievements if titles ever shift.
+  // NOT atomic (find-then-write): safe only for single-invocation use.
   const existing = await prisma.lifeAchievement.findFirst({
     where: { conditionKey: a.conditionKey },
     select: { id: true },
@@ -194,47 +205,21 @@ async function importEnding(ending: EndingPayload) {
   }
 }
 
-async function main() {
-  const endings = parseEndings(readFileSync(filePath, 'utf-8'))
-  console.log(`Parsed ${endings.length} ending payloads from ${filePath}`)
-  endings.forEach(validate)
-
-  const outcomeKeys = endings.map((ending) => ending.outcomeKey)
-  if (new Set(outcomeKeys).size !== outcomeKeys.length) {
-    throw new Error('Duplicate outcomeKeys in seed file')
-  }
-
-  const [existingMilestones, existingEndings, existingAchievements] =
-    await Promise.all([
-      prisma.milestone.count({
-        where: { triggerCode: { startsWith: 'davinci-ending-' } },
-      }),
-      prisma.lifeEnding.count({
-        where: { outcomeKey: { in: outcomeKeys } },
-      }),
-      prisma.lifeAchievement.count({
-        where: { conditionKey: { in: outcomeKeys.map((k) => `ending:${k}`) } },
-      }),
-    ])
-  console.log(
-    `Existing: ${existingMilestones} milestones, ${existingEndings} endings, ${existingAchievements} achievements`,
-  )
-
-  if (!WRITE) {
-    console.log(
-      `[dry run] Would upsert ${endings.length} milestones, endings, and achievements. Re-run with --write to apply.`,
-    )
-    return
-  }
-
+export async function importEndings(
+  prisma: PrismaClient,
+  endings: EndingPayload[],
+  onProgress?: (done: number, total: number) => void,
+): Promise<void> {
   let done = 0
   for (const ending of endings) {
-    await importEnding(ending)
+    await importEnding(prisma, ending)
     done += 1
-    if (done % 128 === 0) console.log(`  ...${done}/${endings.length}`)
+    if (done % 128 === 0) onProgress?.(done, endings.length)
   }
+}
 
-  const [milestones, lifeEndings, achievements] = await Promise.all([
+export function davinciCounts(prisma: PrismaClient, outcomeKeys: string[]) {
+  return Promise.all([
     prisma.milestone.count({
       where: { triggerCode: { startsWith: 'davinci-ending-' } },
     }),
@@ -245,14 +230,57 @@ async function main() {
       where: { conditionKey: { in: outcomeKeys.map((k) => `ending:${k}`) } },
     }),
   ])
-  console.log(
-    `Done. Totals now: ${milestones} davinci-ending milestones, ${lifeEndings} LifeEndings, ${achievements} ENDING achievements.`,
-  )
 }
 
-main()
-  .catch((error) => {
+async function main() {
+  const WRITE = process.argv.includes('--write')
+  const filePath = process.argv.slice(2).find((a) => !a.startsWith('--'))
+  if (!filePath) {
+    throw new Error(
+      'Usage: npm run seed:davinci -- <path/to/davinci-endings.json|jsonl> [--write]',
+    )
+  }
+
+  const prisma = createSeedPrismaClient()
+  try {
+    const endings = loadSeedFile(filePath)
+    console.log(`Parsed ${endings.length} ending payloads from ${filePath}`)
+
+    const outcomeKeys = endings.map((ending) => ending.outcomeKey)
+    const [existingMilestones, existingEndings, existingAchievements] =
+      await davinciCounts(prisma, outcomeKeys)
+    console.log(
+      `Existing: ${existingMilestones} milestones, ${existingEndings} endings, ${existingAchievements} achievements`,
+    )
+
+    if (!WRITE) {
+      console.log(
+        `[dry run] Would upsert ${endings.length} milestones, endings, and achievements. Re-run with --write to apply.`,
+      )
+      return
+    }
+
+    await importEndings(prisma, endings, (done, total) =>
+      console.log(`  ...${done}/${total}`),
+    )
+
+    const [milestones, lifeEndings, achievements] = await davinciCounts(
+      prisma,
+      outcomeKeys,
+    )
+    console.log(
+      `Done. Totals now: ${milestones} davinci-ending milestones, ${lifeEndings} LifeEndings, ${achievements} ENDING achievements.`,
+    )
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+// Run the CLI only when executed directly, not when imported by the
+// regression check.
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((error) => {
     console.error(error)
     process.exitCode = 1
   })
-  .finally(() => prisma.$disconnect())
+}

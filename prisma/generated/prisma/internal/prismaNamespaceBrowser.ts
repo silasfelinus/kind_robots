@@ -81,6 +81,7 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
+  ArtJob: 'ArtJob',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
@@ -909,6 +910,26 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ArtJobScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  status: 'status',
+  engine: 'engine',
+  payload: 'payload',
+  priority: 'priority',
+  attempts: 'attempts',
+  claimedAt: 'claimedAt',
+  claimedBy: 'claimedBy',
+  projectSlug: 'projectSlug',
+  artImageId: 'artImageId',
+  error: 'error',
+  userId: 'userId'
+} as const
+
+export type ArtJobScalarFieldEnum = (typeof ArtJobScalarFieldEnum)[keyof typeof ArtJobScalarFieldEnum]
+
+
 export const KarmaTransactionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -1637,6 +1658,15 @@ export const UserOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const ArtJobOrderByRelevanceFieldEnum = {
+  claimedBy: 'claimedBy',
+  projectSlug: 'projectSlug',
+  error: 'error'
+} as const
+
+export type ArtJobOrderByRelevanceFieldEnum = (typeof ArtJobOrderByRelevanceFieldEnum)[keyof typeof ArtJobOrderByRelevanceFieldEnum]
 
 
 export const KarmaTransactionOrderByRelevanceFieldEnum = {

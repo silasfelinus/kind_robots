@@ -185,6 +185,16 @@ export type Theme = Prisma.ThemeModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model ArtJob
+ * Durable art generation job queue. Producers (conductor scripts, UI) enqueue
+ * jobs; the home relay agent claims them outward (pull model — the server never
+ * dials into the home network), drives local ComfyUI/A1111, uploads the result
+ * via /api/art/save-generated, then marks the job complete with the ArtImage id.
+ * Claiming is atomic (guarded updateMany); RUNNING jobs whose claim has gone
+ * stale are re-claimable so a crashed relay never strands work.
+ */
+export type ArtJob = Prisma.ArtJobModel
+/**
  * Model KarmaTransaction
  * Economy: karma ledger — separate from mana, tracks community contribution score
  */

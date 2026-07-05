@@ -414,6 +414,7 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
+  ArtJob: 'ArtJob',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
@@ -442,7 +443,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
+    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2426,6 +2427,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ArtJob: {
+      payload: Prisma.$ArtJobPayload<ExtArgs>
+      fields: Prisma.ArtJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArtJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArtJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload>
+        }
+        findFirst: {
+          args: Prisma.ArtJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArtJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload>
+        }
+        findMany: {
+          args: Prisma.ArtJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload>[]
+        }
+        create: {
+          args: Prisma.ArtJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload>
+        }
+        createMany: {
+          args: Prisma.ArtJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ArtJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload>
+        }
+        update: {
+          args: Prisma.ArtJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArtJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArtJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ArtJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtJobPayload>
+        }
+        aggregate: {
+          args: Prisma.ArtJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArtJob>
+        }
+        groupBy: {
+          args: Prisma.ArtJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArtJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtJobCountAggregateOutputType> | number
+        }
+      }
+    }
     KarmaTransaction: {
       payload: Prisma.$KarmaTransactionPayload<ExtArgs>
       fields: Prisma.KarmaTransactionFieldRefs
@@ -4120,6 +4187,26 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ArtJobScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  status: 'status',
+  engine: 'engine',
+  payload: 'payload',
+  priority: 'priority',
+  attempts: 'attempts',
+  claimedAt: 'claimedAt',
+  claimedBy: 'claimedBy',
+  projectSlug: 'projectSlug',
+  artImageId: 'artImageId',
+  error: 'error',
+  userId: 'userId'
+} as const
+
+export type ArtJobScalarFieldEnum = (typeof ArtJobScalarFieldEnum)[keyof typeof ArtJobScalarFieldEnum]
+
+
 export const KarmaTransactionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -4850,6 +4937,15 @@ export const UserOrderByRelevanceFieldEnum = {
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
 
 
+export const ArtJobOrderByRelevanceFieldEnum = {
+  claimedBy: 'claimedBy',
+  projectSlug: 'projectSlug',
+  error: 'error'
+} as const
+
+export type ArtJobOrderByRelevanceFieldEnum = (typeof ArtJobOrderByRelevanceFieldEnum)[keyof typeof ArtJobOrderByRelevanceFieldEnum]
+
+
 export const KarmaTransactionOrderByRelevanceFieldEnum = {
   refId: 'refId',
   note: 'note'
@@ -5212,6 +5308,13 @@ export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
 
 
 /**
+ * Reference to a field of type 'ArtJobStatus'
+ */
+export type EnumArtJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ArtJobStatus'>
+    
+
+
+/**
  * Reference to a field of type 'KarmaReason'
  */
 export type EnumKarmaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KarmaReason'>
@@ -5441,6 +5544,7 @@ export type GlobalOmitConfig = {
   socialTarget?: Prisma.SocialTargetOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
+  artJob?: Prisma.ArtJobOmit
   karmaTransaction?: Prisma.KarmaTransactionOmit
   referral?: Prisma.ReferralOmit
   userRelation?: Prisma.UserRelationOmit

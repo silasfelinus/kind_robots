@@ -134,6 +134,17 @@ export const TargetStatus = {
 export type TargetStatus = (typeof TargetStatus)[keyof typeof TargetStatus]
 
 
+export const ArtJobStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  DONE: 'DONE',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ArtJobStatus = (typeof ArtJobStatus)[keyof typeof ArtJobStatus]
+
+
 export const RelationType = {
   FRIEND: 'FRIEND',
   BLOCK: 'BLOCK',

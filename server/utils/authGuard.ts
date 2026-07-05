@@ -6,7 +6,7 @@ import { type AuthUser, withAdminFlag } from './authUser'
 
 export type AuthGuardResult = {
   user: AuthUser
-  kind: 'jwt' | 'beta-admin-token'
+  kind: 'jwt' | 'beta-admin-token' | 'user-api-key'
   isAdmin: boolean
   isServerKey: boolean
 }
@@ -92,12 +92,59 @@ async function validateBetaAdminAuth(event: H3Event): Promise<AuthGuardResult | 
   }
 }
 
+async function validateUserApiKeyAuth(
+  token: string,
+): Promise<AuthGuardResult | null> {
+  if (!token) return null
+
+  const user = await prisma.user.findFirst({
+    where: { apiKey: token },
+  })
+
+  if (!user || user.isActive === false) return null
+
+  const authUser = withAdminFlag(user)
+
+  return {
+    user: authUser,
+    kind: 'user-api-key',
+    isAdmin: authUser.isAdmin,
+    isServerKey: false,
+  }
+}
+
 export async function getOptionalApiUser(
   event: H3Event,
 ): Promise<AuthGuardResult | null> {
   const token = readBearerToken(event)
 
   return (await validateJwtAuth(token)) ?? (await validateBetaAdminAuth(event))
+}
+
+/**
+ * Machine-friendly variant of requireApiUser: accepts a session JWT, a
+ * long-lived user apiKey (parity with /api/art/generate and textGate), or
+ * the beta admin token. For automation callers (conductor scripts, the home
+ * relay agent) that hold static credentials rather than browser sessions.
+ */
+export async function requireMachineUser(
+  event: H3Event,
+): Promise<AuthGuardResult> {
+  const token = readBearerToken(event)
+
+  const auth =
+    (await validateJwtAuth(token)) ??
+    (await validateUserApiKeyAuth(token)) ??
+    (await validateBetaAdminAuth(event))
+
+  if (!auth) {
+    throw createError({
+      statusCode: 401,
+      message: 'Invalid or expired token.',
+    })
+  }
+
+  return auth
 }
 
 export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {

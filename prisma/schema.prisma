@@ -1284,7 +1284,49 @@ model User {
   LifeRuns               LifeRun[]
   LifeAchievementUnlocks LifeAchievementUnlock[]
 
+  ArtJobs ArtJob[]
+
   @@index([artImageId], map: "User_artImageId_fkey")
+}
+
+enum ArtJobStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+  CANCELLED
+}
+
+/// Durable art generation job queue. Producers (conductor scripts, UI) enqueue
+/// jobs; the home relay agent claims them outward (pull model — the server never
+/// dials into the home network), drives local ComfyUI/A1111, uploads the result
+/// via /api/art/save-generated, then marks the job complete with the ArtImage id.
+/// Claiming is atomic (guarded updateMany); RUNNING jobs whose claim has gone
+/// stale are re-claimable so a crashed relay never strands work.
+model ArtJob {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  status   ArtJobStatus @default(PENDING)
+  engine   ServerType   @default(A1111)
+  payload  Json
+  priority Int          @default(0)
+  attempts Int          @default(0)
+
+  claimedAt DateTime?
+  claimedBy String?   @db.VarChar(255)
+
+  projectSlug String? @db.VarChar(255)
+  artImageId  Int?
+  error       String? @db.Text
+
+  userId Int
+  User   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, priority, id])
+  @@index([userId])
+  @@index([projectSlug])
 }
 
 /// Economy: karma ledger — separate from mana, tracks community contribution score

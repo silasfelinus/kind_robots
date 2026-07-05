@@ -820,6 +820,23 @@ export type EnumRoleWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumRoleFilter<$PrismaModel>
 }
 
+export type EnumArtJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArtJobStatus | Prisma.EnumArtJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ArtJobStatus[]
+  notIn?: $Enums.ArtJobStatus[]
+  not?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel> | $Enums.ArtJobStatus
+}
+
+export type EnumArtJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArtJobStatus | Prisma.EnumArtJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ArtJobStatus[]
+  notIn?: $Enums.ArtJobStatus[]
+  not?: Prisma.NestedEnumArtJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.ArtJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel>
+}
+
 export type EnumKarmaReasonFilter<$PrismaModel = never> = {
   equals?: $Enums.KarmaReason | Prisma.EnumKarmaReasonFieldRefInput<$PrismaModel>
   in?: $Enums.KarmaReason[]
@@ -1824,6 +1841,23 @@ export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRoleFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRoleFilter<$PrismaModel>
+}
+
+export type NestedEnumArtJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArtJobStatus | Prisma.EnumArtJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ArtJobStatus[]
+  notIn?: $Enums.ArtJobStatus[]
+  not?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel> | $Enums.ArtJobStatus
+}
+
+export type NestedEnumArtJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArtJobStatus | Prisma.EnumArtJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ArtJobStatus[]
+  notIn?: $Enums.ArtJobStatus[]
+  not?: Prisma.NestedEnumArtJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.ArtJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumKarmaReasonFilter<$PrismaModel = never> = {

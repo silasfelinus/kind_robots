@@ -23,6 +23,17 @@ npm run seed:davinci -- path/to/davinci-endings.jsonl --write    # apply
 Requires `DATABASE_URL`. The importer is idempotent — safe to re-run; counts
 do not grow on repeat runs.
 
+## Regression check
+
+```bash
+npm run seed:davinci:verify -- path/to/davinci-endings.jsonl
+```
+
+Runs the full t-008 verification as a pass/fail suite against `DATABASE_URL`:
+payload shape, import counts, link integrity, the no-ArtImage boundary, and
+idempotency (imports twice, asserts counts unchanged). Exits non-zero on any
+failure. It writes — point it at a scratch database, never production.
+
 ## What it writes
 
 Per ending payload:

@@ -2,7 +2,7 @@
 import type { H3Event } from 'h3'
 import { manaGate } from './manaGate'
 import { estimateArtCostUsd } from './manaCost'
-import { requireApiUser } from './authGuard'
+import { requireMachineUser } from './authGuard'
 
 type ComfyEngine =
   | 'comfy'
@@ -36,12 +36,16 @@ interface ComfyGateResult {
  * token through authGuard, resolves the user, and runs manaGate. Throws 401/402
  * exactly like manaGate; the route's errorHandler catches them. Returns the user
  * and a `commit` to call once generation succeeds.
+ *
+ * Accepts a session JWT, a long-lived user apiKey, or the beta admin token
+ * (requireMachineUser) — machine-auth parity with /api/art/generate so
+ * automation (conductor, relay agent) can drive Comfy routes.
  */
 export async function authAndGate(
   event: H3Event,
   input: ComfyGateInput,
 ): Promise<ComfyGateResult> {
-  const { user } = await requireApiUser(event)
+  const { user } = await requireMachineUser(event)
 
   const gate = await manaGate(event, {
     kind: 'art',

@@ -26,6 +26,7 @@
     "postinstall": "nuxi prepare",
     "snapshot:fallback": "tsx utils/scripts/snapshotFallback.ts",
     "backfill:slugs": "tsx utils/scripts/backfillSlugs.ts",
+    "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"

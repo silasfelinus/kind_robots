@@ -242,6 +242,7 @@ export type MilestoneRecordWhereInput = {
   isConfirmed?: Prisma.BoolFilter<"MilestoneRecord"> | boolean
   Milestones?: Prisma.XOR<Prisma.MilestoneScalarRelationFilter, Prisma.MilestoneWhereInput>
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
 }
 
 export type MilestoneRecordOrderByWithRelationInput = {
@@ -254,6 +255,7 @@ export type MilestoneRecordOrderByWithRelationInput = {
   isConfirmed?: Prisma.SortOrder
   Milestones?: Prisma.MilestoneOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockOrderByRelationAggregateInput
   _relevance?: Prisma.MilestoneRecordOrderByRelevanceInput
 }
 
@@ -270,6 +272,7 @@ export type MilestoneRecordWhereUniqueInput = Prisma.AtLeast<{
   isConfirmed?: Prisma.BoolFilter<"MilestoneRecord"> | boolean
   Milestones?: Prisma.XOR<Prisma.MilestoneScalarRelationFilter, Prisma.MilestoneWhereInput>
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
 }, "id">
 
 export type MilestoneRecordOrderByWithAggregationInput = {
@@ -307,6 +310,7 @@ export type MilestoneRecordCreateInput = {
   isConfirmed?: boolean
   Milestones: Prisma.MilestoneCreateNestedOneWithoutMilestoneRecordsInput
   User: Prisma.UserCreateNestedOneWithoutMilestonesInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutMilestoneRecordInput
 }
 
 export type MilestoneRecordUncheckedCreateInput = {
@@ -317,6 +321,7 @@ export type MilestoneRecordUncheckedCreateInput = {
   milestoneId: number
   userId: number
   isConfirmed?: boolean
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutMilestoneRecordInput
 }
 
 export type MilestoneRecordUpdateInput = {
@@ -326,6 +331,7 @@ export type MilestoneRecordUpdateInput = {
   isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Milestones?: Prisma.MilestoneUpdateOneRequiredWithoutMilestoneRecordsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutMilestonesNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutMilestoneRecordNestedInput
 }
 
 export type MilestoneRecordUncheckedUpdateInput = {
@@ -336,6 +342,7 @@ export type MilestoneRecordUncheckedUpdateInput = {
   milestoneId?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutMilestoneRecordNestedInput
 }
 
 export type MilestoneRecordCreateManyInput = {
@@ -423,6 +430,11 @@ export type MilestoneRecordSumOrderByAggregateInput = {
   userId?: Prisma.SortOrder
 }
 
+export type MilestoneRecordNullableScalarRelationFilter = {
+  is?: Prisma.MilestoneRecordWhereInput | null
+  isNot?: Prisma.MilestoneRecordWhereInput | null
+}
+
 export type MilestoneRecordCreateNestedManyWithoutMilestonesInput = {
   create?: Prisma.XOR<Prisma.MilestoneRecordCreateWithoutMilestonesInput, Prisma.MilestoneRecordUncheckedCreateWithoutMilestonesInput> | Prisma.MilestoneRecordCreateWithoutMilestonesInput[] | Prisma.MilestoneRecordUncheckedCreateWithoutMilestonesInput[]
   connectOrCreate?: Prisma.MilestoneRecordCreateOrConnectWithoutMilestonesInput | Prisma.MilestoneRecordCreateOrConnectWithoutMilestonesInput[]
@@ -507,12 +519,29 @@ export type MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.MilestoneRecordScalarWhereInput | Prisma.MilestoneRecordScalarWhereInput[]
 }
 
+export type MilestoneRecordCreateNestedOneWithoutLifeAchievementUnlocksInput = {
+  create?: Prisma.XOR<Prisma.MilestoneRecordCreateWithoutLifeAchievementUnlocksInput, Prisma.MilestoneRecordUncheckedCreateWithoutLifeAchievementUnlocksInput>
+  connectOrCreate?: Prisma.MilestoneRecordCreateOrConnectWithoutLifeAchievementUnlocksInput
+  connect?: Prisma.MilestoneRecordWhereUniqueInput
+}
+
+export type MilestoneRecordUpdateOneWithoutLifeAchievementUnlocksNestedInput = {
+  create?: Prisma.XOR<Prisma.MilestoneRecordCreateWithoutLifeAchievementUnlocksInput, Prisma.MilestoneRecordUncheckedCreateWithoutLifeAchievementUnlocksInput>
+  connectOrCreate?: Prisma.MilestoneRecordCreateOrConnectWithoutLifeAchievementUnlocksInput
+  upsert?: Prisma.MilestoneRecordUpsertWithoutLifeAchievementUnlocksInput
+  disconnect?: Prisma.MilestoneRecordWhereInput | boolean
+  delete?: Prisma.MilestoneRecordWhereInput | boolean
+  connect?: Prisma.MilestoneRecordWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MilestoneRecordUpdateToOneWithWhereWithoutLifeAchievementUnlocksInput, Prisma.MilestoneRecordUpdateWithoutLifeAchievementUnlocksInput>, Prisma.MilestoneRecordUncheckedUpdateWithoutLifeAchievementUnlocksInput>
+}
+
 export type MilestoneRecordCreateWithoutMilestonesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   username?: string | null
   isConfirmed?: boolean
   User: Prisma.UserCreateNestedOneWithoutMilestonesInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutMilestoneRecordInput
 }
 
 export type MilestoneRecordUncheckedCreateWithoutMilestonesInput = {
@@ -522,6 +551,7 @@ export type MilestoneRecordUncheckedCreateWithoutMilestonesInput = {
   username?: string | null
   userId: number
   isConfirmed?: boolean
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutMilestoneRecordInput
 }
 
 export type MilestoneRecordCreateOrConnectWithoutMilestonesInput = {
@@ -569,6 +599,7 @@ export type MilestoneRecordCreateWithoutUserInput = {
   username?: string | null
   isConfirmed?: boolean
   Milestones: Prisma.MilestoneCreateNestedOneWithoutMilestoneRecordsInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutMilestoneRecordInput
 }
 
 export type MilestoneRecordUncheckedCreateWithoutUserInput = {
@@ -578,6 +609,7 @@ export type MilestoneRecordUncheckedCreateWithoutUserInput = {
   username?: string | null
   milestoneId: number
   isConfirmed?: boolean
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutMilestoneRecordInput
 }
 
 export type MilestoneRecordCreateOrConnectWithoutUserInput = {
@@ -606,6 +638,60 @@ export type MilestoneRecordUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.MilestoneRecordUpdateManyMutationInput, Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserInput>
 }
 
+export type MilestoneRecordCreateWithoutLifeAchievementUnlocksInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username?: string | null
+  isConfirmed?: boolean
+  Milestones: Prisma.MilestoneCreateNestedOneWithoutMilestoneRecordsInput
+  User: Prisma.UserCreateNestedOneWithoutMilestonesInput
+}
+
+export type MilestoneRecordUncheckedCreateWithoutLifeAchievementUnlocksInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username?: string | null
+  milestoneId: number
+  userId: number
+  isConfirmed?: boolean
+}
+
+export type MilestoneRecordCreateOrConnectWithoutLifeAchievementUnlocksInput = {
+  where: Prisma.MilestoneRecordWhereUniqueInput
+  create: Prisma.XOR<Prisma.MilestoneRecordCreateWithoutLifeAchievementUnlocksInput, Prisma.MilestoneRecordUncheckedCreateWithoutLifeAchievementUnlocksInput>
+}
+
+export type MilestoneRecordUpsertWithoutLifeAchievementUnlocksInput = {
+  update: Prisma.XOR<Prisma.MilestoneRecordUpdateWithoutLifeAchievementUnlocksInput, Prisma.MilestoneRecordUncheckedUpdateWithoutLifeAchievementUnlocksInput>
+  create: Prisma.XOR<Prisma.MilestoneRecordCreateWithoutLifeAchievementUnlocksInput, Prisma.MilestoneRecordUncheckedCreateWithoutLifeAchievementUnlocksInput>
+  where?: Prisma.MilestoneRecordWhereInput
+}
+
+export type MilestoneRecordUpdateToOneWithWhereWithoutLifeAchievementUnlocksInput = {
+  where?: Prisma.MilestoneRecordWhereInput
+  data: Prisma.XOR<Prisma.MilestoneRecordUpdateWithoutLifeAchievementUnlocksInput, Prisma.MilestoneRecordUncheckedUpdateWithoutLifeAchievementUnlocksInput>
+}
+
+export type MilestoneRecordUpdateWithoutLifeAchievementUnlocksInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Milestones?: Prisma.MilestoneUpdateOneRequiredWithoutMilestoneRecordsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutMilestonesNestedInput
+}
+
+export type MilestoneRecordUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestoneId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
 export type MilestoneRecordCreateManyMilestonesInput = {
   id?: number
   createdAt?: Date | string
@@ -621,6 +707,7 @@ export type MilestoneRecordUpdateWithoutMilestonesInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutMilestonesNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutMilestoneRecordNestedInput
 }
 
 export type MilestoneRecordUncheckedUpdateWithoutMilestonesInput = {
@@ -630,6 +717,7 @@ export type MilestoneRecordUncheckedUpdateWithoutMilestonesInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutMilestoneRecordNestedInput
 }
 
 export type MilestoneRecordUncheckedUpdateManyWithoutMilestonesInput = {
@@ -656,6 +744,7 @@ export type MilestoneRecordUpdateWithoutUserInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Milestones?: Prisma.MilestoneUpdateOneRequiredWithoutMilestoneRecordsNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutMilestoneRecordNestedInput
 }
 
 export type MilestoneRecordUncheckedUpdateWithoutUserInput = {
@@ -665,6 +754,7 @@ export type MilestoneRecordUncheckedUpdateWithoutUserInput = {
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   milestoneId?: Prisma.IntFieldUpdateOperationsInput | number
   isConfirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutMilestoneRecordNestedInput
 }
 
 export type MilestoneRecordUncheckedUpdateManyWithoutUserInput = {
@@ -677,6 +767,35 @@ export type MilestoneRecordUncheckedUpdateManyWithoutUserInput = {
 }
 
 
+/**
+ * Count Type MilestoneRecordCountOutputType
+ */
+
+export type MilestoneRecordCountOutputType = {
+  LifeAchievementUnlocks: number
+}
+
+export type MilestoneRecordCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  LifeAchievementUnlocks?: boolean | MilestoneRecordCountOutputTypeCountLifeAchievementUnlocksArgs
+}
+
+/**
+ * MilestoneRecordCountOutputType without action
+ */
+export type MilestoneRecordCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MilestoneRecordCountOutputType
+   */
+  select?: Prisma.MilestoneRecordCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * MilestoneRecordCountOutputType without action
+ */
+export type MilestoneRecordCountOutputTypeCountLifeAchievementUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeAchievementUnlockWhereInput
+}
+
 
 export type MilestoneRecordSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -688,6 +807,8 @@ export type MilestoneRecordSelect<ExtArgs extends runtime.Types.Extensions.Inter
   isConfirmed?: boolean
   Milestones?: boolean | Prisma.MilestoneDefaultArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  LifeAchievementUnlocks?: boolean | Prisma.MilestoneRecord$LifeAchievementUnlocksArgs<ExtArgs>
+  _count?: boolean | Prisma.MilestoneRecordCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["milestoneRecord"]>
 
 
@@ -706,6 +827,8 @@ export type MilestoneRecordOmit<ExtArgs extends runtime.Types.Extensions.Interna
 export type MilestoneRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Milestones?: boolean | Prisma.MilestoneDefaultArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  LifeAchievementUnlocks?: boolean | Prisma.MilestoneRecord$LifeAchievementUnlocksArgs<ExtArgs>
+  _count?: boolean | Prisma.MilestoneRecordCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $MilestoneRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -713,6 +836,7 @@ export type $MilestoneRecordPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     Milestones: Prisma.$MilestonePayload<ExtArgs>
     User: Prisma.$UserPayload<ExtArgs>
+    LifeAchievementUnlocks: Prisma.$LifeAchievementUnlockPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1064,6 +1188,7 @@ export interface Prisma__MilestoneRecordClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Milestones<T extends Prisma.MilestoneDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MilestoneDefaultArgs<ExtArgs>>): Prisma.Prisma__MilestoneClient<runtime.Types.Result.GetResult<Prisma.$MilestonePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  LifeAchievementUnlocks<T extends Prisma.MilestoneRecord$LifeAchievementUnlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MilestoneRecord$LifeAchievementUnlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementUnlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1445,6 +1570,30 @@ export type MilestoneRecordDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many MilestoneRecords to delete.
    */
   limit?: number
+}
+
+/**
+ * MilestoneRecord.LifeAchievementUnlocks
+ */
+export type MilestoneRecord$LifeAchievementUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeAchievementUnlock
+   */
+  select?: Prisma.LifeAchievementUnlockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeAchievementUnlock
+   */
+  omit?: Prisma.LifeAchievementUnlockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeAchievementUnlockInclude<ExtArgs> | null
+  where?: Prisma.LifeAchievementUnlockWhereInput
+  orderBy?: Prisma.LifeAchievementUnlockOrderByWithRelationInput | Prisma.LifeAchievementUnlockOrderByWithRelationInput[]
+  cursor?: Prisma.LifeAchievementUnlockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeAchievementUnlockScalarFieldEnum | Prisma.LifeAchievementUnlockScalarFieldEnum[]
 }
 
 /**

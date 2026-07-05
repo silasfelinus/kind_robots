@@ -460,8 +460,10 @@ export type BotWhereInput = {
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ExpressionMedia?: Prisma.ExpressionMediaListRelationFilter
   ExpressionTransition?: Prisma.ExpressionTransitionListRelationFilter
+  LifeRuns?: Prisma.LifeRunListRelationFilter
 }
 
 export type BotOrderByWithRelationInput = {
@@ -506,8 +508,10 @@ export type BotOrderByWithRelationInput = {
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
   ExpressionMedia?: Prisma.ExpressionMediaOrderByRelationAggregateInput
   ExpressionTransition?: Prisma.ExpressionTransitionOrderByRelationAggregateInput
+  LifeRuns?: Prisma.LifeRunOrderByRelationAggregateInput
   _relevance?: Prisma.BotOrderByRelevanceInput
 }
 
@@ -556,8 +560,10 @@ export type BotWhereUniqueInput = Prisma.AtLeast<{
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ExpressionMedia?: Prisma.ExpressionMediaListRelationFilter
   ExpressionTransition?: Prisma.ExpressionTransitionListRelationFilter
+  LifeRuns?: Prisma.LifeRunListRelationFilter
 }, "id" | "slug">
 
 export type BotOrderByWithAggregationInput = {
@@ -678,8 +684,10 @@ export type BotCreateInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateInput = {
@@ -721,8 +729,10 @@ export type BotUncheckedCreateInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotUpdateInput = {
@@ -763,8 +773,10 @@ export type BotUpdateInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateInput = {
@@ -806,8 +818,10 @@ export type BotUncheckedUpdateInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateManyInput = {
@@ -1320,6 +1334,36 @@ export type BotUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.BotScalarWhereInput | Prisma.BotScalarWhereInput[]
 }
 
+export type BotCreateNestedOneWithoutChallengeSubmissionsInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutChallengeSubmissionsInput, Prisma.BotUncheckedCreateWithoutChallengeSubmissionsInput>
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutChallengeSubmissionsInput
+  connect?: Prisma.BotWhereUniqueInput
+}
+
+export type BotUpdateOneRequiredWithoutChallengeSubmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutChallengeSubmissionsInput, Prisma.BotUncheckedCreateWithoutChallengeSubmissionsInput>
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutChallengeSubmissionsInput
+  upsert?: Prisma.BotUpsertWithoutChallengeSubmissionsInput
+  connect?: Prisma.BotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BotUpdateToOneWithWhereWithoutChallengeSubmissionsInput, Prisma.BotUpdateWithoutChallengeSubmissionsInput>, Prisma.BotUncheckedUpdateWithoutChallengeSubmissionsInput>
+}
+
+export type BotCreateNestedOneWithoutLifeRunsInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutLifeRunsInput, Prisma.BotUncheckedCreateWithoutLifeRunsInput>
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutLifeRunsInput
+  connect?: Prisma.BotWhereUniqueInput
+}
+
+export type BotUpdateOneWithoutLifeRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutLifeRunsInput, Prisma.BotUncheckedCreateWithoutLifeRunsInput>
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutLifeRunsInput
+  upsert?: Prisma.BotUpsertWithoutLifeRunsInput
+  disconnect?: Prisma.BotWhereInput | boolean
+  delete?: Prisma.BotWhereInput | boolean
+  connect?: Prisma.BotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BotUpdateToOneWithWhereWithoutLifeRunsInput, Prisma.BotUpdateWithoutLifeRunsInput>, Prisma.BotUncheckedUpdateWithoutLifeRunsInput>
+}
+
 export type BotCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1357,8 +1401,10 @@ export type BotCreateWithoutArtImageInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutArtImageInput = {
@@ -1399,8 +1445,10 @@ export type BotUncheckedCreateWithoutArtImageInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutArtImageInput = {
@@ -1505,8 +1553,10 @@ export type BotCreateWithoutChatsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutChatsInput = {
@@ -1547,8 +1597,10 @@ export type BotUncheckedCreateWithoutChatsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutChatsInput = {
@@ -1604,8 +1656,10 @@ export type BotUpdateWithoutChatsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutChatsInput = {
@@ -1646,8 +1700,10 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutDreamsInput = {
@@ -1687,8 +1743,10 @@ export type BotCreateWithoutDreamsInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutDreamsInput = {
@@ -1729,8 +1787,10 @@ export type BotUncheckedCreateWithoutDreamsInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutDreamsInput = {
@@ -1792,7 +1852,9 @@ export type BotCreateWithoutExpressionMediaInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutExpressionMediaInput = {
@@ -1834,7 +1896,9 @@ export type BotUncheckedCreateWithoutExpressionMediaInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutExpressionMediaInput = {
@@ -1891,7 +1955,9 @@ export type BotUpdateWithoutExpressionMediaInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutExpressionMediaInput = {
@@ -1933,7 +1999,9 @@ export type BotUncheckedUpdateWithoutExpressionMediaInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutExpressionTransitionInput = {
@@ -1974,7 +2042,9 @@ export type BotCreateWithoutExpressionTransitionInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutExpressionTransitionInput = {
@@ -2016,7 +2086,9 @@ export type BotUncheckedCreateWithoutExpressionTransitionInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutExpressionTransitionInput = {
@@ -2073,7 +2145,9 @@ export type BotUpdateWithoutExpressionTransitionInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutExpressionTransitionInput = {
@@ -2115,7 +2189,9 @@ export type BotUncheckedUpdateWithoutExpressionTransitionInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutNarratorThreadsInput = {
@@ -2155,8 +2231,10 @@ export type BotCreateWithoutNarratorThreadsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutNarratorThreadsInput = {
@@ -2197,8 +2275,10 @@ export type BotUncheckedCreateWithoutNarratorThreadsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutNarratorThreadsInput = {
@@ -2254,8 +2334,10 @@ export type BotUpdateWithoutNarratorThreadsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutNarratorThreadsInput = {
@@ -2296,8 +2378,10 @@ export type BotUncheckedUpdateWithoutNarratorThreadsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutPromptsInput = {
@@ -2337,8 +2421,10 @@ export type BotCreateWithoutPromptsInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutPromptsInput = {
@@ -2379,8 +2465,10 @@ export type BotUncheckedCreateWithoutPromptsInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutPromptsInput = {
@@ -2436,8 +2524,10 @@ export type BotUpdateWithoutPromptsInput = {
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutPromptsInput = {
@@ -2478,8 +2568,10 @@ export type BotUncheckedUpdateWithoutPromptsInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutReactionsInput = {
@@ -2519,8 +2611,10 @@ export type BotCreateWithoutReactionsInput = {
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutReactionsInput = {
@@ -2561,8 +2655,10 @@ export type BotUncheckedCreateWithoutReactionsInput = {
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutReactionsInput = {
@@ -2618,8 +2714,10 @@ export type BotUpdateWithoutReactionsInput = {
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutReactionsInput = {
@@ -2660,8 +2758,10 @@ export type BotUncheckedUpdateWithoutReactionsInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutServerInput = {
@@ -2701,8 +2801,10 @@ export type BotCreateWithoutServerInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutServerInput = {
@@ -2743,8 +2845,10 @@ export type BotUncheckedCreateWithoutServerInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutServerInput = {
@@ -2810,8 +2914,10 @@ export type BotCreateWithoutUserInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutUserInput = {
@@ -2852,8 +2958,10 @@ export type BotUncheckedCreateWithoutUserInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutUserInput = {
@@ -2880,6 +2988,386 @@ export type BotUpdateWithWhereUniqueWithoutUserInput = {
 export type BotUpdateManyWithWhereWithoutUserInput = {
   where: Prisma.BotScalarWhereInput
   data: Prisma.XOR<Prisma.BotUpdateManyMutationInput, Prisma.BotUncheckedUpdateManyWithoutUserInput>
+}
+
+export type BotCreateWithoutChallengeSubmissionsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  BotType: string
+  name: string
+  slug?: string | null
+  subtitle?: string | null
+  description?: string | null
+  avatarImage?: string | null
+  botIntro: string
+  userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
+  prompt: string
+  trainingPath?: string | null
+  theme?: string | null
+  personality?: string | null
+  modules?: string | null
+  sampleResponse?: string | null
+  tagline?: string | null
+  isPublic?: boolean
+  underConstruction?: boolean
+  canDelete?: boolean
+  imagePath?: string | null
+  designer?: string
+  serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  chatBorderImage?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
+  User?: Prisma.UserCreateNestedOneWithoutBotsInput
+  NarratorThreads?: Prisma.NarratorThreadCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
+  ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutBotInput
+}
+
+export type BotUncheckedCreateWithoutChallengeSubmissionsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  BotType: string
+  name: string
+  slug?: string | null
+  subtitle?: string | null
+  description?: string | null
+  avatarImage?: string | null
+  botIntro: string
+  userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
+  prompt: string
+  trainingPath?: string | null
+  theme?: string | null
+  personality?: string | null
+  modules?: string | null
+  sampleResponse?: string | null
+  tagline?: string | null
+  isPublic?: boolean
+  underConstruction?: boolean
+  canDelete?: boolean
+  userId?: number | null
+  imagePath?: string | null
+  designer?: string
+  serverId?: number | null
+  serverName?: string | null
+  artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  chatBorderImage?: string | null
+  NarratorThreads?: Prisma.NarratorThreadUncheckedCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutBotInput
+}
+
+export type BotCreateOrConnectWithoutChallengeSubmissionsInput = {
+  where: Prisma.BotWhereUniqueInput
+  create: Prisma.XOR<Prisma.BotCreateWithoutChallengeSubmissionsInput, Prisma.BotUncheckedCreateWithoutChallengeSubmissionsInput>
+}
+
+export type BotUpsertWithoutChallengeSubmissionsInput = {
+  update: Prisma.XOR<Prisma.BotUpdateWithoutChallengeSubmissionsInput, Prisma.BotUncheckedUpdateWithoutChallengeSubmissionsInput>
+  create: Prisma.XOR<Prisma.BotCreateWithoutChallengeSubmissionsInput, Prisma.BotUncheckedCreateWithoutChallengeSubmissionsInput>
+  where?: Prisma.BotWhereInput
+}
+
+export type BotUpdateToOneWithWhereWithoutChallengeSubmissionsInput = {
+  where?: Prisma.BotWhereInput
+  data: Prisma.XOR<Prisma.BotUpdateWithoutChallengeSubmissionsInput, Prisma.BotUncheckedUpdateWithoutChallengeSubmissionsInput>
+}
+
+export type BotUpdateWithoutChallengeSubmissionsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  BotType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.StringFieldUpdateOperationsInput | string
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatBorderImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
+  User?: Prisma.UserUpdateOneWithoutBotsNestedInput
+  NarratorThreads?: Prisma.NarratorThreadUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
+}
+
+export type BotUncheckedUpdateWithoutChallengeSubmissionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  BotType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.StringFieldUpdateOperationsInput | string
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatBorderImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  NarratorThreads?: Prisma.NarratorThreadUncheckedUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
+}
+
+export type BotCreateWithoutLifeRunsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  BotType: string
+  name: string
+  slug?: string | null
+  subtitle?: string | null
+  description?: string | null
+  avatarImage?: string | null
+  botIntro: string
+  userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
+  prompt: string
+  trainingPath?: string | null
+  theme?: string | null
+  personality?: string | null
+  modules?: string | null
+  sampleResponse?: string | null
+  tagline?: string | null
+  isPublic?: boolean
+  underConstruction?: boolean
+  canDelete?: boolean
+  imagePath?: string | null
+  designer?: string
+  serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  chatBorderImage?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
+  Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
+  User?: Prisma.UserCreateNestedOneWithoutBotsInput
+  NarratorThreads?: Prisma.NarratorThreadCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutBotInput
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutBotInput
+  ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutBotInput
+}
+
+export type BotUncheckedCreateWithoutLifeRunsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  BotType: string
+  name: string
+  slug?: string | null
+  subtitle?: string | null
+  description?: string | null
+  avatarImage?: string | null
+  botIntro: string
+  userIntro: string
+  narrativeVoice?: string | null
+  forgeIntro?: string | null
+  prompt: string
+  trainingPath?: string | null
+  theme?: string | null
+  personality?: string | null
+  modules?: string | null
+  sampleResponse?: string | null
+  tagline?: string | null
+  isPublic?: boolean
+  underConstruction?: boolean
+  canDelete?: boolean
+  userId?: number | null
+  imagePath?: string | null
+  designer?: string
+  serverId?: number | null
+  serverName?: string | null
+  artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  chatBorderImage?: string | null
+  NarratorThreads?: Prisma.NarratorThreadUncheckedCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutBotsInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutBotInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutBotInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutBotInput
+}
+
+export type BotCreateOrConnectWithoutLifeRunsInput = {
+  where: Prisma.BotWhereUniqueInput
+  create: Prisma.XOR<Prisma.BotCreateWithoutLifeRunsInput, Prisma.BotUncheckedCreateWithoutLifeRunsInput>
+}
+
+export type BotUpsertWithoutLifeRunsInput = {
+  update: Prisma.XOR<Prisma.BotUpdateWithoutLifeRunsInput, Prisma.BotUncheckedUpdateWithoutLifeRunsInput>
+  create: Prisma.XOR<Prisma.BotCreateWithoutLifeRunsInput, Prisma.BotUncheckedCreateWithoutLifeRunsInput>
+  where?: Prisma.BotWhereInput
+}
+
+export type BotUpdateToOneWithWhereWithoutLifeRunsInput = {
+  where?: Prisma.BotWhereInput
+  data: Prisma.XOR<Prisma.BotUpdateWithoutLifeRunsInput, Prisma.BotUncheckedUpdateWithoutLifeRunsInput>
+}
+
+export type BotUpdateWithoutLifeRunsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  BotType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.StringFieldUpdateOperationsInput | string
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatBorderImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
+  User?: Prisma.UserUpdateOneWithoutBotsNestedInput
+  NarratorThreads?: Prisma.NarratorThreadUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+}
+
+export type BotUncheckedUpdateWithoutLifeRunsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  BotType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  userIntro?: Prisma.StringFieldUpdateOperationsInput | string
+  narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.StringFieldUpdateOperationsInput | string
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatBorderImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  NarratorThreads?: Prisma.NarratorThreadUncheckedUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateManyArtImageInput = {
@@ -2954,8 +3442,10 @@ export type BotUpdateWithoutArtImageInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutArtImageInput = {
@@ -2996,8 +3486,10 @@ export type BotUncheckedUpdateWithoutArtImageInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutArtImageInput = {
@@ -3072,8 +3564,10 @@ export type BotUpdateWithoutDreamsInput = {
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutDreamsInput = {
@@ -3114,8 +3608,10 @@ export type BotUncheckedUpdateWithoutDreamsInput = {
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutDreamsInput = {
@@ -3226,8 +3722,10 @@ export type BotUpdateWithoutServerInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutServerInput = {
@@ -3268,8 +3766,10 @@ export type BotUncheckedUpdateWithoutServerInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutServerInput = {
@@ -3379,8 +3879,10 @@ export type BotUpdateWithoutUserInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutUserInput = {
@@ -3421,8 +3923,10 @@ export type BotUncheckedUpdateWithoutUserInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutBotsNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutBotNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutBotNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutBotNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutUserInput = {
@@ -3471,8 +3975,10 @@ export type BotCountOutputType = {
   Prompts: number
   Reactions: number
   Dreams: number
+  ChallengeSubmissions: number
   ExpressionMedia: number
   ExpressionTransition: number
+  LifeRuns: number
 }
 
 export type BotCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3481,8 +3987,10 @@ export type BotCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.In
   Prompts?: boolean | BotCountOutputTypeCountPromptsArgs
   Reactions?: boolean | BotCountOutputTypeCountReactionsArgs
   Dreams?: boolean | BotCountOutputTypeCountDreamsArgs
+  ChallengeSubmissions?: boolean | BotCountOutputTypeCountChallengeSubmissionsArgs
   ExpressionMedia?: boolean | BotCountOutputTypeCountExpressionMediaArgs
   ExpressionTransition?: boolean | BotCountOutputTypeCountExpressionTransitionArgs
+  LifeRuns?: boolean | BotCountOutputTypeCountLifeRunsArgs
 }
 
 /**
@@ -3533,6 +4041,13 @@ export type BotCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Exte
 /**
  * BotCountOutputType without action
  */
+export type BotCountOutputTypeCountChallengeSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChallengeSubmissionWhereInput
+}
+
+/**
+ * BotCountOutputType without action
+ */
 export type BotCountOutputTypeCountExpressionMediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ExpressionMediaWhereInput
 }
@@ -3542,6 +4057,13 @@ export type BotCountOutputTypeCountExpressionMediaArgs<ExtArgs extends runtime.T
  */
 export type BotCountOutputTypeCountExpressionTransitionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ExpressionTransitionWhereInput
+}
+
+/**
+ * BotCountOutputType without action
+ */
+export type BotCountOutputTypeCountLifeRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeRunWhereInput
 }
 
 
@@ -3587,8 +4109,10 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   Prompts?: boolean | Prisma.Bot$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
   Dreams?: boolean | Prisma.Bot$DreamsArgs<ExtArgs>
+  ChallengeSubmissions?: boolean | Prisma.Bot$ChallengeSubmissionsArgs<ExtArgs>
   ExpressionMedia?: boolean | Prisma.Bot$ExpressionMediaArgs<ExtArgs>
   ExpressionTransition?: boolean | Prisma.Bot$ExpressionTransitionArgs<ExtArgs>
+  LifeRuns?: boolean | Prisma.Bot$LifeRunsArgs<ExtArgs>
   _count?: boolean | Prisma.BotCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bot"]>
 
@@ -3640,8 +4164,10 @@ export type BotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Prompts?: boolean | Prisma.Bot$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
   Dreams?: boolean | Prisma.Bot$DreamsArgs<ExtArgs>
+  ChallengeSubmissions?: boolean | Prisma.Bot$ChallengeSubmissionsArgs<ExtArgs>
   ExpressionMedia?: boolean | Prisma.Bot$ExpressionMediaArgs<ExtArgs>
   ExpressionTransition?: boolean | Prisma.Bot$ExpressionTransitionArgs<ExtArgs>
+  LifeRuns?: boolean | Prisma.Bot$LifeRunsArgs<ExtArgs>
   _count?: boolean | Prisma.BotCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -3656,8 +4182,10 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
+    ChallengeSubmissions: Prisma.$ChallengeSubmissionPayload<ExtArgs>[]
     ExpressionMedia: Prisma.$ExpressionMediaPayload<ExtArgs>[]
     ExpressionTransition: Prisma.$ExpressionTransitionPayload<ExtArgs>[]
+    LifeRuns: Prisma.$LifeRunPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -4041,8 +4569,10 @@ export interface Prisma__BotClient<T, Null = never, ExtArgs extends runtime.Type
   Prompts<T extends Prisma.Bot$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Bot$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dreams<T extends Prisma.Bot$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ChallengeSubmissions<T extends Prisma.Bot$ChallengeSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ChallengeSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengeSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ExpressionMedia<T extends Prisma.Bot$ExpressionMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ExpressionMediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ExpressionTransition<T extends Prisma.Bot$ExpressionTransitionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ExpressionTransitionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionTransitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeRuns<T extends Prisma.Bot$LifeRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$LifeRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4630,6 +5160,30 @@ export type Bot$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
 }
 
 /**
+ * Bot.ChallengeSubmissions
+ */
+export type Bot$ChallengeSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChallengeSubmission
+   */
+  select?: Prisma.ChallengeSubmissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChallengeSubmission
+   */
+  omit?: Prisma.ChallengeSubmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChallengeSubmissionInclude<ExtArgs> | null
+  where?: Prisma.ChallengeSubmissionWhereInput
+  orderBy?: Prisma.ChallengeSubmissionOrderByWithRelationInput | Prisma.ChallengeSubmissionOrderByWithRelationInput[]
+  cursor?: Prisma.ChallengeSubmissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChallengeSubmissionScalarFieldEnum | Prisma.ChallengeSubmissionScalarFieldEnum[]
+}
+
+/**
  * Bot.ExpressionMedia
  */
 export type Bot$ExpressionMediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4675,6 +5229,30 @@ export type Bot$ExpressionTransitionArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.ExpressionTransitionScalarFieldEnum | Prisma.ExpressionTransitionScalarFieldEnum[]
+}
+
+/**
+ * Bot.LifeRuns
+ */
+export type Bot$LifeRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeRun
+   */
+  select?: Prisma.LifeRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeRun
+   */
+  omit?: Prisma.LifeRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeRunInclude<ExtArgs> | null
+  where?: Prisma.LifeRunWhereInput
+  orderBy?: Prisma.LifeRunOrderByWithRelationInput | Prisma.LifeRunOrderByWithRelationInput[]
+  cursor?: Prisma.LifeRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeRunScalarFieldEnum | Prisma.LifeRunScalarFieldEnum[]
 }
 
 /**

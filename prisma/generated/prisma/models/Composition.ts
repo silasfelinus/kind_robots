@@ -32,8 +32,11 @@ export type CompositionAvgAggregateOutputType = {
   dreamId: number | null
   scenarioId: number | null
   rewardId: number | null
+  manaCharged: number | null
+  bountyId: number | null
   userId: number | null
   artImageId: number | null
+  outputDreamId: number | null
 }
 
 export type CompositionSumAggregateOutputType = {
@@ -42,8 +45,11 @@ export type CompositionSumAggregateOutputType = {
   dreamId: number | null
   scenarioId: number | null
   rewardId: number | null
+  manaCharged: number | null
+  bountyId: number | null
   userId: number | null
   artImageId: number | null
+  outputDreamId: number | null
 }
 
 export type CompositionMinAggregateOutputType = {
@@ -69,8 +75,15 @@ export type CompositionMinAggregateOutputType = {
   narrativeText: string | null
   artPrompt: string | null
   imagePath: string | null
+  wishText: string | null
+  status: $Enums.CompositionStatus | null
+  userApproved: boolean | null
+  approvedAt: Date | null
+  manaCharged: number | null
+  bountyId: number | null
   userId: number | null
   artImageId: number | null
+  outputDreamId: number | null
 }
 
 export type CompositionMaxAggregateOutputType = {
@@ -96,8 +109,15 @@ export type CompositionMaxAggregateOutputType = {
   narrativeText: string | null
   artPrompt: string | null
   imagePath: string | null
+  wishText: string | null
+  status: $Enums.CompositionStatus | null
+  userApproved: boolean | null
+  approvedAt: Date | null
+  manaCharged: number | null
+  bountyId: number | null
   userId: number | null
   artImageId: number | null
+  outputDreamId: number | null
 }
 
 export type CompositionCountAggregateOutputType = {
@@ -123,8 +143,16 @@ export type CompositionCountAggregateOutputType = {
   narrativeText: number
   artPrompt: number
   imagePath: number
+  wishText: number
+  status: number
+  stepLog: number
+  userApproved: number
+  approvedAt: number
+  manaCharged: number
+  bountyId: number
   userId: number
   artImageId: number
+  outputDreamId: number
   _all: number
 }
 
@@ -135,8 +163,11 @@ export type CompositionAvgAggregateInputType = {
   dreamId?: true
   scenarioId?: true
   rewardId?: true
+  manaCharged?: true
+  bountyId?: true
   userId?: true
   artImageId?: true
+  outputDreamId?: true
 }
 
 export type CompositionSumAggregateInputType = {
@@ -145,8 +176,11 @@ export type CompositionSumAggregateInputType = {
   dreamId?: true
   scenarioId?: true
   rewardId?: true
+  manaCharged?: true
+  bountyId?: true
   userId?: true
   artImageId?: true
+  outputDreamId?: true
 }
 
 export type CompositionMinAggregateInputType = {
@@ -172,8 +206,15 @@ export type CompositionMinAggregateInputType = {
   narrativeText?: true
   artPrompt?: true
   imagePath?: true
+  wishText?: true
+  status?: true
+  userApproved?: true
+  approvedAt?: true
+  manaCharged?: true
+  bountyId?: true
   userId?: true
   artImageId?: true
+  outputDreamId?: true
 }
 
 export type CompositionMaxAggregateInputType = {
@@ -199,8 +240,15 @@ export type CompositionMaxAggregateInputType = {
   narrativeText?: true
   artPrompt?: true
   imagePath?: true
+  wishText?: true
+  status?: true
+  userApproved?: true
+  approvedAt?: true
+  manaCharged?: true
+  bountyId?: true
   userId?: true
   artImageId?: true
+  outputDreamId?: true
 }
 
 export type CompositionCountAggregateInputType = {
@@ -226,8 +274,16 @@ export type CompositionCountAggregateInputType = {
   narrativeText?: true
   artPrompt?: true
   imagePath?: true
+  wishText?: true
+  status?: true
+  stepLog?: true
+  userApproved?: true
+  approvedAt?: true
+  manaCharged?: true
+  bountyId?: true
   userId?: true
   artImageId?: true
+  outputDreamId?: true
   _all?: true
 }
 
@@ -340,8 +396,16 @@ export type CompositionGroupByOutputType = {
   narrativeText: string | null
   artPrompt: string | null
   imagePath: string | null
+  wishText: string | null
+  status: $Enums.CompositionStatus
+  stepLog: runtime.JsonValue | null
+  userApproved: boolean
+  approvedAt: Date | null
+  manaCharged: number | null
+  bountyId: number | null
   userId: number | null
   artImageId: number | null
+  outputDreamId: number | null
   _count: CompositionCountAggregateOutputType | null
   _avg: CompositionAvgAggregateOutputType | null
   _sum: CompositionSumAggregateOutputType | null
@@ -390,10 +454,19 @@ export type CompositionWhereInput = {
   narrativeText?: Prisma.StringNullableFilter<"Composition"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Composition"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Composition"> | string | null
+  wishText?: Prisma.StringNullableFilter<"Composition"> | string | null
+  status?: Prisma.EnumCompositionStatusFilter<"Composition"> | $Enums.CompositionStatus
+  stepLog?: Prisma.JsonNullableFilter<"Composition">
+  userApproved?: Prisma.BoolFilter<"Composition"> | boolean
+  approvedAt?: Prisma.DateTimeNullableFilter<"Composition"> | Date | string | null
+  manaCharged?: Prisma.IntNullableFilter<"Composition"> | number | null
+  bountyId?: Prisma.IntNullableFilter<"Composition"> | number | null
   userId?: Prisma.IntNullableFilter<"Composition"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Composition"> | number | null
+  outputDreamId?: Prisma.IntNullableFilter<"Composition"> | number | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
+  OutputDream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
@@ -424,10 +497,19 @@ export type CompositionOrderByWithRelationInput = {
   narrativeText?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  wishText?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  stepLog?: Prisma.SortOrderInput | Prisma.SortOrder
+  userApproved?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manaCharged?: Prisma.SortOrderInput | Prisma.SortOrder
+  bountyId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  outputDreamId?: Prisma.SortOrderInput | Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
+  OutputDream?: Prisma.DreamOrderByWithRelationInput
   Character?: Prisma.CharacterOrderByWithRelationInput
   Dream?: Prisma.DreamOrderByWithRelationInput
   Scenario?: Prisma.ScenarioOrderByWithRelationInput
@@ -439,6 +521,7 @@ export type CompositionOrderByWithRelationInput = {
 export type CompositionWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   artImageId?: number
+  outputDreamId?: number
   AND?: Prisma.CompositionWhereInput | Prisma.CompositionWhereInput[]
   OR?: Prisma.CompositionWhereInput[]
   NOT?: Prisma.CompositionWhereInput | Prisma.CompositionWhereInput[]
@@ -463,15 +546,23 @@ export type CompositionWhereUniqueInput = Prisma.AtLeast<{
   narrativeText?: Prisma.StringNullableFilter<"Composition"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Composition"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Composition"> | string | null
+  wishText?: Prisma.StringNullableFilter<"Composition"> | string | null
+  status?: Prisma.EnumCompositionStatusFilter<"Composition"> | $Enums.CompositionStatus
+  stepLog?: Prisma.JsonNullableFilter<"Composition">
+  userApproved?: Prisma.BoolFilter<"Composition"> | boolean
+  approvedAt?: Prisma.DateTimeNullableFilter<"Composition"> | Date | string | null
+  manaCharged?: Prisma.IntNullableFilter<"Composition"> | number | null
+  bountyId?: Prisma.IntNullableFilter<"Composition"> | number | null
   userId?: Prisma.IntNullableFilter<"Composition"> | number | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
+  OutputDream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
-}, "id" | "artImageId">
+}, "id" | "artImageId" | "outputDreamId">
 
 export type CompositionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -496,8 +587,16 @@ export type CompositionOrderByWithAggregationInput = {
   narrativeText?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  wishText?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  stepLog?: Prisma.SortOrderInput | Prisma.SortOrder
+  userApproved?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manaCharged?: Prisma.SortOrderInput | Prisma.SortOrder
+  bountyId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  outputDreamId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CompositionCountOrderByAggregateInput
   _avg?: Prisma.CompositionAvgOrderByAggregateInput
   _max?: Prisma.CompositionMaxOrderByAggregateInput
@@ -531,8 +630,16 @@ export type CompositionScalarWhereWithAggregatesInput = {
   narrativeText?: Prisma.StringNullableWithAggregatesFilter<"Composition"> | string | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Composition"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Composition"> | string | null
+  wishText?: Prisma.StringNullableWithAggregatesFilter<"Composition"> | string | null
+  status?: Prisma.EnumCompositionStatusWithAggregatesFilter<"Composition"> | $Enums.CompositionStatus
+  stepLog?: Prisma.JsonNullableWithAggregatesFilter<"Composition">
+  userApproved?: Prisma.BoolWithAggregatesFilter<"Composition"> | boolean
+  approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Composition"> | Date | string | null
+  manaCharged?: Prisma.IntNullableWithAggregatesFilter<"Composition"> | number | null
+  bountyId?: Prisma.IntNullableWithAggregatesFilter<"Composition"> | number | null
   userId?: Prisma.IntNullableWithAggregatesFilter<"Composition"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Composition"> | number | null
+  outputDreamId?: Prisma.IntNullableWithAggregatesFilter<"Composition"> | number | null
 }
 
 export type CompositionCreateInput = {
@@ -553,8 +660,16 @@ export type CompositionCreateInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
@@ -585,8 +700,16 @@ export type CompositionUncheckedCreateInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
 }
 
@@ -608,8 +731,16 @@ export type CompositionUpdateInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
@@ -640,8 +771,16 @@ export type CompositionUncheckedUpdateInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
@@ -668,8 +807,16 @@ export type CompositionCreateManyInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionUpdateManyMutationInput = {
@@ -690,6 +837,13 @@ export type CompositionUpdateManyMutationInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionUncheckedUpdateManyInput = {
@@ -715,8 +869,16 @@ export type CompositionUncheckedUpdateManyInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionListRelationFilter = {
@@ -758,8 +920,16 @@ export type CompositionCountOrderByAggregateInput = {
   narrativeText?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  wishText?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  stepLog?: Prisma.SortOrder
+  userApproved?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  manaCharged?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  outputDreamId?: Prisma.SortOrder
 }
 
 export type CompositionAvgOrderByAggregateInput = {
@@ -768,8 +938,11 @@ export type CompositionAvgOrderByAggregateInput = {
   dreamId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
   rewardId?: Prisma.SortOrder
+  manaCharged?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  outputDreamId?: Prisma.SortOrder
 }
 
 export type CompositionMaxOrderByAggregateInput = {
@@ -795,8 +968,15 @@ export type CompositionMaxOrderByAggregateInput = {
   narrativeText?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  wishText?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  userApproved?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  manaCharged?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  outputDreamId?: Prisma.SortOrder
 }
 
 export type CompositionMinOrderByAggregateInput = {
@@ -822,8 +1002,15 @@ export type CompositionMinOrderByAggregateInput = {
   narrativeText?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  wishText?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  userApproved?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  manaCharged?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  outputDreamId?: Prisma.SortOrder
 }
 
 export type CompositionSumOrderByAggregateInput = {
@@ -832,8 +1019,11 @@ export type CompositionSumOrderByAggregateInput = {
   dreamId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
   rewardId?: Prisma.SortOrder
+  manaCharged?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  outputDreamId?: Prisma.SortOrder
 }
 
 export type CompositionNullableScalarRelationFilter = {
@@ -925,6 +1115,10 @@ export type CompositionUncheckedUpdateManyWithoutCharacterNestedInput = {
   deleteMany?: Prisma.CompositionScalarWhereInput | Prisma.CompositionScalarWhereInput[]
 }
 
+export type EnumCompositionStatusFieldUpdateOperationsInput = {
+  set?: $Enums.CompositionStatus
+}
+
 export type CompositionCreateNestedManyWithoutDreamInput = {
   create?: Prisma.XOR<Prisma.CompositionCreateWithoutDreamInput, Prisma.CompositionUncheckedCreateWithoutDreamInput> | Prisma.CompositionCreateWithoutDreamInput[] | Prisma.CompositionUncheckedCreateWithoutDreamInput[]
   connectOrCreate?: Prisma.CompositionCreateOrConnectWithoutDreamInput | Prisma.CompositionCreateOrConnectWithoutDreamInput[]
@@ -932,11 +1126,23 @@ export type CompositionCreateNestedManyWithoutDreamInput = {
   connect?: Prisma.CompositionWhereUniqueInput | Prisma.CompositionWhereUniqueInput[]
 }
 
+export type CompositionCreateNestedOneWithoutOutputDreamInput = {
+  create?: Prisma.XOR<Prisma.CompositionCreateWithoutOutputDreamInput, Prisma.CompositionUncheckedCreateWithoutOutputDreamInput>
+  connectOrCreate?: Prisma.CompositionCreateOrConnectWithoutOutputDreamInput
+  connect?: Prisma.CompositionWhereUniqueInput
+}
+
 export type CompositionUncheckedCreateNestedManyWithoutDreamInput = {
   create?: Prisma.XOR<Prisma.CompositionCreateWithoutDreamInput, Prisma.CompositionUncheckedCreateWithoutDreamInput> | Prisma.CompositionCreateWithoutDreamInput[] | Prisma.CompositionUncheckedCreateWithoutDreamInput[]
   connectOrCreate?: Prisma.CompositionCreateOrConnectWithoutDreamInput | Prisma.CompositionCreateOrConnectWithoutDreamInput[]
   createMany?: Prisma.CompositionCreateManyDreamInputEnvelope
   connect?: Prisma.CompositionWhereUniqueInput | Prisma.CompositionWhereUniqueInput[]
+}
+
+export type CompositionUncheckedCreateNestedOneWithoutOutputDreamInput = {
+  create?: Prisma.XOR<Prisma.CompositionCreateWithoutOutputDreamInput, Prisma.CompositionUncheckedCreateWithoutOutputDreamInput>
+  connectOrCreate?: Prisma.CompositionCreateOrConnectWithoutOutputDreamInput
+  connect?: Prisma.CompositionWhereUniqueInput
 }
 
 export type CompositionUpdateManyWithoutDreamNestedInput = {
@@ -953,6 +1159,16 @@ export type CompositionUpdateManyWithoutDreamNestedInput = {
   deleteMany?: Prisma.CompositionScalarWhereInput | Prisma.CompositionScalarWhereInput[]
 }
 
+export type CompositionUpdateOneWithoutOutputDreamNestedInput = {
+  create?: Prisma.XOR<Prisma.CompositionCreateWithoutOutputDreamInput, Prisma.CompositionUncheckedCreateWithoutOutputDreamInput>
+  connectOrCreate?: Prisma.CompositionCreateOrConnectWithoutOutputDreamInput
+  upsert?: Prisma.CompositionUpsertWithoutOutputDreamInput
+  disconnect?: Prisma.CompositionWhereInput | boolean
+  delete?: Prisma.CompositionWhereInput | boolean
+  connect?: Prisma.CompositionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompositionUpdateToOneWithWhereWithoutOutputDreamInput, Prisma.CompositionUpdateWithoutOutputDreamInput>, Prisma.CompositionUncheckedUpdateWithoutOutputDreamInput>
+}
+
 export type CompositionUncheckedUpdateManyWithoutDreamNestedInput = {
   create?: Prisma.XOR<Prisma.CompositionCreateWithoutDreamInput, Prisma.CompositionUncheckedCreateWithoutDreamInput> | Prisma.CompositionCreateWithoutDreamInput[] | Prisma.CompositionUncheckedCreateWithoutDreamInput[]
   connectOrCreate?: Prisma.CompositionCreateOrConnectWithoutDreamInput | Prisma.CompositionCreateOrConnectWithoutDreamInput[]
@@ -965,6 +1181,16 @@ export type CompositionUncheckedUpdateManyWithoutDreamNestedInput = {
   update?: Prisma.CompositionUpdateWithWhereUniqueWithoutDreamInput | Prisma.CompositionUpdateWithWhereUniqueWithoutDreamInput[]
   updateMany?: Prisma.CompositionUpdateManyWithWhereWithoutDreamInput | Prisma.CompositionUpdateManyWithWhereWithoutDreamInput[]
   deleteMany?: Prisma.CompositionScalarWhereInput | Prisma.CompositionScalarWhereInput[]
+}
+
+export type CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput = {
+  create?: Prisma.XOR<Prisma.CompositionCreateWithoutOutputDreamInput, Prisma.CompositionUncheckedCreateWithoutOutputDreamInput>
+  connectOrCreate?: Prisma.CompositionCreateOrConnectWithoutOutputDreamInput
+  upsert?: Prisma.CompositionUpsertWithoutOutputDreamInput
+  disconnect?: Prisma.CompositionWhereInput | boolean
+  delete?: Prisma.CompositionWhereInput | boolean
+  connect?: Prisma.CompositionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompositionUpdateToOneWithWhereWithoutOutputDreamInput, Prisma.CompositionUpdateWithoutOutputDreamInput>, Prisma.CompositionUncheckedUpdateWithoutOutputDreamInput>
 }
 
 export type CompositionCreateNestedOneWithoutReactionsInput = {
@@ -1127,7 +1353,15 @@ export type CompositionCreateWithoutArtImageInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
@@ -1158,7 +1392,15 @@ export type CompositionUncheckedCreateWithoutArtImageInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
+  outputDreamId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
 }
 
@@ -1214,8 +1456,16 @@ export type CompositionScalarWhereInput = {
   narrativeText?: Prisma.StringNullableFilter<"Composition"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Composition"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Composition"> | string | null
+  wishText?: Prisma.StringNullableFilter<"Composition"> | string | null
+  status?: Prisma.EnumCompositionStatusFilter<"Composition"> | $Enums.CompositionStatus
+  stepLog?: Prisma.JsonNullableFilter<"Composition">
+  userApproved?: Prisma.BoolFilter<"Composition"> | boolean
+  approvedAt?: Prisma.DateTimeNullableFilter<"Composition"> | Date | string | null
+  manaCharged?: Prisma.IntNullableFilter<"Composition"> | number | null
+  bountyId?: Prisma.IntNullableFilter<"Composition"> | number | null
   userId?: Prisma.IntNullableFilter<"Composition"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Composition"> | number | null
+  outputDreamId?: Prisma.IntNullableFilter<"Composition"> | number | null
 }
 
 export type CompositionCreateWithoutCharacterInput = {
@@ -1236,8 +1486,16 @@ export type CompositionCreateWithoutCharacterInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutCompositionsInput
@@ -1266,8 +1524,16 @@ export type CompositionUncheckedCreateWithoutCharacterInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
 }
 
@@ -1315,8 +1581,16 @@ export type CompositionCreateWithoutDreamInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutCompositionsInput
@@ -1345,8 +1619,16 @@ export type CompositionUncheckedCreateWithoutDreamInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
 }
 
@@ -1358,6 +1640,80 @@ export type CompositionCreateOrConnectWithoutDreamInput = {
 export type CompositionCreateManyDreamInputEnvelope = {
   data: Prisma.CompositionCreateManyDreamInput | Prisma.CompositionCreateManyDreamInput[]
   skipDuplicates?: boolean
+}
+
+export type CompositionCreateWithoutOutputDreamInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  title: string
+  description?: string | null
+  label?: string | null
+  mode?: string
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  designer?: string | null
+  characterBlurb?: string | null
+  dreamBlurb?: string | null
+  scenarioBlurb?: string | null
+  rewardBlurb?: string | null
+  narrativeText?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
+  User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
+  Reward?: Prisma.RewardCreateNestedOneWithoutCompositionsInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutCompositionInput
+}
+
+export type CompositionUncheckedCreateWithoutOutputDreamInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  title: string
+  description?: string | null
+  label?: string | null
+  mode?: string
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  designer?: string | null
+  characterId?: number | null
+  dreamId?: number | null
+  scenarioId?: number | null
+  rewardId?: number | null
+  characterBlurb?: string | null
+  dreamBlurb?: string | null
+  scenarioBlurb?: string | null
+  rewardBlurb?: string | null
+  narrativeText?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
+  userId?: number | null
+  artImageId?: number | null
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
+}
+
+export type CompositionCreateOrConnectWithoutOutputDreamInput = {
+  where: Prisma.CompositionWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompositionCreateWithoutOutputDreamInput, Prisma.CompositionUncheckedCreateWithoutOutputDreamInput>
 }
 
 export type CompositionUpsertWithWhereUniqueWithoutDreamInput = {
@@ -1374,6 +1730,86 @@ export type CompositionUpdateWithWhereUniqueWithoutDreamInput = {
 export type CompositionUpdateManyWithWhereWithoutDreamInput = {
   where: Prisma.CompositionScalarWhereInput
   data: Prisma.XOR<Prisma.CompositionUpdateManyMutationInput, Prisma.CompositionUncheckedUpdateManyWithoutDreamInput>
+}
+
+export type CompositionUpsertWithoutOutputDreamInput = {
+  update: Prisma.XOR<Prisma.CompositionUpdateWithoutOutputDreamInput, Prisma.CompositionUncheckedUpdateWithoutOutputDreamInput>
+  create: Prisma.XOR<Prisma.CompositionCreateWithoutOutputDreamInput, Prisma.CompositionUncheckedCreateWithoutOutputDreamInput>
+  where?: Prisma.CompositionWhereInput
+}
+
+export type CompositionUpdateToOneWithWhereWithoutOutputDreamInput = {
+  where?: Prisma.CompositionWhereInput
+  data: Prisma.XOR<Prisma.CompositionUpdateWithoutOutputDreamInput, Prisma.CompositionUncheckedUpdateWithoutOutputDreamInput>
+}
+
+export type CompositionUpdateWithoutOutputDreamInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  characterBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
+  Reward?: Prisma.RewardUpdateOneWithoutCompositionsNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutCompositionNestedInput
+}
+
+export type CompositionUncheckedUpdateWithoutOutputDreamInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardBlurb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
 export type CompositionCreateWithoutReactionsInput = {
@@ -1394,8 +1830,16 @@ export type CompositionCreateWithoutReactionsInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
@@ -1425,8 +1869,16 @@ export type CompositionUncheckedCreateWithoutReactionsInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionCreateOrConnectWithoutReactionsInput = {
@@ -1463,8 +1915,16 @@ export type CompositionUpdateWithoutReactionsInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
@@ -1494,8 +1954,16 @@ export type CompositionUncheckedUpdateWithoutReactionsInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionCreateWithoutRewardInput = {
@@ -1516,8 +1984,16 @@ export type CompositionCreateWithoutRewardInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
@@ -1546,8 +2022,16 @@ export type CompositionUncheckedCreateWithoutRewardInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
 }
 
@@ -1595,8 +2079,16 @@ export type CompositionCreateWithoutScenarioInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   User?: Prisma.UserCreateNestedOneWithoutCompositionsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutCompositionsInput
@@ -1625,8 +2117,16 @@ export type CompositionUncheckedCreateWithoutScenarioInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
 }
 
@@ -1674,7 +2174,15 @@ export type CompositionCreateWithoutUserInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCompositionsInput
+  OutputDream?: Prisma.DreamCreateNestedOneWithoutSourceCompositionInput
   Character?: Prisma.CharacterCreateNestedOneWithoutCompositionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutCompositionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutCompositionsInput
@@ -1705,7 +2213,15 @@ export type CompositionUncheckedCreateWithoutUserInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCompositionInput
 }
 
@@ -1758,7 +2274,15 @@ export type CompositionCreateManyArtImageInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionUpdateWithoutArtImageInput = {
@@ -1779,7 +2303,15 @@ export type CompositionUpdateWithoutArtImageInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
@@ -1810,7 +2342,15 @@ export type CompositionUncheckedUpdateWithoutArtImageInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
@@ -1837,7 +2377,15 @@ export type CompositionUncheckedUpdateManyWithoutArtImageInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionCreateManyCharacterInput = {
@@ -1862,8 +2410,16 @@ export type CompositionCreateManyCharacterInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionUpdateWithoutCharacterInput = {
@@ -1884,8 +2440,16 @@ export type CompositionUpdateWithoutCharacterInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutCompositionsNestedInput
@@ -1914,8 +2478,16 @@ export type CompositionUncheckedUpdateWithoutCharacterInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
@@ -1941,8 +2513,16 @@ export type CompositionUncheckedUpdateManyWithoutCharacterInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionCreateManyDreamInput = {
@@ -1967,8 +2547,16 @@ export type CompositionCreateManyDreamInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionUpdateWithoutDreamInput = {
@@ -1989,8 +2577,16 @@ export type CompositionUpdateWithoutDreamInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutCompositionsNestedInput
@@ -2019,8 +2615,16 @@ export type CompositionUncheckedUpdateWithoutDreamInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
@@ -2046,8 +2650,16 @@ export type CompositionUncheckedUpdateManyWithoutDreamInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionCreateManyRewardInput = {
@@ -2072,8 +2684,16 @@ export type CompositionCreateManyRewardInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionUpdateWithoutRewardInput = {
@@ -2094,8 +2714,16 @@ export type CompositionUpdateWithoutRewardInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
@@ -2124,8 +2752,16 @@ export type CompositionUncheckedUpdateWithoutRewardInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
@@ -2151,8 +2787,16 @@ export type CompositionUncheckedUpdateManyWithoutRewardInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionCreateManyScenarioInput = {
@@ -2177,8 +2821,16 @@ export type CompositionCreateManyScenarioInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   userId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionUpdateWithoutScenarioInput = {
@@ -2199,8 +2851,16 @@ export type CompositionUpdateWithoutScenarioInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneWithoutCompositionsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutCompositionsNestedInput
@@ -2229,8 +2889,16 @@ export type CompositionUncheckedUpdateWithoutScenarioInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
@@ -2256,8 +2924,16 @@ export type CompositionUncheckedUpdateManyWithoutScenarioInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CompositionCreateManyUserInput = {
@@ -2283,7 +2959,15 @@ export type CompositionCreateManyUserInput = {
   narrativeText?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  wishText?: string | null
+  status?: $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: boolean
+  approvedAt?: Date | string | null
+  manaCharged?: number | null
+  bountyId?: number | null
   artImageId?: number | null
+  outputDreamId?: number | null
 }
 
 export type CompositionUpdateWithoutUserInput = {
@@ -2304,7 +2988,15 @@ export type CompositionUpdateWithoutUserInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCompositionsNestedInput
+  OutputDream?: Prisma.DreamUpdateOneWithoutSourceCompositionNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutCompositionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutCompositionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutCompositionsNestedInput
@@ -2335,7 +3027,15 @@ export type CompositionUncheckedUpdateWithoutUserInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCompositionNestedInput
 }
 
@@ -2362,7 +3062,15 @@ export type CompositionUncheckedUpdateManyWithoutUserInput = {
   narrativeText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wishText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCompositionStatusFieldUpdateOperationsInput | $Enums.CompositionStatus
+  stepLog?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCharged?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputDreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -2419,10 +3127,19 @@ export type CompositionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   narrativeText?: boolean
   artPrompt?: boolean
   imagePath?: boolean
+  wishText?: boolean
+  status?: boolean
+  stepLog?: boolean
+  userApproved?: boolean
+  approvedAt?: boolean
+  manaCharged?: boolean
+  bountyId?: boolean
   userId?: boolean
   artImageId?: boolean
+  outputDreamId?: boolean
   User?: boolean | Prisma.Composition$UserArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Composition$ArtImageArgs<ExtArgs>
+  OutputDream?: boolean | Prisma.Composition$OutputDreamArgs<ExtArgs>
   Character?: boolean | Prisma.Composition$CharacterArgs<ExtArgs>
   Dream?: boolean | Prisma.Composition$DreamArgs<ExtArgs>
   Scenario?: boolean | Prisma.Composition$ScenarioArgs<ExtArgs>
@@ -2456,14 +3173,23 @@ export type CompositionSelectScalar = {
   narrativeText?: boolean
   artPrompt?: boolean
   imagePath?: boolean
+  wishText?: boolean
+  status?: boolean
+  stepLog?: boolean
+  userApproved?: boolean
+  approvedAt?: boolean
+  manaCharged?: boolean
+  bountyId?: boolean
   userId?: boolean
   artImageId?: boolean
+  outputDreamId?: boolean
 }
 
-export type CompositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "label" | "mode" | "isPublic" | "isMature" | "isActive" | "designer" | "characterId" | "dreamId" | "scenarioId" | "rewardId" | "characterBlurb" | "dreamBlurb" | "scenarioBlurb" | "rewardBlurb" | "narrativeText" | "artPrompt" | "imagePath" | "userId" | "artImageId", ExtArgs["result"]["composition"]>
+export type CompositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "label" | "mode" | "isPublic" | "isMature" | "isActive" | "designer" | "characterId" | "dreamId" | "scenarioId" | "rewardId" | "characterBlurb" | "dreamBlurb" | "scenarioBlurb" | "rewardBlurb" | "narrativeText" | "artPrompt" | "imagePath" | "wishText" | "status" | "stepLog" | "userApproved" | "approvedAt" | "manaCharged" | "bountyId" | "userId" | "artImageId" | "outputDreamId", ExtArgs["result"]["composition"]>
 export type CompositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.Composition$UserArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Composition$ArtImageArgs<ExtArgs>
+  OutputDream?: boolean | Prisma.Composition$OutputDreamArgs<ExtArgs>
   Character?: boolean | Prisma.Composition$CharacterArgs<ExtArgs>
   Dream?: boolean | Prisma.Composition$DreamArgs<ExtArgs>
   Scenario?: boolean | Prisma.Composition$ScenarioArgs<ExtArgs>
@@ -2477,6 +3203,7 @@ export type $CompositionPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     User: Prisma.$UserPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
+    OutputDream: Prisma.$DreamPayload<ExtArgs> | null
     Character: Prisma.$CharacterPayload<ExtArgs> | null
     Dream: Prisma.$DreamPayload<ExtArgs> | null
     Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
@@ -2506,8 +3233,16 @@ export type $CompositionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     narrativeText: string | null
     artPrompt: string | null
     imagePath: string | null
+    wishText: string | null
+    status: $Enums.CompositionStatus
+    stepLog: runtime.JsonValue | null
+    userApproved: boolean
+    approvedAt: Date | null
+    manaCharged: number | null
+    bountyId: number | null
     userId: number | null
     artImageId: number | null
+    outputDreamId: number | null
   }, ExtArgs["result"]["composition"]>
   composites: {}
 }
@@ -2850,6 +3585,7 @@ export interface Prisma__CompositionClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   User<T extends Prisma.Composition$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Composition$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.Composition$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Composition$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  OutputDream<T extends Prisma.Composition$OutputDreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Composition$OutputDreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Character<T extends Prisma.Composition$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Composition$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Dream<T extends Prisma.Composition$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Composition$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Scenario<T extends Prisma.Composition$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Composition$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2906,8 +3642,16 @@ export interface CompositionFieldRefs {
   readonly narrativeText: Prisma.FieldRef<"Composition", 'String'>
   readonly artPrompt: Prisma.FieldRef<"Composition", 'String'>
   readonly imagePath: Prisma.FieldRef<"Composition", 'String'>
+  readonly wishText: Prisma.FieldRef<"Composition", 'String'>
+  readonly status: Prisma.FieldRef<"Composition", 'CompositionStatus'>
+  readonly stepLog: Prisma.FieldRef<"Composition", 'Json'>
+  readonly userApproved: Prisma.FieldRef<"Composition", 'Boolean'>
+  readonly approvedAt: Prisma.FieldRef<"Composition", 'DateTime'>
+  readonly manaCharged: Prisma.FieldRef<"Composition", 'Int'>
+  readonly bountyId: Prisma.FieldRef<"Composition", 'Int'>
   readonly userId: Prisma.FieldRef<"Composition", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Composition", 'Int'>
+  readonly outputDreamId: Prisma.FieldRef<"Composition", 'Int'>
 }
     
 
@@ -3291,6 +4035,25 @@ export type Composition$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.ArtImageInclude<ExtArgs> | null
   where?: Prisma.ArtImageWhereInput
+}
+
+/**
+ * Composition.OutputDream
+ */
+export type Composition$OutputDreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dream
+   */
+  select?: Prisma.DreamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dream
+   */
+  omit?: Prisma.DreamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DreamInclude<ExtArgs> | null
+  where?: Prisma.DreamWhereInput
 }
 
 /**

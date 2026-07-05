@@ -27,6 +27,7 @@
     "snapshot:fallback": "tsx utils/scripts/snapshotFallback.ts",
     "backfill:slugs": "tsx utils/scripts/backfillSlugs.ts",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
+    "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"

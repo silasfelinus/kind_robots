@@ -1,0 +1,72 @@
+name: Da Vinci Seed Verify
+
+# Nightly cross-repo regression check (conductor davinci/t-012): generate
+# fresh ending seed data with conductor's deterministic generator, apply this
+# repo's Prisma schema to a scratch MariaDB service, and run the 15-check
+# importer verification suite. Catches payload-shape drift between the
+# conductor generator and the kind_robots importer/schema automatically.
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # nightly ~2am Pacific
+  workflow_dispatch:
+
+concurrency:
+  group: davinci-seed-verify
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Generator + importer regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: scratch
+          MARIADB_DATABASE: davinci_verify
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:scratch@127.0.0.1:3306/davinci_verify
+
+    steps:
+      - name: Checkout kind_robots
+        uses: actions/checkout@v4
+
+      - name: Checkout conductor (generator source)
+        uses: actions/checkout@v4
+        with:
+          repository: silasfelinus/conductor
+          path: conductor-src
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0' # cypress unused in this job
+
+      - name: Generate seed data from conductor
+        run: |
+          python3 conductor-src/scripts/generate_davinci_endings.py \
+            --format jsonl --output /tmp/davinci-endings.jsonl
+          wc -l /tmp/davinci-endings.jsonl
+
+      - name: Apply Prisma schema to scratch database
+        run: ./node_modules/.bin/prisma db push
+
+      - name: Run seed regression suite
+        run: npm run seed:davinci:verify -- /tmp/davinci-endings.jsonl

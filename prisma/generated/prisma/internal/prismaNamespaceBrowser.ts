@@ -84,7 +84,16 @@ export const ModelName = {
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
-  Todo: 'Todo'
+  Todo: 'Todo',
+  Challenge: 'Challenge',
+  ChallengeSubmission: 'ChallengeSubmission',
+  LifeRun: 'LifeRun',
+  LifeChoice: 'LifeChoice',
+  LifeStat: 'LifeStat',
+  LifeEnding: 'LifeEnding',
+  LifeAchievement: 'LifeAchievement',
+  LifeAchievementUnlock: 'LifeAchievementUnlock',
+  LifeRunArt: 'LifeRunArt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -335,8 +344,16 @@ export const CompositionScalarFieldEnum = {
   narrativeText: 'narrativeText',
   artPrompt: 'artPrompt',
   imagePath: 'imagePath',
+  wishText: 'wishText',
+  status: 'status',
+  stepLog: 'stepLog',
+  userApproved: 'userApproved',
+  approvedAt: 'approvedAt',
+  manaCharged: 'manaCharged',
+  bountyId: 'bountyId',
   userId: 'userId',
-  artImageId: 'artImageId'
+  artImageId: 'artImageId',
+  outputDreamId: 'outputDreamId'
 } as const
 
 export type CompositionScalarFieldEnum = (typeof CompositionScalarFieldEnum)[keyof typeof CompositionScalarFieldEnum]
@@ -626,7 +643,8 @@ export const ReactionScalarFieldEnum = {
   characterId: 'characterId',
   scenarioId: 'scenarioId',
   themeId: 'themeId',
-  compositionId: 'compositionId'
+  compositionId: 'compositionId',
+  challengeSubmissionId: 'challengeSubmissionId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -952,6 +970,160 @@ export const TodoScalarFieldEnum = {
 export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
 
 
+export const ChallengeScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  title: 'title',
+  challengeType: 'challengeType',
+  difficulty: 'difficulty',
+  promptText: 'promptText',
+  judgeNotes: 'judgeNotes',
+  status: 'status',
+  isMature: 'isMature',
+  userId: 'userId'
+} as const
+
+export type ChallengeScalarFieldEnum = (typeof ChallengeScalarFieldEnum)[keyof typeof ChallengeScalarFieldEnum]
+
+
+export const ChallengeSubmissionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  challengeId: 'challengeId',
+  botId: 'botId',
+  agentModel: 'agentModel',
+  outputText: 'outputText',
+  artImageId: 'artImageId',
+  characterId: 'characterId',
+  scenarioId: 'scenarioId',
+  status: 'status'
+} as const
+
+export type ChallengeSubmissionScalarFieldEnum = (typeof ChallengeSubmissionScalarFieldEnum)[keyof typeof ChallengeSubmissionScalarFieldEnum]
+
+
+export const LifeRunScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  title: 'title',
+  status: 'status',
+  seed: 'seed',
+  protagonistName: 'protagonistName',
+  currentAge: 'currentAge',
+  currentChapter: 'currentChapter',
+  genre: 'genre',
+  dreamId: 'dreamId',
+  characterId: 'characterId',
+  botId: 'botId',
+  artCollectionId: 'artCollectionId',
+  endingId: 'endingId',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary',
+  statsSnapshot: 'statsSnapshot'
+} as const
+
+export type LifeRunScalarFieldEnum = (typeof LifeRunScalarFieldEnum)[keyof typeof LifeRunScalarFieldEnum]
+
+
+export const LifeChoiceScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  lifeRunId: 'lifeRunId',
+  chatId: 'chatId',
+  chapter: 'chapter',
+  prompt: 'prompt',
+  choiceText: 'choiceText',
+  resultText: 'resultText',
+  effects: 'effects'
+} as const
+
+export type LifeChoiceScalarFieldEnum = (typeof LifeChoiceScalarFieldEnum)[keyof typeof LifeChoiceScalarFieldEnum]
+
+
+export const LifeStatScalarFieldEnum = {
+  id: 'id',
+  lifeRunId: 'lifeRunId',
+  key: 'key',
+  value: 'value'
+} as const
+
+export type LifeStatScalarFieldEnum = (typeof LifeStatScalarFieldEnum)[keyof typeof LifeStatScalarFieldEnum]
+
+
+export const LifeEndingScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary',
+  victoryType: 'victoryType',
+  icon: 'icon',
+  heroImage: 'heroImage',
+  iconArtImageId: 'iconArtImageId',
+  heroArtImageId: 'heroArtImageId',
+  milestoneId: 'milestoneId',
+  artPrompt: 'artPrompt',
+  metadata: 'metadata',
+  isActive: 'isActive'
+} as const
+
+export type LifeEndingScalarFieldEnum = (typeof LifeEndingScalarFieldEnum)[keyof typeof LifeEndingScalarFieldEnum]
+
+
+export const LifeAchievementScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  achievementType: 'achievementType',
+  conditionKey: 'conditionKey',
+  description: 'description',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  artImageId: 'artImageId',
+  milestoneId: 'milestoneId',
+  endingId: 'endingId',
+  metadata: 'metadata',
+  isActive: 'isActive'
+} as const
+
+export type LifeAchievementScalarFieldEnum = (typeof LifeAchievementScalarFieldEnum)[keyof typeof LifeAchievementScalarFieldEnum]
+
+
+export const LifeAchievementUnlockScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  lifeRunId: 'lifeRunId',
+  achievementId: 'achievementId',
+  milestoneRecordId: 'milestoneRecordId',
+  data: 'data'
+} as const
+
+export type LifeAchievementUnlockScalarFieldEnum = (typeof LifeAchievementUnlockScalarFieldEnum)[keyof typeof LifeAchievementUnlockScalarFieldEnum]
+
+
+export const LifeRunArtScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  lifeRunId: 'lifeRunId',
+  artImageId: 'artImageId',
+  chapter: 'chapter',
+  sceneType: 'sceneType',
+  prompt: 'prompt'
+} as const
+
+export type LifeRunArtScalarFieldEnum = (typeof LifeRunArtScalarFieldEnum)[keyof typeof LifeRunArtScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1138,7 +1310,8 @@ export const CompositionOrderByRelevanceFieldEnum = {
   rewardBlurb: 'rewardBlurb',
   narrativeText: 'narrativeText',
   artPrompt: 'artPrompt',
-  imagePath: 'imagePath'
+  imagePath: 'imagePath',
+  wishText: 'wishText'
 } as const
 
 export type CompositionOrderByRelevanceFieldEnum = (typeof CompositionOrderByRelevanceFieldEnum)[keyof typeof CompositionOrderByRelevanceFieldEnum]
@@ -1496,4 +1669,82 @@ export const TodoOrderByRelevanceFieldEnum = {
 } as const
 
 export type TodoOrderByRelevanceFieldEnum = (typeof TodoOrderByRelevanceFieldEnum)[keyof typeof TodoOrderByRelevanceFieldEnum]
+
+
+export const ChallengeOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  promptText: 'promptText',
+  judgeNotes: 'judgeNotes'
+} as const
+
+export type ChallengeOrderByRelevanceFieldEnum = (typeof ChallengeOrderByRelevanceFieldEnum)[keyof typeof ChallengeOrderByRelevanceFieldEnum]
+
+
+export const ChallengeSubmissionOrderByRelevanceFieldEnum = {
+  agentModel: 'agentModel',
+  outputText: 'outputText'
+} as const
+
+export type ChallengeSubmissionOrderByRelevanceFieldEnum = (typeof ChallengeSubmissionOrderByRelevanceFieldEnum)[keyof typeof ChallengeSubmissionOrderByRelevanceFieldEnum]
+
+
+export const LifeRunOrderByRelevanceFieldEnum = {
+  title: 'title',
+  seed: 'seed',
+  protagonistName: 'protagonistName',
+  genre: 'genre',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary'
+} as const
+
+export type LifeRunOrderByRelevanceFieldEnum = (typeof LifeRunOrderByRelevanceFieldEnum)[keyof typeof LifeRunOrderByRelevanceFieldEnum]
+
+
+export const LifeChoiceOrderByRelevanceFieldEnum = {
+  prompt: 'prompt',
+  choiceText: 'choiceText',
+  resultText: 'resultText'
+} as const
+
+export type LifeChoiceOrderByRelevanceFieldEnum = (typeof LifeChoiceOrderByRelevanceFieldEnum)[keyof typeof LifeChoiceOrderByRelevanceFieldEnum]
+
+
+export const LifeStatOrderByRelevanceFieldEnum = {
+  key: 'key'
+} as const
+
+export type LifeStatOrderByRelevanceFieldEnum = (typeof LifeStatOrderByRelevanceFieldEnum)[keyof typeof LifeStatOrderByRelevanceFieldEnum]
+
+
+export const LifeEndingOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary',
+  icon: 'icon',
+  heroImage: 'heroImage',
+  artPrompt: 'artPrompt'
+} as const
+
+export type LifeEndingOrderByRelevanceFieldEnum = (typeof LifeEndingOrderByRelevanceFieldEnum)[keyof typeof LifeEndingOrderByRelevanceFieldEnum]
+
+
+export const LifeAchievementOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  conditionKey: 'conditionKey',
+  description: 'description',
+  icon: 'icon',
+  imagePath: 'imagePath'
+} as const
+
+export type LifeAchievementOrderByRelevanceFieldEnum = (typeof LifeAchievementOrderByRelevanceFieldEnum)[keyof typeof LifeAchievementOrderByRelevanceFieldEnum]
+
+
+export const LifeRunArtOrderByRelevanceFieldEnum = {
+  prompt: 'prompt'
+} as const
+
+export type LifeRunArtOrderByRelevanceFieldEnum = (typeof LifeRunArtOrderByRelevanceFieldEnum)[keyof typeof LifeRunArtOrderByRelevanceFieldEnum]
 

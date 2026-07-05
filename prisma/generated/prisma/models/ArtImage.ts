@@ -493,6 +493,7 @@ export type ArtImageWhereInput = {
   Milestones?: Prisma.MilestoneListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   Resources?: Prisma.ResourceListRelationFilter
   LoraResources?: Prisma.ResourceListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
@@ -501,6 +502,10 @@ export type ArtImageWhereInput = {
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   Compositions?: Prisma.CompositionListRelationFilter
   PitchSheets?: Prisma.PitchSheetListRelationFilter
+  LifeRunArt?: Prisma.LifeRunArtListRelationFilter
+  LifeEndingIcons?: Prisma.LifeEndingListRelationFilter
+  LifeEndingHeroes?: Prisma.LifeEndingListRelationFilter
+  LifeAchievements?: Prisma.LifeAchievementListRelationFilter
 }
 
 export type ArtImageOrderByWithRelationInput = {
@@ -552,6 +557,7 @@ export type ArtImageOrderByWithRelationInput = {
   Milestones?: Prisma.MilestoneOrderByRelationAggregateInput
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
   Resources?: Prisma.ResourceOrderByRelationAggregateInput
   LoraResources?: Prisma.ResourceOrderByRelationAggregateInput
   Rewards?: Prisma.RewardOrderByRelationAggregateInput
@@ -560,6 +566,10 @@ export type ArtImageOrderByWithRelationInput = {
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
   Compositions?: Prisma.CompositionOrderByRelationAggregateInput
   PitchSheets?: Prisma.PitchSheetOrderByRelationAggregateInput
+  LifeRunArt?: Prisma.LifeRunArtOrderByRelationAggregateInput
+  LifeEndingIcons?: Prisma.LifeEndingOrderByRelationAggregateInput
+  LifeEndingHeroes?: Prisma.LifeEndingOrderByRelationAggregateInput
+  LifeAchievements?: Prisma.LifeAchievementOrderByRelationAggregateInput
   _relevance?: Prisma.ArtImageOrderByRelevanceInput
 }
 
@@ -615,6 +625,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   Milestones?: Prisma.MilestoneListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   Resources?: Prisma.ResourceListRelationFilter
   LoraResources?: Prisma.ResourceListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
@@ -623,6 +634,10 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   Compositions?: Prisma.CompositionListRelationFilter
   PitchSheets?: Prisma.PitchSheetListRelationFilter
+  LifeRunArt?: Prisma.LifeRunArtListRelationFilter
+  LifeEndingIcons?: Prisma.LifeEndingListRelationFilter
+  LifeEndingHeroes?: Prisma.LifeEndingListRelationFilter
+  LifeAchievements?: Prisma.LifeAchievementListRelationFilter
 }, "id">
 
 export type ArtImageOrderByWithAggregationInput = {
@@ -754,6 +769,7 @@ export type ArtImageCreateInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -762,6 +778,10 @@ export type ArtImageCreateInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateInput = {
@@ -810,6 +830,7 @@ export type ArtImageUncheckedCreateInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -818,6 +839,10 @@ export type ArtImageUncheckedCreateInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUpdateInput = {
@@ -865,6 +890,7 @@ export type ArtImageUpdateInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -873,6 +899,10 @@ export type ArtImageUpdateInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateInput = {
@@ -921,6 +951,7 @@ export type ArtImageUncheckedUpdateInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -929,6 +960,10 @@ export type ArtImageUncheckedUpdateInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateManyInput = {
@@ -1194,6 +1229,11 @@ export type ArtImageOrderByRelationAggregateInput = {
 export type ArtImageNullableScalarRelationFilter = {
   is?: Prisma.ArtImageWhereInput | null
   isNot?: Prisma.ArtImageWhereInput | null
+}
+
+export type ArtImageScalarRelationFilter = {
+  is?: Prisma.ArtImageWhereInput
+  isNot?: Prisma.ArtImageWhereInput
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
@@ -1712,6 +1752,84 @@ export type ArtImageUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ArtImageScalarWhereInput | Prisma.ArtImageScalarWhereInput[]
 }
 
+export type ArtImageCreateNestedOneWithoutChallengeSubmissionsInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutChallengeSubmissionsInput, Prisma.ArtImageUncheckedCreateWithoutChallengeSubmissionsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutChallengeSubmissionsInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutChallengeSubmissionsInput, Prisma.ArtImageUncheckedCreateWithoutChallengeSubmissionsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutChallengeSubmissionsInput
+  upsert?: Prisma.ArtImageUpsertWithoutChallengeSubmissionsInput
+  disconnect?: Prisma.ArtImageWhereInput | boolean
+  delete?: Prisma.ArtImageWhereInput | boolean
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutChallengeSubmissionsInput, Prisma.ArtImageUpdateWithoutChallengeSubmissionsInput>, Prisma.ArtImageUncheckedUpdateWithoutChallengeSubmissionsInput>
+}
+
+export type ArtImageCreateNestedOneWithoutLifeEndingIconsInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingIconsInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingIconsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeEndingIconsInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageCreateNestedOneWithoutLifeEndingHeroesInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingHeroesInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingHeroesInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeEndingHeroesInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneWithoutLifeEndingIconsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingIconsInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingIconsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeEndingIconsInput
+  upsert?: Prisma.ArtImageUpsertWithoutLifeEndingIconsInput
+  disconnect?: Prisma.ArtImageWhereInput | boolean
+  delete?: Prisma.ArtImageWhereInput | boolean
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutLifeEndingIconsInput, Prisma.ArtImageUpdateWithoutLifeEndingIconsInput>, Prisma.ArtImageUncheckedUpdateWithoutLifeEndingIconsInput>
+}
+
+export type ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingHeroesInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingHeroesInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeEndingHeroesInput
+  upsert?: Prisma.ArtImageUpsertWithoutLifeEndingHeroesInput
+  disconnect?: Prisma.ArtImageWhereInput | boolean
+  delete?: Prisma.ArtImageWhereInput | boolean
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutLifeEndingHeroesInput, Prisma.ArtImageUpdateWithoutLifeEndingHeroesInput>, Prisma.ArtImageUncheckedUpdateWithoutLifeEndingHeroesInput>
+}
+
+export type ArtImageCreateNestedOneWithoutLifeAchievementsInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutLifeAchievementsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeAchievementsInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneWithoutLifeAchievementsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutLifeAchievementsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeAchievementsInput
+  upsert?: Prisma.ArtImageUpsertWithoutLifeAchievementsInput
+  disconnect?: Prisma.ArtImageWhereInput | boolean
+  delete?: Prisma.ArtImageWhereInput | boolean
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutLifeAchievementsInput, Prisma.ArtImageUpdateWithoutLifeAchievementsInput>, Prisma.ArtImageUncheckedUpdateWithoutLifeAchievementsInput>
+}
+
+export type ArtImageCreateNestedOneWithoutLifeRunArtInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeRunArtInput, Prisma.ArtImageUncheckedCreateWithoutLifeRunArtInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeRunArtInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneRequiredWithoutLifeRunArtNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeRunArtInput, Prisma.ArtImageUncheckedCreateWithoutLifeRunArtInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutLifeRunArtInput
+  upsert?: Prisma.ArtImageUpsertWithoutLifeRunArtInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutLifeRunArtInput, Prisma.ArtImageUpdateWithoutLifeRunArtInput>, Prisma.ArtImageUncheckedUpdateWithoutLifeRunArtInput>
+}
+
 export type ArtImageCreateWithoutArtCollectionsInput = {
   imageData?: string | null
   createdAt?: Date | string
@@ -1757,6 +1875,7 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -1764,6 +1883,10 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
@@ -1812,6 +1935,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -1819,6 +1943,10 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutArtCollectionsInput = {
@@ -1927,6 +2055,7 @@ export type ArtImageCreateWithoutBotsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -1935,6 +2064,10 @@ export type ArtImageCreateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutBotsInput = {
@@ -1982,6 +2115,7 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -1990,6 +2124,10 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutBotsInput = {
@@ -2052,6 +2190,7 @@ export type ArtImageUpdateWithoutBotsInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -2060,6 +2199,10 @@ export type ArtImageUpdateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutBotsInput = {
@@ -2107,6 +2250,7 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2115,6 +2259,10 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutCharactersInput = {
@@ -2161,6 +2309,7 @@ export type ArtImageCreateWithoutCharactersInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -2169,6 +2318,10 @@ export type ArtImageCreateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutCharactersInput = {
@@ -2216,6 +2369,7 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -2224,6 +2378,10 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutCharactersInput = {
@@ -2286,6 +2444,7 @@ export type ArtImageUpdateWithoutCharactersInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -2294,6 +2453,10 @@ export type ArtImageUpdateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutCharactersInput = {
@@ -2341,6 +2504,7 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2349,6 +2513,10 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutChatsInput = {
@@ -2395,6 +2563,7 @@ export type ArtImageCreateWithoutChatsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -2403,6 +2572,10 @@ export type ArtImageCreateWithoutChatsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutChatsInput = {
@@ -2450,6 +2623,7 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -2458,6 +2632,10 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutChatsInput = {
@@ -2520,6 +2698,7 @@ export type ArtImageUpdateWithoutChatsInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -2528,6 +2707,10 @@ export type ArtImageUpdateWithoutChatsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutChatsInput = {
@@ -2575,6 +2758,7 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2583,6 +2767,10 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutComponentsInput = {
@@ -2629,6 +2817,7 @@ export type ArtImageCreateWithoutComponentsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -2637,6 +2826,10 @@ export type ArtImageCreateWithoutComponentsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutComponentsInput = {
@@ -2684,6 +2877,7 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -2692,6 +2886,10 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutComponentsInput = {
@@ -2754,6 +2952,7 @@ export type ArtImageUpdateWithoutComponentsInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -2762,6 +2961,10 @@ export type ArtImageUpdateWithoutComponentsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutComponentsInput = {
@@ -2809,6 +3012,7 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2817,6 +3021,10 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutCompositionsInput = {
@@ -2864,6 +3072,7 @@ export type ArtImageCreateWithoutCompositionsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -2871,6 +3080,10 @@ export type ArtImageCreateWithoutCompositionsInput = {
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutCompositionsInput = {
@@ -2919,6 +3132,7 @@ export type ArtImageUncheckedCreateWithoutCompositionsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -2926,6 +3140,10 @@ export type ArtImageUncheckedCreateWithoutCompositionsInput = {
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutCompositionsInput = {
@@ -2989,6 +3207,7 @@ export type ArtImageUpdateWithoutCompositionsInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -2996,6 +3215,10 @@ export type ArtImageUpdateWithoutCompositionsInput = {
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
@@ -3044,6 +3267,7 @@ export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3051,6 +3275,10 @@ export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutDreamsPrimaryInput = {
@@ -3097,6 +3325,7 @@ export type ArtImageCreateWithoutDreamsPrimaryInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -3105,6 +3334,10 @@ export type ArtImageCreateWithoutDreamsPrimaryInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
@@ -3152,6 +3385,7 @@ export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -3160,6 +3394,10 @@ export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutDreamsPrimaryInput = {
@@ -3211,6 +3449,7 @@ export type ArtImageCreateWithoutDreamsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -3219,6 +3458,10 @@ export type ArtImageCreateWithoutDreamsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutDreamsInput = {
@@ -3266,6 +3509,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -3274,6 +3518,10 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutDreamsInput = {
@@ -3336,6 +3584,7 @@ export type ArtImageUpdateWithoutDreamsPrimaryInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -3344,6 +3593,10 @@ export type ArtImageUpdateWithoutDreamsPrimaryInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
@@ -3391,6 +3644,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3399,6 +3653,10 @@ export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUpsertWithWhereUniqueWithoutDreamsInput = {
@@ -3461,6 +3719,7 @@ export type ArtImageCreateWithoutExpressionMediaInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -3469,6 +3728,10 @@ export type ArtImageCreateWithoutExpressionMediaInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutExpressionMediaInput = {
@@ -3516,6 +3779,7 @@ export type ArtImageUncheckedCreateWithoutExpressionMediaInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -3524,6 +3788,10 @@ export type ArtImageUncheckedCreateWithoutExpressionMediaInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutExpressionMediaInput = {
@@ -3586,6 +3854,7 @@ export type ArtImageUpdateWithoutExpressionMediaInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -3594,6 +3863,10 @@ export type ArtImageUpdateWithoutExpressionMediaInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
@@ -3641,6 +3914,7 @@ export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3649,6 +3923,10 @@ export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutMilestonesInput = {
@@ -3695,6 +3973,7 @@ export type ArtImageCreateWithoutMilestonesInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -3703,6 +3982,10 @@ export type ArtImageCreateWithoutMilestonesInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutMilestonesInput = {
@@ -3750,6 +4033,7 @@ export type ArtImageUncheckedCreateWithoutMilestonesInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -3758,6 +4042,10 @@ export type ArtImageUncheckedCreateWithoutMilestonesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutMilestonesInput = {
@@ -3820,6 +4108,7 @@ export type ArtImageUpdateWithoutMilestonesInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -3828,6 +4117,10 @@ export type ArtImageUpdateWithoutMilestonesInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
@@ -3875,6 +4168,7 @@ export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3883,6 +4177,10 @@ export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutPitchSheetsInput = {
@@ -3930,6 +4228,7 @@ export type ArtImageCreateWithoutPitchSheetsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -3937,6 +4236,10 @@ export type ArtImageCreateWithoutPitchSheetsInput = {
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutPitchSheetsInput = {
@@ -3985,6 +4288,7 @@ export type ArtImageUncheckedCreateWithoutPitchSheetsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -3992,6 +4296,10 @@ export type ArtImageUncheckedCreateWithoutPitchSheetsInput = {
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutPitchSheetsInput = {
@@ -4055,6 +4363,7 @@ export type ArtImageUpdateWithoutPitchSheetsInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -4062,6 +4371,10 @@ export type ArtImageUpdateWithoutPitchSheetsInput = {
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutPitchSheetsInput = {
@@ -4110,6 +4423,7 @@ export type ArtImageUncheckedUpdateWithoutPitchSheetsInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4117,6 +4431,10 @@ export type ArtImageUncheckedUpdateWithoutPitchSheetsInput = {
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutPromptsInput = {
@@ -4163,6 +4481,7 @@ export type ArtImageCreateWithoutPromptsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -4171,6 +4490,10 @@ export type ArtImageCreateWithoutPromptsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutPromptsInput = {
@@ -4218,6 +4541,7 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -4226,6 +4550,10 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutPromptsInput = {
@@ -4288,6 +4616,7 @@ export type ArtImageUpdateWithoutPromptsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -4296,6 +4625,10 @@ export type ArtImageUpdateWithoutPromptsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutPromptsInput = {
@@ -4343,6 +4676,7 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4351,6 +4685,10 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutReactionsInput = {
@@ -4397,6 +4735,7 @@ export type ArtImageCreateWithoutReactionsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -4405,6 +4744,10 @@ export type ArtImageCreateWithoutReactionsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutReactionsInput = {
@@ -4452,6 +4795,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -4460,6 +4804,10 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutReactionsInput = {
@@ -4522,6 +4870,7 @@ export type ArtImageUpdateWithoutReactionsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -4530,6 +4879,10 @@ export type ArtImageUpdateWithoutReactionsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutReactionsInput = {
@@ -4577,6 +4930,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4585,6 +4939,10 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutCheckpointResourceInput = {
@@ -4631,6 +4989,7 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -4639,6 +4998,10 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
@@ -4686,6 +5049,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -4694,6 +5058,10 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutCheckpointResourceInput = {
@@ -4751,6 +5119,7 @@ export type ArtImageCreateWithoutLoraResourcesInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
@@ -4758,6 +5127,10 @@ export type ArtImageCreateWithoutLoraResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
@@ -4806,6 +5179,7 @@ export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
@@ -4813,6 +5187,10 @@ export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutLoraResourcesInput = {
@@ -4865,6 +5243,7 @@ export type ArtImageCreateWithoutResourcesInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
@@ -4872,6 +5251,10 @@ export type ArtImageCreateWithoutResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutResourcesInput = {
@@ -4920,6 +5303,7 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
@@ -4927,6 +5311,10 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutResourcesInput = {
@@ -5022,6 +5410,7 @@ export type ArtImageUpdateWithoutResourcesInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
@@ -5029,6 +5418,10 @@ export type ArtImageUpdateWithoutResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutResourcesInput = {
@@ -5077,6 +5470,7 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5084,6 +5478,10 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutRewardsInput = {
@@ -5131,6 +5529,7 @@ export type ArtImageCreateWithoutRewardsInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
@@ -5138,6 +5537,10 @@ export type ArtImageCreateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutRewardsInput = {
@@ -5186,6 +5589,7 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
@@ -5193,6 +5597,10 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutRewardsInput = {
@@ -5256,6 +5664,7 @@ export type ArtImageUpdateWithoutRewardsInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
@@ -5263,6 +5672,10 @@ export type ArtImageUpdateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutRewardsInput = {
@@ -5311,6 +5724,7 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5318,6 +5732,10 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutScenariosInput = {
@@ -5365,6 +5783,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -5372,6 +5791,10 @@ export type ArtImageCreateWithoutScenariosInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutScenariosInput = {
@@ -5420,6 +5843,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -5427,6 +5851,10 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutScenariosInput = {
@@ -5490,6 +5918,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -5497,6 +5926,10 @@ export type ArtImageUpdateWithoutScenariosInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutScenariosInput = {
@@ -5545,6 +5978,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5552,6 +5986,10 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutServerInput = {
@@ -5598,6 +6036,7 @@ export type ArtImageCreateWithoutServerInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -5606,6 +6045,10 @@ export type ArtImageCreateWithoutServerInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutServerInput = {
@@ -5653,6 +6096,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -5661,6 +6105,10 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutServerInput = {
@@ -5733,6 +6181,7 @@ export type ArtImageCreateWithoutUserInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -5741,6 +6190,10 @@ export type ArtImageCreateWithoutUserInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutUserInput = {
@@ -5788,6 +6241,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -5796,6 +6250,10 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutUserInput = {
@@ -5853,6 +6311,7 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
@@ -5860,6 +6319,10 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
@@ -5908,6 +6371,7 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
   LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
@@ -5915,6 +6379,10 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutUserProfilesInput = {
@@ -5994,6 +6462,7 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -6001,6 +6470,10 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
@@ -6049,6 +6522,7 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6056,9 +6530,148 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
-export type ArtImageUpdateWithoutArtCollectionsInput = {
+export type ArtImageCreateWithoutChallengeSubmissionsInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageUncheckedCreateWithoutChallengeSubmissionsInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageCreateOrConnectWithoutChallengeSubmissionsInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutChallengeSubmissionsInput, Prisma.ArtImageUncheckedCreateWithoutChallengeSubmissionsInput>
+}
+
+export type ArtImageUpsertWithoutChallengeSubmissionsInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutChallengeSubmissionsInput, Prisma.ArtImageUncheckedUpdateWithoutChallengeSubmissionsInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutChallengeSubmissionsInput, Prisma.ArtImageUncheckedCreateWithoutChallengeSubmissionsInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutChallengeSubmissionsInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutChallengeSubmissionsInput, Prisma.ArtImageUncheckedUpdateWithoutChallengeSubmissionsInput>
+}
+
+export type ArtImageUpdateWithoutChallengeSubmissionsInput = {
   imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6108,11 +6721,16 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
-export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
+export type ArtImageUncheckedUpdateWithoutChallengeSubmissionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6163,8 +6781,1148 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageCreateWithoutLifeEndingIconsInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageUncheckedCreateWithoutLifeEndingIconsInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageCreateOrConnectWithoutLifeEndingIconsInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingIconsInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingIconsInput>
+}
+
+export type ArtImageCreateWithoutLifeEndingHeroesInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageUncheckedCreateWithoutLifeEndingHeroesInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageCreateOrConnectWithoutLifeEndingHeroesInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingHeroesInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingHeroesInput>
+}
+
+export type ArtImageUpsertWithoutLifeEndingIconsInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeEndingIconsInput, Prisma.ArtImageUncheckedUpdateWithoutLifeEndingIconsInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingIconsInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingIconsInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutLifeEndingIconsInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeEndingIconsInput, Prisma.ArtImageUncheckedUpdateWithoutLifeEndingIconsInput>
+}
+
+export type ArtImageUpdateWithoutLifeEndingIconsInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutLifeEndingIconsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUpsertWithoutLifeEndingHeroesInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeEndingHeroesInput, Prisma.ArtImageUncheckedUpdateWithoutLifeEndingHeroesInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeEndingHeroesInput, Prisma.ArtImageUncheckedCreateWithoutLifeEndingHeroesInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutLifeEndingHeroesInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeEndingHeroesInput, Prisma.ArtImageUncheckedUpdateWithoutLifeEndingHeroesInput>
+}
+
+export type ArtImageUpdateWithoutLifeEndingHeroesInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutLifeEndingHeroesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageCreateWithoutLifeAchievementsInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+}
+
+export type ArtImageUncheckedCreateWithoutLifeAchievementsInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+}
+
+export type ArtImageCreateOrConnectWithoutLifeAchievementsInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutLifeAchievementsInput>
+}
+
+export type ArtImageUpsertWithoutLifeAchievementsInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeAchievementsInput, Prisma.ArtImageUncheckedUpdateWithoutLifeAchievementsInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutLifeAchievementsInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutLifeAchievementsInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeAchievementsInput, Prisma.ArtImageUncheckedUpdateWithoutLifeAchievementsInput>
+}
+
+export type ArtImageUpdateWithoutLifeAchievementsInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutLifeAchievementsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+}
+
+export type ArtImageCreateWithoutLifeRunArtInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageUncheckedCreateWithoutLifeRunArtInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  heroPath?: string | null
+  cardPath?: string | null
+  iconPath?: string | null
+  thumbnailPath?: string | null
+  heroData?: string | null
+  cardData?: string | null
+  iconData?: string | null
+  thumbnailData?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  isActive?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  artPrompt?: string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
+  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageCreateOrConnectWithoutLifeRunArtInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeRunArtInput, Prisma.ArtImageUncheckedCreateWithoutLifeRunArtInput>
+}
+
+export type ArtImageUpsertWithoutLifeRunArtInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeRunArtInput, Prisma.ArtImageUncheckedUpdateWithoutLifeRunArtInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutLifeRunArtInput, Prisma.ArtImageUncheckedCreateWithoutLifeRunArtInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutLifeRunArtInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutLifeRunArtInput, Prisma.ArtImageUncheckedUpdateWithoutLifeRunArtInput>
+}
+
+export type ArtImageUpdateWithoutLifeRunArtInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutLifeRunArtInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUpdateWithoutArtCollectionsInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
+  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
+  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutArtCollectionsInput = {
@@ -6249,6 +8007,7 @@ export type ArtImageUpdateWithoutDreamsInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -6257,6 +8016,10 @@ export type ArtImageUpdateWithoutDreamsInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutDreamsInput = {
@@ -6304,6 +8067,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6312,6 +8076,10 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutDreamsInput = {
@@ -6433,6 +8201,7 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -6441,6 +8210,10 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
@@ -6488,6 +8261,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6496,6 +8270,10 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutCheckpointResourceInput = {
@@ -6580,6 +8358,7 @@ export type ArtImageUpdateWithoutLoraResourcesInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
@@ -6587,6 +8366,10 @@ export type ArtImageUpdateWithoutLoraResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
@@ -6635,6 +8418,7 @@ export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6642,6 +8426,10 @@ export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutLoraResourcesInput = {
@@ -6763,6 +8551,7 @@ export type ArtImageUpdateWithoutServerInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -6771,6 +8560,10 @@ export type ArtImageUpdateWithoutServerInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutServerInput = {
@@ -6818,6 +8611,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6826,6 +8620,10 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutServerInput = {
@@ -6946,6 +8744,7 @@ export type ArtImageUpdateWithoutUserInput = {
   Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
@@ -6954,6 +8753,10 @@ export type ArtImageUpdateWithoutUserInput = {
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutUserInput = {
@@ -7001,6 +8804,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
   LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
@@ -7009,6 +8813,10 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutUserInput = {
@@ -7063,6 +8871,7 @@ export type ArtImageCountOutputType = {
   Milestones: number
   Prompts: number
   Reactions: number
+  ChallengeSubmissions: number
   Resources: number
   LoraResources: number
   Rewards: number
@@ -7071,6 +8880,10 @@ export type ArtImageCountOutputType = {
   ArtCollections: number
   Compositions: number
   PitchSheets: number
+  LifeRunArt: number
+  LifeEndingIcons: number
+  LifeEndingHeroes: number
+  LifeAchievements: number
 }
 
 export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7083,6 +8896,7 @@ export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   Milestones?: boolean | ArtImageCountOutputTypeCountMilestonesArgs
   Prompts?: boolean | ArtImageCountOutputTypeCountPromptsArgs
   Reactions?: boolean | ArtImageCountOutputTypeCountReactionsArgs
+  ChallengeSubmissions?: boolean | ArtImageCountOutputTypeCountChallengeSubmissionsArgs
   Resources?: boolean | ArtImageCountOutputTypeCountResourcesArgs
   LoraResources?: boolean | ArtImageCountOutputTypeCountLoraResourcesArgs
   Rewards?: boolean | ArtImageCountOutputTypeCountRewardsArgs
@@ -7091,6 +8905,10 @@ export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   ArtCollections?: boolean | ArtImageCountOutputTypeCountArtCollectionsArgs
   Compositions?: boolean | ArtImageCountOutputTypeCountCompositionsArgs
   PitchSheets?: boolean | ArtImageCountOutputTypeCountPitchSheetsArgs
+  LifeRunArt?: boolean | ArtImageCountOutputTypeCountLifeRunArtArgs
+  LifeEndingIcons?: boolean | ArtImageCountOutputTypeCountLifeEndingIconsArgs
+  LifeEndingHeroes?: boolean | ArtImageCountOutputTypeCountLifeEndingHeroesArgs
+  LifeAchievements?: boolean | ArtImageCountOutputTypeCountLifeAchievementsArgs
 }
 
 /**
@@ -7169,6 +8987,13 @@ export type ArtImageCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Ty
 /**
  * ArtImageCountOutputType without action
  */
+export type ArtImageCountOutputTypeCountChallengeSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChallengeSubmissionWhereInput
+}
+
+/**
+ * ArtImageCountOutputType without action
+ */
 export type ArtImageCountOutputTypeCountResourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ResourceWhereInput
 }
@@ -7222,6 +9047,34 @@ export type ArtImageCountOutputTypeCountPitchSheetsArgs<ExtArgs extends runtime.
   where?: Prisma.PitchSheetWhereInput
 }
 
+/**
+ * ArtImageCountOutputType without action
+ */
+export type ArtImageCountOutputTypeCountLifeRunArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeRunArtWhereInput
+}
+
+/**
+ * ArtImageCountOutputType without action
+ */
+export type ArtImageCountOutputTypeCountLifeEndingIconsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeEndingWhereInput
+}
+
+/**
+ * ArtImageCountOutputType without action
+ */
+export type ArtImageCountOutputTypeCountLifeEndingHeroesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeEndingWhereInput
+}
+
+/**
+ * ArtImageCountOutputType without action
+ */
+export type ArtImageCountOutputTypeCountLifeAchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeAchievementWhereInput
+}
+
 
 export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -7272,6 +9125,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Milestones?: boolean | Prisma.ArtImage$MilestonesArgs<ExtArgs>
   Prompts?: boolean | Prisma.ArtImage$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.ArtImage$ReactionsArgs<ExtArgs>
+  ChallengeSubmissions?: boolean | Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs>
   Resources?: boolean | Prisma.ArtImage$ResourcesArgs<ExtArgs>
   LoraResources?: boolean | Prisma.ArtImage$LoraResourcesArgs<ExtArgs>
   Rewards?: boolean | Prisma.ArtImage$RewardsArgs<ExtArgs>
@@ -7280,6 +9134,10 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ArtCollections?: boolean | Prisma.ArtImage$ArtCollectionsArgs<ExtArgs>
   Compositions?: boolean | Prisma.ArtImage$CompositionsArgs<ExtArgs>
   PitchSheets?: boolean | Prisma.ArtImage$PitchSheetsArgs<ExtArgs>
+  LifeRunArt?: boolean | Prisma.ArtImage$LifeRunArtArgs<ExtArgs>
+  LifeEndingIcons?: boolean | Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs>
+  LifeEndingHeroes?: boolean | Prisma.ArtImage$LifeEndingHeroesArgs<ExtArgs>
+  LifeAchievements?: boolean | Prisma.ArtImage$LifeAchievementsArgs<ExtArgs>
   _count?: boolean | Prisma.ArtImageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["artImage"]>
 
@@ -7338,6 +9196,7 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Milestones?: boolean | Prisma.ArtImage$MilestonesArgs<ExtArgs>
   Prompts?: boolean | Prisma.ArtImage$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.ArtImage$ReactionsArgs<ExtArgs>
+  ChallengeSubmissions?: boolean | Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs>
   Resources?: boolean | Prisma.ArtImage$ResourcesArgs<ExtArgs>
   LoraResources?: boolean | Prisma.ArtImage$LoraResourcesArgs<ExtArgs>
   Rewards?: boolean | Prisma.ArtImage$RewardsArgs<ExtArgs>
@@ -7346,6 +9205,10 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   ArtCollections?: boolean | Prisma.ArtImage$ArtCollectionsArgs<ExtArgs>
   Compositions?: boolean | Prisma.ArtImage$CompositionsArgs<ExtArgs>
   PitchSheets?: boolean | Prisma.ArtImage$PitchSheetsArgs<ExtArgs>
+  LifeRunArt?: boolean | Prisma.ArtImage$LifeRunArtArgs<ExtArgs>
+  LifeEndingIcons?: boolean | Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs>
+  LifeEndingHeroes?: boolean | Prisma.ArtImage$LifeEndingHeroesArgs<ExtArgs>
+  LifeAchievements?: boolean | Prisma.ArtImage$LifeAchievementsArgs<ExtArgs>
   _count?: boolean | Prisma.ArtImageCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -7365,6 +9228,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Milestones: Prisma.$MilestonePayload<ExtArgs>[]
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
+    ChallengeSubmissions: Prisma.$ChallengeSubmissionPayload<ExtArgs>[]
     Resources: Prisma.$ResourcePayload<ExtArgs>[]
     LoraResources: Prisma.$ResourcePayload<ExtArgs>[]
     Rewards: Prisma.$RewardPayload<ExtArgs>[]
@@ -7373,6 +9237,10 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     ArtCollections: Prisma.$ArtCollectionPayload<ExtArgs>[]
     Compositions: Prisma.$CompositionPayload<ExtArgs>[]
     PitchSheets: Prisma.$PitchSheetPayload<ExtArgs>[]
+    LifeRunArt: Prisma.$LifeRunArtPayload<ExtArgs>[]
+    LifeEndingIcons: Prisma.$LifeEndingPayload<ExtArgs>[]
+    LifeEndingHeroes: Prisma.$LifeEndingPayload<ExtArgs>[]
+    LifeAchievements: Prisma.$LifeAchievementPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -7763,6 +9631,7 @@ export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime
   Milestones<T extends Prisma.ArtImage$MilestonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$MilestonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MilestonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Prompts<T extends Prisma.ArtImage$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.ArtImage$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ChallengeSubmissions<T extends Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengeSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Resources<T extends Prisma.ArtImage$ResourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ResourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LoraResources<T extends Prisma.ArtImage$LoraResourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$LoraResourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Rewards<T extends Prisma.ArtImage$RewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$RewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7771,6 +9640,10 @@ export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime
   ArtCollections<T extends Prisma.ArtImage$ArtCollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ArtCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Compositions<T extends Prisma.ArtImage$CompositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$CompositionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   PitchSheets<T extends Prisma.ArtImage$PitchSheetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$PitchSheetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchSheetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeRunArt<T extends Prisma.ArtImage$LifeRunArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$LifeRunArtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeEndingIcons<T extends Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeEndingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeEndingHeroes<T extends Prisma.ArtImage$LifeEndingHeroesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$LifeEndingHeroesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeEndingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeAchievements<T extends Prisma.ArtImage$LifeAchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$LifeAchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8475,6 +10348,30 @@ export type ArtImage$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * ArtImage.ChallengeSubmissions
+ */
+export type ArtImage$ChallengeSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChallengeSubmission
+   */
+  select?: Prisma.ChallengeSubmissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChallengeSubmission
+   */
+  omit?: Prisma.ChallengeSubmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChallengeSubmissionInclude<ExtArgs> | null
+  where?: Prisma.ChallengeSubmissionWhereInput
+  orderBy?: Prisma.ChallengeSubmissionOrderByWithRelationInput | Prisma.ChallengeSubmissionOrderByWithRelationInput[]
+  cursor?: Prisma.ChallengeSubmissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChallengeSubmissionScalarFieldEnum | Prisma.ChallengeSubmissionScalarFieldEnum[]
+}
+
+/**
  * ArtImage.Resources
  */
 export type ArtImage$ResourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -8664,6 +10561,102 @@ export type ArtImage$PitchSheetsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.PitchSheetScalarFieldEnum | Prisma.PitchSheetScalarFieldEnum[]
+}
+
+/**
+ * ArtImage.LifeRunArt
+ */
+export type ArtImage$LifeRunArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeRunArt
+   */
+  select?: Prisma.LifeRunArtSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeRunArt
+   */
+  omit?: Prisma.LifeRunArtOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeRunArtInclude<ExtArgs> | null
+  where?: Prisma.LifeRunArtWhereInput
+  orderBy?: Prisma.LifeRunArtOrderByWithRelationInput | Prisma.LifeRunArtOrderByWithRelationInput[]
+  cursor?: Prisma.LifeRunArtWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeRunArtScalarFieldEnum | Prisma.LifeRunArtScalarFieldEnum[]
+}
+
+/**
+ * ArtImage.LifeEndingIcons
+ */
+export type ArtImage$LifeEndingIconsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeEnding
+   */
+  select?: Prisma.LifeEndingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeEnding
+   */
+  omit?: Prisma.LifeEndingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeEndingInclude<ExtArgs> | null
+  where?: Prisma.LifeEndingWhereInput
+  orderBy?: Prisma.LifeEndingOrderByWithRelationInput | Prisma.LifeEndingOrderByWithRelationInput[]
+  cursor?: Prisma.LifeEndingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeEndingScalarFieldEnum | Prisma.LifeEndingScalarFieldEnum[]
+}
+
+/**
+ * ArtImage.LifeEndingHeroes
+ */
+export type ArtImage$LifeEndingHeroesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeEnding
+   */
+  select?: Prisma.LifeEndingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeEnding
+   */
+  omit?: Prisma.LifeEndingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeEndingInclude<ExtArgs> | null
+  where?: Prisma.LifeEndingWhereInput
+  orderBy?: Prisma.LifeEndingOrderByWithRelationInput | Prisma.LifeEndingOrderByWithRelationInput[]
+  cursor?: Prisma.LifeEndingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeEndingScalarFieldEnum | Prisma.LifeEndingScalarFieldEnum[]
+}
+
+/**
+ * ArtImage.LifeAchievements
+ */
+export type ArtImage$LifeAchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeAchievement
+   */
+  select?: Prisma.LifeAchievementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeAchievement
+   */
+  omit?: Prisma.LifeAchievementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeAchievementInclude<ExtArgs> | null
+  where?: Prisma.LifeAchievementWhereInput
+  orderBy?: Prisma.LifeAchievementOrderByWithRelationInput | Prisma.LifeAchievementOrderByWithRelationInput[]
+  cursor?: Prisma.LifeAchievementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeAchievementScalarFieldEnum | Prisma.LifeAchievementScalarFieldEnum[]
 }
 
 /**

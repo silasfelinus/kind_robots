@@ -281,6 +281,7 @@ export const Reaction_reactionCategory = {
   ART_COLLECTION: 'ART_COLLECTION',
   BOT: 'BOT',
   BUTTERFLY: 'BUTTERFLY',
+  CHALLENGE_SUBMISSION: 'CHALLENGE_SUBMISSION',
   CHARACTER: 'CHARACTER',
   CHAT_EXCHANGE: 'CHAT_EXCHANGE',
   COMPONENT: 'COMPONENT',
@@ -433,3 +434,90 @@ export const KarmaReason = {
 } as const
 
 export type KarmaReason = (typeof KarmaReason)[keyof typeof KarmaReason]
+
+
+export const CompositionStatus = {
+  DRAFT: 'DRAFT',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  DONE: 'DONE',
+  FAILED: 'FAILED'
+} as const
+
+export type CompositionStatus = (typeof CompositionStatus)[keyof typeof CompositionStatus]
+
+
+export const ChallengeType = {
+  ART: 'ART',
+  TEXT: 'TEXT',
+  CHARACTER: 'CHARACTER',
+  SCENARIO: 'SCENARIO',
+  REASONING: 'REASONING'
+} as const
+
+export type ChallengeType = (typeof ChallengeType)[keyof typeof ChallengeType]
+
+
+export const ChallengeStatus = {
+  OPEN: 'OPEN',
+  JUDGING: 'JUDGING',
+  CLOSED: 'CLOSED'
+} as const
+
+export type ChallengeStatus = (typeof ChallengeStatus)[keyof typeof ChallengeStatus]
+
+
+export const ChallengeSubmissionStatus = {
+  PENDING: 'PENDING',
+  READY: 'READY',
+  DISQUALIFIED: 'DISQUALIFIED'
+} as const
+
+export type ChallengeSubmissionStatus = (typeof ChallengeSubmissionStatus)[keyof typeof ChallengeSubmissionStatus]
+
+
+export const LifeRunStatus = {
+  ACTIVE: 'ACTIVE',
+  COMPLETE: 'COMPLETE',
+  ABANDONED: 'ABANDONED'
+} as const
+
+export type LifeRunStatus = (typeof LifeRunStatus)[keyof typeof LifeRunStatus]
+
+
+export const LifeVictoryType = {
+  VICTORY: 'VICTORY',
+  FAILURE: 'FAILURE',
+  MIXED: 'MIXED',
+  SECRET: 'SECRET'
+} as const
+
+export type LifeVictoryType = (typeof LifeVictoryType)[keyof typeof LifeVictoryType]
+
+
+export const LifeArtSceneType = {
+  MOMENT: 'MOMENT',
+  DREAM: 'DREAM',
+  CHARACTER: 'CHARACTER',
+  CHOICE: 'CHOICE',
+  THRESHOLD: 'THRESHOLD',
+  ENDING: 'ENDING',
+  ICON: 'ICON',
+  HERO: 'HERO'
+} as const
+
+export type LifeArtSceneType = (typeof LifeArtSceneType)[keyof typeof LifeArtSceneType]
+
+
+export const LifeAchievementType = {
+  CHOICE: 'CHOICE',
+  CHAPTER: 'CHAPTER',
+  STAT_THRESHOLD: 'STAT_THRESHOLD',
+  ENDING: 'ENDING',
+  SECRET: 'SECRET',
+  FAILURE: 'FAILURE',
+  VICTORY: 'VICTORY',
+  COLLECTION: 'COLLECTION'
+} as const
+
+export type LifeAchievementType = (typeof LifeAchievementType)[keyof typeof LifeAchievementType]

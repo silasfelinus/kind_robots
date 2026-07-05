@@ -417,7 +417,16 @@ export const ModelName = {
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
-  Todo: 'Todo'
+  Todo: 'Todo',
+  Challenge: 'Challenge',
+  ChallengeSubmission: 'ChallengeSubmission',
+  LifeRun: 'LifeRun',
+  LifeChoice: 'LifeChoice',
+  LifeStat: 'LifeStat',
+  LifeEnding: 'LifeEnding',
+  LifeAchievement: 'LifeAchievement',
+  LifeAchievementUnlock: 'LifeAchievementUnlock',
+  LifeRunArt: 'LifeRunArt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -433,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "karmaTransaction" | "referral" | "userRelation" | "todo"
+    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2681,6 +2690,600 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Challenge: {
+      payload: Prisma.$ChallengePayload<ExtArgs>
+      fields: Prisma.ChallengeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ChallengeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ChallengeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload>
+        }
+        findFirst: {
+          args: Prisma.ChallengeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ChallengeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload>
+        }
+        findMany: {
+          args: Prisma.ChallengeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload>[]
+        }
+        create: {
+          args: Prisma.ChallengeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload>
+        }
+        createMany: {
+          args: Prisma.ChallengeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ChallengeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload>
+        }
+        update: {
+          args: Prisma.ChallengeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload>
+        }
+        deleteMany: {
+          args: Prisma.ChallengeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ChallengeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ChallengeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengePayload>
+        }
+        aggregate: {
+          args: Prisma.ChallengeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateChallenge>
+        }
+        groupBy: {
+          args: Prisma.ChallengeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChallengeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ChallengeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChallengeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ChallengeSubmission: {
+      payload: Prisma.$ChallengeSubmissionPayload<ExtArgs>
+      fields: Prisma.ChallengeSubmissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ChallengeSubmissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ChallengeSubmissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload>
+        }
+        findFirst: {
+          args: Prisma.ChallengeSubmissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ChallengeSubmissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload>
+        }
+        findMany: {
+          args: Prisma.ChallengeSubmissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload>[]
+        }
+        create: {
+          args: Prisma.ChallengeSubmissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload>
+        }
+        createMany: {
+          args: Prisma.ChallengeSubmissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ChallengeSubmissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload>
+        }
+        update: {
+          args: Prisma.ChallengeSubmissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ChallengeSubmissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ChallengeSubmissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ChallengeSubmissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeSubmissionPayload>
+        }
+        aggregate: {
+          args: Prisma.ChallengeSubmissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateChallengeSubmission>
+        }
+        groupBy: {
+          args: Prisma.ChallengeSubmissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChallengeSubmissionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ChallengeSubmissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChallengeSubmissionCountAggregateOutputType> | number
+        }
+      }
+    }
+    LifeRun: {
+      payload: Prisma.$LifeRunPayload<ExtArgs>
+      fields: Prisma.LifeRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LifeRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LifeRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload>
+        }
+        findFirst: {
+          args: Prisma.LifeRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LifeRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload>
+        }
+        findMany: {
+          args: Prisma.LifeRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload>[]
+        }
+        create: {
+          args: Prisma.LifeRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload>
+        }
+        createMany: {
+          args: Prisma.LifeRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LifeRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload>
+        }
+        update: {
+          args: Prisma.LifeRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.LifeRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LifeRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LifeRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunPayload>
+        }
+        aggregate: {
+          args: Prisma.LifeRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLifeRun>
+        }
+        groupBy: {
+          args: Prisma.LifeRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LifeRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    LifeChoice: {
+      payload: Prisma.$LifeChoicePayload<ExtArgs>
+      fields: Prisma.LifeChoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LifeChoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LifeChoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload>
+        }
+        findFirst: {
+          args: Prisma.LifeChoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LifeChoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload>
+        }
+        findMany: {
+          args: Prisma.LifeChoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload>[]
+        }
+        create: {
+          args: Prisma.LifeChoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload>
+        }
+        createMany: {
+          args: Prisma.LifeChoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LifeChoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload>
+        }
+        update: {
+          args: Prisma.LifeChoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.LifeChoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LifeChoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LifeChoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeChoicePayload>
+        }
+        aggregate: {
+          args: Prisma.LifeChoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLifeChoice>
+        }
+        groupBy: {
+          args: Prisma.LifeChoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeChoiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LifeChoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeChoiceCountAggregateOutputType> | number
+        }
+      }
+    }
+    LifeStat: {
+      payload: Prisma.$LifeStatPayload<ExtArgs>
+      fields: Prisma.LifeStatFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LifeStatFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LifeStatFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload>
+        }
+        findFirst: {
+          args: Prisma.LifeStatFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LifeStatFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload>
+        }
+        findMany: {
+          args: Prisma.LifeStatFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload>[]
+        }
+        create: {
+          args: Prisma.LifeStatCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload>
+        }
+        createMany: {
+          args: Prisma.LifeStatCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LifeStatDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload>
+        }
+        update: {
+          args: Prisma.LifeStatUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload>
+        }
+        deleteMany: {
+          args: Prisma.LifeStatDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LifeStatUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LifeStatUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeStatPayload>
+        }
+        aggregate: {
+          args: Prisma.LifeStatAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLifeStat>
+        }
+        groupBy: {
+          args: Prisma.LifeStatGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeStatGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LifeStatCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeStatCountAggregateOutputType> | number
+        }
+      }
+    }
+    LifeEnding: {
+      payload: Prisma.$LifeEndingPayload<ExtArgs>
+      fields: Prisma.LifeEndingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LifeEndingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LifeEndingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload>
+        }
+        findFirst: {
+          args: Prisma.LifeEndingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LifeEndingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload>
+        }
+        findMany: {
+          args: Prisma.LifeEndingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload>[]
+        }
+        create: {
+          args: Prisma.LifeEndingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload>
+        }
+        createMany: {
+          args: Prisma.LifeEndingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LifeEndingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload>
+        }
+        update: {
+          args: Prisma.LifeEndingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload>
+        }
+        deleteMany: {
+          args: Prisma.LifeEndingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LifeEndingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LifeEndingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeEndingPayload>
+        }
+        aggregate: {
+          args: Prisma.LifeEndingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLifeEnding>
+        }
+        groupBy: {
+          args: Prisma.LifeEndingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeEndingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LifeEndingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeEndingCountAggregateOutputType> | number
+        }
+      }
+    }
+    LifeAchievement: {
+      payload: Prisma.$LifeAchievementPayload<ExtArgs>
+      fields: Prisma.LifeAchievementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LifeAchievementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LifeAchievementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload>
+        }
+        findFirst: {
+          args: Prisma.LifeAchievementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LifeAchievementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload>
+        }
+        findMany: {
+          args: Prisma.LifeAchievementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload>[]
+        }
+        create: {
+          args: Prisma.LifeAchievementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload>
+        }
+        createMany: {
+          args: Prisma.LifeAchievementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LifeAchievementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload>
+        }
+        update: {
+          args: Prisma.LifeAchievementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload>
+        }
+        deleteMany: {
+          args: Prisma.LifeAchievementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LifeAchievementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LifeAchievementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementPayload>
+        }
+        aggregate: {
+          args: Prisma.LifeAchievementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLifeAchievement>
+        }
+        groupBy: {
+          args: Prisma.LifeAchievementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeAchievementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LifeAchievementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeAchievementCountAggregateOutputType> | number
+        }
+      }
+    }
+    LifeAchievementUnlock: {
+      payload: Prisma.$LifeAchievementUnlockPayload<ExtArgs>
+      fields: Prisma.LifeAchievementUnlockFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LifeAchievementUnlockFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LifeAchievementUnlockFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload>
+        }
+        findFirst: {
+          args: Prisma.LifeAchievementUnlockFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LifeAchievementUnlockFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload>
+        }
+        findMany: {
+          args: Prisma.LifeAchievementUnlockFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload>[]
+        }
+        create: {
+          args: Prisma.LifeAchievementUnlockCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload>
+        }
+        createMany: {
+          args: Prisma.LifeAchievementUnlockCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LifeAchievementUnlockDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload>
+        }
+        update: {
+          args: Prisma.LifeAchievementUnlockUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload>
+        }
+        deleteMany: {
+          args: Prisma.LifeAchievementUnlockDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LifeAchievementUnlockUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LifeAchievementUnlockUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeAchievementUnlockPayload>
+        }
+        aggregate: {
+          args: Prisma.LifeAchievementUnlockAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLifeAchievementUnlock>
+        }
+        groupBy: {
+          args: Prisma.LifeAchievementUnlockGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeAchievementUnlockGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LifeAchievementUnlockCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeAchievementUnlockCountAggregateOutputType> | number
+        }
+      }
+    }
+    LifeRunArt: {
+      payload: Prisma.$LifeRunArtPayload<ExtArgs>
+      fields: Prisma.LifeRunArtFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LifeRunArtFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LifeRunArtFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload>
+        }
+        findFirst: {
+          args: Prisma.LifeRunArtFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LifeRunArtFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload>
+        }
+        findMany: {
+          args: Prisma.LifeRunArtFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload>[]
+        }
+        create: {
+          args: Prisma.LifeRunArtCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload>
+        }
+        createMany: {
+          args: Prisma.LifeRunArtCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LifeRunArtDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload>
+        }
+        update: {
+          args: Prisma.LifeRunArtUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload>
+        }
+        deleteMany: {
+          args: Prisma.LifeRunArtDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LifeRunArtUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LifeRunArtUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LifeRunArtPayload>
+        }
+        aggregate: {
+          args: Prisma.LifeRunArtAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLifeRunArt>
+        }
+        groupBy: {
+          args: Prisma.LifeRunArtGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeRunArtGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LifeRunArtCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LifeRunArtCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2952,8 +3555,16 @@ export const CompositionScalarFieldEnum = {
   narrativeText: 'narrativeText',
   artPrompt: 'artPrompt',
   imagePath: 'imagePath',
+  wishText: 'wishText',
+  status: 'status',
+  stepLog: 'stepLog',
+  userApproved: 'userApproved',
+  approvedAt: 'approvedAt',
+  manaCharged: 'manaCharged',
+  bountyId: 'bountyId',
   userId: 'userId',
-  artImageId: 'artImageId'
+  artImageId: 'artImageId',
+  outputDreamId: 'outputDreamId'
 } as const
 
 export type CompositionScalarFieldEnum = (typeof CompositionScalarFieldEnum)[keyof typeof CompositionScalarFieldEnum]
@@ -3243,7 +3854,8 @@ export const ReactionScalarFieldEnum = {
   characterId: 'characterId',
   scenarioId: 'scenarioId',
   themeId: 'themeId',
-  compositionId: 'compositionId'
+  compositionId: 'compositionId',
+  challengeSubmissionId: 'challengeSubmissionId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -3569,6 +4181,160 @@ export const TodoScalarFieldEnum = {
 export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
 
 
+export const ChallengeScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  title: 'title',
+  challengeType: 'challengeType',
+  difficulty: 'difficulty',
+  promptText: 'promptText',
+  judgeNotes: 'judgeNotes',
+  status: 'status',
+  isMature: 'isMature',
+  userId: 'userId'
+} as const
+
+export type ChallengeScalarFieldEnum = (typeof ChallengeScalarFieldEnum)[keyof typeof ChallengeScalarFieldEnum]
+
+
+export const ChallengeSubmissionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  challengeId: 'challengeId',
+  botId: 'botId',
+  agentModel: 'agentModel',
+  outputText: 'outputText',
+  artImageId: 'artImageId',
+  characterId: 'characterId',
+  scenarioId: 'scenarioId',
+  status: 'status'
+} as const
+
+export type ChallengeSubmissionScalarFieldEnum = (typeof ChallengeSubmissionScalarFieldEnum)[keyof typeof ChallengeSubmissionScalarFieldEnum]
+
+
+export const LifeRunScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  title: 'title',
+  status: 'status',
+  seed: 'seed',
+  protagonistName: 'protagonistName',
+  currentAge: 'currentAge',
+  currentChapter: 'currentChapter',
+  genre: 'genre',
+  dreamId: 'dreamId',
+  characterId: 'characterId',
+  botId: 'botId',
+  artCollectionId: 'artCollectionId',
+  endingId: 'endingId',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary',
+  statsSnapshot: 'statsSnapshot'
+} as const
+
+export type LifeRunScalarFieldEnum = (typeof LifeRunScalarFieldEnum)[keyof typeof LifeRunScalarFieldEnum]
+
+
+export const LifeChoiceScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  lifeRunId: 'lifeRunId',
+  chatId: 'chatId',
+  chapter: 'chapter',
+  prompt: 'prompt',
+  choiceText: 'choiceText',
+  resultText: 'resultText',
+  effects: 'effects'
+} as const
+
+export type LifeChoiceScalarFieldEnum = (typeof LifeChoiceScalarFieldEnum)[keyof typeof LifeChoiceScalarFieldEnum]
+
+
+export const LifeStatScalarFieldEnum = {
+  id: 'id',
+  lifeRunId: 'lifeRunId',
+  key: 'key',
+  value: 'value'
+} as const
+
+export type LifeStatScalarFieldEnum = (typeof LifeStatScalarFieldEnum)[keyof typeof LifeStatScalarFieldEnum]
+
+
+export const LifeEndingScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary',
+  victoryType: 'victoryType',
+  icon: 'icon',
+  heroImage: 'heroImage',
+  iconArtImageId: 'iconArtImageId',
+  heroArtImageId: 'heroArtImageId',
+  milestoneId: 'milestoneId',
+  artPrompt: 'artPrompt',
+  metadata: 'metadata',
+  isActive: 'isActive'
+} as const
+
+export type LifeEndingScalarFieldEnum = (typeof LifeEndingScalarFieldEnum)[keyof typeof LifeEndingScalarFieldEnum]
+
+
+export const LifeAchievementScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  achievementType: 'achievementType',
+  conditionKey: 'conditionKey',
+  description: 'description',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  artImageId: 'artImageId',
+  milestoneId: 'milestoneId',
+  endingId: 'endingId',
+  metadata: 'metadata',
+  isActive: 'isActive'
+} as const
+
+export type LifeAchievementScalarFieldEnum = (typeof LifeAchievementScalarFieldEnum)[keyof typeof LifeAchievementScalarFieldEnum]
+
+
+export const LifeAchievementUnlockScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  lifeRunId: 'lifeRunId',
+  achievementId: 'achievementId',
+  milestoneRecordId: 'milestoneRecordId',
+  data: 'data'
+} as const
+
+export type LifeAchievementUnlockScalarFieldEnum = (typeof LifeAchievementUnlockScalarFieldEnum)[keyof typeof LifeAchievementUnlockScalarFieldEnum]
+
+
+export const LifeRunArtScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  lifeRunId: 'lifeRunId',
+  artImageId: 'artImageId',
+  chapter: 'chapter',
+  sceneType: 'sceneType',
+  prompt: 'prompt'
+} as const
+
+export type LifeRunArtScalarFieldEnum = (typeof LifeRunArtScalarFieldEnum)[keyof typeof LifeRunArtScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3755,7 +4521,8 @@ export const CompositionOrderByRelevanceFieldEnum = {
   rewardBlurb: 'rewardBlurb',
   narrativeText: 'narrativeText',
   artPrompt: 'artPrompt',
-  imagePath: 'imagePath'
+  imagePath: 'imagePath',
+  wishText: 'wishText'
 } as const
 
 export type CompositionOrderByRelevanceFieldEnum = (typeof CompositionOrderByRelevanceFieldEnum)[keyof typeof CompositionOrderByRelevanceFieldEnum]
@@ -4115,6 +4882,84 @@ export const TodoOrderByRelevanceFieldEnum = {
 export type TodoOrderByRelevanceFieldEnum = (typeof TodoOrderByRelevanceFieldEnum)[keyof typeof TodoOrderByRelevanceFieldEnum]
 
 
+export const ChallengeOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  promptText: 'promptText',
+  judgeNotes: 'judgeNotes'
+} as const
+
+export type ChallengeOrderByRelevanceFieldEnum = (typeof ChallengeOrderByRelevanceFieldEnum)[keyof typeof ChallengeOrderByRelevanceFieldEnum]
+
+
+export const ChallengeSubmissionOrderByRelevanceFieldEnum = {
+  agentModel: 'agentModel',
+  outputText: 'outputText'
+} as const
+
+export type ChallengeSubmissionOrderByRelevanceFieldEnum = (typeof ChallengeSubmissionOrderByRelevanceFieldEnum)[keyof typeof ChallengeSubmissionOrderByRelevanceFieldEnum]
+
+
+export const LifeRunOrderByRelevanceFieldEnum = {
+  title: 'title',
+  seed: 'seed',
+  protagonistName: 'protagonistName',
+  genre: 'genre',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary'
+} as const
+
+export type LifeRunOrderByRelevanceFieldEnum = (typeof LifeRunOrderByRelevanceFieldEnum)[keyof typeof LifeRunOrderByRelevanceFieldEnum]
+
+
+export const LifeChoiceOrderByRelevanceFieldEnum = {
+  prompt: 'prompt',
+  choiceText: 'choiceText',
+  resultText: 'resultText'
+} as const
+
+export type LifeChoiceOrderByRelevanceFieldEnum = (typeof LifeChoiceOrderByRelevanceFieldEnum)[keyof typeof LifeChoiceOrderByRelevanceFieldEnum]
+
+
+export const LifeStatOrderByRelevanceFieldEnum = {
+  key: 'key'
+} as const
+
+export type LifeStatOrderByRelevanceFieldEnum = (typeof LifeStatOrderByRelevanceFieldEnum)[keyof typeof LifeStatOrderByRelevanceFieldEnum]
+
+
+export const LifeEndingOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  outcomeKey: 'outcomeKey',
+  summary: 'summary',
+  icon: 'icon',
+  heroImage: 'heroImage',
+  artPrompt: 'artPrompt'
+} as const
+
+export type LifeEndingOrderByRelevanceFieldEnum = (typeof LifeEndingOrderByRelevanceFieldEnum)[keyof typeof LifeEndingOrderByRelevanceFieldEnum]
+
+
+export const LifeAchievementOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  conditionKey: 'conditionKey',
+  description: 'description',
+  icon: 'icon',
+  imagePath: 'imagePath'
+} as const
+
+export type LifeAchievementOrderByRelevanceFieldEnum = (typeof LifeAchievementOrderByRelevanceFieldEnum)[keyof typeof LifeAchievementOrderByRelevanceFieldEnum]
+
+
+export const LifeRunArtOrderByRelevanceFieldEnum = {
+  prompt: 'prompt'
+} as const
+
+export type LifeRunArtOrderByRelevanceFieldEnum = (typeof LifeRunArtOrderByRelevanceFieldEnum)[keyof typeof LifeRunArtOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -4174,6 +5019,13 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'CompositionStatus'
+ */
+export type EnumCompositionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompositionStatus'>
     
 
 
@@ -4400,6 +5252,55 @@ export type EnumTodoPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 export type EnumTodoCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TodoCategory'>
     
 
+
+/**
+ * Reference to a field of type 'ChallengeType'
+ */
+export type EnumChallengeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChallengeType'>
+    
+
+
+/**
+ * Reference to a field of type 'ChallengeStatus'
+ */
+export type EnumChallengeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChallengeStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ChallengeSubmissionStatus'
+ */
+export type EnumChallengeSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChallengeSubmissionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'LifeRunStatus'
+ */
+export type EnumLifeRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'LifeVictoryType'
+ */
+export type EnumLifeVictoryTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeVictoryType'>
+    
+
+
+/**
+ * Reference to a field of type 'LifeAchievementType'
+ */
+export type EnumLifeAchievementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeAchievementType'>
+    
+
+
+/**
+ * Reference to a field of type 'LifeArtSceneType'
+ */
+export type EnumLifeArtSceneTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeArtSceneType'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -4544,6 +5445,15 @@ export type GlobalOmitConfig = {
   referral?: Prisma.ReferralOmit
   userRelation?: Prisma.UserRelationOmit
   todo?: Prisma.TodoOmit
+  challenge?: Prisma.ChallengeOmit
+  challengeSubmission?: Prisma.ChallengeSubmissionOmit
+  lifeRun?: Prisma.LifeRunOmit
+  lifeChoice?: Prisma.LifeChoiceOmit
+  lifeStat?: Prisma.LifeStatOmit
+  lifeEnding?: Prisma.LifeEndingOmit
+  lifeAchievement?: Prisma.LifeAchievementOmit
+  lifeAchievementUnlock?: Prisma.LifeAchievementUnlockOmit
+  lifeRunArt?: Prisma.LifeRunArtOmit
 }
 
 /* Types for Logging */

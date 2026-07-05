@@ -232,3 +232,48 @@ export type UserRelation = Prisma.UserRelationModel
  * 
  */
 export type Todo = Prisma.TodoModel
+/**
+ * Model Challenge
+ * 
+ */
+export type Challenge = Prisma.ChallengeModel
+/**
+ * Model ChallengeSubmission
+ * 
+ */
+export type ChallengeSubmission = Prisma.ChallengeSubmissionModel
+/**
+ * Model LifeRun
+ * 
+ */
+export type LifeRun = Prisma.LifeRunModel
+/**
+ * Model LifeChoice
+ * 
+ */
+export type LifeChoice = Prisma.LifeChoiceModel
+/**
+ * Model LifeStat
+ * 
+ */
+export type LifeStat = Prisma.LifeStatModel
+/**
+ * Model LifeEnding
+ * 
+ */
+export type LifeEnding = Prisma.LifeEndingModel
+/**
+ * Model LifeAchievement
+ * 
+ */
+export type LifeAchievement = Prisma.LifeAchievementModel
+/**
+ * Model LifeAchievementUnlock
+ * 
+ */
+export type LifeAchievementUnlock = Prisma.LifeAchievementUnlockModel
+/**
+ * Model LifeRunArt
+ * 
+ */
+export type LifeRunArt = Prisma.LifeRunArtModel

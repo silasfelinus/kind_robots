@@ -314,6 +314,8 @@ export type MilestoneWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Milestone"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   MilestoneRecords?: Prisma.MilestoneRecordListRelationFilter
+  LifeEndings?: Prisma.LifeEndingListRelationFilter
+  LifeAchievements?: Prisma.LifeAchievementListRelationFilter
 }
 
 export type MilestoneOrderByWithRelationInput = {
@@ -335,6 +337,8 @@ export type MilestoneOrderByWithRelationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   MilestoneRecords?: Prisma.MilestoneRecordOrderByRelationAggregateInput
+  LifeEndings?: Prisma.LifeEndingOrderByRelationAggregateInput
+  LifeAchievements?: Prisma.LifeAchievementOrderByRelationAggregateInput
   _relevance?: Prisma.MilestoneOrderByRelevanceInput
 }
 
@@ -360,6 +364,8 @@ export type MilestoneWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Milestone"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   MilestoneRecords?: Prisma.MilestoneRecordListRelationFilter
+  LifeEndings?: Prisma.LifeEndingListRelationFilter
+  LifeAchievements?: Prisma.LifeAchievementListRelationFilter
 }, "id" | "triggerCode">
 
 export type MilestoneOrderByWithAggregationInput = {
@@ -425,6 +431,8 @@ export type MilestoneCreateInput = {
   imagePath?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
   MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
+  LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutMilestoneInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutMilestoneInput
 }
 
 export type MilestoneUncheckedCreateInput = {
@@ -445,6 +453,8 @@ export type MilestoneUncheckedCreateInput = {
   artPrompt?: string | null
   imagePath?: string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
+  LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutMilestoneInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutMilestoneInput
 }
 
 export type MilestoneUpdateInput = {
@@ -464,6 +474,8 @@ export type MilestoneUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
   MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
+  LifeEndings?: Prisma.LifeEndingUpdateManyWithoutMilestoneNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutMilestoneNestedInput
 }
 
 export type MilestoneUncheckedUpdateInput = {
@@ -484,6 +496,8 @@ export type MilestoneUncheckedUpdateInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
+  LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutMilestoneNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutMilestoneNestedInput
 }
 
 export type MilestoneCreateManyInput = {
@@ -631,6 +645,11 @@ export type MilestoneScalarRelationFilter = {
   isNot?: Prisma.MilestoneWhereInput
 }
 
+export type MilestoneNullableScalarRelationFilter = {
+  is?: Prisma.MilestoneWhereInput | null
+  isNot?: Prisma.MilestoneWhereInput | null
+}
+
 export type MilestoneCreateNestedManyWithoutArtImageInput = {
   create?: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput> | Prisma.MilestoneCreateWithoutArtImageInput[] | Prisma.MilestoneUncheckedCreateWithoutArtImageInput[]
   connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutArtImageInput | Prisma.MilestoneCreateOrConnectWithoutArtImageInput[]
@@ -687,6 +706,38 @@ export type MilestoneUpdateOneRequiredWithoutMilestoneRecordsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MilestoneUpdateToOneWithWhereWithoutMilestoneRecordsInput, Prisma.MilestoneUpdateWithoutMilestoneRecordsInput>, Prisma.MilestoneUncheckedUpdateWithoutMilestoneRecordsInput>
 }
 
+export type MilestoneCreateNestedOneWithoutLifeEndingsInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeEndingsInput, Prisma.MilestoneUncheckedCreateWithoutLifeEndingsInput>
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutLifeEndingsInput
+  connect?: Prisma.MilestoneWhereUniqueInput
+}
+
+export type MilestoneUpdateOneWithoutLifeEndingsNestedInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeEndingsInput, Prisma.MilestoneUncheckedCreateWithoutLifeEndingsInput>
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutLifeEndingsInput
+  upsert?: Prisma.MilestoneUpsertWithoutLifeEndingsInput
+  disconnect?: Prisma.MilestoneWhereInput | boolean
+  delete?: Prisma.MilestoneWhereInput | boolean
+  connect?: Prisma.MilestoneWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MilestoneUpdateToOneWithWhereWithoutLifeEndingsInput, Prisma.MilestoneUpdateWithoutLifeEndingsInput>, Prisma.MilestoneUncheckedUpdateWithoutLifeEndingsInput>
+}
+
+export type MilestoneCreateNestedOneWithoutLifeAchievementsInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeAchievementsInput, Prisma.MilestoneUncheckedCreateWithoutLifeAchievementsInput>
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutLifeAchievementsInput
+  connect?: Prisma.MilestoneWhereUniqueInput
+}
+
+export type MilestoneUpdateOneWithoutLifeAchievementsNestedInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeAchievementsInput, Prisma.MilestoneUncheckedCreateWithoutLifeAchievementsInput>
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutLifeAchievementsInput
+  upsert?: Prisma.MilestoneUpsertWithoutLifeAchievementsInput
+  disconnect?: Prisma.MilestoneWhereInput | boolean
+  delete?: Prisma.MilestoneWhereInput | boolean
+  connect?: Prisma.MilestoneWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MilestoneUpdateToOneWithWhereWithoutLifeAchievementsInput, Prisma.MilestoneUpdateWithoutLifeAchievementsInput>, Prisma.MilestoneUncheckedUpdateWithoutLifeAchievementsInput>
+}
+
 export type MilestoneCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -703,6 +754,8 @@ export type MilestoneCreateWithoutArtImageInput = {
   artPrompt?: string | null
   imagePath?: string | null
   MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
+  LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutMilestoneInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutMilestoneInput
 }
 
 export type MilestoneUncheckedCreateWithoutArtImageInput = {
@@ -722,6 +775,8 @@ export type MilestoneUncheckedCreateWithoutArtImageInput = {
   artPrompt?: string | null
   imagePath?: string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
+  LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutMilestoneInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutMilestoneInput
 }
 
 export type MilestoneCreateOrConnectWithoutArtImageInput = {
@@ -788,6 +843,8 @@ export type MilestoneCreateWithoutMilestoneRecordsInput = {
   artPrompt?: string | null
   imagePath?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
+  LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutMilestoneInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutMilestoneInput
 }
 
 export type MilestoneUncheckedCreateWithoutMilestoneRecordsInput = {
@@ -807,6 +864,8 @@ export type MilestoneUncheckedCreateWithoutMilestoneRecordsInput = {
   artImageId?: number | null
   artPrompt?: string | null
   imagePath?: string | null
+  LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutMilestoneInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutMilestoneInput
 }
 
 export type MilestoneCreateOrConnectWithoutMilestoneRecordsInput = {
@@ -841,6 +900,8 @@ export type MilestoneUpdateWithoutMilestoneRecordsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
+  LifeEndings?: Prisma.LifeEndingUpdateManyWithoutMilestoneNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutMilestoneNestedInput
 }
 
 export type MilestoneUncheckedUpdateWithoutMilestoneRecordsInput = {
@@ -860,6 +921,204 @@ export type MilestoneUncheckedUpdateWithoutMilestoneRecordsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutMilestoneNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutMilestoneNestedInput
+}
+
+export type MilestoneCreateWithoutLifeEndingsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  message: string
+  icon?: string | null
+  karma?: number
+  pageHint?: string | null
+  subtleHint?: string | null
+  triggerCode?: string | null
+  tooltip?: string | null
+  isActive?: boolean
+  isRepeatable?: boolean
+  artPrompt?: string | null
+  imagePath?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
+  MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutMilestoneInput
+}
+
+export type MilestoneUncheckedCreateWithoutLifeEndingsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  message: string
+  icon?: string | null
+  karma?: number
+  pageHint?: string | null
+  subtleHint?: string | null
+  triggerCode?: string | null
+  tooltip?: string | null
+  isActive?: boolean
+  isRepeatable?: boolean
+  artImageId?: number | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutMilestoneInput
+}
+
+export type MilestoneCreateOrConnectWithoutLifeEndingsInput = {
+  where: Prisma.MilestoneWhereUniqueInput
+  create: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeEndingsInput, Prisma.MilestoneUncheckedCreateWithoutLifeEndingsInput>
+}
+
+export type MilestoneUpsertWithoutLifeEndingsInput = {
+  update: Prisma.XOR<Prisma.MilestoneUpdateWithoutLifeEndingsInput, Prisma.MilestoneUncheckedUpdateWithoutLifeEndingsInput>
+  create: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeEndingsInput, Prisma.MilestoneUncheckedCreateWithoutLifeEndingsInput>
+  where?: Prisma.MilestoneWhereInput
+}
+
+export type MilestoneUpdateToOneWithWhereWithoutLifeEndingsInput = {
+  where?: Prisma.MilestoneWhereInput
+  data: Prisma.XOR<Prisma.MilestoneUpdateWithoutLifeEndingsInput, Prisma.MilestoneUncheckedUpdateWithoutLifeEndingsInput>
+}
+
+export type MilestoneUpdateWithoutLifeEndingsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
+  MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutMilestoneNestedInput
+}
+
+export type MilestoneUncheckedUpdateWithoutLifeEndingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutMilestoneNestedInput
+}
+
+export type MilestoneCreateWithoutLifeAchievementsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  message: string
+  icon?: string | null
+  karma?: number
+  pageHint?: string | null
+  subtleHint?: string | null
+  triggerCode?: string | null
+  tooltip?: string | null
+  isActive?: boolean
+  isRepeatable?: boolean
+  artPrompt?: string | null
+  imagePath?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
+  MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
+  LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutMilestoneInput
+}
+
+export type MilestoneUncheckedCreateWithoutLifeAchievementsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  message: string
+  icon?: string | null
+  karma?: number
+  pageHint?: string | null
+  subtleHint?: string | null
+  triggerCode?: string | null
+  tooltip?: string | null
+  isActive?: boolean
+  isRepeatable?: boolean
+  artImageId?: number | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
+  LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutMilestoneInput
+}
+
+export type MilestoneCreateOrConnectWithoutLifeAchievementsInput = {
+  where: Prisma.MilestoneWhereUniqueInput
+  create: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeAchievementsInput, Prisma.MilestoneUncheckedCreateWithoutLifeAchievementsInput>
+}
+
+export type MilestoneUpsertWithoutLifeAchievementsInput = {
+  update: Prisma.XOR<Prisma.MilestoneUpdateWithoutLifeAchievementsInput, Prisma.MilestoneUncheckedUpdateWithoutLifeAchievementsInput>
+  create: Prisma.XOR<Prisma.MilestoneCreateWithoutLifeAchievementsInput, Prisma.MilestoneUncheckedCreateWithoutLifeAchievementsInput>
+  where?: Prisma.MilestoneWhereInput
+}
+
+export type MilestoneUpdateToOneWithWhereWithoutLifeAchievementsInput = {
+  where?: Prisma.MilestoneWhereInput
+  data: Prisma.XOR<Prisma.MilestoneUpdateWithoutLifeAchievementsInput, Prisma.MilestoneUncheckedUpdateWithoutLifeAchievementsInput>
+}
+
+export type MilestoneUpdateWithoutLifeAchievementsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
+  MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
+  LifeEndings?: Prisma.LifeEndingUpdateManyWithoutMilestoneNestedInput
+}
+
+export type MilestoneUncheckedUpdateWithoutLifeAchievementsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
+  LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutMilestoneNestedInput
 }
 
 export type MilestoneCreateManyArtImageInput = {
@@ -896,6 +1155,8 @@ export type MilestoneUpdateWithoutArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
+  LifeEndings?: Prisma.LifeEndingUpdateManyWithoutMilestoneNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutMilestoneNestedInput
 }
 
 export type MilestoneUncheckedUpdateWithoutArtImageInput = {
@@ -915,6 +1176,8 @@ export type MilestoneUncheckedUpdateWithoutArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
+  LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutMilestoneNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutMilestoneNestedInput
 }
 
 export type MilestoneUncheckedUpdateManyWithoutArtImageInput = {
@@ -942,10 +1205,14 @@ export type MilestoneUncheckedUpdateManyWithoutArtImageInput = {
 
 export type MilestoneCountOutputType = {
   MilestoneRecords: number
+  LifeEndings: number
+  LifeAchievements: number
 }
 
 export type MilestoneCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   MilestoneRecords?: boolean | MilestoneCountOutputTypeCountMilestoneRecordsArgs
+  LifeEndings?: boolean | MilestoneCountOutputTypeCountLifeEndingsArgs
+  LifeAchievements?: boolean | MilestoneCountOutputTypeCountLifeAchievementsArgs
 }
 
 /**
@@ -963,6 +1230,20 @@ export type MilestoneCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
  */
 export type MilestoneCountOutputTypeCountMilestoneRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MilestoneRecordWhereInput
+}
+
+/**
+ * MilestoneCountOutputType without action
+ */
+export type MilestoneCountOutputTypeCountLifeEndingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeEndingWhereInput
+}
+
+/**
+ * MilestoneCountOutputType without action
+ */
+export type MilestoneCountOutputTypeCountLifeAchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeAchievementWhereInput
 }
 
 
@@ -985,6 +1266,8 @@ export type MilestoneSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   imagePath?: boolean
   ArtImage?: boolean | Prisma.Milestone$ArtImageArgs<ExtArgs>
   MilestoneRecords?: boolean | Prisma.Milestone$MilestoneRecordsArgs<ExtArgs>
+  LifeEndings?: boolean | Prisma.Milestone$LifeEndingsArgs<ExtArgs>
+  LifeAchievements?: boolean | Prisma.Milestone$LifeAchievementsArgs<ExtArgs>
   _count?: boolean | Prisma.MilestoneCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["milestone"]>
 
@@ -1013,6 +1296,8 @@ export type MilestoneOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type MilestoneInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Milestone$ArtImageArgs<ExtArgs>
   MilestoneRecords?: boolean | Prisma.Milestone$MilestoneRecordsArgs<ExtArgs>
+  LifeEndings?: boolean | Prisma.Milestone$LifeEndingsArgs<ExtArgs>
+  LifeAchievements?: boolean | Prisma.Milestone$LifeAchievementsArgs<ExtArgs>
   _count?: boolean | Prisma.MilestoneCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1021,6 +1306,8 @@ export type $MilestonePayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     MilestoneRecords: Prisma.$MilestoneRecordPayload<ExtArgs>[]
+    LifeEndings: Prisma.$LifeEndingPayload<ExtArgs>[]
+    LifeAchievements: Prisma.$LifeAchievementPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1381,6 +1668,8 @@ export interface Prisma__MilestoneClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   ArtImage<T extends Prisma.Milestone$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Milestone$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   MilestoneRecords<T extends Prisma.Milestone$MilestoneRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Milestone$MilestoneRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MilestoneRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeEndings<T extends Prisma.Milestone$LifeEndingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Milestone$LifeEndingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeEndingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeAchievements<T extends Prisma.Milestone$LifeAchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Milestone$LifeAchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1814,6 +2103,54 @@ export type Milestone$MilestoneRecordsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.MilestoneRecordScalarFieldEnum | Prisma.MilestoneRecordScalarFieldEnum[]
+}
+
+/**
+ * Milestone.LifeEndings
+ */
+export type Milestone$LifeEndingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeEnding
+   */
+  select?: Prisma.LifeEndingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeEnding
+   */
+  omit?: Prisma.LifeEndingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeEndingInclude<ExtArgs> | null
+  where?: Prisma.LifeEndingWhereInput
+  orderBy?: Prisma.LifeEndingOrderByWithRelationInput | Prisma.LifeEndingOrderByWithRelationInput[]
+  cursor?: Prisma.LifeEndingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeEndingScalarFieldEnum | Prisma.LifeEndingScalarFieldEnum[]
+}
+
+/**
+ * Milestone.LifeAchievements
+ */
+export type Milestone$LifeAchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeAchievement
+   */
+  select?: Prisma.LifeAchievementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeAchievement
+   */
+  omit?: Prisma.LifeAchievementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeAchievementInclude<ExtArgs> | null
+  where?: Prisma.LifeAchievementWhereInput
+  orderBy?: Prisma.LifeAchievementOrderByWithRelationInput | Prisma.LifeAchievementOrderByWithRelationInput[]
+  cursor?: Prisma.LifeAchievementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeAchievementScalarFieldEnum | Prisma.LifeAchievementScalarFieldEnum[]
 }
 
 /**

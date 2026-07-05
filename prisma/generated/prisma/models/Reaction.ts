@@ -44,6 +44,7 @@ export type ReactionAvgAggregateOutputType = {
   scenarioId: number | null
   themeId: number | null
   compositionId: number | null
+  challengeSubmissionId: number | null
 }
 
 export type ReactionSumAggregateOutputType = {
@@ -64,6 +65,7 @@ export type ReactionSumAggregateOutputType = {
   scenarioId: number | null
   themeId: number | null
   compositionId: number | null
+  challengeSubmissionId: number | null
 }
 
 export type ReactionMinAggregateOutputType = {
@@ -89,6 +91,7 @@ export type ReactionMinAggregateOutputType = {
   scenarioId: number | null
   themeId: number | null
   compositionId: number | null
+  challengeSubmissionId: number | null
 }
 
 export type ReactionMaxAggregateOutputType = {
@@ -114,6 +117,7 @@ export type ReactionMaxAggregateOutputType = {
   scenarioId: number | null
   themeId: number | null
   compositionId: number | null
+  challengeSubmissionId: number | null
 }
 
 export type ReactionCountAggregateOutputType = {
@@ -139,6 +143,7 @@ export type ReactionCountAggregateOutputType = {
   scenarioId: number
   themeId: number
   compositionId: number
+  challengeSubmissionId: number
   _all: number
 }
 
@@ -161,6 +166,7 @@ export type ReactionAvgAggregateInputType = {
   scenarioId?: true
   themeId?: true
   compositionId?: true
+  challengeSubmissionId?: true
 }
 
 export type ReactionSumAggregateInputType = {
@@ -181,6 +187,7 @@ export type ReactionSumAggregateInputType = {
   scenarioId?: true
   themeId?: true
   compositionId?: true
+  challengeSubmissionId?: true
 }
 
 export type ReactionMinAggregateInputType = {
@@ -206,6 +213,7 @@ export type ReactionMinAggregateInputType = {
   scenarioId?: true
   themeId?: true
   compositionId?: true
+  challengeSubmissionId?: true
 }
 
 export type ReactionMaxAggregateInputType = {
@@ -231,6 +239,7 @@ export type ReactionMaxAggregateInputType = {
   scenarioId?: true
   themeId?: true
   compositionId?: true
+  challengeSubmissionId?: true
 }
 
 export type ReactionCountAggregateInputType = {
@@ -256,6 +265,7 @@ export type ReactionCountAggregateInputType = {
   scenarioId?: true
   themeId?: true
   compositionId?: true
+  challengeSubmissionId?: true
   _all?: true
 }
 
@@ -368,6 +378,7 @@ export type ReactionGroupByOutputType = {
   scenarioId: number | null
   themeId: number | null
   compositionId: number | null
+  challengeSubmissionId: number | null
   _count: ReactionCountAggregateOutputType | null
   _avg: ReactionAvgAggregateOutputType | null
   _sum: ReactionSumAggregateOutputType | null
@@ -416,6 +427,7 @@ export type ReactionWhereInput = {
   scenarioId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   themeId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   compositionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
+  challengeSubmissionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
@@ -429,6 +441,7 @@ export type ReactionWhereInput = {
   Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
+  ChallengeSubmission?: Prisma.XOR<Prisma.ChallengeSubmissionNullableScalarRelationFilter, Prisma.ChallengeSubmissionWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -455,6 +468,7 @@ export type ReactionOrderByWithRelationInput = {
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
   themeId?: Prisma.SortOrderInput | Prisma.SortOrder
   compositionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  challengeSubmissionId?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Bot?: Prisma.BotOrderByWithRelationInput
@@ -468,12 +482,14 @@ export type ReactionOrderByWithRelationInput = {
   Reward?: Prisma.RewardOrderByWithRelationInput
   Scenario?: Prisma.ScenarioOrderByWithRelationInput
   Theme?: Prisma.ThemeOrderByWithRelationInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ReactionOrderByRelevanceInput
 }
 
 export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  userId_challengeSubmissionId?: Prisma.ReactionUserIdChallengeSubmissionIdCompoundUniqueInput
   AND?: Prisma.ReactionWhereInput | Prisma.ReactionWhereInput[]
   OR?: Prisma.ReactionWhereInput[]
   NOT?: Prisma.ReactionWhereInput | Prisma.ReactionWhereInput[]
@@ -498,6 +514,7 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   scenarioId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   themeId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   compositionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
+  challengeSubmissionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
@@ -511,8 +528,9 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
+  ChallengeSubmission?: Prisma.XOR<Prisma.ChallengeSubmissionNullableScalarRelationFilter, Prisma.ChallengeSubmissionWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "id">
+}, "id" | "id" | "userId_challengeSubmissionId">
 
 export type ReactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -537,6 +555,7 @@ export type ReactionOrderByWithAggregationInput = {
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
   themeId?: Prisma.SortOrderInput | Prisma.SortOrder
   compositionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  challengeSubmissionId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReactionCountOrderByAggregateInput
   _avg?: Prisma.ReactionAvgOrderByAggregateInput
   _max?: Prisma.ReactionMaxOrderByAggregateInput
@@ -570,6 +589,7 @@ export type ReactionScalarWhereWithAggregatesInput = {
   scenarioId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   themeId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   compositionId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
+  challengeSubmissionId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
 }
 
 export type ReactionCreateInput = {
@@ -593,6 +613,7 @@ export type ReactionCreateInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -619,6 +640,7 @@ export type ReactionUncheckedCreateInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateInput = {
@@ -642,6 +664,7 @@ export type ReactionUpdateInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -668,6 +691,7 @@ export type ReactionUncheckedUpdateInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyInput = {
@@ -693,6 +717,7 @@ export type ReactionCreateManyInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateManyMutationInput = {
@@ -728,6 +753,7 @@ export type ReactionUncheckedUpdateManyInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionListRelationFilter = {
@@ -744,6 +770,11 @@ export type ReactionOrderByRelevanceInput = {
   fields: Prisma.ReactionOrderByRelevanceFieldEnum | Prisma.ReactionOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
+}
+
+export type ReactionUserIdChallengeSubmissionIdCompoundUniqueInput = {
+  userId: number
+  challengeSubmissionId: number
 }
 
 export type ReactionCountOrderByAggregateInput = {
@@ -769,6 +800,7 @@ export type ReactionCountOrderByAggregateInput = {
   scenarioId?: Prisma.SortOrder
   themeId?: Prisma.SortOrder
   compositionId?: Prisma.SortOrder
+  challengeSubmissionId?: Prisma.SortOrder
 }
 
 export type ReactionAvgOrderByAggregateInput = {
@@ -789,6 +821,7 @@ export type ReactionAvgOrderByAggregateInput = {
   scenarioId?: Prisma.SortOrder
   themeId?: Prisma.SortOrder
   compositionId?: Prisma.SortOrder
+  challengeSubmissionId?: Prisma.SortOrder
 }
 
 export type ReactionMaxOrderByAggregateInput = {
@@ -814,6 +847,7 @@ export type ReactionMaxOrderByAggregateInput = {
   scenarioId?: Prisma.SortOrder
   themeId?: Prisma.SortOrder
   compositionId?: Prisma.SortOrder
+  challengeSubmissionId?: Prisma.SortOrder
 }
 
 export type ReactionMinOrderByAggregateInput = {
@@ -839,6 +873,7 @@ export type ReactionMinOrderByAggregateInput = {
   scenarioId?: Prisma.SortOrder
   themeId?: Prisma.SortOrder
   compositionId?: Prisma.SortOrder
+  challengeSubmissionId?: Prisma.SortOrder
 }
 
 export type ReactionSumOrderByAggregateInput = {
@@ -859,6 +894,7 @@ export type ReactionSumOrderByAggregateInput = {
   scenarioId?: Prisma.SortOrder
   themeId?: Prisma.SortOrder
   compositionId?: Prisma.SortOrder
+  challengeSubmissionId?: Prisma.SortOrder
 }
 
 export type ReactionCreateNestedManyWithoutArtImageInput = {
@@ -1457,6 +1493,48 @@ export type ReactionUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
 }
 
+export type ReactionCreateNestedManyWithoutChallengeSubmissionInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput> | Prisma.ReactionCreateWithoutChallengeSubmissionInput[] | Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput | Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput[]
+  createMany?: Prisma.ReactionCreateManyChallengeSubmissionInputEnvelope
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+}
+
+export type ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput> | Prisma.ReactionCreateWithoutChallengeSubmissionInput[] | Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput | Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput[]
+  createMany?: Prisma.ReactionCreateManyChallengeSubmissionInputEnvelope
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+}
+
+export type ReactionUpdateManyWithoutChallengeSubmissionNestedInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput> | Prisma.ReactionCreateWithoutChallengeSubmissionInput[] | Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput | Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput[]
+  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutChallengeSubmissionInput | Prisma.ReactionUpsertWithWhereUniqueWithoutChallengeSubmissionInput[]
+  createMany?: Prisma.ReactionCreateManyChallengeSubmissionInputEnvelope
+  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutChallengeSubmissionInput | Prisma.ReactionUpdateWithWhereUniqueWithoutChallengeSubmissionInput[]
+  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutChallengeSubmissionInput | Prisma.ReactionUpdateManyWithWhereWithoutChallengeSubmissionInput[]
+  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
+}
+
+export type ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput> | Prisma.ReactionCreateWithoutChallengeSubmissionInput[] | Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput | Prisma.ReactionCreateOrConnectWithoutChallengeSubmissionInput[]
+  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutChallengeSubmissionInput | Prisma.ReactionUpsertWithWhereUniqueWithoutChallengeSubmissionInput[]
+  createMany?: Prisma.ReactionCreateManyChallengeSubmissionInputEnvelope
+  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutChallengeSubmissionInput | Prisma.ReactionUpdateWithWhereUniqueWithoutChallengeSubmissionInput[]
+  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutChallengeSubmissionInput | Prisma.ReactionUpdateManyWithWhereWithoutChallengeSubmissionInput[]
+  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
+}
+
 export type ReactionCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1477,6 +1555,7 @@ export type ReactionCreateWithoutArtImageInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1502,6 +1581,7 @@ export type ReactionUncheckedCreateWithoutArtImageInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutArtImageInput = {
@@ -1556,6 +1636,7 @@ export type ReactionScalarWhereInput = {
   scenarioId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   themeId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   compositionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
+  challengeSubmissionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
 }
 
 export type ReactionCreateWithoutArtCollectionInput = {
@@ -1578,6 +1659,7 @@ export type ReactionCreateWithoutArtCollectionInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1603,6 +1685,7 @@ export type ReactionUncheckedCreateWithoutArtCollectionInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutArtCollectionInput = {
@@ -1651,6 +1734,7 @@ export type ReactionCreateWithoutBotInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1676,6 +1760,7 @@ export type ReactionUncheckedCreateWithoutBotInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutBotInput = {
@@ -1724,6 +1809,7 @@ export type ReactionCreateWithoutCharacterInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1749,6 +1835,7 @@ export type ReactionUncheckedCreateWithoutCharacterInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutCharacterInput = {
@@ -1797,6 +1884,7 @@ export type ReactionCreateWithoutChatInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1822,6 +1910,7 @@ export type ReactionUncheckedCreateWithoutChatInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutChatInput = {
@@ -1870,6 +1959,7 @@ export type ReactionCreateWithoutComponentInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1895,6 +1985,7 @@ export type ReactionUncheckedCreateWithoutComponentInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutComponentInput = {
@@ -1943,6 +2034,7 @@ export type ReactionCreateWithoutCompositionInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1968,6 +2060,7 @@ export type ReactionUncheckedCreateWithoutCompositionInput = {
   characterId?: number | null
   scenarioId?: number | null
   themeId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutCompositionInput = {
@@ -2016,6 +2109,7 @@ export type ReactionCreateWithoutDreamInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2041,6 +2135,7 @@ export type ReactionUncheckedCreateWithoutDreamInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutDreamInput = {
@@ -2089,6 +2184,7 @@ export type ReactionCreateWithoutPromptInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2114,6 +2210,7 @@ export type ReactionUncheckedCreateWithoutPromptInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutPromptInput = {
@@ -2162,6 +2259,7 @@ export type ReactionCreateWithoutResourceInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2187,6 +2285,7 @@ export type ReactionUncheckedCreateWithoutResourceInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutResourceInput = {
@@ -2235,6 +2334,7 @@ export type ReactionCreateWithoutRewardInput = {
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2260,6 +2360,7 @@ export type ReactionUncheckedCreateWithoutRewardInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutRewardInput = {
@@ -2308,6 +2409,7 @@ export type ReactionCreateWithoutScenarioInput = {
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2333,6 +2435,7 @@ export type ReactionUncheckedCreateWithoutScenarioInput = {
   characterId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutScenarioInput = {
@@ -2381,6 +2484,7 @@ export type ReactionCreateWithoutThemeInput = {
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2406,6 +2510,7 @@ export type ReactionUncheckedCreateWithoutThemeInput = {
   characterId?: number | null
   scenarioId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutThemeInput = {
@@ -2455,6 +2560,7 @@ export type ReactionCreateWithoutUserInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutUserInput = {
@@ -2479,6 +2585,7 @@ export type ReactionUncheckedCreateWithoutUserInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionCreateOrConnectWithoutUserInput = {
@@ -2507,6 +2614,81 @@ export type ReactionUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutUserInput>
 }
 
+export type ReactionCreateWithoutChallengeSubmissionInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  comment?: string | null
+  reactionType: $Enums.ReactionType
+  reactionCategory?: $Enums.Reaction_reactionCategory
+  rating?: number
+  butterflyId?: number | null
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
+  Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
+  Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
+  Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
+  Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
+  Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
+  Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  User: Prisma.UserCreateNestedOneWithoutReactionsInput
+}
+
+export type ReactionUncheckedCreateWithoutChallengeSubmissionInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  comment?: string | null
+  userId: number
+  componentId?: number | null
+  reactionType: $Enums.ReactionType
+  reactionCategory?: $Enums.Reaction_reactionCategory
+  rating?: number
+  artImageId?: number | null
+  botId?: number | null
+  promptId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  chatId?: number | null
+  dreamId?: number | null
+  artCollectionId?: number | null
+  butterflyId?: number | null
+  characterId?: number | null
+  scenarioId?: number | null
+  themeId?: number | null
+  compositionId?: number | null
+}
+
+export type ReactionCreateOrConnectWithoutChallengeSubmissionInput = {
+  where: Prisma.ReactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReactionCreateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput>
+}
+
+export type ReactionCreateManyChallengeSubmissionInputEnvelope = {
+  data: Prisma.ReactionCreateManyChallengeSubmissionInput | Prisma.ReactionCreateManyChallengeSubmissionInput[]
+  skipDuplicates?: boolean
+}
+
+export type ReactionUpsertWithWhereUniqueWithoutChallengeSubmissionInput = {
+  where: Prisma.ReactionWhereUniqueInput
+  update: Prisma.XOR<Prisma.ReactionUpdateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedUpdateWithoutChallengeSubmissionInput>
+  create: Prisma.XOR<Prisma.ReactionCreateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedCreateWithoutChallengeSubmissionInput>
+}
+
+export type ReactionUpdateWithWhereUniqueWithoutChallengeSubmissionInput = {
+  where: Prisma.ReactionWhereUniqueInput
+  data: Prisma.XOR<Prisma.ReactionUpdateWithoutChallengeSubmissionInput, Prisma.ReactionUncheckedUpdateWithoutChallengeSubmissionInput>
+}
+
+export type ReactionUpdateManyWithWhereWithoutChallengeSubmissionInput = {
+  where: Prisma.ReactionScalarWhereInput
+  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionInput>
+}
+
 export type ReactionCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
@@ -2529,6 +2711,7 @@ export type ReactionCreateManyArtImageInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutArtImageInput = {
@@ -2551,6 +2734,7 @@ export type ReactionUpdateWithoutArtImageInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -2576,6 +2760,7 @@ export type ReactionUncheckedUpdateWithoutArtImageInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutArtImageInput = {
@@ -2600,6 +2785,7 @@ export type ReactionUncheckedUpdateManyWithoutArtImageInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyArtCollectionInput = {
@@ -2624,6 +2810,7 @@ export type ReactionCreateManyArtCollectionInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutArtCollectionInput = {
@@ -2646,6 +2833,7 @@ export type ReactionUpdateWithoutArtCollectionInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -2671,6 +2859,7 @@ export type ReactionUncheckedUpdateWithoutArtCollectionInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutArtCollectionInput = {
@@ -2695,6 +2884,7 @@ export type ReactionUncheckedUpdateManyWithoutArtCollectionInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyBotInput = {
@@ -2719,6 +2909,7 @@ export type ReactionCreateManyBotInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutBotInput = {
@@ -2741,6 +2932,7 @@ export type ReactionUpdateWithoutBotInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -2766,6 +2958,7 @@ export type ReactionUncheckedUpdateWithoutBotInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutBotInput = {
@@ -2790,6 +2983,7 @@ export type ReactionUncheckedUpdateManyWithoutBotInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyCharacterInput = {
@@ -2814,6 +3008,7 @@ export type ReactionCreateManyCharacterInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutCharacterInput = {
@@ -2836,6 +3031,7 @@ export type ReactionUpdateWithoutCharacterInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -2861,6 +3057,7 @@ export type ReactionUncheckedUpdateWithoutCharacterInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutCharacterInput = {
@@ -2885,6 +3082,7 @@ export type ReactionUncheckedUpdateManyWithoutCharacterInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyChatInput = {
@@ -2909,6 +3107,7 @@ export type ReactionCreateManyChatInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutChatInput = {
@@ -2931,6 +3130,7 @@ export type ReactionUpdateWithoutChatInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -2956,6 +3156,7 @@ export type ReactionUncheckedUpdateWithoutChatInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutChatInput = {
@@ -2980,6 +3181,7 @@ export type ReactionUncheckedUpdateManyWithoutChatInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyComponentInput = {
@@ -3004,6 +3206,7 @@ export type ReactionCreateManyComponentInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutComponentInput = {
@@ -3026,6 +3229,7 @@ export type ReactionUpdateWithoutComponentInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3051,6 +3255,7 @@ export type ReactionUncheckedUpdateWithoutComponentInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutComponentInput = {
@@ -3075,6 +3280,7 @@ export type ReactionUncheckedUpdateManyWithoutComponentInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyCompositionInput = {
@@ -3099,6 +3305,7 @@ export type ReactionCreateManyCompositionInput = {
   characterId?: number | null
   scenarioId?: number | null
   themeId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutCompositionInput = {
@@ -3121,6 +3328,7 @@ export type ReactionUpdateWithoutCompositionInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3146,6 +3354,7 @@ export type ReactionUncheckedUpdateWithoutCompositionInput = {
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutCompositionInput = {
@@ -3170,6 +3379,7 @@ export type ReactionUncheckedUpdateManyWithoutCompositionInput = {
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyDreamInput = {
@@ -3194,6 +3404,7 @@ export type ReactionCreateManyDreamInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutDreamInput = {
@@ -3216,6 +3427,7 @@ export type ReactionUpdateWithoutDreamInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3241,6 +3453,7 @@ export type ReactionUncheckedUpdateWithoutDreamInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutDreamInput = {
@@ -3265,6 +3478,7 @@ export type ReactionUncheckedUpdateManyWithoutDreamInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyPromptInput = {
@@ -3289,6 +3503,7 @@ export type ReactionCreateManyPromptInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutPromptInput = {
@@ -3311,6 +3526,7 @@ export type ReactionUpdateWithoutPromptInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3336,6 +3552,7 @@ export type ReactionUncheckedUpdateWithoutPromptInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutPromptInput = {
@@ -3360,6 +3577,7 @@ export type ReactionUncheckedUpdateManyWithoutPromptInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyResourceInput = {
@@ -3384,6 +3602,7 @@ export type ReactionCreateManyResourceInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutResourceInput = {
@@ -3406,6 +3625,7 @@ export type ReactionUpdateWithoutResourceInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3431,6 +3651,7 @@ export type ReactionUncheckedUpdateWithoutResourceInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutResourceInput = {
@@ -3455,6 +3676,7 @@ export type ReactionUncheckedUpdateManyWithoutResourceInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyRewardInput = {
@@ -3479,6 +3701,7 @@ export type ReactionCreateManyRewardInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutRewardInput = {
@@ -3501,6 +3724,7 @@ export type ReactionUpdateWithoutRewardInput = {
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3526,6 +3750,7 @@ export type ReactionUncheckedUpdateWithoutRewardInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutRewardInput = {
@@ -3550,6 +3775,7 @@ export type ReactionUncheckedUpdateManyWithoutRewardInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyScenarioInput = {
@@ -3574,6 +3800,7 @@ export type ReactionCreateManyScenarioInput = {
   characterId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutScenarioInput = {
@@ -3596,6 +3823,7 @@ export type ReactionUpdateWithoutScenarioInput = {
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3621,6 +3849,7 @@ export type ReactionUncheckedUpdateWithoutScenarioInput = {
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutScenarioInput = {
@@ -3645,6 +3874,7 @@ export type ReactionUncheckedUpdateManyWithoutScenarioInput = {
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyThemeInput = {
@@ -3669,6 +3899,7 @@ export type ReactionCreateManyThemeInput = {
   characterId?: number | null
   scenarioId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutThemeInput = {
@@ -3691,6 +3922,7 @@ export type ReactionUpdateWithoutThemeInput = {
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3716,6 +3948,7 @@ export type ReactionUncheckedUpdateWithoutThemeInput = {
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutThemeInput = {
@@ -3740,6 +3973,7 @@ export type ReactionUncheckedUpdateManyWithoutThemeInput = {
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionCreateManyUserInput = {
@@ -3764,6 +3998,7 @@ export type ReactionCreateManyUserInput = {
   scenarioId?: number | null
   themeId?: number | null
   compositionId?: number | null
+  challengeSubmissionId?: number | null
 }
 
 export type ReactionUpdateWithoutUserInput = {
@@ -3787,6 +4022,7 @@ export type ReactionUpdateWithoutUserInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutUserInput = {
@@ -3811,6 +4047,7 @@ export type ReactionUncheckedUpdateWithoutUserInput = {
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReactionUncheckedUpdateManyWithoutUserInput = {
@@ -3818,6 +4055,106 @@ export type ReactionUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
+  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type ReactionCreateManyChallengeSubmissionInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  comment?: string | null
+  userId: number
+  componentId?: number | null
+  reactionType: $Enums.ReactionType
+  reactionCategory?: $Enums.Reaction_reactionCategory
+  rating?: number
+  artImageId?: number | null
+  botId?: number | null
+  promptId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  chatId?: number | null
+  dreamId?: number | null
+  artCollectionId?: number | null
+  butterflyId?: number | null
+  characterId?: number | null
+  scenarioId?: number | null
+  themeId?: number | null
+  compositionId?: number | null
+}
+
+export type ReactionUpdateWithoutChallengeSubmissionInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
+  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
+  Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
+  Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
+  Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
+  Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
+  Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
+  Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
+}
+
+export type ReactionUncheckedUpdateWithoutChallengeSubmissionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
+  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  compositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type ReactionUncheckedUpdateManyWithoutChallengeSubmissionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
   componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
@@ -3862,6 +4199,7 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scenarioId?: boolean
   themeId?: boolean
   compositionId?: boolean
+  challengeSubmissionId?: boolean
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reaction$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Reaction$BotArgs<ExtArgs>
@@ -3875,6 +4213,7 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Reward?: boolean | Prisma.Reaction$RewardArgs<ExtArgs>
   Scenario?: boolean | Prisma.Reaction$ScenarioArgs<ExtArgs>
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
+  ChallengeSubmission?: boolean | Prisma.Reaction$ChallengeSubmissionArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["reaction"]>
 
@@ -3903,9 +4242,10 @@ export type ReactionSelectScalar = {
   scenarioId?: boolean
   themeId?: boolean
   compositionId?: boolean
+  challengeSubmissionId?: boolean
 }
 
-export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "componentId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "dreamId" | "artCollectionId" | "butterflyId" | "characterId" | "scenarioId" | "themeId" | "compositionId", ExtArgs["result"]["reaction"]>
+export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "componentId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "dreamId" | "artCollectionId" | "butterflyId" | "characterId" | "scenarioId" | "themeId" | "compositionId" | "challengeSubmissionId", ExtArgs["result"]["reaction"]>
 export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reaction$ArtImageArgs<ExtArgs>
@@ -3920,6 +4260,7 @@ export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Reward?: boolean | Prisma.Reaction$RewardArgs<ExtArgs>
   Scenario?: boolean | Prisma.Reaction$ScenarioArgs<ExtArgs>
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
+  ChallengeSubmission?: boolean | Prisma.Reaction$ChallengeSubmissionArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
@@ -3939,6 +4280,7 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Reward: Prisma.$RewardPayload<ExtArgs> | null
     Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
     Theme: Prisma.$ThemePayload<ExtArgs> | null
+    ChallengeSubmission: Prisma.$ChallengeSubmissionPayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -3964,6 +4306,7 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     scenarioId: number | null
     themeId: number | null
     compositionId: number | null
+    challengeSubmissionId: number | null
   }, ExtArgs["result"]["reaction"]>
   composites: {}
 }
@@ -4317,6 +4660,7 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
   Reward<T extends Prisma.Reaction$RewardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$RewardArgs<ExtArgs>>): Prisma.Prisma__RewardClient<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Scenario<T extends Prisma.Reaction$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Theme<T extends Prisma.Reaction$ThemeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ThemeArgs<ExtArgs>>): Prisma.Prisma__ThemeClient<runtime.Types.Result.GetResult<Prisma.$ThemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ChallengeSubmission<T extends Prisma.Reaction$ChallengeSubmissionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ChallengeSubmissionArgs<ExtArgs>>): Prisma.Prisma__ChallengeSubmissionClient<runtime.Types.Result.GetResult<Prisma.$ChallengeSubmissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4369,6 +4713,7 @@ export interface ReactionFieldRefs {
   readonly scenarioId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly themeId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly compositionId: Prisma.FieldRef<"Reaction", 'Int'>
+  readonly challengeSubmissionId: Prisma.FieldRef<"Reaction", 'Int'>
 }
     
 
@@ -4961,6 +5306,25 @@ export type Reaction$ThemeArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.ThemeInclude<ExtArgs> | null
   where?: Prisma.ThemeWhereInput
+}
+
+/**
+ * Reaction.ChallengeSubmission
+ */
+export type Reaction$ChallengeSubmissionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChallengeSubmission
+   */
+  select?: Prisma.ChallengeSubmissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChallengeSubmission
+   */
+  omit?: Prisma.ChallengeSubmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChallengeSubmissionInclude<ExtArgs> | null
+  where?: Prisma.ChallengeSubmissionWhereInput
 }
 
 /**

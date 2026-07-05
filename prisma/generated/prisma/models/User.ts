@@ -688,6 +688,7 @@ export type UserWhereInput = {
   Prompts?: Prisma.PromptListRelationFilter
   ClaimedPrompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  Challenges?: Prisma.ChallengeListRelationFilter
   Resources?: Prisma.ResourceListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
@@ -704,6 +705,8 @@ export type UserWhereInput = {
   RelationsReceived?: Prisma.UserRelationListRelationFilter
   SocialPosts?: Prisma.SocialPostListRelationFilter
   characters?: Prisma.CharacterListRelationFilter
+  LifeRuns?: Prisma.LifeRunListRelationFilter
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -777,6 +780,7 @@ export type UserOrderByWithRelationInput = {
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
   ClaimedPrompts?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
+  Challenges?: Prisma.ChallengeOrderByRelationAggregateInput
   Resources?: Prisma.ResourceOrderByRelationAggregateInput
   Rewards?: Prisma.RewardOrderByRelationAggregateInput
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
@@ -793,6 +797,8 @@ export type UserOrderByWithRelationInput = {
   RelationsReceived?: Prisma.UserRelationOrderByRelationAggregateInput
   SocialPosts?: Prisma.SocialPostOrderByRelationAggregateInput
   characters?: Prisma.CharacterOrderByRelationAggregateInput
+  LifeRuns?: Prisma.LifeRunOrderByRelationAggregateInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -870,6 +876,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Prompts?: Prisma.PromptListRelationFilter
   ClaimedPrompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  Challenges?: Prisma.ChallengeListRelationFilter
   Resources?: Prisma.ResourceListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
@@ -886,6 +893,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   RelationsReceived?: Prisma.UserRelationListRelationFilter
   SocialPosts?: Prisma.SocialPostListRelationFilter
   characters?: Prisma.CharacterListRelationFilter
+  LifeRuns?: Prisma.LifeRunListRelationFilter
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
 }, "id" | "username" | "email" | "referralCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -1087,6 +1096,7 @@ export type UserCreateInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -1103,6 +1113,8 @@ export type UserCreateInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -1176,6 +1188,7 @@ export type UserUncheckedCreateInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -1191,6 +1204,8 @@ export type UserUncheckedCreateInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -1262,6 +1277,7 @@ export type UserUpdateInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -1278,6 +1294,8 @@ export type UserUpdateInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -1351,6 +1369,7 @@ export type UserUncheckedUpdateInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -1366,6 +1385,8 @@ export type UserUncheckedUpdateInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -2234,6 +2255,48 @@ export type UserUpdateOneRequiredWithoutRelationsReceivedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRelationsReceivedInput, Prisma.UserUpdateWithoutRelationsReceivedInput>, Prisma.UserUncheckedUpdateWithoutRelationsReceivedInput>
 }
 
+export type UserCreateNestedOneWithoutChallengesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChallengesInput, Prisma.UserUncheckedCreateWithoutChallengesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChallengesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutChallengesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChallengesInput, Prisma.UserUncheckedCreateWithoutChallengesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChallengesInput
+  upsert?: Prisma.UserUpsertWithoutChallengesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutChallengesInput, Prisma.UserUpdateWithoutChallengesInput>, Prisma.UserUncheckedUpdateWithoutChallengesInput>
+}
+
+export type UserCreateNestedOneWithoutLifeRunsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLifeRunsInput, Prisma.UserUncheckedCreateWithoutLifeRunsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLifeRunsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLifeRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLifeRunsInput, Prisma.UserUncheckedCreateWithoutLifeRunsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLifeRunsInput
+  upsert?: Prisma.UserUpsertWithoutLifeRunsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLifeRunsInput, Prisma.UserUpdateWithoutLifeRunsInput>, Prisma.UserUncheckedUpdateWithoutLifeRunsInput>
+}
+
+export type UserCreateNestedOneWithoutLifeAchievementUnlocksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLifeAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutLifeAchievementUnlocksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLifeAchievementUnlocksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLifeAchievementUnlocksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLifeAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutLifeAchievementUnlocksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLifeAchievementUnlocksInput
+  upsert?: Prisma.UserUpsertWithoutLifeAchievementUnlocksInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLifeAchievementUnlocksInput, Prisma.UserUpdateWithoutLifeAchievementUnlocksInput>, Prisma.UserUncheckedUpdateWithoutLifeAchievementUnlocksInput>
+}
+
 export type UserCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2302,6 +2365,7 @@ export type UserCreateWithoutArtImagesInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -2318,6 +2382,8 @@ export type UserCreateWithoutArtImagesInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtImagesInput = {
@@ -2390,6 +2456,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -2405,6 +2472,8 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtImagesInput = {
@@ -2481,6 +2550,7 @@ export type UserCreateWithoutArtImageInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -2496,6 +2566,8 @@ export type UserCreateWithoutArtImageInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtImageInput = {
@@ -2568,6 +2640,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -2583,6 +2656,8 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtImageInput = {
@@ -2674,6 +2749,7 @@ export type UserUpdateWithoutArtImagesInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -2690,6 +2766,8 @@ export type UserUpdateWithoutArtImagesInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImagesInput = {
@@ -2762,6 +2840,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -2777,6 +2856,8 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutArtImageInput = {
@@ -2927,6 +3008,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -2943,6 +3025,8 @@ export type UserCreateWithoutArtCollectionsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtCollectionsInput = {
@@ -3015,6 +3099,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -3030,6 +3115,8 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtCollectionsInput = {
@@ -3116,6 +3203,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -3132,6 +3220,8 @@ export type UserUpdateWithoutArtCollectionsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtCollectionsInput = {
@@ -3204,6 +3294,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -3219,6 +3310,8 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBotsInput = {
@@ -3289,6 +3382,7 @@ export type UserCreateWithoutBotsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -3305,6 +3399,8 @@ export type UserCreateWithoutBotsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBotsInput = {
@@ -3377,6 +3473,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -3392,6 +3489,8 @@ export type UserUncheckedCreateWithoutBotsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBotsInput = {
@@ -3478,6 +3577,7 @@ export type UserUpdateWithoutBotsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -3494,6 +3594,8 @@ export type UserUpdateWithoutBotsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBotsInput = {
@@ -3566,6 +3668,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -3581,6 +3684,8 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCharactersInput = {
@@ -3652,6 +3757,7 @@ export type UserCreateWithoutCharactersInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -3667,6 +3773,8 @@ export type UserCreateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCharactersInput = {
@@ -3740,6 +3848,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -3754,6 +3863,8 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCharactersInput = {
@@ -3841,6 +3952,7 @@ export type UserUpdateWithoutCharactersInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -3856,6 +3968,8 @@ export type UserUpdateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharactersInput = {
@@ -3929,6 +4043,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -3943,6 +4058,8 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatsInput = {
@@ -4013,6 +4130,7 @@ export type UserCreateWithoutChatsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -4029,6 +4147,8 @@ export type UserCreateWithoutChatsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatsInput = {
@@ -4101,6 +4221,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -4116,6 +4237,8 @@ export type UserUncheckedCreateWithoutChatsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatsInput = {
@@ -4202,6 +4325,7 @@ export type UserUpdateWithoutChatsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -4218,6 +4342,8 @@ export type UserUpdateWithoutChatsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatsInput = {
@@ -4290,6 +4416,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -4305,6 +4432,8 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCodesInput = {
@@ -4376,6 +4505,7 @@ export type UserCreateWithoutCodesInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -4391,6 +4521,8 @@ export type UserCreateWithoutCodesInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCodesInput = {
@@ -4464,6 +4596,7 @@ export type UserUncheckedCreateWithoutCodesInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -4478,6 +4611,8 @@ export type UserUncheckedCreateWithoutCodesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCodesInput = {
@@ -4565,6 +4700,7 @@ export type UserUpdateWithoutCodesInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -4580,6 +4716,8 @@ export type UserUpdateWithoutCodesInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCodesInput = {
@@ -4653,6 +4791,7 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -4667,6 +4806,8 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCompositionsInput = {
@@ -4738,6 +4879,7 @@ export type UserCreateWithoutCompositionsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -4753,6 +4895,8 @@ export type UserCreateWithoutCompositionsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCompositionsInput = {
@@ -4826,6 +4970,7 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -4840,6 +4985,8 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCompositionsInput = {
@@ -4927,6 +5074,7 @@ export type UserUpdateWithoutCompositionsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -4942,6 +5090,8 @@ export type UserUpdateWithoutCompositionsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompositionsInput = {
@@ -5015,6 +5165,7 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -5029,6 +5180,8 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDreamsInput = {
@@ -5099,6 +5252,7 @@ export type UserCreateWithoutDreamsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -5115,6 +5269,8 @@ export type UserCreateWithoutDreamsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDreamsInput = {
@@ -5187,6 +5343,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -5202,6 +5359,8 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDreamsInput = {
@@ -5288,6 +5447,7 @@ export type UserUpdateWithoutDreamsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -5304,6 +5464,8 @@ export type UserUpdateWithoutDreamsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDreamsInput = {
@@ -5376,6 +5538,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -5391,6 +5554,8 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLogsInput = {
@@ -5461,6 +5626,7 @@ export type UserCreateWithoutLogsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -5477,6 +5643,8 @@ export type UserCreateWithoutLogsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLogsInput = {
@@ -5549,6 +5717,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -5564,6 +5733,8 @@ export type UserUncheckedCreateWithoutLogsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLogsInput = {
@@ -5650,6 +5821,7 @@ export type UserUpdateWithoutLogsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -5666,6 +5838,8 @@ export type UserUpdateWithoutLogsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogsInput = {
@@ -5738,6 +5912,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -5753,6 +5928,8 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutManaTransactionsInput = {
@@ -5823,6 +6000,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -5839,6 +6017,8 @@ export type UserCreateWithoutManaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutManaTransactionsInput = {
@@ -5911,6 +6091,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -5926,6 +6107,8 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutManaTransactionsInput = {
@@ -6012,6 +6195,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -6028,6 +6212,8 @@ export type UserUpdateWithoutManaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManaTransactionsInput = {
@@ -6100,6 +6286,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -6115,6 +6302,8 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMilestonesInput = {
@@ -6185,6 +6374,7 @@ export type UserCreateWithoutMilestonesInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -6201,6 +6391,8 @@ export type UserCreateWithoutMilestonesInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMilestonesInput = {
@@ -6273,6 +6465,7 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -6288,6 +6481,8 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMilestonesInput = {
@@ -6374,6 +6569,7 @@ export type UserUpdateWithoutMilestonesInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -6390,6 +6586,8 @@ export type UserUpdateWithoutMilestonesInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMilestonesInput = {
@@ -6462,6 +6660,7 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -6477,6 +6676,8 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPitchSheetsInput = {
@@ -6548,6 +6749,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -6563,6 +6765,8 @@ export type UserCreateWithoutPitchSheetsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPitchSheetsInput = {
@@ -6636,6 +6840,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -6650,6 +6855,8 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPitchSheetsInput = {
@@ -6737,6 +6944,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -6752,6 +6960,8 @@ export type UserUpdateWithoutPitchSheetsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPitchSheetsInput = {
@@ -6825,6 +7035,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -6839,6 +7050,8 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPromptsInput = {
@@ -6909,6 +7122,7 @@ export type UserCreateWithoutPromptsInput = {
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -6925,6 +7139,8 @@ export type UserCreateWithoutPromptsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPromptsInput = {
@@ -6997,6 +7213,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -7012,6 +7229,8 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPromptsInput = {
@@ -7087,6 +7306,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -7103,6 +7323,8 @@ export type UserCreateWithoutClaimedPromptsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutClaimedPromptsInput = {
@@ -7175,6 +7397,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -7190,6 +7413,8 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutClaimedPromptsInput = {
@@ -7276,6 +7501,7 @@ export type UserUpdateWithoutPromptsInput = {
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -7292,6 +7518,8 @@ export type UserUpdateWithoutPromptsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPromptsInput = {
@@ -7364,6 +7592,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -7379,6 +7608,8 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutClaimedPromptsInput = {
@@ -7460,6 +7691,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -7476,6 +7708,8 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
@@ -7548,6 +7782,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -7563,6 +7798,8 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReactionsInput = {
@@ -7633,6 +7870,7 @@ export type UserCreateWithoutReactionsInput = {
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -7649,6 +7887,8 @@ export type UserCreateWithoutReactionsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReactionsInput = {
@@ -7721,6 +7961,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -7736,6 +7977,8 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReactionsInput = {
@@ -7822,6 +8065,7 @@ export type UserUpdateWithoutReactionsInput = {
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -7838,6 +8082,8 @@ export type UserUpdateWithoutReactionsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReactionsInput = {
@@ -7910,6 +8156,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -7925,6 +8172,8 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutResourcesInput = {
@@ -7996,6 +8245,7 @@ export type UserCreateWithoutResourcesInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
@@ -8011,6 +8261,8 @@ export type UserCreateWithoutResourcesInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutResourcesInput = {
@@ -8084,6 +8336,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
@@ -8098,6 +8351,8 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutResourcesInput = {
@@ -8185,6 +8440,7 @@ export type UserUpdateWithoutResourcesInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
@@ -8200,6 +8456,8 @@ export type UserUpdateWithoutResourcesInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourcesInput = {
@@ -8273,6 +8531,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
@@ -8287,6 +8546,8 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRewardsInput = {
@@ -8358,6 +8619,7 @@ export type UserCreateWithoutRewardsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
@@ -8373,6 +8635,8 @@ export type UserCreateWithoutRewardsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRewardsInput = {
@@ -8446,6 +8710,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
@@ -8460,6 +8725,8 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRewardsInput = {
@@ -8547,6 +8814,7 @@ export type UserUpdateWithoutRewardsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
@@ -8562,6 +8830,8 @@ export type UserUpdateWithoutRewardsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardsInput = {
@@ -8635,6 +8905,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
@@ -8649,6 +8920,8 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutScenariosInput = {
@@ -8720,6 +8993,7 @@ export type UserCreateWithoutScenariosInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
@@ -8735,6 +9009,8 @@ export type UserCreateWithoutScenariosInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutScenariosInput = {
@@ -8808,6 +9084,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
@@ -8822,6 +9099,8 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutScenariosInput = {
@@ -8909,6 +9188,7 @@ export type UserUpdateWithoutScenariosInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
@@ -8924,6 +9204,8 @@ export type UserUpdateWithoutScenariosInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutScenariosInput = {
@@ -8997,6 +9279,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
@@ -9011,6 +9294,8 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutServersInput = {
@@ -9082,6 +9367,7 @@ export type UserCreateWithoutServersInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -9097,6 +9383,8 @@ export type UserCreateWithoutServersInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutServersInput = {
@@ -9170,6 +9458,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -9184,6 +9473,8 @@ export type UserUncheckedCreateWithoutServersInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutServersInput = {
@@ -9271,6 +9562,7 @@ export type UserUpdateWithoutServersInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -9286,6 +9578,8 @@ export type UserUpdateWithoutServersInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutServersInput = {
@@ -9359,6 +9653,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -9373,6 +9668,8 @@ export type UserUncheckedUpdateWithoutServersInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSmartIconsInput = {
@@ -9444,6 +9741,7 @@ export type UserCreateWithoutSmartIconsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -9459,6 +9757,8 @@ export type UserCreateWithoutSmartIconsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSmartIconsInput = {
@@ -9532,6 +9832,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -9546,6 +9847,8 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSmartIconsInput = {
@@ -9633,6 +9936,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -9648,6 +9952,8 @@ export type UserUpdateWithoutSmartIconsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSmartIconsInput = {
@@ -9721,6 +10027,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -9735,6 +10042,8 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSocialPostsInput = {
@@ -9806,6 +10115,7 @@ export type UserCreateWithoutSocialPostsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -9821,6 +10131,8 @@ export type UserCreateWithoutSocialPostsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSocialPostsInput = {
@@ -9894,6 +10206,7 @@ export type UserUncheckedCreateWithoutSocialPostsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -9908,6 +10221,8 @@ export type UserUncheckedCreateWithoutSocialPostsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSocialPostsInput = {
@@ -9995,6 +10310,7 @@ export type UserUpdateWithoutSocialPostsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -10010,6 +10326,8 @@ export type UserUpdateWithoutSocialPostsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSocialPostsInput = {
@@ -10083,6 +10401,7 @@ export type UserUncheckedUpdateWithoutSocialPostsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -10097,6 +10416,8 @@ export type UserUncheckedUpdateWithoutSocialPostsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutThemesInput = {
@@ -10168,6 +10489,7 @@ export type UserCreateWithoutThemesInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -10183,6 +10505,8 @@ export type UserCreateWithoutThemesInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutThemesInput = {
@@ -10256,6 +10580,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -10270,6 +10595,8 @@ export type UserUncheckedCreateWithoutThemesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutThemesInput = {
@@ -10357,6 +10684,7 @@ export type UserUpdateWithoutThemesInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -10372,6 +10700,8 @@ export type UserUpdateWithoutThemesInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutThemesInput = {
@@ -10445,6 +10775,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -10459,6 +10790,8 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutKarmaTransactionsInput = {
@@ -10529,6 +10862,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -10545,6 +10879,8 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
@@ -10617,6 +10953,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -10632,6 +10969,8 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutKarmaTransactionsInput = {
@@ -10718,6 +11057,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -10734,6 +11074,8 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
@@ -10806,6 +11148,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -10821,6 +11164,8 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferralsMadeInput = {
@@ -10892,6 +11237,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -10907,6 +11253,8 @@ export type UserCreateWithoutReferralsMadeInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsMadeInput = {
@@ -10980,6 +11328,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -10994,6 +11343,8 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsMadeInput = {
@@ -11070,6 +11421,7 @@ export type UserCreateWithoutReferredByInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -11085,6 +11437,8 @@ export type UserCreateWithoutReferredByInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferredByInput = {
@@ -11158,6 +11512,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -11172,6 +11527,8 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferredByInput = {
@@ -11259,6 +11616,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -11274,6 +11632,8 @@ export type UserUpdateWithoutReferralsMadeInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsMadeInput = {
@@ -11347,6 +11707,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -11361,6 +11722,8 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferredByInput = {
@@ -11443,6 +11806,7 @@ export type UserUpdateWithoutReferredByInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -11458,6 +11822,8 @@ export type UserUpdateWithoutReferredByInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferredByInput = {
@@ -11531,6 +11897,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -11545,6 +11912,8 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRelationsOwnedInput = {
@@ -11616,6 +11985,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -11631,6 +12001,8 @@ export type UserCreateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRelationsOwnedInput = {
@@ -11704,6 +12076,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -11718,6 +12091,8 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRelationsOwnedInput = {
@@ -11794,6 +12169,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
@@ -11809,6 +12185,8 @@ export type UserCreateWithoutRelationsReceivedInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRelationsReceivedInput = {
@@ -11882,6 +12260,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
@@ -11896,6 +12275,8 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRelationsReceivedInput = {
@@ -11983,6 +12364,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -11998,6 +12380,8 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
@@ -12071,6 +12455,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -12085,6 +12470,8 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutRelationsReceivedInput = {
@@ -12167,6 +12554,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -12182,9 +12570,385 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutChallengesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutChallengesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutChallengesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutChallengesInput, Prisma.UserUncheckedCreateWithoutChallengesInput>
+}
+
+export type UserUpsertWithoutChallengesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutChallengesInput, Prisma.UserUncheckedUpdateWithoutChallengesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutChallengesInput, Prisma.UserUncheckedCreateWithoutChallengesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutChallengesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutChallengesInput, Prisma.UserUncheckedUpdateWithoutChallengesInput>
+}
+
+export type UserUpdateWithoutChallengesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutChallengesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12267,8 +13031,759 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
   ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLifeRunsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLifeRunsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLifeRunsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLifeRunsInput, Prisma.UserUncheckedCreateWithoutLifeRunsInput>
+}
+
+export type UserUpsertWithoutLifeRunsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLifeRunsInput, Prisma.UserUncheckedUpdateWithoutLifeRunsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLifeRunsInput, Prisma.UserUncheckedCreateWithoutLifeRunsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLifeRunsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLifeRunsInput, Prisma.UserUncheckedUpdateWithoutLifeRunsInput>
+}
+
+export type UserUpdateWithoutLifeRunsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLifeRunsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLifeAchievementUnlocksInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLifeAchievementUnlocksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLifeAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutLifeAchievementUnlocksInput>
+}
+
+export type UserUpsertWithoutLifeAchievementUnlocksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLifeAchievementUnlocksInput, Prisma.UserUncheckedUpdateWithoutLifeAchievementUnlocksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLifeAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutLifeAchievementUnlocksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLifeAchievementUnlocksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLifeAchievementUnlocksInput, Prisma.UserUncheckedUpdateWithoutLifeAchievementUnlocksInput>
+}
+
+export type UserUpdateWithoutLifeAchievementUnlocksInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyArtImageInput = {
@@ -12400,6 +13915,7 @@ export type UserUpdateWithoutArtImageInput = {
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
@@ -12415,6 +13931,8 @@ export type UserUpdateWithoutArtImageInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImageInput = {
@@ -12487,6 +14005,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
@@ -12502,6 +14021,8 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutArtImageInput = {
@@ -12582,6 +14103,7 @@ export type UserCountOutputType = {
   Prompts: number
   ClaimedPrompts: number
   Reactions: number
+  Challenges: number
   Resources: number
   Rewards: number
   Scenarios: number
@@ -12596,6 +14118,8 @@ export type UserCountOutputType = {
   RelationsReceived: number
   SocialPosts: number
   characters: number
+  LifeRuns: number
+  LifeAchievementUnlocks: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -12611,6 +14135,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Prompts?: boolean | UserCountOutputTypeCountPromptsArgs
   ClaimedPrompts?: boolean | UserCountOutputTypeCountClaimedPromptsArgs
   Reactions?: boolean | UserCountOutputTypeCountReactionsArgs
+  Challenges?: boolean | UserCountOutputTypeCountChallengesArgs
   Resources?: boolean | UserCountOutputTypeCountResourcesArgs
   Rewards?: boolean | UserCountOutputTypeCountRewardsArgs
   Scenarios?: boolean | UserCountOutputTypeCountScenariosArgs
@@ -12625,6 +14150,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   RelationsReceived?: boolean | UserCountOutputTypeCountRelationsReceivedArgs
   SocialPosts?: boolean | UserCountOutputTypeCountSocialPostsArgs
   characters?: boolean | UserCountOutputTypeCountCharactersArgs
+  LifeRuns?: boolean | UserCountOutputTypeCountLifeRunsArgs
+  LifeAchievementUnlocks?: boolean | UserCountOutputTypeCountLifeAchievementUnlocksArgs
 }
 
 /**
@@ -12719,6 +14246,13 @@ export type UserCountOutputTypeCountClaimedPromptsArgs<ExtArgs extends runtime.T
  */
 export type UserCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReactionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountChallengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChallengeWhereInput
 }
 
 /**
@@ -12819,6 +14353,20 @@ export type UserCountOutputTypeCountCharactersArgs<ExtArgs extends runtime.Types
   where?: Prisma.CharacterWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLifeRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeRunWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLifeAchievementUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeAchievementUnlockWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -12891,6 +14439,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Prompts?: boolean | Prisma.User$PromptsArgs<ExtArgs>
   ClaimedPrompts?: boolean | Prisma.User$ClaimedPromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.User$ReactionsArgs<ExtArgs>
+  Challenges?: boolean | Prisma.User$ChallengesArgs<ExtArgs>
   Resources?: boolean | Prisma.User$ResourcesArgs<ExtArgs>
   Rewards?: boolean | Prisma.User$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.User$ScenariosArgs<ExtArgs>
@@ -12907,6 +14456,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   RelationsReceived?: boolean | Prisma.User$RelationsReceivedArgs<ExtArgs>
   SocialPosts?: boolean | Prisma.User$SocialPostsArgs<ExtArgs>
   characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
+  LifeRuns?: boolean | Prisma.User$LifeRunsArgs<ExtArgs>
+  LifeAchievementUnlocks?: boolean | Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -12987,6 +14538,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Prompts?: boolean | Prisma.User$PromptsArgs<ExtArgs>
   ClaimedPrompts?: boolean | Prisma.User$ClaimedPromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.User$ReactionsArgs<ExtArgs>
+  Challenges?: boolean | Prisma.User$ChallengesArgs<ExtArgs>
   Resources?: boolean | Prisma.User$ResourcesArgs<ExtArgs>
   Rewards?: boolean | Prisma.User$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.User$ScenariosArgs<ExtArgs>
@@ -13003,6 +14555,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   RelationsReceived?: boolean | Prisma.User$RelationsReceivedArgs<ExtArgs>
   SocialPosts?: boolean | Prisma.User$SocialPostsArgs<ExtArgs>
   characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
+  LifeRuns?: boolean | Prisma.User$LifeRunsArgs<ExtArgs>
+  LifeAchievementUnlocks?: boolean | Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -13021,6 +14575,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
     ClaimedPrompts: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
+    Challenges: Prisma.$ChallengePayload<ExtArgs>[]
     Resources: Prisma.$ResourcePayload<ExtArgs>[]
     Rewards: Prisma.$RewardPayload<ExtArgs>[]
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
@@ -13037,6 +14592,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     RelationsReceived: Prisma.$UserRelationPayload<ExtArgs>[]
     SocialPosts: Prisma.$SocialPostPayload<ExtArgs>[]
     characters: Prisma.$CharacterPayload<ExtArgs>[]
+    LifeRuns: Prisma.$LifeRunPayload<ExtArgs>[]
+    LifeAchievementUnlocks: Prisma.$LifeAchievementUnlockPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -13449,6 +15006,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Prompts<T extends Prisma.User$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ClaimedPrompts<T extends Prisma.User$ClaimedPromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ClaimedPromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.User$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Challenges<T extends Prisma.User$ChallengesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ChallengesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Resources<T extends Prisma.User$ResourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ResourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Rewards<T extends Prisma.User$RewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$RewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Scenarios<T extends Prisma.User$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13465,6 +15023,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   RelationsReceived<T extends Prisma.User$RelationsReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$RelationsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   SocialPosts<T extends Prisma.User$SocialPostsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SocialPostsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   characters<T extends Prisma.User$charactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$charactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeRuns<T extends Prisma.User$LifeRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LifeRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeAchievementUnlocks<T extends Prisma.User$LifeAchievementUnlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementUnlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14188,6 +15748,30 @@ export type User$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * User.Challenges
+ */
+export type User$ChallengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Challenge
+   */
+  select?: Prisma.ChallengeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Challenge
+   */
+  omit?: Prisma.ChallengeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChallengeInclude<ExtArgs> | null
+  where?: Prisma.ChallengeWhereInput
+  orderBy?: Prisma.ChallengeOrderByWithRelationInput | Prisma.ChallengeOrderByWithRelationInput[]
+  cursor?: Prisma.ChallengeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChallengeScalarFieldEnum | Prisma.ChallengeScalarFieldEnum[]
+}
+
+/**
  * User.Resources
  */
 export type User$ResourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -14559,6 +16143,54 @@ export type User$charactersArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.CharacterScalarFieldEnum | Prisma.CharacterScalarFieldEnum[]
+}
+
+/**
+ * User.LifeRuns
+ */
+export type User$LifeRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeRun
+   */
+  select?: Prisma.LifeRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeRun
+   */
+  omit?: Prisma.LifeRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeRunInclude<ExtArgs> | null
+  where?: Prisma.LifeRunWhereInput
+  orderBy?: Prisma.LifeRunOrderByWithRelationInput | Prisma.LifeRunOrderByWithRelationInput[]
+  cursor?: Prisma.LifeRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeRunScalarFieldEnum | Prisma.LifeRunScalarFieldEnum[]
+}
+
+/**
+ * User.LifeAchievementUnlocks
+ */
+export type User$LifeAchievementUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeAchievementUnlock
+   */
+  select?: Prisma.LifeAchievementUnlockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeAchievementUnlock
+   */
+  omit?: Prisma.LifeAchievementUnlockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeAchievementUnlockInclude<ExtArgs> | null
+  where?: Prisma.LifeAchievementUnlockWhereInput
+  orderBy?: Prisma.LifeAchievementUnlockOrderByWithRelationInput | Prisma.LifeAchievementUnlockOrderByWithRelationInput[]
+  cursor?: Prisma.LifeAchievementUnlockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeAchievementUnlockScalarFieldEnum | Prisma.LifeAchievementUnlockScalarFieldEnum[]
 }
 
 /**

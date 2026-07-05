@@ -446,6 +446,7 @@ export type DreamWhereInput = {
   Scenarios?: Prisma.ScenarioListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   Compositions?: Prisma.CompositionListRelationFilter
+  SourceComposition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Chats?: Prisma.ChatListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
@@ -456,6 +457,7 @@ export type DreamWhereInput = {
   Todos?: Prisma.TodoListRelationFilter
   RelationsFrom?: Prisma.DreamRelationListRelationFilter
   RelationsTo?: Prisma.DreamRelationListRelationFilter
+  LifeRuns?: Prisma.LifeRunListRelationFilter
 }
 
 export type DreamOrderByWithRelationInput = {
@@ -496,6 +498,7 @@ export type DreamOrderByWithRelationInput = {
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   Compositions?: Prisma.CompositionOrderByRelationAggregateInput
+  SourceComposition?: Prisma.CompositionOrderByWithRelationInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
@@ -506,6 +509,7 @@ export type DreamOrderByWithRelationInput = {
   Todos?: Prisma.TodoOrderByRelationAggregateInput
   RelationsFrom?: Prisma.DreamRelationOrderByRelationAggregateInput
   RelationsTo?: Prisma.DreamRelationOrderByRelationAggregateInput
+  LifeRuns?: Prisma.LifeRunOrderByRelationAggregateInput
   _relevance?: Prisma.DreamOrderByRelevanceInput
 }
 
@@ -550,6 +554,7 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   Scenarios?: Prisma.ScenarioListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   Compositions?: Prisma.CompositionListRelationFilter
+  SourceComposition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Chats?: Prisma.ChatListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
@@ -560,6 +565,7 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   Todos?: Prisma.TodoListRelationFilter
   RelationsFrom?: Prisma.DreamRelationListRelationFilter
   RelationsTo?: Prisma.DreamRelationListRelationFilter
+  LifeRuns?: Prisma.LifeRunListRelationFilter
 }, "id" | "slug">
 
 export type DreamOrderByWithAggregationInput = {
@@ -672,6 +678,7 @@ export type DreamCreateInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -682,6 +689,7 @@ export type DreamCreateInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateInput = {
@@ -719,6 +727,7 @@ export type DreamUncheckedCreateInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -729,6 +738,7 @@ export type DreamUncheckedCreateInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUpdateInput = {
@@ -765,6 +775,7 @@ export type DreamUpdateInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -775,6 +786,7 @@ export type DreamUpdateInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateInput = {
@@ -812,6 +824,7 @@ export type DreamUncheckedUpdateInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -822,6 +835,7 @@ export type DreamUncheckedUpdateInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamCreateManyInput = {
@@ -1316,10 +1330,26 @@ export type DreamUpdateOneWithoutChatsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DreamUpdateToOneWithWhereWithoutChatsInput, Prisma.DreamUpdateWithoutChatsInput>, Prisma.DreamUncheckedUpdateWithoutChatsInput>
 }
 
+export type DreamCreateNestedOneWithoutSourceCompositionInput = {
+  create?: Prisma.XOR<Prisma.DreamCreateWithoutSourceCompositionInput, Prisma.DreamUncheckedCreateWithoutSourceCompositionInput>
+  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutSourceCompositionInput
+  connect?: Prisma.DreamWhereUniqueInput
+}
+
 export type DreamCreateNestedOneWithoutCompositionsInput = {
   create?: Prisma.XOR<Prisma.DreamCreateWithoutCompositionsInput, Prisma.DreamUncheckedCreateWithoutCompositionsInput>
   connectOrCreate?: Prisma.DreamCreateOrConnectWithoutCompositionsInput
   connect?: Prisma.DreamWhereUniqueInput
+}
+
+export type DreamUpdateOneWithoutSourceCompositionNestedInput = {
+  create?: Prisma.XOR<Prisma.DreamCreateWithoutSourceCompositionInput, Prisma.DreamUncheckedCreateWithoutSourceCompositionInput>
+  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutSourceCompositionInput
+  upsert?: Prisma.DreamUpsertWithoutSourceCompositionInput
+  disconnect?: Prisma.DreamWhereInput | boolean
+  delete?: Prisma.DreamWhereInput | boolean
+  connect?: Prisma.DreamWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DreamUpdateToOneWithWhereWithoutSourceCompositionInput, Prisma.DreamUpdateWithoutSourceCompositionInput>, Prisma.DreamUncheckedUpdateWithoutSourceCompositionInput>
 }
 
 export type DreamUpdateOneWithoutCompositionsNestedInput = {
@@ -1540,6 +1570,22 @@ export type DreamUpdateOneWithoutTodosNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DreamUpdateToOneWithWhereWithoutTodosInput, Prisma.DreamUpdateWithoutTodosInput>, Prisma.DreamUncheckedUpdateWithoutTodosInput>
 }
 
+export type DreamCreateNestedOneWithoutLifeRunsInput = {
+  create?: Prisma.XOR<Prisma.DreamCreateWithoutLifeRunsInput, Prisma.DreamUncheckedCreateWithoutLifeRunsInput>
+  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutLifeRunsInput
+  connect?: Prisma.DreamWhereUniqueInput
+}
+
+export type DreamUpdateOneWithoutLifeRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.DreamCreateWithoutLifeRunsInput, Prisma.DreamUncheckedCreateWithoutLifeRunsInput>
+  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutLifeRunsInput
+  upsert?: Prisma.DreamUpsertWithoutLifeRunsInput
+  disconnect?: Prisma.DreamWhereInput | boolean
+  delete?: Prisma.DreamWhereInput | boolean
+  connect?: Prisma.DreamWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DreamUpdateToOneWithWhereWithoutLifeRunsInput, Prisma.DreamUpdateWithoutLifeRunsInput>, Prisma.DreamUncheckedUpdateWithoutLifeRunsInput>
+}
+
 export type DreamCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1573,6 +1619,7 @@ export type DreamCreateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -1583,6 +1630,7 @@ export type DreamCreateWithoutArtImageInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutArtImageInput = {
@@ -1619,6 +1667,7 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -1629,6 +1678,7 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutArtImageInput = {
@@ -1675,6 +1725,7 @@ export type DreamCreateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
@@ -1684,6 +1735,7 @@ export type DreamCreateWithoutArtImagesInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutArtImagesInput = {
@@ -1721,6 +1773,7 @@ export type DreamUncheckedCreateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
@@ -1730,6 +1783,7 @@ export type DreamUncheckedCreateWithoutArtImagesInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutArtImagesInput = {
@@ -1839,6 +1893,7 @@ export type DreamCreateWithoutArtCollectionInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -1849,6 +1904,7 @@ export type DreamCreateWithoutArtCollectionInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutArtCollectionInput = {
@@ -1885,6 +1941,7 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -1895,6 +1952,7 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutArtCollectionInput = {
@@ -1941,6 +1999,7 @@ export type DreamCreateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
@@ -1950,6 +2009,7 @@ export type DreamCreateWithoutArtCollectionsInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutArtCollectionsInput = {
@@ -1987,6 +2047,7 @@ export type DreamUncheckedCreateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
@@ -1996,6 +2057,7 @@ export type DreamUncheckedCreateWithoutArtCollectionsInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutArtCollectionsInput = {
@@ -2069,6 +2131,7 @@ export type DreamCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -2078,6 +2141,7 @@ export type DreamCreateWithoutBotsInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutBotsInput = {
@@ -2115,6 +2179,7 @@ export type DreamUncheckedCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -2124,6 +2189,7 @@ export type DreamUncheckedCreateWithoutBotsInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutBotsInput = {
@@ -2181,6 +2247,7 @@ export type DreamCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -2190,6 +2257,7 @@ export type DreamCreateWithoutCharactersInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutCharactersInput = {
@@ -2227,6 +2295,7 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -2236,6 +2305,7 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutCharactersInput = {
@@ -2293,6 +2363,7 @@ export type DreamCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
@@ -2302,6 +2373,7 @@ export type DreamCreateWithoutChatsInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutChatsInput = {
@@ -2339,6 +2411,7 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
@@ -2348,6 +2421,7 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutChatsInput = {
@@ -2400,6 +2474,7 @@ export type DreamUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
@@ -2409,6 +2484,7 @@ export type DreamUpdateWithoutChatsInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutChatsInput = {
@@ -2446,6 +2522,7 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
@@ -2455,6 +2532,107 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
+}
+
+export type DreamCreateWithoutSourceCompositionInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  slug?: string | null
+  dreamType?: $Enums.DreamType
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  projectStatus?: $Enums.ProjectStatus | null
+  priority?: $Enums.DreamPriority | null
+  goal?: string | null
+  waypoints?: string | null
+  repoUrl?: string | null
+  liveUrl?: string | null
+  allowReviews?: boolean
+  highlightImage?: string | null
+  icon?: string | null
+  designer?: string | null
+  creationSource?: $Enums.CreationSource
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  User?: Prisma.UserCreateNestedOneWithoutDreamsInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsPrimaryInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsPrimaryInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
+  Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
+  Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
+  RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
+  RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
+}
+
+export type DreamUncheckedCreateWithoutSourceCompositionInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  slug?: string | null
+  dreamType?: $Enums.DreamType
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  projectStatus?: $Enums.ProjectStatus | null
+  priority?: $Enums.DreamPriority | null
+  goal?: string | null
+  waypoints?: string | null
+  repoUrl?: string | null
+  liveUrl?: string | null
+  allowReviews?: boolean
+  highlightImage?: string | null
+  icon?: string | null
+  designer?: string | null
+  creationSource?: $Enums.CreationSource
+  userId?: number
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  artImageId?: number | null
+  artCollectionId?: number | null
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
+  Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
+  RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
+  RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
+}
+
+export type DreamCreateOrConnectWithoutSourceCompositionInput = {
+  where: Prisma.DreamWhereUniqueInput
+  create: Prisma.XOR<Prisma.DreamCreateWithoutSourceCompositionInput, Prisma.DreamUncheckedCreateWithoutSourceCompositionInput>
 }
 
 export type DreamCreateWithoutCompositionsInput = {
@@ -2490,6 +2668,7 @@ export type DreamCreateWithoutCompositionsInput = {
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsPrimaryInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -2500,6 +2679,7 @@ export type DreamCreateWithoutCompositionsInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutCompositionsInput = {
@@ -2536,6 +2716,7 @@ export type DreamUncheckedCreateWithoutCompositionsInput = {
   artCollectionId?: number | null
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -2546,11 +2727,118 @@ export type DreamUncheckedCreateWithoutCompositionsInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutCompositionsInput = {
   where: Prisma.DreamWhereUniqueInput
   create: Prisma.XOR<Prisma.DreamCreateWithoutCompositionsInput, Prisma.DreamUncheckedCreateWithoutCompositionsInput>
+}
+
+export type DreamUpsertWithoutSourceCompositionInput = {
+  update: Prisma.XOR<Prisma.DreamUpdateWithoutSourceCompositionInput, Prisma.DreamUncheckedUpdateWithoutSourceCompositionInput>
+  create: Prisma.XOR<Prisma.DreamCreateWithoutSourceCompositionInput, Prisma.DreamUncheckedCreateWithoutSourceCompositionInput>
+  where?: Prisma.DreamWhereInput
+}
+
+export type DreamUpdateToOneWithWhereWithoutSourceCompositionInput = {
+  where?: Prisma.DreamWhereInput
+  data: Prisma.XOR<Prisma.DreamUpdateWithoutSourceCompositionInput, Prisma.DreamUncheckedUpdateWithoutSourceCompositionInput>
+}
+
+export type DreamUpdateWithoutSourceCompositionInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamType?: Prisma.EnumDreamTypeFieldUpdateOperationsInput | $Enums.DreamType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
+  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsPrimaryNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsPrimaryNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
+  Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
+  RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
+  RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
+}
+
+export type DreamUncheckedUpdateWithoutSourceCompositionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamType?: Prisma.EnumDreamTypeFieldUpdateOperationsInput | $Enums.DreamType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
+  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
+  Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
+  RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
+  RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUpsertWithoutCompositionsInput = {
@@ -2597,6 +2885,7 @@ export type DreamUpdateWithoutCompositionsInput = {
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsPrimaryNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -2607,6 +2896,7 @@ export type DreamUpdateWithoutCompositionsInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutCompositionsInput = {
@@ -2643,6 +2933,7 @@ export type DreamUncheckedUpdateWithoutCompositionsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -2653,6 +2944,7 @@ export type DreamUncheckedUpdateWithoutCompositionsInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamCreateWithoutRelationsFromInput = {
@@ -2689,6 +2981,7 @@ export type DreamCreateWithoutRelationsFromInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -2698,6 +2991,7 @@ export type DreamCreateWithoutRelationsFromInput = {
   PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutRelationsFromInput = {
@@ -2735,6 +3029,7 @@ export type DreamUncheckedCreateWithoutRelationsFromInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -2744,6 +3039,7 @@ export type DreamUncheckedCreateWithoutRelationsFromInput = {
   PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutRelationsFromInput = {
@@ -2785,6 +3081,7 @@ export type DreamCreateWithoutRelationsToInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -2794,6 +3091,7 @@ export type DreamCreateWithoutRelationsToInput = {
   PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutRelationsToInput = {
@@ -2831,6 +3129,7 @@ export type DreamUncheckedCreateWithoutRelationsToInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -2840,6 +3139,7 @@ export type DreamUncheckedCreateWithoutRelationsToInput = {
   PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutRelationsToInput = {
@@ -2892,6 +3192,7 @@ export type DreamUpdateWithoutRelationsFromInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -2901,6 +3202,7 @@ export type DreamUpdateWithoutRelationsFromInput = {
   PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutRelationsFromInput = {
@@ -2938,6 +3240,7 @@ export type DreamUncheckedUpdateWithoutRelationsFromInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -2947,6 +3250,7 @@ export type DreamUncheckedUpdateWithoutRelationsFromInput = {
   PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUpsertWithoutRelationsToInput = {
@@ -2994,6 +3298,7 @@ export type DreamUpdateWithoutRelationsToInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -3003,6 +3308,7 @@ export type DreamUpdateWithoutRelationsToInput = {
   PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutRelationsToInput = {
@@ -3040,6 +3346,7 @@ export type DreamUncheckedUpdateWithoutRelationsToInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -3049,6 +3356,7 @@ export type DreamUncheckedUpdateWithoutRelationsToInput = {
   PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamCreateWithoutPitchSheetInput = {
@@ -3085,6 +3393,7 @@ export type DreamCreateWithoutPitchSheetInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -3094,6 +3403,7 @@ export type DreamCreateWithoutPitchSheetInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutPitchSheetInput = {
@@ -3131,6 +3441,7 @@ export type DreamUncheckedCreateWithoutPitchSheetInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -3140,6 +3451,7 @@ export type DreamUncheckedCreateWithoutPitchSheetInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutPitchSheetInput = {
@@ -3192,6 +3504,7 @@ export type DreamUpdateWithoutPitchSheetInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -3201,6 +3514,7 @@ export type DreamUpdateWithoutPitchSheetInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutPitchSheetInput = {
@@ -3238,6 +3552,7 @@ export type DreamUncheckedUpdateWithoutPitchSheetInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -3247,6 +3562,7 @@ export type DreamUncheckedUpdateWithoutPitchSheetInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamCreateWithoutReactionsInput = {
@@ -3282,6 +3598,7 @@ export type DreamCreateWithoutReactionsInput = {
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsPrimaryInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -3292,6 +3609,7 @@ export type DreamCreateWithoutReactionsInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutReactionsInput = {
@@ -3328,6 +3646,7 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   artCollectionId?: number | null
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -3338,6 +3657,7 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutReactionsInput = {
@@ -3389,6 +3709,7 @@ export type DreamUpdateWithoutReactionsInput = {
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsPrimaryNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -3399,6 +3720,7 @@ export type DreamUpdateWithoutReactionsInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutReactionsInput = {
@@ -3435,6 +3757,7 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -3445,6 +3768,7 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamCreateWithoutRewardsInput = {
@@ -3481,6 +3805,7 @@ export type DreamCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -3490,6 +3815,7 @@ export type DreamCreateWithoutRewardsInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutRewardsInput = {
@@ -3527,6 +3853,7 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -3536,6 +3863,7 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutRewardsInput = {
@@ -3592,6 +3920,7 @@ export type DreamCreateWithoutScenariosInput = {
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsPrimaryInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -3602,6 +3931,7 @@ export type DreamCreateWithoutScenariosInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutScenariosInput = {
@@ -3638,6 +3968,7 @@ export type DreamUncheckedCreateWithoutScenariosInput = {
   artCollectionId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -3648,6 +3979,7 @@ export type DreamUncheckedCreateWithoutScenariosInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutScenariosInput = {
@@ -3704,6 +4036,7 @@ export type DreamCreateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -3714,6 +4047,7 @@ export type DreamCreateWithoutUserInput = {
   Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutUserInput = {
@@ -3750,6 +4084,7 @@ export type DreamUncheckedCreateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -3760,6 +4095,7 @@ export type DreamUncheckedCreateWithoutUserInput = {
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutUserInput = {
@@ -3822,6 +4158,7 @@ export type DreamCreateWithoutTodosInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
@@ -3831,6 +4168,7 @@ export type DreamCreateWithoutTodosInput = {
   PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutDreamInput
 }
 
 export type DreamUncheckedCreateWithoutTodosInput = {
@@ -3868,6 +4206,7 @@ export type DreamUncheckedCreateWithoutTodosInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
   Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
@@ -3877,6 +4216,7 @@ export type DreamUncheckedCreateWithoutTodosInput = {
   PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
   RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
   RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutDreamInput
 }
 
 export type DreamCreateOrConnectWithoutTodosInput = {
@@ -3929,6 +4269,7 @@ export type DreamUpdateWithoutTodosInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -3938,6 +4279,7 @@ export type DreamUpdateWithoutTodosInput = {
   PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutTodosInput = {
@@ -3975,6 +4317,7 @@ export type DreamUncheckedUpdateWithoutTodosInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -3982,6 +4325,213 @@ export type DreamUncheckedUpdateWithoutTodosInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
   PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
+  RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
+  RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
+}
+
+export type DreamCreateWithoutLifeRunsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  slug?: string | null
+  dreamType?: $Enums.DreamType
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  projectStatus?: $Enums.ProjectStatus | null
+  priority?: $Enums.DreamPriority | null
+  goal?: string | null
+  waypoints?: string | null
+  repoUrl?: string | null
+  liveUrl?: string | null
+  allowReviews?: boolean
+  highlightImage?: string | null
+  icon?: string | null
+  designer?: string | null
+  creationSource?: $Enums.CreationSource
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  User?: Prisma.UserCreateNestedOneWithoutDreamsInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsPrimaryInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsPrimaryInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutDreamsInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionCreateNestedOneWithoutOutputDreamInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutDreamsInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutDreamsInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
+  Bots?: Prisma.BotCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutDreamInput
+  Todos?: Prisma.TodoCreateNestedManyWithoutDreamInput
+  RelationsFrom?: Prisma.DreamRelationCreateNestedManyWithoutFromDreamInput
+  RelationsTo?: Prisma.DreamRelationCreateNestedManyWithoutToDreamInput
+}
+
+export type DreamUncheckedCreateWithoutLifeRunsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  slug?: string | null
+  dreamType?: $Enums.DreamType
+  description?: string | null
+  pitch?: string | null
+  flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  projectStatus?: $Enums.ProjectStatus | null
+  priority?: $Enums.DreamPriority | null
+  goal?: string | null
+  waypoints?: string | null
+  repoUrl?: string | null
+  liveUrl?: string | null
+  allowReviews?: boolean
+  highlightImage?: string | null
+  icon?: string | null
+  designer?: string | null
+  creationSource?: $Enums.CreationSource
+  userId?: number
+  isPublic?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  artImageId?: number | null
+  artCollectionId?: number | null
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutDreamsInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutDreamInput
+  SourceComposition?: Prisma.CompositionUncheckedCreateNestedOneWithoutOutputDreamInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutDreamsInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutDreamsInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutDreamsInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutDreamInput
+  Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutDreamInput
+  RelationsFrom?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutFromDreamInput
+  RelationsTo?: Prisma.DreamRelationUncheckedCreateNestedManyWithoutToDreamInput
+}
+
+export type DreamCreateOrConnectWithoutLifeRunsInput = {
+  where: Prisma.DreamWhereUniqueInput
+  create: Prisma.XOR<Prisma.DreamCreateWithoutLifeRunsInput, Prisma.DreamUncheckedCreateWithoutLifeRunsInput>
+}
+
+export type DreamUpsertWithoutLifeRunsInput = {
+  update: Prisma.XOR<Prisma.DreamUpdateWithoutLifeRunsInput, Prisma.DreamUncheckedUpdateWithoutLifeRunsInput>
+  create: Prisma.XOR<Prisma.DreamCreateWithoutLifeRunsInput, Prisma.DreamUncheckedCreateWithoutLifeRunsInput>
+  where?: Prisma.DreamWhereInput
+}
+
+export type DreamUpdateToOneWithWhereWithoutLifeRunsInput = {
+  where?: Prisma.DreamWhereInput
+  data: Prisma.XOR<Prisma.DreamUpdateWithoutLifeRunsInput, Prisma.DreamUncheckedUpdateWithoutLifeRunsInput>
+}
+
+export type DreamUpdateWithoutLifeRunsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamType?: Prisma.EnumDreamTypeFieldUpdateOperationsInput | $Enums.DreamType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
+  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsPrimaryNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsPrimaryNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutDreamNestedInput
+  Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
+  RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
+  RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+}
+
+export type DreamUncheckedUpdateWithoutLifeRunsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamType?: Prisma.EnumDreamTypeFieldUpdateOperationsInput | $Enums.DreamType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
+  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutDreamsNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutDreamNestedInput
+  Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
 }
@@ -4052,6 +4602,7 @@ export type DreamUpdateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -4062,6 +4613,7 @@ export type DreamUpdateWithoutArtImageInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutArtImageInput = {
@@ -4098,6 +4650,7 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -4108,6 +4661,7 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutArtImageInput = {
@@ -4177,6 +4731,7 @@ export type DreamUpdateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
@@ -4186,6 +4741,7 @@ export type DreamUpdateWithoutArtImagesInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutArtImagesInput = {
@@ -4223,6 +4779,7 @@ export type DreamUncheckedUpdateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
@@ -4232,6 +4789,7 @@ export type DreamUncheckedUpdateWithoutArtImagesInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutArtImagesInput = {
@@ -4334,6 +4892,7 @@ export type DreamUpdateWithoutArtCollectionInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -4344,6 +4903,7 @@ export type DreamUpdateWithoutArtCollectionInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutArtCollectionInput = {
@@ -4380,6 +4940,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -4390,6 +4951,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutArtCollectionInput = {
@@ -4459,6 +5021,7 @@ export type DreamUpdateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
@@ -4468,6 +5031,7 @@ export type DreamUpdateWithoutArtCollectionsInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutArtCollectionsInput = {
@@ -4505,6 +5069,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
@@ -4514,6 +5079,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionsInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutArtCollectionsInput = {
@@ -4584,6 +5150,7 @@ export type DreamUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -4593,6 +5160,7 @@ export type DreamUpdateWithoutBotsInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutBotsInput = {
@@ -4630,6 +5198,7 @@ export type DreamUncheckedUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -4639,6 +5208,7 @@ export type DreamUncheckedUpdateWithoutBotsInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutBotsInput = {
@@ -4709,6 +5279,7 @@ export type DreamUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -4718,6 +5289,7 @@ export type DreamUpdateWithoutCharactersInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutCharactersInput = {
@@ -4755,6 +5327,7 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -4764,6 +5337,7 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutCharactersInput = {
@@ -4834,6 +5408,7 @@ export type DreamUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -4843,6 +5418,7 @@ export type DreamUpdateWithoutRewardsInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutRewardsInput = {
@@ -4880,6 +5456,7 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -4889,6 +5466,7 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutRewardsInput = {
@@ -4958,6 +5536,7 @@ export type DreamUpdateWithoutScenariosInput = {
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsPrimaryNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -4968,6 +5547,7 @@ export type DreamUpdateWithoutScenariosInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutScenariosInput = {
@@ -5004,6 +5584,7 @@ export type DreamUncheckedUpdateWithoutScenariosInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -5014,6 +5595,7 @@ export type DreamUncheckedUpdateWithoutScenariosInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutScenariosInput = {
@@ -5116,6 +5698,7 @@ export type DreamUpdateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutDreamsNestedInput
@@ -5126,6 +5709,7 @@ export type DreamUpdateWithoutUserInput = {
   Todos?: Prisma.TodoUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateWithoutUserInput = {
@@ -5162,6 +5746,7 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutDreamsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
   Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutDreamNestedInput
+  SourceComposition?: Prisma.CompositionUncheckedUpdateOneWithoutOutputDreamNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutDreamsNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutDreamsNestedInput
@@ -5172,6 +5757,7 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutDreamNestedInput
   RelationsFrom?: Prisma.DreamRelationUncheckedUpdateManyWithoutFromDreamNestedInput
   RelationsTo?: Prisma.DreamRelationUncheckedUpdateManyWithoutToDreamNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutDreamNestedInput
 }
 
 export type DreamUncheckedUpdateManyWithoutUserInput = {
@@ -5225,6 +5811,7 @@ export type DreamCountOutputType = {
   Todos: number
   RelationsFrom: number
   RelationsTo: number
+  LifeRuns: number
 }
 
 export type DreamCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5240,6 +5827,7 @@ export type DreamCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   Todos?: boolean | DreamCountOutputTypeCountTodosArgs
   RelationsFrom?: boolean | DreamCountOutputTypeCountRelationsFromArgs
   RelationsTo?: boolean | DreamCountOutputTypeCountRelationsToArgs
+  LifeRuns?: boolean | DreamCountOutputTypeCountLifeRunsArgs
 }
 
 /**
@@ -5336,6 +5924,13 @@ export type DreamCountOutputTypeCountRelationsToArgs<ExtArgs extends runtime.Typ
   where?: Prisma.DreamRelationWhereInput
 }
 
+/**
+ * DreamCountOutputType without action
+ */
+export type DreamCountOutputTypeCountLifeRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeRunWhereInput
+}
+
 
 export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -5375,6 +5970,7 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Scenarios?: boolean | Prisma.Dream$ScenariosArgs<ExtArgs>
   Reactions?: boolean | Prisma.Dream$ReactionsArgs<ExtArgs>
   Compositions?: boolean | Prisma.Dream$CompositionsArgs<ExtArgs>
+  SourceComposition?: boolean | Prisma.Dream$SourceCompositionArgs<ExtArgs>
   Chats?: boolean | Prisma.Dream$ChatsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.Dream$ArtImagesArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.Dream$ArtCollectionsArgs<ExtArgs>
@@ -5385,6 +5981,7 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Todos?: boolean | Prisma.Dream$TodosArgs<ExtArgs>
   RelationsFrom?: boolean | Prisma.Dream$RelationsFromArgs<ExtArgs>
   RelationsTo?: boolean | Prisma.Dream$RelationsToArgs<ExtArgs>
+  LifeRuns?: boolean | Prisma.Dream$LifeRunsArgs<ExtArgs>
   _count?: boolean | Prisma.DreamCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dream"]>
 
@@ -5432,6 +6029,7 @@ export type DreamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   Scenarios?: boolean | Prisma.Dream$ScenariosArgs<ExtArgs>
   Reactions?: boolean | Prisma.Dream$ReactionsArgs<ExtArgs>
   Compositions?: boolean | Prisma.Dream$CompositionsArgs<ExtArgs>
+  SourceComposition?: boolean | Prisma.Dream$SourceCompositionArgs<ExtArgs>
   Chats?: boolean | Prisma.Dream$ChatsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.Dream$ArtImagesArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.Dream$ArtCollectionsArgs<ExtArgs>
@@ -5442,6 +6040,7 @@ export type DreamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   Todos?: boolean | Prisma.Dream$TodosArgs<ExtArgs>
   RelationsFrom?: boolean | Prisma.Dream$RelationsFromArgs<ExtArgs>
   RelationsTo?: boolean | Prisma.Dream$RelationsToArgs<ExtArgs>
+  LifeRuns?: boolean | Prisma.Dream$LifeRunsArgs<ExtArgs>
   _count?: boolean | Prisma.DreamCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -5454,6 +6053,7 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
     Compositions: Prisma.$CompositionPayload<ExtArgs>[]
+    SourceComposition: Prisma.$CompositionPayload<ExtArgs> | null
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     ArtImages: Prisma.$ArtImagePayload<ExtArgs>[]
     ArtCollections: Prisma.$ArtCollectionPayload<ExtArgs>[]
@@ -5464,6 +6064,7 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     Todos: Prisma.$TodoPayload<ExtArgs>[]
     RelationsFrom: Prisma.$DreamRelationPayload<ExtArgs>[]
     RelationsTo: Prisma.$DreamRelationPayload<ExtArgs>[]
+    LifeRuns: Prisma.$LifeRunPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -5843,6 +6444,7 @@ export interface Prisma__DreamClient<T, Null = never, ExtArgs extends runtime.Ty
   Scenarios<T extends Prisma.Dream$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Dream$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Compositions<T extends Prisma.Dream$CompositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$CompositionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  SourceComposition<T extends Prisma.Dream$SourceCompositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$SourceCompositionArgs<ExtArgs>>): Prisma.Prisma__CompositionClient<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Chats<T extends Prisma.Dream$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImages<T extends Prisma.Dream$ArtImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ArtImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtCollections<T extends Prisma.Dream$ArtCollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ArtCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5853,6 +6455,7 @@ export interface Prisma__DreamClient<T, Null = never, ExtArgs extends runtime.Ty
   Todos<T extends Prisma.Dream$TodosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$TodosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TodoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   RelationsFrom<T extends Prisma.Dream$RelationsFromArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$RelationsFromArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   RelationsTo<T extends Prisma.Dream$RelationsToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$RelationsToArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeRuns<T extends Prisma.Dream$LifeRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$LifeRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6371,6 +6974,25 @@ export type Dream$CompositionsArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * Dream.SourceComposition
+ */
+export type Dream$SourceCompositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Composition
+   */
+  select?: Prisma.CompositionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Composition
+   */
+  omit?: Prisma.CompositionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompositionInclude<ExtArgs> | null
+  where?: Prisma.CompositionWhereInput
+}
+
+/**
  * Dream.Chats
  */
 export type Dream$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6603,6 +7225,30 @@ export type Dream$RelationsToArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.DreamRelationScalarFieldEnum | Prisma.DreamRelationScalarFieldEnum[]
+}
+
+/**
+ * Dream.LifeRuns
+ */
+export type Dream$LifeRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeRun
+   */
+  select?: Prisma.LifeRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeRun
+   */
+  omit?: Prisma.LifeRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeRunInclude<ExtArgs> | null
+  where?: Prisma.LifeRunWhereInput
+  orderBy?: Prisma.LifeRunOrderByWithRelationInput | Prisma.LifeRunOrderByWithRelationInput[]
+  cursor?: Prisma.LifeRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeRunScalarFieldEnum | Prisma.LifeRunScalarFieldEnum[]
 }
 
 /**

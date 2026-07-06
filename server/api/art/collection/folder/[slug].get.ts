@@ -1,11 +1,18 @@
 // /server/api/art/collection/folder/[slug].get.ts
 //
-// Folder-based art collection: every image in public/images/{slug}/ is part of
+// Folder-based art collection: every image in a slug's folder is part of
 // that slug's collection just by existing there. Conductor's image pipeline
-// drops inspiration files into these folders ({slug}-inspiration-{n}.webp) and
-// keeps a gallery.json manifest alongside them, which serves as the fallback
-// when the filesystem isn't readable (e.g. on Vercel, where public/ assets are
-// served from the CDN rather than bundled with the server).
+// maintains a gallery.json manifest per folder and a master
+// public/images/collections.json index (slug -> folder path).
+//
+// Placement convention (Silas, 2026-07-05): the canonical home is nested,
+// public/images/{context}/{slug}/ - context being the most relevant schema
+// or project - with flat public/images/{slug}/ still valid as the
+// degenerate case, and artcollections/{slug}/ as the legacy/unsorted
+// fallback. Resolution order here follows that: nested -> flat ->
+// artcollections. Filesystem is used when readable (dev); on Vercel the
+// public/ assets live on the CDN, so resolution falls back to the master
+// index + per-folder manifests over HTTP.
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { defineEventHandler, getRouterParam, getRequestURL, createError } from 'h3'
@@ -18,32 +25,89 @@ function isImageFile(name: string): boolean {
   return IMAGE_EXTENSIONS.has(ext)
 }
 
-async function imagesFromFilesystem(slug: string): Promise<string[] | null> {
-  const folder = path.resolve(process.cwd(), 'public/images', slug)
+async function listImages(folder: string, urlPrefix: string): Promise<string[] | null> {
   try {
     const entries = await fs.readdir(folder, { withFileTypes: true })
-    return entries
+    const images = entries
       .filter((entry) => entry.isFile() && isImageFile(entry.name))
-      .map((entry) => `/images/${slug}/${entry.name}`)
+      .map((entry) => `${urlPrefix}/${entry.name}`)
       .sort()
+    return images.length ? images : null
   } catch {
     return null
   }
 }
 
-async function imagesFromManifest(slug: string, origin: string): Promise<string[] | null> {
+async function imagesFromFilesystem(slug: string): Promise<string[] | null> {
+  const imagesRoot = path.resolve(process.cwd(), 'public/images')
+
+  // 1. Nested: public/images/{context}/{slug}/
   try {
-    const res = await fetch(`${origin}/images/${slug}/gallery.json`)
+    const contexts = await fs.readdir(imagesRoot, { withFileTypes: true })
+    for (const ctx of contexts) {
+      if (!ctx.isDirectory() || ctx.name === slug || ctx.name === 'artcollections') continue
+      const nested = path.join(imagesRoot, ctx.name, slug)
+      const images = await listImages(nested, `/images/${ctx.name}/${slug}`)
+      if (images) return images
+    }
+  } catch {
+    return null // images root unreadable: CDN mode, use manifests
+  }
+
+  // 2. Flat: public/images/{slug}/
+  const flat = await listImages(path.join(imagesRoot, slug), `/images/${slug}`)
+  if (flat) return flat
+
+  // 3. Legacy/unsorted: public/images/artcollections/{slug}/
+  return listImages(
+    path.join(imagesRoot, 'artcollections', slug),
+    `/images/artcollections/${slug}`,
+  )
+}
+
+async function fetchJson(url: string): Promise<unknown | null> {
+  try {
+    const res = await fetch(url)
     if (!res.ok) return null
-    const stems = (await res.json()) as unknown
-    if (!Array.isArray(stems)) return null
-    return stems
-      .filter((stem): stem is string => typeof stem === 'string' && stem.length > 0)
-      .map((stem) => `/images/${slug}/${stem}.webp`)
-      .sort()
+    return await res.json()
   } catch {
     return null
   }
+}
+
+function stemsToUrls(stems: unknown, urlPrefix: string): string[] | null {
+  if (!Array.isArray(stems)) return null
+  const urls = stems
+    .filter((stem): stem is string => typeof stem === 'string' && stem.length > 0)
+    .map((stem) => (isImageFile(stem) ? `${urlPrefix}/${stem}` : `${urlPrefix}/${stem}.webp`))
+    .sort()
+  return urls.length ? urls : null
+}
+
+async function imagesFromManifest(slug: string, origin: string): Promise<string[] | null> {
+  // 1. Master index: public/images/collections.json -> { [slug]: "context/slug" | "slug" }
+  const index = await fetchJson(`${origin}/images/collections.json`)
+  if (index && typeof index === 'object' && !Array.isArray(index)) {
+    const folder = (index as Record<string, unknown>)[slug]
+    if (typeof folder === 'string' && /^[a-z0-9][a-z0-9_/-]*$/.test(folder)) {
+      const stems = await fetchJson(`${origin}/images/${folder}/gallery.json`)
+      const urls = stemsToUrls(stems, `/images/${folder}`)
+      if (urls) return urls
+    }
+  }
+
+  // 2. Flat per-folder manifest (pre-index deployments)
+  const flat = stemsToUrls(
+    await fetchJson(`${origin}/images/${slug}/gallery.json`),
+    `/images/${slug}`,
+  )
+  if (flat) return flat
+
+  // 3. Legacy artcollections manifest
+  return stemsToUrls(
+    await fetchJson(`${origin}/images/artcollections/${slug}/gallery.json`),
+    `/images/artcollections/${slug}`,
+  )
 }
 
 export default defineEventHandler(async (event) => {

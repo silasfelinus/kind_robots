@@ -6,6 +6,7 @@ import { errorHandler } from '@/server/utils/error'
 import { userIsAdmin } from '@/server/utils/authUser'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
+import { type ArtQueueEntry, appendRequest } from '@/server/utils/artRequestYaml'
 
 const GITHUB_API = 'https://api.github.com'
 const KIND_ROBOTS_REPO = 'silasfelinus/kind_robots'
@@ -54,20 +55,6 @@ type ImageTarget = {
   variant: ArtVariant
   size: string
   slug: string
-}
-
-type ArtQueueEntry = {
-  id: string
-  source: string
-  status: 'pending'
-  target_repo: string
-  image_path: string
-  source_url: string
-  page_url: string
-  variant: ArtVariant
-  size: string
-  label: string
-  prompt: string
 }
 
 function getGithubToken(): string {
@@ -260,16 +247,6 @@ function encodeGithubContent(content: string): string {
   return Buffer.from(content, 'utf-8').toString('base64')
 }
 
-function yamlQuoted(value: string): string {
-  return JSON.stringify(value)
-}
-
-function yamlFolded(key: string, value: string, indent = '    '): string {
-  const clean = value.replace(/\r/g, '').replace(/\n+/g, ' ').trim()
-  if (!clean) return `${key}: ""`
-  return `${key}: >\n${indent}${clean}`
-}
-
 function buildFallbackPrompt(body: MissingArtRequestBody, target: ImageTarget): string {
   const explicit = cleanString(body.prompt)
   if (explicit) return explicit
@@ -314,48 +291,6 @@ async function buildEntry(body: MissingArtRequestBody, target: ImageTarget): Pro
     label: cleanString(body.alt || body.label) || titleFromSlug(target.slug),
     prompt,
   }
-}
-
-// Entries must sit at column 0 to match the existing `requests:` list style in
-// conductor's art-prompts.yaml — mixed indentation breaks the YAML parser there.
-function renderRequestEntry(entry: ArtQueueEntry): string {
-  const lines = [
-    `- id: ${yamlQuoted(entry.id)}`,
-    `  source: ${yamlQuoted(entry.source)}`,
-    `  status: ${yamlQuoted(entry.status)}`,
-    `  target_repo: ${yamlQuoted(entry.target_repo)}`,
-    `  image_path: ${yamlQuoted(entry.image_path)}`,
-    `  source_url: ${yamlQuoted(entry.source_url)}`,
-  ]
-
-  if (entry.page_url) lines.push(`  page_url: ${yamlQuoted(entry.page_url)}`)
-  lines.push(`  variant: ${yamlQuoted(entry.variant)}`)
-  if (entry.size) lines.push(`  size: ${yamlQuoted(entry.size)}`)
-  if (entry.label) lines.push(`  label: ${yamlQuoted(entry.label)}`)
-  lines.push(`  ${yamlFolded('prompt', entry.prompt, '    ')}`)
-
-  return lines.join('\n')
-}
-
-function requestAlreadyQueued(content: string, entry: ArtQueueEntry): boolean {
-  return content.includes(entry.id) || content.includes(entry.image_path)
-}
-
-function appendRequest(content: string, entry: ArtQueueEntry): string {
-  if (requestAlreadyQueued(content, entry)) return content
-
-  const serialized = renderRequestEntry(entry)
-  const trimmed = content.trimEnd()
-
-  if (/^requests:\s*\[\]\s*$/m.test(trimmed)) {
-    return `${trimmed.replace(/^requests:\s*\[\]\s*$/m, `requests:\n${serialized}`)}\n`
-  }
-
-  if (/^requests:\s*$/m.test(trimmed)) {
-    return `${trimmed}\n${serialized}\n`
-  }
-
-  return `${trimmed}\n\nrequests:\n${serialized}\n`
 }
 
 async function updateConductorQueue(entry: ArtQueueEntry, token: string) {

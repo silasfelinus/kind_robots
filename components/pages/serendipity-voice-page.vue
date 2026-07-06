@@ -164,6 +164,11 @@
           </ul>
         </div>
 
+        <div class="border-t border-base-300 pt-2">
+          <p class="text-xs font-bold uppercase text-base-content/60">Theme</p>
+          <p class="mt-1 text-sm font-semibold">{{ currentTheme }}</p>
+        </div>
+
         <div v-if="voice.lastAppliedText" class="text-xs text-success">
           Last applied: {{ voice.lastAppliedText }}
         </div>
@@ -177,6 +182,33 @@
         </p>
       </aside>
     </div>
+
+    <!-- Art drafts (surfaced from voice; never generated or published here) -->
+    <div
+      v-if="voice.artRequests.length > 0"
+      class="rounded-xl border border-base-300 bg-base-200/60 p-3"
+    >
+      <p class="mb-2 text-xs font-bold uppercase text-base-content/60">
+        Art drafts from voice ({{ voice.artRequests.length }})
+      </p>
+      <ul class="space-y-2">
+        <li
+          v-for="art in voice.artRequests"
+          :key="art.id"
+          class="rounded-lg border border-base-300 bg-base-100 p-2"
+        >
+          <p class="text-sm font-semibold">“{{ art.prompt }}”</p>
+          <p class="mt-0.5 text-xs text-base-content/60">
+            style: {{ art.style || '—' }} · size: {{ art.size || '—' }} ·
+            gallery: {{ art.gallery || '—' }}
+          </p>
+        </li>
+      </ul>
+      <p class="mt-2 text-[0.7rem] leading-snug text-base-content/50">
+        Drafts only — review here, then generate through the normal Kind Robots
+        art flow. Voice never generates or publishes images on its own.
+      </p>
+    </div>
   </section>
 </template>
 
@@ -187,9 +219,11 @@ import {
   type VoiceBusRole,
 } from '@/stores/serendipityVoiceStore'
 import { useAnimationStore } from '@/stores/animationStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 const voice = useSerendipityVoiceStore()
 const animationStore = useAnimationStore()
+const themeStore = useThemeStore()
 
 const relayInput = ref(voice.relayBaseUrl)
 const utterance = ref('Serendipity, turn butterflies on')
@@ -197,11 +231,15 @@ const utterance = ref('Serendipity, turn butterflies on')
 const quickPhrases = [
   'Serendipity, turn butterflies on',
   'Serendipity, turn butterflies off',
-  'Serendipity, change the animation to fireflies',
+  'Serendipity, surprise me',
+  'Serendipity, set theme to synthwave',
+  'Serendipity, use the retro theme',
+  'Serendipity, generate art of a robot fox painting a portal',
   'Serendipity, turn off all animations',
 ]
 
 const activeEffects = computed(() => animationStore.screenEffects)
+const currentTheme = computed(() => themeStore.currentTheme)
 
 function roleClass(role: VoiceBusRole): string {
   if (role === 'voice') return 'bg-primary/20 text-primary'

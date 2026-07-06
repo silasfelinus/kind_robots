@@ -246,11 +246,32 @@
             class="badge badge-accent badge-sm shrink-0"
             >Unsorted</span
           >
+          <span
+            v-else-if="activeGroup.isFolder"
+            class="badge badge-outline badge-sm shrink-0"
+            >Folder</span
+          >
           <span class="badge badge-primary badge-sm shrink-0">{{
             filteredActiveImages.length
           }}</span>
           <button
-            class="btn btn-ghost btn-xs ml-auto rounded-lg"
+            v-if="activeGroup.isFolder"
+            class="btn btn-secondary btn-xs ml-auto rounded-lg"
+            type="button"
+            :disabled="isSyncingFolder"
+            title="Create a saved collection from this folder's images"
+            @click="syncActiveFolder"
+          >
+            <span
+              v-if="isSyncingFolder"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:plus" class="h-3.5 w-3.5" />
+            Sync to collection
+          </button>
+          <button
+            class="btn btn-ghost btn-xs rounded-lg"
+            :class="{ 'ml-auto': !activeGroup.isFolder }"
             type="button"
             @click="clearActiveGroup"
           >
@@ -883,6 +904,9 @@ type GalleryGroup = {
   isPublic: boolean
   isMature: boolean
   isVirtual: boolean
+  // Folder-derived collection (public/images/{slug}/) not yet saved to the DB.
+  isFolder?: boolean
+  slug?: string | null
   images: ArtImage[]
   collection: GalleryCollection
 }
@@ -915,6 +939,7 @@ const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
 const viewSize = ref<ViewSize>('md')
+const isSyncingFolder = ref(false)
 
 // ── Grid classes ──────────────────────────────────────────────────────────────
 const folderGridClass = computed(() => {
@@ -988,6 +1013,7 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
 
   return [
     ...groups,
+    ...folderGroups.value,
     {
       key: 'collection-unsorted',
       id: -1,
@@ -1001,6 +1027,84 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
       collection: unassignedCollection,
     },
   ]
+})
+
+// ── Folder-derived collections ─────────────────────────────────────────────
+// A folder under public/images/ whose name matches a slug IS that slug's
+// collection. The store fetches these from /api/art/collection/folders; here
+// they become read-only gallery groups (skipping any slug that already exists
+// as a DB collection) with a "Sync to collection" action to materialize them.
+
+function labelFromSlug(slug: string): string {
+  return slug
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+// Deterministic negative id so synthetic folder images have a stable :key
+// across recomputes and never collide with real (positive) ArtImage ids.
+function hashSlug(slug: string): number {
+  let hash = 0
+  for (let i = 0; i < slug.length; i++) {
+    hash = (hash * 31 + slug.charCodeAt(i)) % 100000
+  }
+  return hash
+}
+
+function folderUrlToArtImage(
+  url: string,
+  slug: string,
+  index: number,
+): ArtImage {
+  return {
+    id: -(1_000_000 + hashSlug(slug) * 1000 + index),
+    imagePath: url,
+    path: url,
+    fileName: url.split('/').pop() || url,
+    isPublic: true,
+    isMature: false,
+    userId: currentUserId.value ?? null,
+  } as unknown as ArtImage
+}
+
+const folderGroups = computed<GalleryGroup[]>(() => {
+  const dbSlugs = new Set(
+    collectionStore.collections
+      .map((collection) => (collection.slug || '').toLowerCase())
+      .filter(Boolean),
+  )
+
+  return collectionStore.folderCollections
+    .filter((folder) => folder.slug && !dbSlugs.has(folder.slug.toLowerCase()))
+    .map((folder) => {
+      const title = labelFromSlug(folder.slug)
+      const images = folder.images.map((url, index) =>
+        folderUrlToArtImage(url, folder.slug, index),
+      )
+      const collection = makePseudoCollection({
+        id: -(2_000_000 + hashSlug(folder.slug)),
+        title,
+        description: `Folder collection from public/images/${folder.slug}/.`,
+        images,
+      })
+      return {
+        key: `folder-${folder.slug}`,
+        id: collection.id,
+        title,
+        description: 'Folder collection — not yet synced to a saved collection.',
+        userId: currentUserId.value ?? null,
+        isPublic: true,
+        isMature: false,
+        isVirtual: false,
+        isFolder: true,
+        slug: folder.slug,
+        images,
+        collection,
+      }
+    })
+    .sort((a, b) => a.title.localeCompare(b.title))
 })
 
 const visibleGroups = computed<GalleryGroup[]>(() => {
@@ -1160,6 +1264,7 @@ async function initializeGallery() {
 
   try {
     await fetchCollectionsSafely(false)
+    await fetchFolderCollectionsSafely()
 
     if (!props.dropdownMode) {
       await fetchArtImagesSafely()
@@ -1178,6 +1283,48 @@ async function initializeGallery() {
 async function fetchCollectionsSafely(force = false) {
   if (typeof collectionStore.fetchCollections !== 'function') return
   await collectionStore.fetchCollections(force)
+}
+
+async function fetchFolderCollectionsSafely() {
+  if (typeof collectionStore.fetchFolderCollections !== 'function') return
+  try {
+    await collectionStore.fetchFolderCollections(false)
+  } catch {
+    // Folder collections are a non-critical enhancement over the DB
+    // collections; a failure here must not break the gallery.
+  }
+}
+
+async function syncActiveFolder() {
+  const group = activeGroup.value
+  if (!group?.isFolder || !group.slug) return
+
+  isSyncingFolder.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    const result = await collectionStore.syncFolderCollection(group.slug)
+    successMessage.value = result.created
+      ? `Synced ${result.created} image(s) into "${group.slug}".`
+      : `"${group.slug}" is already up to date.`
+
+    // The folder is now a saved collection; jump to it (folderGroups drops it
+    // automatically now that a matching DB slug exists).
+    const synced = collectionStore.collections.find(
+      (collection) =>
+        (collection.slug || '').toLowerCase() === group.slug!.toLowerCase(),
+    )
+    activeGroupKey.value = synced ? `collection-${synced.id}` : null
+    await hydrateVisibleImages()
+  } catch (error) {
+    errorMessage.value = getErrorMessage(
+      error,
+      'Failed to sync folder collection.',
+    )
+  } finally {
+    isSyncingFolder.value = false
+  }
 }
 
 async function fetchArtImagesSafely(force = false) {

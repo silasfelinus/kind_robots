@@ -1,4 +1,8 @@
-<!-- /components/content/sample/add-sample.vue -->
+<!-- /components/sample/add-sample.vue -->
+<!-- TEMPLATE — one form for both add and edit, driven by the mode prop and
+     bound directly to the store's form ref. Modeled on
+     /components/rewards/add-reward.vue. saveSample() routes to create or
+     update based on whether the form carries a positive id. -->
 <template>
   <div
     class="mx-auto flex w-full max-w-7xl flex-col gap-6 rounded-2xl border border-base-300 bg-base-200 p-4"
@@ -14,13 +18,18 @@
     </header>
 
     <div
-      v-if="mode === 'edit' && !sampleStore.selected"
+      v-if="mode === 'edit' && !sampleStore.selectedSample"
       class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
       Select a sample before editing.
     </div>
 
     <template v-else>
+      <!-- Fields mirror the Sample model exactly (see sample/schema.md):
+           title, description, label, type, designer, isPublic, isMature.
+           userId is stamped at save; imageId is wired through uploadStore —
+           copy configureRewardImageUpload from add-reward.vue if your model
+           carries art. -->
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label class="form-control">
           <span class="label">
@@ -28,7 +37,7 @@
           </span>
 
           <input
-            v-model="sampleStore.form.title"
+            v-model="sampleStore.sampleForm.title"
             type="text"
             placeholder="Sample title"
             class="input input-bordered w-full bg-base-100"
@@ -41,7 +50,7 @@
           </span>
 
           <input
-            v-model="sampleStore.form.type"
+            v-model="sampleStore.sampleForm.type"
             type="text"
             placeholder="utility, model, story..."
             class="input input-bordered w-full bg-base-100"
@@ -51,10 +60,11 @@
         <label class="form-control">
           <span class="label">
             <span class="label-text font-bold">Label</span>
+            <span class="label-text-alt text-base-content/50">Optional</span>
           </span>
 
           <input
-            v-model="sampleStore.form.label"
+            v-model="sampleStore.sampleForm.label"
             type="text"
             placeholder="Short display label"
             class="input input-bordered w-full bg-base-100"
@@ -63,13 +73,14 @@
 
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Icon</span>
+            <span class="label-text font-bold">Designer</span>
+            <span class="label-text-alt text-base-content/50">Optional</span>
           </span>
 
           <input
-            v-model="sampleStore.form.icon"
+            v-model="sampleStore.sampleForm.designer"
             type="text"
-            placeholder="kind-icon:box"
+            placeholder="Who made this?"
             class="input input-bordered w-full bg-base-100"
           />
         </label>
@@ -77,98 +88,57 @@
         <label class="form-control lg:col-span-2">
           <span class="label">
             <span class="label-text font-bold">Description</span>
+            <span class="label-text-alt text-base-content/50">Optional</span>
           </span>
 
           <textarea
-            v-model="sampleStore.form.description"
+            v-model="sampleStore.sampleForm.description"
             placeholder="Describe what this sample represents..."
             class="textarea textarea-bordered min-h-28 w-full bg-base-100"
           />
         </label>
       </section>
 
-      <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Link</span>
-          </span>
-
-          <input
-            v-model="sampleStore.form.link"
-            type="text"
-            placeholder="/sample"
-            class="input input-bordered w-full bg-base-100"
-          />
-        </label>
-
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Component</span>
-          </span>
-
-          <input
-            v-model="sampleStore.form.component"
-            type="text"
-            placeholder="sample-component"
-            class="input input-bordered w-full bg-base-100"
-          />
-        </label>
-      </section>
-
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-        <div
-          class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+      <!-- Every user-generated content model carries these two flags. -->
+      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
         >
-          <div>
-            <h2 class="text-xl font-bold text-base-content">
-              Sample Choices
-            </h2>
+          <span class="label-text font-bold">Public</span>
 
-            <p class="text-sm text-base-content/70">
-              Reusable choice fields let this sample model match the rest of the app.
-            </p>
-          </div>
-
-          <Icon
-            :name="sampleStore.form.icon || 'kind-icon:box'"
-            class="h-10 w-10 text-primary"
+          <input
+            v-model="sampleStore.sampleForm.isPublic"
+            type="checkbox"
+            class="toggle toggle-primary"
           />
-        </div>
+        </label>
 
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <choice-manager label="title" model="SampleModel" />
-          <choice-manager label="type" model="SampleModel" />
-          <choice-manager label="label" model="SampleModel" />
-        </div>
+        <label
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+        >
+          <span class="label-text font-bold">Mature</span>
+
+          <input
+            v-model="sampleStore.sampleForm.isMature"
+            type="checkbox"
+            class="toggle toggle-accent"
+          />
+        </label>
       </section>
 
+      <!-- choice-manager gives a field reusable community suggestions; the
+           matching choiceStore.applyToForm call in saveSample writes the
+           picked value into the form. Current forms doing this: add-reward
+           ('rewardEssence'), add-scenario ('genre'). Drop this section if
+           your model has no choice-driven fields. -->
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-        <h2 class="mb-4 text-xl font-bold text-base-content">
-          Preview
-        </h2>
+        <h2 class="text-xl font-bold text-base-content">Sample Type Choices</h2>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <div class="flex items-center gap-3">
-            <Icon
-              :name="sampleStore.form.icon || 'kind-icon:box'"
-              class="h-10 w-10 shrink-0 text-primary"
-            />
+        <p class="mb-4 text-sm text-base-content/70">
+          Reusable choice suggestions for the type field.
+        </p>
 
-            <div class="min-w-0">
-              <h3 class="truncate text-lg font-bold text-base-content">
-                {{ sampleStore.form.title || 'Untitled Sample' }}
-              </h3>
-
-              <p class="truncate text-sm text-base-content/60">
-                {{ sampleStore.form.type || 'No type yet' }}
-              </p>
-            </div>
-          </div>
-
-          <p class="mt-3 text-sm text-base-content/70">
-            {{ sampleStore.form.description || 'No description yet.' }}
-          </p>
-        </div>
+        <choice-manager label="type" model="Sample" />
       </section>
 
       <div
@@ -183,7 +153,22 @@
         {{ statusMessage }}
       </div>
 
-      <footer class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+      <footer
+        class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end"
+      >
+        <!-- hasUnsavedChanges compares the form payload against the selected
+             row, so it stays false until the user actually edits something. -->
+        <span
+          v-if="sampleStore.hasUnsavedChanges"
+          class="badge badge-warning badge-outline sm:mr-auto"
+        >
+          Unsaved changes
+        </span>
+
+        <button class="btn btn-ghost rounded-xl" type="button" @click="cancel">
+          Cancel
+        </button>
+
         <button
           v-if="mode === 'edit'"
           class="btn btn-ghost rounded-xl"
@@ -222,7 +207,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useChoiceStore } from '@/stores/choiceStore'
-import { useSampleModelStore } from '@/stores/sampleModelStore'
+import { useSampleStore } from '@/stores/sampleStore'
 import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
@@ -236,10 +221,11 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   saved: []
+  cancel: []
 }>()
 
 const choiceStore = useChoiceStore()
-const sampleStore = useSampleModelStore()
+const sampleStore = useSampleStore()
 const userStore = useUserStore()
 
 const statusMessage = ref('')
@@ -253,8 +239,8 @@ const heading = computed(() =>
 
 const subtitle = computed(() =>
   mode.value === 'edit'
-    ? 'Update the reusable model entry without spawning another component goblin.'
-    : 'Create a reusable model entry using the new one-component form pattern.',
+    ? 'Update this sample entry.'
+    : 'Create a new sample entry.',
 )
 
 const saveLabel = computed(() =>
@@ -282,64 +268,53 @@ function prepareForm() {
   resetForAdd()
 }
 
+// startAddingSample deselects and loads the store's default form —
+// no hand-built blank object here.
 function resetForAdd() {
-  sampleStore.startAddingModel?.()
-
-  if (!Object.keys(sampleStore.form || {}).length) {
-    sampleStore.form = {
-      title: '',
-      type: '',
-      label: '',
-      icon: 'kind-icon:box',
-      description: '',
-      link: '',
-      component: '',
-      userId: userStore.userId || 10,
-      isPublic: true,
-    }
-  }
-
+  sampleStore.startAddingSample()
   statusMessage.value = ''
 }
 
-function resetFromSelected() {
-  if (!sampleStore.selected) return
+// startEditingSample re-pulls the selected row into the form,
+// discarding local edits.
+async function resetFromSelected() {
+  const id = sampleStore.selectedSample?.id
 
-  sampleStore.form = sampleStore.toModelForm(sampleStore.selected)
+  if (!id) return
+
+  await sampleStore.startEditingSample(id)
   statusMessage.value = ''
+}
+
+function cancel() {
+  sampleStore.deselectSample()
+  emit('cancel')
 }
 
 async function saveSample() {
-  if (mode.value === 'edit' && !sampleStore.form.id) {
+  if (mode.value === 'edit' && !sampleStore.sampleForm.id) {
     statusTone.value = 'error'
     statusMessage.value = 'No sample selected or invalid ID.'
     return
   }
 
-  if (!sampleStore.form.title?.trim()) {
+  if (!sampleStore.sampleForm.title?.trim()) {
     statusTone.value = 'error'
     statusMessage.value = 'Please provide a title.'
     return
   }
 
-  if (!sampleStore.form.type?.trim()) {
-    statusTone.value = 'error'
-    statusMessage.value = 'Please provide a type.'
-    return
-  }
-
   try {
-    for (const field of ['title', 'type', 'label']) {
-      choiceStore.applyToForm(sampleStore.form, field, 'SampleModel')
+    // Fold any picked choice values into the form before saving.
+    choiceStore.applyToForm(sampleStore.sampleForm, 'type', 'Sample')
+
+    // Stamp ownership; guest/system rows use userId 10.
+    sampleStore.sampleForm = {
+      ...sampleStore.sampleForm,
+      userId: sampleStore.sampleForm.userId || userStore.userId || 10,
     }
 
-    sampleStore.form = {
-      ...sampleStore.form,
-      icon: sampleStore.form.icon || 'kind-icon:box',
-      userId: sampleStore.form.userId || userStore.userId || 10,
-    }
-
-    const saved = await sampleStore.saveModel()
+    const saved = await sampleStore.saveSample()
 
     if (!saved) {
       throw new Error(sampleStore.error || 'Failed to save sample.')

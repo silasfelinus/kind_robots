@@ -40,6 +40,45 @@ export interface DraftFromSourceInput {
   platforms?: SocialPlatform[]
 }
 
+// SSR guard — localStorage is undefined during server render.
+const isClient = typeof window !== 'undefined'
+
+function safeGetLocalStorage(key: string): string | null {
+  if (!isClient) return null
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  if (!isClient) return
+  try {
+    localStorage.setItem(key, value)
+  } catch {}
+}
+
+function safeParseArray<T>(raw: string | null): T[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function safeParseObject<T>(raw: string | null): T | null {
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? (parsed as T) : null
+  } catch {
+    return null
+  }
+}
+
 export const useSocialStore = defineStore('socialStore', () => {
   const items = ref<SocialPostWithTargets[]>([])
   const selected = ref<SocialPostWithTargets | null>(null)
@@ -83,30 +122,43 @@ export const useSocialStore = defineStore('socialStore', () => {
     }
   }
 
-  function syncToLocalStorage() {
-    try {
-      localStorage.setItem('socialPosts', JSON.stringify(items.value))
-      localStorage.setItem('socialPostForm', JSON.stringify(form.value))
-    } catch (err) {
-      console.error('[socialStore] localStorage sync error:', err)
+  // Merge, never overwrite: a remote fetch must not drop locally-created
+  // drafts the server response doesn't include (the old code assigned
+  // items.value = res.data, silently discarding unsynced posts). Existing
+  // rows come first so a just-created post stays at the top of the list.
+  function mergeItems(incoming: SocialPostWithTargets[]) {
+    const map = new Map<number, SocialPostWithTargets>()
+    for (const item of items.value) map.set(item.id, item)
+    for (const item of incoming) {
+      if (item && item.id) map.set(item.id, item)
     }
+    items.value = Array.from(map.values())
+    syncToLocalStorage()
+  }
+
+  function upsertItem(item: SocialPostWithTargets) {
+    mergeItems([item])
+  }
+
+  function syncToLocalStorage() {
+    safeSetLocalStorage('socialPosts', JSON.stringify(items.value))
+    safeSetLocalStorage('socialPostForm', JSON.stringify(form.value))
   }
 
   async function initialize() {
     if (isInitialized.value) return
     try {
-      const localItems = localStorage.getItem('socialPosts')
-      const localForm = localStorage.getItem('socialPostForm')
-      if (localItems) items.value = JSON.parse(localItems)
-      if (localForm) form.value = JSON.parse(localForm)
+      const localItems = safeParseArray<SocialPostWithTargets>(
+        safeGetLocalStorage('socialPosts'),
+      )
+      const localForm = safeParseObject<SocialPostForm>(
+        safeGetLocalStorage('socialPostForm'),
+      )
+      if (localItems.length) items.value = localItems
+      if (localForm) form.value = localForm
 
-      const fetched = await fetchAll()
-      const fetchedIds = new Set(fetched.map((i) => i.id))
-      items.value = [
-        ...items.value.filter((i) => !fetchedIds.has(i.id)),
-        ...fetched,
-      ]
-      syncToLocalStorage()
+      // fetchAll merges into the local items loaded above.
+      await fetchAll()
       isInitialized.value = true
     } catch (err) {
       handleError(err, 'initializing social store')
@@ -119,8 +171,7 @@ export const useSocialStore = defineStore('socialStore', () => {
     try {
       const res = await performFetch<SocialPostWithTargets[]>('/api/socials')
       if (res.success && res.data) {
-        items.value = res.data
-        syncToLocalStorage()
+        mergeItems(res.data)
         return res.data
       }
       throw new Error(res.message || 'Failed to fetch social posts')

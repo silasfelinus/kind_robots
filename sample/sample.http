@@ -1,81 +1,53 @@
-@admintoken = {{$dotenv ADMIN_TOKEN}}
+# TEMPLATE: teaching copy of an .http request file for the fictional Sample model.
+# Real .http files sit next to the server route they exercise (e.g. server/api/samples/).
+
+@base = https://kind-robots.vercel.app/api
 @usertoken = {{$dotenv USER_TOKEN}}
 
-// @ts-nocheck
-/* eslint-disable */
-// test-ignore
-
-
-### Create a SampleModel (POST single entry)
-POST https://kind-robots.vercel.app/api/sampleModels
+###
+# Create a Sample (requires auth)
+POST {{base}}/samples
 Content-Type: application/json
-Authorization: Bearer {{ usertoken }}
+Authorization: Bearer {{usertoken}}
 
 {
-  "title": "Test SampleModel",
-  "type": "utility",
+  "title": "Test Sample",
+  "description": "A sample record created from the .http template.",
   "label": "Sample Label",
-  "link": "/sample-link",
-  "component": "sample-component",
-  "isPublic": true
+  "type": "utility",
+  "designer": "Sample Designer",
+  "isPublic": true,
+  "isMature": false
 }
 
 ###
+# Get all Samples (public access)
+GET {{base}}/samples
 
-### Seed Multiple SampleModels (POST batch)
-POST https://kind-robots.vercel.app/api/sampleModels
+###
+# Get Sample by ID
+GET {{base}}/samples/1
+
+###
+# Update Sample by ID (requires auth)
+PATCH {{base}}/samples/1
 Content-Type: application/json
-Authorization: Bearer {{ usertoken }}
-
-[
-  {
-    "title": "Sample A",
-    "type": "nav",
-    "label": "Nav Sample A",
-    "link": "/sample-a",
-    "isPublic": true
-  },
-  {
-    "title": "Sample B",
-    "type": "utility",
-    "label": "Util Sample B",
-    "component": "component-b",
-    "isPublic": true
-  }
-]
-
-###
-
-### Get All SampleModels (public access)
-GET https://kind-robots.vercel.app/api/sampleModels
-
-###
-
-### Get SampleModel by ID
-GET https://kind-robots.vercel.app/api/sampleModels/1
-
-###
-
-### Update SampleModel by ID (requires auth)
-PATCH https://kind-robots.vercel.app/api/sampleModels/1
-Content-Type: application/json
-Authorization: Bearer {{ usertoken }}
+Authorization: Bearer {{usertoken}}
 
 {
+  "title": "Updated Test Sample",
   "label": "Updated Label",
-  "icon": "updated-icon"
+  "description": "Updated from the .http template."
 }
 
 ###
-
-### Delete SampleModel by ID (requires auth)
-DELETE https://kind-robots.vercel.app/api/sampleModels/1
-Authorization: Bearer {{ usertoken }}
+# Delete Sample by ID (requires auth)
+DELETE {{base}}/samples/1
+Authorization: Bearer {{usertoken}}
 
 ###
-
-### FAIL CASE: Try to PATCH without auth
-PATCH https://kind-robots.vercel.app/api/sampleModels/1
+# FAIL CASE: PATCH without auth (expect 401)
+PATCH {{base}}/samples/1
 Content-Type: application/json
 
 {
@@ -83,6 +55,5 @@ Content-Type: application/json
 }
 
 ###
-
-### FAIL CASE: Try to DELETE without auth
-DELETE https://kind-robots.vercel.app/api/sampleModels/1
+# FAIL CASE: DELETE without auth (expect 401)
+DELETE {{base}}/samples/1

@@ -1,5 +1,6 @@
 // /server/api/openai/images/generate.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
+import { requireMachineUser } from '../../../../utils/authGuard'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from './../../../../utils/error'
 import { saveImage } from '../../../../utils/saveImage'
@@ -49,32 +50,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
+    // t-015: shared machine auth (session JWT, user apiKey, or beta admin
+    // token) via requireMachineUser, replacing the inline apiKey-only lookup.
+    const { user } = await requireMachineUser(event)
 
     if (user.id !== requestData.userId) {
       throw createError({

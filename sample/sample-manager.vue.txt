@@ -1,10 +1,24 @@
-<!-- /components/content/sample/sample-manager.vue -->
+<!-- /components/sample/sample-manager.vue -->
+<!-- TEMPLATE — the channel manager: a tab switcher driven by the dashboard
+     registry. Modeled on /components/bots/bot-manager.vue. It composes the
+     gallery/add/interact children; it does not re-implement them. -->
 <template>
-  <section class="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
-    <div class="flex shrink-0 justify-end">
+  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+    <div
+      v-if="isLoadingManager || managerError"
+      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
+    >
+      <p
+        class="min-w-0 flex-1 text-base-content/70"
+        :class="managerError ? 'text-error' : ''"
+      >
+        {{ managerError || 'Loading samples...' }}
+      </p>
+
       <button
-        class="btn btn-ghost btn-sm rounded-xl"
         type="button"
+        class="btn btn-sm rounded-2xl"
+        :class="managerError ? 'btn-error' : 'btn-ghost'"
         :disabled="isLoadingManager"
         @click="refreshManagerData"
       >
@@ -12,66 +26,47 @@
           v-if="isLoadingManager"
           class="loading loading-spinner loading-xs"
         />
-        <Icon v-else name="kind-icon:refresh" class="size-4" />
+        <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
         Refresh
       </button>
     </div>
 
-    <div
-      v-if="managerError"
-      class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
-    >
-      {{ managerError }}
-    </div>
-
-    <div
-      v-if="isLoadingManager"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-4"
-    >
-      <span class="loading loading-spinner loading-sm" />
-      <span class="ml-2">Loading sample model data...</span>
-    </div>
-
-    <section
-      v-if="activeTab === 'overview'"
-      class="min-h-0 flex-1 overflow-y-auto"
-    >
-      <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <sample-gallery
-            variant="row"
-            title="Samples"
-            subtitle="Pick a reusable sample entry."
-            :show-controls="false"
-            :show-toolbar="true"
-            :show-images="true"
-            :compact="true"
-          />
-        </div>
-
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <sample-interact />
-        </div>
-      </div>
-    </section>
-
     <sample-gallery
-      v-else-if="activeTab === 'samples'"
+      v-if="activeTab === 'gallery'"
       class="min-h-0 flex-1"
-      variant="dashboard"
       title="Sample Gallery"
       subtitle="Select, add, edit, or delete sample entries."
     />
 
-    <sample-gallery
-      v-else-if="activeTab === 'types'"
-      class="min-h-0 flex-1"
-      variant="dashboard"
-      title="Sample Types"
-      subtitle="Browse sample records by type."
-      :show-controls="true"
-      :show-toolbar="true"
-    />
+    <section
+      v-else-if="activeTab === 'add'"
+      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
+    >
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="text-xl font-black text-primary">Add Sample</h2>
+
+          <p class="mt-1 text-sm text-base-content/60">
+            Create a new sample entry.
+          </p>
+        </div>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          @click="goToGallery"
+        >
+          <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+          <span class="hidden sm:inline">Gallery</span>
+        </button>
+      </div>
+
+      <add-sample
+        :mode="sampleFormMode"
+        @saved="handleSampleSaved"
+        @cancel="goToGallery"
+      />
+    </section>
 
     <sample-interact
       v-else-if="activeTab === 'interact'"
@@ -80,36 +75,90 @@
 
     <div
       v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-center text-warning"
     >
-      Unknown sample tab: {{ activeTab }}
+      <Icon name="kind-icon:warning" class="h-10 w-10" />
+
+      <div>
+        <p class="text-lg font-black">Unknown sample tab: {{ activeTab }}</p>
+
+        <p class="mt-1 text-sm opacity-80">
+          Expected one of: {{ validTabLabels }}
+        </p>
+      </div>
+
+      <button
+        class="btn btn-warning btn-sm rounded-xl"
+        type="button"
+        @click="goToDefaultTab"
+      >
+        Go to {{ defaultTabLabel }}
+      </button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useSampleStore } from '@/stores/sampleStore'
 import { useNavStore } from '@/stores/navStore'
-import { useSampleModelStore } from '@/stores/sampleModelStore'
+import {
+  getDashboardConfig,
+  getDashboardDefaultTab,
+  getDashboardTabs,
+  isDashboardTabKey,
+  type DashboardKey,
+} from '@/stores/helpers/dashboardHelper'
 
-type SampleTab = 'overview' | 'samples' | 'types' | 'interact'
+// 'sample' must be a registered DashboardKey — add the channel entry and its
+// tabs (gallery, add, interact) in /stores/helpers/dashboardHelper.ts before
+// this compiles. See sample/README.md, "Adding a new channel".
+const dashboardKey: DashboardKey = 'sample'
 
-const dashboardKey = 'sample' as const
-const fallbackTab: SampleTab = 'overview'
-const validTabs: SampleTab[] = ['overview', 'samples', 'types', 'interact']
-
+const sampleStore = useSampleStore()
 const navStore = useNavStore()
-const sampleStore = useSampleModelStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const activeTab = computed<SampleTab>(() => {
+const dashboardConfig = computed(() => {
+  return getDashboardConfig(dashboardKey)
+})
+
+const dashboardTabs = computed(() => {
+  return getDashboardTabs(dashboardKey)
+})
+
+const defaultTab = computed(() => {
+  return getDashboardDefaultTab(dashboardKey)
+})
+
+// The nav store owns which tab is active; the manager just renders it and
+// falls back to the registry default for unknown values.
+const activeTab = computed(() => {
   const selectedTab = navStore.getDashboardTab(dashboardKey)
 
-  return validTabs.includes(selectedTab as SampleTab)
-    ? (selectedTab as SampleTab)
-    : fallbackTab
+  if (isDashboardTabKey(dashboardKey, selectedTab)) {
+    return selectedTab
+  }
+
+  return defaultTab.value
+})
+
+// The add tab doubles as the edit form when a row is selected.
+const sampleFormMode = computed<'add' | 'edit'>(() => {
+  return sampleStore.selectedSample ? 'edit' : 'add'
+})
+
+const validTabLabels = computed(() => {
+  return dashboardTabs.value.map((tab) => tab.key).join(', ')
+})
+
+const defaultTabLabel = computed(() => {
+  return (
+    dashboardTabs.value.find((tab) => tab.key === defaultTab.value)?.label ||
+    dashboardConfig.value.label
+  )
 })
 
 async function loadManagerData(force = false) {
@@ -117,18 +166,10 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
-    await Promise.all([
-      navStore.initialize(),
-      sampleStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
-    ])
+    await sampleStore.initialize({ force, fetchRemote: true })
   } catch (error) {
     managerError.value =
-      error instanceof Error
-        ? error.message
-        : 'Failed to load sample manager data.'
+      error instanceof Error ? error.message : 'Failed to load samples.'
   } finally {
     isLoadingManager.value = false
   }
@@ -136,6 +177,19 @@ async function loadManagerData(force = false) {
 
 async function refreshManagerData() {
   await loadManagerData(true)
+}
+
+function goToGallery() {
+  navStore.setDashboardTab(dashboardKey, 'gallery')
+}
+
+function goToDefaultTab() {
+  navStore.setDashboardTab(dashboardKey, defaultTab.value)
+}
+
+async function handleSampleSaved() {
+  await loadManagerData(true)
+  goToGallery()
 }
 
 onMounted(async () => {

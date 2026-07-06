@@ -110,13 +110,12 @@ describe('ArtImage Management API Tests', () => {
     deleteTestUser(apiRoot, adminToken, userId)
   })
 
-  it('should not allow generating an ArtImage without a bearer token', () => {
+  it('should not allow generating an ArtImage without machine auth', () => {
     cy.request({
       method: 'POST',
       url: artGenerateUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
       body: {
         promptString: 'A sunset over the ocean',
@@ -130,7 +129,7 @@ describe('ArtImage Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.match(/authorization|bearer/i)
+      expect(response.body.message).to.match(/authorization|token|auth/i)
     })
   })
 

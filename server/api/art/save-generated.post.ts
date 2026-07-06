@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { requireMachineUser } from '../../utils/authGuard'
 import { saveImage } from '../../utils/saveImage'
 import {
   type RequestData,
@@ -42,33 +43,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-        karma: true,
-        preferredArtServerId: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
+    // Machine-auth parity with the ArtJob queue endpoints (t-011): accept a
+    // session JWT, a user apiKey, or the beta admin token. This endpoint
+    // previously accepted only a user apiKey, which stranded the relay agent
+    // at the final upload hop when it authenticated with the admin token.
+    const auth = await requireMachineUser(event)
+    const user = {
+      id: auth.user.id,
+      karma: auth.user.karma,
+      preferredArtServerId: auth.user.preferredArtServerId,
     }
 
     if (user.id !== requestData.userId) {

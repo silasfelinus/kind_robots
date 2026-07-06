@@ -4,13 +4,26 @@ Read-only audit of all Pinia stores (`stores/*.ts`, ~56 files) and all server
 API endpoints (`server/api/**`, 243 files) against the repo's canonical
 patterns: `stores/rewardStore.ts` for stores, `server/api/scenarios/` +
 `server/api/prompts/index.post.ts` for endpoints (both now mirrored in the
-refreshed `sample/` templates). Nothing was modified. This is a findings
-report to prioritize follow-up tasks.
+refreshed `sample/` templates). This is a findings report to prioritize
+follow-up tasks.
 
-> **Security note:** Section 1 of the endpoint audit lists unauthenticated
-> write endpoints (User table, Stripe, art upload/model-switch). Per AGENTS.md
-> these are security flags for Silas to review and were **not** auto-fixed.
-> Each should become its own scoped `ready` task.
+> **Verify before fixing.** `main` has advanced since this audit was written,
+> so the line numbers below may have drifted. Treat every entry as a triage
+> lead, not proof the issue is still current — re-check the named file against
+> current `main` before acting on it. (A condensed copy of this note was
+> salvaged to `main` while this branch was briefly thought stale; this is the
+> full version, reconciled back in.)
+
+> **Security note:** Section A1 lists unauthenticated write endpoints (User
+> table, Stripe, art upload/model-switch). Per AGENTS.md these are security
+> flags for Silas to review and were **not** auto-fixed. Each should become
+> its own scoped `ready` task.
+
+> **Status (Part B).** The four **B1 CRITICAL** store bugs (`codeStore`,
+> `compositionStore`, `socialStore`, `componentStore`) have since been fixed
+> on this branch — merge-not-overwrite fetches, SSR-safe localStorage, and
+> `performFetch` for the circuit breaker. The B2 HIGH overwrite-on-fetch
+> stores and all of Part A remain open.
 
 ---
 
@@ -20,23 +33,23 @@ report to prioritize follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-| File:line | Exposure |
-| --- | --- |
-| `server/api/milestones/updateClickRecord.put.ts:26` | unauth `prisma.user.update` on any userId from body |
-| `server/api/milestones/updateMatchRecord.put.ts:26` | same — writes matchRecord on any user |
-| `server/api/milestones/[id].patch.ts:37` | unauth update + raw body mass-assignment |
-| `server/api/milestones/[id].delete.ts:21` | unauth delete |
-| `server/api/milestones/index.post.ts:24` | unauth batch create |
-| `server/api/milestones/records/[id].patch.ts:45` | unauth update + mass-assignment |
-| `server/api/components/[id].delete.ts:21` | no auth import at all |
-| `server/api/components/[id].patch.ts:128` | unauth update |
-| `server/api/components/index.post.ts:89` | unauth upsert |
-| `server/api/components/name/[name].patch.ts:76` | unauth + raw body update |
-| `server/api/stripe/checkout.post.ts:30` | unauth; userId from body → attaches/overwrites Stripe customer, opens checkout as victim |
-| `server/api/stripe/subscribe.post.ts:26` | same for subscriptions |
-| `server/api/art/upload.post.ts:97` | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user |
-| `server/api/bots/seed.post.ts:9` | unauth bot seed/overwrite |
-| `server/api/art/sd/setModel.post.ts:17` | unauth POST to live SD server (GPU model-switch/DoS) |
+| File:line                                           | Exposure                                                                                 |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `server/api/milestones/updateClickRecord.put.ts:26` | unauth `prisma.user.update` on any userId from body                                      |
+| `server/api/milestones/updateMatchRecord.put.ts:26` | same — writes matchRecord on any user                                                    |
+| `server/api/milestones/[id].patch.ts:37`            | unauth update + raw body mass-assignment                                                 |
+| `server/api/milestones/[id].delete.ts:21`           | unauth delete                                                                            |
+| `server/api/milestones/index.post.ts:24`            | unauth batch create                                                                      |
+| `server/api/milestones/records/[id].patch.ts:45`    | unauth update + mass-assignment                                                          |
+| `server/api/components/[id].delete.ts:21`           | no auth import at all                                                                    |
+| `server/api/components/[id].patch.ts:128`           | unauth update                                                                            |
+| `server/api/components/index.post.ts:89`            | unauth upsert                                                                            |
+| `server/api/components/name/[name].patch.ts:76`     | unauth + raw body update                                                                 |
+| `server/api/stripe/checkout.post.ts:30`             | unauth; userId from body → attaches/overwrites Stripe customer, opens checkout as victim |
+| `server/api/stripe/subscribe.post.ts:26`            | same for subscriptions                                                                   |
+| `server/api/art/upload.post.ts:97`                  | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user                |
+| `server/api/bots/seed.post.ts:9`                    | unauth bot seed/overwrite                                                                |
+| `server/api/art/sd/setModel.post.ts:17`             | unauth POST to live SD server (GPU model-switch/DoS)                                     |
 
 `users/register.post.ts` and `auth/login.post.ts` are legitimately public.
 

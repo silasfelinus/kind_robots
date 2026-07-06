@@ -1,8 +1,7 @@
 // /server/utils/textGate.ts
 import type { H3Event } from 'h3'
-import { createError } from 'h3'
-import prisma from './prisma'
 import { manaGate } from './manaGate'
+import { requireMachineUser } from './authGuard'
 
 type TextGateInput = {
   model?: string | null
@@ -27,33 +26,10 @@ export async function authAndTextGate(
   event: H3Event,
   input: TextGateInput = {},
 ): Promise<TextGateResult> {
-  const authorizationHeader = event.node.req.headers.authorization
-
-  if (!authorizationHeader?.startsWith('Bearer ')) {
-    throw createError({
-      statusCode: 401,
-      message:
-        'Authorization token is required in the format "Bearer <token>".',
-    })
-  }
-
-  const token = authorizationHeader.split(' ')[1] ?? ''
-
-  const user = await prisma.user.findFirst({
-    where: {
-      apiKey: token,
-    },
-    select: {
-      id: true,
-    },
-  })
-
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      message: 'Invalid or expired authorization token.',
-    })
-  }
+  // t-015: shared machine auth (session JWT, user apiKey, or beta admin
+  // token) via requireMachineUser, replacing the inline apiKey-only lookup.
+  // Mirrors comfyGate.authAndGate.
+  const { user } = await requireMachineUser(event)
 
   const gate = await manaGate(event, {
     kind: 'text',
@@ -66,7 +42,7 @@ export async function authAndTextGate(
   })
 
   return {
-    user,
+    user: { id: user.id },
     cost: gate.cost,
     free: gate.free,
     commit: gate.commit,

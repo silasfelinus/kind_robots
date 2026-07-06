@@ -180,3 +180,167 @@ export async function resolveLifeRunEnding(
     }
   })
 }
+
+// --- Play loop (davinci/t-013) --------------------------------------------
+//
+// The durable-state substrate the Chat narrator will call later: create a run,
+// record a choice with its stat effects, and read a run back for resume. AI
+// narration is out of scope — these endpoints own state, not prose. Per the
+// Storymaker boundary doc, this stays inside the Life* models; no shared
+// session tables.
+
+function withStatusCode(message: string, statusCode: number): Error {
+  const error = new Error(message)
+  ;(error as Error & { statusCode?: number }).statusCode = statusCode
+  return error
+}
+
+export interface CreateLifeRunInput {
+  title: string
+  seed?: string | null
+  protagonistName?: string | null
+  genre?: string | null
+  currentChapter?: number | null
+  characterId?: number | null
+  dreamId?: number | null
+  botId?: number | null
+  artCollectionId?: number | null
+}
+
+// Creates a fresh ACTIVE run owned by the user. A seed is generated when the
+// caller doesn't supply one so runs are always reproducible/identifiable.
+export async function createLifeRun(userId: number, input: CreateLifeRunInput) {
+  const title = input.title?.trim()
+  if (!title) throw withStatusCode('A run title is required.', 400)
+
+  const seed = input.seed?.trim() || `run-${Date.now()}-${crypto.randomUUID()}`
+  const currentChapter =
+    typeof input.currentChapter === 'number' && input.currentChapter > 0
+      ? input.currentChapter
+      : 1
+
+  return prisma.lifeRun.create({
+    data: {
+      userId,
+      title,
+      seed,
+      status: 'ACTIVE',
+      currentChapter,
+      protagonistName: input.protagonistName ?? null,
+      genre: input.genre ?? null,
+      characterId: input.characterId ?? null,
+      dreamId: input.dreamId ?? null,
+      botId: input.botId ?? null,
+      artCollectionId: input.artCollectionId ?? null,
+    },
+  })
+}
+
+export interface RecordChoiceInput {
+  chapter: number
+  prompt: string
+  choiceText: string
+  resultText?: string | null
+  // Dimension (or arbitrary stat) key -> integer delta. Applied atomically to
+  // LifeStat. The resolver only reads the 10 DAVINCI_DIMENSIONS, but any stat
+  // key is allowed so the substrate stays flexible.
+  effects?: Record<string, number>
+  chatId?: number | null
+}
+
+// Records a LifeChoice and applies its stat deltas in one transaction. Only
+// ACTIVE runs accept choices — a resolved (COMPLETE) or abandoned run is
+// closed. Returns the created choice plus the run's full post-choice stats.
+export async function recordLifeChoice(
+  lifeRunId: number,
+  userId: number,
+  input: RecordChoiceInput,
+) {
+  if (!Number.isInteger(input.chapter) || input.chapter <= 0) {
+    throw withStatusCode('chapter must be a positive integer.', 400)
+  }
+  const prompt = input.prompt?.trim()
+  const choiceText = input.choiceText?.trim()
+  if (!prompt || !choiceText) {
+    throw withStatusCode('prompt and choiceText are required.', 400)
+  }
+
+  const effects = input.effects ?? {}
+  for (const [key, delta] of Object.entries(effects)) {
+    if (typeof delta !== 'number' || !Number.isFinite(delta)) {
+      throw withStatusCode(`effect "${key}" must be a finite number.`, 400)
+    }
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const run = await tx.lifeRun.findUnique({ where: { id: lifeRunId } })
+    if (!run) throw withStatusCode(`LifeRun ${lifeRunId} does not exist.`, 404)
+    if (run.userId !== userId) {
+      throw withStatusCode(
+        'LifeRun does not belong to the authenticated user.',
+        403,
+      )
+    }
+    if (run.status !== 'ACTIVE') {
+      throw withStatusCode(
+        `LifeRun ${lifeRunId} is ${run.status}; only ACTIVE runs accept choices.`,
+        409,
+      )
+    }
+
+    const choice = await tx.lifeChoice.create({
+      data: {
+        lifeRunId,
+        chapter: input.chapter,
+        prompt,
+        choiceText,
+        resultText: input.resultText ?? null,
+        effects: effects as Prisma.InputJsonValue,
+        chatId: input.chatId ?? null,
+      },
+    })
+
+    for (const [key, delta] of Object.entries(effects)) {
+      await tx.lifeStat.upsert({
+        where: { lifeRunId_key: { lifeRunId, key } },
+        create: { lifeRunId, key, value: delta },
+        update: { value: { increment: delta } },
+      })
+    }
+
+    // Advance the run's chapter marker so a resume reflects progress.
+    if (input.chapter > run.currentChapter) {
+      await tx.lifeRun.update({
+        where: { id: lifeRunId },
+        data: { currentChapter: input.chapter },
+      })
+    }
+
+    const stats = await tx.lifeStat.findMany({
+      where: { lifeRunId },
+      orderBy: { key: 'asc' },
+    })
+
+    return { choice, stats }
+  })
+}
+
+// Loads a run with its stats, choices, and (if resolved) ending — for resume.
+export async function getLifeRunForUser(lifeRunId: number, userId: number) {
+  const run = await prisma.lifeRun.findUnique({
+    where: { id: lifeRunId },
+    include: {
+      Stats: { orderBy: { key: 'asc' } },
+      Choices: { orderBy: [{ chapter: 'asc' }, { id: 'asc' }] },
+      Ending: true,
+    },
+  })
+  if (!run) throw withStatusCode(`LifeRun ${lifeRunId} does not exist.`, 404)
+  if (run.userId !== userId) {
+    throw withStatusCode(
+      'LifeRun does not belong to the authenticated user.',
+      403,
+    )
+  }
+  return run
+}

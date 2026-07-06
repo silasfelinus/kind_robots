@@ -1,0 +1,117 @@
+@admintoken = {{$dotenv ADMIN_TOKEN}}
+@usertoken = {{$dotenv USER_TOKEN}}
+@host = https://kind-robots.vercel.app
+
+// @ts-nocheck
+/* eslint-disable */
+// test-ignore
+
+// ArtJob queue contract tests (art-generator-connect t-014).
+// Lifecycle: enqueue -> claim -> complete -> poll. Run top to bottom.
+// The claim/complete steps need admin credentials; enqueue/poll work with
+// any authenticated user (own jobs only).
+
+### 1. Enqueue an A1111 job (expect 201, data.job.status = PENDING)
+POST {{host}}/api/art/queue
+Content-Type: application/json
+Authorization: Bearer {{ admintoken }}
+
+{
+  "engine": "A1111",
+  "payload": {
+    "promptString": "contract test - a tiny robot inspecting a queue",
+    "width": 512,
+    "height": 512,
+    "steps": 8
+  },
+  "projectSlug": "art-generator-connect"
+}
+
+###
+
+### 2. List queue (expect the new job PENDING; admin sees all users' jobs)
+GET {{host}}/api/art/queue?status=PENDING&limit=10
+Authorization: Bearer {{ admintoken }}
+
+###
+
+### 3. Claim the next runnable job (expect data.job RUNNING with claimedBy;
+###    re-run immediately: expect "No runnable jobs." - claims are atomic)
+POST {{host}}/api/art/queue/claim
+Content-Type: application/json
+Authorization: Bearer {{ admintoken }}
+
+{
+  "agentId": "http-contract-test",
+  "engines": ["A1111"]
+}
+
+###
+
+### 4. Poll the job by id (replace 1; expect RUNNING after step 3)
+GET {{host}}/api/art/queue/1
+Authorization: Bearer {{ admintoken }}
+
+###
+
+### 5a. Complete the claimed job successfully (replace ids; artImageId must
+###     reference a real ArtImage, e.g. from /api/art/save-generated)
+POST {{host}}/api/art/queue/1/complete
+Content-Type: application/json
+Authorization: Bearer {{ admintoken }}
+
+{
+  "success": true,
+  "artImageId": 4032
+}
+
+###
+
+### 5b. OR report failure (job returns to PENDING until attempts hit 3 -> FAILED)
+POST {{host}}/api/art/queue/1/complete
+Content-Type: application/json
+Authorization: Bearer {{ admintoken }}
+
+{
+  "success": false,
+  "error": "contract test failure path"
+}
+
+###
+
+### 6. Negative: enqueue without payload (expect 400)
+POST {{host}}/api/art/queue
+Content-Type: application/json
+Authorization: Bearer {{ admintoken }}
+
+{
+  "engine": "A1111"
+}
+
+###
+
+### 7. Negative: claim with a non-admin user token (expect 403)
+POST {{host}}/api/art/queue/claim
+Content-Type: application/json
+Authorization: Bearer {{ usertoken }}
+
+{
+  "agentId": "http-contract-test"
+}
+
+###
+
+### 8. Negative: complete a job that is not RUNNING (expect 409)
+POST {{host}}/api/art/queue/1/complete
+Content-Type: application/json
+Authorization: Bearer {{ admintoken }}
+
+{
+  "success": true,
+  "artImageId": 4032
+}
+
+###
+
+### 9. Negative: unauthenticated list (expect 401)
+GET {{host}}/api/art/queue

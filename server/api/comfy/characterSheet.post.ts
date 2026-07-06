@@ -97,33 +97,9 @@ export default defineEventHandler(async (event) => {
       serverId: body.serverId ?? null,
     })
 
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
+    // t-015: the former inline apiKey-only lookup here was redundant - this
+    // route authenticates via authAndGate (comfyGate) below, which accepts
+    // machine auth (JWT, user apiKey, or beta admin token) since t-011.
 
     const server = await resolveServer({
       userId: gate.user.id,

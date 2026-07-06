@@ -146,6 +146,33 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-100;
   }
 
+  /*
+   * Status callouts — inline tinted notices (the most-repeated surface in
+   * the app, previously written by hand with drifting opacities like
+   * border-info/30 vs /40 and bg-info/5 vs /10 vs /15). Canonical form:
+   * border-{status}/40 + bg-{status}/10 + text-{status}. Use .kr-note with
+   * one modifier. For a loud, full-width banner prefer DaisyUI `alert`.
+   */
+  .kr-note {
+    @apply rounded-2xl border p-4 text-sm font-semibold;
+  }
+
+  .kr-note-info {
+    @apply border-info/40 bg-info/10 text-info;
+  }
+
+  .kr-note-success {
+    @apply border-success/40 bg-success/10 text-success;
+  }
+
+  .kr-note-warning {
+    @apply border-warning/40 bg-warning/10 text-warning;
+  }
+
+  .kr-note-error {
+    @apply border-error/40 bg-error/10 text-error;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

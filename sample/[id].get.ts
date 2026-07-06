@@ -2,53 +2,63 @@
 /* eslint-disable */
 // test-ignore
 
-// /server/api/[model]/[id].get.ts
-import { defineEventHandler, createError } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
+// server/api/samples/[id].get.ts
+//
+// TEMPLATE: single-record fetch for a fictional `Sample` model.
+// To copy for a new model: swap `sample` for your prisma model accessor and
+// rename "Sample" in the messages. Add `include` if callers need relations.
+import { defineEventHandler } from 'h3'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
-  const modelName = 'sampleModel' // <-- change this
-  const paramName = 'id'
-  let id: number
-  let response
-
   try {
-    id = Number(event.context.params?.[paramName])
-    if (isNaN(id) || id <= 0) {
-      throw createError({
+    const id = Number(event.context.params?.id)
+
+    if (!Number.isInteger(id) || id <= 0) {
+      event.node.res.statusCode = 400
+
+      return {
+        success: false,
+        message: 'Invalid sample ID. It must be a positive integer.',
         statusCode: 400,
-        message: `Invalid ${modelName} ID. Must be a positive integer.`,
-      })
+      }
     }
 
-    const data = await prisma[modelName].findUnique({ where: { id } })
+    const data = await prisma.sample.findUnique({
+      where: { id },
+      // Add relations your consumers need, e.g.:
+      // include: { ArtImage: true, User: { select: { id: true, username: true } } },
+    })
 
     if (!data) {
-      throw createError({
+      event.node.res.statusCode = 404
+
+      return {
+        success: false,
+        message: 'Sample not found.',
         statusCode: 404,
-        message: `${modelName} with ID ${id} not found.`,
-      })
+      }
     }
 
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
-      message: `${modelName} fetched successfully.`,
+      message: 'Sample details fetched successfully.',
       data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error) {
-    const handled = errorHandler(error)
-    console.error(`Error fetching ${modelName}:`, handled)
-    event.node.res.statusCode = handled.statusCode || 500
-    response = {
-      success: false,
-      message:
-        handled.message || `Failed to fetch ${modelName} with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+  } catch (error: unknown) {
+    const { success, message, statusCode } = errorHandler(error)
+    const safeStatusCode = statusCode ?? 500
+
+    event.node.res.statusCode = safeStatusCode
+
+    return {
+      success,
+      message,
+      statusCode: safeStatusCode,
     }
   }
-
-  return response
 })

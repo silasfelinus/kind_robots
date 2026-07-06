@@ -15,6 +15,7 @@ import {
   type AnimationEffectId,
   type FxRegion,
 } from '@/stores/animationStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 export type VoiceBusRole = 'voice' | 'view' | 'system'
 
@@ -28,12 +29,28 @@ export type VoiceBusMessage = {
 export type VoiceBusCommand = {
   id: number
   target: string
-  action: 'on' | 'off' | 'toggle' | 'clear'
+  action: 'on' | 'off' | 'toggle' | 'clear' | 'set' | 'draft'
   effect?: string
   effectId?: string
   surface?: string
+  theme?: string
+  prompt?: string
+  style?: string
+  size?: string
+  gallery?: string
   spokenText: string
   source: string
+  at: string
+}
+
+// An art draft surfaced on the view for review. Voice never generates or
+// publishes images — this is display + a manual handoff only.
+export type VoiceArtRequest = {
+  id: number
+  prompt: string
+  style?: string
+  size?: string
+  gallery?: string
   at: string
 }
 
@@ -46,6 +63,7 @@ export const useSerendipityVoiceStore = defineStore(
   'serendipityVoiceStore',
   () => {
     const animationStore = useAnimationStore()
+    const themeStore = useThemeStore()
 
     const relayBaseUrl = ref<string>(DEFAULT_RELAY_URL)
     const connected = ref(false)
@@ -54,6 +72,7 @@ export const useSerendipityVoiceStore = defineStore(
     const lastAppliedText = ref<string | null>(null)
 
     const messages = ref<VoiceBusMessage[]>([])
+    const artRequests = ref<VoiceArtRequest[]>([])
     const commandCursor = ref(0)
     const messageCursor = ref(0)
 
@@ -98,6 +117,13 @@ export const useSerendipityVoiceStore = defineStore(
       const slug = (command.effect ?? '').toLowerCase().trim()
       if (!slug) return null
 
+      // "surprise me" — pick a random generation-safe effect.
+      if (slug === 'surprise') {
+        const pool = animationStore.safeEffects
+        const pick = pool[Math.floor(Math.random() * pool.length)]
+        return pick ? pick.id : null
+      }
+
       const singular = slug.replace(/s$/, '')
       const match = animationStore.effects.find((effect) => {
         const id = effect.id.toLowerCase()
@@ -119,7 +145,53 @@ export const useSerendipityVoiceStore = defineStore(
         : 'page'
     }
 
+    function applyThemeCommand(command: VoiceBusCommand): void {
+      const theme = (command.theme ?? '').trim()
+      if (!theme) {
+        pushLocalMessage('system', 'Theme command had no theme name.')
+        return
+      }
+
+      void themeStore.setActiveTheme(theme).then((result) => {
+        if (result.success) {
+          lastAppliedText.value = `theme → ${theme}`
+          pushLocalMessage('system', `Applied: theme set to ${theme}.`)
+          void postAck(`Serendipity view: theme is now ${theme}.`)
+        } else {
+          const message = result.message ?? `Unknown theme "${theme}".`
+          lastError.value = message
+          pushLocalMessage('system', message)
+        }
+      })
+    }
+
+    function applyArtCommand(command: VoiceBusCommand): void {
+      // Draft only: surface the request for review. Never generate or publish.
+      const request: VoiceArtRequest = {
+        id: command.id,
+        prompt: command.prompt ?? command.spokenText,
+        at: command.at,
+      }
+      if (command.style) request.style = command.style
+      if (command.size) request.size = command.size
+      if (command.gallery) request.gallery = command.gallery
+
+      artRequests.value.push(request)
+      lastAppliedText.value = `art draft: ${request.prompt}`
+      pushLocalMessage('system', `Art draft received: ${request.prompt}`)
+    }
+
     function applyCommand(command: VoiceBusCommand): void {
+      if (command.target === 'theme') {
+        applyThemeCommand(command)
+        return
+      }
+
+      if (command.target === 'art') {
+        applyArtCommand(command)
+        return
+      }
+
       if (command.target !== 'animation') {
         pushLocalMessage(
           'system',
@@ -271,6 +343,7 @@ export const useSerendipityVoiceStore = defineStore(
       lastAppliedText,
       messages,
       recentMessages,
+      artRequests,
       setRelayBaseUrl,
       start,
       stop,

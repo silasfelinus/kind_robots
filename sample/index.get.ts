@@ -2,51 +2,55 @@
 /* eslint-disable */
 // test-ignore
 
-// /server/api/[model]/index.get.ts
-
+// server/api/samples/index.get.ts
+//
+// TEMPLATE: list endpoint for a fictional `Sample` model.
+// To copy for a new model:
+//   1. Replace `sample` with your prisma client accessor (prisma.yourModel).
+//   2. Rename "Sample"/"samples" in messages and the path comment above.
+//   3. If your model has no isPublic/userId columns, drop the visibility
+//      filter and just findMany({ orderBy: ... }).
 import { defineEventHandler } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  const modelName = 'sampleModel' // <-- update to your actual model (e.g., 'theme', 'bot', etc.)
-
   try {
-    console.log(`[${modelName}.get] Fetching entries...`)
-
+    // Auth is OPTIONAL here: anonymous callers get public rows only,
+    // authenticated callers also see their own private rows.
     const { isValid, user } = await validateApiKey(event)
-    const includeUserData = isValid && user && typeof user.id === 'number'
 
-    const whereClause = includeUserData
-      ? {
-          OR: [{ isPublic: true }, { userId: user.id }],
-        }
-      : { isPublic: true }
+    const where =
+      isValid && user
+        ? { OR: [{ isPublic: true }, { userId: user.id }] }
+        : { isPublic: true }
 
-    const data = await prisma[modelName].findMany({
-      where: whereClause,
+    const data = await prisma.sample.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
+      // Add `include`/`select` here if callers need relations (see
+      // server/api/scenarios/index.get.ts for a select-map example).
     })
 
-    console.log(`[${modelName}.get] Retrieved ${data.length} entries.`)
-
     event.node.res.statusCode = 200
+
     return {
       success: true,
-      message: includeUserData
-        ? `All ${modelName}s retrieved for user ${user.id}.`
-        : `Public ${modelName}s retrieved successfully.`,
+      message: 'Samples fetched successfully.',
       data,
+      statusCode: 200,
     }
-  } catch (error) {
-    const handled = errorHandler(error)
-    console.error(`[${modelName}.get] Error:`, handled)
+  } catch (error: unknown) {
+    const { success, message, statusCode } = errorHandler(error)
+    const safeStatusCode = statusCode ?? 500
 
-    event.node.res.statusCode = handled.statusCode || 500
+    event.node.res.statusCode = safeStatusCode
+
     return {
-      success: false,
-      message: handled.message || `Failed to fetch ${modelName}s.`,
+      success,
+      message,
+      statusCode: safeStatusCode,
     }
   }
 })

@@ -36,8 +36,9 @@ export const useComponentStore = defineStore('componentStore', () => {
   async function initialize() {
     if (isInitialized.value) return
     try {
-      const response = await fetch('/api/components')
-      const data = await response.json()
+      // performFetch (not raw fetch) so a dead DB trips the shared circuit
+      // breaker instead of hanging every page that lists components.
+      const data = await performFetch<Component[]>('/api/components')
       if (data.success && data.data) {
         components.value = data.data
         usingSnapshot.value = false
@@ -153,8 +154,7 @@ export const useComponentStore = defineStore('componentStore', () => {
 
         log('Fetched components.json.')
         log('Fetching existing components from the API...')
-        const apiResponse = await fetch('/api/components')
-        const apiData = await apiResponse.json()
+        const apiData = await performFetch<Component[]>('/api/components')
         if (!apiData.success || !Array.isArray(apiData.data)) {
           throw new Error('Invalid API response: expected data array')
         }

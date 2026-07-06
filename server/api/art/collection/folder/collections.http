@@ -1,0 +1,54 @@
+@admintoken = {{$dotenv ADMIN_TOKEN}}
+@usertoken = {{$dotenv USER_TOKEN}}
+@host = https://kind-robots.vercel.app
+@slug = art-generator-connect
+
+// @ts-nocheck
+/* eslint-disable */
+// test-ignore
+
+// Folder-based art collection contract tests (art-generator-connect t-007).
+// A folder under public/images/ whose name matches a slug IS that slug's
+// collection. These routes list folder collections, read one, and sync a
+// folder into a saved DB ArtCollection. Run top to bottom.
+
+### 1. List all folder collections (public; expect data[] of {slug, count, preview, images})
+GET {{host}}/api/art/collection/folders
+
+###
+
+### 2. Read one folder collection's images (public; expect data.images[] of URLs)
+GET {{host}}/api/art/collection/folder/{{ slug }}
+
+###
+
+### 3. Sync the folder into a DB collection (auth; expect data.created + collectionId)
+###    First run materializes ArtImage rows; re-running returns created: 0.
+POST {{host}}/api/art/collection/folder/{{ slug }}/sync
+Authorization: Bearer {{ usertoken }}
+
+###
+
+### 4. Re-sync is idempotent (expect data.created = 0, alreadyPresent = total)
+POST {{host}}/api/art/collection/folder/{{ slug }}/sync
+Authorization: Bearer {{ usertoken }}
+
+###
+
+### 5. The synced collection now shows up among DB collections (find it by slug)
+GET {{host}}/api/art/collection?summary=true
+
+###
+
+### 6. Negative: read a slug with no folder (expect 404)
+GET {{host}}/api/art/collection/folder/definitely-not-a-real-slug-xyz
+
+###
+
+### 7. Negative: sync unauthenticated (expect 401)
+POST {{host}}/api/art/collection/folder/{{ slug }}/sync
+
+###
+
+### 8. Negative: invalid slug shape (expect 400)
+GET {{host}}/api/art/collection/folder/Not_A_Valid_Slug!

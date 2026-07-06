@@ -42,10 +42,26 @@ type ArtWithRelations = ArtImage & {
   Server?: unknown
 }
 
+export type FolderCollectionSummary = {
+  slug: string
+  images: string[]
+  count: number
+  preview: string | null
+}
+
+export type FolderSyncResult = {
+  slug: string
+  collectionId: number
+  total: number
+  created: number
+  alreadyPresent: number
+}
+
 type CollectionState = {
   collections: ArtCollection[]
   currentCollection: ArtCollection | null
   autoSave: boolean
+  folderCollections: FolderCollectionSummary[]
 }
 
 type AddArtImageToCollectionInput = {
@@ -261,7 +277,10 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     collections: [],
     currentCollection: null,
     autoSave: true,
+    folderCollections: [],
   })
+
+  const hasFetchedFolders = ref(false)
 
   const userStore = useUserStore()
   const artStore = useArtStore()
@@ -992,8 +1011,59 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     fetchPromise.value = null
   }
 
+  /**
+   * Load the folder-based collections (public/images/{slug}/ folders) so the
+   * gallery can show them alongside the DB-backed ArtCollections. Cached after
+   * the first successful load; pass force to refetch.
+   */
+  async function fetchFolderCollections(
+    force = false,
+  ): Promise<FolderCollectionSummary[]> {
+    if (!force && hasFetchedFolders.value) return state.folderCollections
+
+    const response = await performFetch<FolderCollectionSummary[]>(
+      '/api/art/collection/folders',
+    )
+
+    if (!response.success || !Array.isArray(response.data)) {
+      throw new Error(
+        response.message || 'Failed to fetch folder collections',
+      )
+    }
+
+    state.folderCollections = response.data
+    hasFetchedFolders.value = true
+    return state.folderCollections
+  }
+
+  /**
+   * Promote a folder into a real DB ArtCollection: the server ensures a
+   * collection exists at the slug and materializes an ArtImage row per folder
+   * image. Idempotent. Refreshes both the DB collections (so the synced one
+   * appears as a normal collection) and the folder list (updated counts).
+   */
+  async function syncFolderCollection(
+    slug: string,
+  ): Promise<FolderSyncResult> {
+    const response = await performFetch<FolderSyncResult>(
+      `/api/art/collection/folder/${encodeURIComponent(slug)}/sync`,
+      { method: 'POST' },
+    )
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || `Failed to sync folder "${slug}"`)
+    }
+
+    await fetchCollections(true)
+    await fetchFolderCollections(true)
+    return response.data
+  }
+
   return {
     ...toRefs(state),
+
+    fetchFolderCollections,
+    syncFolderCollection,
 
     selectedCollectionIds,
     selectedCollections,

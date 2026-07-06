@@ -1,5 +1,12 @@
-<!-- /components/content/sample/sample-card.vue -->
+<!-- /components/sample/sample-card.vue -->
+<!-- TEMPLATE — one row in the gallery. Modeled on
+     /components/rewards/reward-card.vue: a reactable-card wrapper
+     (components/wonderlab/reactable-card.vue) with hover actions, badges,
+     and store-backed select/delete. -->
 <template>
+  <!-- ReactionTargetType has no per-model 'sample' entry — reuse 'resource'
+       / 'RESOURCE', or register your real model in stores/reactionStore.ts
+       (targetIdKeyMap + the category enum). -->
   <reactable-card
     :selected="activeSelected"
     :compact="compact"
@@ -11,6 +18,18 @@
     @select="selectSample"
   >
     <template #actions>
+      <!-- Interact deep-links: the store action selects the row AND hops the
+           dashboard to the interact tab. -->
+      <button
+        v-if="showActions && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-success shadow transition hover:bg-success hover:text-success-content"
+        type="button"
+        title="Interact with Sample"
+        @click.stop="interactWithSample"
+      >
+        <Icon name="kind-icon:play" class="h-4 w-4" />
+      </button>
+
       <button
         v-if="showActions && allowEdit && (activeSelected || compact)"
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
@@ -32,32 +51,24 @@
       </button>
     </template>
 
+    <!-- Sample has an optional imageId (ArtImage). This template keeps an
+         icon placeholder; for the full base64/thumbnail/path fallback chain,
+         copy loadRewardImage from reward-card.vue. -->
     <div
-      v-if="showImage"
       :class="[
         'relative flex items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300',
         compact ? 'h-24 w-full' : 'h-36 w-full',
       ]"
     >
       <Icon
-        :name="sample.icon || fallbackIcon"
+        :name="fallbackIcon"
         :class="compact ? 'h-12 w-12' : 'h-20 w-20'"
         class="text-primary/70"
       />
 
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span
-          v-if="activeSelected"
-          class="badge badge-primary badge-sm"
-        >
+        <span v-if="activeSelected" class="badge badge-primary badge-sm shadow">
           Selected
-        </span>
-
-        <span
-          class="badge badge-sm"
-          :class="sample.isPublic ? 'badge-success' : 'badge-warning'"
-        >
-          {{ sample.isPublic ? 'Public' : 'Private' }}
         </span>
       </div>
 
@@ -91,33 +102,21 @@
       </p>
 
       <div v-if="showMeta" class="flex flex-wrap gap-2">
-        <span class="badge badge-outline badge-sm">
-          {{ sample.type || 'sample' }}
+        <span
+          class="badge badge-sm"
+          :class="sample.isPublic ? 'badge-info' : 'badge-ghost'"
+        >
+          {{ sample.isPublic ? 'Public' : 'Private' }}
         </span>
 
-        <span v-if="sample.label" class="badge badge-ghost badge-sm">
-          {{ sample.label }}
+        <span v-if="sample.isMature" class="badge badge-warning badge-sm">
+          Mature
         </span>
 
-        <span v-if="sample.component" class="badge badge-primary badge-sm">
-          {{ sample.component }}
-        </span>
-
-        <span v-if="sample.link" class="badge badge-secondary badge-sm">
-          Link
+        <span v-if="sample.type" class="badge badge-outline badge-sm">
+          {{ sample.type }}
         </span>
       </div>
-
-      <button
-        v-if="showSelectButton"
-        class="btn btn-sm mt-auto rounded-xl"
-        :class="activeSelected ? 'btn-primary text-white' : 'btn-outline'"
-        type="button"
-        @click.stop="selectSample"
-      >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
-        {{ activeSelected ? 'Selected' : 'Select' }}
-      </button>
 
       <details
         v-if="showDebug"
@@ -128,7 +127,9 @@
           Debug
         </summary>
 
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(sample, null, 2) }}</pre>
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+          JSON.stringify(sample, null, 2)
+        }}</pre>
       </details>
     </div>
   </reactable-card>
@@ -136,30 +137,16 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useSampleModelStore } from '@/stores/sampleModelStore'
-
-type SampleModel = {
-  id: number
-  title?: string | null
-  type?: string | null
-  label?: string | null
-  icon?: string | null
-  description?: string | null
-  link?: string | null
-  component?: string | null
-  isPublic?: boolean | null
-}
+import { useSampleStore, type Sample } from '@/stores/sampleStore'
 
 const props = withDefaults(
   defineProps<{
-    sample: SampleModel
+    sample: Sample
     selected?: boolean
-    showImage?: boolean
     compact?: boolean
     showActions?: boolean
     showDescription?: boolean
     showMeta?: boolean
-    showSelectButton?: boolean
     showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
@@ -168,12 +155,10 @@ const props = withDefaults(
   }>(),
   {
     selected: false,
-    showImage: true,
     compact: false,
     showActions: true,
     showDescription: true,
     showMeta: true,
-    showSelectButton: false,
     showReaction: true,
     showDebug: false,
     allowEdit: true,
@@ -183,28 +168,36 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
+  select: [id: number]
   edit: [id: number]
   delete: [id: number]
 }>()
 
-const sampleStore = useSampleModelStore()
+const sampleStore = useSampleStore()
 
 const activeSelected = computed(() => {
-  return props.selected || sampleStore.selectedModel?.id === props.sample.id
+  return props.selected || sampleStore.selectedSample?.id === props.sample.id
 })
 
 const sampleTitle = computed(() => {
   return props.sample.title || props.sample.label || `Sample #${props.sample.id}`
 })
 
-function selectSample() {
-  sampleStore.selectModel(props.sample.id)
+async function selectSample() {
+  await sampleStore.selectSample(props.sample.id)
+  emit('select', props.sample.id)
 }
 
-async function deleteSample() {
-  const result = await sampleStore.deleteModel(props.sample.id)
+async function interactWithSample() {
+  await sampleStore.startSampleInteraction(props.sample.id)
+}
 
-  if (result?.success !== false) {
+// Edit is emitted, not handled here — the parent gallery owns
+// startEditingSample and the form panel.
+async function deleteSample() {
+  const result = await sampleStore.deleteSample(props.sample.id)
+
+  if (result.success) {
     emit('delete', props.sample.id)
   }
 }

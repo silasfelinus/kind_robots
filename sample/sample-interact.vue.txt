@@ -1,26 +1,47 @@
-<!-- /components/content/sample/sample-interact.vue -->
+<!-- /components/sample/sample-interact.vue -->
+<!-- TEMPLATE — the interact tab: a workspace for the store's selectedSample.
+     Purely presentational + store reads; replace the action modes and
+     preview with your model's real workflow (a live reference:
+     /components/rewards/reward-interact.vue). Cards deep-link here via
+     sampleStore.startSampleInteraction(id). -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
     <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
+      class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
     >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">
-        Sample Interaction
-      </h1>
-
-      <p
-        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
+      <button
+        class="btn btn-ghost btn-sm shrink-0 rounded-xl"
+        type="button"
+        @click="backToGallery"
       >
-        Use the selected sample as a launch point for previews, inspections,
-        prompts, or model-specific workflows.
-      </p>
+        <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+        <span class="hidden sm:inline">Gallery</span>
+      </button>
+
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-lg font-bold text-primary md:text-xl">
+          {{ selectedSampleTitle }}
+        </h1>
+
+        <p class="hidden truncate text-xs text-base-content/50 sm:block">
+          Use the selected sample as a launch point for previews, inspections,
+          or model-specific workflows.
+        </p>
+      </div>
+
+      <span
+        v-if="selectedSample"
+        class="badge badge-primary badge-outline shrink-0"
+      >
+        {{ selectedSample.type || 'sample' }}
+      </span>
     </header>
 
     <div
       v-if="statusMessage"
-      class="rounded-2xl border p-3 text-sm"
+      class="shrink-0 rounded-2xl border p-3 text-sm"
       :class="
         statusTone === 'error'
           ? 'border-error/40 bg-error/10 text-error'
@@ -31,31 +52,12 @@
     </div>
 
     <section
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,440px)]"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(320px,440px)] xl:overflow-hidden"
     >
       <main
         class="flex min-h-0 flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
       >
         <section class="shrink-0">
-          <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 class="text-lg font-bold text-base-content">
-                Selected Sample
-              </h2>
-
-              <p class="text-sm text-base-content/60">
-                This is the current store selection.
-              </p>
-            </div>
-
-            <div
-              v-if="selectedSample"
-              class="badge badge-primary badge-outline"
-            >
-              {{ selectedSampleType }}
-            </div>
-          </div>
-
           <article
             v-if="selectedSample"
             class="rounded-2xl border border-primary/30 bg-primary/10 p-4"
@@ -64,18 +66,38 @@
               <div
                 class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-base-100"
               >
-                <Icon :name="selectedSampleIcon" class="h-7 w-7 text-primary" />
+                <Icon name="kind-icon:sparkles" class="h-7 w-7 text-primary" />
               </div>
 
               <div class="min-w-0 flex-1">
-                <h3 class="text-xl font-bold text-primary">
+                <h2 class="text-xl font-bold text-primary">
                   {{ selectedSampleTitle }}
-                </h3>
+                </h2>
 
-                <p class="mt-2 whitespace-pre-wrap text-sm text-base-content/75">
+                <p
+                  class="mt-2 whitespace-pre-wrap text-sm text-base-content/75"
+                >
                   {{ selectedSampleDescription }}
                 </p>
 
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span
+                    class="badge badge-sm"
+                    :class="selectedSample.isPublic ? 'badge-info' : 'badge-ghost'"
+                  >
+                    {{ selectedSample.isPublic ? 'Public' : 'Private' }}
+                  </span>
+
+                  <span
+                    v-if="selectedSample.isMature"
+                    class="badge badge-warning badge-sm"
+                  >
+                    Mature
+                  </span>
+                </div>
+
+                <!-- Model fields only — extend with whatever your real
+                     model carries. -->
                 <div class="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
                   <div class="rounded-xl bg-base-100/80 p-2">
                     <span class="font-bold text-base-content/60">Label:</span>
@@ -83,18 +105,18 @@
                   </div>
 
                   <div class="rounded-xl bg-base-100/80 p-2">
-                    <span class="font-bold text-base-content/60">Component:</span>
-                    {{ selectedSample.component || 'none' }}
+                    <span class="font-bold text-base-content/60">Type:</span>
+                    {{ selectedSample.type || 'none' }}
                   </div>
 
                   <div class="rounded-xl bg-base-100/80 p-2">
-                    <span class="font-bold text-base-content/60">Link:</span>
-                    {{ selectedSample.link || 'none' }}
+                    <span class="font-bold text-base-content/60">Designer:</span>
+                    {{ selectedSample.designer || 'none' }}
                   </div>
 
                   <div class="rounded-xl bg-base-100/80 p-2">
                     <span class="font-bold text-base-content/60">ID:</span>
-                    {{ selectedSample.id ?? 'none' }}
+                    {{ selectedSample.id }}
                   </div>
                 </div>
               </div>
@@ -109,10 +131,20 @@
 
             <div>
               <p class="text-lg font-bold">No sample selected</p>
+
               <p class="mt-1 text-sm">
-                Pick a sample from the gallery before launching an interaction.
+                Pick a sample from the gallery before launching an
+                interaction.
               </p>
             </div>
+
+            <button
+              class="btn btn-primary btn-sm rounded-xl"
+              type="button"
+              @click="backToGallery"
+            >
+              Go to Gallery
+            </button>
           </div>
         </section>
 
@@ -128,8 +160,8 @@
               </h2>
 
               <p class="text-xs text-base-content/50">
-                This is the normalized payload generated from the selected
-                sample and current action.
+                The normalized payload generated from the selected sample and
+                current action.
               </p>
             </div>
 
@@ -165,25 +197,23 @@
         <section
           class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
-          <h2 class="mb-3 text-lg font-bold text-base-content">
-            Action
-          </h2>
+          <h2 class="mb-3 text-lg font-bold text-base-content">Action</h2>
 
           <div class="grid grid-cols-1 gap-3">
             <button
-              v-for="mode in actionModes"
-              :key="mode.value"
+              v-for="entry in actionModes"
+              :key="entry.value"
               class="btn justify-start rounded-2xl text-left normal-case"
-              :class="actionMode === mode.value ? 'btn-primary' : 'btn-outline'"
+              :class="actionMode === entry.value ? 'btn-primary' : 'btn-outline'"
               type="button"
               :disabled="isRunning"
-              @click="actionMode = mode.value"
+              @click="actionMode = entry.value"
             >
-              <Icon :name="mode.icon" class="h-5 w-5" />
+              <Icon :name="entry.icon" class="h-5 w-5" />
 
               <span class="flex min-w-0 flex-col items-start">
-                <span class="font-bold">{{ mode.title }}</span>
-                <span class="text-xs opacity-70">{{ mode.description }}</span>
+                <span class="font-bold">{{ entry.title }}</span>
+                <span class="text-xs opacity-70">{{ entry.description }}</span>
               </span>
             </button>
           </div>
@@ -211,9 +241,7 @@
         <section
           class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
-          <h2 class="mb-3 text-lg font-bold text-base-content">
-            Output
-          </h2>
+          <h2 class="mb-3 text-lg font-bold text-base-content">Output</h2>
 
           <div
             v-if="lastOutput"
@@ -262,7 +290,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useSampleModelStore } from '@/stores/sampleModelStore'
+import { useSampleStore } from '@/stores/sampleStore'
+import { useNavStore } from '@/stores/navStore'
 
 type ActionMode = 'preview' | 'launch' | 'inspect' | 'custom'
 
@@ -275,7 +304,11 @@ type ActionModeEntry = {
 
 type StatusTone = 'success' | 'error'
 
-const sampleStore = useSampleModelStore()
+// Must match the manager's registered dashboard key.
+const dashboardKey = 'sample' as const
+
+const sampleStore = useSampleStore()
+const navStore = useNavStore()
 
 const actionMode = ref<ActionMode>('preview')
 const customDirection = ref('')
@@ -284,6 +317,7 @@ const statusTone = ref<StatusTone>('success')
 const isRunning = ref(false)
 const lastOutput = ref('')
 
+// Placeholder actions — swap these for the real verbs of your model.
 const actionModes: ActionModeEntry[] = [
   {
     value: 'preview',
@@ -300,7 +334,7 @@ const actionModes: ActionModeEntry[] = [
   {
     value: 'inspect',
     title: 'Inspect',
-    description: 'Expose structure, links, labels, and metadata.',
+    description: 'Expose fields, flags, and metadata.',
     icon: 'kind-icon:search',
   },
   {
@@ -311,10 +345,15 @@ const actionModes: ActionModeEntry[] = [
   },
 ]
 
-const selectedSample = computed(() => sampleStore.selected ?? null)
+// All reads go through the store — this view owns no model state.
+const selectedSample = computed(() => sampleStore.selectedSample)
 
 const selectedSampleTitle = computed(() => {
-  return selectedSample.value?.title || selectedSample.value?.label || 'Untitled Sample'
+  return (
+    selectedSample.value?.title ||
+    selectedSample.value?.label ||
+    'No sample selected'
+  )
 })
 
 const selectedSampleDescription = computed(() => {
@@ -323,14 +362,6 @@ const selectedSampleDescription = computed(() => {
     selectedSample.value?.label ||
     'No description provided.'
   )
-})
-
-const selectedSampleType = computed(() => {
-  return selectedSample.value?.type || 'sample'
-})
-
-const selectedSampleIcon = computed(() => {
-  return selectedSample.value?.icon || 'kind-icon:sparkles'
 })
 
 const canRunAction = computed(() => {
@@ -350,9 +381,10 @@ const interactionPreview = computed(() => {
     `Sample: ${selectedSampleTitle.value}`,
     `Type: ${sample.type || 'sample'}`,
     `Label: ${sample.label || 'none'}`,
+    `Designer: ${sample.designer || 'none'}`,
     `Description: ${selectedSampleDescription.value}`,
-    `Component: ${sample.component || 'none'}`,
-    `Link: ${sample.link || 'none'}`,
+    `Public: ${sample.isPublic ? 'yes' : 'no'}`,
+    `Mature: ${sample.isMature ? 'yes' : 'no'}`,
     `Action mode: ${actionMode.value}`,
     normalizedCustomDirection.value
       ? `Custom direction: ${normalizedCustomDirection.value}`
@@ -365,6 +397,10 @@ const interactionPreview = computed(() => {
 function setStatus(message: string, tone: StatusTone = 'success') {
   statusMessage.value = message
   statusTone.value = tone
+}
+
+function backToGallery() {
+  navStore.setDashboardTab(dashboardKey, 'gallery')
 }
 
 function buildActionOutput() {
@@ -387,9 +423,10 @@ function buildActionOutput() {
       `Inspecting ${selectedSampleTitle.value}`,
       `Type: ${sample.type || 'sample'}`,
       `Label: ${sample.label || 'none'}`,
-      `Component: ${sample.component || 'none'}`,
-      `Link: ${sample.link || 'none'}`,
-      `ID: ${sample.id ?? 'none'}`,
+      `Designer: ${sample.designer || 'none'}`,
+      `Public: ${sample.isPublic ? 'yes' : 'no'}`,
+      `Mature: ${sample.isMature ? 'yes' : 'no'}`,
+      `ID: ${sample.id}`,
     ].join('\n')
   }
 

@@ -2,15 +2,16 @@
 /* eslint-disable */
 // test-ignore
 
-// server/api/samples/[id].patch.ts
+// server/api/samples/batch.patch.ts
 //
-// TEMPLATE: single-record update for a fictional `Sample` model.
-// To copy for a new model:
-//   1. Swap `sample` for your prisma model accessor and rename Sample types.
-//   2. Rewrite SamplePatchInput + buildSampleUpdateInput with your fields —
-//      keep the `'field' in body` guards so absent fields are left untouched
-//      while explicit nulls can clear nullable columns.
-//   3. Keep the ownership check (owner or admin) — never patch on trust.
+// TEMPLATE: batch update for a fictional `Sample` model, modeled on
+// server/api/scenarios/batch.patch.ts.
+// Body shape: { "updates": [ { "id": number, ...sampleFields }, ... ] }
+// Each entry is validated and updated independently inside its own
+// try/catch; one failing entry never aborts the others. Returns a per-item
+// results array with 200 (all ok) or 207 Multi-Status (partial).
+// To copy for a new model: swap `sample` for your prisma model accessor and
+// keep buildSampleUpdateInput in sync with your [id].patch.ts.
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
@@ -28,9 +29,21 @@ type SamplePatchInput = {
   imageId?: unknown
 }
 
-// ── Normalizer helpers ───────────────────────────────────────────────────────
-// PATCH normalizers are stricter than POST: a provided field with the wrong
-// type is a 400, not a silent fallback.
+type SampleBatchEntry = SamplePatchInput & { id?: unknown }
+
+type SampleBatchBody = {
+  updates?: unknown
+}
+
+type BatchResult = {
+  id: number | null
+  success: boolean
+  message: string
+  statusCode: number
+  data?: unknown
+}
+
+// ── Normalizer helpers (same strict PATCH style as [id].patch.ts) ───────────
 
 function normalizeRequiredString(
   value: unknown,
@@ -86,8 +99,6 @@ function normalizeBoolean(value: unknown, field: string): boolean {
   })
 }
 
-// Optional-unique relation: explicit null/'' disconnects, a positive integer
-// connects. Adjust the generated input type name to match your relation.
 function normalizeArtImageRelation(
   value: unknown,
 ): Prisma.ArtImageUpdateOneWithoutSamplesNestedInput {
@@ -107,10 +118,7 @@ function normalizeArtImageRelation(
   return { connect: { id } }
 }
 
-// ── Update-input builder ─────────────────────────────────────────────────────
-// Only fields present in the body make it into the Prisma update input.
-// Add your model's fields here, one guard per column.
-
+// Add your model's fields here — keep the `'field' in body` guards.
 function buildSampleUpdateInput(
   body: SamplePatchInput,
 ): Prisma.SampleUpdateInput {
@@ -138,25 +146,20 @@ function buildSampleUpdateInput(
   return data
 }
 
-export default defineEventHandler(async (event) => {
+// One entry = one result. Errors are caught here so the batch keeps going.
+async function processEntry(
+  entry: SampleBatchEntry,
+  user: { id: number; Role: string },
+): Promise<BatchResult> {
   let id: number | null = null
 
   try {
-    id = Number(event.context.params?.id)
+    id = Number(entry.id)
 
     if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid sample ID. It must be a positive integer.',
-      })
-    }
-
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
       })
     }
 
@@ -172,8 +175,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Ownership check: only the owner or an admin (Role ADMIN or the id-1
-    // system user) may update. Keep this when copying.
+    // Per-entry ownership check with admin bypass — keep this when copying.
     const isAdmin = user.Role === 'ADMIN' || user.id === 1
 
     if (existingSample.userId !== user.id && !isAdmin) {
@@ -183,16 +185,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<SamplePatchInput>(event)
+    // Strip the routing id before building the Prisma update input.
+    const { id: _omit, ...fields } = entry
+    void _omit
 
-    if (!body || Object.keys(body).length === 0) {
+    if (Object.keys(fields).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    const data = buildSampleUpdateInput(body)
+    const data = buildSampleUpdateInput(fields)
 
     if (Object.keys(data).length === 0) {
       throw createError({
@@ -212,13 +216,75 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    event.node.res.statusCode = 200
-
     return {
+      id,
       success: true,
       message: 'Sample updated successfully.',
-      data: updatedSample,
       statusCode: 200,
+      data: updatedSample,
+    }
+  } catch (error: unknown) {
+    const handledError = errorHandler(error)
+
+    return {
+      id,
+      success: false,
+      message:
+        handledError.message ||
+        `Failed to update sample with ID ${id ?? 'unknown'}.`,
+      statusCode: handledError.statusCode || 500,
+    }
+  }
+}
+
+export default defineEventHandler(async (event) => {
+  try {
+    const { isValid, user } = await validateApiKey(event)
+
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const body = await readBody<SampleBatchBody>(event)
+
+    if (!body || !Array.isArray(body.updates) || body.updates.length === 0) {
+      throw createError({
+        statusCode: 400,
+        message:
+          'Request body must include a non-empty "updates" array of sample objects.',
+      })
+    }
+
+    const results: BatchResult[] = []
+
+    for (const entry of body.updates as SampleBatchEntry[]) {
+      if (!entry || typeof entry !== 'object') {
+        results.push({
+          id: null,
+          success: false,
+          message: 'Each update entry must be an object with an "id".',
+          statusCode: 400,
+        })
+        continue
+      }
+
+      results.push(await processEntry(entry, user))
+    }
+
+    const updatedCount = results.filter((result) => result.success).length
+    const failedCount = results.length - updatedCount
+
+    // 200 if everything succeeded, 207 (Multi-Status) if partial.
+    event.node.res.statusCode = failedCount === 0 ? 200 : 207
+
+    return {
+      success: failedCount === 0,
+      message: `Batch complete: ${updatedCount} updated, ${failedCount} failed.`,
+      data: results,
+      statusCode: event.node.res.statusCode,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -226,7 +292,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handledError.message || `Failed to update sample with ID ${id}.`,
+      message: handledError.message || 'Failed to process sample batch.',
       statusCode: event.node.res.statusCode,
     }
   }

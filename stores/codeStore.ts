@@ -1770,6 +1770,21 @@ export const useCodeStore = defineStore('codeStore', () => {
     }
   }
 
+  // Merge, never overwrite: a remote fetch must not drop locally-saved
+  // blueprints the server response doesn't include. The old code assigned
+  // items.value = res.data inside fetchAllModels, which clobbered the
+  // local rows loaded by loadLocalStorage() and made initialize()'s merge
+  // dead code — unsynced blueprints were lost on every page load.
+  function mergeItems(incoming: Code[]) {
+    const map = new Map<number, Code>()
+    for (const item of items.value) map.set(item.id, item)
+    for (const item of incoming) {
+      if (item && item.id) map.set(item.id, item)
+    }
+    items.value = Array.from(map.values())
+    syncToLocalStorage()
+  }
+
   function loadLocalStorage() {
     if (!import.meta.client) {
       return
@@ -2048,15 +2063,10 @@ export const useCodeStore = defineStore('codeStore', () => {
       loadLocalStorage()
       reshuffleActionHand()
 
-      const fetched = await fetchAllModels()
-      const fetchedIds = new Set(fetched.map((item) => item.id))
+      // fetchAllModels now merges into the local items loaded above, so
+      // no manual merge is needed here.
+      await fetchAllModels()
 
-      items.value = [
-        ...items.value.filter((item) => !fetchedIds.has(item.id)),
-        ...fetched,
-      ]
-
-      syncToLocalStorage()
       isInitialized.value = true
     } catch (error) {
       handleError(error, 'initializing code store')
@@ -2070,8 +2080,7 @@ export const useCodeStore = defineStore('codeStore', () => {
       const res = await performFetch<Code[]>('/api/code')
 
       if (res.success && res.data) {
-        items.value = res.data
-        syncToLocalStorage()
+        mergeItems(res.data)
         return res.data
       }
 

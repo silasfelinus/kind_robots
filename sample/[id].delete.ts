@@ -2,75 +2,79 @@
 /* eslint-disable */
 // test-ignore
 
-// /server/api/[model]/[id].delete.ts
+// server/api/samples/[id].delete.ts
+//
+// TEMPLATE: single-record delete for a fictional `Sample` model.
+// To copy for a new model: swap `sample` for your prisma model accessor,
+// rename "Sample" in the messages, and keep the ownership + admin-bypass
+// check exactly as written.
 import { defineEventHandler, createError } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  const modelName = 'sampleModel' // <-- replace with actual Prisma model name
-  const paramName = 'id'
-  let id: number
-  let response
+  let id: number | null = null
 
   try {
-    // Validate ID param
-    id = Number(event.context.params?.[paramName])
-    if (isNaN(id) || id <= 0) {
+    id = Number(event.context.params?.id)
+
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
-        message: `Invalid ${modelName} ID. Must be a positive integer.`,
+        message: 'Invalid sample ID. It must be a positive integer.',
       })
     }
 
-    console.log(`Deleting ${modelName} with ID: ${id}`)
-
-    // Validate API key
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
-      throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
-    const userId = user.id
-
-    // Fetch record for owner check
-    const item = await prisma[modelName].findUnique({
+    // Fetch just the owner column for the permission check.
+    const existingSample = await prisma.sample.findUnique({
       where: { id },
       select: { userId: true },
     })
 
-    if (!item) {
+    if (!existingSample) {
       throw createError({
         statusCode: 404,
-        message: `${modelName} with ID ${id} not found.`,
+        message: `Sample with ID ${id} does not exist.`,
       })
     }
 
-    // Admin override
-    if (user.Role === 'ADMIN' || item.userId === userId) {
-      await prisma[modelName].delete({ where: { id } })
-      return {
-        success: true,
-        message: `${modelName} with ID ${id} successfully deleted.`,
-        statusCode: 200,
-      }
+    // Ownership check with admin bypass (Role ADMIN or the id-1 system user).
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+
+    if (existingSample.userId !== user.id && !isAdmin) {
+      throw createError({
+        statusCode: 403,
+        message: 'You are not authorized to delete this sample.',
+      })
     }
 
-    throw createError({
-      statusCode: 403,
-      message: `You are not authorized to delete this ${modelName}.`,
-    })
-  } catch (error) {
-    const handled = errorHandler(error)
-    console.error(`Error deleting ${modelName}:`, handled)
-    event.node.res.statusCode = handled.statusCode || 500
-    response = {
+    await prisma.sample.delete({ where: { id } })
+
+    event.node.res.statusCode = 200
+
+    return {
+      success: true,
+      message: `Sample with ID ${id} successfully deleted.`,
+      statusCode: 200,
+    }
+  } catch (error: unknown) {
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
+
+    return {
       success: false,
-      message: handled.message || `Failed to delete ${modelName} with ID ${id}.`,
+      message: handledError.message || `Failed to delete sample with ID ${id}.`,
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

@@ -15,6 +15,45 @@ export interface CompositionForm extends Partial<Composition> {
   mode?: CompositionMode
 }
 
+// SSR guard — localStorage is undefined during server render.
+const isClient = typeof window !== 'undefined'
+
+function safeGetLocalStorage(key: string): string | null {
+  if (!isClient) return null
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  if (!isClient) return
+  try {
+    localStorage.setItem(key, value)
+  } catch {}
+}
+
+function safeParseArray<T>(raw: string | null): T[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function safeParseObject<T>(raw: string | null): T | null {
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? (parsed as T) : null
+  } catch {
+    return null
+  }
+}
+
 export const useCompositionStore = defineStore('compositionStore', () => {
   const items = ref<Composition[]>([])
   const selected = ref<Composition | null>(null)
@@ -33,13 +72,26 @@ export const useCompositionStore = defineStore('compositionStore', () => {
 
   const selectedModel = computed(() => selected.value)
 
-  function syncToLocalStorage() {
-    try {
-      localStorage.setItem('compositions', JSON.stringify(items.value))
-      localStorage.setItem('compositionForm', JSON.stringify(form.value))
-    } catch (err) {
-      console.error('[compositionStore] localStorage sync error:', err)
+  // Merge, never overwrite: a remote fetch must not drop locally-created
+  // rows the server response doesn't include (the old code assigned
+  // items.value = res.data here, silently discarding unsynced work).
+  function mergeItems(incoming: Composition[]) {
+    const map = new Map<number, Composition>()
+    for (const item of items.value) map.set(item.id, item)
+    for (const item of incoming) {
+      if (item && item.id) map.set(item.id, item)
     }
+    items.value = Array.from(map.values())
+    syncToLocalStorage()
+  }
+
+  function upsertItem(item: Composition) {
+    mergeItems([item])
+  }
+
+  function syncToLocalStorage() {
+    safeSetLocalStorage('compositions', JSON.stringify(items.value))
+    safeSetLocalStorage('compositionForm', JSON.stringify(form.value))
   }
 
   async function initialize(
@@ -50,20 +102,20 @@ export const useCompositionStore = defineStore('compositionStore', () => {
     error.value = null
 
     try {
-      const localItems = localStorage.getItem('compositions')
-      const localForm = localStorage.getItem('compositionForm')
+      const localItems = safeParseArray<Composition>(
+        safeGetLocalStorage('compositions'),
+      )
+      const localForm = safeParseObject<CompositionForm>(
+        safeGetLocalStorage('compositionForm'),
+      )
 
-      if (localItems) items.value = JSON.parse(localItems)
-      if (localForm) form.value = JSON.parse(localForm)
+      if (localItems.length) items.value = localItems
+      if (localForm) form.value = localForm
 
+      // fetchAllModels merges into the local items loaded above, so
+      // no manual merge is needed here anymore.
       if (options.fetchRemote !== false) {
-        const fetched = await fetchAllModels()
-        const fetchedIds = new Set(fetched.map((i) => i.id))
-        items.value = [
-          ...items.value.filter((i) => !fetchedIds.has(i.id)),
-          ...fetched,
-        ]
-        syncToLocalStorage()
+        await fetchAllModels()
       }
 
       isInitialized.value = true
@@ -79,8 +131,7 @@ export const useCompositionStore = defineStore('compositionStore', () => {
     try {
       const res = await performFetch<Composition[]>('/api/compositions')
       if (res.success && res.data) {
-        items.value = res.data
-        syncToLocalStorage()
+        mergeItems(res.data)
         return res.data
       }
       throw new Error(res.message || 'Failed to fetch compositions')
@@ -114,8 +165,7 @@ export const useCompositionStore = defineStore('compositionStore', () => {
         body: JSON.stringify(payload),
       })
       if (!res.success) throw new Error(res.message)
-      items.value.push(res.data)
-      syncToLocalStorage()
+      upsertItem(res.data)
       return { success: true, data: res.data }
     } catch (err) {
       handleError(err, 'creating composition')
@@ -136,11 +186,9 @@ export const useCompositionStore = defineStore('compositionStore', () => {
       })
       if (!res.success) throw new Error(res.message)
 
-      const index = items.value.findIndex((i) => i.id === id)
-      if (index !== -1) items.value[index] = res.data
+      upsertItem(res.data)
       if (selected.value?.id === id) selected.value = res.data
 
-      syncToLocalStorage()
       return { success: true, data: res.data }
     } catch (err) {
       handleError(err, 'updating composition')
@@ -184,11 +232,9 @@ export const useCompositionStore = defineStore('compositionStore', () => {
       })
       if (!res.success) throw new Error(res.message)
 
-      const index = items.value.findIndex((i) => i.id === id)
-      if (index !== -1) items.value[index] = res.data
+      upsertItem(res.data)
       if (selected.value?.id === id) selected.value = res.data
 
-      syncToLocalStorage()
       return { success: true, data: res.data }
     } catch (err) {
       handleError(err, 'saving synthesis outputs')

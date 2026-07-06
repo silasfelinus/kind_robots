@@ -147,6 +147,12 @@
                   >— flat surface for lists</span
                 >
               </li>
+              <li>
+                <code>.kr-note-*</code>
+                <span class="font-sans opacity-70"
+                  >— status callouts (see below)</span
+                >
+              </li>
             </ul>
             <p class="text-smart-caption opacity-60">
               Defined in <code class="font-mono">assets/css/tailwind.css</code>.
@@ -273,6 +279,28 @@
           </div>
           <div class="alert alert-error">
             <span>Something went wrong. Try again.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Callouts: canonical status-tint notices -->
+      <section id="callouts" class="scroll-mt-32 kr-section">
+        <SectionHeading
+          title="Callouts"
+          hint="Inline tinted notices via .kr-note + a status modifier. Use these instead of hand-writing border-{status}/40 bg-{status}/10 per component. For a loud full-width banner, prefer the DaisyUI alert above."
+        />
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="kr-note kr-note-info">
+            .kr-note-info — informational aside
+          </div>
+          <div class="kr-note kr-note-success">
+            .kr-note-success — positive confirmation
+          </div>
+          <div class="kr-note kr-note-warning">
+            .kr-note-warning — needs attention
+          </div>
+          <div class="kr-note kr-note-error">
+            .kr-note-error — something failed
           </div>
         </div>
       </section>
@@ -512,6 +540,7 @@ const sections = [
   { id: 'buttons', label: 'Buttons' },
   { id: 'badges', label: 'Badges' },
   { id: 'alerts', label: 'Alerts' },
+  { id: 'callouts', label: 'Callouts' },
   { id: 'cards', label: 'Cards' },
   { id: 'forms', label: 'Forms' },
   { id: 'nav', label: 'Nav' },

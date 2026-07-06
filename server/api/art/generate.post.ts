@@ -1,5 +1,7 @@
 // /server/api/art/generate.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
+import type { H3Event } from 'h3'
+import { requireMachineUser } from '../../utils/authGuard'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { saveImage } from '../../utils/saveImage'
@@ -90,9 +92,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const user = await getAuthenticatedUser(
-      event.node.req.headers.authorization,
-    )
+    const user = await getAuthenticatedUser(event)
     const requestedUserId = requestData.userId ?? user.id
 
     if (user.id !== requestedUserId) {
@@ -249,36 +249,17 @@ export default defineEventHandler(async (event) => {
 })
 
 async function getAuthenticatedUser(
-  authorizationHeader: string | undefined,
+  event: H3Event,
 ): Promise<AuthenticatedUser> {
-  if (!authorizationHeader?.startsWith('Bearer ')) {
-    throw createError({
-      statusCode: 401,
-      message: 'Authorization token required in the format "Bearer <token>".',
-    })
+  // t-015: shared machine auth (session JWT, user apiKey, or beta admin
+  // token) via requireMachineUser, replacing the inline apiKey-only lookup.
+  const { user } = await requireMachineUser(event)
+
+  return {
+    id: user.id,
+    karma: user.karma,
+    preferredArtServerId: user.preferredArtServerId,
   }
-
-  const token = authorizationHeader.split(' ')[1] ?? ''
-
-  const user = await prisma.user.findFirst({
-    where: {
-      apiKey: token,
-    },
-    select: {
-      id: true,
-      karma: true,
-      preferredArtServerId: true,
-    },
-  })
-
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      message: 'Invalid or expired authorization token.',
-    })
-  }
-
-  return user
 }
 
 function assertA1111Server(server: Server): void {

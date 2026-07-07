@@ -65,12 +65,19 @@ type ComfyImageOutput = {
 const defaultTimeoutMs = 180_000
 const pollIntervalMs = 1_500
 
+// Flux is trained at ~1 megapixel. Rendering below that (the old 1024x512 =
+// 0.5MP letterbox) is the #1 cause of cramped, distorted, low-detail output.
+// Default to the native 1MP square; callers can still pass any dimensions
+// (use proper 1MP buckets for other aspect ratios, e.g. 1216x832 for 3:2,
+// 1344x768 for 16:9, 832x1216 for a portrait card).
 const DEFAULT_FLUX_DEV_WIDTH = 1024
-const DEFAULT_FLUX_DEV_HEIGHT = 512
+const DEFAULT_FLUX_DEV_HEIGHT = 1024
 const DEFAULT_FLUX_SCHNELL_WIDTH = 1024
-const DEFAULT_FLUX_SCHNELL_HEIGHT = 512
+const DEFAULT_FLUX_SCHNELL_HEIGHT = 1024
 const DEFAULT_FLUX_SAMPLER = 'euler'
-const DEFAULT_FLUX_SCHEDULER = 'normal'
+// `beta` resolves Flux's flow-matching noise schedule far better than the
+// SD-era `normal` scheduler — crisper detail and cleaner composition.
+const DEFAULT_FLUX_SCHEDULER = 'beta'
 const DEFAULT_DENOISE = 1
 
 const defaultPrompt =
@@ -82,7 +89,9 @@ const fluxModelByVariant = {
     filenamePrefix: 'kindrobots_flux_dev',
     defaultSteps: 30,
     defaultCfg: 1,
-    defaultGuidance: 4,
+    // 3.5 is Flux-dev's aesthetic sweet spot; higher (4+) starts to "burn"
+    // contrast and over-bake detail on general/illustrative prompts.
+    defaultGuidance: 3.5,
   },
   schnell: {
     unetName: 'flux1-schnell-Q8_0.gguf',

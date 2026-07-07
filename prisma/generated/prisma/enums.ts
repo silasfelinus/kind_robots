@@ -487,6 +487,15 @@ export const ChallengeSubmissionStatus = {
 export type ChallengeSubmissionStatus = (typeof ChallengeSubmissionStatus)[keyof typeof ChallengeSubmissionStatus]
 
 
+export const ContenderKind = {
+  AGENT_STACK: 'AGENT_STACK',
+  LLM_MODEL: 'LLM_MODEL',
+  ART_GENERATOR: 'ART_GENERATOR'
+} as const
+
+export type ContenderKind = (typeof ContenderKind)[keyof typeof ContenderKind]
+
+
 export const LifeRunStatus = {
   ACTIVE: 'ACTIVE',
   COMPLETE: 'COMPLETE',

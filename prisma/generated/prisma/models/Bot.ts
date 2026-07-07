@@ -1340,10 +1340,12 @@ export type BotCreateNestedOneWithoutChallengeSubmissionsInput = {
   connect?: Prisma.BotWhereUniqueInput
 }
 
-export type BotUpdateOneRequiredWithoutChallengeSubmissionsNestedInput = {
+export type BotUpdateOneWithoutChallengeSubmissionsNestedInput = {
   create?: Prisma.XOR<Prisma.BotCreateWithoutChallengeSubmissionsInput, Prisma.BotUncheckedCreateWithoutChallengeSubmissionsInput>
   connectOrCreate?: Prisma.BotCreateOrConnectWithoutChallengeSubmissionsInput
   upsert?: Prisma.BotUpsertWithoutChallengeSubmissionsInput
+  disconnect?: Prisma.BotWhereInput | boolean
+  delete?: Prisma.BotWhereInput | boolean
   connect?: Prisma.BotWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.BotUpdateToOneWithWhereWithoutChallengeSubmissionsInput, Prisma.BotUpdateWithoutChallengeSubmissionsInput>, Prisma.BotUncheckedUpdateWithoutChallengeSubmissionsInput>
 }

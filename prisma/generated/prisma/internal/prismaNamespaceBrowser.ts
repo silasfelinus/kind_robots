@@ -88,6 +88,7 @@ export const ModelName = {
   Todo: 'Todo',
   Challenge: 'Challenge',
   ChallengeSubmission: 'ChallengeSubmission',
+  Contender: 'Contender',
   LifeRun: 'LifeRun',
   LifeChoice: 'LifeChoice',
   LifeStat: 'LifeStat',
@@ -1015,6 +1016,11 @@ export const ChallengeSubmissionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   challengeId: 'challengeId',
   botId: 'botId',
+  contenderId: 'contenderId',
+  variantKey: 'variantKey',
+  promptUsed: 'promptUsed',
+  settings: 'settings',
+  randomSelections: 'randomSelections',
   agentModel: 'agentModel',
   outputText: 'outputText',
   artImageId: 'artImageId',
@@ -1024,6 +1030,25 @@ export const ChallengeSubmissionScalarFieldEnum = {
 } as const
 
 export type ChallengeSubmissionScalarFieldEnum = (typeof ChallengeSubmissionScalarFieldEnum)[keyof typeof ChallengeSubmissionScalarFieldEnum]
+
+
+export const ContenderScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  name: 'name',
+  kind: 'kind',
+  provider: 'provider',
+  model: 'model',
+  generator: 'generator',
+  defaultSettings: 'defaultSettings',
+  description: 'description',
+  avatarImageId: 'avatarImageId',
+  isActive: 'isActive'
+} as const
+
+export type ContenderScalarFieldEnum = (typeof ContenderScalarFieldEnum)[keyof typeof ContenderScalarFieldEnum]
 
 
 export const LifeRunScalarFieldEnum = {
@@ -1712,11 +1737,25 @@ export type ChallengeOrderByRelevanceFieldEnum = (typeof ChallengeOrderByRelevan
 
 
 export const ChallengeSubmissionOrderByRelevanceFieldEnum = {
+  variantKey: 'variantKey',
+  promptUsed: 'promptUsed',
   agentModel: 'agentModel',
   outputText: 'outputText'
 } as const
 
 export type ChallengeSubmissionOrderByRelevanceFieldEnum = (typeof ChallengeSubmissionOrderByRelevanceFieldEnum)[keyof typeof ChallengeSubmissionOrderByRelevanceFieldEnum]
+
+
+export const ContenderOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  provider: 'provider',
+  model: 'model',
+  generator: 'generator',
+  description: 'description'
+} as const
+
+export type ContenderOrderByRelevanceFieldEnum = (typeof ContenderOrderByRelevanceFieldEnum)[keyof typeof ContenderOrderByRelevanceFieldEnum]
 
 
 export const LifeRunOrderByRelevanceFieldEnum = {

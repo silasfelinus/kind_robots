@@ -246,20 +246,36 @@ async function createDreamFromInput(
   const shouldCreateCollection = body.createCollection !== false
 
   if (shouldCreateCollection && !artCollectionId) {
-    const collection = await prisma.artCollection.create({
-      data: {
-        label: `${title} Inspiration`,
-        description: `Card, icon, hero, screenshots, mockups, and inspiration art for ${title}. Drop additional files into public/images/artcollections/${slug}/ and attach matching ArtImage rows to keep this collection in parity with the filesystem.`,
-        imagePath: collectionImagePath(slug, 'card'),
-        artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
-        userId,
-        username: sender,
-        isPublic,
-        isMature,
-      },
-    })
+    // Give the collection the SAME slug as its folder
+    // (public/images/artcollections/{slug}/) so it stays in parity with the
+    // filesystem and folder-sync reuses it instead of creating a duplicate.
+    // Previously slug was left null and later backfilled from the label
+    // ("Sketchy Inspiration" -> "sketchy-inspiration"), which broke the
+    // folder<->collection match. If a collection already claims this slug,
+    // reuse it rather than colliding on the unique slug.
+    const existingBySlug = slug
+      ? await prisma.artCollection.findUnique({ where: { slug }, select: { id: true } })
+      : null
 
-    artCollectionId = collection.id
+    if (existingBySlug) {
+      artCollectionId = existingBySlug.id
+    } else {
+      const collection = await prisma.artCollection.create({
+        data: {
+          ...(slug ? { slug } : {}),
+          label: `${title} Inspiration`,
+          description: `Card, icon, hero, screenshots, mockups, and inspiration art for ${title}. Drop additional files into public/images/artcollections/${slug}/ and attach matching ArtImage rows to keep this collection in parity with the filesystem.`,
+          imagePath: collectionImagePath(slug, 'card'),
+          artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
+          userId,
+          username: sender,
+          isPublic,
+          isMature,
+        },
+      })
+
+      artCollectionId = collection.id
+    }
   }
 
   const scenarioIds = normalizeScenarioIds(body)

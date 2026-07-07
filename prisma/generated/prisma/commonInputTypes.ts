@@ -1017,6 +1017,23 @@ export type EnumChallengeSubmissionStatusWithAggregatesFilter<$PrismaModel = nev
   _max?: Prisma.NestedEnumChallengeSubmissionStatusFilter<$PrismaModel>
 }
 
+export type EnumContenderKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContenderKind | Prisma.EnumContenderKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ContenderKind[]
+  notIn?: $Enums.ContenderKind[]
+  not?: Prisma.NestedEnumContenderKindFilter<$PrismaModel> | $Enums.ContenderKind
+}
+
+export type EnumContenderKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContenderKind | Prisma.EnumContenderKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ContenderKind[]
+  notIn?: $Enums.ContenderKind[]
+  not?: Prisma.NestedEnumContenderKindWithAggregatesFilter<$PrismaModel> | $Enums.ContenderKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContenderKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContenderKindFilter<$PrismaModel>
+}
+
 export type EnumLifeRunStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.LifeRunStatus | Prisma.EnumLifeRunStatusFieldRefInput<$PrismaModel>
   in?: $Enums.LifeRunStatus[]
@@ -2027,6 +2044,23 @@ export type NestedEnumChallengeSubmissionStatusWithAggregatesFilter<$PrismaModel
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumChallengeSubmissionStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumChallengeSubmissionStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumContenderKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContenderKind | Prisma.EnumContenderKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ContenderKind[]
+  notIn?: $Enums.ContenderKind[]
+  not?: Prisma.NestedEnumContenderKindFilter<$PrismaModel> | $Enums.ContenderKind
+}
+
+export type NestedEnumContenderKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContenderKind | Prisma.EnumContenderKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ContenderKind[]
+  notIn?: $Enums.ContenderKind[]
+  not?: Prisma.NestedEnumContenderKindWithAggregatesFilter<$PrismaModel> | $Enums.ContenderKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContenderKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContenderKindFilter<$PrismaModel>
 }
 
 export type NestedEnumLifeRunStatusFilter<$PrismaModel = never> = {

@@ -253,6 +253,11 @@ export type Challenge = Prisma.ChallengeModel
  */
 export type ChallengeSubmission = Prisma.ChallengeSubmissionModel
 /**
+ * Model Contender
+ * 
+ */
+export type Contender = Prisma.ContenderModel
+/**
  * Model LifeRun
  * 
  */

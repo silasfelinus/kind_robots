@@ -421,6 +421,7 @@ export const ModelName = {
   Todo: 'Todo',
   Challenge: 'Challenge',
   ChallengeSubmission: 'ChallengeSubmission',
+  Contender: 'Contender',
   LifeRun: 'LifeRun',
   LifeChoice: 'LifeChoice',
   LifeStat: 'LifeStat',
@@ -443,7 +444,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
+    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2889,6 +2890,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Contender: {
+      payload: Prisma.$ContenderPayload<ExtArgs>
+      fields: Prisma.ContenderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContenderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContenderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload>
+        }
+        findFirst: {
+          args: Prisma.ContenderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContenderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload>
+        }
+        findMany: {
+          args: Prisma.ContenderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload>[]
+        }
+        create: {
+          args: Prisma.ContenderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload>
+        }
+        createMany: {
+          args: Prisma.ContenderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ContenderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload>
+        }
+        update: {
+          args: Prisma.ContenderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContenderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContenderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ContenderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContenderPayload>
+        }
+        aggregate: {
+          args: Prisma.ContenderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContender>
+        }
+        groupBy: {
+          args: Prisma.ContenderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContenderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContenderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContenderCountAggregateOutputType> | number
+        }
+      }
+    }
     LifeRun: {
       payload: Prisma.$LifeRunPayload<ExtArgs>
       fields: Prisma.LifeRunFieldRefs
@@ -4292,6 +4359,11 @@ export const ChallengeSubmissionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   challengeId: 'challengeId',
   botId: 'botId',
+  contenderId: 'contenderId',
+  variantKey: 'variantKey',
+  promptUsed: 'promptUsed',
+  settings: 'settings',
+  randomSelections: 'randomSelections',
   agentModel: 'agentModel',
   outputText: 'outputText',
   artImageId: 'artImageId',
@@ -4301,6 +4373,25 @@ export const ChallengeSubmissionScalarFieldEnum = {
 } as const
 
 export type ChallengeSubmissionScalarFieldEnum = (typeof ChallengeSubmissionScalarFieldEnum)[keyof typeof ChallengeSubmissionScalarFieldEnum]
+
+
+export const ContenderScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  name: 'name',
+  kind: 'kind',
+  provider: 'provider',
+  model: 'model',
+  generator: 'generator',
+  defaultSettings: 'defaultSettings',
+  description: 'description',
+  avatarImageId: 'avatarImageId',
+  isActive: 'isActive'
+} as const
+
+export type ContenderScalarFieldEnum = (typeof ContenderScalarFieldEnum)[keyof typeof ContenderScalarFieldEnum]
 
 
 export const LifeRunScalarFieldEnum = {
@@ -4989,11 +5080,25 @@ export type ChallengeOrderByRelevanceFieldEnum = (typeof ChallengeOrderByRelevan
 
 
 export const ChallengeSubmissionOrderByRelevanceFieldEnum = {
+  variantKey: 'variantKey',
+  promptUsed: 'promptUsed',
   agentModel: 'agentModel',
   outputText: 'outputText'
 } as const
 
 export type ChallengeSubmissionOrderByRelevanceFieldEnum = (typeof ChallengeSubmissionOrderByRelevanceFieldEnum)[keyof typeof ChallengeSubmissionOrderByRelevanceFieldEnum]
+
+
+export const ContenderOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  provider: 'provider',
+  model: 'model',
+  generator: 'generator',
+  description: 'description'
+} as const
+
+export type ContenderOrderByRelevanceFieldEnum = (typeof ContenderOrderByRelevanceFieldEnum)[keyof typeof ContenderOrderByRelevanceFieldEnum]
 
 
 export const LifeRunOrderByRelevanceFieldEnum = {
@@ -5378,6 +5483,13 @@ export type EnumChallengeSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefI
 
 
 /**
+ * Reference to a field of type 'ContenderKind'
+ */
+export type EnumContenderKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContenderKind'>
+    
+
+
+/**
  * Reference to a field of type 'LifeRunStatus'
  */
 export type EnumLifeRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeRunStatus'>
@@ -5551,6 +5663,7 @@ export type GlobalOmitConfig = {
   todo?: Prisma.TodoOmit
   challenge?: Prisma.ChallengeOmit
   challengeSubmission?: Prisma.ChallengeSubmissionOmit
+  contender?: Prisma.ContenderOmit
   lifeRun?: Prisma.LifeRunOmit
   lifeChoice?: Prisma.LifeChoiceOmit
   lifeStat?: Prisma.LifeStatOmit

@@ -173,14 +173,12 @@ export async function resolveFolderImages(
 }
 
 /**
- * Enumerate every folder collection the site can see. Slugs come from the
- * master index (the reliable source on the CDN); a dev filesystem scan of
- * public/images/ fills in any folders not yet indexed. Each returned
- * collection carries its resolved image URLs.
+ * Enumerate every folder slug the site can see WITHOUT resolving its images.
+ * Cheap: one master-index read plus a dev filesystem scan. Callers that need
+ * images resolve them per-slug (so large sites can page instead of resolving
+ * every folder's manifest in one shot — which times out on serverless).
  */
-export async function listFolderCollections(
-  origin: string,
-): Promise<FolderCollection[]> {
+export async function listFolderSlugs(origin: string): Promise<string[]> {
   const slugs = new Set<string>()
 
   const index = await readCollectionsIndex(origin)
@@ -211,8 +209,23 @@ export async function listFolderCollections(
     // images root unreadable (CDN mode): the index above is all we have.
   }
 
+  return [...slugs].sort()
+}
+
+/**
+ * Enumerate every folder collection the site can see, WITH resolved image URLs.
+ * Slugs come from listFolderSlugs; each folder's images are resolved from the
+ * filesystem (dev) or master index + manifest (CDN). Note: this resolves every
+ * folder's manifest, so it is O(folders) network calls — fine for listing, but
+ * bulk mutations should page over listFolderSlugs instead.
+ */
+export async function listFolderCollections(
+  origin: string,
+): Promise<FolderCollection[]> {
+  const slugs = await listFolderSlugs(origin)
+
   const collections: FolderCollection[] = []
-  for (const slug of [...slugs].sort()) {
+  for (const slug of slugs) {
     const images = await resolveFolderImages(slug, origin)
     if (images && images.length) collections.push({ slug, images })
   }

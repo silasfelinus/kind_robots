@@ -37,7 +37,7 @@ const artImageListSelect = {
 type PatchCollectionBody = {
   label?: unknown
   slug?: unknown
-  subFolder?: unknown
+  parentFolder?: unknown
   description?: unknown
   isPublic?: unknown
   isMature?: unknown
@@ -171,10 +171,10 @@ export default defineEventHandler(async (event) => {
       updateData.slug = slug
     }
 
-    if (typeof body.subFolder === 'string') {
+    if (typeof body.parentFolder === 'string') {
       // Normalize: trim, strip leading/trailing slashes; empty string clears it.
-      const cleaned = body.subFolder.trim().replace(/^\/+|\/+$/g, '')
-      updateData.subFolder = cleaned || null
+      const cleaned = body.parentFolder.trim().replace(/^\/+|\/+$/g, '')
+      updateData.parentFolder = cleaned || null
     }
 
     if (typeof body.description === 'string') {

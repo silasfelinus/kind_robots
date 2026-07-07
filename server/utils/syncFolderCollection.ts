@@ -72,7 +72,7 @@ export async function syncFolderCollection(
   if (!collection) {
     // Record the folder's parent path (from any resolved image) so nested
     // locations round-trip; null for top-level folders.
-    const subFolder = folderPathFromImageUrl(images[0])?.subFolder ?? null
+    const parentFolder = folderPathFromImageUrl(images[0])?.parentFolder ?? null
     const created = await prisma.artCollection.create({
       data: {
         slug,
@@ -80,7 +80,7 @@ export async function syncFolderCollection(
         description: `Folder collection synced from public/images/ (${slug}).`,
         userId,
         isPublic: true,
-        ...(subFolder ? { subFolder } : {}),
+        ...(parentFolder ? { parentFolder } : {}),
       },
       select: { id: true },
     })

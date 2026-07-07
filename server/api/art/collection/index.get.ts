@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
       userId: true,
       label: true,
       slug: true,
-      subFolder: true,
+      parentFolder: true,
       isMature: true,
       isPublic: true,
       isActive: true,

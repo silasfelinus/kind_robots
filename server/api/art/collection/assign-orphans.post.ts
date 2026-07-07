@@ -18,7 +18,7 @@ import { defineEventHandler, getRequestURL, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireMachineUser } from '~/server/utils/authGuard'
-import { folderSlugFromImageUrl } from '~/server/utils/folderCollections'
+import { folderPathFromImageUrl } from '~/server/utils/folderCollections'
 
 const DEFAULT_LIMIT = 200
 const MAX_LIMIT = 1000
@@ -71,13 +71,15 @@ export default defineEventHandler(async (event) => {
 
     // Decide each orphan's target slug: derived from its path, else per-user unsorted.
     const bySlug = new Map<string, number[]>()
+    const subFolderBySlug = new Map<string, string | null>()
     let derived = 0
     let unsorted = 0
     for (const img of orphans) {
-      const fromPath = folderSlugFromImageUrl(img.imagePath || img.path)
-      const slug = fromPath ?? `unsorted-u${img.userId ?? 10}`
-      if (fromPath) derived += 1
+      const parsed = folderPathFromImageUrl(img.imagePath || img.path)
+      const slug = parsed?.slug ?? `unsorted-u${img.userId ?? 10}`
+      if (parsed) derived += 1
       else unsorted += 1
+      if (!subFolderBySlug.has(slug)) subFolderBySlug.set(slug, parsed?.subFolder ?? null)
       const list = bySlug.get(slug)
       if (list) list.push(img.id)
       else bySlug.set(slug, [img.id])
@@ -94,15 +96,19 @@ export default defineEventHandler(async (event) => {
 
     if (missing.length > 0) {
       await prisma.artCollection.createMany({
-        data: missing.map((slug) => ({
-          slug,
-          label: slug.startsWith('unsorted-u') ? 'Unsorted' : labelFromSlug(slug),
-          description: slug.startsWith('unsorted-u')
-            ? 'Images not yet filed into a folder collection.'
-            : `Folder collection (${slug}).`,
-          userId: auth.user.id,
-          isPublic: true,
-        })),
+        data: missing.map((slug) => {
+          const subFolder = subFolderBySlug.get(slug) ?? null
+          return {
+            slug,
+            label: slug.startsWith('unsorted-u') ? 'Unsorted' : labelFromSlug(slug),
+            description: slug.startsWith('unsorted-u')
+              ? 'Images not yet filed into a folder collection.'
+              : `Folder collection (${slug}).`,
+            userId: auth.user.id,
+            isPublic: true,
+            ...(subFolder ? { subFolder } : {}),
+          }
+        }),
         skipDuplicates: true,
       })
     }

@@ -3505,6 +3505,7 @@ export const ArtCollectionScalarFieldEnum = {
   userId: 'userId',
   label: 'label',
   slug: 'slug',
+  subFolder: 'subFolder',
   isMature: 'isMature',
   isPublic: 'isPublic',
   imagePath: 'imagePath',
@@ -4575,6 +4576,7 @@ export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevance
 export const ArtCollectionOrderByRelevanceFieldEnum = {
   label: 'label',
   slug: 'slug',
+  subFolder: 'subFolder',
   imagePath: 'imagePath',
   description: 'description',
   username: 'username',

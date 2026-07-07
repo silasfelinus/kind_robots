@@ -42,7 +42,7 @@ const artCollectionSelect = {
   userId: true,
   label: true,
   slug: true,
-  subFolder: true,
+  parentFolder: true,
   isMature: true,
   isPublic: true,
   isActive: true,
@@ -66,7 +66,7 @@ type CreateCollectionBody = {
   artImageIds?: unknown
   label?: unknown
   slug?: unknown
-  subFolder?: unknown
+  parentFolder?: unknown
   description?: unknown
   isPublic?: unknown
   isMature?: unknown
@@ -150,9 +150,9 @@ export default defineEventHandler(async (event) => {
 
     const slug = normalizeSlugInput(body.slug)
 
-    const subFolder =
-      typeof body.subFolder === 'string' && body.subFolder.trim()
-        ? body.subFolder.trim().replace(/^\/+|\/+$/g, '')
+    const parentFolder =
+      typeof body.parentFolder === 'string' && body.parentFolder.trim()
+        ? body.parentFolder.trim().replace(/^\/+|\/+$/g, '')
         : undefined
 
     const description =
@@ -166,7 +166,7 @@ export default defineEventHandler(async (event) => {
         userId: user.id,
         label,
         slug: slug ?? undefined,
-        subFolder,
+        parentFolder,
         description,
         artPrompt,
         isPublic: typeof body.isPublic === 'boolean' ? body.isPublic : true,

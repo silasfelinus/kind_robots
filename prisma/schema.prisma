@@ -91,10 +91,10 @@ model ArtCollection {
   slug          String?    @unique @db.VarChar(255)
   // Parent path under public/images/ that contains this collection's folder, so
   // nested locations round-trip. slug stays the folder's leaf name (its unique
-  // key); subFolder is everything before it. e.g. images/rewards/duct-tape ->
-  // slug "duct-tape", subFolder "rewards"; images/art/collections/unsorted ->
-  // slug "unsorted", subFolder "art/collections". null = top-level (folder == slug).
-  subFolder     String?    @db.VarChar(512)
+  // key); parentFolder is everything before it. e.g. images/rewards/duct-tape ->
+  // slug "duct-tape", parentFolder "rewards"; images/art/collections/unsorted ->
+  // slug "unsorted", parentFolder "art/collections". null = top-level (folder == slug).
+  parentFolder  String?    @db.VarChar(512)
   isMature      Boolean    @default(false)
   isPublic      Boolean    @default(true)
   imagePath     String?    @db.VarChar(764)

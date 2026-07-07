@@ -40,6 +40,7 @@ const artCollectionSelect = {
   userId: true,
   label: true,
   slug: true,
+  subFolder: true,
   isMature: true,
   isPublic: true,
   isActive: true,

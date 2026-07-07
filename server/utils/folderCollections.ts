@@ -44,22 +44,33 @@ export function isImageFile(name: string): boolean {
 const NON_SLUG_DIRS = new Set(['images', 'artcollections'])
 
 /**
- * Derive the folder-collection slug from an ArtImage's public URL. By the
- * folder convention slug === the directory that holds the file, so we take the
- * last path segment after dropping the filename. Returns null when the image
- * sits loose in /images/ (no owning folder) or the segment isn't slug-shaped —
- * callers then fall back to an "unsorted" bucket.
- *   /images/artcollections/sketchy/sketchy-card.webp -> "sketchy"
- *   /images/comfy/comfy-1.webp                        -> "comfy"
+ * Split an ArtImage's public URL into its folder collection {slug, subFolder}.
+ * By the folder convention slug === the directory that holds the file (the leaf,
+ * which is the collection's unique key); subFolder is everything before it under
+ * public/images/ (null when top-level). Returns null when the image sits loose
+ * in /images/ or the leaf isn't slug-shaped — callers fall back to "unsorted".
+ *   /images/artcollections/sketchy/sketchy-card.webp -> { slug: "sketchy", subFolder: "artcollections" }
+ *   /images/rewards/duct-tape/x.webp                 -> { slug: "duct-tape", subFolder: "rewards" }
+ *   /images/art/collections/unsorted/x.webp          -> { slug: "unsorted", subFolder: "art/collections" }
+ *   /images/comfy/comfy-1.webp                        -> { slug: "comfy", subFolder: null }
  *   /images/loose.webp                                -> null
  */
-export function folderSlugFromImageUrl(url: string | null | undefined): string | null {
+export function folderPathFromImageUrl(
+  url: string | null | undefined,
+): { slug: string; subFolder: string | null } | null {
   if (!url) return null
   const parts = url.split('?')[0]?.split('/').filter(Boolean) ?? []
   if (parts.length && /\.[a-z0-9]+$/i.test(parts[parts.length - 1] ?? '')) parts.pop()
-  const last = parts[parts.length - 1]
-  if (!last || NON_SLUG_DIRS.has(last)) return null
-  return SLUG_PATTERN.test(last) ? last : null
+  if (parts[0] === 'images') parts.shift() // drop the public URL prefix
+  const slug = parts[parts.length - 1]
+  if (!slug || NON_SLUG_DIRS.has(slug) || !SLUG_PATTERN.test(slug)) return null
+  const parents = parts.slice(0, -1)
+  return { slug, subFolder: parents.length ? parents.join('/') : null }
+}
+
+/** Just the slug from an image URL (see folderPathFromImageUrl). */
+export function folderSlugFromImageUrl(url: string | null | undefined): string | null {
+  return folderPathFromImageUrl(url)?.slug ?? null
 }
 
 async function listImages(

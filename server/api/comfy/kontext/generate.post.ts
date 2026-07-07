@@ -86,8 +86,8 @@ type DecodedImage = {
 const defaultTimeoutMs = 180_000
 const pollIntervalMs = 1_500
 
-const DEFAULT_KONTEXT_WIDTH = 768
-const DEFAULT_KONTEXT_HEIGHT = 768
+const DEFAULT_KONTEXT_WIDTH = 1024
+const DEFAULT_KONTEXT_HEIGHT = 1024
 const DEFAULT_KONTEXT_STEPS = 20
 const DEFAULT_KONTEXT_GUIDANCE = 2.5
 const DEFAULT_KONTEXT_SAMPLER = 'res_multistep'

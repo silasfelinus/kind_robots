@@ -40,6 +40,28 @@ export function isImageFile(name: string): boolean {
   return IMAGE_EXTENSIONS.has(ext)
 }
 
+// Containers that are not themselves a collection slug (they hold folders).
+const NON_SLUG_DIRS = new Set(['images', 'artcollections'])
+
+/**
+ * Derive the folder-collection slug from an ArtImage's public URL. By the
+ * folder convention slug === the directory that holds the file, so we take the
+ * last path segment after dropping the filename. Returns null when the image
+ * sits loose in /images/ (no owning folder) or the segment isn't slug-shaped —
+ * callers then fall back to an "unsorted" bucket.
+ *   /images/artcollections/sketchy/sketchy-card.webp -> "sketchy"
+ *   /images/comfy/comfy-1.webp                        -> "comfy"
+ *   /images/loose.webp                                -> null
+ */
+export function folderSlugFromImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  const parts = url.split('?')[0]?.split('/').filter(Boolean) ?? []
+  if (parts.length && /\.[a-z0-9]+$/i.test(parts[parts.length - 1] ?? '')) parts.pop()
+  const last = parts[parts.length - 1]
+  if (!last || NON_SLUG_DIRS.has(last)) return null
+  return SLUG_PATTERN.test(last) ? last : null
+}
+
 async function listImages(
   folder: string,
   urlPrefix: string,

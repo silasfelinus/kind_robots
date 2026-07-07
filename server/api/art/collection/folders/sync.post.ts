@@ -1,35 +1,49 @@
 // /server/api/art/collection/folders/sync.post.ts
 //
-// Bulk parity: ensure EVERY folder under public/images/ has a real DB
-// ArtCollection. Enumerates listFolderCollections() and syncs each folder,
-// creating any missing collection at its slug and linking new images. This is
-// the one-shot that brings orphan folders (e.g. `comfy`, freshly-generated
-// batches) into the DB so they show up on every collection surface, not just
-// the folder-aware gallery.
+// Bulk parity: ensure folders under public/images/ have real DB
+// ArtCollections. A full site can have hundreds of folders, and resolving every
+// folder's manifest + writing images in ONE serverless invocation blows the
+// function time limit (FUNCTION_INVOCATION_TIMEOUT). So this endpoint works in
+// bounded PAGES: it lists slugs cheaply (no per-folder image resolution up
+// front), then syncs a slice [offset, offset+limit) and returns `nextOffset` so
+// the caller loops until done. Each call stays comfortably under the timeout.
 //
-// Idempotent — safe to run repeatedly; re-running only adds new images and
-// never duplicates a collection (keyed on the unique slug). Machine auth
-// (JWT / user apiKey / beta admin) so the browser and conductor automation can
-// both trigger it, e.g. right after the art pipeline commits new folders.
-//
-// Reuses the exact per-slug routine (syncFolderCollection) so the single-slug
-// and bulk endpoints can never drift apart. Folders are synced sequentially to
-// stay gentle on the DB connection pool.
-import { defineEventHandler, getRequestURL } from 'h3'
+// Body (all optional): { limit?: number, offset?: number }.
+// Idempotent, machine-auth. Reuses the per-slug routine (syncFolderCollection).
+import { defineEventHandler, getRequestURL, readBody } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import { requireMachineUser } from '~/server/utils/authGuard'
-import { listFolderCollections } from '~/server/utils/folderCollections'
+import { listFolderSlugs } from '~/server/utils/folderCollections'
 import {
   syncFolderCollection,
   type FolderSyncResult,
 } from '~/server/utils/syncFolderCollection'
+
+// Folders processed per call. Kept modest so one page (its manifest fetches +
+// DB writes) finishes well inside the serverless time budget.
+const DEFAULT_LIMIT = 20
+const MAX_LIMIT = 50
+
+function clampInt(value: unknown, fallback: number, min: number, max: number): number {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return fallback
+  return Math.min(max, Math.max(min, Math.trunc(n)))
+}
 
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
     const origin = getRequestURL(event).origin
 
-    const folders = await listFolderCollections(origin)
+    const body = (await readBody(event).catch(() => ({}))) as {
+      limit?: unknown
+      offset?: unknown
+    }
+    const limit = clampInt(body?.limit, DEFAULT_LIMIT, 1, MAX_LIMIT)
+    const offset = clampInt(body?.offset, 0, 0, Number.MAX_SAFE_INTEGER)
+
+    const slugs = await listFolderSlugs(origin)
+    const slice = slugs.slice(offset, offset + limit)
 
     const results: FolderSyncResult[] = []
     const failures: { slug: string; error: string }[] = []
@@ -37,36 +51,37 @@ export default defineEventHandler(async (event) => {
     let createdImages = 0
     let skipped = 0
 
-    for (const folder of folders) {
+    for (const slug of slice) {
       try {
-        // Pass the already-resolved images so we don't re-list every folder.
-        const result = await syncFolderCollection(
-          folder.slug,
-          origin,
-          auth.user.id,
-          folder.images,
-        )
+        const result = await syncFolderCollection(slug, origin, auth.user.id)
         if (!result) continue
         results.push(result)
         if (result.createdCollection) createdCollections += 1
         createdImages += result.created
         skipped += result.skipped
       } catch (err) {
-        // One bad folder shouldn't abort the whole sweep — record and continue.
+        // One bad folder shouldn't abort the page — record and continue.
         failures.push({
-          slug: folder.slug,
+          slug,
           error: err instanceof Error ? err.message : String(err),
         })
       }
     }
 
+    const nextOffset = offset + slice.length
+    const done = nextOffset >= slugs.length
+
     return {
       success: true,
-      message: `Synced ${results.length} folder(s): ${createdCollections} new collection(s), ${createdImages} new image(s)${
+      message: `Page ${offset}-${nextOffset} of ${slugs.length} folder(s): ${createdCollections} new collection(s), ${createdImages} new image(s)${
         skipped ? `, ${skipped} over-long path(s) skipped` : ''
-      }${failures.length ? `, ${failures.length} failed` : ''}.`,
+      }${failures.length ? `, ${failures.length} failed` : ''}.${done ? ' Done.' : ''}`,
       data: {
-        folders: results.length,
+        totalFolders: slugs.length,
+        offset,
+        processed: slice.length,
+        nextOffset: done ? null : nextOffset,
+        done,
         createdCollections,
         createdImages,
         skipped,

@@ -59,13 +59,28 @@ export type FolderSyncResult = {
   createdCollection: boolean
 }
 
-export type FolderSyncAllResult = {
-  folders: number
+// One page of the bulk folder sync (the endpoint works in bounded pages so it
+// can't time out on serverless).
+export type FolderSyncPage = {
+  totalFolders: number
+  offset: number
+  processed: number
+  nextOffset: number | null
+  done: boolean
   createdCollections: number
   createdImages: number
   skipped: number
   failures: { slug: string; error: string }[]
   results: FolderSyncResult[]
+}
+
+// Aggregate result after paging through every folder.
+export type FolderSyncAllResult = {
+  totalFolders: number
+  createdCollections: number
+  createdImages: number
+  skipped: number
+  failures: { slug: string; error: string }[]
 }
 
 type CollectionState = {
@@ -1077,19 +1092,46 @@ export const useCollectionStore = defineStore('collectionStore', () => {
    * generated batches) appear as normal collections on every surface.
    * Idempotent.
    */
-  async function syncAllFolderCollections(): Promise<FolderSyncAllResult> {
-    const response = await performFetch<FolderSyncAllResult>(
-      '/api/art/collection/folders/sync',
-      { method: 'POST' },
-    )
+  async function syncAllFolderCollections(
+    limit = 20,
+  ): Promise<FolderSyncAllResult> {
+    const totals: FolderSyncAllResult = {
+      totalFolders: 0,
+      createdCollections: 0,
+      createdImages: 0,
+      skipped: 0,
+      failures: [],
+    }
 
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to sync folder collections')
+    // Page until the server reports done. The endpoint bounds each call so it
+    // can't hit the serverless time limit; we drive the loop from here.
+    let offset = 0
+    // Hard stop well above any realistic folder count, so a server bug can't
+    // spin this forever.
+    for (let guard = 0; guard < 1000; guard += 1) {
+      const response = await performFetch<FolderSyncPage>(
+        '/api/art/collection/folders/sync',
+        { method: 'POST', body: JSON.stringify({ limit, offset }) },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to sync folder collections')
+      }
+
+      const page = response.data
+      totals.totalFolders = page.totalFolders
+      totals.createdCollections += page.createdCollections
+      totals.createdImages += page.createdImages
+      totals.skipped += page.skipped
+      totals.failures.push(...page.failures)
+
+      if (page.done || page.nextOffset === null) break
+      offset = page.nextOffset
     }
 
     await fetchCollections(true)
     await fetchFolderCollections(true)
-    return response.data
+    return totals
   }
 
   return {

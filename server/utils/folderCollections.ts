@@ -44,20 +44,20 @@ export function isImageFile(name: string): boolean {
 const NON_SLUG_DIRS = new Set(['images', 'artcollections'])
 
 /**
- * Split an ArtImage's public URL into its folder collection {slug, subFolder}.
+ * Split an ArtImage's public URL into its folder collection {slug, parentFolder}.
  * By the folder convention slug === the directory that holds the file (the leaf,
- * which is the collection's unique key); subFolder is everything before it under
+ * which is the collection's unique key); parentFolder is everything before it under
  * public/images/ (null when top-level). Returns null when the image sits loose
  * in /images/ or the leaf isn't slug-shaped — callers fall back to "unsorted".
- *   /images/artcollections/sketchy/sketchy-card.webp -> { slug: "sketchy", subFolder: "artcollections" }
- *   /images/rewards/duct-tape/x.webp                 -> { slug: "duct-tape", subFolder: "rewards" }
- *   /images/art/collections/unsorted/x.webp          -> { slug: "unsorted", subFolder: "art/collections" }
- *   /images/comfy/comfy-1.webp                        -> { slug: "comfy", subFolder: null }
+ *   /images/artcollections/sketchy/sketchy-card.webp -> { slug: "sketchy", parentFolder: "artcollections" }
+ *   /images/rewards/duct-tape/x.webp                 -> { slug: "duct-tape", parentFolder: "rewards" }
+ *   /images/art/collections/unsorted/x.webp          -> { slug: "unsorted", parentFolder: "art/collections" }
+ *   /images/comfy/comfy-1.webp                        -> { slug: "comfy", parentFolder: null }
  *   /images/loose.webp                                -> null
  */
 export function folderPathFromImageUrl(
   url: string | null | undefined,
-): { slug: string; subFolder: string | null } | null {
+): { slug: string; parentFolder: string | null } | null {
   if (!url) return null
   const parts = url.split('?')[0]?.split('/').filter(Boolean) ?? []
   if (parts.length && /\.[a-z0-9]+$/i.test(parts[parts.length - 1] ?? '')) parts.pop()
@@ -65,7 +65,7 @@ export function folderPathFromImageUrl(
   const slug = parts[parts.length - 1]
   if (!slug || NON_SLUG_DIRS.has(slug) || !SLUG_PATTERN.test(slug)) return null
   const parents = parts.slice(0, -1)
-  return { slug, subFolder: parents.length ? parents.join('/') : null }
+  return { slug, parentFolder: parents.length ? parents.join('/') : null }
 }
 
 /** Just the slug from an image URL (see folderPathFromImageUrl). */

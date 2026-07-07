@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
 
     // Decide each orphan's target slug: derived from its path, else per-user unsorted.
     const bySlug = new Map<string, number[]>()
-    const subFolderBySlug = new Map<string, string | null>()
+    const parentFolderBySlug = new Map<string, string | null>()
     let derived = 0
     let unsorted = 0
     for (const img of orphans) {
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
       const slug = parsed?.slug ?? `unsorted-u${img.userId ?? 10}`
       if (parsed) derived += 1
       else unsorted += 1
-      if (!subFolderBySlug.has(slug)) subFolderBySlug.set(slug, parsed?.subFolder ?? null)
+      if (!parentFolderBySlug.has(slug)) parentFolderBySlug.set(slug, parsed?.parentFolder ?? null)
       const list = bySlug.get(slug)
       if (list) list.push(img.id)
       else bySlug.set(slug, [img.id])
@@ -97,7 +97,7 @@ export default defineEventHandler(async (event) => {
     if (missing.length > 0) {
       await prisma.artCollection.createMany({
         data: missing.map((slug) => {
-          const subFolder = subFolderBySlug.get(slug) ?? null
+          const parentFolder = parentFolderBySlug.get(slug) ?? null
           return {
             slug,
             label: slug.startsWith('unsorted-u') ? 'Unsorted' : labelFromSlug(slug),
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
               : `Folder collection (${slug}).`,
             userId: auth.user.id,
             isPublic: true,
-            ...(subFolder ? { subFolder } : {}),
+            ...(parentFolder ? { parentFolder } : {}),
           }
         }),
         skipDuplicates: true,

@@ -1760,8 +1760,8 @@ export const useArtStore = defineStore('artStore', () => {
       steps: form.steps ?? 20,
       cfg_scale: calculateCfg(form.cfg ?? 3, form.cfgHalf ?? false),
       seed: form.seed ?? -1,
-      width: form.width ?? 512,
-      height: form.height ?? 512,
+      width: form.width ?? 1024,
+      height: form.height ?? 1024,
       sampler_index: sampler,
       user: form.designer || 'kindguest',
       override_settings: {

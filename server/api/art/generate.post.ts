@@ -77,8 +77,8 @@ type A1111Txt2ImgRequest = {
 
 const DEFAULT_STEPS = 20
 const DEFAULT_CFG = 3
-const DEFAULT_WIDTH = 512
-const DEFAULT_HEIGHT = 512
+const DEFAULT_WIDTH = 1024
+const DEFAULT_HEIGHT = 1024
 const DEFAULT_SAMPLER = 'Euler a'
 
 export default defineEventHandler(async (event) => {

@@ -12,7 +12,7 @@
 // appeared since last time, never duplicates an image (dedup by imagePath), and
 // never creates a second collection for the same folder.
 import prisma from '~/server/utils/prisma'
-import { resolveFolderImages } from './folderCollections'
+import { resolveFolderImages, folderPathFromImageUrl } from './folderCollections'
 
 // ArtImage.imagePath is the default VarChar(191) (unlike `path`/`fileName`,
 // which are VarChar(764)). A deeply-nested long slug URL can exceed 191 chars
@@ -70,6 +70,9 @@ export async function syncFolderCollection(
 
   let createdCollection = false
   if (!collection) {
+    // Record the folder's parent path (from any resolved image) so nested
+    // locations round-trip; null for top-level folders.
+    const subFolder = folderPathFromImageUrl(images[0])?.subFolder ?? null
     const created = await prisma.artCollection.create({
       data: {
         slug,
@@ -77,6 +80,7 @@ export async function syncFolderCollection(
         description: `Folder collection synced from public/images/ (${slug}).`,
         userId,
         isPublic: true,
+        ...(subFolder ? { subFolder } : {}),
       },
       select: { id: true },
     })

@@ -88,18 +88,30 @@ export default defineEventHandler(async (event) => {
     let artCollectionId = normalizeNullableId(body.artCollectionId)
 
     if (body.createCollection && !artCollectionId) {
-      const collection = await prisma.artCollection.create({
-        data: {
-          label: `${title} Collection`,
-          description: `Curated art for ${title}`,
-          userId: user.id,
-          username: sender,
-          isPublic,
-          isMature,
-        },
-      })
+      // Set slug = the dream slug so the collection matches its folder and
+      // folder-sync reuses it (see batch.post.ts). Never leave slug null to be
+      // backfilled from the label. Reuse an existing collection on this slug.
+      const existingBySlug = slug
+        ? await prisma.artCollection.findUnique({ where: { slug }, select: { id: true } })
+        : null
 
-      artCollectionId = collection.id
+      if (existingBySlug) {
+        artCollectionId = existingBySlug.id
+      } else {
+        const collection = await prisma.artCollection.create({
+          data: {
+            ...(slug ? { slug } : {}),
+            label: `${title} Collection`,
+            description: `Curated art for ${title}`,
+            userId: user.id,
+            username: sender,
+            isPublic,
+            isMature,
+          },
+        })
+
+        artCollectionId = collection.id
+      }
     }
 
     const scenarioIds = normalizeScenarioIds(body)

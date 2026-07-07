@@ -43,10 +43,30 @@ function isGeneratedLabel(label: string): boolean {
   return GENERATED_LABEL_PATTERNS.some((pattern) => pattern.test(label.trim()))
 }
 
+// The folder collection convention is that slug === the folder name under
+// public/images/. imagePath points at a file in that folder, so the folder
+// (the last directory segment) is the authoritative slug — NOT the label.
+// Deriving from the label appended " Inspiration"/" Collection" and produced
+// mismatches like "sketchy-inspiration" for a folder named "sketchy".
+function folderSlugFromImagePath(imagePath: string | null): string | null {
+  if (!imagePath) return null
+  const parts = imagePath.split('/').filter(Boolean)
+  // Drop a trailing filename (has an extension) to land on its folder.
+  if (parts.length && /\.[a-z0-9]+$/i.test(parts[parts.length - 1] ?? '')) parts.pop()
+  const last = parts[parts.length - 1]
+  return last && /^[a-z0-9][a-z0-9_-]*$/.test(last) ? last : null
+}
+
+// Fallback when there's no usable imagePath: slugify the label but strip the
+// auto-appended collection suffix so it still matches the intended folder.
+function slugFromLabel(label: string): string {
+  return slugify(label).replace(/-(inspiration|collection)$/i, '')
+}
+
 async function planArtCollections(taken: Set<string>): Promise<Plan[]> {
   const rows = await prisma.artCollection.findMany({
     where: { slug: null },
-    select: { id: true, userId: true, label: true },
+    select: { id: true, userId: true, label: true, imagePath: true },
     orderBy: { id: 'asc' },
   })
 
@@ -59,7 +79,10 @@ async function planArtCollections(taken: Set<string>): Promise<Plan[]> {
     const generated = isGeneratedLabel(label)
     if (generated && !ALL_COLLECTIONS) continue
 
-    const slug = generated ? `${slugify(label)}-u${row.userId}` : slugify(label)
+    // Prefer the folder (imagePath) as the slug source; fall back to the label
+    // with the collection suffix stripped.
+    const base = folderSlugFromImagePath(row.imagePath) || slugFromLabel(label)
+    const slug = generated ? `${base}-u${row.userId}` : base
 
     if (!slug || taken.has(slug)) continue
     taken.add(slug)

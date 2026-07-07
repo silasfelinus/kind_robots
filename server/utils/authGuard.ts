@@ -58,7 +58,22 @@ async function getUserById(id: number): Promise<AuthUser | null> {
 async function validateJwtAuth(token: string): Promise<AuthGuardResult | null> {
   if (!token) return null
 
-  const verification = await verifyJwtToken(token)
+  // Only attempt JWT verification on a JWT-shaped token (header.payload.sig).
+  // A user apiKey or beta-admin token is not a JWT; running it through the JWT
+  // verifier just logs a noisy "Operation failed" and — critically — must not
+  // prevent the apiKey/beta-admin fallbacks in requireMachineUser from running.
+  if (token.split('.').length !== 3) return null
+
+  // An expired or otherwise invalid JWT is NOT fatal here: it simply means "not
+  // authenticated via JWT". Swallow any throw so requireMachineUser can fall
+  // through to the apiKey / beta-admin token instead of surfacing a 500/JWT
+  // error to a machine caller that also holds a valid long-lived credential.
+  let verification: Awaited<ReturnType<typeof verifyJwtToken>>
+  try {
+    verification = await verifyJwtToken(token)
+  } catch {
+    return null
+  }
 
   if (!verification.success || !verification.userId) return null
 

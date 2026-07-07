@@ -55,6 +55,17 @@ export type FolderSyncResult = {
   total: number
   created: number
   alreadyPresent: number
+  skipped: number
+  createdCollection: boolean
+}
+
+export type FolderSyncAllResult = {
+  folders: number
+  createdCollections: number
+  createdImages: number
+  skipped: number
+  failures: { slug: string; error: string }[]
+  results: FolderSyncResult[]
 }
 
 type CollectionState = {
@@ -1059,11 +1070,34 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     return response.data
   }
 
+  /**
+   * Bulk parity: ensure every folder under public/images/ has a real DB
+   * ArtCollection. Creates missing collections and links new images, then
+   * refreshes the DB + folder lists so orphan folders (e.g. `comfy`, freshly
+   * generated batches) appear as normal collections on every surface.
+   * Idempotent.
+   */
+  async function syncAllFolderCollections(): Promise<FolderSyncAllResult> {
+    const response = await performFetch<FolderSyncAllResult>(
+      '/api/art/collection/folders/sync',
+      { method: 'POST' },
+    )
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to sync folder collections')
+    }
+
+    await fetchCollections(true)
+    await fetchFolderCollections(true)
+    return response.data
+  }
+
   return {
     ...toRefs(state),
 
     fetchFolderCollections,
     syncFolderCollection,
+    syncAllFolderCollections,
 
     selectedCollectionIds,
     selectedCollections,

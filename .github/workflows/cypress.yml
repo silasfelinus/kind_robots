@@ -5,10 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      wait_seconds:
-        description: 'Seconds to wait for Vercel deploy before running tests'
+      max_wait_seconds:
+        description: 'Max seconds to wait for the pushed commit to go live on Vercel before running tests'
         required: false
-        default: '90'
+        default: '600'
 
 concurrency:
   group: cypress-${{ github.ref }}
@@ -33,18 +33,39 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Give Vercel time to finish deploying the new commit before tests hit it.
-      # On manual dispatch you can override this; on push to main 90s is usually enough.
-      - name: Wait for Vercel deploy
+      # Wait for Vercel to finish deploying THIS commit before tests hit production.
+      # A blind sleep used to race the deploy: `vercel-build` runs `prisma migrate
+      # deploy` during the build, so there is a window where the schema has already
+      # changed but the previous serverless functions are still being served. Tests
+      # landing in that window hit a code/DB mismatch (e.g. the subFolder ->
+      # parentFolder rename returned 500s). Instead, poll /api/version until
+      # production reports the pushed commit as live, then run.
+      - name: Wait for deploy to go live
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          TARGET_SHA: ${{ github.sha }}
+          MAX_WAIT: ${{ github.event.inputs.max_wait_seconds || '600' }}
         run: |
-          WAIT="${{ github.event.inputs.wait_seconds || '90' }}"
-          echo "Waiting ${WAIT}s for Vercel to finish deploying..."
-          sleep "$WAIT"
+          echo "Waiting up to ${MAX_WAIT}s for production to serve ${TARGET_SHA}..."
+          deadline=$(( $(date +%s) + MAX_WAIT ))
+          live=""
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            body="$(curl -sf --max-time 15 "${BASE_URL}/api/version" || true)"
+            live="$(printf '%s' "$body" | jq -r '.data.commit // empty' 2>/dev/null || true)"
+            if [ -n "$live" ] && [ "$live" = "$TARGET_SHA" ]; then
+              echo "Production is serving ${live} — deploy is live."
+              exit 0
+            fi
+            echo "  not live yet (serving: ${live:-unknown}); retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::Production did not serve ${TARGET_SHA} within ${MAX_WAIT}s (last seen: ${live:-unknown})."
+          exit 1
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
-          install: false  # already installed above
+          install: false # already installed above
           browser: chrome
           record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
         env:

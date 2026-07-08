@@ -8,6 +8,8 @@
 //   ?kind=materialize  imageData present but no file path -> write a .webp
 //   ?kind=png          path/fileType is PNG              -> convert to .webp
 //   ?kind=thumbnail    no thumbnail yet (has a source)   -> generate one
+//   ?kind=clearable    imageData present AND a file path -> DB base64 is now
+//                      redundant (path is source of truth) -> can be nulled
 //
 // Cursor-paged by ascending id (?cursorId=), machine-auth, read-only.
 import { defineEventHandler, getQuery, createError } from 'h3'
@@ -16,7 +18,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireMachineUser } from '~/server/utils/authGuard'
 
-type WorkKind = 'materialize' | 'png' | 'thumbnail'
+type WorkKind = 'materialize' | 'png' | 'thumbnail' | 'clearable'
 
 const DEFAULT_LIMIT = 200
 const MAX_LIMIT = 1000
@@ -48,6 +50,11 @@ function whereFor(kind: WorkKind): Prisma.ArtImageWhereInput {
       ],
     }
   }
+  if (kind === 'clearable') {
+    // Bytes duplicated in the DB while a served file path also exists — the
+    // path is the source of truth, so the base64 can be freed.
+    return { AND: [present('imageData'), present('imagePath')] }
+  }
   // thumbnail: no thumbnail yet, but something to build one from.
   return {
     AND: [
@@ -64,10 +71,10 @@ export default defineEventHandler(async (event) => {
 
     const q = getQuery(event)
     const kind = String(q.kind || 'materialize') as WorkKind
-    if (!['materialize', 'png', 'thumbnail'].includes(kind)) {
+    if (!['materialize', 'png', 'thumbnail', 'clearable'].includes(kind)) {
       throw createError({
         statusCode: 400,
-        message: "kind must be one of: materialize, png, thumbnail.",
+        message: 'kind must be one of: materialize, png, thumbnail, clearable.',
       })
     }
     const limit = clampInt(q.limit, DEFAULT_LIMIT, 1, MAX_LIMIT)

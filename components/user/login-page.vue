@@ -4,7 +4,7 @@
   >
     <div
       class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style="background-image: url('/images/utility/login.png')"
+      style="background-image: url('/images/utility/login.webp')"
     />
 
     <div

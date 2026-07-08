@@ -102,7 +102,7 @@ function buildArtImageSelect(
 ): Prisma.ArtImageSelect {
   const includeImageData = readBoolean(query.includeImageData, false)
   const includeThumbnailData = readBoolean(query.includeThumbnailData, false)
-  const includeTags = readBoolean(query.includeTags, false)
+  const includeCollections = readBoolean(query.includeCollections, false)
 
   return {
     id: true,
@@ -114,6 +114,7 @@ function buildArtImageSelect(
     imagePath: true,
     path: true,
     promptString: true,
+    artPrompt: true,
     negativePrompt: true,
     checkpoint: true,
     checkpointResourceId: true,
@@ -131,6 +132,11 @@ function buildArtImageSelect(
     serverUrl: true,
     imageData: includeImageData,
     thumbnailData: includeThumbnailData,
+    // Lightweight collection info (id/slug/label) for tools that name files by
+    // collection. Off by default to keep the payload small.
+    ArtCollections: includeCollections
+      ? { select: { id: true, slug: true, label: true } }
+      : false,
   }
 }
 

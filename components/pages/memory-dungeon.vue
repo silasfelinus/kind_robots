@@ -159,7 +159,7 @@
         class="splash-hero relative flex min-h-[58svh] flex-col overflow-hidden sm:min-h-[64svh] lg:min-h-[70svh]"
       >
         <img
-          src="/images/background/memorydungeon.png"
+          src="/images/background/memorydungeon.webp"
           alt="Memory Match Dungeon"
           class="splash-img absolute inset-0 h-full w-full object-cover"
         />

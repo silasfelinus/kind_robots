@@ -2,44 +2,21 @@
 import { defineEventHandler, createError, type H3Event } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
-import { validateApiKey } from '../../../utils/validateKey'
-
-type ValidatedUser = {
-  id?: number | null
-  Role?: string | null
-  role?: string | null
-  isAdmin?: boolean | null
-}
+import { requireMachineUser } from '../../../utils/authGuard'
 
 type DeleteUser = {
   id: number
   isAdmin: boolean
-  role: string
-}
-
-function isAdminUser(user: ValidatedUser | null | undefined): boolean {
-  if (!user) return false
-
-  const role = String(user.Role || user.role || '').toLowerCase()
-
-  return Boolean(user.isAdmin || role === 'admin' || role === 'system')
 }
 
 async function requireDeleteUser(event: H3Event): Promise<DeleteUser> {
-  const auth = await validateApiKey(event)
-  const user = auth.user as ValidatedUser | null | undefined
-
-  if (!auth.isValid || typeof user?.id !== 'number') {
-    throw createError({
-      statusCode: 401,
-      message: 'Valid authorization token required.',
-    })
-  }
+  // Same machine auth as the rest of the art API (JWT / user apiKey /
+  // beta-admin token). Throws 401 when no valid credential is present.
+  const auth = await requireMachineUser(event)
 
   return {
-    id: Number(user.id),
-    isAdmin: isAdminUser(user),
-    role: String(user.Role || user.role || ''),
+    id: auth.user.id,
+    isAdmin: auth.isAdmin,
   }
 }
 

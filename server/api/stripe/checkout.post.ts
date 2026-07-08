@@ -5,7 +5,22 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { cartItems } from '@/stores/seeds/cartItems' // or move to server if needed
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+let stripe: Stripe | null = null
+
+function getStripeClient() {
+  const secretKey = process.env.STRIPE_SECRET_KEY
+
+  if (!secretKey) {
+    const error = new Error('Stripe secret key is not configured') as Error & {
+      statusCode: number
+    }
+    error.statusCode = 500
+    throw error
+  }
+
+  stripe ??= new Stripe(secretKey)
+  return stripe
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,6 +36,7 @@ export default defineEventHandler(async (event) => {
     if (!user)
       return errorHandler({ message: 'User not found', statusCode: 404 })
 
+    const stripe = getStripeClient()
     const email = user.email || `user-${user.id}@kindrobots.org`
 
     const customerId =

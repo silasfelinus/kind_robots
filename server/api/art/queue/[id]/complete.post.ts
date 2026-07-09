@@ -74,6 +74,38 @@ export default defineEventHandler(async (event) => {
         where: { id },
         data: { status: 'DONE', artImageId, error: null },
       })
+
+      // Jobs enqueued on behalf of a browser user (e.g. kontext enqueue) carry
+      // a `save` block. The relay uploads as its own machine user, so apply
+      // ownership + visibility policy here, where admin auth already holds.
+      // Legacy jobs without `save` are untouched.
+      const payload = job.payload as { save?: unknown } | null
+      const save =
+        payload && typeof payload.save === 'object' && payload.save
+          ? (payload.save as {
+              isPublic?: unknown
+              isMature?: unknown
+              designer?: unknown
+            })
+          : null
+
+      if (save) {
+        await prisma.artImage.update({
+          where: { id: artImageId },
+          data: {
+            userId: job.userId,
+            ...(typeof save.isPublic === 'boolean'
+              ? { isPublic: save.isPublic }
+              : {}),
+            ...(typeof save.isMature === 'boolean'
+              ? { isMature: save.isMature }
+              : {}),
+            ...(typeof save.designer === 'string' && save.designer.trim()
+              ? { designer: save.designer.trim() }
+              : {}),
+          },
+        })
+      }
     } else {
       const message = String(body.error || 'Generation failed.').slice(0, 4000)
       const exhausted = job.attempts >= MAX_ATTEMPTS

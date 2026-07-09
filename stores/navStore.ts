@@ -378,7 +378,15 @@ export const useNavStore = defineStore('navStore', () => {
 
   function setDashboardShellFromContent(input: ContentDashboardInput): void {
     const dashboardKey = inferDashboardKeyFromContent(input)
-    const activeTabHint = resolveDashboardTab(dashboardKey, input.dashboardTab)
+    // A page that names one of this dashboard's real tabs IS that tab
+    // (e.g. /stylist -> art/stylist), so enforce it. A page without a valid
+    // tab hint is a channel landing page — keep the visitor's remembered tab
+    // instead of resetting to the dashboard default.
+    const requestedTab = (input.dashboardTab ?? '').trim()
+    const activeTabHint =
+      requestedTab && isDashboardTabKey(dashboardKey, requestedTab)
+        ? requestedTab
+        : getDashboardTab(dashboardKey)
     const resolvedTab = setDashboardTab(
       dashboardKey,
       activeTabHint,

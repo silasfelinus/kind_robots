@@ -4,13 +4,10 @@
   enhance (any combination), and send it through the Kind Robots Kontext backend to
   get the same photo back with new hair.
 
-  Notes:
-  - Results are saved with isPublic: false on purpose. Client photos are private and
-    must NOT surface in public galleries or the memory-match game, even though they
-    are linked to the studio user. (Silas, 2026-07-09.)
-  - Generation runs async via artStore.generateArt; the rest of the app stays
-    navigable while a job is in flight. Durable per-client galleries + cross-page
-    background jobs are tracked in conductor superkate-hairstyle-ai t-007 / t-008.
+  Job state and past looks live in stylistStore, so a styling job keeps running (and
+  its result still lands) even if Superkate leaves the /stylist tab and comes back.
+  Results are saved private (isPublic:false) and tagged per client. See conductor
+  superkate-hairstyle-ai t-007 (navigable async) and t-008 (durable per-client gallery).
 -->
 <template>
   <section
@@ -22,8 +19,12 @@
       <span class="badge badge-primary badge-sm">Kontext</span>
       <span class="badge badge-ghost badge-sm">Private</span>
       <div class="flex-1" />
-      <span class="text-xs font-semibold text-base-content/50">
-        Superkate · surprise preview
+      <span
+        v-if="stylist.isBusy"
+        class="flex items-center gap-1 text-xs font-semibold text-primary"
+      >
+        <span class="loading loading-spinner loading-xs" />
+        {{ stylist.pendingCount }} styling…
       </span>
     </header>
 
@@ -169,52 +170,65 @@
     </div>
 
     <!-- Action -->
-    <div class="flex items-center gap-2">
-      <button
-        type="button"
-        class="btn btn-primary btn-sm flex-1"
-        :disabled="!canGenerate"
-        @click="runStylist"
-      >
-        <span v-if="isGenerating" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:magic" class="h-4 w-4" />
-        {{ isGenerating ? 'Styling…' : 'Style it' }}
-      </button>
-    </div>
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      :disabled="!canGenerate"
+      @click="submit"
+    >
+      <Icon name="kind-icon:magic" class="h-4 w-4" />
+      Style it
+    </button>
 
-    <p v-if="isGenerating" class="text-center text-xs text-base-content/50">
-      This can take a minute or two — feel free to keep working, the result lands here when it's ready.
-    </p>
-    <p v-if="errorMessage" class="rounded-lg bg-error/10 p-2 text-xs font-semibold text-error">
-      {{ errorMessage }}
+    <p class="text-center text-xs text-base-content/50">
+      Styling takes a minute or two — you can keep working or switch tabs; results land below when ready.
     </p>
 
-    <!-- Results — per-client before/after -->
-    <div v-if="results.length" class="flex flex-col gap-2">
-      <span class="text-xs font-black text-base-content">Transformations</span>
+    <!-- This session's jobs -->
+    <div v-if="visibleJobs.length" class="flex flex-col gap-2">
+      <span class="text-xs font-black text-base-content">
+        {{ clientName.trim() ? `Styling ${clientName.trim()}` : 'This session' }}
+      </span>
       <div class="grid gap-3 sm:grid-cols-2">
         <article
-          v-for="result in results"
-          :key="result.id"
+          v-for="job in visibleJobs"
+          :key="job.id"
           class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
         >
           <div class="flex items-center gap-2 text-xs">
-            <span class="font-bold">{{ result.client || 'Unnamed client' }}</span>
-            <span v-if="result.pending" class="badge badge-warning badge-xs gap-1">
+            <span class="font-bold">{{ job.client || 'Unnamed client' }}</span>
+            <span v-if="job.status === 'pending'" class="badge badge-warning badge-xs gap-1">
               <span class="loading loading-spinner loading-xs" /> working
             </span>
-            <span v-else-if="result.failed" class="badge badge-error badge-xs">failed</span>
+            <span v-else-if="job.status === 'failed'" class="badge badge-error badge-xs">failed</span>
             <span v-else class="badge badge-success badge-xs">done</span>
+            <div class="flex-1" />
+            <button
+              v-if="job.status === 'failed'"
+              type="button"
+              class="btn btn-ghost btn-xs"
+              @click="stylist.retryJob(job.id)"
+            >
+              Retry
+            </button>
+            <button
+              type="button"
+              class="btn btn-circle btn-ghost btn-xs"
+              title="Dismiss"
+              @click="stylist.dismissJob(job.id)"
+            >
+              <Icon name="mdi:close" class="h-3.5 w-3.5" />
+            </button>
           </div>
           <div class="grid grid-cols-2 gap-1">
             <figure class="flex flex-col gap-1">
-              <img :src="result.before" alt="Before" class="aspect-square w-full rounded-lg object-cover" />
+              <img :src="job.before" alt="Before" class="aspect-square w-full rounded-lg object-cover" />
               <figcaption class="text-center text-[10px] text-base-content/50">Before</figcaption>
             </figure>
             <figure class="flex flex-col gap-1">
               <img
-                v-if="result.after"
-                :src="result.after"
+                v-if="job.after"
+                :src="job.after"
                 alt="After"
                 class="aspect-square w-full rounded-lg object-cover"
               />
@@ -222,31 +236,71 @@
                 v-else
                 class="flex aspect-square w-full items-center justify-center rounded-lg bg-base-200"
               >
-                <span v-if="result.pending" class="loading loading-spinner text-primary" />
+                <span v-if="job.status === 'pending'" class="loading loading-spinner text-primary" />
                 <Icon v-else name="mdi:image-broken" class="h-6 w-6 text-base-content/30" />
               </div>
               <figcaption class="text-center text-[10px] text-base-content/50">After</figcaption>
             </figure>
           </div>
-          <p class="line-clamp-2 text-[10px] text-base-content/50" :title="result.prompt">
-            {{ result.prompt }}
+          <p v-if="job.error" class="text-[10px] font-semibold text-error">{{ job.error }}</p>
+          <p v-else class="line-clamp-2 text-[10px] text-base-content/50" :title="job.prompt">
+            {{ job.prompt }}
           </p>
         </article>
+      </div>
+    </div>
+
+    <!-- Durable per-client history -->
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-black text-base-content">
+          {{ clientName.trim() ? `Past looks for ${clientName.trim()}` : 'Past looks' }}
+        </span>
+        <span v-if="stylist.isLoadingHistory" class="loading loading-spinner loading-xs text-primary" />
+        <div class="flex-1" />
+        <button type="button" class="btn btn-ghost btn-xs" @click="stylist.loadHistory(true)">
+          Refresh
+        </button>
+      </div>
+      <p v-if="stylist.historyError" class="text-xs text-error">{{ stylist.historyError }}</p>
+      <p
+        v-else-if="!clientHistory.length && !stylist.isLoadingHistory"
+        class="text-xs text-base-content/40"
+      >
+        No saved looks yet{{ clientName.trim() ? ' for this client' : '' }}.
+      </p>
+      <div v-else class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+        <figure
+          v-for="image in clientHistory"
+          :key="image.id"
+          class="flex flex-col gap-1"
+        >
+          <img
+            :src="historyImageSrc(image)"
+            :alt="`Look for ${clientFromDesigner(image.designer) || 'client'}`"
+            class="aspect-square w-full rounded-lg object-cover"
+          />
+          <figcaption
+            v-if="!clientName.trim()"
+            class="truncate text-center text-[10px] text-base-content/50"
+          >
+            {{ clientFromDesigner(image.designer) || 'client' }}
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { useUserStore } from '@/stores/userStore'
-import { useServerStore } from '@/stores/serverStore'
-import type { Server } from '~/prisma/generated/prisma/client'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import {
+  useStylistStore,
+  clientFromDesigner,
+} from '@/stores/stylistStore'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 
-const artStore = useArtStore()
-const userStore = useUserStore()
-const serverStore = useServerStore()
+const stylist = useStylistStore()
 
 const clientName = ref('')
 
@@ -266,33 +320,17 @@ const styleValue = ref('')
 const enhanceImage = ref(false)
 const extraNotes = ref('')
 
-const isGenerating = ref(false)
-const errorMessage = ref('')
-
-let resultSeq = 0
-type StylistResult = {
-  id: number
-  client: string
-  before: string
-  after: string | null
-  prompt: string
-  pending: boolean
-  failed: boolean
-}
-const results = ref<StylistResult[]>([])
-
-function patchResult(id: number, patch: Partial<StylistResult>) {
-  results.value = results.value.map((result) =>
-    result.id === id ? { ...result, ...patch } : result,
-  )
-}
-
 const hasAnyChange = computed(
   () => changeColor.value || changeStyle.value || enhanceImage.value,
 )
 
 const canGenerate = computed(
-  () => !isGenerating.value && !!sourceImageData.value && hasAnyChange.value,
+  () => !!sourceImageData.value && hasAnyChange.value,
+)
+
+const visibleJobs = computed(() => stylist.jobsForClient(clientName.value))
+const clientHistory = computed(() =>
+  stylist.historyForClient(clientName.value),
 )
 
 const changeSummary = computed(() => {
@@ -337,24 +375,21 @@ function buildPrompt(): string {
   return clauses.join('. ')
 }
 
-function isUsableKontextServer(
-  server: Server | null | undefined,
-): server is Server {
-  if (!server) return false
-  if (!server.isActive) return false
-  if (server.serverType !== 'COMFY') return false
-  return true
-}
-
-const kontextServer = computed<Server | null>(() => {
-  if (isUsableKontextServer(serverStore.activeArtServer)) {
-    return serverStore.activeArtServer
+function historyImageSrc(image: ArtImage): string {
+  const img = image as ArtImage & {
+    imageData?: string | null
+    thumbnailData?: string | null
+    imagePath?: string | null
+    path?: string | null
   }
-  const servers = Array.isArray(serverStore.servers)
-    ? (serverStore.servers as Server[])
-    : []
-  return servers.find(isUsableKontextServer) || null
-})
+  if (img.thumbnailData) {
+    return `data:image/${img.fileType || 'png'};base64,${img.thumbnailData}`
+  }
+  if (img.imageData) {
+    return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
+  }
+  return img.imagePath || img.path || ''
+}
 
 function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
@@ -372,27 +407,22 @@ function processFile(file: File) {
   const reader = new FileReader()
   reader.onload = (event) => {
     sourceImageData.value = (event.target?.result as string) ?? null
-    errorMessage.value = ''
   }
   reader.readAsDataURL(file)
 }
 
 async function openCamera() {
   sourceTab.value = 'camera'
-  errorMessage.value = ''
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'user' },
       audio: false,
     })
     cameraActive.value = true
-    // Wait a tick for the <video> to render before binding the stream.
     await new Promise((resolve) => setTimeout(resolve, 0))
     if (videoEl.value) videoEl.value.srcObject = cameraStream
   } catch {
     cameraActive.value = false
-    errorMessage.value =
-      'Camera unavailable. You can upload a photo instead.'
     sourceTab.value = 'upload'
   }
 }
@@ -418,66 +448,20 @@ function closeCamera() {
 
 function clearSource() {
   sourceImageData.value = null
-  errorMessage.value = ''
 }
 
-async function runStylist() {
+function submit() {
   if (!sourceImageData.value || !hasAnyChange.value) return
-
-  errorMessage.value = ''
-  const prompt = buildPrompt()
-  const before = sourceImageData.value
-  const client = clientName.value.trim()
-  const base64Payload = before.includes(',') ? before.split(',')[1] : before
-
-  const entryId = ++resultSeq
-  const entry: StylistResult = {
-    id: entryId,
-    client,
-    before,
-    after: null,
-    prompt,
-    pending: true,
-    failed: false,
-  }
-  results.value = [entry, ...results.value]
-
-  isGenerating.value = true
-  try {
-    const result = await artStore.generateArt({
-      promptString: prompt,
-      userId: userStore.userId ?? undefined,
-      serverId: kontextServer.value?.id ?? null,
-      serverName: kontextServer.value?.title ?? null,
-      engine: 'kontext',
-      transport: 'backend',
-      // Client photos stay private — never public, never in the memory game.
-      isPublic: false,
-      isMature: false,
-      // Tag the owning client so a durable per-client gallery can group later.
-      designer: client ? `stylist:${client}` : 'stylist',
-      sourceImageBase64: base64Payload,
-    })
-
-    if (!result.success || !result.data) {
-      throw new Error(result.message || 'Styling failed.')
-    }
-
-    const image = result.data as { imageData?: string | null; fileType?: string | null }
-    patchResult(entryId, {
-      after: image.imageData
-        ? `data:image/${image.fileType || 'png'};base64,${image.imageData}`
-        : before,
-      pending: false,
-    })
-  } catch (error) {
-    patchResult(entryId, { pending: false, failed: true })
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Styling failed.'
-  } finally {
-    isGenerating.value = false
-  }
+  void stylist.runStylist({
+    client: clientName.value,
+    before: sourceImageData.value,
+    prompt: buildPrompt(),
+  })
 }
+
+onMounted(() => {
+  void stylist.loadHistory()
+})
 
 onBeforeUnmount(closeCamera)
 </script>

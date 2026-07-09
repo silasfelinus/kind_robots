@@ -80,6 +80,15 @@
     </section>
 
     <section
+      v-else-if="activeTab === 'stylist'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <stylist-manager class="min-h-full w-full" />
+      </div>
+    </section>
+
+    <section
       v-else-if="activeTab === 'art-test'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
@@ -117,6 +126,7 @@ type ArtTab =
   | 'gallery'
   | 'checkpoints'
   | 'styler'
+  | 'stylist'
   | 'workbench'
   | 'art-test'
 
@@ -136,6 +146,7 @@ const validTabs: LegacyArtTab[] = [
   'gallery',
   'checkpoints',
   'styler',
+  'stylist',
   'workbench',
   'art-test',
 ]

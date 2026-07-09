@@ -27,7 +27,7 @@ function tutorialImage(channelKey: string, sectionKey: string): string {
   return getTutorialImagePath(channelKey, sectionKey)
 }
 
-export type ExtraTutorialKey = 'conductor'
+export type ExtraTutorialKey = 'conductor' | 'mural'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -384,6 +384,23 @@ export const tutorialChannels = {
     ],
   },
 
+  mural: {
+    key: 'mural',
+    title: 'Mural Color Studio',
+    hero: tutorialImage('mural', 'mural'),
+    tagline: 'Color the fence mural before the real paint gets brave.',
+    overview:
+      'Mural Color Studio turns a simplified coloring page into a paint-planning workspace. Save paint swatches, color several mural sections with one shared color ID, then override individual sections when a leaf, window, robot, or butterfly needs its own moment.',
+    sections: [
+      {
+        key: 'mural',
+        title: 'Colorable Mural Plan',
+        body: 'Click shapes to color inside the lines, use group fill to assign one color across related sections, and keep a saved palette for the exterior-paint pass.',
+        image: tutorialImage('mural', 'mural'),
+      },
+    ],
+  },
+
   conductor: {
     key: 'conductor',
     title: 'Conductor',
@@ -415,6 +432,7 @@ export const tutorialChannelKeys = Object.keys(
 const tutorialRouteMap = {
   ...footerRouteMap,
   conductor: '/conductor',
+  mural: '/mural',
 } as const satisfies Record<TutorialChannelKey, string>
 
 export function isTutorialChannelKey(

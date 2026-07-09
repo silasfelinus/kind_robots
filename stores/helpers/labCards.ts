@@ -1,23 +1,38 @@
 // /stores/helpers/labCards.ts
-//
-// WonderLab deck — now DERIVED from the canonical 'wonder' dashboard config
-// (dashboardConfigs.wonder.tabs in dashboardHelper.ts) instead of being a
-// hand-maintained parallel list. The tab configs carry the flourish /
-// narrative / image fields; deriveNavCards turns them into navigational
-// BuilderCards routed to /wonderlab with the tab stowed in payload.
-
-import { dashboardConfigs } from '@/stores/helpers/dashboardHelper'
-import { deriveNavCards } from '@/stores/helpers/tabsToCards'
-import type { BuilderCard } from '@/stores/helpers/builderCards'
+import { dashboardConfigs, getDashboardTabImagePath } from '@/stores/helpers/dashboardHelper'
+import { deriveNavCard, deriveNavCards } from '@/stores/helpers/tabsToCards'
+import type {
+  BuilderCard,
+  DashboardTabConfig,
+} from '@/stores/helpers/builderCards'
 
 export type LabCard = BuilderCard
 
-export const LAB_CARDS: LabCard[] = deriveNavCards(
-  dashboardConfigs.wonder.tabs,
-  {
+const muralTab = {
+  key: 'mural',
+  label: 'Mural',
+  icon: 'kind-icon:paintbrush',
+  title: 'Mural Color Studio',
+  summary:
+    'Color a paintable mural plan by section, shared color group, and saved paint swatch.',
+  image: getDashboardTabImagePath('wonder', 'mural'),
+  flourish: '✺',
+  tagline: 'Paint inside the lines, then bend the lines politely.',
+  narrative:
+    'Color a simplified mural page, assign one paint ID across multiple sections, override individual shapes, and save the palette before the paint goblin eats the swatches.',
+  route: '/mural',
+} as const satisfies DashboardTabConfig
+
+export const LAB_CARDS: LabCard[] = [
+  ...deriveNavCards(dashboardConfigs.wonder.tabs, {
     path: '/wonderlab',
     dashboardKey: 'wonder',
     routeByTab: true,
     imageDir: 'lab',
-  },
-)
+  }),
+  deriveNavCard(muralTab, {
+    path: '/mural',
+    dashboardKey: 'wonder',
+    imageDir: 'lab',
+  }),
+]

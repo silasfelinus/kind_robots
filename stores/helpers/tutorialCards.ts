@@ -259,7 +259,7 @@ export const tutorialChannels = {
       {
         key: 'stylist',
         title: 'Hair Studio',
-        body: 'Upload or snap a client photo, choose a new hair color, a new style, or an overall image cleanup (any combination), and get the same photo back with the new look through the Kontext backend. Client photos are kept private — they never appear in public galleries or the memory game.',
+        body: 'The Hair by Superkate suite: upload or snap a client photo and try a new color, style, or cleanup on their own face; price appointments with the services calculator (rate × time + products); keep the client book; and send warm receipts. Client photos are kept private — they never appear in public galleries or the memory game.',
         image: tutorialImage('art', 'stylist'),
       },
       {

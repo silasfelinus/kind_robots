@@ -111,6 +111,17 @@ export const dashboardConfigs = {
         route: '/art',
       },
       {
+        key: 'stylist',
+        label: 'Hair Studio',
+        icon: 'kind-icon:magic',
+        title: 'Hair Studio',
+        summary: 'Upload a client photo and try a new hair color, cut, or cleanup.',
+        image: tabImage('art', 'stylist'),
+        narrative:
+          'Upload or snap a client photo, pick a new color, style, or overall cleanup, and see it on their own face in a minute or two. Client photos stay private — never public, never in the memory game.',
+        route: '/stylist',
+      },
+      {
         key: 'workbench',
         label: 'Code Cards',
         icon: 'kind-icon:foundry',

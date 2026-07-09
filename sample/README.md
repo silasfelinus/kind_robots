@@ -6,6 +6,12 @@ model, updated to match the site's current patterns and commented at the
 points you change when copying. Read this sheet for the loop; read the
 files for the details.
 
+Adding a new **page, tab, or channel** (rather than a data model) has its
+own step-by-step framework: **[`new-section.md`](./new-section.md)**. It is
+the canonical recipe for both humans and agents — including the rule that a
+new *channel* requires Silas's explicit approval. The channel checklist
+below is kept in sync with it for use during the model loop.
+
 **Naming contract** (keep all five consistent or nothing lines up):
 
 | Thing | Convention | For Sample |
@@ -69,6 +75,10 @@ Component filenames must be globally unique — Nuxt registers by filename
    (`createLoggedInTestUser`, `bearerHeaders`, …), not hand-rolled tokens.
 
 ## Adding a new channel
+
+**Gate:** a new channel requires Silas's explicit approval — agents treat
+it as a hard `needs-human`. New tabs and pages inside existing channels are
+normal reversible work (see `new-section.md`).
 
 The nav system is mostly derived from one registry:
 `dashboardConfigs.footer.tabs` in `stores/helpers/dashboardHelper.ts` IS the

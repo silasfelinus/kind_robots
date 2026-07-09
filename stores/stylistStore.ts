@@ -58,6 +58,34 @@ function isStylistImage(image: ArtImage): boolean {
   return (image.designer ?? '').startsWith('stylist')
 }
 
+/** Turn a raw generation error into something Superkate can act on. */
+export function friendlyError(raw: string): string {
+  const message = (raw || '').toLowerCase()
+  if (
+    message.includes('mana') ||
+    message.includes('balance') ||
+    message.includes('insufficient') ||
+    message.includes('afford')
+  ) {
+    return 'Not enough mana to style this photo — top up and try again.'
+  }
+  if (message.includes('timed out') || message.includes('timeout')) {
+    return 'That took too long and timed out. Give it another try in a moment.'
+  }
+  if (
+    message.includes('no active image generation server') ||
+    message.includes('no art server') ||
+    message.includes('server selected') ||
+    message.includes('not active')
+  ) {
+    return 'No art server is responding right now. Check that a Comfy/Kontext server is active, then retry.'
+  }
+  if (message.includes('sign') || message.includes('account') || message.includes('auth')) {
+    return 'Please sign in to use Hair Studio, then try again.'
+  }
+  return raw || 'Styling failed. Please try again.'
+}
+
 export const useStylistStore = defineStore('stylistStore', () => {
   const artStore = useArtStore()
   const userStore = useUserStore()
@@ -170,7 +198,9 @@ export const useStylistStore = defineStore('stylistStore', () => {
     } catch (error) {
       patchJob(id, {
         status: 'failed',
-        error: error instanceof Error ? error.message : 'Styling failed.',
+        error: friendlyError(
+          error instanceof Error ? error.message : 'Styling failed.',
+        ),
       })
     }
 

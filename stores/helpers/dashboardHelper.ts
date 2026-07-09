@@ -115,10 +115,11 @@ export const dashboardConfigs = {
         label: 'Hair Studio',
         icon: 'kind-icon:magic',
         title: 'Hair Studio',
-        summary: 'Upload a client photo and try a new hair color, cut, or cleanup.',
+        summary:
+          'The Hair by Superkate suite: AI restyles, appointment calculator, clients, and receipts.',
         image: tabImage('art', 'stylist'),
         narrative:
-          'Upload or snap a client photo, pick a new color, style, or overall cleanup, and see it on their own face in a minute or two. Client photos stay private — never public, never in the memory game.',
+          'The whole salon in one tab: try a new color or cut on a client\'s own photo, price an appointment (rate × time + products), keep the client book, and send warm receipts. Client photos stay private — never public, never in the memory game.',
         route: '/stylist',
       },
       {

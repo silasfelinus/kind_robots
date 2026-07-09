@@ -1,8 +1,8 @@
 ---
 title: 'Hair Studio'
 room: 'Hair Studio'
-subtitle: "Try the look before the scissors"
-description: "Upload or snap a client photo, pick a new color, style, or an overall cleanup, and see it on their own face in a minute or two. Client photos stay private."
+subtitle: "The Hair by Superkate studio suite"
+description: "The whole salon in one tab: try a new color or cut on a client's own photo, price an appointment, keep the client book, and send warm receipts. Client photos stay private."
 image: 'background/artgallery.webp'
 icon: kind-icon:magic
 tooltip: Private AI hairstyle studio for Hair by Superkate.

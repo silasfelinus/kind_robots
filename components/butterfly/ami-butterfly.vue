@@ -1,7 +1,7 @@
 <!-- /components/content/butterfly/ami-butterfly.vue -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref } from 'vue'
-import { makeNoise2D } from 'open-simplex-noise'
+import { makeNoise2D } from '~/utils/makeNoise2D'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 const butterflyStore = useButterflyStore()

@@ -40,6 +40,21 @@
             Reset
           </button>
 
+          <button
+            class="btn btn-sm btn-ghost rounded-xl"
+            type="button"
+            title="Download the colored mural plan as a PNG image"
+            :disabled="isExporting || !pageDefinition"
+            @click="saveImage"
+          >
+            <span
+              v-if="isExporting"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:image" class="h-4 w-4" />
+            Save image
+          </button>
+
           <div
             class="rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-sm"
           >
@@ -167,6 +182,7 @@
           class="rounded-2xl border border-base-300 bg-base-200 p-3 shadow-inner"
         >
           <coloring-canvas
+            ref="canvasRef"
             :page="pageDefinition"
             :fills="coloringStore.currentPage?.fills ?? {}"
             :selected-region-ids="
@@ -303,6 +319,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useColoringStore } from '@/stores/coloringStore'
 import { loadMuralPageDefinition } from '@/stores/muralStore'
+import { downloadPageBlob } from '@/stores/helpers/coloringExport'
 import { runMuralMigration } from '@/stores/helpers/muralMigration'
 import type {
   ColoringPageDefinition,
@@ -321,6 +338,8 @@ const coloringStore = useColoringStore()
 const pageDefinition = ref<ColoringPageDefinition | null>(null)
 const newColorName = ref('')
 const newColorValue = ref('#55a9b5')
+const canvasRef = ref<{ exportImage: () => Promise<Blob> } | null>(null)
+const isExporting = ref(false)
 
 const activeColorId = computed(
   () => coloringStore.currentPage?.activeColorId ?? null,
@@ -396,6 +415,21 @@ function paintSection(sectionId: string): void {
 function addColor(): void {
   coloringStore.addColor(newColorName.value, newColorValue.value)
   newColorName.value = ''
+}
+
+async function saveImage(): Promise<void> {
+  if (!canvasRef.value || isExporting.value) return
+
+  isExporting.value = true
+
+  try {
+    const blob = await canvasRef.value.exportImage()
+    downloadPageBlob(blob, pageDefinition.value?.id ?? 'mural')
+  } catch (error) {
+    console.warn('[mural] image export failed:', error)
+  } finally {
+    isExporting.value = false
+  }
 }
 
 onMounted(async () => {

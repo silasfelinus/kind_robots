@@ -1,0 +1,31 @@
+{
+  "slug": "sampler",
+  "title": "Starter Sampler",
+  "description": "Two hand-drawn starter pages to try the coloring engine while the Kind Robots and Monster Recast books are in production.",
+  "rating": "all-ages",
+  "pages": [
+    {
+      "id": "sampler-p01",
+      "title": "Beep and the Balloon",
+      "file": "pages/sampler-p01.json"
+    },
+    {
+      "id": "sampler-p02",
+      "title": "Butterfly Garden",
+      "file": "pages/sampler-p02.json"
+    }
+  ],
+  "attribution": [
+    {
+      "pageId": "sampler-p01",
+      "source": "hand-authored SVG (conductor coloring-book t-005 scaffold)",
+      "note": "placeholder sampler page; generated sets replace this"
+    },
+    {
+      "pageId": "sampler-p02",
+      "source": "hand-authored SVG (conductor coloring-book t-005 scaffold)",
+      "note": "placeholder sampler page; generated sets replace this"
+    }
+  ],
+  "access": { "tier": "free" }
+}

@@ -39,6 +39,7 @@
       <stylist-calculator v-if="superkate.activeView === 'calculator'" />
       <stylist-clients v-else-if="superkate.activeView === 'clients'" />
       <stylist-history v-else-if="superkate.activeView === 'history'" />
+      <stylist-settings v-else-if="superkate.activeView === 'settings'" />
       <stylist-restyle v-else />
     </div>
   </section>
@@ -57,6 +58,7 @@ const views = [
   { key: 'calculator', label: 'Calculator', icon: 'kind-icon:sparkles' },
   { key: 'clients', label: 'Clients', icon: 'kind-icon:heart' },
   { key: 'history', label: 'History', icon: 'kind-icon:book' },
+  { key: 'settings', label: 'Settings', icon: 'kind-icon:adjust' },
 ] as const
 
 onMounted(() => {

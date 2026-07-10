@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
     const existing = await prisma.pitchSheet.findUnique({
       where: { id },
-      include: { Dream: true },
+      include: { Dream: true, Project: true },
     })
 
     if (!existing) {
@@ -38,7 +38,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const isOwner =
-      existing.userId === user.id || existing.Dream.userId === user.id
+      existing.userId === user.id ||
+      existing.Dream?.userId === user.id ||
+      existing.Project?.userId === user.id
     if (user.Role !== 'ADMIN' && !isOwner) {
       throw createError({
         statusCode: 403,
@@ -63,6 +65,7 @@ export default defineEventHandler(async (event) => {
       data,
       include: {
         Dream: true,
+        Project: true,
         ArtImage: {
           select: {
             id: true,

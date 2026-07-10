@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
       where: { id },
       include: {
         Dream: true,
+        Project: true,
         ArtImage: {
           select: {
             id: true,
@@ -42,9 +43,14 @@ export default defineEventHandler(async (event) => {
     }
 
     const isOwner = Boolean(
-      user && (data.userId === user.id || data.Dream.userId === user.id),
+      user &&
+        (data.userId === user.id ||
+          data.Dream?.userId === user.id ||
+          data.Project?.userId === user.id),
     )
-    const canView = data.isPublic && data.Dream.isPublic
+    const canView =
+      data.isPublic &&
+      (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)
 
     if (
       !canView &&

@@ -18,15 +18,19 @@ import {
 } from '@/stores/helpers/coloring'
 import type {
   ColoringColor,
+  ColoringFillOp,
   ColoringPageDefinition,
 } from '@/stores/helpers/coloring'
 
 interface UndoEntry {
   fills: Record<string, string>
+  fillOps: ColoringFillOp[]
 }
 
 interface PageColoringState {
   fills: Record<string, string>
+  /** raster-flood mode: replayable fill actions in image coordinates. */
+  fillOps: ColoringFillOp[]
   customColors: ColoringColor[]
   activeColorId: string
   selectedRegionIds: string[]
@@ -36,6 +40,7 @@ interface PageColoringState {
 
 interface PersistedPageState {
   fills?: Record<string, string>
+  fillOps?: ColoringFillOp[]
   customColors?: ColoringColor[]
   activeColorId?: string
   updatedAt?: string
@@ -126,6 +131,7 @@ export const useColoringStore = defineStore('coloringStore', () => {
 
     const payload: PersistedPageState = {
       fills: fillsDiff,
+      fillOps: state.fillOps,
       customColors: state.customColors,
       activeColorId: state.activeColorId,
       updatedAt: state.updatedAt,
@@ -164,6 +170,7 @@ export const useColoringStore = defineStore('coloringStore', () => {
         ...pages.value,
         [def.id]: {
           fills,
+          fillOps: Array.isArray(stored?.fillOps) ? stored.fillOps : [],
           customColors: stored?.customColors ?? [],
           activeColorId:
             stored?.activeColorId ?? def.palette[0]?.id ?? BLANK_COLOR_ID,
@@ -184,7 +191,7 @@ export const useColoringStore = defineStore('coloringStore', () => {
   function pushUndo(state: PageColoringState) {
     state.undoStack = [
       ...state.undoStack.slice(-(UNDO_LIMIT - 1)),
-      { fills: { ...state.fills } },
+      { fills: { ...state.fills }, fillOps: [...state.fillOps] },
     ]
   }
 
@@ -229,6 +236,17 @@ export const useColoringStore = defineStore('coloringStore', () => {
       }
 
       state.fills = nextFills
+    })
+  }
+
+  /** Raster-flood mode: record a fill at image coordinates. */
+  function applyFillOp(x: number, y: number) {
+    mutateCurrent((state) => {
+      pushUndo(state)
+      state.fillOps = [
+        ...state.fillOps,
+        { x: Math.round(x), y: Math.round(y), colorId: state.activeColorId },
+      ]
     })
   }
 
@@ -313,6 +331,7 @@ export const useColoringStore = defineStore('coloringStore', () => {
 
       state.undoStack = state.undoStack.slice(0, -1)
       state.fills = last.fills
+      state.fillOps = last.fillOps
     })
   }
 
@@ -323,6 +342,7 @@ export const useColoringStore = defineStore('coloringStore', () => {
     mutateCurrent((state) => {
       pushUndo(state)
       state.fills = defaultFills(def)
+      state.fillOps = []
     })
   }
 
@@ -402,6 +422,7 @@ export const useColoringStore = defineStore('coloringStore', () => {
     closePage,
     paintRegion,
     paintGroup,
+    applyFillOp,
     setActiveColor,
     selectRegion,
     addColor,

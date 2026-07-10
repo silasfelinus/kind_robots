@@ -199,8 +199,12 @@ interface MuralStoredState {
 // if the data file is missing or malformed.
 const MURAL_PAGE_URL = '/data/mural-design/mural-page.json'
 
+// Whisker/smile strokes, mirrored from mural-page.json's layers.decor for
+// the same-fallback reason as the geometry.
 let baseColors: MuralColor[] = defaultColors
 let baseSections: MuralSection[] = defaultSections
+let baseDecor =
+  'M139 211L156 226M215 211L199 226M169 274H201M592 300H777M565 358C576 386 612 386 621 361M677 365C687 392 725 392 734 364M784 358C793 382 829 382 837 357'
 let baseLoaded = false
 
 async function hydrateBaseFromPageData(): Promise<void> {
@@ -225,12 +229,47 @@ async function hydrateBaseFromPageData(): Promise<void> {
       name: color.name,
       value: normalizeColorValue(color.value),
     }))
+
+    if (page.layers?.decor) {
+      baseDecor = page.layers.decor
+    }
   } catch (error) {
     console.warn(
       '[muralStore] page data unavailable, using inline defaults:',
       error,
     )
   }
+}
+
+let cachedPageDefinition: ColoringPageDefinition | null = null
+
+/**
+ * The mural as a shared coloring-engine page definition. Prefers the data
+ * file (step 4); falls back to the inline constants so /mural never breaks.
+ */
+export async function loadMuralPageDefinition(): Promise<ColoringPageDefinition> {
+  if (cachedPageDefinition) return cachedPageDefinition
+
+  await hydrateBaseFromPageData()
+
+  cachedPageDefinition = {
+    id: 'mural/fence-v1',
+    version: 1,
+    title: 'Fence Mural Color Studio',
+    viewBox: { width: 960, height: 540 },
+    mode: 'svg-regions',
+    layers: { decor: baseDecor },
+    regions: baseSections.map((section) => ({
+      id: section.id,
+      label: section.label,
+      group: section.groupId,
+      defaultColorId: section.colorId,
+      d: section.d,
+    })),
+    palette: baseColors.map((color) => ({ ...color })),
+  }
+
+  return cachedPageDefinition
 }
 
 function safeReadState(): MuralStoredState | null {

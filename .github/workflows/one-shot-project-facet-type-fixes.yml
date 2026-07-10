@@ -52,21 +52,37 @@ jobs:
               'existing.userId === user.id ||\n      existing.Dream?.userId === user.id ||\n      existing.Project?.userId === user.id',
           )
 
-          for path_name in [
+          replace(
               'server/api/sheets/[id].get.ts',
+              '        Dream: true,',
+              '        Dream: true,\n        Project: true,',
+          )
+          replace(
+              'server/api/sheets/[id].get.ts',
+              'user && (data.userId === user.id || data.Dream.userId === user.id)',
+              'user &&\n        (data.userId === user.id ||\n          data.Dream?.userId === user.id ||\n          data.Project?.userId === user.id)',
+          )
+          replace(
+              'server/api/sheets/[id].get.ts',
+              'const canView = data.isPublic && data.Dream.isPublic',
+              'const canView =\n      data.isPublic &&\n      (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)',
+          )
+
+          replace(
               'server/api/sheets/index.post.ts',
-          ]:
-              replace(path_name, '        Dream: true,', '        Dream: true,\n        Project: true,')
-              replace(
-                  path_name,
-                  'user && (data.userId === user.id || data.Dream.userId === user.id)',
-                  'user &&\n        (data.userId === user.id ||\n          data.Dream?.userId === user.id ||\n          data.Project?.userId === user.id)',
-              )
-              replace(
-                  path_name,
-                  'const canView = data.isPublic && data.Dream.isPublic',
-                  'const canView =\n      data.isPublic &&\n      (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)',
-              )
+              '        Dream: true,',
+              '        Dream: true,\n        Project: true,',
+          )
+          replace(
+              'server/api/sheets/index.post.ts',
+              'const isOwner = data.userId === user?.id || data.Dream.userId === user?.id',
+              'const isOwner =\n      data.userId === user?.id ||\n      data.Dream?.userId === user?.id ||\n      data.Project?.userId === user?.id',
+          )
+          replace(
+              'server/api/sheets/index.post.ts',
+              'const canView = data.isPublic && data.Dream.isPublic',
+              'const canView =\n      data.isPublic &&\n      (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)',
+          )
 
           replace(
               'server/api/sheets/[id].patch.ts',

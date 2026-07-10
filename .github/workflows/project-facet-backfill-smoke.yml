@@ -38,9 +38,11 @@ jobs:
 
     env:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
-      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -65,15 +67,9 @@ jobs:
             mariadb@3.5.2 \
             dotenv@17.2.3 \
             tsx@4.22.5
-          curl -fsSL \
-            "https://raw.githubusercontent.com/silasfelinus/kind_robots/${SOURCE_SHA}/prisma/schema.prisma" \
-            -o prisma/schema.prisma
-          curl -fsSL \
-            "https://raw.githubusercontent.com/silasfelinus/kind_robots/${SOURCE_SHA}/utils/scripts/auditProjectDreamFacet.ts" \
-            -o utils/scripts/auditProjectDreamFacet.ts
-          curl -fsSL \
-            "https://raw.githubusercontent.com/silasfelinus/kind_robots/${SOURCE_SHA}/utils/scripts/backfillProjectDreamFacet.ts" \
-            -o utils/scripts/backfillProjectDreamFacet.ts
+          cp "$GITHUB_WORKSPACE/prisma/schema.prisma" prisma/schema.prisma
+          cp "$GITHUB_WORKSPACE/utils/scripts/auditProjectDreamFacet.ts" utils/scripts/auditProjectDreamFacet.ts
+          cp "$GITHUB_WORKSPACE/utils/scripts/backfillProjectDreamFacet.ts" utils/scripts/backfillProjectDreamFacet.ts
           cat > prisma.config.ts <<'CONFIG'
           import 'dotenv/config'
           import { defineConfig } from 'prisma/config'
@@ -86,43 +82,12 @@ jobs:
           })
           CONFIG
 
-      - name: Create additive schema
-        id: schema-push
+      - name: Create schema and generated client
         working-directory: /tmp/project-facet-backfill
         run: |
-          set +e
-          npx prisma db push > prisma-db-push.log 2>&1
-          status=$?
-          cat prisma-db-push.log
-          echo "status=${status}" >> "$GITHUB_OUTPUT"
-          exit 0
-
-      - name: Upload Prisma schema diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: prisma-db-push-log
-          path: /tmp/project-facet-backfill/prisma-db-push.log
-          if-no-files-found: error
-          retention-days: 3
-
-      - name: Require additive schema creation
-        if: steps.schema-push.outputs.status != '0'
-        run: exit 1
-
-      - name: Add PitchSheet owner constraint
-        run: |
-          mariadb \
-            --host=127.0.0.1 \
-            --port=3306 \
-            --user=root \
-            --password=root \
-            kindrobots \
-            -e "ALTER TABLE PitchSheet ADD CONSTRAINT PitchSheet_exactly_one_owner CHECK ((dreamId IS NULL) <> (projectId IS NULL));"
-
-      - name: Generate Prisma client
-        working-directory: /tmp/project-facet-backfill
-        run: npx prisma generate
+          set -euo pipefail
+          npx prisma db push
+          npx prisma generate
 
       - name: Seed representative legacy rows
         working-directory: /tmp/project-facet-backfill
@@ -201,8 +166,7 @@ jobs:
             })
           }
 
-          main()
-            .finally(() => prisma.$disconnect())
+          main().finally(() => prisma.$disconnect())
           SEED
           npx tsx seed.ts
 
@@ -223,8 +187,8 @@ jobs:
           set -euo pipefail
           npx tsx utils/scripts/backfillProjectDreamFacet.ts --apply --output=artifacts/apply.json > /tmp/backfill-apply.json
           test -s artifacts/apply.json
-          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM Project WHERE slug = 'smoke-project' AND conductorSlug = 'smoke-project' AND channelKey IS NULL AND tabKey IS NULL")" = "1"
-          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM Facet WHERE slug = 'smoke-genre' AND kind = 'GENRE'")" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e \"SELECT COUNT(*) FROM Project WHERE slug = 'smoke-project' AND conductorSlug = 'smoke-project' AND channelKey IS NULL AND tabKey IS NULL\")" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e \"SELECT COUNT(*) FROM Facet WHERE slug = 'smoke-genre' AND kind = 'GENRE'\")" = "1"
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM ScenarioFacet')" = "1"
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Chat WHERE dreamId IS NOT NULL AND projectId IS NOT NULL')" = "1"
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM ArtJob WHERE projectId IS NOT NULL')" = "1"

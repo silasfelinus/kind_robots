@@ -70,7 +70,9 @@ export const useSheetStore = defineStore('sheetStore', () => {
 
   const sheetsByDreamId = computed(() => {
     const map = new Map<number, SheetWithDream>()
-    for (const sheet of sheets.value) map.set(sheet.dreamId, sheet)
+    for (const sheet of sheets.value) {
+      if (sheet.dreamId !== null) map.set(sheet.dreamId, sheet)
+    }
     return map
   })
 

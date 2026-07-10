@@ -29,5 +29,6 @@ contents.sqlite
 prisma/migrations_old/*.sql
 kindblank_*.sql
 
-kindblank_*.sql
-prisma/migrations_old/*.sql
+# Generated schema-shift reports may contain private production metadata.
+/artifacts/schema-audit/
+/artifacts/schema-backfill/

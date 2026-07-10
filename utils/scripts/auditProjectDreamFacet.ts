@@ -1,6 +1,7 @@
 // utils/scripts/auditProjectDreamFacet.ts
 import 'dotenv/config'
-import { writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { dirname, resolve } from 'node:path'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
@@ -9,8 +10,14 @@ if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
 const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
 
+const generatedAt = new Date().toISOString()
+const fileStamp = generatedAt.replaceAll(':', '-').replaceAll('.', '-')
 const outputArg = process.argv.find((argument) => argument.startsWith('--output='))
-const outputPath = outputArg?.slice('--output='.length) || null
+const outputPath = resolve(
+  outputArg?.slice('--output='.length) ||
+    `artifacts/schema-audit/project-dream-facet-${fileStamp}.json`,
+)
+const stdoutOnly = process.argv.includes('--stdout-only')
 
 const facetCandidateTypes = ['GENRE', 'BRAINSTORM', 'ART'] as const
 const reviewCandidateTypes = ['LOCATION', 'PITCH', 'WISH'] as const
@@ -163,8 +170,9 @@ async function main() {
   })
 
   const report = {
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     mode: 'read-only',
+    outputPath: stdoutOnly ? null : outputPath,
     summary: {
       dreamCount: typeCounts.reduce((sum, row) => sum + row._count._all, 0),
       projectDreamCount: projectDreams.length,
@@ -199,12 +207,14 @@ async function main() {
   }
 
   const json = `${JSON.stringify(report, null, 2)}\n`
-  if (outputPath) {
-    await writeFile(outputPath, json)
-    console.log(`Schema-shift audit written to ${outputPath}`)
-  } else {
-    process.stdout.write(json)
+
+  if (!stdoutOnly) {
+    await mkdir(dirname(outputPath), { recursive: true })
+    await writeFile(outputPath, json, 'utf8')
+    console.error(`Schema-shift audit written to ${outputPath}`)
   }
+
+  process.stdout.write(json)
 }
 
 main()

@@ -71,7 +71,7 @@ export async function getUniqueCharacterSlug(
 
 export async function findCharacterNameDuplicate(
   client: any,
-  userId: number,
+  userId: number | null,
   name: string,
   excludeId?: number,
 ): Promise<CharacterSlugRow | null> {

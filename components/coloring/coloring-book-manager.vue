@@ -135,6 +135,20 @@
           <button
             type="button"
             class="btn btn-ghost btn-sm rounded-2xl"
+            title="Download your colored page as a PNG image"
+            :disabled="isExporting"
+            @click="saveImage"
+          >
+            <span
+              v-if="isExporting"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:image" class="h-4 w-4" />
+            Save image
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-2xl"
             title="Download your color assignments as JSON"
             @click="downloadAssignments"
           >
@@ -148,6 +162,7 @@
         class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]"
       >
         <coloring-canvas
+          ref="canvasRef"
           :page="openDefinition"
           :fills="coloringStore.currentPage?.fills ?? {}"
           :fill-ops="coloringStore.currentPage?.fillOps ?? []"
@@ -244,6 +259,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useColoringStore } from '@/stores/coloringStore'
 import { BLANK_COLOR_ID } from '@/stores/helpers/coloring'
+import { downloadPageBlob } from '@/stores/helpers/coloringExport'
 import type {
   ColoringPageDefinition,
   ColoringSetManifest,
@@ -261,6 +277,8 @@ const sets = ref<ColoringSetManifest[]>([])
 const loadError = ref('')
 const openDefinition = ref<ColoringPageDefinition | null>(null)
 const newColorValue = ref('#e05c5c')
+const canvasRef = ref<{ exportImage: () => Promise<Blob> } | null>(null)
+const isExporting = ref(false)
 
 const groupNames = computed<string[]>(() => {
   const regions = openDefinition.value?.regions ?? []
@@ -325,6 +343,22 @@ function onFillRequest(coords: { x: number; y: number }) {
 
 function addCustomColor() {
   coloringStore.addColor('My Color', newColorValue.value)
+}
+
+async function saveImage() {
+  if (!canvasRef.value || isExporting.value) return
+
+  isExporting.value = true
+
+  try {
+    const blob = await canvasRef.value.exportImage()
+    downloadPageBlob(blob, openDefinition.value?.id ?? 'coloring')
+  } catch (error) {
+    loadError.value =
+      error instanceof Error ? error.message : 'Image export failed.'
+  } finally {
+    isExporting.value = false
+  }
 }
 
 function downloadAssignments() {

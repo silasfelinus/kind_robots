@@ -1,4 +1,4 @@
-import { slugify } from '@/utils/slugify'
+import { slugify } from '../../utils/slugify'
 
 const maxSlugLength = 255
 

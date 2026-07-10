@@ -29,6 +29,6 @@ contents.sqlite
 prisma/migrations_old/*.sql
 kindblank_*.sql
 
-# Local database migration inventories may contain private production metadata.
+# Generated schema-shift reports may contain private production metadata.
 /artifacts/schema-audit/
 /artifacts/schema-backfill/

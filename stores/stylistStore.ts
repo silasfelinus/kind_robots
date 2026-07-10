@@ -34,23 +34,46 @@ export type StylistJob = {
 
 export type StylistRunInput = {
   client: string
+  clientId?: number | null // StylistClient id from the synced book, if known
   before: string // data URL of the source photo
   prompt: string
 }
 
-/** designer tag stored on each generated ArtImage for a given client. */
-export function stylistDesignerFor(client: string): string {
+/**
+ * designer tag stored on each generated ArtImage for a given client.
+ * When the client exists in the synced book, their StylistClient id is
+ * appended ("stylist:Alex#42") so history grouping survives renames.
+ * Plain "stylist:<name>" tags from earlier images keep working.
+ */
+export function stylistDesignerFor(
+  client: string,
+  clientId?: number | null,
+): string {
   const trimmed = client.trim()
-  return trimmed ? `${STYLIST_DESIGNER_PREFIX}${trimmed}` : 'stylist'
+  if (!trimmed) return 'stylist'
+
+  return clientId
+    ? `${STYLIST_DESIGNER_PREFIX}${trimmed}#${clientId}`
+    : `${STYLIST_DESIGNER_PREFIX}${trimmed}`
 }
 
 /** The client name encoded in a stylist ArtImage's designer field, or ''. */
 export function clientFromDesigner(designer?: string | null): string {
   if (!designer) return ''
   if (designer === 'stylist') return ''
-  return designer.startsWith(STYLIST_DESIGNER_PREFIX)
-    ? designer.slice(STYLIST_DESIGNER_PREFIX.length)
-    : ''
+  if (!designer.startsWith(STYLIST_DESIGNER_PREFIX)) return ''
+
+  return designer
+    .slice(STYLIST_DESIGNER_PREFIX.length)
+    .replace(/#\d+$/, '')
+}
+
+/** The StylistClient id encoded in a designer tag, or null (legacy tags). */
+export function clientIdFromDesigner(designer?: string | null): number | null {
+  if (!designer?.startsWith(STYLIST_DESIGNER_PREFIX)) return null
+
+  const match = designer.match(/#(\d+)$/)
+  return match ? Number(match[1]) : null
 }
 
 function isStylistImage(image: ArtImage): boolean {
@@ -115,12 +138,19 @@ export const useStylistStore = defineStore('stylistStore', () => {
     )
   }
 
-  function historyForClient(client: string): ArtImage[] {
+  function historyForClient(client: string, clientId?: number | null): ArtImage[] {
     const target = client.trim().toLowerCase()
-    if (!target) return history.value
-    return history.value.filter(
-      (image) => clientFromDesigner(image.designer).toLowerCase() === target,
-    )
+    if (!target && !clientId) return history.value
+
+    return history.value.filter((image) => {
+      // Id match is rename-proof; name match covers legacy tags.
+      const taggedId = clientIdFromDesigner(image.designer)
+      if (clientId && taggedId === clientId) return true
+
+      return (
+        !!target && clientFromDesigner(image.designer).toLowerCase() === target
+      )
+    })
   }
 
   function patchJob(id: number, patch: Partial<StylistJob>) {
@@ -201,7 +231,7 @@ export const useStylistStore = defineStore('stylistStore', () => {
             // Private: never public, never in the memory game.
             isPublic: false,
             isMature: false,
-            designer: stylistDesignerFor(client),
+            designer: stylistDesignerFor(client, input.clientId),
             filenamePrefix: 'kindrobots_stylist',
           }),
           headers: { 'Content-Type': 'application/json' },

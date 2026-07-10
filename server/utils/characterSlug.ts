@@ -8,12 +8,6 @@ type CharacterSlugRow = {
   slug: string | null
 }
 
-type CharacterSlugClient = {
-  character: {
-    findMany: (args: any) => Promise<CharacterSlugRow[]>
-  }
-}
-
 type UniqueSlugOptions = {
   excludeId?: number
   reservedSlugs?: Set<string>
@@ -45,14 +39,14 @@ export function getCharacterNameKey(name: string): string {
 }
 
 export async function getUniqueCharacterSlug(
-  client: CharacterSlugClient,
+  client: any,
   source: string,
   options: UniqueSlugOptions = {},
 ): Promise<string | null> {
   const base = slugify(source)
   if (!base) return null
 
-  const rows = await client.character.findMany({
+  const rows = (await client.character.findMany({
     where: {
       slug: { not: null },
       ...(options.excludeId ? { NOT: { id: options.excludeId } } : {}),
@@ -62,7 +56,7 @@ export async function getUniqueCharacterSlug(
       name: true,
       slug: true,
     },
-  })
+  })) as CharacterSlugRow[]
 
   const taken = new Set(
     rows.map((row) => row.slug).filter((slug): slug is string => Boolean(slug)),
@@ -76,7 +70,7 @@ export async function getUniqueCharacterSlug(
 }
 
 export async function findCharacterNameDuplicate(
-  client: CharacterSlugClient,
+  client: any,
   userId: number,
   name: string,
   excludeId?: number,
@@ -84,7 +78,7 @@ export async function findCharacterNameDuplicate(
   const key = getCharacterNameKey(name)
   if (!key) return null
 
-  const rows = await client.character.findMany({
+  const rows = (await client.character.findMany({
     where: {
       userId,
       ...(excludeId ? { NOT: { id: excludeId } } : {}),
@@ -95,7 +89,7 @@ export async function findCharacterNameDuplicate(
       slug: true,
     },
     orderBy: { id: 'asc' },
-  })
+  })) as CharacterSlugRow[]
 
   return rows.find((row) => getCharacterNameKey(row.name) === key) ?? null
 }

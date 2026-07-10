@@ -51,13 +51,17 @@ model ArtImage {
   CheckpointResource Resource?        @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
   Server             Server?          @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
 
-  User                 User?                 @relation("ArtImageCreator", fields: [userId], references: [id])
+  User                 User?                 @relation("ArtImageCreator", fields: [userId], references: [id], onDelete: SetNull)
   Bots                 Bot[]
   Characters           Character[]
   Chats                Chat[]
   Components           Component[]
   DreamsPrimary        Dream[]               @relation("DreamPrimaryArtImage")
   Dreams               Dream[]               @relation("DreamToArtImage")
+  ProjectsPrimary      Project[]             @relation("ProjectPrimaryArtImage")
+  FacetsPrimary        Facet[]               @relation("FacetPrimaryArtImage")
+  ProjectLinks         ProjectArtImage[]
+  FacetLinks           FacetArtImage[]
   Milestones           Milestone[]
   Prompts              Prompt[]
   Reactions            Reaction[]
@@ -86,7 +90,7 @@ model ArtCollection {
   id            Int        @id @default(autoincrement())
   createdAt     DateTime   @default(now())
   updatedAt     DateTime?  @default(now()) @updatedAt
-  userId        Int        @default(10)
+  userId        Int?       @default(10)
   label         String?
   slug          String?    @unique @db.VarChar(255)
   // Parent path under public/images/ that contains this collection's folder, so
@@ -94,19 +98,23 @@ model ArtCollection {
   // key); parentFolder is everything before it. e.g. images/rewards/duct-tape ->
   // slug "duct-tape", parentFolder "rewards"; images/art/collections/unsorted ->
   // slug "unsorted", parentFolder "art/collections". null = top-level (folder == slug).
-  parentFolder  String?    @db.VarChar(512)
-  isMature      Boolean    @default(false)
-  isPublic      Boolean    @default(true)
-  imagePath     String?    @db.VarChar(764)
-  description   String?    @db.Text
-  username      String?
-  isActive      Boolean    @default(true)
-  artPrompt     String?    @db.Text
-  User          User       @relation(fields: [userId], references: [id])
-  DreamsPrimary Dream[]    @relation("DreamPrimaryArtCollection")
-  Dreams        Dream[]    @relation("DreamToArtCollection")
-  Reactions     Reaction[]
-  ArtImages     ArtImage[] @relation("ArtCollectionToArtImage")
+  parentFolder    String?                @db.VarChar(512)
+  isMature        Boolean                @default(false)
+  isPublic        Boolean                @default(true)
+  imagePath       String?                @db.VarChar(764)
+  description     String?                @db.Text
+  username        String?
+  isActive        Boolean                @default(true)
+  artPrompt       String?                @db.Text
+  User            User                   @relation(fields: [userId], references: [id])
+  DreamsPrimary   Dream[]                @relation("DreamPrimaryArtCollection")
+  Dreams          Dream[]                @relation("DreamToArtCollection")
+  ProjectsPrimary Project[]              @relation("ProjectPrimaryArtCollection")
+  FacetsPrimary   Facet[]                @relation("FacetPrimaryArtCollection")
+  ProjectLinks    ProjectArtCollection[]
+  FacetLinks      FacetArtCollection[]
+  Reactions       Reaction[]
+  ArtImages       ArtImage[]             @relation("ArtCollectionToArtImage")
 
   LifeRuns LifeRun[]
 
@@ -148,13 +156,15 @@ model Bot {
   artPrompt            String?                @db.Text
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   Server               Server?                @relation(fields: [serverId], references: [id])
-  User                 User?                  @relation(fields: [userId], references: [id])
+  User                 User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
   chatBorderImage      String?                @db.VarChar(764)
   NarratorThreads      NarratorThread[]
   Chats                Chat[]
   Prompts              Prompt[]
   Reactions            Reaction[]
   Dreams               Dream[]
+  NarratedDreams       Dream[]                @relation("DreamNarrator")
+  ManagedProjects      Project[]              @relation("ProjectManager")
   ChallengeSubmissions ChallengeSubmission[]
   ExpressionMedia      ExpressionMedia[]
   ExpressionTransition ExpressionTransition[]
@@ -184,7 +194,7 @@ model Character {
   genre                String?                @db.VarChar(256)
   artImageId           Int?
   isPublic             Boolean                @default(true)
-  userId               Int                    @default(10)
+  userId               Int?                   @default(10)
   artPrompt            String?                @db.Text
   honorific            String?                @default("adventurer") @db.VarChar(256)
   imagePath            String?                @db.VarChar(764)
@@ -203,7 +213,7 @@ model Character {
   wits                 Rarity                 @default(COMMON)
   gender               String?                @db.VarChar(256)
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
-  User                 User                   @relation(fields: [userId], references: [id])
+  User                 User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
   Chats                Chat[]
   Reactions            Reaction[]
   ChallengeSubmissions ChallengeSubmission[]
@@ -254,14 +264,16 @@ model Chat {
   serverId        Int?
   serverName      String?    @db.VarChar(256)
   dreamId         Int?
+  projectId       Int?
   isActive        Boolean    @default(true)
   ArtImage        ArtImage?  @relation(fields: [artImageId], references: [id])
   Bot             Bot?       @relation(fields: [botId], references: [id])
   Character       Character? @relation(fields: [characterId], references: [id])
   Dream           Dream?     @relation(fields: [dreamId], references: [id])
+  Project         Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
   Prompt          Prompt?    @relation(fields: [promptId], references: [id])
   Server          Server?    @relation(fields: [serverId], references: [id])
-  User            User?      @relation(fields: [userId], references: [id])
+  User            User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   Reactions       Reaction[]
 
   LifeChoices LifeChoice[]
@@ -272,6 +284,7 @@ model Chat {
   @@index([promptId], map: "Chat_promptId_fkey")
   @@index([userId], map: "Chat_userId_fkey")
   @@index([dreamId], map: "Chat_dreamId_fkey")
+  @@index([projectId], map: "Chat_projectId_fkey")
   @@index([artImageId], map: "Chat_artImageId_fkey")
   @@index([originId, createdAt])
   @@index([recipientId])
@@ -282,7 +295,7 @@ model Code {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
-  userId      Int      @default(10)
+  userId      Int?     @default(10)
   title       String
   description String?  @db.Text
   icon        String?
@@ -291,7 +304,7 @@ model Code {
   isOfficial  Boolean  @default(false)
   isActive    Boolean  @default(true)
   isMature    Boolean  @default(false)
-  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([isPublic])
@@ -359,7 +372,7 @@ model Composition {
   bountyId       Int? // Prompt id of the bounty this wish settles against (plain column by design)
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
   userId         Int?
-  User           User?             @relation(fields: [userId], references: [id])
+  User           User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
   artImageId     Int?              @unique
   ArtImage       ArtImage?         @relation(fields: [artImageId], references: [id])
   outputDreamId  Int?              @unique // the Dream this wish spawned (distinct from ingredient dreamId)
@@ -412,18 +425,21 @@ model Dream {
   designer          String?         @db.VarChar(256)
   creationSource    CreationSource  @default(HUMAN)
   // ── Flags ──────────────────────────────────────────────────────────────────────────────────
-  userId            Int             @default(10)
+  userId            Int?            @default(10)
   isPublic          Boolean         @default(true)
   isMature          Boolean         @default(false)
   isActive          Boolean         @default(true)
   // ── Primary "main choice" FKs (one each) ───────────────────────────────────────────
   artImageId        Int?
   artCollectionId   Int?
+  narratorId        Int?
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
-  User              User            @relation(fields: [userId], references: [id])
+  User              User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   ArtImage          ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
   ArtCollection     ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
+  Narrator          Bot?            @relation("DreamNarrator", fields: [narratorId], references: [id], onDelete: SetNull)
   Scenarios         Scenario[]      @relation("DreamToScenario")
+  FacetLinks        DreamFacet[]
   Reactions         Reaction[]
   Compositions      Composition[]
   SourceComposition Composition?    @relation("CompositionOutputDream")
@@ -449,6 +465,7 @@ model Dream {
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
+  @@index([narratorId])
   @@index([projectStatus])
 }
 
@@ -477,6 +494,200 @@ enum DreamRelationType {
   CONTAINS // explicit inverse authoring, if you ever want to author top-down
   RELATED // generic catch-all, the safe default
   INSPIRED_BY // soft creative lineage
+}
+
+/// Projects are implementation records synchronized with Conductor. Creative world
+/// infrastructure belongs to Dream; lightweight reusable flavor belongs to Facet.
+model Project {
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime?       @default(now()) @updatedAt
+  title           String          @db.VarChar(255)
+  slug            String?         @unique @db.VarChar(255)
+  description     String?         @db.Text
+  flavorText      String?         @db.VarChar(512)
+  goal            String?         @db.Text
+  waypoints       String?         @db.Text
+  status          ProjectStatus   @default(BRAINSTORM)
+  priority        ProjectPriority @default(NORMAL)
+  conductorSlug   String?         @unique @db.VarChar(255)
+  repoUrl         String?         @db.VarChar(512)
+  liveUrl         String?         @db.VarChar(512)
+  channelKey      String?         @db.VarChar(255)
+  tabKey          String?         @db.VarChar(255)
+  lastSyncedAt    DateTime?
+  allowReviews    Boolean         @default(false)
+  highlightImage  String?         @db.VarChar(256)
+  icon            String?
+  imagePath       String?         @db.Text
+  cardPath        String?         @db.Text
+  heroPath        String?         @db.Text
+  designer        String?         @db.VarChar(256)
+  creationSource  CreationSource  @default(HUMAN)
+  userId          Int             @default(10)
+  managerBotId    Int?
+  artImageId      Int?
+  artCollectionId Int?
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
+  isActive        Boolean         @default(true)
+
+  User               User                   @relation(fields: [userId], references: [id])
+  Manager            Bot?                   @relation("ProjectManager", fields: [managerBotId], references: [id], onDelete: SetNull)
+  ArtImage           ArtImage?              @relation("ProjectPrimaryArtImage", fields: [artImageId], references: [id], onDelete: SetNull)
+  ArtCollection      ArtCollection?         @relation("ProjectPrimaryArtCollection", fields: [artCollectionId], references: [id], onDelete: SetNull)
+  ArtImageLinks      ProjectArtImage[]
+  ArtCollectionLinks ProjectArtCollection[]
+  Chats              Chat[]
+  Reactions          Reaction[]
+  Todos              Todo[]
+  ArtJobs            ArtJob[]
+  PitchSheet         PitchSheet?
+
+  @@index([userId])
+  @@index([managerBotId])
+  @@index([artImageId])
+  @@index([artCollectionId])
+  @@index([status])
+  @@index([priority])
+  @@index([channelKey, tabKey])
+  @@index([isPublic])
+  @@index([isActive])
+}
+
+/// Facets are lightweight reusable creative building blocks: genres, animals,
+/// colors, themes, cores, moods, styles, settings, and art direction.
+model Facet {
+  id              Int            @id @default(autoincrement())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime?      @default(now()) @updatedAt
+  title           String         @db.VarChar(255)
+  slug            String?        @unique @db.VarChar(255)
+  kind            FacetKind      @default(OTHER)
+  description     String?        @db.Text
+  flavorText      String?        @db.VarChar(512)
+  examples        String?        @db.LongText
+  artPrompt       String?        @db.Text
+  imagePath       String?        @db.Text
+  cardPath        String?        @db.Text
+  heroPath        String?        @db.Text
+  icon            String?
+  designer        String?        @db.VarChar(256)
+  creationSource  CreationSource @default(HUMAN)
+  userId          Int            @default(10)
+  artImageId      Int?
+  artCollectionId Int?
+  isPublic        Boolean        @default(true)
+  isMature        Boolean        @default(false)
+  isActive        Boolean        @default(true)
+
+  User               User                 @relation(fields: [userId], references: [id])
+  ArtImage           ArtImage?            @relation("FacetPrimaryArtImage", fields: [artImageId], references: [id], onDelete: SetNull)
+  ArtCollection      ArtCollection?       @relation("FacetPrimaryArtCollection", fields: [artCollectionId], references: [id], onDelete: SetNull)
+  ArtImageLinks      FacetArtImage[]
+  ArtCollectionLinks FacetArtCollection[]
+  DreamLinks         DreamFacet[]
+  ScenarioLinks      ScenarioFacet[]
+  Reactions          Reaction[]
+  RelationsFrom      FacetRelation[]      @relation("FacetRelationFrom")
+  RelationsTo        FacetRelation[]      @relation("FacetRelationTo")
+
+  @@index([userId])
+  @@index([kind])
+  @@index([artImageId])
+  @@index([artCollectionId])
+  @@index([isPublic])
+  @@index([isActive])
+}
+
+model DreamFacet {
+  dreamId   Int
+  facetId   Int
+  createdAt DateTime @default(now())
+
+  Dream Dream @relation(fields: [dreamId], references: [id], onDelete: Cascade)
+  Facet Facet @relation(fields: [facetId], references: [id], onDelete: Cascade)
+
+  @@id([dreamId, facetId])
+  @@index([facetId])
+}
+
+model ScenarioFacet {
+  scenarioId Int
+  facetId    Int
+  createdAt  DateTime @default(now())
+
+  Scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  Facet    Facet    @relation(fields: [facetId], references: [id], onDelete: Cascade)
+
+  @@id([scenarioId, facetId])
+  @@index([facetId])
+}
+
+model ProjectArtImage {
+  projectId  Int
+  artImageId Int
+  createdAt  DateTime @default(now())
+
+  Project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ArtImage ArtImage @relation(fields: [artImageId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, artImageId])
+  @@index([artImageId])
+}
+
+model ProjectArtCollection {
+  projectId       Int
+  artCollectionId Int
+  createdAt       DateTime @default(now())
+
+  Project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ArtCollection ArtCollection @relation(fields: [artCollectionId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, artCollectionId])
+  @@index([artCollectionId])
+}
+
+model FacetArtImage {
+  facetId    Int
+  artImageId Int
+  createdAt  DateTime @default(now())
+
+  Facet    Facet    @relation(fields: [facetId], references: [id], onDelete: Cascade)
+  ArtImage ArtImage @relation(fields: [artImageId], references: [id], onDelete: Cascade)
+
+  @@id([facetId, artImageId])
+  @@index([artImageId])
+}
+
+model FacetArtCollection {
+  facetId         Int
+  artCollectionId Int
+  createdAt       DateTime @default(now())
+
+  Facet         Facet         @relation(fields: [facetId], references: [id], onDelete: Cascade)
+  ArtCollection ArtCollection @relation(fields: [artCollectionId], references: [id], onDelete: Cascade)
+
+  @@id([facetId, artCollectionId])
+  @@index([artCollectionId])
+}
+
+model FacetRelation {
+  id           Int               @id @default(autoincrement())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime?         @default(now()) @updatedAt
+  fromFacetId  Int
+  toFacetId    Int
+  relationType FacetRelationType @default(RELATED)
+  note         String?           @db.VarChar(512)
+
+  FromFacet Facet @relation("FacetRelationFrom", fields: [fromFacetId], references: [id], onDelete: Cascade)
+  ToFacet   Facet @relation("FacetRelationTo", fields: [toFacetId], references: [id], onDelete: Cascade)
+
+  @@unique([fromFacetId, toFacetId, relationType])
+  @@index([fromFacetId])
+  @@index([toFacetId])
+  @@index([relationType])
 }
 
 /// One row per (owner, expression). Holds stills AND reaction videos. Holds both emotions (face-only edits)
@@ -606,7 +817,7 @@ model Log {
   timestamp DateTime @db.DateTime(0)
   username  String?  @db.VarChar(764)
   userId    Int?
-  User      User?    @relation(fields: [userId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "Log_userId_fkey")
 }
@@ -666,7 +877,7 @@ model ManaTransaction {
   provider     String? // "openai" | "anthropic" | "local" | "byok"
   costUsd      Float? // real/estimated cost for reconciliation
   reversedById Int? // points at the txn that reversed this one
-  User         User       @relation(fields: [userId], references: [id])
+  User         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -681,7 +892,7 @@ model MilestoneRecord {
   userId      Int
   isConfirmed Boolean   @default(false)
   Milestones  Milestone @relation(fields: [milestoneId], references: [id])
-  User        User      @relation(fields: [userId], references: [id])
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   LifeAchievementUnlocks LifeAchievementUnlock[]
 
@@ -736,8 +947,10 @@ model PitchSheet {
   createdAt DateTime  @default(now())
   updatedAt DateTime? @default(now()) @updatedAt
 
-  dreamId Int   @unique
-  Dream   Dream @relation(fields: [dreamId], references: [id], onDelete: Cascade)
+  dreamId   Int?     @unique
+  projectId Int?     @unique
+  Dream     Dream?   @relation(fields: [dreamId], references: [id], onDelete: Cascade)
+  Project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   layoutKey String @default("pitch-card") @db.VarChar(128)
 
@@ -777,7 +990,7 @@ model PitchSheet {
   extraData Json?
 
   userId Int?
-  User   User? @relation(fields: [userId], references: [id])
+  User   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   isPublic Boolean @default(true)
   isActive Boolean @default(true)
@@ -786,6 +999,7 @@ model PitchSheet {
   designer String? @default("system") @db.VarChar(255)
 
   @@index([layoutKey])
+  @@index([projectId])
   @@index([artImageId])
   @@index([userId])
   @@index([isPublic])
@@ -824,9 +1038,9 @@ model Prompt {
   Chats          Chat[]
   ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
   Bot            Bot?           @relation(fields: [botId], references: [id])
-  User           User?          @relation("PromptUser", fields: [userId], references: [id])
+  User           User?          @relation("PromptUser", fields: [userId], references: [id], onDelete: SetNull)
   Server         Server?        @relation("PromptServer", fields: [serverId], references: [id])
-  Claimer        User?          @relation("PromptClaimer", fields: [claimerId], references: [id])
+  Claimer        User?          @relation("PromptClaimer", fields: [claimerId], references: [id], onDelete: SetNull)
   Reactions      Reaction[]
 
   @@index([userId], map: "Prompt_userId_fkey")
@@ -855,6 +1069,8 @@ model Reaction {
   rewardId              Int?
   chatId                Int?
   dreamId               Int?
+  projectId             Int?
+  facetId               Int?
   artCollectionId       Int?
   butterflyId           Int?
   characterId           Int?
@@ -870,13 +1086,15 @@ model Reaction {
   Component             Component?                @relation(fields: [componentId], references: [id])
   Composition           Composition?              @relation(fields: [compositionId], references: [id])
   Dream                 Dream?                    @relation(fields: [dreamId], references: [id])
+  Project               Project?                  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  Facet                 Facet?                    @relation(fields: [facetId], references: [id], onDelete: SetNull)
   Prompt                Prompt?                   @relation(fields: [promptId], references: [id])
   Resource              Resource?                 @relation(fields: [resourceId], references: [id])
   Reward                Reward?                   @relation(fields: [rewardId], references: [id])
   Scenario              Scenario?                 @relation(fields: [scenarioId], references: [id])
   Theme                 Theme?                    @relation(fields: [themeId], references: [id])
   ChallengeSubmission   ChallengeSubmission?      @relation(fields: [challengeSubmissionId], references: [id])
-  User                  User                      @relation(fields: [userId], references: [id])
+  User                  User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // One reaction per user per challenge submission: legitimate one-user-one-vote.
   // MySQL permits multiple NULLs here, so other reaction categories are unaffected.
@@ -890,6 +1108,8 @@ model Reaction {
   @@index([chatId], map: "Reaction_chatId_fkey")
   @@index([componentId], map: "Reaction_componentId_fkey")
   @@index([dreamId], map: "Reaction_dreamId_fkey")
+  @@index([projectId], map: "Reaction_projectId_fkey")
+  @@index([facetId], map: "Reaction_facetId_fkey")
   @@index([promptId], map: "Reaction_promptId_fkey")
   @@index([resourceId], map: "Reaction_resourceId_fkey")
   @@index([rewardId], map: "Reaction_rewardId_fkey")
@@ -927,7 +1147,7 @@ model Resource {
   UsedInImages    ArtImage[]      @relation("ArtImageLoraResources")
   Reactions       Reaction[]
   ArtImage        ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
-  User            User?           @relation(fields: [userId], references: [id])
+  User            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   Servers         Server[]        @relation("ResourceToServer")
 
   @@index([userId], map: "Resource_userId_fkey")
@@ -960,7 +1180,7 @@ model Reward {
   isActive     Boolean       @default(true)
   Reactions    Reaction[]
   ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
-  User         User?         @relation(fields: [userId], references: [id])
+  User         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   Characters   Character[]   @relation("CharacterToReward")
   Dreams       Dream[]       @relation("DreamToReward")
   Compositions Composition[]
@@ -981,7 +1201,7 @@ model Scenario {
   slug                 String?               @unique @db.VarChar(255)
   description          String                @db.Text
   intros               String                @db.Text
-  userId               Int
+  userId               Int?
   artImageId           Int?
   imagePath            String?
   locations            String?               @db.Text
@@ -1000,8 +1220,9 @@ model Scenario {
   Reactions            Reaction[]
   ChallengeSubmissions ChallengeSubmission[]
   ArtImage             ArtImage?             @relation(fields: [artImageId], references: [id])
-  User                 User                  @relation(fields: [userId], references: [id])
+  User                 User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
   Characters           Character[]           @relation("CharacterToScenario")
+  FacetLinks           ScenarioFacet[]
   Compositions         Composition[]
   outputType           ScenarioOutputType    @default(STORY)
 
@@ -1095,7 +1316,7 @@ model SmartIcon {
   category    String?   @db.VarChar(255)
   modelType   String?   @db.VarChar(255)
   isMature    Boolean   @default(false)
-  User        User?     @relation(fields: [userId], references: [id])
+  User        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
@@ -1148,8 +1369,8 @@ model SocialPost {
   sourceId    Int?
   scheduledAt DateTime?
   isPublic    Boolean        @default(false)
-  userId      Int
-  User        User           @relation(fields: [userId], references: [id])
+  userId      Int?
+  User        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   targets     SocialTarget[]
   isActive    Boolean        @default(true)
   isMature    Boolean        @default(false)
@@ -1191,7 +1412,7 @@ model Theme {
   isActive    Boolean    @default(true)
   artPrompt   String?    @db.Text
   Reactions   Reaction[]
-  user        User?      @relation(fields: [userId], references: [id])
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "Theme_userId_fkey")
 }
@@ -1263,6 +1484,8 @@ model User {
   Bots                  Bot[]
   Chats                 Chat[]
   Dreams                Dream[]
+  Projects              Project[]
+  Facets                Facet[]
   Logs                  Log[]
   Milestones            MilestoneRecord[]
   Prompts               Prompt[]           @relation("PromptUser")
@@ -1370,15 +1593,18 @@ model ArtJob {
   claimedBy String?   @db.VarChar(255)
 
   projectSlug String? @db.VarChar(255)
+  projectId   Int?
   artImageId  Int?
   error       String? @db.Text
 
-  userId Int
-  User   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  User    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   @@index([status, priority, id])
   @@index([userId])
   @@index([projectSlug])
+  @@index([projectId])
 }
 
 /// Economy: karma ledger — separate from mana, tracks community contribution score
@@ -1391,7 +1617,7 @@ model KarmaTransaction {
   balanceAfter Int
   refId        String?
   note         String?     @db.Text
-  User         User        @relation(fields: [userId], references: [id])
+  User         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -1404,8 +1630,8 @@ model Referral {
   referredId Int      @unique
   codeUsed   String?  @db.VarChar(64)
   cutRate    Float    @default(0.05)
-  Referrer   User     @relation("ReferralsMade", fields: [referrerId], references: [id])
-  Referred   User     @relation("ReferredBy", fields: [referredId], references: [id])
+  Referrer   User     @relation("ReferralsMade", fields: [referrerId], references: [id], onDelete: Cascade)
+  Referred   User     @relation("ReferredBy", fields: [referredId], references: [id], onDelete: Cascade)
 
   @@index([referrerId])
 }
@@ -1440,8 +1666,8 @@ model UserRelation {
   note          String?        @db.Text
   pairId        Int?
 
-  User        User @relation("UserRelationOwner", fields: [userId], references: [id])
-  RelatedUser User @relation("UserRelationTarget", fields: [relatedUserId], references: [id])
+  User        User @relation("UserRelationOwner", fields: [userId], references: [id], onDelete: Cascade)
+  RelatedUser User @relation("UserRelationTarget", fields: [relatedUserId], references: [id], onDelete: Cascade)
 
   // Prevents duplicate links of the same type between the same ordered pair.
   // A user can both FRIEND and (later) BLOCK someone — different type, allowed.
@@ -1517,6 +1743,7 @@ enum ChatType {
   Scenario
   Character
   Bot
+  Project
 }
 
 enum DreamType {
@@ -1542,6 +1769,33 @@ enum ProjectStatus {
   BRAINSTORM
 }
 
+enum ProjectPriority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+enum FacetKind {
+  GENRE
+  ANIMAL
+  COLOR
+  THEME
+  CORE
+  MOOD
+  STYLE
+  SETTING
+  ART_DIRECTION
+  OTHER
+}
+
+enum FacetRelationType {
+  IS_A
+  APPEARS_IN
+  CONTAINS
+  RELATED
+  INSPIRED_BY
+}
+
 enum DreamPriority {
   LOW
   NORMAL
@@ -1559,6 +1813,8 @@ enum Reaction_reactionCategory {
   COMPONENT
   COMPOSITION
   DREAM
+  FACET
+  PROJECT
   MESSAGE
   POST
   PROMPT
@@ -1651,12 +1907,15 @@ model Todo {
   icon        String?      @db.VarChar(128)
   imagePath   String?      @db.VarChar(764)
   userId      Int?         @default(1)
-  dreamId     Int? // project scope: links to a PROJECT Dream
+  dreamId     Int? // legacy project scope during migration
+  projectId   Int?
   order       Int? // display order within category (used by DESIRED_FEATURE)
   Dream       Dream?       @relation(fields: [dreamId], references: [id], onDelete: SetNull)
+  Project     Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([dreamId])
+  @@index([projectId])
 }
 
 enum ArtStatus {
@@ -1735,8 +1994,8 @@ model Challenge {
   judgeNotes    String?               @db.Text
   status        ChallengeStatus       @default(OPEN)
   isMature      Boolean               @default(false)
-  userId        Int                   @default(10)
-  User          User                  @relation(fields: [userId], references: [id])
+  userId        Int?                  @default(10)
+  User          User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
   Submissions   ChallengeSubmission[]
 
   @@index([userId], map: "Challenge_userId_fkey")

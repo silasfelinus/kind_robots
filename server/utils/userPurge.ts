@@ -3,15 +3,14 @@ import prisma from './prisma'
 
 export type UserPurgeCounts = Record<string, number>
 
-// Deletes a user together with every owned row that would otherwise block the
-// delete. Required relations with no explicit onDelete rule (ArtCollection,
-// Character, Dream, Scenario, SocialPost, Challenge, Reaction, UserRelation,
-// Referral, ManaTransaction, KarmaTransaction, MilestoneRecord) default to
-// ON DELETE RESTRICT in MySQL, so a user who still owns any of those rows can
-// never be deleted — that is how residual test fixtures piled up ~1000
-// undeletable cypress users. ArtImages are optional (SET NULL) and would not
-// block, but they are deleted too so an account wipe doesn't strand orphaned
-// image rows.
+// Deletes a user together with their owned content. Since the explicit
+// onDelete pass, the schema itself no longer blocks user deletion: content
+// relations (ArtCollection, Code, Dream, ...) orphan via SET NULL and
+// user-scoped rows (reactions, ledgers, relations, referrals) cascade. This
+// helper exists so an account wipe removes the content outright instead of
+// stranding orphans — that orphan pile-up is exactly the test-fixture bloat
+// this was built to stop. The explicit deletes on cascading tables are
+// redundant with the DB but kept for the per-table counts they report.
 export async function deleteUserWithOwnedData(
   userId: number,
 ): Promise<UserPurgeCounts> {
@@ -56,6 +55,7 @@ export async function deleteUserWithOwnedData(
         'artCollections',
         await tx.artCollection.deleteMany({ where: { userId } }),
       )
+      track('codes', await tx.code.deleteMany({ where: { userId } }))
       track('dreams', await tx.dream.deleteMany({ where: { userId } }))
       track('characters', await tx.character.deleteMany({ where: { userId } }))
       track('scenarios', await tx.scenario.deleteMany({ where: { userId } }))

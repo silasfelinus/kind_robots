@@ -106,7 +106,7 @@ model ArtCollection {
   username        String?
   isActive        Boolean                @default(true)
   artPrompt       String?                @db.Text
-  User            User                   @relation(fields: [userId], references: [id])
+  User            User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
   DreamsPrimary   Dream[]                @relation("DreamPrimaryArtCollection")
   Dreams          Dream[]                @relation("DreamToArtCollection")
   ProjectsPrimary Project[]              @relation("ProjectPrimaryArtCollection")

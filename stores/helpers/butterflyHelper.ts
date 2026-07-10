@@ -1,6 +1,6 @@
 // /stores/helpers/butterflyHelper.ts
 
-import { makeNoise2D } from 'open-simplex-noise'
+import { makeNoise2D } from '~/utils/makeNoise2D'
 import { generateFunnyName } from '~/utils/generateButterflyNames'
 import { generateMessage } from '~/utils/generateMessage'
 

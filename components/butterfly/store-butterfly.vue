@@ -1,7 +1,7 @@
 <!-- /components/content/butterfly/store-butterfly.vue -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive } from 'vue'
-import { makeNoise2D } from 'open-simplex-noise'
+import { makeNoise2D } from '~/utils/makeNoise2D'
 
 const hydrated = ref(false)
 

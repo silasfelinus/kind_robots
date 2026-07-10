@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
       where: { dreamId },
       include: {
         Dream: true,
+        Project: true,
         ArtImage: {
           select: {
             id: true,
@@ -34,8 +35,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: `PitchSheet for Dream ${dreamId} not found.` })
     }
 
-    const isOwner = data.userId === user?.id || data.Dream.userId === user?.id
-    const canView = data.isPublic && data.Dream.isPublic
+    const isOwner =
+      data.userId === user?.id ||
+      data.Dream?.userId === user?.id ||
+      data.Project?.userId === user?.id
+    const canView =
+      data.isPublic &&
+      (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)
     if (!canView && (!isValid || !user || (user.Role !== 'ADMIN' && !isOwner))) {
       throw createError({ statusCode: 403, message: 'You are not authorized to view this PitchSheet.' })
     }

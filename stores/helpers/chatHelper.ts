@@ -23,6 +23,7 @@ export interface AddChatInput {
   serverId?: number | null
   serverName?: string | null
   dreamId?: number | null
+  projectId?: number | null
 }
 
 function normalizeChatIdentity(value?: string | null): string {
@@ -126,6 +127,7 @@ export function buildNewChat(
     serverId: input.serverId ?? null,
     serverName: input.serverName ?? null,
     dreamId: input.dreamId ?? null,
+    projectId: input.projectId ?? null,
     isActive: true,
   }
 }

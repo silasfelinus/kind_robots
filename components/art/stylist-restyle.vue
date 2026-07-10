@@ -210,6 +210,14 @@
       <span class="text-xs font-black text-base-content">
         {{ clientName.trim() ? `Styling ${clientName.trim()}` : 'This session' }}
       </span>
+      <p
+        v-if="hasStalledQueue"
+        class="rounded-lg bg-warning/10 p-2 text-xs text-warning"
+      >
+        A job has been waiting over a minute without the studio engine picking
+        it up — the home relay is probably offline or needs its update. The job
+        stays queued and finishes once the engine is back.
+      </p>
       <div class="grid gap-3 sm:grid-cols-2">
         <article
           v-for="job in visibleJobs"
@@ -218,8 +226,18 @@
         >
           <div class="flex items-center gap-2 text-xs">
             <span class="font-bold">{{ job.client || 'Unnamed client' }}</span>
-            <span v-if="job.status === 'pending'" class="badge badge-warning badge-xs gap-1">
-              <span class="loading loading-spinner loading-xs" /> working
+            <span
+              v-if="job.status === 'pending'"
+              class="badge badge-xs gap-1"
+              :class="job.queueState === 'rendering' ? 'badge-info' : 'badge-warning'"
+              :title="
+                job.queueState === 'rendering'
+                  ? 'The studio engine is painting'
+                  : 'Waiting for the studio engine to pick this up'
+              "
+            >
+              <span class="loading loading-spinner loading-xs" />
+              {{ job.queueState === 'rendering' ? 'rendering' : 'queued' }}
             </span>
             <span v-else-if="job.status === 'failed'" class="badge badge-error badge-xs">failed</span>
             <span v-else class="badge badge-success badge-xs">done</span>
@@ -388,6 +406,21 @@ const isFirstRun = computed(
     !stylist.isLoadingHistory,
 )
 
+// Ticks every 10s so the stalled-queue warning can appear without a reload.
+const now = ref(Date.now())
+let nowTimer: ReturnType<typeof setInterval> | null = null
+
+const STALL_AFTER_MS = 60_000
+
+const hasStalledQueue = computed(() =>
+  visibleJobs.value.some(
+    (job) =>
+      job.status === 'pending' &&
+      job.queueState !== 'rendering' &&
+      now.value - job.createdAt > STALL_AFTER_MS,
+  ),
+)
+
 // Past-looks compare state: imageId → currently showing the before photo.
 const comparing = ref<Record<number, boolean>>({})
 
@@ -468,10 +501,45 @@ function handleDrop(event: DragEvent) {
   if (file && file.type.startsWith('image/')) processFile(file)
 }
 
+// Downscale to the working size before anything leaves the device: Kontext
+// renders at ~1024px anyway, and a raw phone photo as base64 (5-10MB+) can
+// exceed the deployed backend's request-size limit at enqueue time.
+const MAX_PHOTO_DIMENSION = 1280
+
+function downscalePhoto(dataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image()
+
+    img.onload = () => {
+      const scale = Math.min(
+        1,
+        MAX_PHOTO_DIMENSION / Math.max(img.width, img.height),
+      )
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.max(1, Math.round(img.width * scale))
+      canvas.height = Math.max(1, Math.round(img.height * scale))
+
+      const ctx = canvas.getContext('2d')
+
+      if (!ctx) {
+        resolve(dataUrl)
+        return
+      }
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL('image/jpeg', 0.9))
+    }
+
+    img.onerror = () => resolve(dataUrl)
+    img.src = dataUrl
+  })
+}
+
 function processFile(file: File) {
   const reader = new FileReader()
-  reader.onload = (event) => {
-    sourceImageData.value = (event.target?.result as string) ?? null
+  reader.onload = async (event) => {
+    const raw = (event.target?.result as string) ?? null
+    sourceImageData.value = raw ? await downscalePhoto(raw) : null
   }
   reader.readAsDataURL(file)
 }
@@ -495,13 +563,16 @@ async function openCamera() {
 function capturePhoto() {
   const video = videoEl.value
   if (!video) return
+  const width = video.videoWidth || 768
+  const height = video.videoHeight || 768
+  const scale = Math.min(1, MAX_PHOTO_DIMENSION / Math.max(width, height))
   const canvas = document.createElement('canvas')
-  canvas.width = video.videoWidth || 768
-  canvas.height = video.videoHeight || 768
+  canvas.width = Math.max(1, Math.round(width * scale))
+  canvas.height = Math.max(1, Math.round(height * scale))
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-  sourceImageData.value = canvas.toDataURL('image/png')
+  sourceImageData.value = canvas.toDataURL('image/jpeg', 0.9)
   closeCamera()
 }
 
@@ -527,7 +598,13 @@ function submit() {
 
 onMounted(() => {
   void stylist.loadHistory()
+  nowTimer = setInterval(() => {
+    now.value = Date.now()
+  }, 10_000)
 })
 
-onBeforeUnmount(closeCamera)
+onBeforeUnmount(() => {
+  closeCamera()
+  if (nowTimer) clearInterval(nowTimer)
+})
 </script>

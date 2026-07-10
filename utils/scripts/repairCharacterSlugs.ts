@@ -109,11 +109,17 @@ function completenessScore(row: CharacterRow): number {
 }
 
 function chooseCanonical(rows: CharacterRow[]): CharacterRow {
-  return [...rows].sort((a, b) => {
+  const canonical = [...rows].sort((a, b) => {
     const scoreDelta = completenessScore(b) - completenessScore(a)
     if (scoreDelta) return scoreDelta
     return a.id - b.id
   })[0]
+
+  if (!canonical) {
+    throw new Error('Cannot choose a canonical character from an empty group.')
+  }
+
+  return canonical
 }
 
 async function loadCharacters(): Promise<CharacterRow[]> {
@@ -190,7 +196,12 @@ async function applySlugBackfill(tx: any, plans: SlugPlan[]) {
   }
 }
 
-async function copyImplicitLinks(tx: any, tableName: string, fromId: number, toId: number) {
+async function copyImplicitLinks(
+  tx: any,
+  tableName: string,
+  fromId: number,
+  toId: number,
+) {
   await tx.$executeRawUnsafe(
     `INSERT IGNORE INTO \`${tableName}\` (\`A\`, \`B\`) SELECT ?, \`B\` FROM \`${tableName}\` WHERE \`A\` = ?`,
     toId,
@@ -226,7 +237,11 @@ async function reassignExpressionMedia(tx: any, fromId: number, toId: number) {
   }
 }
 
-async function reassignExpressionTransitions(tx: any, fromId: number, toId: number) {
+async function reassignExpressionTransitions(
+  tx: any,
+  fromId: number,
+  toId: number,
+) {
   const rows = await tx.expressionTransition.findMany({
     where: { characterId: fromId },
     select: { id: true, fromKey: true, toKey: true },

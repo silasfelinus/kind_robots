@@ -999,6 +999,20 @@ export const dashboardConfigs = {
           'Control the screen-effect layer, including matrix rain, firefly drift, butterflies, and ambient theater.',
         route: '/screenfx',
       },
+      {
+        key: 'mural',
+        label: 'Mural',
+        icon: 'kind-icon:paintbrush',
+        title: 'Mural Color Studio',
+        summary:
+          'Color a paintable mural plan by section, shared color group, and saved paint swatch.',
+        image: tabImage('wonder', 'mural'),
+        flourish: '✺',
+        tagline: 'Paint inside the lines, then bend the lines politely.',
+        narrative:
+          'Color a simplified mural page, assign one paint ID across multiple sections, override individual shapes, and save the palette before the paint goblin eats the swatches.',
+        route: '/mural',
+      },
     ],
   },
 } as const satisfies Record<string, DashboardConfig>

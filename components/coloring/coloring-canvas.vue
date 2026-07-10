@@ -22,7 +22,7 @@
       :d="region.d"
       :fill="fillFor(region.id)"
       stroke="#171312"
-      stroke-width="3"
+      :stroke-width="strokeWidth"
       stroke-linejoin="round"
       :class="interactive ? 'cursor-pointer transition-opacity' : ''"
       :opacity="
@@ -123,10 +123,17 @@ const props = withDefaults(
     fillOps?: ColoringFillOp[]
     selectedRegionIds?: string[]
     interactive?: boolean
+    /** Region outline width (svg mode); the mural uses heavier linework. */
+    strokeWidth?: number
     /** Resolves a colorId to a hex value (store-owned palette lookup). */
     paletteResolver: (colorId: string) => string
   }>(),
-  { fillOps: () => [], selectedRegionIds: () => [], interactive: true },
+  {
+    fillOps: () => [],
+    selectedRegionIds: () => [],
+    interactive: true,
+    strokeWidth: 3,
+  },
 )
 
 const emit = defineEmits<{

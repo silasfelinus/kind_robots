@@ -708,6 +708,8 @@ export type UserWhereInput = {
   LifeRuns?: Prisma.LifeRunListRelationFilter
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
   ArtJobs?: Prisma.ArtJobListRelationFilter
+  StylistClients?: Prisma.StylistClientListRelationFilter
+  StylistAppointments?: Prisma.StylistAppointmentListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -801,6 +803,8 @@ export type UserOrderByWithRelationInput = {
   LifeRuns?: Prisma.LifeRunOrderByRelationAggregateInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockOrderByRelationAggregateInput
   ArtJobs?: Prisma.ArtJobOrderByRelationAggregateInput
+  StylistClients?: Prisma.StylistClientOrderByRelationAggregateInput
+  StylistAppointments?: Prisma.StylistAppointmentOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -898,6 +902,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   LifeRuns?: Prisma.LifeRunListRelationFilter
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
   ArtJobs?: Prisma.ArtJobListRelationFilter
+  StylistClients?: Prisma.StylistClientListRelationFilter
+  StylistAppointments?: Prisma.StylistAppointmentListRelationFilter
 }, "id" | "username" | "email" | "referralCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -1119,6 +1125,8 @@ export type UserCreateInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -1211,6 +1219,8 @@ export type UserUncheckedCreateInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -1302,6 +1312,8 @@ export type UserUpdateInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -1394,6 +1406,8 @@ export type UserUncheckedUpdateInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -2192,6 +2206,34 @@ export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
 }
 
+export type UserCreateNestedOneWithoutStylistClientsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStylistClientsInput, Prisma.UserUncheckedCreateWithoutStylistClientsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStylistClientsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutStylistClientsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStylistClientsInput, Prisma.UserUncheckedCreateWithoutStylistClientsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStylistClientsInput
+  upsert?: Prisma.UserUpsertWithoutStylistClientsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStylistClientsInput, Prisma.UserUpdateWithoutStylistClientsInput>, Prisma.UserUncheckedUpdateWithoutStylistClientsInput>
+}
+
+export type UserCreateNestedOneWithoutStylistAppointmentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStylistAppointmentsInput, Prisma.UserUncheckedCreateWithoutStylistAppointmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStylistAppointmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutStylistAppointmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStylistAppointmentsInput, Prisma.UserUncheckedCreateWithoutStylistAppointmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStylistAppointmentsInput
+  upsert?: Prisma.UserUpsertWithoutStylistAppointmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStylistAppointmentsInput, Prisma.UserUpdateWithoutStylistAppointmentsInput>, Prisma.UserUncheckedUpdateWithoutStylistAppointmentsInput>
+}
+
 export type UserCreateNestedOneWithoutArtJobsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutArtJobsInput, Prisma.UserUncheckedCreateWithoutArtJobsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutArtJobsInput
@@ -2406,6 +2448,8 @@ export type UserCreateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtImagesInput = {
@@ -2497,6 +2541,8 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtImagesInput = {
@@ -2592,6 +2638,8 @@ export type UserCreateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtImageInput = {
@@ -2683,6 +2731,8 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtImageInput = {
@@ -2794,6 +2844,8 @@ export type UserUpdateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImagesInput = {
@@ -2885,6 +2937,8 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutArtImageInput = {
@@ -3055,6 +3109,8 @@ export type UserCreateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtCollectionsInput = {
@@ -3146,6 +3202,8 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtCollectionsInput = {
@@ -3252,6 +3310,8 @@ export type UserUpdateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtCollectionsInput = {
@@ -3343,6 +3403,8 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBotsInput = {
@@ -3433,6 +3495,8 @@ export type UserCreateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBotsInput = {
@@ -3524,6 +3588,8 @@ export type UserUncheckedCreateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBotsInput = {
@@ -3630,6 +3696,8 @@ export type UserUpdateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBotsInput = {
@@ -3721,6 +3789,8 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCharactersInput = {
@@ -3811,6 +3881,8 @@ export type UserCreateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCharactersInput = {
@@ -3902,6 +3974,8 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCharactersInput = {
@@ -4008,6 +4082,8 @@ export type UserUpdateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharactersInput = {
@@ -4099,6 +4175,8 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatsInput = {
@@ -4189,6 +4267,8 @@ export type UserCreateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatsInput = {
@@ -4280,6 +4360,8 @@ export type UserUncheckedCreateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatsInput = {
@@ -4386,6 +4468,8 @@ export type UserUpdateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatsInput = {
@@ -4477,6 +4561,8 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCodesInput = {
@@ -4567,6 +4653,8 @@ export type UserCreateWithoutCodesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCodesInput = {
@@ -4658,6 +4746,8 @@ export type UserUncheckedCreateWithoutCodesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCodesInput = {
@@ -4764,6 +4854,8 @@ export type UserUpdateWithoutCodesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCodesInput = {
@@ -4855,6 +4947,8 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCompositionsInput = {
@@ -4945,6 +5039,8 @@ export type UserCreateWithoutCompositionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCompositionsInput = {
@@ -5036,6 +5132,8 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCompositionsInput = {
@@ -5142,6 +5240,8 @@ export type UserUpdateWithoutCompositionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompositionsInput = {
@@ -5233,6 +5333,8 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDreamsInput = {
@@ -5323,6 +5425,8 @@ export type UserCreateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDreamsInput = {
@@ -5414,6 +5518,8 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDreamsInput = {
@@ -5520,6 +5626,8 @@ export type UserUpdateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDreamsInput = {
@@ -5611,6 +5719,8 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLogsInput = {
@@ -5701,6 +5811,8 @@ export type UserCreateWithoutLogsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLogsInput = {
@@ -5792,6 +5904,8 @@ export type UserUncheckedCreateWithoutLogsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLogsInput = {
@@ -5898,6 +6012,8 @@ export type UserUpdateWithoutLogsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogsInput = {
@@ -5989,6 +6105,8 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutManaTransactionsInput = {
@@ -6079,6 +6197,8 @@ export type UserCreateWithoutManaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutManaTransactionsInput = {
@@ -6170,6 +6290,8 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutManaTransactionsInput = {
@@ -6276,6 +6398,8 @@ export type UserUpdateWithoutManaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManaTransactionsInput = {
@@ -6367,6 +6491,8 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMilestonesInput = {
@@ -6457,6 +6583,8 @@ export type UserCreateWithoutMilestonesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMilestonesInput = {
@@ -6548,6 +6676,8 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMilestonesInput = {
@@ -6654,6 +6784,8 @@ export type UserUpdateWithoutMilestonesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMilestonesInput = {
@@ -6745,6 +6877,8 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPitchSheetsInput = {
@@ -6835,6 +6969,8 @@ export type UserCreateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPitchSheetsInput = {
@@ -6926,6 +7062,8 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPitchSheetsInput = {
@@ -7032,6 +7170,8 @@ export type UserUpdateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPitchSheetsInput = {
@@ -7123,6 +7263,8 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPromptsInput = {
@@ -7213,6 +7355,8 @@ export type UserCreateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPromptsInput = {
@@ -7304,6 +7448,8 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPromptsInput = {
@@ -7399,6 +7545,8 @@ export type UserCreateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutClaimedPromptsInput = {
@@ -7490,6 +7638,8 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutClaimedPromptsInput = {
@@ -7596,6 +7746,8 @@ export type UserUpdateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPromptsInput = {
@@ -7687,6 +7839,8 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutClaimedPromptsInput = {
@@ -7788,6 +7942,8 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
@@ -7879,6 +8035,8 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReactionsInput = {
@@ -7969,6 +8127,8 @@ export type UserCreateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReactionsInput = {
@@ -8060,6 +8220,8 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReactionsInput = {
@@ -8166,6 +8328,8 @@ export type UserUpdateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReactionsInput = {
@@ -8257,6 +8421,8 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutResourcesInput = {
@@ -8347,6 +8513,8 @@ export type UserCreateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutResourcesInput = {
@@ -8438,6 +8606,8 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutResourcesInput = {
@@ -8544,6 +8714,8 @@ export type UserUpdateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourcesInput = {
@@ -8635,6 +8807,8 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRewardsInput = {
@@ -8725,6 +8899,8 @@ export type UserCreateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRewardsInput = {
@@ -8816,6 +8992,8 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRewardsInput = {
@@ -8922,6 +9100,8 @@ export type UserUpdateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardsInput = {
@@ -9013,6 +9193,8 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutScenariosInput = {
@@ -9103,6 +9285,8 @@ export type UserCreateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutScenariosInput = {
@@ -9194,6 +9378,8 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutScenariosInput = {
@@ -9300,6 +9486,8 @@ export type UserUpdateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutScenariosInput = {
@@ -9391,6 +9579,8 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutServersInput = {
@@ -9481,6 +9671,8 @@ export type UserCreateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutServersInput = {
@@ -9572,6 +9764,8 @@ export type UserUncheckedCreateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutServersInput = {
@@ -9678,6 +9872,8 @@ export type UserUpdateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutServersInput = {
@@ -9769,6 +9965,8 @@ export type UserUncheckedUpdateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSmartIconsInput = {
@@ -9859,6 +10057,8 @@ export type UserCreateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSmartIconsInput = {
@@ -9950,6 +10150,8 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSmartIconsInput = {
@@ -10056,6 +10258,8 @@ export type UserUpdateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSmartIconsInput = {
@@ -10147,6 +10351,8 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSocialPostsInput = {
@@ -10237,6 +10443,8 @@ export type UserCreateWithoutSocialPostsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSocialPostsInput = {
@@ -10328,6 +10536,8 @@ export type UserUncheckedCreateWithoutSocialPostsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSocialPostsInput = {
@@ -10434,6 +10644,8 @@ export type UserUpdateWithoutSocialPostsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSocialPostsInput = {
@@ -10525,6 +10737,8 @@ export type UserUncheckedUpdateWithoutSocialPostsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutThemesInput = {
@@ -10615,6 +10829,8 @@ export type UserCreateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutThemesInput = {
@@ -10706,6 +10922,8 @@ export type UserUncheckedCreateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutThemesInput = {
@@ -10812,6 +11030,8 @@ export type UserUpdateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutThemesInput = {
@@ -10903,6 +11123,780 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutStylistClientsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutStylistClientsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutStylistClientsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutStylistClientsInput, Prisma.UserUncheckedCreateWithoutStylistClientsInput>
+}
+
+export type UserUpsertWithoutStylistClientsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutStylistClientsInput, Prisma.UserUncheckedUpdateWithoutStylistClientsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutStylistClientsInput, Prisma.UserUncheckedCreateWithoutStylistClientsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutStylistClientsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutStylistClientsInput, Prisma.UserUncheckedUpdateWithoutStylistClientsInput>
+}
+
+export type UserUpdateWithoutStylistClientsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutStylistClientsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutStylistAppointmentsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutStylistAppointmentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutStylistAppointmentsInput, Prisma.UserUncheckedCreateWithoutStylistAppointmentsInput>
+}
+
+export type UserUpsertWithoutStylistAppointmentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutStylistAppointmentsInput, Prisma.UserUncheckedUpdateWithoutStylistAppointmentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutStylistAppointmentsInput, Prisma.UserUncheckedCreateWithoutStylistAppointmentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutStylistAppointmentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutStylistAppointmentsInput, Prisma.UserUncheckedUpdateWithoutStylistAppointmentsInput>
+}
+
+export type UserUpdateWithoutStylistAppointmentsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutArtJobsInput = {
@@ -10993,6 +11987,8 @@ export type UserCreateWithoutArtJobsInput = {
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtJobsInput = {
@@ -11084,6 +12080,8 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtJobsInput = {
@@ -11190,6 +12188,8 @@ export type UserUpdateWithoutArtJobsInput = {
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtJobsInput = {
@@ -11281,6 +12281,8 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutKarmaTransactionsInput = {
@@ -11371,6 +12373,8 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
@@ -11462,6 +12466,8 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutKarmaTransactionsInput = {
@@ -11568,6 +12574,8 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
@@ -11659,6 +12667,8 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferralsMadeInput = {
@@ -11749,6 +12759,8 @@ export type UserCreateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsMadeInput = {
@@ -11840,6 +12852,8 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsMadeInput = {
@@ -11935,6 +12949,8 @@ export type UserCreateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferredByInput = {
@@ -12026,6 +13042,8 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferredByInput = {
@@ -12132,6 +13150,8 @@ export type UserUpdateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsMadeInput = {
@@ -12223,6 +13243,8 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferredByInput = {
@@ -12324,6 +13346,8 @@ export type UserUpdateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferredByInput = {
@@ -12415,6 +13439,8 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRelationsOwnedInput = {
@@ -12505,6 +13531,8 @@ export type UserCreateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRelationsOwnedInput = {
@@ -12596,6 +13624,8 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRelationsOwnedInput = {
@@ -12691,6 +13721,8 @@ export type UserCreateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRelationsReceivedInput = {
@@ -12782,6 +13814,8 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRelationsReceivedInput = {
@@ -12888,6 +13922,8 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
@@ -12979,6 +14015,8 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutRelationsReceivedInput = {
@@ -13080,6 +14118,8 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
@@ -13171,6 +14211,8 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChallengesInput = {
@@ -13261,6 +14303,8 @@ export type UserCreateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChallengesInput = {
@@ -13352,6 +14396,8 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChallengesInput = {
@@ -13458,6 +14504,8 @@ export type UserUpdateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChallengesInput = {
@@ -13549,6 +14597,8 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLifeRunsInput = {
@@ -13639,6 +14689,8 @@ export type UserCreateWithoutLifeRunsInput = {
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLifeRunsInput = {
@@ -13730,6 +14782,8 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLifeRunsInput = {
@@ -13836,6 +14890,8 @@ export type UserUpdateWithoutLifeRunsInput = {
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeRunsInput = {
@@ -13927,6 +14983,8 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLifeAchievementUnlocksInput = {
@@ -14017,6 +15075,8 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
@@ -14108,6 +15168,8 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLifeAchievementUnlocksInput = {
@@ -14214,6 +15276,8 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
@@ -14305,6 +15369,8 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyArtImageInput = {
@@ -14455,6 +15521,8 @@ export type UserUpdateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImageInput = {
@@ -14546,6 +15614,8 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutArtImageInput = {
@@ -14644,6 +15714,8 @@ export type UserCountOutputType = {
   LifeRuns: number
   LifeAchievementUnlocks: number
   ArtJobs: number
+  StylistClients: number
+  StylistAppointments: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -14677,6 +15749,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   LifeRuns?: boolean | UserCountOutputTypeCountLifeRunsArgs
   LifeAchievementUnlocks?: boolean | UserCountOutputTypeCountLifeAchievementUnlocksArgs
   ArtJobs?: boolean | UserCountOutputTypeCountArtJobsArgs
+  StylistClients?: boolean | UserCountOutputTypeCountStylistClientsArgs
+  StylistAppointments?: boolean | UserCountOutputTypeCountStylistAppointmentsArgs
 }
 
 /**
@@ -14899,6 +15973,20 @@ export type UserCountOutputTypeCountArtJobsArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.ArtJobWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountStylistClientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StylistClientWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountStylistAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StylistAppointmentWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -14991,6 +16079,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   LifeRuns?: boolean | Prisma.User$LifeRunsArgs<ExtArgs>
   LifeAchievementUnlocks?: boolean | Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
+  StylistClients?: boolean | Prisma.User$StylistClientsArgs<ExtArgs>
+  StylistAppointments?: boolean | Prisma.User$StylistAppointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -15091,6 +16181,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   LifeRuns?: boolean | Prisma.User$LifeRunsArgs<ExtArgs>
   LifeAchievementUnlocks?: boolean | Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
+  StylistClients?: boolean | Prisma.User$StylistClientsArgs<ExtArgs>
+  StylistAppointments?: boolean | Prisma.User$StylistAppointmentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -15129,6 +16221,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     LifeRuns: Prisma.$LifeRunPayload<ExtArgs>[]
     LifeAchievementUnlocks: Prisma.$LifeAchievementUnlockPayload<ExtArgs>[]
     ArtJobs: Prisma.$ArtJobPayload<ExtArgs>[]
+    StylistClients: Prisma.$StylistClientPayload<ExtArgs>[]
+    StylistAppointments: Prisma.$StylistAppointmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -15561,6 +16655,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   LifeRuns<T extends Prisma.User$LifeRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LifeRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LifeAchievementUnlocks<T extends Prisma.User$LifeAchievementUnlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementUnlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtJobs<T extends Prisma.User$ArtJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  StylistClients<T extends Prisma.User$StylistClientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$StylistClientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StylistClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  StylistAppointments<T extends Prisma.User$StylistAppointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$StylistAppointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StylistAppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16751,6 +17847,54 @@ export type User$ArtJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.ArtJobScalarFieldEnum | Prisma.ArtJobScalarFieldEnum[]
+}
+
+/**
+ * User.StylistClients
+ */
+export type User$StylistClientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StylistClient
+   */
+  select?: Prisma.StylistClientSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StylistClient
+   */
+  omit?: Prisma.StylistClientOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StylistClientInclude<ExtArgs> | null
+  where?: Prisma.StylistClientWhereInput
+  orderBy?: Prisma.StylistClientOrderByWithRelationInput | Prisma.StylistClientOrderByWithRelationInput[]
+  cursor?: Prisma.StylistClientWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StylistClientScalarFieldEnum | Prisma.StylistClientScalarFieldEnum[]
+}
+
+/**
+ * User.StylistAppointments
+ */
+export type User$StylistAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StylistAppointment
+   */
+  select?: Prisma.StylistAppointmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StylistAppointment
+   */
+  omit?: Prisma.StylistAppointmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StylistAppointmentInclude<ExtArgs> | null
+  where?: Prisma.StylistAppointmentWhereInput
+  orderBy?: Prisma.StylistAppointmentOrderByWithRelationInput | Prisma.StylistAppointmentOrderByWithRelationInput[]
+  cursor?: Prisma.StylistAppointmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StylistAppointmentScalarFieldEnum | Prisma.StylistAppointmentScalarFieldEnum[]
 }
 
 /**

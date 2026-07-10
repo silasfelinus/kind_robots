@@ -34,23 +34,46 @@ export type StylistJob = {
 
 export type StylistRunInput = {
   client: string
+  clientId?: number | null // StylistClient id from the synced book, if known
   before: string // data URL of the source photo
   prompt: string
 }
 
-/** designer tag stored on each generated ArtImage for a given client. */
-export function stylistDesignerFor(client: string): string {
+/**
+ * designer tag stored on each generated ArtImage for a given client.
+ * When the client exists in the synced book, their StylistClient id is
+ * appended ("stylist:Alex#42") so history grouping survives renames.
+ * Plain "stylist:<name>" tags from earlier images keep working.
+ */
+export function stylistDesignerFor(
+  client: string,
+  clientId?: number | null,
+): string {
   const trimmed = client.trim()
-  return trimmed ? `${STYLIST_DESIGNER_PREFIX}${trimmed}` : 'stylist'
+  if (!trimmed) return 'stylist'
+
+  return clientId
+    ? `${STYLIST_DESIGNER_PREFIX}${trimmed}#${clientId}`
+    : `${STYLIST_DESIGNER_PREFIX}${trimmed}`
 }
 
 /** The client name encoded in a stylist ArtImage's designer field, or ''. */
 export function clientFromDesigner(designer?: string | null): string {
   if (!designer) return ''
   if (designer === 'stylist') return ''
-  return designer.startsWith(STYLIST_DESIGNER_PREFIX)
-    ? designer.slice(STYLIST_DESIGNER_PREFIX.length)
-    : ''
+  if (!designer.startsWith(STYLIST_DESIGNER_PREFIX)) return ''
+
+  return designer
+    .slice(STYLIST_DESIGNER_PREFIX.length)
+    .replace(/#\d+$/, '')
+}
+
+/** The StylistClient id encoded in a designer tag, or null (legacy tags). */
+export function clientIdFromDesigner(designer?: string | null): number | null {
+  if (!designer?.startsWith(STYLIST_DESIGNER_PREFIX)) return null
+
+  const match = designer.match(/#(\d+)$/)
+  return match ? Number(match[1]) : null
 }
 
 function isStylistImage(image: ArtImage): boolean {
@@ -93,6 +116,10 @@ export const useStylistStore = defineStore('stylistStore', () => {
   const jobs = ref<StylistJob[]>([])
   // Durable results loaded from the user's saved private stylist images.
   const history = ref<ArtImage[]>([])
+  // Durable befores: the source photo of each finished styling travels in
+  // its ArtJob payload, so past looks can show true before/after pairs
+  // without any schema change. Keyed by result artImageId.
+  const befores = ref<Record<number, string>>({})
   const isLoadingHistory = ref(false)
   const historyError = ref('')
 
@@ -111,12 +138,19 @@ export const useStylistStore = defineStore('stylistStore', () => {
     )
   }
 
-  function historyForClient(client: string): ArtImage[] {
+  function historyForClient(client: string, clientId?: number | null): ArtImage[] {
     const target = client.trim().toLowerCase()
-    if (!target) return history.value
-    return history.value.filter(
-      (image) => clientFromDesigner(image.designer).toLowerCase() === target,
-    )
+    if (!target && !clientId) return history.value
+
+    return history.value.filter((image) => {
+      // Id match is rename-proof; name match covers legacy tags.
+      const taggedId = clientIdFromDesigner(image.designer)
+      if (clientId && taggedId === clientId) return true
+
+      return (
+        !!target && clientFromDesigner(image.designer).toLowerCase() === target
+      )
+    })
   }
 
   function patchJob(id: number, patch: Partial<StylistJob>) {
@@ -197,7 +231,7 @@ export const useStylistStore = defineStore('stylistStore', () => {
             // Private: never public, never in the memory game.
             isPublic: false,
             isMature: false,
-            designer: stylistDesignerFor(client),
+            designer: stylistDesignerFor(client, input.clientId),
             filenamePrefix: 'kindrobots_stylist',
           }),
           headers: { 'Content-Type': 'application/json' },
@@ -232,6 +266,7 @@ export const useStylistStore = defineStore('stylistStore', () => {
       patchJob(id, { status: 'done', after, artImageId: image.id })
       // Surface the new result in the durable history immediately.
       history.value = [image, ...history.value.filter((i) => i.id !== image.id)]
+      befores.value = { ...befores.value, [image.id]: before }
     } catch (error) {
       patchJob(id, {
         status: 'failed',
@@ -260,6 +295,50 @@ export const useStylistStore = defineStore('stylistStore', () => {
     jobs.value = jobs.value.filter((job) => job.id !== id)
   }
 
+  function beforeFor(artImageId: number): string {
+    return befores.value[artImageId] || ''
+  }
+
+  type HistoricJob = {
+    artImageId?: number | null
+    payload?: {
+      images?: Array<{ imageData?: string | null }>
+      save?: { designer?: string | null }
+    } | null
+  }
+
+  /** Recover before photos from the user's finished stylist ArtJobs. */
+  async function loadBefores(): Promise<void> {
+    try {
+      const response = await performFetch<{ jobs: HistoricJob[] }>(
+        '/api/art/queue?status=DONE&limit=50',
+        { method: 'GET' },
+        1,
+        30_000,
+      )
+
+      if (!response.success || !Array.isArray(response.data?.jobs)) return
+
+      const next: Record<number, string> = {}
+
+      for (const job of response.data.jobs) {
+        const designer = job.payload?.save?.designer || ''
+        if (!designer.startsWith('stylist')) continue
+
+        const raw = job.payload?.images?.[0]?.imageData || ''
+        if (!job.artImageId || !raw) continue
+
+        next[job.artImageId] = raw.startsWith('data:')
+          ? raw
+          : `data:image/png;base64,${raw}`
+      }
+
+      befores.value = next
+    } catch {
+      // Befores are an enhancement — history still renders without them.
+    }
+  }
+
   /**
    * Load the current user's saved stylist results (private) so past looks show
    * across sessions. Idempotent-ish: pass force to refetch.
@@ -284,6 +363,7 @@ export const useStylistStore = defineStore('stylistStore', () => {
       }
       const art = Array.isArray(response.data.art) ? response.data.art : []
       history.value = art.filter(isStylistImage)
+      void loadBefores()
     } catch (error) {
       historyError.value =
         error instanceof Error ? error.message : 'Could not load past looks.'
@@ -295,12 +375,14 @@ export const useStylistStore = defineStore('stylistStore', () => {
   return {
     jobs,
     history,
+    befores,
     isLoadingHistory,
     historyError,
     pendingCount,
     isBusy,
     jobsForClient,
     historyForClient,
+    beforeFor,
     runStylist,
     retryJob,
     dismissJob,

@@ -195,8 +195,8 @@ function setMinutes(total: number) {
   minutes.value = total % 60
 }
 
-function save() {
-  const appointment = superkate.saveAppointment({
+async function save() {
+  const appointment = await superkate.saveAppointment({
     clientName: clientName.value,
     date: date.value,
     hourlyRateCents: hourlyRateCents.value,

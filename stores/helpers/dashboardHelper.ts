@@ -119,7 +119,7 @@ export const dashboardConfigs = {
           'The Hair by Superkate suite: AI restyles, appointment calculator, clients, and receipts.',
         image: tabImage('art', 'stylist'),
         narrative:
-          'The whole salon in one tab: try a new color or cut on a client\'s own photo, price an appointment (rate × time + products), keep the client book, and send warm receipts. Client photos stay private — never public, never in the memory game.',
+          "The whole salon in one tab: try a new color or cut on a client's own photo, price an appointment (rate × time + products), keep the client book, and send warm receipts. Client photos stay private — never public, never in the memory game.",
         route: '/stylist',
       },
       {
@@ -145,6 +145,61 @@ export const dashboardConfigs = {
         narrative:
           'Test image generators directly with quick prompts, fast iteration, and a healthy distrust of default settings.',
         route: '/wonderlab',
+      },
+    ],
+  },
+
+  academy: {
+    key: 'academy',
+    label: 'Art Academy',
+    defaultTab: 'timeline',
+    tabs: [
+      {
+        key: 'timeline',
+        label: 'Timeline',
+        icon: 'kind-icon:map',
+        title: 'Art History Timeline',
+        summary:
+          'Walk twenty-five centuries of art history, one style at a time.',
+        image: tabImage('academy', 'timeline'),
+        narrative:
+          'Walk the timeline from Greek vases to De Stijl grids, meet the long-departed masters, and learn why every era thought the previous one was doing it wrong.',
+        route: '/academy',
+      },
+      {
+        key: 'styles',
+        label: 'Styles',
+        icon: 'kind-icon:palette',
+        title: 'Style Gallery',
+        summary:
+          'Browse every style the Academy teaches and learn to spot each one.',
+        image: tabImage('academy', 'styles'),
+        narrative:
+          'Browse the full public-domain style catalog, learn the recognition cues, and start seeing brushstrokes everywhere you look. We apologize in advance.',
+        route: '/academy',
+      },
+      {
+        key: 'remix',
+        label: 'Remix Studio',
+        icon: 'kind-icon:magic',
+        title: 'Remix Studio',
+        summary:
+          'Remix your own image in any historical style you just learned.',
+        image: tabImage('academy', 'remix'),
+        narrative:
+          'Bring your own image or pick one from the gallery, choose a historical style, and let the Kontext engine repaint it the way the masters would have — history lesson included at no extra charge.',
+        route: '/academy',
+      },
+      {
+        key: 'stylelab',
+        label: 'Style Lab',
+        icon: 'kind-icon:paintbrush',
+        title: 'Style Lab',
+        summary: 'Free-play style transfer with the full experimental catalog.',
+        image: tabImage('art', 'styler'), // shared with the art styler tab
+        narrative:
+          'The free-play corner of the Academy: remix images with the full experimental style catalog, no curriculum, no quiz, just tasteful visual crimes.',
+        route: '/academy',
       },
     ],
   },

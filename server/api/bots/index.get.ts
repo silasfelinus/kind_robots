@@ -1,12 +1,15 @@
 // /server/api/bots/index.get.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
-    const page = Number(event.context.query?.page) || 1
-    const pageSize = Number(event.context.query?.pageSize) || 100
+    // event.context.query is never populated in Nitro, so page/pageSize were
+    // silently stuck at 1/100 — every caller got only the first 100 bots.
+    const query = getQuery(event)
+    const page = Number(query.page) || 1
+    const pageSize = Number(query.pageSize) || 100
 
     // Fetch bots with pagination
     const skip = (page - 1) * pageSize

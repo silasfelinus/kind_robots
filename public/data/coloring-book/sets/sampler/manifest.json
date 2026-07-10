@@ -13,6 +13,11 @@
       "id": "sampler-p02",
       "title": "Butterfly Garden",
       "file": "pages/sampler-p02.json"
+    },
+    {
+      "id": "sampler-p03",
+      "title": "Rocket to the Moon",
+      "file": "pages/sampler-p03.json"
     }
   ],
   "attribution": [
@@ -25,7 +30,14 @@
       "pageId": "sampler-p02",
       "source": "hand-authored SVG (conductor coloring-book t-005 scaffold)",
       "note": "placeholder sampler page; generated sets replace this"
+    },
+    {
+      "pageId": "sampler-p03",
+      "source": "scripted PIL line art (conductor coloring-book t-018 raster demo)",
+      "note": "first raster-flood page; flood-fill engine verified against this asset"
     }
   ],
-  "access": { "tier": "free" }
+  "access": {
+    "tier": "free"
+  }
 }

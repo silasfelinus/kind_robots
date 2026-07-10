@@ -12,6 +12,12 @@ the canonical recipe for both humans and agents — including the rule that a
 new *channel* requires Silas's explicit approval. The channel checklist
 below is kept in sync with it for use during the model loop.
 
+**Generating instances** of the existing models (bots, dreams, characters,
+rewards, scenarios, narration threads, expression media, pitch sheets) —
+whether by hand or by agent — follows the spec sheets in
+**[`generation/`](./generation/README.md)**. Every generation is presumed
+to include its art.
+
 **Naming contract** (keep all five consistent or nothing lines up):
 
 | Thing | Convention | For Sample |

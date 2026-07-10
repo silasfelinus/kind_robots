@@ -193,11 +193,20 @@ export const deleteTestUser = (apiBase: string, adminToken: string, userId?: num
   return cy.task<boolean>('cypressSeed:isSeedUser', userId).then((isSeedUser) => {
     if (isSeedUser) return null
 
-    return cy.request({
-      method: 'DELETE',
-      url: `${apiBase}/users/${userId}`,
-      headers: adminHeaders(adminToken),
-      failOnStatusCode: false,
-    })
+    return cy
+      .request({
+        method: 'DELETE',
+        url: `${apiBase}/users/${userId}`,
+        headers: adminHeaders(adminToken),
+        failOnStatusCode: false,
+      })
+      .then((response) => {
+        // Cleanup must actually clean up: a leaked test user is a real
+        // failure, not something to swallow silently.
+        expect(
+          response.status,
+          `delete test user ${userId}: ${JSON.stringify(response.body)}`,
+        ).to.be.oneOf([200, 404])
+      })
   })
 }

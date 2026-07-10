@@ -107,6 +107,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { BLANK_COLOR_VALUE } from '@/stores/helpers/coloring'
+import {
+  exportRasterCanvasToBlob,
+  exportSvgPageToBlob,
+} from '@/stores/helpers/coloringExport'
 import { floodFillRgba, hexToRgb } from '@/stores/helpers/floodFill'
 import type {
   ColoringFillOp,
@@ -251,6 +255,23 @@ watch(
 onMounted(() => {
   loadRasterBase()
 })
+
+/** Renders the current page state to a PNG blob (engine-spec section 2.5). */
+async function exportImage(): Promise<Blob> {
+  if (props.page.mode === 'raster-flood') {
+    const canvas = rasterCanvas.value
+    if (!canvas || !rasterReady.value) {
+      throw new Error('Page is still loading')
+    }
+    return exportRasterCanvasToBlob(canvas, props.page.layers.lineArt)
+  }
+
+  return exportSvgPageToBlob(props.page, props.fills, props.paletteResolver, {
+    strokeWidth: props.strokeWidth,
+  })
+}
+
+defineExpose({ exportImage })
 
 const selectedRegions = computed<ColoringRegion[]>(() => {
   if (!props.selectedRegionIds?.length) return []

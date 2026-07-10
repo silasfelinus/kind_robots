@@ -1,6 +1,13 @@
 name: Project and Facet Migration Smoke Test
 
 on:
+  push:
+    branches:
+      - agent/project-dream-facet-schema
+    paths:
+      - .github/workflows/project-facet-migration-smoke.yml
+      - prisma/schema.prisma
+      - prisma/migrations/20260710223000_add_project_and_facet_models/migration.sql
   pull_request:
     branches: [main]
   workflow_dispatch:

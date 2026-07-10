@@ -3,6 +3,8 @@ import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
+import { deleteUserWithOwnedData } from '../../utils/userPurge'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,39 +17,51 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate API key using the utility function
+    // A user may delete themselves; an admin (or the beta admin token) may
+    // delete any non-admin account. This is what lets test cleanup, which
+    // authenticates with the admin token, actually remove disposable users.
     const { isValid, user } = await validateApiKey(event)
     const requestingUserId = user?.id
+    const isSelf = requestingUserId === targetUserId
+    const isAdmin = Boolean(
+      user && userIsAdmin({ id: user.id, Role: user.Role }),
+    )
 
-    // Check if the API key is valid and if the requesting user matches the target user
-    if (!isValid || requestingUserId !== targetUserId) {
+    if (!isValid || (!isSelf && !isAdmin)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this user.',
       })
     }
 
-    // Verify the target user exists before attempting deletion
-    const userExists = await prisma.user.findUnique({
+    const targetUser = await prisma.user.findUnique({
       where: { id: targetUserId },
-      select: { id: true },
+      select: { id: true, Role: true },
     })
 
-    if (!userExists) {
+    if (!targetUser) {
       throw createError({
         statusCode: 404,
         message: `User with ID ${targetUserId} not found.`,
       })
     }
 
-    // Attempt to delete the user
-    await prisma.user.delete({ where: { id: targetUserId } })
+    if (!isSelf && userIsAdmin(targetUser)) {
+      throw createError({
+        statusCode: 403,
+        message: 'Admin accounts can only be deleted by themselves.',
+      })
+    }
 
-    // Successful deletion response
+    // Delete the user plus every owned row that would otherwise RESTRICT the
+    // delete (collections, ledger rows, reactions, relations, ...).
+    const purged = await deleteUserWithOwnedData(targetUserId)
+
     event.node.res.statusCode = 200
     return {
       success: true,
       message: `User with ID ${targetUserId} successfully deleted.`,
+      data: { purged },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

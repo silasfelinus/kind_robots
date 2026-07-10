@@ -27,6 +27,10 @@ export type StylistJob = {
   after: string | null // data URL of the result
   prompt: string
   status: StylistJobStatus
+  // Live queue detail while pending: 'queued' = waiting for the home studio
+  // engine to claim it (if this persists, the relay is offline/out of date);
+  // 'rendering' = an engine claimed it and is working.
+  queueState?: 'queued' | 'rendering'
   error?: string
   artImageId?: number
   createdAt: number
@@ -177,7 +181,10 @@ export const useStylistStore = defineStore('stylistStore', () => {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
-  async function waitForQueuedJob(jobId: number): Promise<QueuedArtJob> {
+  async function waitForQueuedJob(
+    jobId: number,
+    localJobId: number,
+  ): Promise<QueuedArtJob> {
     const startedAt = Date.now()
 
     while (Date.now() - startedAt < QUEUE_TIMEOUT_MS) {
@@ -194,11 +201,20 @@ export const useStylistStore = defineStore('stylistStore', () => {
         return job
       }
 
+      // Mirror the queue state onto the tile so "was it ever claimed?" is
+      // answerable from the UI: stuck at "queued" = the home relay is
+      // offline or running a pre-handshake script; "rendering" = claimed.
+      if (job?.status === 'PENDING' || job?.status === 'RUNNING') {
+        patchJob(localJobId, {
+          queueState: job.status === 'RUNNING' ? 'rendering' : 'queued',
+        })
+      }
+
       await sleep(QUEUE_POLL_MS)
     }
 
     throw new Error(
-      'Styling timed out. The studio queue may be catching up — check Past looks in a few minutes.',
+      'Still waiting on the studio engine. The job stays queued and will land in Past looks once the engine catches up — no need to resubmit.',
     )
   }
 
@@ -244,7 +260,7 @@ export const useStylistStore = defineStore('stylistStore', () => {
         throw new Error(enqueue.message || 'Could not queue the styling job.')
       }
 
-      const finished = await waitForQueuedJob(enqueue.data.jobId)
+      const finished = await waitForQueuedJob(enqueue.data.jobId, id)
 
       if (finished.status !== 'DONE' || !finished.artImageId) {
         throw new Error(finished.error || 'Styling failed.')

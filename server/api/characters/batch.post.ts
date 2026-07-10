@@ -328,11 +328,12 @@ async function resolveCharacterSlugs(
     orderBy: { id: 'asc' },
   })
 
-  const existingKeys = new Map(
+  type ExistingCharacter = (typeof existingCharacters)[number]
+  const existingKeys = new Map<string, ExistingCharacter>(
     existingCharacters.map((character) => [
       getCharacterNameKey(character.name),
       character,
-    ]),
+    ] as const),
   )
   const batchKeys = new Map<string, number>()
   const reservedSlugs = new Set<string>()

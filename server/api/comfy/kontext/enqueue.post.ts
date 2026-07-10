@@ -85,30 +85,33 @@ export default defineEventHandler(async (event) => {
       denoise: body.denoise,
       filenamePrefix: body.filenamePrefix || 'kindrobots_kontext_queue',
     })
-const payload = {
-  workflow,
-  promptString: prompt,
-  images: [
-    {
-      name: imageName,
-      imageData,
-    },
-  ],
-  save: {
-    isPublic: body.isPublic ?? false,
-    isMature: body.isMature ?? false,
-    designer: body.designer?.trim() || null,
-  },
-} satisfies Prisma.InputJsonValue
+    // ComfyWorkflow's index signature doesn't structurally satisfy
+    // Prisma.InputJsonValue, so cast at the boundary (same pattern as
+    // /api/art/queue/index.post.ts). The shape is plain JSON.
+    const payload = {
+      workflow,
+      promptString: prompt,
+      images: [
+        {
+          name: imageName,
+          imageData,
+        },
+      ],
+      save: {
+        isPublic: body.isPublic ?? false,
+        isMature: body.isMature ?? false,
+        designer: body.designer?.trim() || null,
+      },
+    }
 
-const job = await prisma.artJob.create({
-  data: {
-    engine: 'COMFY',
-    priority: Number.isInteger(body.priority) ? Number(body.priority) : 5,
-    userId: gate.user.id,
-    payload,
-  },
-})
+    const job = await prisma.artJob.create({
+      data: {
+        engine: 'COMFY',
+        priority: Number.isInteger(body.priority) ? Number(body.priority) : 5,
+        userId: gate.user.id,
+        payload: payload as unknown as Prisma.InputJsonValue,
+      },
+    })
 
     const { balance } = await gate.commit(`kontext-queue:${job.id}`)
 

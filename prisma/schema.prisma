@@ -51,7 +51,7 @@ model ArtImage {
   CheckpointResource Resource?        @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
   Server             Server?          @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
 
-  User                 User?                 @relation("ArtImageCreator", fields: [userId], references: [id])
+  User                 User?                 @relation("ArtImageCreator", fields: [userId], references: [id], onDelete: SetNull)
   Bots                 Bot[]
   Characters           Character[]
   Chats                Chat[]
@@ -87,12 +87,12 @@ model ArtImage {
 }
 
 model ArtCollection {
-  id              Int                    @id @default(autoincrement())
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime?              @default(now()) @updatedAt
-  userId          Int                    @default(10)
-  label           String?
-  slug            String?                @unique @db.VarChar(255)
+  id            Int        @id @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @default(now()) @updatedAt
+  userId        Int?       @default(10)
+  label         String?
+  slug          String?    @unique @db.VarChar(255)
   // Parent path under public/images/ that contains this collection's folder, so
   // nested locations round-trip. slug stays the folder's leaf name (its unique
   // key); parentFolder is everything before it. e.g. images/rewards/duct-tape ->
@@ -156,7 +156,7 @@ model Bot {
   artPrompt            String?                @db.Text
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   Server               Server?                @relation(fields: [serverId], references: [id])
-  User                 User?                  @relation(fields: [userId], references: [id])
+  User                 User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
   chatBorderImage      String?                @db.VarChar(764)
   NarratorThreads      NarratorThread[]
   Chats                Chat[]
@@ -194,7 +194,7 @@ model Character {
   genre                String?                @db.VarChar(256)
   artImageId           Int?
   isPublic             Boolean                @default(true)
-  userId               Int                    @default(10)
+  userId               Int?                   @default(10)
   artPrompt            String?                @db.Text
   honorific            String?                @default("adventurer") @db.VarChar(256)
   imagePath            String?                @db.VarChar(764)
@@ -213,7 +213,7 @@ model Character {
   wits                 Rarity                 @default(COMMON)
   gender               String?                @db.VarChar(256)
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
-  User                 User                   @relation(fields: [userId], references: [id])
+  User                 User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
   Chats                Chat[]
   Reactions            Reaction[]
   ChallengeSubmissions ChallengeSubmission[]
@@ -273,7 +273,7 @@ model Chat {
   Project         Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
   Prompt          Prompt?    @relation(fields: [promptId], references: [id])
   Server          Server?    @relation(fields: [serverId], references: [id])
-  User            User?      @relation(fields: [userId], references: [id])
+  User            User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   Reactions       Reaction[]
 
   LifeChoices LifeChoice[]
@@ -295,7 +295,7 @@ model Code {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
-  userId      Int      @default(10)
+  userId      Int?     @default(10)
   title       String
   description String?  @db.Text
   icon        String?
@@ -304,7 +304,7 @@ model Code {
   isOfficial  Boolean  @default(false)
   isActive    Boolean  @default(true)
   isMature    Boolean  @default(false)
-  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([isPublic])
@@ -372,7 +372,7 @@ model Composition {
   bountyId       Int? // Prompt id of the bounty this wish settles against (plain column by design)
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
   userId         Int?
-  User           User?             @relation(fields: [userId], references: [id])
+  User           User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
   artImageId     Int?              @unique
   ArtImage       ArtImage?         @relation(fields: [artImageId], references: [id])
   outputDreamId  Int?              @unique // the Dream this wish spawned (distinct from ingredient dreamId)
@@ -425,7 +425,7 @@ model Dream {
   designer          String?         @db.VarChar(256)
   creationSource    CreationSource  @default(HUMAN)
   // ── Flags ──────────────────────────────────────────────────────────────────────────────────
-  userId            Int             @default(10)
+  userId            Int?            @default(10)
   isPublic          Boolean         @default(true)
   isMature          Boolean         @default(false)
   isActive          Boolean         @default(true)
@@ -434,7 +434,7 @@ model Dream {
   artCollectionId   Int?
   narratorId        Int?
   // ── Relations ───────────────────────────────────────────────────────────────────────────────────────────
-  User              User            @relation(fields: [userId], references: [id])
+  User              User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   ArtImage          ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
   ArtCollection     ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
   Narrator          Bot?            @relation("DreamNarrator", fields: [narratorId], references: [id], onDelete: SetNull)
@@ -817,7 +817,7 @@ model Log {
   timestamp DateTime @db.DateTime(0)
   username  String?  @db.VarChar(764)
   userId    Int?
-  User      User?    @relation(fields: [userId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "Log_userId_fkey")
 }
@@ -877,7 +877,7 @@ model ManaTransaction {
   provider     String? // "openai" | "anthropic" | "local" | "byok"
   costUsd      Float? // real/estimated cost for reconciliation
   reversedById Int? // points at the txn that reversed this one
-  User         User       @relation(fields: [userId], references: [id])
+  User         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -892,7 +892,7 @@ model MilestoneRecord {
   userId      Int
   isConfirmed Boolean   @default(false)
   Milestones  Milestone @relation(fields: [milestoneId], references: [id])
-  User        User      @relation(fields: [userId], references: [id])
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   LifeAchievementUnlocks LifeAchievementUnlock[]
 
@@ -990,7 +990,7 @@ model PitchSheet {
   extraData Json?
 
   userId Int?
-  User   User? @relation(fields: [userId], references: [id])
+  User   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   isPublic Boolean @default(true)
   isActive Boolean @default(true)
@@ -1038,9 +1038,9 @@ model Prompt {
   Chats          Chat[]
   ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
   Bot            Bot?           @relation(fields: [botId], references: [id])
-  User           User?          @relation("PromptUser", fields: [userId], references: [id])
+  User           User?          @relation("PromptUser", fields: [userId], references: [id], onDelete: SetNull)
   Server         Server?        @relation("PromptServer", fields: [serverId], references: [id])
-  Claimer        User?          @relation("PromptClaimer", fields: [claimerId], references: [id])
+  Claimer        User?          @relation("PromptClaimer", fields: [claimerId], references: [id], onDelete: SetNull)
   Reactions      Reaction[]
 
   @@index([userId], map: "Prompt_userId_fkey")
@@ -1094,7 +1094,7 @@ model Reaction {
   Scenario              Scenario?                 @relation(fields: [scenarioId], references: [id])
   Theme                 Theme?                    @relation(fields: [themeId], references: [id])
   ChallengeSubmission   ChallengeSubmission?      @relation(fields: [challengeSubmissionId], references: [id])
-  User                  User                      @relation(fields: [userId], references: [id])
+  User                  User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // One reaction per user per challenge submission: legitimate one-user-one-vote.
   // MySQL permits multiple NULLs here, so other reaction categories are unaffected.
@@ -1147,7 +1147,7 @@ model Resource {
   UsedInImages    ArtImage[]      @relation("ArtImageLoraResources")
   Reactions       Reaction[]
   ArtImage        ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
-  User            User?           @relation(fields: [userId], references: [id])
+  User            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   Servers         Server[]        @relation("ResourceToServer")
 
   @@index([userId], map: "Resource_userId_fkey")
@@ -1180,7 +1180,7 @@ model Reward {
   isActive     Boolean       @default(true)
   Reactions    Reaction[]
   ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
-  User         User?         @relation(fields: [userId], references: [id])
+  User         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   Characters   Character[]   @relation("CharacterToReward")
   Dreams       Dream[]       @relation("DreamToReward")
   Compositions Composition[]
@@ -1201,7 +1201,7 @@ model Scenario {
   slug                 String?               @unique @db.VarChar(255)
   description          String                @db.Text
   intros               String                @db.Text
-  userId               Int
+  userId               Int?
   artImageId           Int?
   imagePath            String?
   locations            String?               @db.Text
@@ -1220,7 +1220,7 @@ model Scenario {
   Reactions            Reaction[]
   ChallengeSubmissions ChallengeSubmission[]
   ArtImage             ArtImage?             @relation(fields: [artImageId], references: [id])
-  User                 User                  @relation(fields: [userId], references: [id])
+  User                 User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
   Characters           Character[]           @relation("CharacterToScenario")
   FacetLinks           ScenarioFacet[]
   Compositions         Composition[]
@@ -1316,7 +1316,7 @@ model SmartIcon {
   category    String?   @db.VarChar(255)
   modelType   String?   @db.VarChar(255)
   isMature    Boolean   @default(false)
-  User        User?     @relation(fields: [userId], references: [id])
+  User        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
@@ -1369,8 +1369,8 @@ model SocialPost {
   sourceId    Int?
   scheduledAt DateTime?
   isPublic    Boolean        @default(false)
-  userId      Int
-  User        User           @relation(fields: [userId], references: [id])
+  userId      Int?
+  User        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   targets     SocialTarget[]
   isActive    Boolean        @default(true)
   isMature    Boolean        @default(false)
@@ -1412,7 +1412,7 @@ model Theme {
   isActive    Boolean    @default(true)
   artPrompt   String?    @db.Text
   Reactions   Reaction[]
-  user        User?      @relation(fields: [userId], references: [id])
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "Theme_userId_fkey")
 }
@@ -1617,7 +1617,7 @@ model KarmaTransaction {
   balanceAfter Int
   refId        String?
   note         String?     @db.Text
-  User         User        @relation(fields: [userId], references: [id])
+  User         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -1630,8 +1630,8 @@ model Referral {
   referredId Int      @unique
   codeUsed   String?  @db.VarChar(64)
   cutRate    Float    @default(0.05)
-  Referrer   User     @relation("ReferralsMade", fields: [referrerId], references: [id])
-  Referred   User     @relation("ReferredBy", fields: [referredId], references: [id])
+  Referrer   User     @relation("ReferralsMade", fields: [referrerId], references: [id], onDelete: Cascade)
+  Referred   User     @relation("ReferredBy", fields: [referredId], references: [id], onDelete: Cascade)
 
   @@index([referrerId])
 }
@@ -1666,8 +1666,8 @@ model UserRelation {
   note          String?        @db.Text
   pairId        Int?
 
-  User        User @relation("UserRelationOwner", fields: [userId], references: [id])
-  RelatedUser User @relation("UserRelationTarget", fields: [relatedUserId], references: [id])
+  User        User @relation("UserRelationOwner", fields: [userId], references: [id], onDelete: Cascade)
+  RelatedUser User @relation("UserRelationTarget", fields: [relatedUserId], references: [id], onDelete: Cascade)
 
   // Prevents duplicate links of the same type between the same ordered pair.
   // A user can both FRIEND and (later) BLOCK someone — different type, allowed.
@@ -1994,8 +1994,8 @@ model Challenge {
   judgeNotes    String?               @db.Text
   status        ChallengeStatus       @default(OPEN)
   isMature      Boolean               @default(false)
-  userId        Int                   @default(10)
-  User          User                  @relation(fields: [userId], references: [id])
+  userId        Int?                  @default(10)
+  User          User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
   Submissions   ChallengeSubmission[]
 
   @@index([userId], map: "Challenge_userId_fkey")

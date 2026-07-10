@@ -6,6 +6,7 @@ import prisma from '../../utils/prisma'
 import { normalizeSlugInput } from '@/utils/slugify'
 import {
   findCharacterNameDuplicate,
+  getCharacterNameKey,
   getUniqueCharacterSlug,
 } from '@/server/utils/characterSlug'
 import type {
@@ -94,6 +95,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const name = characterData.name.trim()
+
+    if (!getCharacterNameKey(name)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Character name must contain at least one letter or number.',
+      })
+    }
 
     const duplicate = await findCharacterNameDuplicate(prisma, user.id, name)
 

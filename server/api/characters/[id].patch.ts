@@ -6,6 +6,7 @@ import { validateApiKey } from '../../utils/validateKey'
 import { normalizeSlugInput } from '@/utils/slugify'
 import {
   findCharacterNameDuplicate,
+  getCharacterNameKey,
   getUniqueCharacterSlug,
 } from '@/server/utils/characterSlug'
 import type { Character, Prisma } from '~/prisma/generated/prisma/client'
@@ -117,6 +118,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (nextName && !getCharacterNameKey(nextName)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Character name must contain at least one letter or number.',
+      })
+    }
+
     if (nextName && nextName !== existingCharacter.name) {
       const duplicate = await findCharacterNameDuplicate(
         prisma,
@@ -141,9 +149,13 @@ export default defineEventHandler(async (event) => {
         ? await getUniqueCharacterSlug(prisma, requestedSlug, { excludeId: id })
         : null
     } else if (!existingCharacter.slug) {
-      nextSlug = await getUniqueCharacterSlug(prisma, nextName ?? existingCharacter.name, {
-        excludeId: id,
-      })
+      nextSlug = await getUniqueCharacterSlug(
+        prisma,
+        nextName ?? existingCharacter.name,
+        {
+          excludeId: id,
+        },
+      )
     }
 
     const rewardIds = normalizeIdArray(body.rewardIds)

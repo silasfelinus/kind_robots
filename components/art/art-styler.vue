@@ -10,6 +10,7 @@
         <span class="badge badge-primary badge-sm">Kontext</span>
       </div>
       <button
+        v-if="showClose"
         type="button"
         class="btn btn-circle btn-ghost btn-sm"
         title="Close"
@@ -308,11 +309,11 @@
     >
       <button
         v-for="style in filteredStyles"
-        :key="style.loraPath"
+        :key="styleKey(style)"
         type="button"
         class="group relative flex flex-col items-center gap-1.5 overflow-hidden rounded-2xl border-2 p-0 text-center transition-all duration-150"
         :class="
-          selectedStyle?.loraPath === style.loraPath
+          isSelectedStyle(style)
             ? 'border-primary shadow-md shadow-primary/20'
             : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
@@ -351,11 +352,7 @@
         <div
           v-else
           class="flex w-full flex-col items-center gap-1.5 px-2 py-3"
-          :class="
-            selectedStyle?.loraPath === style.loraPath
-              ? 'bg-primary/10'
-              : 'bg-base-100'
-          "
+          :class="isSelectedStyle(style) ? 'bg-primary/10' : 'bg-base-100'"
         >
           <span class="text-xl leading-none">
             {{ CATEGORY_ICONS[style.category] }}
@@ -363,7 +360,7 @@
           <span
             class="text-xs font-bold leading-tight"
             :class="
-              selectedStyle?.loraPath === style.loraPath
+              isSelectedStyle(style)
                 ? 'text-primary'
                 : 'text-base-content/80 group-hover:text-primary'
             "
@@ -374,7 +371,7 @@
 
         <Transition name="pop">
           <div
-            v-if="selectedStyle?.loraPath === style.loraPath"
+            v-if="isSelectedStyle(style)"
             class="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary"
           >
             <Icon name="mdi:check" class="h-3 w-3 text-primary-content" />
@@ -400,14 +397,18 @@
           <Icon name="kind-icon:edit" class="h-4 w-4 text-primary" />
           <span class="text-xs font-black text-base-content">Prompt</span>
           <span class="ml-auto text-xs text-base-content/40">
-            LoRA trigger auto-prepended
+            {{
+              selectedStyle?.loraPath
+                ? 'LoRA trigger auto-prepended'
+                : 'Style instruction auto-prepended'
+            }}
           </span>
         </div>
 
         <div
           class="rounded-lg border border-base-300 bg-base-200 px-3 py-2 font-mono text-xs text-base-content/60"
         >
-          <span class="text-warning">
+          <span v-if="buildLoraReference(selectedStyle)" class="text-warning">
             {{ buildLoraReference(selectedStyle) }}
           </span>
           <span class="text-primary"> {{ selectedStyle.triggerPhrase }}</span>
@@ -517,18 +518,33 @@ import { useArtStore } from '@/stores/artStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useUserStore } from '@/stores/userStore'
 import { useServerStore } from '@/stores/serverStore'
+import {
+  STYLE_CATEGORY_ICONS,
+  styleEntryKey,
+} from '@/stores/helpers/styleHelper'
+import type { StyleCategory, StyleEntry } from '@/stores/helpers/styleHelper'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 
 const props = withDefaults(
   defineProps<{
     serverId?: number | null
+    /**
+     * External style list (e.g. the AI Art Academy registry). When provided,
+     * it replaces the builtin styles and resource-DB hydration is skipped.
+     */
+    styles?: StyleEntry[] | null
+    /** Hide the close button when embedded as a full tab rather than a panel. */
+    showClose?: boolean
+    /** Preselect a style by its key (slug/loraPath/label) — e.g. Academy lesson CTA. */
+    selectedStyleKey?: string | null
   }>(),
-  { serverId: null },
+  { serverId: null, styles: null, showClose: true, selectedStyleKey: null },
 )
 
 const emit = defineEmits<{
   generated: [image: ArtImage]
   close: []
+  styleSelected: [style: StyleEntry | null]
 }>()
 
 const artStore = useArtStore()
@@ -536,36 +552,8 @@ const resourceStore = useResourceStore()
 const userStore = useUserStore()
 const serverStore = useServerStore()
 
-type StyleCategory =
-  | 'Painterly'
-  | 'Illustration'
-  | 'Cartoon'
-  | 'Anime'
-  | 'Trippy'
-  | '3D/Craft'
-  | 'Realism'
-  | 'Ink'
-
-interface StyleEntry {
-  loraPath: string
-  loraWeight: number
-  triggerPhrase: string
-  label: string
-  category: StyleCategory
-  previewImageSrc?: string
-  resourceId?: number
-}
-
-const CATEGORY_ICONS: Record<StyleCategory, string> = {
-  Painterly: '🎨',
-  Illustration: '✏️',
-  Cartoon: '🎬',
-  Anime: '⛩️',
-  Trippy: '🌈',
-  '3D/Craft': '🏺',
-  Realism: '📸',
-  Ink: '🖋️',
-}
+const CATEGORY_ICONS = STYLE_CATEGORY_ICONS
+const styleKey = styleEntryKey
 
 const BUILTIN_STYLES: StyleEntry[] = [
   {
@@ -749,7 +737,9 @@ const BUILTIN_STYLES: StyleEntry[] = [
   },
 ]
 
-const styles = ref<StyleEntry[]>([...BUILTIN_STYLES])
+const styles = ref<StyleEntry[]>(
+  props.styles?.length ? [...props.styles] : [...BUILTIN_STYLES],
+)
 const selectedStyle = ref<StyleEntry | null>(null)
 const activeCategory = ref<StyleCategory | null>(null)
 const extraPrompt = ref('')
@@ -1023,15 +1013,22 @@ async function hydrateGalleryThumbs() {
 }
 
 function buildLoraReference(style: StyleEntry): string {
-  return `<lora:${style.loraPath}:${style.loraWeight}>`
+  if (!style.loraPath) return ''
+  return `<lora:${style.loraPath}:${style.loraWeight ?? 1}>`
+}
+
+function isSelectedStyle(style: StyleEntry): boolean {
+  return (
+    !!selectedStyle.value && styleKey(selectedStyle.value) === styleKey(style)
+  )
 }
 
 function selectStyle(style: StyleEntry) {
-  selectedStyle.value =
-    selectedStyle.value?.loraPath === style.loraPath ? null : { ...style }
+  selectedStyle.value = isSelectedStyle(style) ? null : { ...style }
   errorMessage.value = ''
   successMessage.value = ''
   resultImage.value = null
+  emit('styleSelected', selectedStyle.value)
 }
 
 function clearSelection() {
@@ -1040,9 +1037,13 @@ function clearSelection() {
   errorMessage.value = ''
   successMessage.value = ''
   resultImage.value = null
+  emit('styleSelected', null)
 }
 
 async function hydrateFromResourceStore(): Promise<void> {
+  // External registries (e.g. Academy) own their style list entirely.
+  if (props.styles?.length) return
+
   try {
     if (!resourceStore.hasLoaded) {
       await resourceStore.getResources()
@@ -1059,11 +1060,15 @@ async function hydrateFromResourceStore(): Promise<void> {
 
     if (!dbLoras.length) return
 
-    const builtinPaths = new Set(styles.value.map((style) => style.loraPath))
+    const builtinPaths = new Set(
+      styles.value
+        .map((style) => style.loraPath)
+        .filter((path): path is string => !!path),
+    )
 
     const updated = styles.value.map((style) => {
       const stem =
-        style.loraPath.split('/').pop()?.replace('.safetensors', '') || ''
+        style.loraPath?.split('/').pop()?.replace('.safetensors', '') || ''
 
       const match = dbLoras.find((resource) => {
         return (
@@ -1126,7 +1131,9 @@ async function runStyleTransfer(): Promise<void> {
     const loraRef = buildLoraReference(style)
 
     const promptString = [
-      `${loraRef} ${style.triggerPhrase}`.trim(),
+      loraRef
+        ? `${loraRef} ${style.triggerPhrase}`.trim()
+        : style.triggerPhrase,
       extraPrompt.value.trim(),
     ]
       .filter(Boolean)
@@ -1222,6 +1229,43 @@ watch(sourceTab, async (tab) => {
 watch(gallerySearch, () => {
   void hydrateGalleryThumbs()
 })
+
+watch(
+  () => props.styles,
+  (next) => {
+    if (next?.length) {
+      styles.value = [...next]
+
+      if (
+        selectedStyle.value &&
+        !next.some((style) => isSelectedStyle(style))
+      ) {
+        selectedStyle.value = null
+        emit('styleSelected', null)
+      }
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  () => props.selectedStyleKey,
+  (key) => {
+    if (!key) return
+    if (selectedStyle.value && styleKey(selectedStyle.value) === key) return
+
+    const match = styles.value.find((style) => styleKey(style) === key)
+
+    if (match) {
+      selectedStyle.value = { ...match }
+      errorMessage.value = ''
+      successMessage.value = ''
+      resultImage.value = null
+      emit('styleSelected', selectedStyle.value)
+    }
+  },
+  { immediate: true },
+)
 
 onMounted(() => {
   void hydrateFromResourceStore()

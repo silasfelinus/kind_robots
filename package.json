@@ -32,7 +32,8 @@
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "generatesmart": "node utils/scripts/generate-smart-icons.mjs"
+    "generatesmart": "node utils/scripts/generate-smart-icons.mjs",
+    "audit:schema-shift": "tsx utils/scripts/auditProjectDreamFacet.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

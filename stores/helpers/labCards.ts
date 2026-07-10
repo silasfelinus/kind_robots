@@ -1,38 +1,25 @@
 // /stores/helpers/labCards.ts
-import { dashboardConfigs, getDashboardTabImagePath } from '@/stores/helpers/dashboardHelper'
-import { deriveNavCard, deriveNavCards } from '@/stores/helpers/tabsToCards'
-import type {
-  BuilderCard,
-  DashboardTabConfig,
-} from '@/stores/helpers/builderCards'
+//
+// Lab cards derive entirely from the canonical dashboardConfigs.wonder.tabs
+// registry (the temporary hand-rolled mural bridge was removed in the mural
+// engine migration, step 7). The mural tab routes to its own page, so its
+// card gets /mural as its path instead of the shared /wonderlab shell.
+import { dashboardConfigs } from '@/stores/helpers/dashboardHelper'
+import { deriveNavCard } from '@/stores/helpers/tabsToCards'
+import type { BuilderCard } from '@/stores/helpers/builderCards'
 
 export type LabCard = BuilderCard
 
-const muralTab = {
-  key: 'mural',
-  label: 'Mural',
-  icon: 'kind-icon:paintbrush',
-  title: 'Mural Color Studio',
-  summary:
-    'Color a paintable mural plan by section, shared color group, and saved paint swatch.',
-  image: getDashboardTabImagePath('wonder', 'mural'),
-  flourish: '✺',
-  tagline: 'Paint inside the lines, then bend the lines politely.',
-  narrative:
-    'Color a simplified mural page, assign one paint ID across multiple sections, override individual shapes, and save the palette before the paint goblin eats the swatches.',
-  route: '/mural',
-} as const satisfies DashboardTabConfig
-
-export const LAB_CARDS: LabCard[] = [
-  ...deriveNavCards(dashboardConfigs.wonder.tabs, {
-    path: '/wonderlab',
-    dashboardKey: 'wonder',
-    routeByTab: true,
-    imageDir: 'lab',
-  }),
-  deriveNavCard(muralTab, {
-    path: '/mural',
-    dashboardKey: 'wonder',
-    imageDir: 'lab',
-  }),
-]
+export const LAB_CARDS: LabCard[] = dashboardConfigs.wonder.tabs.map((tab) =>
+  deriveNavCard(
+    tab,
+    tab.key === 'mural'
+      ? { path: '/mural', dashboardKey: 'wonder', imageDir: 'lab' }
+      : {
+          path: '/wonderlab',
+          dashboardKey: 'wonder',
+          routeByTab: true,
+          imageDir: 'lab',
+        },
+  ),
+)

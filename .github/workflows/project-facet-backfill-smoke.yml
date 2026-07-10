@@ -181,11 +181,18 @@ jobs:
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Project')" = "0"
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Facet')" = "0"
 
-      - name: Apply and verify additive backfill
+      - name: Apply additive backfill
+        working-directory: /tmp/project-facet-backfill
+        run: |
+          set -o pipefail
+          npx tsx utils/scripts/backfillProjectDreamFacet.ts --apply --output=artifacts/apply.json \
+            > /tmp/backfill-apply.stdout \
+            2> /tmp/backfill-apply.stderr
+
+      - name: Verify additive backfill
         working-directory: /tmp/project-facet-backfill
         run: |
           set -euo pipefail
-          npx tsx utils/scripts/backfillProjectDreamFacet.ts --apply --output=artifacts/apply.json > /tmp/backfill-apply.json
           test -s artifacts/apply.json
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e \"SELECT COUNT(*) FROM Project WHERE slug = 'smoke-project' AND conductorSlug = 'smoke-project' AND channelKey IS NULL AND tabKey IS NULL\")" = "1"
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e \"SELECT COUNT(*) FROM Facet WHERE slug = 'smoke-genre' AND kind = 'GENRE'\")" = "1"
@@ -204,3 +211,15 @@ jobs:
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Facet')" = "1"
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM ScenarioFacet')" = "1"
           test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM PitchSheet WHERE (dreamId IS NULL) <> (projectId IS NULL)')" = "1"
+
+      - name: Upload backfill diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-facet-backfill-diagnostics
+          retention-days: 3
+          if-no-files-found: warn
+          path: |
+            /tmp/backfill-apply.stdout
+            /tmp/backfill-apply.stderr
+            /tmp/project-facet-backfill/artifacts

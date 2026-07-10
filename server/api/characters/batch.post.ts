@@ -3,6 +3,11 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import prisma from '../../utils/prisma'
+import { normalizeSlugInput } from '../../../utils/slugify'
+import {
+  getCharacterNameKey,
+  getUniqueCharacterSlug,
+} from '../../utils/characterSlug'
 import type {
   Prisma,
   Character,
@@ -210,6 +215,7 @@ function buildCharacterCreateInput(
   characterData: CharacterBatchCreateBody,
   userId: number,
   index: number,
+  slug: string | null,
 ): Prisma.CharacterCreateInput {
   if (!characterData.name || typeof characterData.name !== 'string') {
     throw createError({
@@ -252,6 +258,7 @@ function buildCharacterCreateInput(
     },
 
     name: characterData.name.trim(),
+    slug,
     honorific: cleanShortText(characterData.honorific) ?? 'adventurer',
     title: cleanShortText(characterData.title),
     role: cleanShortText(characterData.role),
@@ -311,6 +318,77 @@ function buildCharacterCreateInput(
   }
 }
 
+async function resolveCharacterSlugs(
+  characters: CharacterBatchCreateBody[],
+  userId: number,
+): Promise<(string | null)[]> {
+  const existingCharacters = await prisma.character.findMany({
+    where: { userId },
+    select: { id: true, name: true, slug: true },
+    orderBy: { id: 'asc' },
+  })
+
+  type ExistingCharacter = (typeof existingCharacters)[number]
+  const existingKeys = new Map<string, ExistingCharacter>(
+    existingCharacters.map((character) => [
+      getCharacterNameKey(character.name),
+      character,
+    ] as const),
+  )
+  const batchKeys = new Map<string, number>()
+  const reservedSlugs = new Set<string>()
+  const slugs: (string | null)[] = []
+
+  for (const [index, characterData] of characters.entries()) {
+    if (!characterData.name || typeof characterData.name !== 'string') {
+      throw createError({
+        statusCode: 400,
+        message: `characters[${index}].name is required and must be a string.`,
+      })
+    }
+
+    const name = characterData.name.trim()
+    const nameKey = getCharacterNameKey(name)
+
+    if (!nameKey) {
+      throw createError({
+        statusCode: 400,
+        message: `characters[${index}].name must contain at least one letter or number.`,
+      })
+    }
+
+    const existingCharacter = existingKeys.get(nameKey)
+
+    if (existingCharacter) {
+      throw createError({
+        statusCode: 409,
+        message: `characters[${index}].name duplicates existing character #${existingCharacter.id}.`,
+      })
+    }
+
+    const firstBatchIndex = batchKeys.get(nameKey)
+
+    if (typeof firstBatchIndex !== 'undefined') {
+      throw createError({
+        statusCode: 400,
+        message: `characters[${index}].name duplicates characters[${firstBatchIndex}].name.`,
+      })
+    }
+
+    batchKeys.set(nameKey, index)
+
+    const requestedSlug = normalizeSlugInput(characterData.slug)
+    const slug = await getUniqueCharacterSlug(prisma, requestedSlug ?? name, {
+      reservedSlugs,
+    })
+
+    if (slug) reservedSlugs.add(slug)
+    slugs[index] = slug
+  }
+
+  return slugs
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
@@ -332,8 +410,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const slugs = await resolveCharacterSlugs(characters, user.id)
+
     const createInputs = characters.map((characterData, index) =>
-      buildCharacterCreateInput(characterData, user.id, index),
+      buildCharacterCreateInput(characterData, user.id, index, slugs[index] ?? null),
     )
 
     const data = await prisma.$transaction(

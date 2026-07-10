@@ -19,6 +19,7 @@ import {
   buildKontextWorkflow,
   getKontextImageExtension,
 } from './utils/workflow'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 
 type KontextEnqueueRequest = {
   prompt?: string | null
@@ -85,26 +86,28 @@ export default defineEventHandler(async (event) => {
       filenamePrefix: body.filenamePrefix || 'kindrobots_kontext_queue',
     })
 
+    const payload = {
+      workflow,
+      promptString: prompt,
+      images: [
+        {
+          name: imageName,
+          imageData,
+        },
+      ],
+      save: {
+        isPublic: body.isPublic ?? false,
+        isMature: body.isMature ?? false,
+        designer: body.designer?.trim() || null,
+      },
+    } as Prisma.InputJsonValue
+
     const job = await prisma.artJob.create({
       data: {
         engine: 'COMFY',
         priority: Number.isInteger(body.priority) ? Number(body.priority) : 5,
         userId: gate.user.id,
-        payload: {
-          workflow,
-          promptString: prompt,
-          images: [
-            {
-              name: imageName,
-              imageData,
-            },
-          ],
-          save: {
-            isPublic: body.isPublic ?? false,
-            isMature: body.isMature ?? false,
-            designer: body.designer?.trim() || null,
-          },
-        },
+        payload,
       },
     })
 

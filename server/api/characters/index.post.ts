@@ -3,6 +3,11 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import prisma from '../../utils/prisma'
+import { normalizeSlugInput } from '@/utils/slugify'
+import {
+  findCharacterNameDuplicate,
+  getUniqueCharacterSlug,
+} from '@/server/utils/characterSlug'
 import type {
   Prisma,
   Character,
@@ -88,6 +93,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const name = characterData.name.trim()
+
+    const duplicate = await findCharacterNameDuplicate(prisma, user.id, name)
+
+    if (duplicate) {
+      throw createError({
+        statusCode: 409,
+        message: `Character "${name}" already exists as #${duplicate.id}.`,
+      })
+    }
+
+    const requestedSlug = normalizeSlugInput(characterData.slug)
+    const slug = await getUniqueCharacterSlug(prisma, requestedSlug ?? name)
+
     const rewardIds = normalizeIdArray(characterData.rewardIds, 'rewardIds')
     const scenarioIds = normalizeIdArray(
       characterData.scenarioIds,
@@ -102,7 +121,8 @@ export default defineEventHandler(async (event) => {
         },
       },
 
-      name: characterData.name.trim(),
+      name,
+      slug,
       honorific: cleanShortText(characterData.honorific) ?? 'adventurer',
       title: cleanShortText(characterData.title),
       role: cleanShortText(characterData.role),

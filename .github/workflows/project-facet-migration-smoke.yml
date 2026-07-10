@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: project-facet-migration-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   migration-smoke:
     runs-on: ubuntu-latest
@@ -32,7 +36,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+
+      - name: Fetch main schema only
+        run: git fetch origin main --depth=1
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -49,7 +56,7 @@ jobs:
           sudo apt-get install -y mariadb-client
 
       - name: Materialize pre-change schema
-        run: git show origin/main:prisma/schema.prisma > /tmp/schema-before-project-facet.prisma
+        run: git show FETCH_HEAD:prisma/schema.prisma > /tmp/schema-before-project-facet.prisma
 
       - name: Create pre-change database
         run: npx prisma db push --schema /tmp/schema-before-project-facet.prisma --skip-generate
@@ -59,7 +66,5 @@ jobs:
 
       - name: Confirm new tables and PitchSheet constraint
         run: |
-          mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names <<'SQL'
-          SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('Project', 'Facet', 'DreamFacet', 'ScenarioFacet', 'FacetRelation');
-          SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema = DATABASE() AND table_name = 'PitchSheet' AND constraint_name = 'PitchSheet_exactly_one_owner';
-          SQL
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('Project', 'Facet', 'DreamFacet', 'ScenarioFacet', 'FacetRelation')")" = "5"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema = DATABASE() AND table_name = 'PitchSheet' AND constraint_name = 'PitchSheet_exactly_one_owner'")" = "1"

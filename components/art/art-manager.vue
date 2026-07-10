@@ -98,6 +98,15 @@
     </section>
 
     <section
+      v-else-if="activeTab === 'coloring'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <coloring-book-manager class="min-h-full w-full" />
+      </div>
+    </section>
+
+    <section
       v-else-if="activeTab === 'workbench'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
@@ -127,6 +136,7 @@ type ArtTab =
   | 'checkpoints'
   | 'styler'
   | 'stylist'
+  | 'coloring'
   | 'workbench'
   | 'art-test'
 
@@ -147,6 +157,7 @@ const validTabs: LegacyArtTab[] = [
   'checkpoints',
   'styler',
   'stylist',
+  'coloring',
   'workbench',
   'art-test',
 ]

@@ -1,0 +1,50 @@
+{
+  "id": "sampler/sampler-p01",
+  "version": 1,
+  "title": "Beep and the Balloon",
+  "viewBox": { "width": 1700, "height": 2200 },
+  "mode": "svg-regions",
+  "layers": {
+    "decor": "M1250 1065 C1230 1150 1150 1120 1135 1060"
+  },
+  "regions": [
+    { "id": "sky", "label": "Sky", "group": "background", "d": "M0 0H1700V2200H0Z" },
+    { "id": "ground", "label": "Ground", "group": "background", "d": "M0 1850 C400 1800 800 1880 1700 1820 V2200 H0 Z" },
+    { "id": "sun", "label": "Sun", "d": "M1310 250 A140 140 0 1 1 1590 250 A140 140 0 1 1 1310 250 Z" },
+    { "id": "cloud", "label": "Cloud", "d": "M250 330 C250 260 340 240 380 280 C400 230 500 230 520 290 C590 280 610 360 540 380 L280 380 C230 380 230 350 250 330 Z" },
+    { "id": "balloon", "label": "Balloon", "group": "balloon", "d": "M1050 800 A200 200 0 1 1 1450 800 A200 200 0 1 1 1050 800 Z" },
+    { "id": "balloon-knot", "label": "Balloon knot", "group": "balloon", "d": "M1250 995 L1215 1060 H1285 Z" },
+    { "id": "antenna-ball", "label": "Antenna ball", "group": "robot", "d": "M740 560 A60 60 0 1 1 860 560 A60 60 0 1 1 740 560 Z" },
+    { "id": "antenna-stem", "label": "Antenna stem", "group": "robot", "d": "M785 610 H815 V700 H785 Z" },
+    { "id": "head", "label": "Head", "group": "robot", "d": "M600 700 H1000 Q1050 700 1050 750 V1000 Q1050 1050 1000 1050 H600 Q550 1050 550 1000 V750 Q550 700 600 700 Z" },
+    { "id": "eyes", "label": "Eyes", "d": "M675 850 A45 45 0 1 1 765 850 A45 45 0 1 1 675 850 Z M835 850 A45 45 0 1 1 925 850 A45 45 0 1 1 835 850 Z" },
+    { "id": "mouth", "label": "Mouth", "d": "M700 950 H900 Q920 950 920 970 Q920 990 900 990 H700 Q680 990 680 970 Q680 950 700 950 Z" },
+    { "id": "body", "label": "Body", "group": "robot", "d": "M570 1100 H1030 Q1080 1100 1080 1150 V1600 Q1080 1650 1030 1650 H570 Q520 1650 520 1600 V1150 Q520 1100 570 1100 Z" },
+    { "id": "chest-panel", "label": "Chest panel", "d": "M680 1200 H920 Q950 1200 950 1230 V1420 Q950 1450 920 1450 H680 Q650 1450 650 1420 V1230 Q650 1200 680 1200 Z" },
+    { "id": "heart", "label": "Heart", "d": "M800 1420 C700 1340 720 1250 800 1300 C880 1250 900 1340 800 1420 Z" },
+    { "id": "arm-left", "label": "Left arm", "group": "robot", "d": "M430 1150 H520 V1450 H430 Q400 1450 400 1420 V1180 Q400 1150 430 1150 Z" },
+    { "id": "arm-right", "label": "Right arm", "group": "robot", "d": "M1080 1200 H1180 V1050 Q1180 1030 1160 1030 H1100 Q1080 1030 1080 1050 Z" },
+    { "id": "leg-left", "label": "Left leg", "group": "robot", "d": "M600 1650 H720 V1950 H600 Z" },
+    { "id": "leg-right", "label": "Right leg", "group": "robot", "d": "M880 1650 H1000 V1950 H880 Z" },
+    { "id": "foot-left", "label": "Left foot", "group": "robot", "d": "M580 1950 H740 Q760 1950 760 1975 Q760 2000 740 2000 H580 Q560 2000 560 1975 Q560 1950 580 1950 Z" },
+    { "id": "foot-right", "label": "Right foot", "group": "robot", "d": "M860 1950 H1020 Q1040 1950 1040 1975 Q1040 2000 1020 2000 H860 Q840 2000 840 1975 Q840 1950 860 1950 Z" }
+  ],
+  "palette": [
+    { "id": "sky-blue", "name": "Sky Blue", "value": "#7ec8e3" },
+    { "id": "grass-green", "name": "Grass Green", "value": "#6aa84f" },
+    { "id": "sun-yellow", "name": "Sun Yellow", "value": "#f5c451" },
+    { "id": "balloon-red", "name": "Balloon Red", "value": "#e05c5c" },
+    { "id": "robot-silver", "name": "Robot Silver", "value": "#b7bcc4" },
+    { "id": "panel-teal", "name": "Panel Teal", "value": "#55a9b5" },
+    { "id": "heart-pink", "name": "Heart Pink", "value": "#e58fb1" },
+    { "id": "cloud-gray", "name": "Cloud Gray", "value": "#e8ecf1" },
+    { "id": "night-black", "name": "Ink Black", "value": "#2b2b2b" }
+  ],
+  "metadata": {
+    "sourceImage": null,
+    "prompt": "hand-authored placeholder sampler page",
+    "model": "none (hand-authored SVG)",
+    "generatedAt": "2026-07-10T09:00:00Z",
+    "printMaster": null
+  }
+}

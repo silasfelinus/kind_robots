@@ -213,7 +213,9 @@ const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser)
     label: `seed user ${user.id}`,
     userId: user.id,
     status: response.status,
-    ok: [200, 202, 204, 401, 403, 404].includes(response.status),
+    // 401/403 used to count as "ok", which hid the fact that seed users were
+    // never actually deleted. Only success or already-gone counts now.
+    ok: [200, 202, 204, 404].includes(response.status),
     body: await parseResponseBody(response),
   }
 }
@@ -230,7 +232,7 @@ const runCleanupRequest = async (request: CleanupRequest) => {
     },
     body: request.body === undefined ? undefined : JSON.stringify(request.body),
   })
-  const expectedStatuses = request.expectedStatuses || [200, 202, 204, 401, 403, 404]
+  const expectedStatuses = request.expectedStatuses || [200, 202, 204, 404]
 
   return {
     label: request.label,
@@ -491,7 +493,7 @@ export default defineConfig({
           if (!cleanupRequests.some((item) => cleanupKey(item) === key)) {
             cleanupRequests.push({
               method: 'DELETE',
-              expectedStatuses: [200, 202, 204, 401, 403, 404],
+              expectedStatuses: [200, 202, 204, 404],
               ...request,
             })
           }

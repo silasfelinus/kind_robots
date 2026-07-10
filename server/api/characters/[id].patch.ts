@@ -3,6 +3,11 @@ import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { normalizeSlugInput } from '@/utils/slugify'
+import {
+  findCharacterNameDuplicate,
+  getUniqueCharacterSlug,
+} from '@/server/utils/characterSlug'
 import type { Character, Prisma } from '~/prisma/generated/prisma/client'
 
 type CharacterPatchBody = Partial<Character> & {
@@ -25,6 +30,12 @@ function normalizeIdArray(value: unknown): number[] {
 
 function getStringOrUndefined(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
+}
+
+function getTrimmedStringOrUndefined(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed || undefined
 }
 
 function getBooleanOrUndefined(value: unknown): boolean | undefined {
@@ -65,6 +76,8 @@ export default defineEventHandler(async (event) => {
       select: {
         id: true,
         userId: true,
+        name: true,
+        slug: true,
       },
     })
 
@@ -95,12 +108,51 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const nextName = getTrimmedStringOrUndefined(body.name)
+
+    if (typeof body.name === 'string' && !nextName) {
+      throw createError({
+        statusCode: 400,
+        message: 'Character name must contain at least one letter or number.',
+      })
+    }
+
+    if (nextName && nextName !== existingCharacter.name) {
+      const duplicate = await findCharacterNameDuplicate(
+        prisma,
+        existingCharacter.userId,
+        nextName,
+        id,
+      )
+
+      if (duplicate) {
+        throw createError({
+          statusCode: 409,
+          message: `Character "${nextName}" already exists as #${duplicate.id}.`,
+        })
+      }
+    }
+
+    const requestedSlug = normalizeSlugInput(body.slug)
+    let nextSlug: string | null | undefined
+
+    if (typeof requestedSlug !== 'undefined') {
+      nextSlug = requestedSlug
+        ? await getUniqueCharacterSlug(prisma, requestedSlug, { excludeId: id })
+        : null
+    } else if (!existingCharacter.slug) {
+      nextSlug = await getUniqueCharacterSlug(prisma, nextName ?? existingCharacter.name, {
+        excludeId: id,
+      })
+    }
+
     const rewardIds = normalizeIdArray(body.rewardIds)
     const scenarioIds = normalizeIdArray(body.scenarioIds)
     const dreamIds = normalizeIdArray(body.dreamIds)
 
     const updateData: Prisma.CharacterUpdateInput = {
-      name: getStringOrUndefined(body.name),
+      name: nextName,
+      slug: nextSlug,
       honorific: getStringOrUndefined(body.honorific),
       title: getStringOrUndefined(body.title),
       role: getStringOrUndefined(body.role),

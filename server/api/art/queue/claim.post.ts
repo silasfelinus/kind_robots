@@ -21,6 +21,10 @@ const CLAIM_CANDIDATE_TRIES = 5
 type ClaimRequestBody = {
   agentId?: string | null
   engines?: string[] | null
+  // Capability handshake: jobs whose payload carries input images (e.g. Hair
+  // Studio kontext jobs) are only handed to agents that declare support, so
+  // a stale relay never claims-and-fails them — they wait instead.
+  supportsInputImages?: boolean | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -45,13 +49,16 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'No valid engines given.' })
     }
 
+    const supportsInputImages = body?.supportsInputImages === true
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
+    const skippedIds: number[] = []
 
     for (let attempt = 0; attempt < CLAIM_CANDIDATE_TRIES; attempt++) {
       const candidate = await prisma.artJob.findFirst({
         where: {
           engine: { in: engines },
           attempts: { lt: MAX_ATTEMPTS },
+          id: { notIn: skippedIds },
           OR: [
             { status: 'PENDING' },
             { status: 'RUNNING', claimedAt: { lt: staleBefore } },
@@ -67,6 +74,16 @@ export default defineEventHandler(async (event) => {
           data: { job: null },
           statusCode: 200,
         }
+      }
+
+      const payload = candidate.payload as { images?: unknown } | null
+      const needsInputImages =
+        Array.isArray(payload?.images) && payload.images.length > 0
+
+      if (needsInputImages && !supportsInputImages) {
+        // Leave the job for an image-capable agent instead of failing it.
+        skippedIds.push(candidate.id)
+        continue
       }
 
       const won = await prisma.artJob.updateMany({

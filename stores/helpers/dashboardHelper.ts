@@ -123,6 +123,17 @@ export const dashboardConfigs = {
         route: '/stylist',
       },
       {
+        key: 'coloring',
+        label: 'Coloring Book',
+        icon: 'kind-icon:paintbrush',
+        title: 'Coloring Book',
+        summary: 'Color AI-generated pages, or start from the sampler set.',
+        image: tabImage('art', 'coloring'),
+        narrative:
+          'Open a page, tap regions to fill them, save your palette, and walk away mid-masterpiece — it saves itself. Generated Kind Robots and Monster Recast books are on the way.',
+        route: '/art',
+      },
+      {
         key: 'workbench',
         label: 'Code Cards',
         icon: 'kind-icon:foundry',

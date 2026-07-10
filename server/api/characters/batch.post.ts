@@ -3,11 +3,11 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import prisma from '../../utils/prisma'
-import { normalizeSlugInput } from '@/utils/slugify'
+import { normalizeSlugInput } from '../../../utils/slugify'
 import {
   getCharacterNameKey,
   getUniqueCharacterSlug,
-} from '@/server/utils/characterSlug'
+} from '../../utils/characterSlug'
 import type {
   Prisma,
   Character,

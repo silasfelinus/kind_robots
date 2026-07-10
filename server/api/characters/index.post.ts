@@ -3,6 +3,12 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import prisma from '../../utils/prisma'
+import { normalizeSlugInput } from '../../../utils/slugify'
+import {
+  findCharacterNameDuplicate,
+  getCharacterNameKey,
+  getUniqueCharacterSlug,
+} from '../../utils/characterSlug'
 import type {
   Prisma,
   Character,
@@ -88,6 +94,27 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const name = characterData.name.trim()
+
+    if (!getCharacterNameKey(name)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Character name must contain at least one letter or number.',
+      })
+    }
+
+    const duplicate = await findCharacterNameDuplicate(prisma, user.id, name)
+
+    if (duplicate) {
+      throw createError({
+        statusCode: 409,
+        message: `Character "${name}" already exists as #${duplicate.id}.`,
+      })
+    }
+
+    const requestedSlug = normalizeSlugInput(characterData.slug)
+    const slug = await getUniqueCharacterSlug(prisma, requestedSlug ?? name)
+
     const rewardIds = normalizeIdArray(characterData.rewardIds, 'rewardIds')
     const scenarioIds = normalizeIdArray(
       characterData.scenarioIds,
@@ -102,7 +129,8 @@ export default defineEventHandler(async (event) => {
         },
       },
 
-      name: characterData.name.trim(),
+      name,
+      slug,
       honorific: cleanShortText(characterData.honorific) ?? 'adventurer',
       title: cleanShortText(characterData.title),
       role: cleanShortText(characterData.role),

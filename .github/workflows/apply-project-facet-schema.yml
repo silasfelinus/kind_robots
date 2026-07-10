@@ -7,6 +7,9 @@ on:
     paths:
       - .github/workflows/apply-project-facet-schema.yml
       - utils/scripts/applyProjectFacetSchema.mjs
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:

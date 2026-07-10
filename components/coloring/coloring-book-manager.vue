@@ -150,8 +150,10 @@
         <coloring-canvas
           :page="openDefinition"
           :fills="coloringStore.currentPage?.fills ?? {}"
+          :fill-ops="coloringStore.currentPage?.fillOps ?? []"
           :palette-resolver="coloringStore.resolveColorValue"
           @region-click="onRegionClick"
+          @fill-request="onFillRequest"
         />
 
         <aside
@@ -315,6 +317,10 @@ function closePage() {
 
 function onRegionClick(regionId: string) {
   coloringStore.paintRegion(regionId)
+}
+
+function onFillRequest(coords: { x: number; y: number }) {
+  coloringStore.applyFillOp(coords.x, coords.y)
 }
 
 function addCustomColor() {

@@ -91,7 +91,7 @@ jobs:
         working-directory: /tmp/project-facet-backfill
         run: |
           set +e
-          npx prisma db push --skip-generate > prisma-db-push.log 2>&1
+          npx prisma db push > prisma-db-push.log 2>&1
           status=$?
           cat prisma-db-push.log
           echo "status=${status}" >> "$GITHUB_OUTPUT"

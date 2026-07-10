@@ -2,6 +2,8 @@
 import { createError, type H3Event } from 'h3'
 import prisma from './prisma'
 import { requireApiUser } from './authGuard'
+import { applyMana } from './mana'
+import type { ManaReason } from './mana'
 
 type ManaGateKind = 'text' | 'art' | 'video' | 'model' | 'free'
 
@@ -27,6 +29,15 @@ type ManaGateResult = {
 }
 
 const MANA_PER_USD = 1000
+
+// video/model spends land under GENERATION_ART until the enum grows
+// dedicated reasons (additive migration — separate task).
+const REASON_BY_KIND: Record<Exclude<ManaGateKind, 'free'>, ManaReason> = {
+  text: 'GENERATION_TEXT',
+  art: 'GENERATION_ART',
+  video: 'GENERATION_ART',
+  model: 'GENERATION_ART',
+}
 
 export async function manaGate(
   event: H3Event,
@@ -79,29 +90,26 @@ export async function manaGate(
     user,
     cost,
     free,
-    commit: async (_refId: string, _providerCostUsd?: number) => {
+    commit: async (refId: string, providerCostUsd?: number) => {
       if (cost <= 0) {
         return {
           balance,
         }
       }
 
-      const updated = await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          mana: {
-            decrement: cost,
-          },
-        },
-        select: {
-          mana: true,
-        },
+      // Atomic debit + ManaTransaction ledger row (applyMana re-checks the
+      // balance inside the transaction, closing the check-then-spend race).
+      const result = await applyMana({
+        userId: user.id,
+        amount: -cost,
+        reason:
+          input.kind === 'free' ? 'ADJUSTMENT' : REASON_BY_KIND[input.kind],
+        refId,
+        costUsd: providerCostUsd ?? input.estCostUsd,
       })
 
       return {
-        balance: updated.mana ?? 0,
+        balance: result.balance,
       }
     },
   }

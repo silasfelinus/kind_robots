@@ -81,6 +81,8 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
+  StylistClient: 'StylistClient',
+  StylistAppointment: 'StylistAppointment',
   ArtJob: 'ArtJob',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
@@ -912,6 +914,35 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const StylistClientScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  name: 'name',
+  email: 'email'
+} as const
+
+export type StylistClientScalarFieldEnum = (typeof StylistClientScalarFieldEnum)[keyof typeof StylistClientScalarFieldEnum]
+
+
+export const StylistAppointmentScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  clientId: 'clientId',
+  clientName: 'clientName',
+  date: 'date',
+  hourlyRateCents: 'hourlyRateCents',
+  minutes: 'minutes',
+  productCostCents: 'productCostCents',
+  totalCents: 'totalCents'
+} as const
+
+export type StylistAppointmentScalarFieldEnum = (typeof StylistAppointmentScalarFieldEnum)[keyof typeof StylistAppointmentScalarFieldEnum]
+
+
 export const ArtJobScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -1685,6 +1716,22 @@ export const UserOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const StylistClientOrderByRelevanceFieldEnum = {
+  name: 'name',
+  email: 'email'
+} as const
+
+export type StylistClientOrderByRelevanceFieldEnum = (typeof StylistClientOrderByRelevanceFieldEnum)[keyof typeof StylistClientOrderByRelevanceFieldEnum]
+
+
+export const StylistAppointmentOrderByRelevanceFieldEnum = {
+  clientName: 'clientName',
+  date: 'date'
+} as const
+
+export type StylistAppointmentOrderByRelevanceFieldEnum = (typeof StylistAppointmentOrderByRelevanceFieldEnum)[keyof typeof StylistAppointmentOrderByRelevanceFieldEnum]
 
 
 export const ArtJobOrderByRelevanceFieldEnum = {

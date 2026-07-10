@@ -108,9 +108,9 @@ function edit(customer: SuperkateCustomer) {
   email.value = customer.email
 }
 
-function save() {
+async function save() {
   if (!name.value.trim()) return
-  superkate.saveCustomer({
+  await superkate.saveCustomer({
     id: editingId.value,
     name: name.value,
     email: email.value,
@@ -127,7 +127,7 @@ function confirmRemove(customer: SuperkateCustomer) {
         )
 
   if (ok) {
-    superkate.removeCustomer(customer.id)
+    void superkate.removeCustomer(customer.id)
     if (editingId.value === customer.id) resetForm()
   }
 }

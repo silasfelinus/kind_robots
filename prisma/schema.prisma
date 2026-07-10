@@ -1293,7 +1293,52 @@ model User {
 
   ArtJobs ArtJob[]
 
+  StylistClients      StylistClient[]
+  StylistAppointments StylistAppointment[]
+
   @@index([artImageId], map: "User_artImageId_fkey")
+}
+
+/// Hair by Superkate suite: a stylist's client book. Owned by the studio user
+/// (userId); private business data, never surfaced publicly. Replaces the
+/// suite's localStorage mock so the client book syncs across devices.
+model StylistClient {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  userId Int
+  name   String  @db.VarChar(255)
+  email  String? @db.VarChar(255)
+
+  User         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Appointments StylistAppointment[]
+
+  @@index([userId])
+}
+
+/// Hair by Superkate suite: saved appointments. clientName is a snapshot so
+/// history survives client deletion (delete-detach); money is stored in cents.
+model StylistAppointment {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  userId     Int
+  clientId   Int?
+  clientName String @db.VarChar(255)
+  date       String @db.VarChar(10)
+
+  hourlyRateCents  Int @default(0)
+  minutes          Int @default(0)
+  productCostCents Int @default(0)
+  totalCents       Int @default(0)
+
+  User   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Client StylistClient? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([clientId])
 }
 
 enum ArtJobStatus {

@@ -85,31 +85,30 @@ export default defineEventHandler(async (event) => {
       denoise: body.denoise,
       filenamePrefix: body.filenamePrefix || 'kindrobots_kontext_queue',
     })
+const payload = {
+  workflow,
+  promptString: prompt,
+  images: [
+    {
+      name: imageName,
+      imageData,
+    },
+  ],
+  save: {
+    isPublic: body.isPublic ?? false,
+    isMature: body.isMature ?? false,
+    designer: body.designer?.trim() || null,
+  },
+} satisfies Prisma.InputJsonValue
 
-    const payload = {
-      workflow,
-      promptString: prompt,
-      images: [
-        {
-          name: imageName,
-          imageData,
-        },
-      ],
-      save: {
-        isPublic: body.isPublic ?? false,
-        isMature: body.isMature ?? false,
-        designer: body.designer?.trim() || null,
-      },
-    } as Prisma.InputJsonValue
-
-    const job = await prisma.artJob.create({
-      data: {
-        engine: 'COMFY',
-        priority: Number.isInteger(body.priority) ? Number(body.priority) : 5,
-        userId: gate.user.id,
-        payload,
-      },
-    })
+const job = await prisma.artJob.create({
+  data: {
+    engine: 'COMFY',
+    priority: Number.isInteger(body.priority) ? Number(body.priority) : 5,
+    userId: gate.user.id,
+    payload,
+  },
+})
 
     const { balance } = await gate.commit(`kontext-queue:${job.id}`)
 

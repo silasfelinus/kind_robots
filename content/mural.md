@@ -10,7 +10,7 @@ sort: wonder
 dottitip: "Can a coloring page become project management?"
 amitip: "Yes, but only if the paint swatches stop wandering off like tiny chromatic ferrets."
 dashboardKey: wonder
-dashboardTab: wonder-lab
+dashboardTab: mural
 cards: labCards
 loadingMessage: Loading mural studio...
 refreshLabel: Refresh Mural

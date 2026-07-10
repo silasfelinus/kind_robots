@@ -209,6 +209,19 @@ export type Theme = Prisma.ThemeModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model StylistClient
+ * Hair by Superkate suite: a stylist's client book. Owned by the studio user
+ * (userId); private business data, never surfaced publicly. Replaces the
+ * suite's localStorage mock so the client book syncs across devices.
+ */
+export type StylistClient = Prisma.StylistClientModel
+/**
+ * Model StylistAppointment
+ * Hair by Superkate suite: saved appointments. clientName is a snapshot so
+ * history survives client deletion (delete-detach); money is stored in cents.
+ */
+export type StylistAppointment = Prisma.StylistAppointmentModel
+/**
  * Model ArtJob
  * Durable art generation job queue. Producers (conductor scripts, UI) enqueue
  * jobs; the home relay agent claims them outward (pull model — the server never

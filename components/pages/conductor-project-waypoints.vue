@@ -7,7 +7,7 @@
 <template>
   <div class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4">
     <div
-      v-if="projectLiveUrl"
+      v-if="projectLink"
       class="flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center"
     >
       <div class="min-w-0 flex-1">
@@ -19,8 +19,8 @@
         </p>
       </div>
       <NuxtLink
-        v-if="internalProjectPath"
-        :to="internalProjectPath"
+        v-if="projectLink.kind === 'internal'"
+        :to="projectLink.href"
         class="btn btn-primary btn-sm shrink-0 gap-1.5 rounded-xl"
       >
         <Icon name="kind-icon:external-link" class="size-3.5" />
@@ -28,7 +28,7 @@
       </NuxtLink>
       <a
         v-else
-        :href="projectLiveUrl"
+        :href="projectLink.href"
         target="_blank"
         rel="noopener noreferrer"
         class="btn btn-primary btn-sm shrink-0 gap-1.5 rounded-xl"
@@ -42,7 +42,10 @@
       v-else
       class="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/5 px-3 py-2.5"
     >
-      <Icon name="kind-icon:warning" class="mt-0.5 size-4 shrink-0 text-warning" />
+      <Icon
+        name="kind-icon:warning"
+        class="mt-0.5 size-4 shrink-0 text-warning"
+      />
       <div class="min-w-0">
         <p class="text-xs font-bold uppercase tracking-wide text-warning/80">
           Front end not linked
@@ -218,6 +221,7 @@ const ACTIVE_PREFIX = '~'
 
 type WaypointStatus = 'pending' | 'active' | 'done'
 type Waypoint = { label: string; status: WaypointStatus }
+type ProjectLink = { kind: 'internal' | 'external'; href: string }
 
 const saving = ref(false)
 const errorMessage = ref('')
@@ -225,18 +229,29 @@ const newWaypointLabel = ref('')
 const draftRequested = ref(false)
 
 const projectDream = computed(
-  () => dreamStore.projectDreams.find((dream) => dream.id === props.dreamId) ?? null,
+  () =>
+    dreamStore.projectDreams.find((dream) => dream.id === props.dreamId) ??
+    null,
 )
-const projectLiveUrl = computed(() => projectDream.value?.liveUrl?.trim() ?? '')
-const internalProjectPath = computed(() => {
-  const value = projectLiveUrl.value
+const rawProjectLiveUrl = computed(
+  () => projectDream.value?.liveUrl?.trim() ?? '',
+)
+const projectLink = computed<ProjectLink | null>(() => {
+  const value = rawProjectLiveUrl.value
   if (!value) return null
-  if (value.startsWith('/')) return value
 
   try {
-    const parsed = new URL(value)
-    if (parsed.origin !== requestUrl.origin) return null
-    return `${parsed.pathname}${parsed.search}${parsed.hash}`
+    const parsed = new URL(value, `${requestUrl.origin}/`)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
+
+    if (parsed.origin === requestUrl.origin) {
+      return {
+        kind: 'internal',
+        href: `${parsed.pathname}${parsed.search}${parsed.hash}`,
+      }
+    }
+
+    return { kind: 'external', href: parsed.toString() }
   } catch {
     return null
   }

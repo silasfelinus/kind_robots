@@ -2,14 +2,9 @@ name: Project and Facet Migration Smoke Test
 
 on:
   push:
-    branches:
-      - agent/project-dream-facet-schema
+    branches: [main]
     paths:
       - .github/workflows/project-facet-migration-smoke.yml
-      - prisma/schema.prisma
-      - prisma/migrations/20260710223000_add_project_and_facet_models/migration.sql
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -19,7 +14,7 @@ concurrency:
 jobs:
   migration-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     services:
       mariadb:
@@ -37,39 +32,44 @@ jobs:
 
     env:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
-      CYPRESS_INSTALL_BINARY: '0'
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Fetch main schema only
-        run: git fetch origin main --depth=1
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install MariaDB client
+      - name: Install Prisma and MariaDB client
         run: |
+          mkdir -p /tmp/project-facet-smoke
+          cd /tmp/project-facet-smoke
+          npm init -y
+          npm install prisma@7.8.0
           sudo apt-get update
           sudo apt-get install -y mariadb-client
 
-      - name: Materialize pre-change schema
-        run: git show FETCH_HEAD:prisma/schema.prisma > /tmp/schema-before-project-facet.prisma
+      - name: Download pre-change schema and migration
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/silasfelinus/kind_robots/3c501d31311307f3c63e07bec869c867fac13655/prisma/schema.prisma -o /tmp/project-facet-smoke/schema.prisma
+          curl -fsSL https://raw.githubusercontent.com/silasfelinus/kind_robots/main/prisma/migrations/20260710223000_add_project_and_facet_models/migration.sql -o /tmp/project-facet-smoke/migration.sql
+          cat > /tmp/project-facet-smoke/prisma.config.ts <<'CONFIG'
+          import 'dotenv/config'
+          import { defineConfig } from 'prisma/config'
+
+          export default defineConfig({
+            schema: '/tmp/project-facet-smoke/schema.prisma',
+            datasource: {
+              url: process.env.DATABASE_URL,
+            },
+          })
+          CONFIG
 
       - name: Create pre-change database
-        run: npx prisma db push --schema /tmp/schema-before-project-facet.prisma --skip-generate
+        working-directory: /tmp/project-facet-smoke
+        run: npx prisma db push --skip-generate
 
       - name: Execute Project and Facet migration
-        run: mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots < prisma/migrations/20260710223000_add_project_and_facet_models/migration.sql
+        run: mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots < /tmp/project-facet-smoke/migration.sql
 
       - name: Confirm new tables and PitchSheet constraint
         run: |

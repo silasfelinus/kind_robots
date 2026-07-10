@@ -86,11 +86,12 @@ jobs:
           })
           CONFIG
 
-      - name: Create additive schema and generated client
+      - name: Create additive schema
         working-directory: /tmp/project-facet-backfill
+        run: npx prisma db push --skip-generate
+
+      - name: Add PitchSheet owner constraint
         run: |
-          set -euo pipefail
-          npx prisma db push --skip-generate
           mariadb \
             --host=127.0.0.1 \
             --port=3306 \
@@ -98,7 +99,10 @@ jobs:
             --password=root \
             kindrobots \
             -e "ALTER TABLE PitchSheet ADD CONSTRAINT PitchSheet_exactly_one_owner CHECK ((dreamId IS NULL) <> (projectId IS NULL));"
-          npx prisma generate
+
+      - name: Generate Prisma client
+        working-directory: /tmp/project-facet-backfill
+        run: npx prisma generate
 
       - name: Seed representative legacy rows
         working-directory: /tmp/project-facet-backfill

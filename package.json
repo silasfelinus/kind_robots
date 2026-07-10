@@ -4,6 +4,7 @@
   "scripts": {
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
+    "audit:schema-shift": "tsx utils/scripts/auditDreamProjectFacet.ts",
     "trim:dry": "node ./utils/scripts/trim.mjs --dry-run",
     "trim": "node ./utils/scripts/trim.mjs",
     "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && node --max-old-space-size=8192 ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p tsconfig.json",
@@ -73,7 +74,6 @@
     "jose": "^6.2.2",
     "mariadb": "^3.5.2",
     "nuxt": "4.4.8",
-    "open-simplex-noise": "^2.5.0",
     "pinia": "^3.0.4",
     "stripe": "^22.0.1"
   },

@@ -284,11 +284,31 @@
           :key="image.id"
           class="flex flex-col gap-1"
         >
-          <img
-            :src="historyImageSrc(image)"
-            :alt="`Look for ${clientFromDesigner(image.designer) || 'client'}`"
-            class="aspect-square w-full rounded-lg object-cover"
-          />
+          <!-- Tap to flip between the result and its saved before photo. -->
+          <button
+            type="button"
+            class="relative block w-full"
+            :disabled="!stylist.beforeFor(image.id)"
+            :title="stylist.beforeFor(image.id) ? 'Tap to compare before/after' : ''"
+            @click="toggleCompare(image.id)"
+          >
+            <img
+              :src="
+                comparing[image.id] && stylist.beforeFor(image.id)
+                  ? stylist.beforeFor(image.id)
+                  : historyImageSrc(image)
+              "
+              :alt="`Look for ${clientFromDesigner(image.designer) || 'client'}`"
+              class="aspect-square w-full rounded-lg object-cover"
+            />
+            <span
+              v-if="stylist.beforeFor(image.id)"
+              class="badge badge-xs absolute left-1 top-1"
+              :class="comparing[image.id] ? 'badge-neutral' : 'badge-primary'"
+            >
+              {{ comparing[image.id] ? 'Before' : 'After' }}
+            </span>
+          </button>
           <figcaption
             v-if="!clientName.trim()"
             class="truncate text-center text-[10px] text-base-content/50"
@@ -343,6 +363,16 @@ const visibleJobs = computed(() => stylist.jobsForClient(clientName.value))
 const clientHistory = computed(() =>
   stylist.historyForClient(clientName.value),
 )
+
+// Past-looks compare state: imageId → currently showing the before photo.
+const comparing = ref<Record<number, boolean>>({})
+
+function toggleCompare(imageId: number) {
+  comparing.value = {
+    ...comparing.value,
+    [imageId]: !comparing.value[imageId],
+  }
+}
 
 const changeSummary = computed(() => {
   const parts: string[] = []

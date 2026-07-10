@@ -1,0 +1,65 @@
+name: Project and Facet Migration Smoke Test
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  migration-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: kindrobots
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
+      CYPRESS_INSTALL_BINARY: '0'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install MariaDB client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mariadb-client
+
+      - name: Materialize pre-change schema
+        run: git show origin/main:prisma/schema.prisma > /tmp/schema-before-project-facet.prisma
+
+      - name: Create pre-change database
+        run: npx prisma db push --schema /tmp/schema-before-project-facet.prisma --skip-generate
+
+      - name: Execute Project and Facet migration
+        run: mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots < prisma/migrations/20260710223000_add_project_and_facet_models/migration.sql
+
+      - name: Confirm new tables and PitchSheet constraint
+        run: |
+          mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names <<'SQL'
+          SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('Project', 'Facet', 'DreamFacet', 'ScenarioFacet', 'FacetRelation');
+          SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema = DATABASE() AND table_name = 'PitchSheet' AND constraint_name = 'PitchSheet_exactly_one_owner';
+          SQL

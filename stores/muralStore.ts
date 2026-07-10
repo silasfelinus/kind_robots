@@ -1,6 +1,7 @@
 // /stores/muralStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { ColoringPageDefinition } from '@/stores/helpers/coloring'
 
 export interface MuralColor {
   id: string
@@ -192,6 +193,46 @@ interface MuralStoredState {
   selectedSectionId?: string | null
 }
 
+// Geometry/palette now live in data (shared coloring-engine page format,
+// step 4 of the migration in conductor coloring-book/docs/coloring-engine-spec.md).
+// The inline constants above remain as the fallback so /mural keeps working
+// if the data file is missing or malformed.
+const MURAL_PAGE_URL = '/data/mural-design/mural-page.json'
+
+let baseColors: MuralColor[] = defaultColors
+let baseSections: MuralSection[] = defaultSections
+let baseLoaded = false
+
+async function hydrateBaseFromPageData(): Promise<void> {
+  if (baseLoaded || !isClient) return
+  baseLoaded = true
+
+  try {
+    const page = await $fetch<ColoringPageDefinition>(MURAL_PAGE_URL)
+
+    if (!page?.regions?.length || !page.palette?.length) return
+
+    baseSections = page.regions.map((region) => ({
+      id: region.id,
+      label: region.label ?? region.id,
+      groupId: region.group ?? 'misc',
+      colorId: region.defaultColorId ?? 'soft-white',
+      d: region.d,
+    }))
+
+    baseColors = page.palette.map((color) => ({
+      id: color.id,
+      name: color.name,
+      value: normalizeColorValue(color.value),
+    }))
+  } catch (error) {
+    console.warn(
+      '[muralStore] page data unavailable, using inline defaults:',
+      error,
+    )
+  }
+}
+
 function safeReadState(): MuralStoredState | null {
   if (!isClient) return null
 
@@ -210,7 +251,9 @@ function safeWriteState(payload: MuralStoredState): void {
 
   try {
     localStorage.setItem(storageKey, JSON.stringify(payload))
-  } catch {}
+  } catch {
+    // Quota/private-mode failures are non-fatal; coloring continues unsaved.
+  }
 }
 
 function normalizeColorValue(value: string): string {
@@ -247,8 +290,9 @@ export const useMuralStore = defineStore('muralStore', () => {
 
   const selectedSection = computed(() => {
     return (
-      sections.value.find((section) => section.id === selectedSectionId.value) ??
-      null
+      sections.value.find(
+        (section) => section.id === selectedSectionId.value,
+      ) ?? null
     )
   })
 
@@ -267,7 +311,8 @@ export const useMuralStore = defineStore('muralStore', () => {
 
     return groupOrder.map((groupId) => {
       const groupSections = lookup.get(groupId) ?? []
-      const firstColorId = groupSections[0]?.colorId ?? colors.value[0]?.id ?? ''
+      const firstColorId =
+        groupSections[0]?.colorId ?? colors.value[0]?.id ?? ''
       const sameColor = groupSections.every(
         (section) => section.colorId === firstColorId,
       )
@@ -297,8 +342,10 @@ export const useMuralStore = defineStore('muralStore', () => {
     })
   }
 
-  function initialize(force = false): void {
+  async function initialize(force = false): Promise<void> {
     if (initialized.value && !force) return
+
+    await hydrateBaseFromPageData()
 
     const saved = safeReadState()
 
@@ -307,6 +354,8 @@ export const useMuralStore = defineStore('muralStore', () => {
         ...color,
         value: normalizeColorValue(color.value),
       }))
+    } else {
+      colors.value = baseColors.map((color) => ({ ...color }))
     }
 
     if (saved?.sections?.length) {
@@ -314,7 +363,7 @@ export const useMuralStore = defineStore('muralStore', () => {
         saved.sections.map((section) => [section.id, section]),
       )
 
-      sections.value = defaultSections.map((section) => {
+      sections.value = baseSections.map((section) => {
         const savedSection = savedSectionMap.get(section.id)
 
         return {
@@ -322,6 +371,8 @@ export const useMuralStore = defineStore('muralStore', () => {
           colorId: savedSection?.colorId ?? section.colorId,
         }
       })
+    } else {
+      sections.value = baseSections.map((section) => ({ ...section }))
     }
 
     if (saved?.activeColorId && colorMap.value.has(saved.activeColorId)) {
@@ -353,7 +404,10 @@ export const useMuralStore = defineStore('muralStore', () => {
     sync()
   }
 
-  function setSectionColor(sectionId: string, colorId = activeColorId.value): void {
+  function setSectionColor(
+    sectionId: string,
+    colorId = activeColorId.value,
+  ): void {
     if (!colorMap.value.has(colorId)) return
 
     sections.value = sections.value.map((section) =>
@@ -392,7 +446,9 @@ export const useMuralStore = defineStore('muralStore', () => {
   function removeSavedColor(colorId: string): void {
     if (colors.value.length <= 1) return
 
-    const fallbackColorId = colors.value.find((color) => color.id !== colorId)?.id
+    const fallbackColorId = colors.value.find(
+      (color) => color.id !== colorId,
+    )?.id
     if (!fallbackColorId) return
 
     colors.value = colors.value.filter((color) => color.id !== colorId)
@@ -410,10 +466,10 @@ export const useMuralStore = defineStore('muralStore', () => {
   }
 
   function resetMural(): void {
-    colors.value = defaultColors.map((color) => ({ ...color }))
-    sections.value = defaultSections.map((section) => ({ ...section }))
+    colors.value = baseColors.map((color) => ({ ...color }))
+    sections.value = baseSections.map((section) => ({ ...section }))
     activeColorId.value = 'leaf-true'
-    selectedSectionId.value = defaultSections[0]?.id ?? null
+    selectedSectionId.value = baseSections[0]?.id ?? null
     initialized.value = true
     sync()
   }

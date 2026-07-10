@@ -1,0 +1,27 @@
+{
+  "id": "sampler/sampler-p03",
+  "version": 1,
+  "title": "Rocket to the Moon",
+  "viewBox": { "width": 850, "height": 1100 },
+  "mode": "raster-flood",
+  "layers": {},
+  "fillBase": "/images/coloring-book/sampler/p03/fillbase.png",
+  "palette": [
+    { "id": "space-blue", "name": "Space Blue", "value": "#7ec8e3" },
+    { "id": "rocket-red", "name": "Rocket Red", "value": "#e05c5c" },
+    { "id": "window-teal", "name": "Window Teal", "value": "#55a9b5" },
+    { "id": "flame-orange", "name": "Flame Orange", "value": "#d87428" },
+    { "id": "flame-yellow", "name": "Flame Yellow", "value": "#f5c451" },
+    { "id": "moon-gold", "name": "Moon Gold", "value": "#e8c46a" },
+    { "id": "cloud-gray", "name": "Cloud Gray", "value": "#e8ecf1" },
+    { "id": "star-purple", "name": "Star Purple", "value": "#a05dc8" },
+    { "id": "fin-silver", "name": "Fin Silver", "value": "#b7bcc4" }
+  ],
+  "metadata": {
+    "sourceImage": null,
+    "prompt": "programmatic line-art demo page (PIL script) for the raster flood-fill engine",
+    "model": "none (scripted geometry)",
+    "generatedAt": "2026-07-10T12:54:00Z",
+    "printMaster": null
+  }
+}

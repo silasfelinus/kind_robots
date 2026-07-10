@@ -51,6 +51,13 @@ export interface ColoringPageDefinition {
   palette: ColoringColor[]
 }
 
+/** Raster-flood mode: one replayable fill action in image coordinates. */
+export interface ColoringFillOp {
+  x: number
+  y: number
+  colorId: string
+}
+
 export interface ColoringSetPageRef {
   id: string
   title: string

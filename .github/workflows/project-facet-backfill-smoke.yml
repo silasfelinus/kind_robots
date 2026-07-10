@@ -87,8 +87,28 @@ jobs:
           CONFIG
 
       - name: Create additive schema
+        id: schema-push
         working-directory: /tmp/project-facet-backfill
-        run: npx prisma db push --skip-generate
+        run: |
+          set +e
+          npx prisma db push --skip-generate > prisma-db-push.log 2>&1
+          status=$?
+          cat prisma-db-push.log
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload Prisma schema diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prisma-db-push-log
+          path: /tmp/project-facet-backfill/prisma-db-push.log
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Require additive schema creation
+        if: steps.schema-push.outputs.status != '0'
+        run: exit 1
 
       - name: Add PitchSheet owner constraint
         run: |

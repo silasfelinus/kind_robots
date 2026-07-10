@@ -6,6 +6,57 @@
      and conductor roadmap milestones. -->
 <template>
   <div class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+    <div
+      v-if="projectLink"
+      class="flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center"
+    >
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-bold uppercase tracking-wide text-primary/70">
+          Project front end
+        </p>
+        <p class="mt-0.5 truncate text-sm text-base-content/60">
+          Open {{ dreamTitle }} in its working interface.
+        </p>
+      </div>
+      <NuxtLink
+        v-if="projectLink.kind === 'internal'"
+        :to="projectLink.href"
+        class="btn btn-primary btn-sm shrink-0 gap-1.5 rounded-xl"
+      >
+        <Icon name="kind-icon:external-link" class="size-3.5" />
+        Open Project
+      </NuxtLink>
+      <a
+        v-else
+        :href="projectLink.href"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary btn-sm shrink-0 gap-1.5 rounded-xl"
+      >
+        <Icon name="kind-icon:external-link" class="size-3.5" />
+        Open Project
+      </a>
+    </div>
+
+    <div
+      v-else
+      class="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/5 px-3 py-2.5"
+    >
+      <Icon
+        name="kind-icon:warning"
+        class="mt-0.5 size-4 shrink-0 text-warning"
+      />
+      <div class="min-w-0">
+        <p class="text-xs font-bold uppercase tracking-wide text-warning/80">
+          Front end not linked
+        </p>
+        <p class="mt-0.5 text-xs leading-relaxed text-base-content/50">
+          Add a Live URL in Project Intent to connect this project to its Kind
+          Robots page or external app.
+        </p>
+      </div>
+    </div>
+
     <div class="flex flex-wrap items-center gap-2">
       <Icon name="kind-icon:map" class="size-4 text-primary" />
       <h4
@@ -163,17 +214,48 @@ const props = defineProps<{
 
 const dreamStore = useDreamStore()
 const todoStore = useTodoStore()
+const requestUrl = useRequestURL()
 
 const DONE_PREFIX = '✓'
 const ACTIVE_PREFIX = '~'
 
 type WaypointStatus = 'pending' | 'active' | 'done'
 type Waypoint = { label: string; status: WaypointStatus }
+type ProjectLink = { kind: 'internal' | 'external'; href: string }
 
 const saving = ref(false)
 const errorMessage = ref('')
 const newWaypointLabel = ref('')
 const draftRequested = ref(false)
+
+const projectDream = computed(
+  () =>
+    dreamStore.projectDreams.find((dream) => dream.id === props.dreamId) ??
+    null,
+)
+const rawProjectLiveUrl = computed(
+  () => projectDream.value?.liveUrl?.trim() ?? '',
+)
+const projectLink = computed<ProjectLink | null>(() => {
+  const value = rawProjectLiveUrl.value
+  if (!value) return null
+
+  try {
+    const parsed = new URL(value, `${requestUrl.origin}/`)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
+
+    if (parsed.origin === requestUrl.origin) {
+      return {
+        kind: 'internal',
+        href: `${parsed.pathname}${parsed.search}${parsed.hash}`,
+      }
+    }
+
+    return { kind: 'external', href: parsed.toString() }
+  } catch {
+    return null
+  }
+})
 
 const waypointList = computed<Waypoint[]>(() => parseWaypoints(props.waypoints))
 

@@ -122,6 +122,6 @@ function confirmRemove(appointment: SuperkateAppointment) {
           `Delete the ${appointment.date} appointment for ${appointment.clientName}?`,
         )
 
-  if (ok) superkate.removeAppointment(appointment.id)
+  if (ok) void superkate.removeAppointment(appointment.id)
 }
 </script>

@@ -193,6 +193,18 @@
       Styling takes a minute or two — you can keep working or switch tabs; results land below when ready.
     </p>
 
+    <div
+      v-if="isFirstRun"
+      class="flex flex-col gap-1 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs text-base-content/70"
+    >
+      <span class="font-black text-primary">First time in the studio?</span>
+      <span>
+        1. Add or snap a client photo &nbsp;2. Tick color, style, and/or cleanup
+        &nbsp;3. Style it — the new look appears beside the original, and every
+        finished look is saved privately to that client's Past looks.
+      </span>
+    </div>
+
     <!-- This session's jobs -->
     <div v-if="visibleJobs.length" class="flex flex-col gap-2">
       <span class="text-xs font-black text-base-content">
@@ -284,11 +296,31 @@
           :key="image.id"
           class="flex flex-col gap-1"
         >
-          <img
-            :src="historyImageSrc(image)"
-            :alt="`Look for ${clientFromDesigner(image.designer) || 'client'}`"
-            class="aspect-square w-full rounded-lg object-cover"
-          />
+          <!-- Tap to flip between the result and its saved before photo. -->
+          <button
+            type="button"
+            class="relative block w-full"
+            :disabled="!stylist.beforeFor(image.id)"
+            :title="stylist.beforeFor(image.id) ? 'Tap to compare before/after' : ''"
+            @click="toggleCompare(image.id)"
+          >
+            <img
+              :src="
+                comparing[image.id] && stylist.beforeFor(image.id)
+                  ? stylist.beforeFor(image.id)
+                  : historyImageSrc(image)
+              "
+              :alt="`Look for ${clientFromDesigner(image.designer) || 'client'}`"
+              class="aspect-square w-full rounded-lg object-cover"
+            />
+            <span
+              v-if="stylist.beforeFor(image.id)"
+              class="badge badge-xs absolute left-1 top-1"
+              :class="comparing[image.id] ? 'badge-neutral' : 'badge-primary'"
+            >
+              {{ comparing[image.id] ? 'Before' : 'After' }}
+            </span>
+          </button>
           <figcaption
             v-if="!clientName.trim()"
             class="truncate text-center text-[10px] text-base-content/50"
@@ -340,9 +372,31 @@ const canGenerate = computed(
 )
 
 const visibleJobs = computed(() => stylist.jobsForClient(clientName.value))
+
+// The typed client's record in the synced book, when it exists — id-tagging
+// styled photos makes their history grouping survive client renames.
+const bookClient = computed(() => superkate.customerByName(clientName.value))
+
 const clientHistory = computed(() =>
-  stylist.historyForClient(clientName.value),
+  stylist.historyForClient(clientName.value, bookClient.value?.id ?? null),
 )
+
+const isFirstRun = computed(
+  () =>
+    !visibleJobs.value.length &&
+    !stylist.history.length &&
+    !stylist.isLoadingHistory,
+)
+
+// Past-looks compare state: imageId → currently showing the before photo.
+const comparing = ref<Record<number, boolean>>({})
+
+function toggleCompare(imageId: number) {
+  comparing.value = {
+    ...comparing.value,
+    [imageId]: !comparing.value[imageId],
+  }
+}
 
 const changeSummary = computed(() => {
   const parts: string[] = []
@@ -465,6 +519,7 @@ function submit() {
   if (!sourceImageData.value || !hasAnyChange.value) return
   void stylist.runStylist({
     client: clientName.value,
+    clientId: bookClient.value?.id ?? null,
     before: sourceImageData.value,
     prompt: buildPrompt(),
   })

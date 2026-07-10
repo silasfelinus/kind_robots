@@ -1,6 +1,6 @@
 -- Add Project and Facet as first-class models without deleting legacy Dream data.
 -- PitchSheet permits either a Dream or Project owner during the transition; the
--- application and audit script enforce exactly one owner.
+-- application and database enforce exactly one owner.
 
 ALTER TABLE `Chat`
   ADD COLUMN `projectId` INTEGER NULL,
@@ -154,6 +154,10 @@ CREATE TABLE `FacetRelation` (
 ALTER TABLE `PitchSheet`
   MODIFY `dreamId` INTEGER NULL,
   ADD COLUMN `projectId` INTEGER NULL;
+
+ALTER TABLE `PitchSheet`
+  ADD CONSTRAINT `PitchSheet_exactly_one_owner`
+  CHECK ((`dreamId` IS NULL) <> (`projectId` IS NULL));
 
 ALTER TABLE `Reaction`
   ADD COLUMN `projectId` INTEGER NULL,

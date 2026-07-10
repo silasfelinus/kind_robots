@@ -11,7 +11,8 @@ export type DreamAccessAction = 'view' | 'chat' | 'mutate'
 
 type DreamAccessInput = {
   dream: {
-    userId: number
+    // null = orphaned (owner deleted): public dreams stay viewable, only admins mutate
+    userId: number | null
     isPublic: boolean
   }
   userId?: number | null

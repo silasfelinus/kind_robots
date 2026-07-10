@@ -14,8 +14,7 @@ import { computed, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import { useServerStore } from '@/stores/serverStore'
-import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 
 export const STYLIST_DESIGNER_PREFIX = 'stylist:'
 
@@ -89,7 +88,6 @@ export function friendlyError(raw: string): string {
 export const useStylistStore = defineStore('stylistStore', () => {
   const artStore = useArtStore()
   const userStore = useUserStore()
-  const serverStore = useServerStore()
 
   // Live jobs from this session (before/after both available in memory).
   const jobs = ref<StylistJob[]>([])
@@ -104,25 +102,6 @@ export const useStylistStore = defineStore('stylistStore', () => {
     () => jobs.value.filter((job) => job.status === 'pending').length,
   )
   const isBusy = computed(() => pendingCount.value > 0)
-
-  function isUsableKontextServer(
-    server: Server | null | undefined,
-  ): server is Server {
-    if (!server) return false
-    if (!server.isActive) return false
-    if (server.serverType !== 'COMFY') return false
-    return true
-  }
-
-  const kontextServer = computed<Server | null>(() => {
-    if (isUsableKontextServer(serverStore.activeArtServer)) {
-      return serverStore.activeArtServer
-    }
-    const servers = Array.isArray(serverStore.servers)
-      ? (serverStore.servers as Server[])
-      : []
-    return servers.find(isUsableKontextServer) || null
-  })
 
   function jobsForClient(client: string): StylistJob[] {
     const target = client.trim().toLowerCase()
@@ -146,6 +125,49 @@ export const useStylistStore = defineStore('stylistStore', () => {
     )
   }
 
+  // Generation goes through the durable ArtJob queue, NOT the direct
+  // /api/comfy/kontext/generate route: the deployed backend is not on the
+  // home tailnet, so dialing the Comfy server from it fails (ENOTFOUND on
+  // ts.net names). The home relay agent claims queued jobs outward instead.
+  const QUEUE_POLL_MS = 5_000
+  const QUEUE_TIMEOUT_MS = 10 * 60_000
+
+  type QueuedArtJob = {
+    id: number
+    status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED'
+    artImageId?: number | null
+    error?: string | null
+  }
+
+  function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  async function waitForQueuedJob(jobId: number): Promise<QueuedArtJob> {
+    const startedAt = Date.now()
+
+    while (Date.now() - startedAt < QUEUE_TIMEOUT_MS) {
+      const response = await performFetch<{ job: QueuedArtJob }>(
+        `/api/art/queue/${jobId}`,
+        { method: 'GET' },
+        2,
+        20_000,
+      )
+
+      const job = response.success ? response.data?.job : null
+
+      if (job?.status === 'DONE' || job?.status === 'FAILED') {
+        return job
+      }
+
+      await sleep(QUEUE_POLL_MS)
+    }
+
+    throw new Error(
+      'Styling timed out. The studio queue may be catching up — check Past looks in a few minutes.',
+    )
+  }
+
   async function runStylist(input: StylistRunInput): Promise<number> {
     const id = ++seq
     const client = input.client.trim()
@@ -164,30 +186,45 @@ export const useStylistStore = defineStore('stylistStore', () => {
       ...jobs.value,
     ]
 
-    const base64Payload = before.includes(',')
-      ? (before.split(',')[1] ?? before)
-      : before
-
     try {
-      const result = await artStore.generateArt({
-        promptString: input.prompt,
-        userId: userStore.userId ?? undefined,
-        serverId: kontextServer.value?.id ?? null,
-        serverName: kontextServer.value?.title ?? null,
-        engine: 'kontext',
-        transport: 'backend',
-        // Private: never public, never in the memory game.
-        isPublic: false,
-        isMature: false,
-        designer: stylistDesignerFor(client),
-        sourceImageBase64: base64Payload,
-      })
+      const enqueue = await performFetch<{ jobId: number }>(
+        '/api/comfy/kontext/enqueue',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            prompt: input.prompt,
+            imageData: before,
+            // Private: never public, never in the memory game.
+            isPublic: false,
+            isMature: false,
+            designer: stylistDesignerFor(client),
+            filenamePrefix: 'kindrobots_stylist',
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+        2,
+        60_000,
+      )
 
-      if (!result.success || !result.data) {
-        throw new Error(result.message || 'Styling failed.')
+      if (!enqueue.success || !enqueue.data?.jobId) {
+        throw new Error(enqueue.message || 'Could not queue the styling job.')
       }
 
-      const image = result.data
+      const finished = await waitForQueuedJob(enqueue.data.jobId)
+
+      if (finished.status !== 'DONE' || !finished.artImageId) {
+        throw new Error(finished.error || 'Styling failed.')
+      }
+
+      const image = (await artStore.getArtImageById(finished.artImageId, {
+        includeImageData: true,
+        includeThumbnailData: true,
+      })) as (ArtImage & { imageData?: string | null }) | null
+
+      if (!image) {
+        throw new Error('Styled image could not be loaded.')
+      }
+
       const after = image.imageData
         ? `data:image/${image.fileType || 'png'};base64,${image.imageData}`
         : before
@@ -262,7 +299,6 @@ export const useStylistStore = defineStore('stylistStore', () => {
     historyError,
     pendingCount,
     isBusy,
-    kontextServer,
     jobsForClient,
     historyForClient,
     runStylist,

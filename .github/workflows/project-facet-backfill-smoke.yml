@@ -1,0 +1,213 @@
+name: Project and Facet Backfill Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - package.json
+      - prisma/schema.prisma
+      - utils/scripts/auditProjectDreamFacet.ts
+      - utils/scripts/backfillProjectDreamFacet.ts
+      - .github/workflows/project-facet-backfill-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-facet-backfill-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backfill-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: kindrobots
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Prepare isolated smoke project
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/project-facet-backfill/prisma
+          mkdir -p /tmp/project-facet-backfill/utils/scripts
+          cd /tmp/project-facet-backfill
+          npm init -y
+          npm install --no-audit --no-fund \
+            prisma@7.8.0 \
+            @prisma/client@7.8.0 \
+            @prisma/adapter-mariadb@7.8.0 \
+            mariadb@3.5.2 \
+            dotenv@17.2.3 \
+            tsx@4.22.5
+          curl -fsSL \
+            "https://raw.githubusercontent.com/silasfelinus/kind_robots/${SOURCE_SHA}/prisma/schema.prisma" \
+            -o prisma/schema.prisma
+          curl -fsSL \
+            "https://raw.githubusercontent.com/silasfelinus/kind_robots/${SOURCE_SHA}/utils/scripts/auditProjectDreamFacet.ts" \
+            -o utils/scripts/auditProjectDreamFacet.ts
+          curl -fsSL \
+            "https://raw.githubusercontent.com/silasfelinus/kind_robots/${SOURCE_SHA}/utils/scripts/backfillProjectDreamFacet.ts" \
+            -o utils/scripts/backfillProjectDreamFacet.ts
+          cat > prisma.config.ts <<'CONFIG'
+          import 'dotenv/config'
+          import { defineConfig } from 'prisma/config'
+
+          export default defineConfig({
+            schema: 'prisma/schema.prisma',
+            datasource: {
+              url: process.env.DATABASE_URL,
+            },
+          })
+          CONFIG
+
+      - name: Create additive schema and generated client
+        working-directory: /tmp/project-facet-backfill
+        run: |
+          set -euo pipefail
+          npx prisma db push --skip-generate
+          mariadb \
+            --host=127.0.0.1 \
+            --port=3306 \
+            --user=root \
+            --password=root \
+            kindrobots \
+            -e "ALTER TABLE PitchSheet ADD CONSTRAINT PitchSheet_exactly_one_owner CHECK ((dreamId IS NULL) <> (projectId IS NULL));"
+          npx prisma generate
+
+      - name: Seed representative legacy rows
+        working-directory: /tmp/project-facet-backfill
+        run: |
+          cat > seed.ts <<'SEED'
+          import 'dotenv/config'
+          import { PrismaClient } from './prisma/generated/prisma/client'
+          import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+
+          const databaseUrl = process.env.DATABASE_URL
+          if (!databaseUrl) throw new Error('DATABASE_URL is missing')
+
+          const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+
+          async function main() {
+            await prisma.user.create({
+              data: { id: 10, username: 'schema-smoke-user' },
+            })
+
+            const projectDream = await prisma.dream.create({
+              data: {
+                title: 'Smoke Project',
+                slug: 'smoke-project',
+                dreamType: 'PROJECT',
+                projectStatus: 'ACTIVE',
+                priority: 'HIGH',
+                description: 'Legacy Project Dream for migration smoke testing.',
+                repoUrl: 'https://github.com/example/smoke-project',
+                userId: 10,
+                PitchSheet: {
+                  create: {
+                    title: 'Smoke Project Pitch',
+                    userId: 10,
+                  },
+                },
+              },
+            })
+
+            await prisma.chat.create({
+              data: {
+                type: 'Dream',
+                sender: 'schema-smoke',
+                content: 'Project migration smoke chat.',
+                dreamId: projectDream.id,
+                userId: 10,
+              },
+            })
+
+            await prisma.artJob.create({
+              data: {
+                payload: { prompt: 'schema smoke art' },
+                projectSlug: projectDream.slug,
+                userId: 10,
+              },
+            })
+
+            const scenario = await prisma.scenario.create({
+              data: {
+                title: 'Smoke Scenario',
+                slug: 'smoke-scenario',
+                description: 'Scenario tagged by the migrated Facet.',
+                intros: 'Begin the smoke test.',
+                userId: 10,
+              },
+            })
+
+            await prisma.dream.create({
+              data: {
+                title: 'Smoke Genre',
+                slug: 'smoke-genre',
+                dreamType: 'GENRE',
+                description: 'Legacy Genre Dream for Facet migration smoke testing.',
+                userId: 10,
+                Scenarios: { connect: { id: scenario.id } },
+              },
+            })
+          }
+
+          main()
+            .finally(() => prisma.$disconnect())
+          SEED
+          npx tsx seed.ts
+
+      - name: Verify audit and dry run are read-only
+        working-directory: /tmp/project-facet-backfill
+        run: |
+          set -euo pipefail
+          npx tsx utils/scripts/auditProjectDreamFacet.ts --output=artifacts/audit.json > /tmp/audit-stdout.json
+          npx tsx utils/scripts/backfillProjectDreamFacet.ts --output=artifacts/dry-run.json > /tmp/backfill-dry-run.json
+          test -s artifacts/audit.json
+          test -s artifacts/dry-run.json
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Project')" = "0"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Facet')" = "0"
+
+      - name: Apply and verify additive backfill
+        working-directory: /tmp/project-facet-backfill
+        run: |
+          set -euo pipefail
+          npx tsx utils/scripts/backfillProjectDreamFacet.ts --apply --output=artifacts/apply.json > /tmp/backfill-apply.json
+          test -s artifacts/apply.json
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM Project WHERE slug = 'smoke-project' AND conductorSlug = 'smoke-project' AND channelKey IS NULL AND tabKey IS NULL")" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM Facet WHERE slug = 'smoke-genre' AND kind = 'GENRE'")" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM ScenarioFacet')" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Chat WHERE dreamId IS NOT NULL AND projectId IS NOT NULL')" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM ArtJob WHERE projectId IS NOT NULL')" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM PitchSheet WHERE dreamId IS NULL AND projectId IS NOT NULL')" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Dream')" = "2"
+
+      - name: Verify idempotence
+        working-directory: /tmp/project-facet-backfill
+        run: |
+          set -euo pipefail
+          npx tsx utils/scripts/backfillProjectDreamFacet.ts --apply --output=artifacts/apply-again.json > /tmp/backfill-apply-again.json
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Project')" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM Facet')" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM ScenarioFacet')" = "1"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e 'SELECT COUNT(*) FROM PitchSheet WHERE (dreamId IS NULL) <> (projectId IS NULL)')" = "1"

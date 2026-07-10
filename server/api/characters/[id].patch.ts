@@ -3,12 +3,12 @@ import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import { normalizeSlugInput } from '@/utils/slugify'
+import { normalizeSlugInput } from '../../../utils/slugify'
 import {
   findCharacterNameDuplicate,
   getCharacterNameKey,
   getUniqueCharacterSlug,
-} from '@/server/utils/characterSlug'
+} from '../../utils/characterSlug'
 import type { Character, Prisma } from '~/prisma/generated/prisma/client'
 
 type CharacterPatchBody = Partial<Character> & {

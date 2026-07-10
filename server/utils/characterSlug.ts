@@ -10,11 +10,7 @@ type CharacterSlugRow = {
 
 type CharacterSlugClient = {
   character: {
-    findMany: (args: {
-      where?: Record<string, unknown>
-      select: Record<string, boolean>
-      orderBy?: Record<string, string>
-    }) => Promise<CharacterSlugRow[]>
+    findMany: (args: any) => Promise<CharacterSlugRow[]>
   }
 }
 

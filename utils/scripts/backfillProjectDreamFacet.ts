@@ -9,7 +9,6 @@ const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
 const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
-
 const args = new Set(process.argv.slice(2))
 const apply = args.has('--apply')
 const projectsOnly = args.has('--projects-only')
@@ -19,8 +18,6 @@ if (projectsOnly && facetsOnly) {
   throw new Error('Use at most one of --projects-only or --facets-only')
 }
 
-const includeProjects = !facetsOnly
-const includeFacets = !projectsOnly
 const generatedAt = new Date().toISOString()
 const fileStamp = generatedAt.replaceAll(':', '-').replaceAll('.', '-')
 const outputArg = process.argv.find((argument) => argument.startsWith('--output='))
@@ -29,29 +26,10 @@ const outputPath = resolve(
     `artifacts/schema-backfill/project-dream-facet-${apply ? 'apply' : 'dry-run'}-${fileStamp}.json`,
 )
 
-type ProjectResult = {
-  sourceDreamId: number
-  projectId: number
-  slug: string
-  chatsLinked: number
-  todosLinked: number
-  reactionsLinked: number
-  artJobsLinked: number
-  pitchSheetMoved: boolean
-  artImagesLinked: number
-  artCollectionsLinked: number
-}
-
-type FacetResult = {
-  sourceDreamId: number
-  facetId: number
-  slug: string
-  scenariosLinked: number
-  artImagesLinked: number
-  artCollectionsLinked: number
-  preservedLegacyCharacters: number
-  preservedLegacyBots: number
-  preservedLegacyChats: number
+async function writeReport(report: unknown): Promise<void> {
+  await mkdir(dirname(outputPath), { recursive: true })
+  await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8')
+  console.error(`Schema backfill report written to ${outputPath}`)
 }
 
 const mapPriority = (priority: string | null): 'LOW' | 'NORMAL' | 'HIGH' => {
@@ -59,112 +37,106 @@ const mapPriority = (priority: string | null): 'LOW' | 'NORMAL' | 'HIGH' => {
   return 'NORMAL'
 }
 
-async function writeReport(report: unknown): Promise<void> {
-  await mkdir(dirname(outputPath), { recursive: true })
-  await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8')
-  console.error(`Schema backfill report written to ${outputPath}`)
-}
-
 async function assertAdditiveSchemaApplied(): Promise<void> {
   try {
-    await Promise.all([prisma.project.count(), prisma.facet.count()])
+    await prisma.project.count()
+    await prisma.facet.count()
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
     throw new Error(
-      'The additive Project/Facet migration is not available in this database. Run `npm run prisma:migrate` before using --apply.',
-      { cause: error },
+      `The additive Project/Facet migration is not available. Run npm run prisma:migrate before --apply. ${message}`,
     )
   }
 }
 
 async function main(): Promise<void> {
-  const [projectDreams, genreDreams] = await Promise.all([
-    includeProjects
-      ? prisma.dream.findMany({
-          where: { dreamType: 'PROJECT' },
-          orderBy: { id: 'asc' },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            description: true,
-            flavorText: true,
-            goal: true,
-            waypoints: true,
-            projectStatus: true,
-            priority: true,
-            repoUrl: true,
-            liveUrl: true,
-            allowReviews: true,
-            highlightImage: true,
-            icon: true,
-            imagePath: true,
-            cardPath: true,
-            heroPath: true,
-            designer: true,
-            creationSource: true,
-            userId: true,
-            artImageId: true,
-            artCollectionId: true,
-            isPublic: true,
-            isMature: true,
-            isActive: true,
-            PitchSheet: { select: { id: true } },
-            ArtImages: { select: { id: true } },
-            ArtCollections: { select: { id: true } },
-            _count: {
-              select: {
-                Chats: true,
-                Todos: true,
-                Reactions: true,
-                Characters: true,
-                Rewards: true,
-                Scenarios: true,
-                Bots: true,
-              },
+  const projectDreams = projectsOnly || !facetsOnly
+    ? await prisma.dream.findMany({
+        where: { dreamType: 'PROJECT' },
+        orderBy: { id: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          description: true,
+          flavorText: true,
+          goal: true,
+          waypoints: true,
+          projectStatus: true,
+          priority: true,
+          repoUrl: true,
+          liveUrl: true,
+          allowReviews: true,
+          highlightImage: true,
+          icon: true,
+          imagePath: true,
+          cardPath: true,
+          heroPath: true,
+          designer: true,
+          creationSource: true,
+          userId: true,
+          artImageId: true,
+          artCollectionId: true,
+          isPublic: true,
+          isMature: true,
+          isActive: true,
+          PitchSheet: { select: { id: true } },
+          ArtImages: { select: { id: true } },
+          ArtCollections: { select: { id: true } },
+          _count: {
+            select: {
+              Chats: true,
+              Todos: true,
+              Reactions: true,
+              Characters: true,
+              Rewards: true,
+              Scenarios: true,
+              Bots: true,
             },
           },
-        })
-      : Promise.resolve([]),
-    includeFacets
-      ? prisma.dream.findMany({
-          where: { dreamType: 'GENRE' },
-          orderBy: { id: 'asc' },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            description: true,
-            flavorText: true,
-            examples: true,
-            artPrompt: true,
-            imagePath: true,
-            cardPath: true,
-            heroPath: true,
-            icon: true,
-            designer: true,
-            creationSource: true,
-            userId: true,
-            artImageId: true,
-            artCollectionId: true,
-            isPublic: true,
-            isMature: true,
-            isActive: true,
-            Scenarios: { select: { id: true } },
-            ArtImages: { select: { id: true } },
-            ArtCollections: { select: { id: true } },
-            _count: {
-              select: {
-                Characters: true,
-                Rewards: true,
-                Scenarios: true,
-                Bots: true,
-                Chats: true,
-              },
+        },
+      })
+    : []
+
+  const genreDreams = facetsOnly || !projectsOnly
+    ? await prisma.dream.findMany({
+        where: { dreamType: 'GENRE' },
+        orderBy: { id: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          description: true,
+          flavorText: true,
+          examples: true,
+          artPrompt: true,
+          imagePath: true,
+          cardPath: true,
+          heroPath: true,
+          icon: true,
+          designer: true,
+          creationSource: true,
+          userId: true,
+          artImageId: true,
+          artCollectionId: true,
+          isPublic: true,
+          isMature: true,
+          isActive: true,
+          Scenarios: { select: { id: true } },
+          ArtImages: { select: { id: true } },
+          ArtCollections: { select: { id: true } },
+          _count: {
+            select: {
+              Characters: true,
+              Rewards: true,
+              Scenarios: true,
+              Bots: true,
+              Chats: true,
             },
           },
-        })
-      : Promise.resolve([]),
-  ])
+        },
+      })
+    : []
 
   const missingProjectSlugs = projectDreams.filter((dream) => !dream.slug)
   const missingFacetSlugs = genreDreams.filter((dream) => !dream.slug)
@@ -193,14 +165,8 @@ async function main(): Promise<void> {
       missingFacetSlugs: missingFacetSlugs.length,
       projectDreamsWithCreativeRelations: projectDreamsWithCreativeRelations.length,
       projectPitchSheets: projectDreams.filter((dream) => Boolean(dream.PitchSheet)).length,
-      projectChatsToDualLink: projectDreams.reduce(
-        (sum, dream) => sum + dream._count.Chats,
-        0,
-      ),
-      projectTodosToDualLink: projectDreams.reduce(
-        (sum, dream) => sum + dream._count.Todos,
-        0,
-      ),
+      projectChatsToDualLink: projectDreams.reduce((sum, dream) => sum + dream._count.Chats, 0),
+      projectTodosToDualLink: projectDreams.reduce((sum, dream) => sum + dream._count.Todos, 0),
       projectReactionsToDualLink: projectDreams.reduce(
         (sum, dream) => sum + dream._count.Reactions,
         0,
@@ -251,21 +217,21 @@ async function main(): Promise<void> {
     return
   }
 
-  if (missingProjectSlugs.length > 0 || missingFacetSlugs.length > 0) {
+  if (missingProjectSlugs.length || missingFacetSlugs.length) {
     await writeReport(plan)
     throw new Error('Backfill stopped because one or more source Dreams have no slug.')
   }
 
-  if (projectDreamsWithCreativeRelations.length > 0) {
+  if (projectDreamsWithCreativeRelations.length) {
     await writeReport(plan)
     throw new Error(
-      'Backfill stopped because a Project Dream owns creative world relations. Review the generated report before applying.',
+      'Backfill stopped because a Project Dream owns creative world relations. Review the report before applying.',
     )
   }
 
   await assertAdditiveSchemaApplied()
+  const projectResults = []
 
-  const projectResults: ProjectResult[] = []
   for (const dream of projectDreams) {
     const slug = dream.slug as string
     const result = await prisma.$transaction(async (tx) => {
@@ -328,12 +294,7 @@ async function main(): Promise<void> {
 
       for (const artImage of dream.ArtImages) {
         await tx.projectArtImage.upsert({
-          where: {
-            projectId_artImageId: {
-              projectId: project.id,
-              artImageId: artImage.id,
-            },
-          },
+          where: { projectId_artImageId: { projectId: project.id, artImageId: artImage.id } },
           create: { projectId: project.id, artImageId: artImage.id },
           update: {},
         })
@@ -347,32 +308,27 @@ async function main(): Promise<void> {
               artCollectionId: artCollection.id,
             },
           },
-          create: {
-            projectId: project.id,
-            artCollectionId: artCollection.id,
-          },
+          create: { projectId: project.id, artCollectionId: artCollection.id },
           update: {},
         })
       }
 
-      const [chats, todos, reactions, artJobs] = await Promise.all([
-        tx.chat.updateMany({
-          where: { dreamId: dream.id },
-          data: { projectId: project.id },
-        }),
-        tx.todo.updateMany({
-          where: { dreamId: dream.id },
-          data: { projectId: project.id },
-        }),
-        tx.reaction.updateMany({
-          where: { dreamId: dream.id },
-          data: { projectId: project.id },
-        }),
-        tx.artJob.updateMany({
-          where: { projectSlug: slug },
-          data: { projectId: project.id },
-        }),
-      ])
+      const chats = await tx.chat.updateMany({
+        where: { dreamId: dream.id },
+        data: { projectId: project.id },
+      })
+      const todos = await tx.todo.updateMany({
+        where: { dreamId: dream.id },
+        data: { projectId: project.id },
+      })
+      const reactions = await tx.reaction.updateMany({
+        where: { dreamId: dream.id },
+        data: { projectId: project.id },
+      })
+      const artJobs = await tx.artJob.updateMany({
+        where: { projectSlug: slug },
+        data: { projectId: project.id },
+      })
 
       if (dream.PitchSheet) {
         await tx.pitchSheet.update({
@@ -394,11 +350,11 @@ async function main(): Promise<void> {
         artCollectionsLinked: dream.ArtCollections.length,
       }
     })
-
     projectResults.push(result)
   }
 
-  const facetResults: FacetResult[] = []
+  const facetResults = []
+
   for (const dream of genreDreams) {
     const slug = dream.slug as string
     const result = await prisma.$transaction(async (tx) => {
@@ -449,12 +405,7 @@ async function main(): Promise<void> {
 
       for (const scenario of dream.Scenarios) {
         await tx.scenarioFacet.upsert({
-          where: {
-            scenarioId_facetId: {
-              scenarioId: scenario.id,
-              facetId: facet.id,
-            },
-          },
+          where: { scenarioId_facetId: { scenarioId: scenario.id, facetId: facet.id } },
           create: { scenarioId: scenario.id, facetId: facet.id },
           update: {},
         })
@@ -462,12 +413,7 @@ async function main(): Promise<void> {
 
       for (const artImage of dream.ArtImages) {
         await tx.facetArtImage.upsert({
-          where: {
-            facetId_artImageId: {
-              facetId: facet.id,
-              artImageId: artImage.id,
-            },
-          },
+          where: { facetId_artImageId: { facetId: facet.id, artImageId: artImage.id } },
           create: { facetId: facet.id, artImageId: artImage.id },
           update: {},
         })
@@ -481,10 +427,7 @@ async function main(): Promise<void> {
               artCollectionId: artCollection.id,
             },
           },
-          create: {
-            facetId: facet.id,
-            artCollectionId: artCollection.id,
-          },
+          create: { facetId: facet.id, artCollectionId: artCollection.id },
           update: {},
         })
       }
@@ -497,11 +440,11 @@ async function main(): Promise<void> {
         artImagesLinked: dream.ArtImages.length,
         artCollectionsLinked: dream.ArtCollections.length,
         preservedLegacyCharacters: dream._count.Characters,
+        preservedLegacyRewards: dream._count.Rewards,
         preservedLegacyBots: dream._count.Bots,
         preservedLegacyChats: dream._count.Chats,
       }
     })
-
     facetResults.push(result)
   }
 
@@ -513,22 +456,21 @@ async function main(): Promise<void> {
       ],
     },
   })
+  const projectsPresent = await prisma.project.count({
+    where: { slug: { in: projectDreams.map((dream) => dream.slug as string) } },
+  })
+  const facetsPresent = await prisma.facet.count({
+    where: { slug: { in: genreDreams.map((dream) => dream.slug as string) } },
+  })
 
   const report = {
     ...plan,
     completedAt: new Date().toISOString(),
-    results: {
-      projects: projectResults,
-      facets: facetResults,
-    },
+    results: { projects: projectResults, facets: facetResults },
     verification: {
       invalidPitchSheetOwners,
-      projectsPresent: await prisma.project.count({
-        where: { slug: { in: projectDreams.map((dream) => dream.slug as string) } },
-      }),
-      facetsPresent: await prisma.facet.count({
-        where: { slug: { in: genreDreams.map((dream) => dream.slug as string) } },
-      }),
+      projectsPresent,
+      facetsPresent,
       expectedProjects: projectDreams.length,
       expectedFacets: genreDreams.length,
     },
@@ -539,15 +481,15 @@ async function main(): Promise<void> {
 
   if (
     invalidPitchSheetOwners > 0 ||
-    report.verification.projectsPresent !== report.verification.expectedProjects ||
-    report.verification.facetsPresent !== report.verification.expectedFacets
+    projectsPresent !== projectDreams.length ||
+    facetsPresent !== genreDreams.length
   ) {
     process.exitCode = 1
   }
 }
 
 main()
-  .catch(async (error) => {
+  .catch((error) => {
     console.error(error)
     process.exitCode = 1
   })

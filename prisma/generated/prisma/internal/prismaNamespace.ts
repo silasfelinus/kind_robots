@@ -414,6 +414,8 @@ export const ModelName = {
   SocialTarget: 'SocialTarget',
   Theme: 'Theme',
   User: 'User',
+  StylistClient: 'StylistClient',
+  StylistAppointment: 'StylistAppointment',
   ArtJob: 'ArtJob',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
@@ -444,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
+    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2428,6 +2430,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StylistClient: {
+      payload: Prisma.$StylistClientPayload<ExtArgs>
+      fields: Prisma.StylistClientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StylistClientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StylistClientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload>
+        }
+        findFirst: {
+          args: Prisma.StylistClientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StylistClientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload>
+        }
+        findMany: {
+          args: Prisma.StylistClientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload>[]
+        }
+        create: {
+          args: Prisma.StylistClientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload>
+        }
+        createMany: {
+          args: Prisma.StylistClientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.StylistClientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload>
+        }
+        update: {
+          args: Prisma.StylistClientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload>
+        }
+        deleteMany: {
+          args: Prisma.StylistClientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StylistClientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.StylistClientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistClientPayload>
+        }
+        aggregate: {
+          args: Prisma.StylistClientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStylistClient>
+        }
+        groupBy: {
+          args: Prisma.StylistClientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StylistClientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StylistClientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StylistClientCountAggregateOutputType> | number
+        }
+      }
+    }
+    StylistAppointment: {
+      payload: Prisma.$StylistAppointmentPayload<ExtArgs>
+      fields: Prisma.StylistAppointmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StylistAppointmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StylistAppointmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload>
+        }
+        findFirst: {
+          args: Prisma.StylistAppointmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StylistAppointmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload>
+        }
+        findMany: {
+          args: Prisma.StylistAppointmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload>[]
+        }
+        create: {
+          args: Prisma.StylistAppointmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload>
+        }
+        createMany: {
+          args: Prisma.StylistAppointmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.StylistAppointmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload>
+        }
+        update: {
+          args: Prisma.StylistAppointmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.StylistAppointmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StylistAppointmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.StylistAppointmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StylistAppointmentPayload>
+        }
+        aggregate: {
+          args: Prisma.StylistAppointmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStylistAppointment>
+        }
+        groupBy: {
+          args: Prisma.StylistAppointmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StylistAppointmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StylistAppointmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StylistAppointmentCountAggregateOutputType> | number
+        }
+      }
+    }
     ArtJob: {
       payload: Prisma.$ArtJobPayload<ExtArgs>
       fields: Prisma.ArtJobFieldRefs
@@ -4255,6 +4389,35 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const StylistClientScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  name: 'name',
+  email: 'email'
+} as const
+
+export type StylistClientScalarFieldEnum = (typeof StylistClientScalarFieldEnum)[keyof typeof StylistClientScalarFieldEnum]
+
+
+export const StylistAppointmentScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  clientId: 'clientId',
+  clientName: 'clientName',
+  date: 'date',
+  hourlyRateCents: 'hourlyRateCents',
+  minutes: 'minutes',
+  productCostCents: 'productCostCents',
+  totalCents: 'totalCents'
+} as const
+
+export type StylistAppointmentScalarFieldEnum = (typeof StylistAppointmentScalarFieldEnum)[keyof typeof StylistAppointmentScalarFieldEnum]
+
+
 export const ArtJobScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -5030,6 +5193,22 @@ export const UserOrderByRelevanceFieldEnum = {
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
 
 
+export const StylistClientOrderByRelevanceFieldEnum = {
+  name: 'name',
+  email: 'email'
+} as const
+
+export type StylistClientOrderByRelevanceFieldEnum = (typeof StylistClientOrderByRelevanceFieldEnum)[keyof typeof StylistClientOrderByRelevanceFieldEnum]
+
+
+export const StylistAppointmentOrderByRelevanceFieldEnum = {
+  clientName: 'clientName',
+  date: 'date'
+} as const
+
+export type StylistAppointmentOrderByRelevanceFieldEnum = (typeof StylistAppointmentOrderByRelevanceFieldEnum)[keyof typeof StylistAppointmentOrderByRelevanceFieldEnum]
+
+
 export const ArtJobOrderByRelevanceFieldEnum = {
   claimedBy: 'claimedBy',
   projectSlug: 'projectSlug',
@@ -5658,6 +5837,8 @@ export type GlobalOmitConfig = {
   socialTarget?: Prisma.SocialTargetOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
+  stylistClient?: Prisma.StylistClientOmit
+  stylistAppointment?: Prisma.StylistAppointmentOmit
   artJob?: Prisma.ArtJobOmit
   karmaTransaction?: Prisma.KarmaTransactionOmit
   referral?: Prisma.ReferralOmit

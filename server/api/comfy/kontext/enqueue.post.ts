@@ -85,26 +85,28 @@ export default defineEventHandler(async (event) => {
       filenamePrefix: body.filenamePrefix || 'kindrobots_kontext_queue',
     })
 
+    const jobPayload = {
+      workflow,
+      promptString: prompt,
+      images: [
+        {
+          name: imageName,
+          imageData,
+        },
+      ],
+      save: {
+        isPublic: body.isPublic ?? false,
+        isMature: body.isMature ?? false,
+        designer: body.designer?.trim() || null,
+      },
+    }
+
     const job = await prisma.artJob.create({
       data: {
         engine: 'COMFY',
         priority: Number.isInteger(body.priority) ? Number(body.priority) : 5,
         userId: gate.user.id,
-        payload: {
-          workflow,
-          promptString: prompt,
-          images: [
-            {
-              name: imageName,
-              imageData,
-            },
-          ],
-          save: {
-            isPublic: body.isPublic ?? false,
-            isMature: body.isMature ?? false,
-            designer: body.designer?.trim() || null,
-          },
-        },
+        payload: jobPayload as object,
       },
     })
 

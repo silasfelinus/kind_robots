@@ -27,6 +27,21 @@
       </button>
       <div class="flex-1" />
       <span
+        v-if="superkate.isSyncing"
+        class="mr-1 flex items-center gap-1 text-xs font-semibold text-base-content/50"
+        title="Syncing the studio book"
+      >
+        <span class="loading loading-spinner loading-xs" />
+        syncing
+      </span>
+      <span
+        v-else-if="superkate.serverBacked"
+        class="mr-1 text-xs font-semibold text-success"
+        title="Studio book synced across devices"
+      >
+        synced
+      </span>
+      <span
         v-if="stylist.isBusy"
         class="mr-1 flex items-center gap-1 text-xs font-semibold text-primary"
       >
@@ -34,6 +49,10 @@
         styling
       </span>
     </nav>
+
+    <p v-if="superkate.syncError" class="rounded-xl bg-warning/10 p-2 text-xs text-warning">
+      {{ superkate.syncError }} — working from this device's copy.
+    </p>
 
     <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
       <stylist-calculator v-if="superkate.activeView === 'calculator'" />

@@ -3,14 +3,20 @@
 // Web replica of the Hair by Superkate services app (conductor project
 // superkate-hairstyle-ai t-015): customers, appointments, and receipt
 // settings backing the /stylist suite (Calculator | Clients | History |
-// Hair Studio). Kind Robots is the backend of record eventually; this store
-// is the approved "easy mock" — persisted to localStorage so Superkate's
-// data survives reloads on her device. KR-model-backed sync is a follow-up.
+// Hair Studio | Settings).
+//
+// Persistence: server-backed for signed-in users (StylistClient /
+// StylistAppointment via /api/stylist/*) so the client book syncs across
+// devices, with localStorage as the offline/guest fallback and cache.
+// Existing local-only data is migrated up the first time the server copy
+// is empty. Receipt settings stay device-local for now.
 //
 // Core formula (calculator SPEC): hourly rate x time spent + product cost.
 
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { performFetch } from '@/stores/utils'
+import { useUserStore } from '@/stores/userStore'
 
 export type SuperkateCustomer = {
   id: number
@@ -36,6 +42,26 @@ export type SuperkateSettings = {
   salonName: string
   bookingLink: string
   replyContact: string
+}
+
+type ServerClient = {
+  id: number
+  name: string
+  email: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
+}
+
+type ServerAppointment = {
+  id: number
+  clientId: number | null
+  clientName: string
+  date: string
+  hourlyRateCents: number
+  minutes: number
+  productCostCents: number
+  totalCents: number
+  createdAt?: string | null
 }
 
 const STORAGE_KEY = 'superkateSuite'
@@ -73,11 +99,42 @@ export function formatMinutes(minutes: number): string {
   return `${hours}h ${rest}m`
 }
 
+function fromServerClient(client: ServerClient): SuperkateCustomer {
+  return {
+    id: client.id,
+    name: client.name,
+    email: client.email ?? '',
+    createdAt: client.createdAt ?? '',
+    updatedAt: client.updatedAt ?? '',
+  }
+}
+
+function fromServerAppointment(row: ServerAppointment): SuperkateAppointment {
+  return {
+    id: row.id,
+    customerId: row.clientId ?? null,
+    clientName: row.clientName,
+    date: row.date,
+    hourlyRateCents: row.hourlyRateCents,
+    minutes: row.minutes,
+    productCostCents: row.productCostCents,
+    totalCents: row.totalCents,
+    createdAt: row.createdAt ?? '',
+  }
+}
+
 export const useSuperkateStore = defineStore('superkateStore', () => {
+  const userStore = useUserStore()
+
   const customers = ref<SuperkateCustomer[]>([])
   const appointments = ref<SuperkateAppointment[]>([])
   const settings = ref<SuperkateSettings>({ ...DEFAULT_SETTINGS })
   const hydrated = ref(false)
+  // True once the server copy loaded — mutations then write through to the
+  // API. False (guest/offline) keeps the original local-only behavior.
+  const serverBacked = ref(false)
+  const isSyncing = ref(false)
+  const syncError = ref('')
 
   // Which suite view is open on /stylist. Store-level so it survives
   // leaving and returning to the page, matching the dashboard-tab fix.
@@ -99,12 +156,13 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
           settings: settings.value,
         }),
       )
-    } catch {}
+    } catch {
+      /* localStorage unavailable (private mode / SSR) — cache skipped */
+    }
   }
 
-  function hydrate(force = false): void {
+  function hydrateFromLocalStorage(): void {
     if (!isClient) return
-    if (hydrated.value && !force) return
 
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
@@ -118,9 +176,113 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
           settings.value = { ...DEFAULT_SETTINGS, ...parsed.settings }
         }
       }
-    } catch {}
+    } catch {
+      /* corrupt or unavailable localStorage — start fresh */
+    }
+  }
 
+  function isSignedIn(): boolean {
+    const token = userStore.token || userStore.user?.token || ''
+    return !!token && !userStore.isGuest
+  }
+
+  /** Push pre-sync local records to the empty server copy, once. */
+  async function migrateLocalToServer(): Promise<void> {
+    const localCustomers = [...customers.value]
+    const localAppointments = [...appointments.value]
+
+    for (const customer of localCustomers) {
+      await performFetch(
+        '/api/stylist/client',
+        {
+          method: 'POST',
+          body: JSON.stringify({ name: customer.name, email: customer.email }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+        1,
+        15_000,
+      )
+    }
+
+    for (const appointment of localAppointments) {
+      await performFetch(
+        '/api/stylist/appointment',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            clientName: appointment.clientName,
+            date: appointment.date,
+            hourlyRateCents: appointment.hourlyRateCents,
+            minutes: appointment.minutes,
+            productCostCents: appointment.productCostCents,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+        1,
+        15_000,
+      )
+    }
+  }
+
+  async function loadFromServer(): Promise<void> {
+    isSyncing.value = true
+    syncError.value = ''
+
+    try {
+      const response = await performFetch<{
+        clients: ServerClient[]
+        appointments: ServerAppointment[]
+      }>('/api/stylist/suite', { method: 'GET' }, 2, 20_000)
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Could not load the studio book.')
+      }
+
+      const serverClients = response.data.clients ?? []
+      const serverAppointments = response.data.appointments ?? []
+
+      const serverEmpty = !serverClients.length && !serverAppointments.length
+      const localHasData =
+        customers.value.length > 0 || appointments.value.length > 0
+
+      if (serverEmpty && localHasData) {
+        await migrateLocalToServer()
+
+        const reloaded = await performFetch<{
+          clients: ServerClient[]
+          appointments: ServerAppointment[]
+        }>('/api/stylist/suite', { method: 'GET' }, 1, 20_000)
+
+        if (reloaded.success && reloaded.data) {
+          customers.value = (reloaded.data.clients ?? []).map(fromServerClient)
+          appointments.value = (reloaded.data.appointments ?? []).map(
+            fromServerAppointment,
+          )
+        }
+      } else {
+        customers.value = serverClients.map(fromServerClient)
+        appointments.value = serverAppointments.map(fromServerAppointment)
+      }
+
+      serverBacked.value = true
+      persist()
+    } catch (error) {
+      syncError.value =
+        error instanceof Error ? error.message : 'Could not load the studio book.'
+    } finally {
+      isSyncing.value = false
+    }
+  }
+
+  function hydrate(force = false): void {
+    if (hydrated.value && !force) return
+
+    hydrateFromLocalStorage()
     hydrated.value = true
+
+    if (isClient && isSignedIn()) {
+      void loadFromServer()
+    }
   }
 
   function nextId(rows: Array<{ id: number }>): number {
@@ -148,16 +310,49 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
     )
   }
 
-  function saveCustomer(input: {
+  function upsertLocalCustomer(customer: SuperkateCustomer): void {
+    const exists = customers.value.some((entry) => entry.id === customer.id)
+    customers.value = exists
+      ? customers.value.map((entry) =>
+          entry.id === customer.id ? customer : entry,
+        )
+      : [...customers.value, customer]
+    persist()
+  }
+
+  async function saveCustomer(input: {
     id?: number | null
     name: string
     email?: string | null
-  }): SuperkateCustomer | null {
+  }): Promise<SuperkateCustomer | null> {
     const name = input.name.trim()
     if (!name) return null
 
-    const now = new Date().toISOString()
     const email = (input.email ?? '').trim()
+
+    if (serverBacked.value) {
+      const response = await performFetch<{ client: ServerClient }>(
+        '/api/stylist/client',
+        {
+          method: 'POST',
+          body: JSON.stringify({ id: input.id ?? undefined, name, email }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+        1,
+        15_000,
+      )
+
+      if (!response.success || !response.data?.client) {
+        syncError.value = response.message || 'Could not save the client.'
+        return null
+      }
+
+      const customer = fromServerClient(response.data.client)
+      upsertLocalCustomer(customer)
+      return customer
+    }
+
+    const now = new Date().toISOString()
 
     if (input.id) {
       let updated: SuperkateCustomer | null = null
@@ -191,7 +386,21 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
     return customer
   }
 
-  function removeCustomer(id: number): void {
+  async function removeCustomer(id: number): Promise<void> {
+    if (serverBacked.value) {
+      const response = await performFetch(
+        `/api/stylist/client/${id}`,
+        { method: 'DELETE' },
+        1,
+        15_000,
+      )
+
+      if (!response.success) {
+        syncError.value = response.message || 'Could not delete the client.'
+        return
+      }
+    }
+
     customers.value = customers.value.filter((customer) => customer.id !== id)
     // Appointment history keeps its client name snapshot after the linked
     // customer is deleted (delete-detach invariant from the calculator spec).
@@ -203,17 +412,55 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
     persist()
   }
 
-  function saveAppointment(input: {
+  async function saveAppointment(input: {
     clientName: string
     date: string
     hourlyRateCents: number
     minutes: number
     productCostCents: number
-  }): SuperkateAppointment | null {
+  }): Promise<SuperkateAppointment | null> {
     const clientName = input.clientName.trim()
     if (!clientName || !input.date) return null
 
-    const customer = customerByName(clientName) ?? saveCustomer({ name: clientName })
+    if (serverBacked.value) {
+      const response = await performFetch<{
+        appointment: ServerAppointment
+        client: ServerClient
+      }>(
+        '/api/stylist/appointment',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            clientName,
+            date: input.date,
+            hourlyRateCents: input.hourlyRateCents,
+            minutes: input.minutes,
+            productCostCents: input.productCostCents,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+        1,
+        15_000,
+      )
+
+      if (!response.success || !response.data?.appointment) {
+        syncError.value = response.message || 'Could not save the appointment.'
+        return null
+      }
+
+      const appointment = fromServerAppointment(response.data.appointment)
+      appointments.value = [...appointments.value, appointment]
+
+      if (response.data.client) {
+        upsertLocalCustomer(fromServerClient(response.data.client))
+      }
+
+      persist()
+      return appointment
+    }
+
+    const customer =
+      customerByName(clientName) ?? (await saveCustomer({ name: clientName }))
 
     const appointment: SuperkateAppointment = {
       id: nextId(appointments.value),
@@ -236,7 +483,21 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
     return appointment
   }
 
-  function removeAppointment(id: number): void {
+  async function removeAppointment(id: number): Promise<void> {
+    if (serverBacked.value) {
+      const response = await performFetch(
+        `/api/stylist/appointment/${id}`,
+        { method: 'DELETE' },
+        1,
+        15_000,
+      )
+
+      if (!response.success) {
+        syncError.value = response.message || 'Could not delete the appointment.'
+        return
+      }
+    }
+
     appointments.value = appointments.value.filter(
       (appointment) => appointment.id !== id,
     )
@@ -303,12 +564,16 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
     appointments,
     settings,
     hydrated,
+    serverBacked,
+    isSyncing,
+    syncError,
     activeView,
 
     sortedCustomers,
     sortedAppointments,
 
     hydrate,
+    loadFromServer,
     customerByName,
     saveCustomer,
     removeCustomer,

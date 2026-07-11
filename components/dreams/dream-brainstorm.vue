@@ -500,11 +500,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import {
-  useDreamStore,
-  type DreamType,
-  type DreamWithRelations,
-} from '@/stores/dreamStore'
+  CREATABLE_DREAM_TYPES,
+  type CreatableDreamType,
+} from '@/stores/helpers/dreamHelper'
 
 const emit = defineEmits<{
   (event: 'saved', ids: number[]): void
@@ -556,20 +556,8 @@ const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const hasHumanEdits = ref(false)
 const generatedThisSession = ref(false)
-const saveDreamType = ref<DreamType>('PITCH')
-
-const saveDreamTypes: DreamType[] = [
-  'ART',
-  'BRAINSTORM',
-  'PROMPTBOT',
-  'NARRATOR',
-  'CHARACTER',
-  'REWARD',
-  'SCENARIO',
-  'LOCATION',
-  'PITCH',
-  'GENRE',
-]
+const saveDreamType = ref<CreatableDreamType>('PITCH')
+const saveDreamTypes = CREATABLE_DREAM_TYPES
 
 const selectedDream = computed(() => dreamStore.selectedDream)
 

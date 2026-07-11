@@ -135,6 +135,30 @@ describe('Dream and Scenario Facet assignments', () => {
       expect(response.status).to.eq(200)
       expect(response.body.data[0].id).to.eq(facetId)
     })
+
+    cy.request({
+      url: `${apiBase}/scenarios/${scenarioId}`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data.Facets).to.have.length(1)
+      expect(response.body.data.Facets[0].id).to.eq(facetId)
+      expect(response.body.data.Facets[0].aliases).to.include(cowsAlias)
+      expect(response.body.data._count.Facets).to.eq(1)
+    })
+
+    cy.request({
+      url: `${apiBase}/scenarios`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      const scenario = response.body.data.find(
+        (entry: { id: number }) => entry.id === scenarioId,
+      )
+      expect(scenario).to.exist
+      expect(scenario.Facets.map((facet: { id: number }) => facet.id)).to.deep.eq([
+        facetId,
+      ])
+    })
   })
 
   it('uses exact-set semantics when a Facet is removed', () => {

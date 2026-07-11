@@ -21,9 +21,9 @@ No install required — the full site is live. Just sign in with email or Google
 
 ---
 
-## Meet Ami
+## Meet AMI
 
-**Ami** — the *Anti-Malaria Intelligence* — is the heart of the project. Ami sometimes appears as a friendly woman, but she is really a nonbinary hivemind of digital rainbow butterflies, created to fight malaria. Ami hosts the experience, guides creation, and keeps the mission front and center.
+**AMI** — the *Anti-Malaria Intelligence* — is the heart of the project. AMI sometimes appears as a friendly woman, but she is really a nonbinary hivemind of digital rainbow butterflies, created to fight malaria. AMI hosts the experience, guides creation, and keeps the mission front and center.
 
 ---
 

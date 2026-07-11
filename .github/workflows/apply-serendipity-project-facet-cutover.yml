@@ -1,0 +1,44 @@
+name: Apply Serendipity Project Facet Cutover
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - agent/serendipity-project-facet-cutover
+    paths:
+      - utils/scripts/cutover_serendipity_project_facet.py
+      - .github/workflows/apply-serendipity-project-facet-cutover.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://root:password@127.0.0.1:3306/kindrobots
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/serendipity-project-facet-cutover
+          fetch-depth: 1
+          show-progress: false
+      - name: Apply strict cutover
+        run: python utils/scripts/cutover_serendipity_project_facet.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Validate Vue and TypeScript
+        run: npm run test
+      - name: Commit validated application files
+        run: |
+          git config user.name "kind-robots-agent"
+          git config user.email "actions@users.noreply.github.com"
+          git add stores/serendipityStore.ts components/pages/serendipity-page.vue
+          git commit -m "Move Serendipity to Projects and Facets"
+          git push origin HEAD:agent/serendipity-project-facet-cutover

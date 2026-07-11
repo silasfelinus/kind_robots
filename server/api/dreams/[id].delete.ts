@@ -40,6 +40,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (dream.dreamType === 'GENRE') {
+      throw createError({
+        statusCode: 409,
+        message:
+          'Legacy Genre Dreams are protected compatibility records. Manage the matching taxonomy through /api/facets.',
+      })
+    }
+
     assertDreamAccess({
       dream,
       userId: user.id,

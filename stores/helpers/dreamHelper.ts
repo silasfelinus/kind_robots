@@ -21,6 +21,12 @@ export const DREAM_TYPES = [
 ] as const satisfies readonly PrismaDreamType[]
 
 export type DreamType = (typeof DREAM_TYPES)[number]
+export type CreatableDreamType = Exclude<DreamType, 'PROJECT' | 'GENRE'>
+
+export const CREATABLE_DREAM_TYPES = DREAM_TYPES.filter(
+  (type): type is CreatableDreamType =>
+    type !== 'PROJECT' && type !== 'GENRE',
+)
 
 type DreamWithRequiredSlug<T> = T & { slug: string }
 

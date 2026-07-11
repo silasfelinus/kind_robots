@@ -52,9 +52,12 @@ jobs:
               'replace Project gallery flavor fallbacks',
           )
           page = page.replace('linkedDream?.id ?? null', 'null')
-          for line_number, line in enumerate(page.splitlines(), start=1):
-              if 'linkedDream' in line or 'projectDreamForSlug' in line:
-                  print(f'RESIDUAL {line_number}: {line}')
+          page = replace_all(
+              page,
+              '      dreamId: linkedDream.value?.id ?? null,\n',
+              '',
+              'remove Project Dream IDs from Project writes',
+          )
           '''
           if source.count(anchor) != 1:
               raise SystemExit(f'expected one Conductor assertion anchor, found {source.count(anchor)}')

@@ -4,6 +4,7 @@ import type { ProjectPriority, ProjectStatus } from '~/prisma/generated/prisma/c
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
+import { enforceProjectCap } from '~/server/utils/projectCap'
 import {
   normalizeNullableId,
   normalizeOptionalText,
@@ -59,6 +60,14 @@ export default defineEventHandler(async (event) => {
     const priority = projectPriorities.has(body.priority as ProjectPriority)
       ? (body.priority as ProjectPriority)
       : 'NORMAL'
+
+    if (status === 'ACTIVE' || status === 'PAUSED') {
+      await enforceProjectCap({
+        userId: auth.user.id,
+        userRole: auth.user.Role,
+        isAdmin: auth.isAdmin || auth.user.id === 1,
+      })
+    }
 
     const project = await prisma.project.create({
       data: {

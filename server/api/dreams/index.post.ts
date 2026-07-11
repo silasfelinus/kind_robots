@@ -3,7 +3,6 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
-import { enforceProjectCap } from '@/server/utils/projectCap'
 import type {
   CreationSource,
   DreamType,
@@ -66,8 +65,10 @@ export default defineEventHandler(async (event) => {
 
     const dreamTypeNormalized = normalizeDreamType(body.dreamType)
     if (dreamTypeNormalized === 'PROJECT') {
-      const isAdmin = user.Role === 'ADMIN' || user.id === 1
-      await enforceProjectCap({ userId: user.id, userRole: user.Role, isAdmin })
+      throw createError({
+        statusCode: 409,
+        message: 'Projects must be created through /api/projects, not /api/dreams.',
+      })
     }
 
     const userRecord = await prisma.user.findUnique({

@@ -28,11 +28,11 @@ export async function enforceProjectCap(input: {
 
   if (isMemberActive) return
 
-  const activeCount = await prisma.dream.count({
+  const activeCount = await prisma.project.count({
     where: {
       userId: input.userId,
-      dreamType: 'PROJECT',
-      projectStatus: { in: ['ACTIVE', 'PAUSED'] },
+      status: { in: ['ACTIVE', 'PAUSED'] },
+      isActive: true,
     },
   })
 

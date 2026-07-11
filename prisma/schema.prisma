@@ -505,6 +505,7 @@ model Project {
   title           String          @db.VarChar(255)
   slug            String?         @unique @db.VarChar(255)
   description     String?         @db.Text
+  pitch           String?         @db.Text
   flavorText      String?         @db.VarChar(512)
   goal            String?         @db.Text
   waypoints       String?         @db.Text

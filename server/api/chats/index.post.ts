@@ -131,6 +131,34 @@ async function assertRelatedRecordsExist(options: {
   }
 }
 
+async function assertProjectChatWriteAccess(options: {
+  projectId?: number
+  authenticatedUserId: number
+  canManageAnyProject: boolean
+}) {
+  const { projectId, authenticatedUserId, canManageAnyProject } = options
+  if (!projectId) return
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { id: true, userId: true, isActive: true },
+  })
+
+  if (!project || !project.isActive) {
+    throw createError({
+      statusCode: 404,
+      message: `Project ID not found: ${projectId}.`,
+    })
+  }
+
+  if (!canManageAnyProject && project.userId !== authenticatedUserId) {
+    throw createError({
+      statusCode: 403,
+      message: 'You do not have permission to add chats to this Project.',
+    })
+  }
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user, kind } = await validateApiKey(event)
@@ -165,15 +193,15 @@ export default defineEventHandler(async (event) => {
     const requestedUserId = asOptionalPositiveInt(body.userId)
     const isAdmin = user.Role === 'ADMIN' || user.id === 1
     const isServerKey = kind === 'server'
+    const canManageAnyProject = isAdmin || isServerKey
 
     const userId =
-      (isAdmin || isServerKey) && requestedUserId ? requestedUserId : user.id
+      canManageAnyProject && requestedUserId ? requestedUserId : user.id
 
     if (
       requestedUserId &&
       requestedUserId !== user.id &&
-      !isAdmin &&
-      !isServerKey
+      !canManageAnyProject
     ) {
       throw createError({
         statusCode: 403,
@@ -186,6 +214,7 @@ export default defineEventHandler(async (event) => {
     const promptId = asOptionalPositiveInt(body.promptId)
     const artImageId = asOptionalPositiveInt(body.artImageId)
     const dreamId = asOptionalPositiveInt(body.dreamId)
+    const projectId = asOptionalPositiveInt(body.projectId)
     const serverId = asOptionalPositiveInt(body.serverId)
 
     await assertRelatedRecordsExist({
@@ -195,6 +224,11 @@ export default defineEventHandler(async (event) => {
       artImageId,
       dreamId,
       serverId,
+    })
+    await assertProjectChatWriteAccess({
+      projectId,
+      authenticatedUserId: user.id,
+      canManageAnyProject,
     })
 
     const data: Prisma.ChatCreateInput = {
@@ -240,6 +274,11 @@ export default defineEventHandler(async (event) => {
       Dream: dreamId
         ? {
             connect: { id: dreamId },
+          }
+        : undefined,
+      Project: projectId
+        ? {
+            connect: { id: projectId },
           }
         : undefined,
       Server: serverId
@@ -288,6 +327,13 @@ export default defineEventHandler(async (event) => {
           select: {
             id: true,
             title: true,
+          },
+        },
+        Project: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
           },
         },
         Server: {

@@ -1231,7 +1231,7 @@
               </div>
               <div class="min-w-0 flex-1">
                 <h3 class="truncate text-xl font-black leading-tight">
-                  {{ selectedProject.name || selectedProject.slug }}
+                  {{ linkedProject?.title || selectedProject.name || selectedProject.slug }}
                 </h3>
                 <p class="text-xs text-base-content/60">
                   {{ selectedProject.progress }}% complete &middot;
@@ -1239,7 +1239,7 @@
                 </p>
               </div>
               <span
-                v-if="linkedDream?.projectStatus === 'BRAINSTORM'"
+                v-if="linkedProject?.status === 'BRAINSTORM'"
                 class="badge badge-secondary badge-sm shrink-0"
                 >brainstorm</span
               >
@@ -1265,14 +1265,14 @@
           </div>
 
           <div
-            v-if="linkedDream"
+            v-if="linkedProject"
             class="flex shrink-0 flex-wrap items-center gap-2"
           >
             <select
               class="select select-bordered select-sm rounded-xl font-bold"
-              :class="prioritySelectClass(getProjectPriority(linkedDream.id))"
-              :value="getProjectPriority(linkedDream.id)"
-              :disabled="dreamSaving"
+              :class="prioritySelectClass(linkedProject.priority as DreamPriority)"
+              :value="linkedProject.priority"
+              :disabled="projectSaving"
               @change="handlePriorityChange"
             >
               <option value="HIGH">🔴 HIGH</option>
@@ -1281,8 +1281,8 @@
             </select>
             <select
               class="select select-bordered select-sm rounded-xl text-xs font-semibold"
-              :value="linkedDream.projectStatus ?? 'ACTIVE'"
-              :disabled="dreamSaving"
+              :value="linkedProject.status"
+              :disabled="projectSaving"
               @change="handleProjectStatusChange"
             >
               <option value="ACTIVE">ACTIVE</option>
@@ -1295,60 +1295,60 @@
               type="button"
               class="btn btn-sm gap-1.5 rounded-xl"
               :class="
-                linkedDream.isPublic
+                linkedProject.isPublic
                   ? 'btn-success'
                   : 'btn-ghost border border-base-300'
               "
-              :disabled="dreamSaving"
-              @click="patchDream({ isPublic: !linkedDream.isPublic })"
+              :disabled="projectSaving"
+              @click="patchProject({ isPublic: !linkedProject.isPublic })"
             >
               <Icon
                 :name="
-                  linkedDream.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
+                  linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
                 "
                 class="size-3.5"
               />
-              {{ linkedDream.isPublic ? 'Public' : 'Private' }}
+              {{ linkedProject.isPublic ? 'Public' : 'Private' }}
             </button>
             <button
               type="button"
               class="btn btn-sm gap-1.5 rounded-xl"
               :class="
-                linkedDream.isMature
+                linkedProject.isMature
                   ? 'btn-warning'
                   : 'btn-ghost border border-base-300'
               "
-              :disabled="dreamSaving"
-              @click="patchDream({ isMature: !linkedDream.isMature })"
+              :disabled="projectSaving"
+              @click="patchProject({ isMature: !linkedProject.isMature })"
             >
               <Icon name="kind-icon:warning" class="size-3.5" />{{
-                linkedDream.isMature ? 'Mature' : 'Safe'
+                linkedProject.isMature ? 'Mature' : 'Safe'
               }}
             </button>
             <button
               type="button"
               class="btn btn-sm gap-1.5 rounded-xl"
               :class="
-                linkedDream.allowReviews
+                linkedProject.allowReviews
                   ? 'btn-accent'
                   : 'btn-ghost border border-base-300'
               "
-              :disabled="dreamSaving"
-              @click="patchDream({ allowReviews: !linkedDream.allowReviews })"
+              :disabled="projectSaving"
+              @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
             >
               <Icon name="kind-icon:chat" class="size-3.5" />{{
-                linkedDream.allowReviews ? 'Reviews On' : 'Reviews Off'
+                linkedProject.allowReviews ? 'Reviews On' : 'Reviews Off'
               }}
             </button>
             <span
-              v-if="dreamSaving"
+              v-if="projectSaving"
               class="loading loading-spinner loading-xs self-center text-primary"
             />
             <span
-              v-if="dreamSaveMessage"
+              v-if="projectSaveMessage"
               class="self-center text-xs"
-              :class="dreamSaveError ? 'text-error' : 'text-success'"
-              >{{ dreamSaveMessage }}</span
+              :class="projectSaveError ? 'text-error' : 'text-success'"
+              >{{ projectSaveMessage }}</span
             >
           </div>
 
@@ -1356,7 +1356,7 @@
             class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
           >
             <div
-              v-if="linkedDream"
+              v-if="linkedProject"
               class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
             >
               <div class="flex items-center gap-2">
@@ -1380,8 +1380,8 @@
                   class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
                   rows="3"
                   placeholder="One clear paragraph: what precisely does this project look like when it's complete?"
-                  :value="linkedDream.goal ?? ''"
-                  :disabled="dreamSaving"
+                  :value="linkedProject.goal ?? ''"
+                  :disabled="projectSaving"
                   @blur="autosave('goal', $event)"
                 />
               </div>
@@ -1395,8 +1395,8 @@
                   class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
                   rows="8"
                   placeholder="What is this project?"
-                  :value="linkedDream.description ?? ''"
-                  :disabled="dreamSaving"
+                  :value="linkedProject.description ?? ''"
+                  :disabled="projectSaving"
                   @blur="autosave('description', $event)"
                 />
               </div>
@@ -1410,8 +1410,8 @@
                   class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
                   rows="6"
                   placeholder="Core constraint or north star"
-                  :value="linkedDream.pitch ?? ''"
-                  :disabled="dreamSaving"
+                  :value="linkedProject.pitch ?? ''"
+                  :disabled="projectSaving"
                   @blur="autosave('pitch', $event)"
                 />
               </div>
@@ -1425,8 +1425,8 @@
                   type="text"
                   class="input input-bordered rounded-xl text-sm"
                   placeholder="Short tagline"
-                  :value="linkedDream.flavorText ?? ''"
-                  :disabled="dreamSaving"
+                  :value="linkedProject.flavorText ?? ''"
+                  :disabled="projectSaving"
                   @blur="autosave('flavorText', $event)"
                 />
               </div>
@@ -1441,8 +1441,8 @@
                     type="url"
                     class="input input-bordered rounded-xl text-sm"
                     placeholder="https://..."
-                    :value="linkedDream.liveUrl ?? ''"
-                    :disabled="dreamSaving"
+                    :value="linkedProject.liveUrl ?? ''"
+                    :disabled="projectSaving"
                     @blur="autosave('liveUrl', $event)"
                   />
                 </div>
@@ -1456,16 +1456,16 @@
                     type="url"
                     class="input input-bordered rounded-xl text-sm"
                     placeholder="https://github.com/..."
-                    :value="linkedDream.repoUrl ?? ''"
-                    :disabled="dreamSaving"
+                    :value="linkedProject.repoUrl ?? ''"
+                    :disabled="projectSaving"
                     @blur="autosave('repoUrl', $event)"
                   />
                 </div>
               </div>
               <div class="flex flex-wrap gap-2 pt-1">
                 <a
-                  v-if="linkedDream.liveUrl"
-                  :href="linkedDream.liveUrl"
+                  v-if="linkedProject.liveUrl"
+                  :href="linkedProject.liveUrl"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="btn btn-xs btn-outline gap-1"
@@ -1474,8 +1474,8 @@
                   Site
                 </a>
                 <a
-                  v-if="linkedDream.repoUrl"
-                  :href="linkedDream.repoUrl"
+                  v-if="linkedProject.repoUrl"
+                  :href="linkedProject.repoUrl"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="btn btn-xs btn-outline gap-1"
@@ -1492,7 +1492,7 @@
                 name="kind-icon:dream"
                 class="mx-auto mb-1 size-5 opacity-40"
               />
-              No dream linked for <strong>{{ selectedProject.slug }}</strong>
+              No Project record linked for <strong>{{ selectedProject.slug }}</strong>
             </div>
 
             <ConductorArtGallery
@@ -1505,17 +1505,19 @@
 
           <!-- WAYPOINTS + PROJECT ASSISTANT -->
           <div
-            v-if="linkedDream"
+            v-if="linkedProject"
             class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
           >
             <ConductorProjectWaypoints
-              :dream-id="linkedDream.id"
-              :dream-title="linkedDream.title || selectedProject.slug"
-              :waypoints="linkedDream.waypoints"
+              :project-id="linkedProject.id"
+              :project-title="linkedProject.title || selectedProject.slug"
+              :dream-id="linkedDream?.id ?? null"
+              :waypoints="linkedProject.waypoints"
             />
             <ConductorProjectChat
-              :dream-id="linkedDream.id"
-              :dream-title="linkedDream.title || selectedProject.slug"
+              :project-id="linkedProject.id"
+              :project-title="linkedProject.title || selectedProject.slug"
+              :dream-id="linkedDream?.id ?? null"
               :project-context="projectContextText"
             />
           </div>
@@ -1661,7 +1663,7 @@
 
           <!-- PROJECT TASK CREATION (t-002) -->
           <div
-            v-if="linkedDream"
+            v-if="linkedProject"
             class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
           >
             <h4
@@ -1719,7 +1721,7 @@
 
           <!-- KAIZEN + POLISH PROMPT (t-004, t-006) -->
           <div
-            v-if="linkedDream"
+            v-if="linkedProject"
             class="shrink-0 space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4"
           >
             <div class="flex items-center gap-2">
@@ -1800,7 +1802,7 @@
 
           <!-- DESIRED FEATURES (t-007) -->
           <div
-            v-if="linkedDream"
+            v-if="linkedProject"
             class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
           >
             <div class="flex items-center gap-2">
@@ -1912,6 +1914,7 @@ import type {
   ConductorPitch,
 } from '@/server/api/conductor/projects.get'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useProjectStore, type ProjectWithRelations } from '@/stores/projectStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
@@ -1937,11 +1940,13 @@ type ProjectPatch = {
   isPublic?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  projectStatus?: ProjectStatus
+  status?: ProjectStatus
+  priority?: DreamPriority
 }
 
 const userStore = useUserStore()
 const dreamStore = useDreamStore()
+const projectStore = useProjectStore()
 const pageStore = usePageStore()
 const todoStore = useTodoStore()
 const conductorStore = useConductorStore()
@@ -1974,9 +1979,9 @@ const newProjectFlavorText = ref('')
 const creatingProject = ref(false)
 const newProjectError = ref('')
 
-const dreamSaving = ref(false)
-const dreamSaveMessage = ref('')
-const dreamSaveError = ref(false)
+const projectSaving = ref(false)
+const projectSaveMessage = ref('')
+const projectSaveError = ref(false)
 
 const editingPitchSlug = ref('')
 const pitchEditTexts = ref<Record<string, string>>({})
@@ -1992,71 +1997,116 @@ const requestingPitches = ref(false)
 
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
-const pending = computed(() => conductorStore.pending)
+const pending = computed(() => conductorStore.pending || projectStore.loading)
 const error = computed(() =>
-  conductorStore.error ? { message: conductorStore.error } : null,
+  conductorStore.error || projectStore.error
+    ? { message: conductorStore.error || projectStore.error || '' }
+    : null,
 )
 
-const projects = computed(() => conductorStore.projects)
+const projects = computed<ConductorProject[]>(() => {
+  const conductorProjects = conductorStore.projects
+  const conductorSlugs = new Set(conductorProjects.map((project) => project.slug))
+  const databaseOnlyProjects = projectStore.projects.flatMap((project) => {
+    const slug = project.conductorSlug || project.slug
+    if (!slug || conductorSlugs.has(slug)) return []
+    return [projectRecordToConductor(project)]
+  })
+  return [...conductorProjects, ...databaseOnlyProjects]
+})
 const allPitches = computed(() => conductorStore.pitches)
 const pendingPitches = computed(() => conductorStore.pendingPitches)
 
 function projectDreamForSlug(slug: string) {
-  return dreamStore.projectDreams.find((d) => d.slug === slug) ?? null
+  return dreamStore.projectDreams.find((dream) => dream.slug === slug) ?? null
+}
+
+function projectRecordForSlug(slug: string) {
+  return projectStore.projectForSlug(slug)
+}
+
+function projectRecordToConductor(project: ProjectWithRelations): ConductorProject {
+  const slug = project.conductorSlug || project.slug || `project-${project.id}`
+  return {
+    slug,
+    name: project.title,
+    kind: 'project',
+    milestones: [],
+    tasks: [],
+    progress: project.status === 'DONE' ? 100 : 0,
+    imagePath:
+      project.imagePath || `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`,
+    cardPath:
+      project.cardPath || `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`,
+    heroPath:
+      project.heroPath || `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`,
+  }
 }
 
 function projectCardPath(slug: string): string {
   return (
+    projectRecordForSlug(slug)?.cardPath ??
     projectDreamForSlug(slug)?.cardPath ??
     `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`
   )
 }
 function projectHeroPath(slug: string): string {
   return (
+    projectRecordForSlug(slug)?.heroPath ??
     projectDreamForSlug(slug)?.heroPath ??
     `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`
   )
 }
 function projectIconPath(slug: string): string {
   return (
+    projectRecordForSlug(slug)?.imagePath ??
     projectDreamForSlug(slug)?.imagePath ??
     `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`
   )
 }
 
 const activeProjects = computed(() =>
-  projects.value.filter(
-    (p) => projectDreamForSlug(p.slug)?.projectStatus !== 'BRAINSTORM',
-  ),
+  projects.value.filter((project) => {
+    const status =
+      projectRecordForSlug(project.slug)?.status ??
+      projectDreamForSlug(project.slug)?.projectStatus
+    return status !== 'BRAINSTORM' && status !== 'ARCHIVED'
+  }),
 )
 
 const sortedActiveProjects = computed(() =>
   [...activeProjects.value].sort((a, b) => {
     const order: Record<DreamPriority, number> = { HIGH: 0, NORMAL: 1, LOW: 2 }
-    const pa = getProjectPriority(projectDreamForSlug(a.slug)?.id)
-    const pb = getProjectPriority(projectDreamForSlug(b.slug)?.id)
+    const pa =
+      (projectRecordForSlug(a.slug)?.priority as DreamPriority | undefined) ??
+      getProjectPriority(projectDreamForSlug(a.slug)?.id)
+    const pb =
+      (projectRecordForSlug(b.slug)?.priority as DreamPriority | undefined) ??
+      getProjectPriority(projectDreamForSlug(b.slug)?.id)
     return (order[pa] ?? 1) - (order[pb] ?? 1)
   }),
 )
 
 const brainstormProjects = computed(() =>
-  projects.value.filter(
-    (p) => projectDreamForSlug(p.slug)?.projectStatus === 'BRAINSTORM',
-  ),
+  projects.value.filter((project) => {
+    const status =
+      projectRecordForSlug(project.slug)?.status ??
+      projectDreamForSlug(project.slug)?.projectStatus
+    return status === 'BRAINSTORM'
+  }),
 )
 
 const missingProjectSlugs = computed(() => {
-  if (!conductorStore.hasLoaded || !dreamStore.hasLoaded) return []
-  const dbSlugs = new Set(dreamStore.projectDreams.map((d) => d.slug))
+  if (!conductorStore.hasLoaded || !projectStore.loaded) return []
   return conductorStore.projects
-    .filter((p) => !dbSlugs.has(p.slug))
-    .map((p) => p.slug)
+    .filter((project) => !projectRecordForSlug(project.slug))
+    .map((project) => project.slug)
 })
 
 const activeProjectCount = computed(
   () =>
-    dreamStore.projectDreams.filter(
-      (d) => d.projectStatus === 'ACTIVE' || d.projectStatus === 'PAUSED',
+    projectStore.activeProjects.filter(
+      (project) => project.status === 'ACTIVE' || project.status === 'PAUSED',
     ).length,
 )
 
@@ -2115,7 +2165,8 @@ const viewMode = computed(() => {
   if (!key || key === 'overview') return 'overview'
   if (key === 'tasks') return 'tasks'
   if (key === 'brainstorm') return 'brainstorm'
-  if (projects.value.some((p) => p.slug === key)) return key
+  if (projects.value.some((project) => project.slug === key)) return key
+  if (projectStore.projectForSlug(key)) return key
   return 'overview'
 })
 
@@ -2126,6 +2177,12 @@ const selectedProject = computed<ConductorProject | null>(() => {
   return projects.value.find((p) => p.slug === viewMode.value) ?? null
 })
 
+const linkedProject = computed(() =>
+  selectedProject.value
+    ? projectRecordForSlug(selectedProject.value.slug)
+    : null,
+)
+
 const linkedDream = computed(() =>
   selectedProject.value
     ? projectDreamForSlug(selectedProject.value.slug)
@@ -2135,17 +2192,17 @@ const linkedDream = computed(() =>
 // Compact project state handed to the Project Assistant as system context.
 const projectContextText = computed(() => {
   const project = selectedProject.value
-  const dream = linkedDream.value
-  if (!project || !dream) return ''
+  const record = linkedProject.value
+  if (!project || !record) return ''
 
   const lines: string[] = [
-    `Project: ${dream.title || project.slug} (${project.kind}, ${project.progress}% complete)`,
+    `Project: ${record.title || project.slug} (${project.kind}, ${project.progress}% complete)`,
   ]
-  if (dream.goal) lines.push(`Goal (100% looks like): ${dream.goal}`)
-  if (dream.pitch) lines.push(`Pitch: ${dream.pitch}`)
-  if (dream.description) lines.push(`Description: ${dream.description}`)
-  if (dream.waypoints)
-    lines.push(`Waypoints (✓ = done, ~ = in progress): ${dream.waypoints}`)
+  if (record.goal) lines.push(`Goal (100% looks like): ${record.goal}`)
+  if (record.pitch) lines.push(`Pitch: ${record.pitch}`)
+  if (record.description) lines.push(`Description: ${record.description}`)
+  if (record.waypoints)
+    lines.push(`Waypoints (✓ = done, ~ = in progress): ${record.waypoints}`)
   if (project.notesFromSilas)
     lines.push(`Notes from Silas: ${project.notesFromSilas}`)
 
@@ -2239,13 +2296,14 @@ const workspaceCards = computed<BuilderCard[]>(() => {
     )
   }
   sortedActiveProjects.value.forEach((project) => {
+    const record = projectRecordForSlug(project.slug)
     const dream = projectDreamForSlug(project.slug)
     result.push(
       makeCard(
         project.slug,
-        project.name || project.slug,
+        record?.title || project.name || project.slug,
         kindIcon(project.kind),
-        dream?.cardPath ?? undefined,
+        record?.cardPath ?? dream?.cardPath ?? undefined,
       ),
     )
   })
@@ -2256,33 +2314,29 @@ function getProjectPriority(dreamId?: number | null): DreamPriority {
   return conductorStore.getProjectPriority(dreamId)
 }
 
-async function setPriority(dreamId: number, priority: DreamPriority) {
-  dreamSaving.value = true
-  dreamSaveMessage.value = ''
-  dreamSaveError.value = false
-  const result = await conductorStore.setProjectPriority(dreamId, priority)
-  dreamSaving.value = false
-  if (result.ok) showSaveMessage('Priority saved')
-  else showSaveMessage(result.message ?? 'Priority save failed', true)
+async function setPriority(priority: DreamPriority) {
+  if (!linkedProject.value) return
+  await patchProject({ priority })
 }
 
 async function autosave(field: keyof ProjectPatch, event: FocusEvent) {
-  if (!linkedDream.value) return
+  if (!linkedProject.value) return
   const el = event.target as HTMLInputElement | HTMLTextAreaElement | null
   if (!el) return
   const value = el.value.trim() || null
-  const current = (linkedDream.value[field as keyof typeof linkedDream.value] ??
-    null) as string | null
+  const current = (linkedProject.value[
+    field as keyof typeof linkedProject.value
+  ] ?? null) as string | null
   if (value === current) return
-  await patchDream({ [field]: value })
+  await patchProject({ [field]: value })
 }
 
 function showSaveMessage(msg: string, isError = false) {
-  dreamSaveMessage.value = msg
-  dreamSaveError.value = isError
+  projectSaveMessage.value = msg
+  projectSaveError.value = isError
   if (saveMessageTimer) clearTimeout(saveMessageTimer)
   saveMessageTimer = setTimeout(() => {
-    dreamSaveMessage.value = ''
+    projectSaveMessage.value = ''
   }, 3000)
 }
 
@@ -2319,18 +2373,18 @@ onBeforeUnmount(() => {
 })
 
 async function refreshWorkspace() {
-  if (!userStore.isAdmin) return
+  const projectOptions = userStore.isAdmin
+    ? { includeInactive: true, includeMature: true }
+    : {}
   const work: Promise<unknown>[] = [
-    conductorStore.fetchProjects(true),
-    ensureProjectDreams(),
+    projectStore.fetchProjects(projectOptions),
   ]
+  if (userStore.isAdmin) work.push(conductorStore.fetchProjects(true))
+  if (!dreamStore.hasLoaded) {
+    work.push(dreamStore.fetchDreams({ dreamType: 'PROJECT' }))
+  }
   if (todoStore.hasLoaded) work.push(todoStore.fetchTodos(true))
   await Promise.all(work)
-}
-
-async function ensureProjectDreams() {
-  if (!dreamStore.hasLoaded)
-    await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
 }
 
 async function syncMissingProjects() {
@@ -2339,24 +2393,23 @@ async function syncMissingProjects() {
   syncMessage.value = ''
   syncError.value = false
   try {
-    const dreams = missingProjectSlugs.value.map((slug) => {
-      const project = conductorStore.projects.find((p) => p.slug === slug)
-      return {
+    const count = missingProjectSlugs.value.length
+    for (const slug of missingProjectSlugs.value) {
+      const project = conductorStore.projects.find((entry) => entry.slug === slug)
+      await projectStore.createProject({
         title: project?.name || slug,
         slug,
-        dreamType: 'PROJECT',
+        conductorSlug: slug,
         imagePath: `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`,
         cardPath: `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`,
         heroPath: `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`,
         isPublic: true,
         isMature: false,
         isActive: true,
-        userId: 1,
-      }
-    })
-    await $fetch('/api/dreams/batch', { method: 'POST', body: { dreams } })
-    await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
-    syncMessage.value = `Synced ${dreams.length} project(s)`
+        status: 'ACTIVE',
+      })
+    }
+    syncMessage.value = `Synced ${count} project(s)`
     setTimeout(() => {
       syncMessage.value = ''
     }, 4000)
@@ -2382,31 +2435,23 @@ async function createNewProject() {
   creatingProject.value = true
   newProjectError.value = ''
   try {
-    const res = await $fetch<{ success: boolean; message?: string }>(
-      '/api/dreams',
-      {
-        method: 'POST',
-        body: {
-          title,
-          description: newProjectDescription.value.trim() || null,
-          flavorText: newProjectFlavorText.value.trim() || null,
-          dreamType: 'PROJECT',
-          isPublic: true,
-          isActive: true,
-        },
-      },
+    const project = await projectStore.createProject({
+      title,
+      description: newProjectDescription.value.trim() || null,
+      flavorText: newProjectFlavorText.value.trim() || null,
+      status: 'BRAINSTORM',
+      isPublic: true,
+      isActive: true,
+    })
+    cancelNewProject()
+    pageStore.setWorkspaceCardKey(
+      project.conductorSlug || project.slug || 'overview',
     )
-    if (res.success) {
-      cancelNewProject()
-      await dreamStore.fetchDreams({ dreamType: 'PROJECT' })
-    } else {
-      newProjectError.value = res.message || 'Failed to create project.'
-    }
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e)
-    newProjectError.value = msg.includes('403')
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    newProjectError.value = message.includes('403')
       ? 'Project limit reached. Archive a project or upgrade.'
-      : msg || 'Failed to create project.'
+      : message || 'Failed to create project.'
   } finally {
     creatingProject.value = false
   }
@@ -2418,8 +2463,8 @@ onMounted(() => {
   ) as GalleryMode | null
   if (saved && ['cards', 'heroes', 'icons', 'list'].includes(saved))
     projectGalleryMode.value = saved
-  if (!userStore.isAdmin && !dreamStore.hasLoaded)
-    dreamStore.fetchDreams({ dreamType: 'PROJECT' })
+  if (!projectStore.loaded) projectStore.fetchProjects()
+  if (!dreamStore.hasLoaded) dreamStore.fetchDreams({ dreamType: 'PROJECT' })
 })
 
 watch(projectGalleryMode, (mode) => {
@@ -2476,27 +2521,34 @@ function startEditPitch(pitch: ConductorPitch) {
   editingPitchSlug.value = pitch.slug
 }
 
-async function patchDream(patch: ProjectPatch) {
-  if (!linkedDream.value) return
-  dreamSaving.value = true
-  dreamSaveMessage.value = ''
-  dreamSaveError.value = false
-  const result = await dreamStore.updateDream(linkedDream.value.id, patch)
-  dreamSaving.value = false
-  if (result?.success) showSaveMessage('Saved')
-  else showSaveMessage(result?.message || 'Save failed', true)
+async function patchProject(patch: ProjectPatch) {
+  if (!linkedProject.value) return
+  projectSaving.value = true
+  projectSaveMessage.value = ''
+  projectSaveError.value = false
+  try {
+    await projectStore.updateProject(linkedProject.value.id, patch)
+    showSaveMessage('Saved')
+  } catch (error) {
+    showSaveMessage(
+      error instanceof Error ? error.message : 'Save failed',
+      true,
+    )
+  } finally {
+    projectSaving.value = false
+  }
 }
 
 function handleProjectStatusChange(event: Event) {
   const target = event.target as HTMLSelectElement | null
   if (!target) return
-  patchDream({ projectStatus: target.value as ProjectStatus })
+  patchProject({ status: target.value as ProjectStatus })
 }
 
 function handlePriorityChange(event: Event) {
   const target = event.target as HTMLSelectElement | null
-  if (!target || !linkedDream.value) return
-  setPriority(linkedDream.value.id, target.value as DreamPriority)
+  if (!target) return
+  setPriority(target.value as DreamPriority)
 }
 
 function blockedCount(project: ConductorProject) {
@@ -2656,33 +2708,34 @@ const newFeatureTitle = ref('')
 const newFeatureSubmitting = ref(false)
 
 const projectKaizens = computed(() => {
-  if (!linkedDream.value) return []
-  const dreamId = linkedDream.value.id
+  if (!linkedProject.value) return []
   return todoStore.openTodos.filter(
-    (t) => t.dreamId === dreamId && t.category === 'KAIZEN',
+    (todo) =>
+      todo.projectId === linkedProject.value?.id && todo.category === 'KAIZEN',
   )
 })
 
 const projectFeatures = computed(() => {
-  if (!linkedDream.value) return []
-  const dreamId = linkedDream.value.id
+  if (!linkedProject.value) return []
   return [
     ...todoStore.todos.filter(
-      (t) => t.dreamId === dreamId && t.category === 'DESIRED_FEATURE',
+      (todo) =>
+        todo.projectId === linkedProject.value?.id &&
+        todo.category === 'DESIRED_FEATURE',
     ),
   ].sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999))
 })
 
 watch(
-  linkedDream,
-  async (dream) => {
-    if (dream?.id) await todoStore.fetchDreamTodos(dream.id)
+  linkedProject,
+  async (project) => {
+    if (project?.id) await todoStore.fetchProjectTodos(project.id)
   },
   { immediate: true },
 )
 
 async function submitProjectTask() {
-  if (!linkedDream.value || !projectTaskTitle.value.trim()) return
+  if (!linkedProject.value || !projectTaskTitle.value.trim()) return
   projectTaskSubmitting.value = true
   try {
     await todoStore.createTodo({
@@ -2690,7 +2743,8 @@ async function submitProjectTask() {
       description: projectTaskDescription.value.trim() || null,
       category: projectTaskCategory.value,
       priority: projectTaskPriority.value,
-      dreamId: linkedDream.value.id,
+      projectId: linkedProject.value.id,
+      dreamId: linkedDream.value?.id ?? null,
     })
     projectTaskTitle.value = ''
     projectTaskDescription.value = ''
@@ -2702,7 +2756,7 @@ async function submitProjectTask() {
 }
 
 async function submitPolishPrompt() {
-  if (!linkedDream.value || !polishPrompt.value.trim()) return
+  if (!linkedProject.value || !polishPrompt.value.trim()) return
   polishSubmitting.value = true
   polishMessage.value = ''
   try {
@@ -2710,7 +2764,8 @@ async function submitPolishPrompt() {
       title: polishPrompt.value.trim(),
       category: 'KAIZEN',
       priority: 'NORMAL',
-      dreamId: linkedDream.value.id,
+      projectId: linkedProject.value.id,
+      dreamId: linkedDream.value?.id ?? null,
     })
     polishPrompt.value = ''
     polishMessage.value = 'Kaizen logged!'
@@ -2723,18 +2778,19 @@ async function submitPolishPrompt() {
 }
 
 async function addDesiredFeature() {
-  if (!linkedDream.value || !newFeatureTitle.value.trim()) return
+  if (!linkedProject.value || !newFeatureTitle.value.trim()) return
   newFeatureSubmitting.value = true
   try {
     await todoStore.createTodo({
       title: newFeatureTitle.value.trim(),
       category: 'DESIRED_FEATURE',
       priority: 'NORMAL',
-      dreamId: linkedDream.value.id,
+      projectId: linkedProject.value.id,
+      dreamId: linkedDream.value?.id ?? null,
       order: projectFeatures.value.length,
     })
     newFeatureTitle.value = ''
-    await todoStore.fetchDreamTodos(linkedDream.value.id)
+    await todoStore.fetchProjectTodos(linkedProject.value.id)
   } finally {
     newFeatureSubmitting.value = false
   }
@@ -2755,7 +2811,7 @@ async function moveFeatureUp(index: number) {
     todoStore.updateTodo(features[index]!.id, { order: index - 1 }),
     todoStore.updateTodo(features[index - 1]!.id, { order: index }),
   ])
-  if (linkedDream.value) await todoStore.fetchDreamTodos(linkedDream.value.id)
+  if (linkedProject.value) await todoStore.fetchProjectTodos(linkedProject.value.id)
 }
 
 async function moveFeatureDown(index: number) {
@@ -2765,6 +2821,6 @@ async function moveFeatureDown(index: number) {
     todoStore.updateTodo(features[index]!.id, { order: index + 1 }),
     todoStore.updateTodo(features[index + 1]!.id, { order: index }),
   ])
-  if (linkedDream.value) await todoStore.fetchDreamTodos(linkedDream.value.id)
+  if (linkedProject.value) await todoStore.fetchProjectTodos(linkedProject.value.id)
 }
 </script>

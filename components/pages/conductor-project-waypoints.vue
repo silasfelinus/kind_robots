@@ -1,9 +1,7 @@
 <!-- /components/pages/conductor-project-waypoints.vue -->
 <!-- Project roadmap "waypoints": lightweight ordered steps stored on
-     Dream.waypoints as a pipe-delimited string. A "✓ " prefix marks a waypoint
-     done ("hit"), a "~ " prefix marks it in progress; several waypoints can be
-     worked on at once. Distinct from the Milestone model (user achievements)
-     and conductor roadmap milestones. -->
+     Project.waypoints as a pipe-delimited string. A "✓ " prefix marks a
+     waypoint done, while "~ " marks it in progress. -->
 <template>
   <div class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4">
     <div
@@ -15,7 +13,7 @@
           Project front end
         </p>
         <p class="mt-0.5 truncate text-sm text-base-content/60">
-          Open {{ dreamTitle }} in its working interface.
+          Open {{ projectTitle }} in its working interface.
         </p>
       </div>
       <NuxtLink
@@ -203,16 +201,17 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDreamStore } from '@/stores/dreamStore'
+import { useProjectStore } from '@/stores/projectStore'
 import { useTodoStore } from '@/stores/todoStore'
 
 const props = defineProps<{
-  dreamId: number
-  dreamTitle: string
+  projectId: number
+  projectTitle: string
+  dreamId?: number | null
   waypoints: string | null | undefined
 }>()
 
-const dreamStore = useDreamStore()
+const projectStore = useProjectStore()
 const todoStore = useTodoStore()
 const requestUrl = useRequestURL()
 
@@ -228,13 +227,15 @@ const errorMessage = ref('')
 const newWaypointLabel = ref('')
 const draftRequested = ref(false)
 
-const projectDream = computed(
+const projectRecord = computed(
   () =>
-    dreamStore.projectDreams.find((dream) => dream.id === props.dreamId) ??
-    null,
+    projectStore.projects.find((project) => project.id === props.projectId) ??
+    (projectStore.selectedProject?.id === props.projectId
+      ? projectStore.selectedProject
+      : null),
 )
 const rawProjectLiveUrl = computed(
-  () => projectDream.value?.liveUrl?.trim() ?? '',
+  () => projectRecord.value?.liveUrl?.trim() ?? '',
 )
 const projectLink = computed<ProjectLink | null>(() => {
   const value = rawProjectLiveUrl.value
@@ -258,14 +259,12 @@ const projectLink = computed<ProjectLink | null>(() => {
 })
 
 const waypointList = computed<Waypoint[]>(() => parseWaypoints(props.waypoints))
-
 const doneCount = computed(
-  () => waypointList.value.filter((w) => w.status === 'done').length,
+  () => waypointList.value.filter((waypoint) => waypoint.status === 'done').length,
 )
 const activeCount = computed(
-  () => waypointList.value.filter((w) => w.status === 'active').length,
+  () => waypointList.value.filter((waypoint) => waypoint.status === 'active').length,
 )
-
 const donePct = computed(() =>
   waypointList.value.length
     ? Math.round((doneCount.value / waypointList.value.length) * 100)
@@ -276,10 +275,8 @@ const activePct = computed(() =>
     ? Math.round((activeCount.value / waypointList.value.length) * 100)
     : 0,
 )
-
-// First pending waypoint — the suggested next step when nothing else calls.
 const nextWaypointIndex = computed(() =>
-  waypointList.value.findIndex((w) => w.status === 'pending'),
+  waypointList.value.findIndex((waypoint) => waypoint.status === 'pending'),
 )
 
 function parseWaypoints(raw: string | null | undefined): Waypoint[] {
@@ -289,16 +286,18 @@ function parseWaypoints(raw: string | null | undefined): Waypoint[] {
     .map((entry) => entry.trim())
     .filter(Boolean)
     .map((entry) => {
-      if (entry.startsWith(DONE_PREFIX))
+      if (entry.startsWith(DONE_PREFIX)) {
         return {
           label: entry.slice(DONE_PREFIX.length).trim(),
           status: 'done' as const,
         }
-      if (entry.startsWith(ACTIVE_PREFIX))
+      }
+      if (entry.startsWith(ACTIVE_PREFIX)) {
         return {
           label: entry.slice(ACTIVE_PREFIX.length).trim(),
           status: 'active' as const,
         }
+      }
       return { label: entry, status: 'pending' as const }
     })
 }
@@ -306,10 +305,10 @@ function parseWaypoints(raw: string | null | undefined): Waypoint[] {
 function serializeWaypoints(waypoints: Waypoint[]): string | null {
   if (!waypoints.length) return null
   return waypoints
-    .map((w) => {
-      if (w.status === 'done') return `${DONE_PREFIX} ${w.label}`
-      if (w.status === 'active') return `${ACTIVE_PREFIX} ${w.label}`
-      return w.label
+    .map((waypoint) => {
+      if (waypoint.status === 'done') return `${DONE_PREFIX} ${waypoint.label}`
+      if (waypoint.status === 'active') return `${ACTIVE_PREFIX} ${waypoint.label}`
+      return waypoint.label
     })
     .join(' | ')
 }
@@ -342,12 +341,15 @@ function rowClass(waypoint: Waypoint, idx: number): string {
 async function saveWaypoints(waypoints: Waypoint[]) {
   saving.value = true
   errorMessage.value = ''
-  const result = await dreamStore.updateDream(props.dreamId, {
-    waypoints: serializeWaypoints(waypoints),
-  })
-  saving.value = false
-  if (!result?.success) {
-    errorMessage.value = result?.message || 'Failed to save waypoints.'
+  try {
+    await projectStore.updateProject(props.projectId, {
+      waypoints: serializeWaypoints(waypoints),
+    })
+  } catch (error) {
+    errorMessage.value =
+      error instanceof Error ? error.message : 'Failed to save waypoints.'
+  } finally {
+    saving.value = false
   }
 }
 
@@ -358,22 +360,24 @@ async function addWaypoint() {
   newWaypointLabel.value = ''
 }
 
-// pending → active → done → pending. Any number of waypoints can be active
-// at the same time — progress doesn't have to be linear.
 async function cycleWaypoint(index: number) {
   const nextStatus: Record<WaypointStatus, WaypointStatus> = {
     pending: 'active',
     active: 'done',
     done: 'pending',
   }
-  const waypoints = waypointList.value.map((w, i) =>
-    i === index ? { ...w, status: nextStatus[w.status] } : w,
+  const waypoints = waypointList.value.map((waypoint, waypointIndex) =>
+    waypointIndex === index
+      ? { ...waypoint, status: nextStatus[waypoint.status] }
+      : waypoint,
   )
   await saveWaypoints(waypoints)
 }
 
 async function removeWaypoint(index: number) {
-  await saveWaypoints(waypointList.value.filter((_, i) => i !== index))
+  await saveWaypoints(
+    waypointList.value.filter((_, waypointIndex) => waypointIndex !== index),
+  )
 }
 
 async function moveWaypoint(index: number, delta: -1 | 1) {
@@ -388,18 +392,18 @@ async function moveWaypoint(index: number, delta: -1 | 1) {
 async function requestDraft() {
   draftRequested.value = true
   const created = await todoStore.createTodo({
-    title: `Draft a roadmap for ${props.dreamTitle}`,
+    title: `Draft a roadmap for ${props.projectTitle}`,
     description:
-      `Propose a step-by-step roadmap for the "${props.dreamTitle}" project ` +
-      `and save it to the project Dream's "waypoints" field as pipe-separated ` +
-      `steps (e.g. "First step | Second step | Third step"). Prefix a step ` +
-      `with "✓ " if it is already done or "~ " if it is in progress. Keep ` +
-      `steps small and incremental (kaizen), ordered from next action to ` +
-      `project completion. Do not overwrite existing waypoints — extend or ` +
-      `refine them.`,
+      `Propose a step-by-step roadmap for the "${props.projectTitle}" project ` +
+      `and save it to the Project's "waypoints" field as pipe-separated steps ` +
+      `(e.g. "First step | Second step | Third step"). Prefix a step with ` +
+      `"✓ " if it is already done or "~ " if it is in progress. Keep steps ` +
+      `small and incremental (kaizen), ordered from next action to project ` +
+      `completion. Do not overwrite existing waypoints — extend or refine them.`,
     priority: 'NORMAL',
     category: 'AGENT',
-    dreamId: props.dreamId,
+    projectId: props.projectId,
+    dreamId: props.dreamId ?? null,
   })
   if (!created) draftRequested.value = false
 }

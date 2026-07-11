@@ -50,6 +50,7 @@ export type ProjectMinAggregateOutputType = {
   title: string | null
   slug: string | null
   description: string | null
+  pitch: string | null
   flavorText: string | null
   goal: string | null
   waypoints: string | null
@@ -85,6 +86,7 @@ export type ProjectMaxAggregateOutputType = {
   title: string | null
   slug: string | null
   description: string | null
+  pitch: string | null
   flavorText: string | null
   goal: string | null
   waypoints: string | null
@@ -120,6 +122,7 @@ export type ProjectCountAggregateOutputType = {
   title: number
   slug: number
   description: number
+  pitch: number
   flavorText: number
   goal: number
   waypoints: number
@@ -173,6 +176,7 @@ export type ProjectMinAggregateInputType = {
   title?: true
   slug?: true
   description?: true
+  pitch?: true
   flavorText?: true
   goal?: true
   waypoints?: true
@@ -208,6 +212,7 @@ export type ProjectMaxAggregateInputType = {
   title?: true
   slug?: true
   description?: true
+  pitch?: true
   flavorText?: true
   goal?: true
   waypoints?: true
@@ -243,6 +248,7 @@ export type ProjectCountAggregateInputType = {
   title?: true
   slug?: true
   description?: true
+  pitch?: true
   flavorText?: true
   goal?: true
   waypoints?: true
@@ -365,6 +371,7 @@ export type ProjectGroupByOutputType = {
   title: string
   slug: string | null
   description: string | null
+  pitch: string | null
   flavorText: string | null
   goal: string | null
   waypoints: string | null
@@ -423,6 +430,7 @@ export type ProjectWhereInput = {
   title?: Prisma.StringFilter<"Project"> | string
   slug?: Prisma.StringNullableFilter<"Project"> | string | null
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  pitch?: Prisma.StringNullableFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
   waypoints?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -469,6 +477,7 @@ export type ProjectOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   flavorText?: Prisma.SortOrderInput | Prisma.SortOrder
   goal?: Prisma.SortOrderInput | Prisma.SortOrder
   waypoints?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -520,6 +529,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   title?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  pitch?: Prisma.StringNullableFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
   waypoints?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -565,6 +575,7 @@ export type ProjectOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   flavorText?: Prisma.SortOrderInput | Prisma.SortOrder
   goal?: Prisma.SortOrderInput | Prisma.SortOrder
   waypoints?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -608,6 +619,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Project"> | string
   slug?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  pitch?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   goal?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   waypoints?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
@@ -642,6 +654,7 @@ export type ProjectCreateInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -684,6 +697,7 @@ export type ProjectUncheckedCreateInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -725,6 +739,7 @@ export type ProjectUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -767,6 +782,7 @@ export type ProjectUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -809,6 +825,7 @@ export type ProjectCreateManyInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -843,6 +860,7 @@ export type ProjectUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -874,6 +892,7 @@ export type ProjectUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -930,6 +949,7 @@ export type ProjectCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pitch?: Prisma.SortOrder
   flavorText?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   waypoints?: Prisma.SortOrder
@@ -973,6 +993,7 @@ export type ProjectMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pitch?: Prisma.SortOrder
   flavorText?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   waypoints?: Prisma.SortOrder
@@ -1008,6 +1029,7 @@ export type ProjectMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pitch?: Prisma.SortOrder
   flavorText?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   waypoints?: Prisma.SortOrder
@@ -1339,6 +1361,7 @@ export type ProjectCreateWithoutArtImageInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1380,6 +1403,7 @@ export type ProjectUncheckedCreateWithoutArtImageInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1450,6 +1474,7 @@ export type ProjectScalarWhereInput = {
   title?: Prisma.StringFilter<"Project"> | string
   slug?: Prisma.StringNullableFilter<"Project"> | string | null
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  pitch?: Prisma.StringNullableFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
   waypoints?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -1484,6 +1509,7 @@ export type ProjectCreateWithoutArtCollectionInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1525,6 +1551,7 @@ export type ProjectUncheckedCreateWithoutArtCollectionInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1591,6 +1618,7 @@ export type ProjectCreateWithoutManagerInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1632,6 +1660,7 @@ export type ProjectUncheckedCreateWithoutManagerInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1698,6 +1727,7 @@ export type ProjectCreateWithoutChatsInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1739,6 +1769,7 @@ export type ProjectUncheckedCreateWithoutChatsInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1795,6 +1826,7 @@ export type ProjectUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1836,6 +1868,7 @@ export type ProjectUncheckedUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1876,6 +1909,7 @@ export type ProjectCreateWithoutArtImageLinksInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1917,6 +1951,7 @@ export type ProjectUncheckedCreateWithoutArtImageLinksInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -1973,6 +2008,7 @@ export type ProjectUpdateWithoutArtImageLinksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2014,6 +2050,7 @@ export type ProjectUncheckedUpdateWithoutArtImageLinksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2054,6 +2091,7 @@ export type ProjectCreateWithoutArtCollectionLinksInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2095,6 +2133,7 @@ export type ProjectUncheckedCreateWithoutArtCollectionLinksInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2151,6 +2190,7 @@ export type ProjectUpdateWithoutArtCollectionLinksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2192,6 +2232,7 @@ export type ProjectUncheckedUpdateWithoutArtCollectionLinksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2232,6 +2273,7 @@ export type ProjectCreateWithoutPitchSheetInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2273,6 +2315,7 @@ export type ProjectUncheckedCreateWithoutPitchSheetInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2329,6 +2372,7 @@ export type ProjectUpdateWithoutPitchSheetInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2370,6 +2414,7 @@ export type ProjectUncheckedUpdateWithoutPitchSheetInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2410,6 +2455,7 @@ export type ProjectCreateWithoutReactionsInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2451,6 +2497,7 @@ export type ProjectUncheckedCreateWithoutReactionsInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2507,6 +2554,7 @@ export type ProjectUpdateWithoutReactionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2548,6 +2596,7 @@ export type ProjectUncheckedUpdateWithoutReactionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2588,6 +2637,7 @@ export type ProjectCreateWithoutUserInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2629,6 +2679,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2695,6 +2746,7 @@ export type ProjectCreateWithoutArtJobsInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2736,6 +2788,7 @@ export type ProjectUncheckedCreateWithoutArtJobsInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2792,6 +2845,7 @@ export type ProjectUpdateWithoutArtJobsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2833,6 +2887,7 @@ export type ProjectUncheckedUpdateWithoutArtJobsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2873,6 +2928,7 @@ export type ProjectCreateWithoutTodosInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2914,6 +2970,7 @@ export type ProjectUncheckedCreateWithoutTodosInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -2970,6 +3027,7 @@ export type ProjectUpdateWithoutTodosInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3011,6 +3069,7 @@ export type ProjectUncheckedUpdateWithoutTodosInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3052,6 +3111,7 @@ export type ProjectCreateManyArtImageInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -3085,6 +3145,7 @@ export type ProjectUpdateWithoutArtImageInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3126,6 +3187,7 @@ export type ProjectUncheckedUpdateWithoutArtImageInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3167,6 +3229,7 @@ export type ProjectUncheckedUpdateManyWithoutArtImageInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3201,6 +3264,7 @@ export type ProjectCreateManyArtCollectionInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -3234,6 +3298,7 @@ export type ProjectUpdateWithoutArtCollectionInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3275,6 +3340,7 @@ export type ProjectUncheckedUpdateWithoutArtCollectionInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3316,6 +3382,7 @@ export type ProjectUncheckedUpdateManyWithoutArtCollectionInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3350,6 +3417,7 @@ export type ProjectCreateManyManagerInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -3383,6 +3451,7 @@ export type ProjectUpdateWithoutManagerInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3424,6 +3493,7 @@ export type ProjectUncheckedUpdateWithoutManagerInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3465,6 +3535,7 @@ export type ProjectUncheckedUpdateManyWithoutManagerInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3499,6 +3570,7 @@ export type ProjectCreateManyUserInput = {
   title: string
   slug?: string | null
   description?: string | null
+  pitch?: string | null
   flavorText?: string | null
   goal?: string | null
   waypoints?: string | null
@@ -3532,6 +3604,7 @@ export type ProjectUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3573,6 +3646,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3614,6 +3688,7 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3724,6 +3799,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   title?: boolean
   slug?: boolean
   description?: boolean
+  pitch?: boolean
   flavorText?: boolean
   goal?: boolean
   waypoints?: boolean
@@ -3773,6 +3849,7 @@ export type ProjectSelectScalar = {
   title?: boolean
   slug?: boolean
   description?: boolean
+  pitch?: boolean
   flavorText?: boolean
   goal?: boolean
   waypoints?: boolean
@@ -3801,7 +3878,7 @@ export type ProjectSelectScalar = {
   isActive?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "flavorText" | "goal" | "waypoints" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "waypoints" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Manager?: boolean | Prisma.Project$ManagerArgs<ExtArgs>
@@ -3839,6 +3916,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     title: string
     slug: string | null
     description: string | null
+    pitch: string | null
     flavorText: string | null
     goal: string | null
     waypoints: string | null
@@ -4251,6 +4329,7 @@ export interface ProjectFieldRefs {
   readonly title: Prisma.FieldRef<"Project", 'String'>
   readonly slug: Prisma.FieldRef<"Project", 'String'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
+  readonly pitch: Prisma.FieldRef<"Project", 'String'>
   readonly flavorText: Prisma.FieldRef<"Project", 'String'>
   readonly goal: Prisma.FieldRef<"Project", 'String'>
   readonly waypoints: Prisma.FieldRef<"Project", 'String'>

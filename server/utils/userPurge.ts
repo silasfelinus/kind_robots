@@ -56,6 +56,8 @@ export async function deleteUserWithOwnedData(
         await tx.artCollection.deleteMany({ where: { userId } }),
       )
       track('codes', await tx.code.deleteMany({ where: { userId } }))
+      track('projects', await tx.project.deleteMany({ where: { userId } }))
+      track('facets', await tx.facet.deleteMany({ where: { userId } }))
       track('dreams', await tx.dream.deleteMany({ where: { userId } }))
       track('characters', await tx.character.deleteMany({ where: { userId } }))
       track('scenarios', await tx.scenario.deleteMany({ where: { userId } }))

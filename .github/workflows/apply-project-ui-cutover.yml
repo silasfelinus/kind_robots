@@ -7,6 +7,9 @@ on:
     paths:
       - utils/scripts/remove_project_dream_ui_fallbacks.py
       - .github/workflows/apply-project-ui-cutover.yml
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write

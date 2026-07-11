@@ -1,0 +1,106 @@
+name: Facet Alias Smoke Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - prisma.config.ts
+      - prisma/facet-alias.prisma
+      - prisma/migrations/20260711021500_add_facet_aliases/migration.sql
+      - utils/facetAliases.ts
+      - utils/scripts/setFacetAliases.ts
+      - utils/scripts/verifyFacetAliases.ts
+      - server/utils/facetAliases.ts
+      - server/api/facets/**
+      - package.json
+      - package-lock.json
+      - .github/workflows/facet-alias-smoke.yml
+  push:
+    branches: [main]
+    paths:
+      - prisma.config.ts
+      - prisma/facet-alias.prisma
+      - prisma/migrations/20260711021500_add_facet_aliases/migration.sql
+      - utils/facetAliases.ts
+      - utils/scripts/setFacetAliases.ts
+      - utils/scripts/verifyFacetAliases.ts
+      - server/utils/facetAliases.ts
+      - server/api/facets/**
+      - package.json
+      - package-lock.json
+      - .github/workflows/facet-alias-smoke.yml
+  workflow_dispatch:
+
+concurrency:
+  group: facet-alias-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  facet-alias-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: kindrobots
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies and MariaDB client
+        run: |
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y mariadb-client
+
+      - name: Validate multi-file Prisma schema
+        run: npx prisma generate
+
+      - name: Verify lookup normalization
+        run: npm run test:facet-aliases
+
+      - name: Create representative Facet table
+        run: |
+          mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots <<'SQL'
+          CREATE TABLE `Facet` (
+            `id` INTEGER NOT NULL AUTO_INCREMENT,
+            `slug` VARCHAR(255) NULL,
+            UNIQUE INDEX `Facet_slug_key`(`slug`),
+            PRIMARY KEY (`id`)
+          ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+          INSERT INTO `Facet` (`slug`) VALUES ('cowcore'), ('weird-core');
+          SQL
+
+      - name: Execute Facet alias migration
+        run: mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots < prisma/migrations/20260711021500_add_facet_aliases/migration.sql
+
+      - name: Verify canonical aliases and constraints
+        run: |
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM FacetAlias WHERE isCanonical = true")" = "2"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT lookupKey FROM FacetAlias WHERE alias = 'cowcore'")" = "cowcore"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT lookupKey FROM FacetAlias WHERE alias = 'weird-core'")" = "weirdcore"
+          test "$(mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots --batch --skip-column-names -e "SELECT COUNT(*) FROM information_schema.referential_constraints WHERE constraint_schema = DATABASE() AND constraint_name = 'FacetAlias_facetId_fkey'")" = "1"
+          if mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots -e "INSERT INTO FacetAlias (facetId, alias, lookupKey) VALUES (2, 'duplicate', 'cowcore')"; then
+            echo "Expected duplicate lookupKey insertion to fail"
+            exit 1
+          fi

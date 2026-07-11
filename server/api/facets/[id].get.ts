@@ -1,4 +1,4 @@
-// /server/api/facets/[key].get.ts
+// /server/api/facets/[id].get.ts
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
@@ -6,7 +6,7 @@ import { resolveFacetAlias } from '~/server/utils/facetAliases'
 
 export default defineEventHandler(async (event) => {
   try {
-    const requested = getRouterParam(event, 'key')?.trim()
+    const requested = getRouterParam(event, 'id')?.trim()
 
     if (!requested) {
       throw createError({

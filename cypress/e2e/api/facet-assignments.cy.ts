@@ -79,21 +79,27 @@ describe('Dream and Scenario Facet assignments', () => {
       dreamId = response.body.data.id
     })
 
-    cy.request({
-      method: 'PUT',
-      url: `${apiBase}/dreams/${dreamId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-      body: { facetKeys: [cowAlias] },
-    }).then((response) => {
+    // dreamId is only set inside the .then above, so every dependent URL must
+    // be built lazily (inside its own .then) rather than at enqueue time.
+    cy.then(() =>
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/dreams/${dreamId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetKeys: [cowAlias] },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data).to.have.length(1)
       expect(response.body.data[0].id).to.eq(facetId)
     })
 
-    cy.request({
-      url: `${apiBase}/dreams/${dreamId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((response) => {
+    cy.then(() =>
+      cy.request({
+        url: `${apiBase}/dreams/${dreamId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data.map((facet: { id: number }) => facet.id)).to.deep.eq([
         facetId,
@@ -117,29 +123,37 @@ describe('Dream and Scenario Facet assignments', () => {
       scenarioId = response.body.data.id
     })
 
-    cy.request({
-      method: 'PUT',
-      url: `${apiBase}/scenarios/${scenarioId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-      body: { facetKeys: [cowsAlias] },
-    }).then((response) => {
+    // Same lazy-URL rule as the Dream test: scenarioId is assigned in the
+    // .then above, after this test body has already enqueued its commands.
+    cy.then(() =>
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/scenarios/${scenarioId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetKeys: [cowsAlias] },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data).to.have.length(1)
       expect(response.body.data[0].id).to.eq(facetId)
     })
 
-    cy.request({
-      url: `${apiBase}/scenarios/${scenarioId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((response) => {
+    cy.then(() =>
+      cy.request({
+        url: `${apiBase}/scenarios/${scenarioId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data[0].id).to.eq(facetId)
     })
 
-    cy.request({
-      url: `${apiBase}/scenarios/${scenarioId}`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((response) => {
+    cy.then(() =>
+      cy.request({
+        url: `${apiBase}/scenarios/${scenarioId}`,
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data.Facets).to.have.length(1)
       expect(response.body.data.Facets[0].id).to.eq(facetId)

@@ -32,6 +32,8 @@ jobs:
                   "page = replace_exact(page, 'genreDreams', 'genreFacets', 7, 'rename genre Dreams to Facets')",
               "page = replace_exact(page, 'selectedGenreSlug', 'selectedGrammarSlug', 4, 'use story grammar selection name')":
                   "page = replace_exact(page, 'selectedGenreSlug', 'selectedGrammarSlug', 5, 'use story grammar selection name')",
+              "    2,\n    'combine Serendipity ingredient loading state',":
+                  "    1,\n    'combine Serendipity ingredient loading state',",
           }
           for old, new in replacements.items():
               if source.count(old) != 1:

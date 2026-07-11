@@ -111,7 +111,7 @@ const activeTab = computed<DreamTab>(() => {
 const managerSummary = computed(() => {
   const selected = dreamStore.selectedDream?.title || 'no Dream selected'
 
-  return `${dreamStore.activeDreams.length}/${dreamStore.dreams.length} active Dreams • ${scenarioStore.scenarios.length} Scenarios • ${selected}`
+  return `${dreamStore.activeDreams.length}/${dreamStore.creativeDreams.length} active Dreams • ${scenarioStore.scenarios.length} Scenarios • ${selected}`
 })
 
 function normalizeTab(tab?: LegacyDreamTab | string | null): DreamTab {

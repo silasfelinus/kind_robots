@@ -32,3 +32,4 @@ kindblank_*.sql
 # Generated schema-shift reports may contain private production metadata.
 /artifacts/schema-audit/
 /artifacts/schema-backfill/
+/artifacts/schema-parity/

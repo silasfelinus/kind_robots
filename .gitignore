@@ -33,3 +33,4 @@ kindblank_*.sql
 /artifacts/schema-audit/
 /artifacts/schema-backfill/
 /artifacts/schema-parity/
+/artifacts/genre-facet-audit/

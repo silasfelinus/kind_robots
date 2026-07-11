@@ -1,4 +1,4 @@
-// /server/api/projects/[key].get.ts
+// /server/api/projects/[id].get.ts
 import { createError, defineEventHandler, getHeader, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
@@ -7,7 +7,7 @@ import { projectInclude } from './index'
 
 export default defineEventHandler(async (event) => {
   try {
-    const key = getRouterParam(event, 'key')?.trim()
+    const key = getRouterParam(event, 'id')?.trim()
     if (!key) throw createError({ statusCode: 400, message: 'Project ID or slug is required.' })
 
     const id = Number(key)

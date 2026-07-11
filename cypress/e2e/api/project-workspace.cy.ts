@@ -98,12 +98,15 @@ describe('First-class Project workspace API', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(
-        response.body.data.some(
-          (todo: { id: number; projectId: number }) =>
-            todo.id === todoId && todo.projectId === projectId,
-        ),
-      ).to.be.true
+
+      const projectTodo = response.body.data.find(
+        (todo: { id: number; projectId: number; dreamId: number | null }) =>
+          todo.id === todoId,
+      )
+
+      expect(projectTodo).to.exist
+      expect(projectTodo.projectId).to.eq(projectId)
+      expect(projectTodo.dreamId).to.be.null
     })
   })
 

@@ -133,31 +133,23 @@ export const useConductorStore = defineStore('conductor', () => {
     lsSet(VOTE_KEY, next)
   }
 
-  // ── Project priorities (localStorage-backed, synced to API) ───────────────
+  // ── Project priorities (localStorage-backed) ──────────────────────────────
   const localPriorities = ref<Record<number, DreamPriority>>(
     lsGet<Record<number, DreamPriority>>(PRIORITY_KEY) ?? {},
   )
 
-  function getProjectPriority(dreamId?: number | null): DreamPriority {
-    if (!dreamId) return 'NORMAL'
-    return localPriorities.value[dreamId] ?? 'NORMAL'
+  function getProjectPriority(projectId?: number | null): DreamPriority {
+    if (!projectId) return 'NORMAL'
+    return localPriorities.value[projectId] ?? 'NORMAL'
   }
 
   async function setProjectPriority(
-    dreamId: number,
+    projectId: number,
     priority: DreamPriority,
   ): Promise<{ ok: boolean; message?: string }> {
-    localPriorities.value = { ...localPriorities.value, [dreamId]: priority }
+    localPriorities.value = { ...localPriorities.value, [projectId]: priority }
     lsSet(PRIORITY_KEY, localPriorities.value)
-    try {
-      await $fetch(`/api/dreams/${dreamId}/priority`, {
-        method: 'PATCH',
-        body: { priority },
-      })
-      return { ok: true }
-    } catch {
-      return { ok: false, message: 'Priority save failed (local only)' }
-    }
+    return { ok: true }
   }
 
   return {

@@ -19,8 +19,8 @@
         <p class="mt-2 text-3xl font-black text-primary">{{ activeWishes.length }}</p>
       </article>
       <article class="rounded-2xl border border-base-300 bg-base-200 p-4">
-        <p class="text-xs font-bold uppercase tracking-wide text-base-content/40">Projectless</p>
-        <p class="mt-2 text-3xl font-black text-secondary">{{ projectlessWishes.length }}</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-base-content/40">Total</p>
+        <p class="mt-2 text-3xl font-black text-secondary">{{ wishDreams.length }}</p>
       </article>
       <article class="rounded-2xl border border-base-300 bg-base-200 p-4">
         <p class="text-xs font-bold uppercase tracking-wide text-base-content/40">Inactive</p>
@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
+import { useDreamStore } from '@/stores/dreamStore'
 
 const dreamStore = useDreamStore()
 const newWishTitle = ref('')
@@ -73,12 +73,7 @@ const saveError = ref(false)
 const wishDreams = computed(() => dreamStore.dreams.filter((dream) => dream.dreamType === 'WISH'))
 const activeWishes = computed(() => wishDreams.value.filter((wish) => wish.isActive))
 const inactiveWishes = computed(() => wishDreams.value.filter((wish) => !wish.isActive))
-const projectlessWishes = computed(() => wishDreams.value.filter((wish) => !hasProjectAttachment(wish)))
 const recentWishes = computed(() => wishDreams.value.slice(0, 8))
-
-function hasProjectAttachment(wish: DreamWithRelations): boolean {
-  return Boolean(wish.projectStatus || wish.repoUrl || wish.liveUrl)
-}
 
 async function submitWish() {
   const title = newWishTitle.value.trim()

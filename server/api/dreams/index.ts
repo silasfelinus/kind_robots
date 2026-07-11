@@ -24,12 +24,10 @@ export const dreamTypes: DreamType[] = [
   'ART',
   'BRAINSTORM',
   'CHARACTER',
-  'PROJECT',
   'REWARD',
   'SCENARIO',
   'LOCATION',
   'PITCH',
-  'GENRE',
   'WISH',
 ]
 
@@ -362,25 +360,9 @@ export function normalizeOptionalText(
 }
 
 export function normalizeDreamType(value: unknown): DreamType {
-  const normalized = dreamTypes.includes(value as DreamType)
+  return dreamTypes.includes(value as DreamType)
     ? (value as DreamType)
     : 'PITCH'
-
-  if (normalized === 'PROJECT') {
-    throw createError({
-      statusCode: 409,
-      message: 'Projects must be created through /api/projects, not /api/dreams.',
-    })
-  }
-
-  if (normalized === 'GENRE') {
-    throw createError({
-      statusCode: 409,
-      message: 'Reusable genres and taxonomy must be created through /api/facets, not /api/dreams.',
-    })
-  }
-
-  return normalized
 }
 
 export function parseDreamType(value: unknown): DreamType | null {

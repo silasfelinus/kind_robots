@@ -184,6 +184,13 @@
             </label>
           </div>
 
+          <FacetPicker
+            v-model="facetIds"
+            owner-type="dream"
+            :owner-id="dreamStore.dreamForm.id ?? null"
+            label="Dream Facets"
+          />
+
           <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
@@ -368,8 +375,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useFacetStore } from '@/stores/facetStore'
 import { useNavStore } from '@/stores/navStore'
 
 const emit = defineEmits<{
@@ -378,7 +386,9 @@ const emit = defineEmits<{
 }>()
 
 const dreamStore = useDreamStore()
+const facetStore = useFacetStore()
 const navStore = useNavStore()
+const facetIds = ref<number[]>([])
 
 const canSave = computed(() => {
   return Boolean(
@@ -508,16 +518,19 @@ function copyPitchToArtPrompt() {
 }
 
 function clearForm() {
+  facetIds.value = []
   dreamStore.startAddingDream()
 }
 
 async function saveDream() {
+  const wasCreating = !dreamStore.dreamForm.id
   const result = await dreamStore.saveDream()
 
   if (!result.success || !result.data?.id) return
 
+  await facetStore.setDreamFacets(result.data.id, facetIds.value)
   emit('saved', result.data.id)
-  if (!dreamStore.dreamForm.id) emit('created', result.data.id)
+  if (wasCreating) emit('created', result.data.id)
 
   await dreamStore.selectDreamById(result.data.id)
   navStore.setDashboardTab?.('dream', 'interact')

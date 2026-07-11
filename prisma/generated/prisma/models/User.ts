@@ -2016,10 +2016,12 @@ export type UserCreateNestedOneWithoutProjectsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutProjectsNestedInput = {
+export type UserUpdateOneWithoutProjectsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutProjectsInput, Prisma.UserUncheckedCreateWithoutProjectsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutProjectsInput
   upsert?: Prisma.UserUpsertWithoutProjectsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProjectsInput, Prisma.UserUpdateWithoutProjectsInput>, Prisma.UserUncheckedUpdateWithoutProjectsInput>
 }
@@ -2030,10 +2032,12 @@ export type UserCreateNestedOneWithoutFacetsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutFacetsNestedInput = {
+export type UserUpdateOneWithoutFacetsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutFacetsInput, Prisma.UserUncheckedCreateWithoutFacetsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutFacetsInput
   upsert?: Prisma.UserUpsertWithoutFacetsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFacetsInput, Prisma.UserUpdateWithoutFacetsInput>, Prisma.UserUncheckedUpdateWithoutFacetsInput>
 }

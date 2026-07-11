@@ -87,12 +87,12 @@ model ArtImage {
 }
 
 model ArtCollection {
-  id            Int        @id @default(autoincrement())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime?  @default(now()) @updatedAt
-  userId        Int?       @default(10)
-  label         String?
-  slug          String?    @unique @db.VarChar(255)
+  id              Int                    @id @default(autoincrement())
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime?              @default(now()) @updatedAt
+  userId          Int?                   @default(10)
+  label           String?
+  slug            String?                @unique @db.VarChar(255)
   // Parent path under public/images/ that contains this collection's folder, so
   // nested locations round-trip. slug stays the folder's leaf name (its unique
   // key); parentFolder is everything before it. e.g. images/rewards/duct-tape ->
@@ -525,7 +525,7 @@ model Project {
   heroPath        String?         @db.Text
   designer        String?         @db.VarChar(256)
   creationSource  CreationSource  @default(HUMAN)
-  userId          Int             @default(10)
+  userId          Int?            @default(10)
   managerBotId    Int?
   artImageId      Int?
   artCollectionId Int?
@@ -533,7 +533,7 @@ model Project {
   isMature        Boolean         @default(false)
   isActive        Boolean         @default(true)
 
-  User               User                   @relation(fields: [userId], references: [id])
+  User               User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
   Manager            Bot?                   @relation("ProjectManager", fields: [managerBotId], references: [id], onDelete: SetNull)
   ArtImage           ArtImage?              @relation("ProjectPrimaryArtImage", fields: [artImageId], references: [id], onDelete: SetNull)
   ArtCollection      ArtCollection?         @relation("ProjectPrimaryArtCollection", fields: [artCollectionId], references: [id], onDelete: SetNull)
@@ -575,14 +575,14 @@ model Facet {
   icon            String?
   designer        String?        @db.VarChar(256)
   creationSource  CreationSource @default(HUMAN)
-  userId          Int            @default(10)
+  userId          Int?           @default(10)
   artImageId      Int?
   artCollectionId Int?
   isPublic        Boolean        @default(true)
   isMature        Boolean        @default(false)
   isActive        Boolean        @default(true)
 
-  User               User                 @relation(fields: [userId], references: [id])
+  User               User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
   ArtImage           ArtImage?            @relation("FacetPrimaryArtImage", fields: [artImageId], references: [id], onDelete: SetNull)
   ArtCollection      ArtCollection?       @relation("FacetPrimaryArtCollection", fields: [artCollectionId], references: [id], onDelete: SetNull)
   ArtImageLinks      FacetArtImage[]

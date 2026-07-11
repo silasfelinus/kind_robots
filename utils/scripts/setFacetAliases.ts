@@ -42,8 +42,9 @@ async function main(): Promise<void> {
     throw new Error(`Facet ${facet.id} has no canonical slug.`)
   }
 
-  const canonicalKey = normalizeFacetLookupKey(facet.slug)
-  const aliases = prepareUniqueFacetAliases([facet.slug, ...requestedAliases])
+  const canonicalSlug = facet.slug
+  const canonicalKey = normalizeFacetLookupKey(canonicalSlug)
+  const aliases = prepareUniqueFacetAliases([canonicalSlug, ...requestedAliases])
 
   await prisma.$transaction(async (tx) => {
     for (const entry of aliases) {
@@ -67,7 +68,7 @@ async function main(): Promise<void> {
           isActive: true,
         },
         update: {
-          alias: entry.lookupKey === canonicalKey ? facet.slug : entry.alias,
+          alias: entry.lookupKey === canonicalKey ? canonicalSlug : entry.alias,
           isCanonical: entry.lookupKey === canonicalKey,
           isActive: true,
         },
@@ -88,7 +89,7 @@ async function main(): Promise<void> {
   process.stdout.write(
     `${JSON.stringify(
       {
-        facet: { id: facet.id, title: facet.title, slug: facet.slug },
+        facet: { id: facet.id, title: facet.title, slug: canonicalSlug },
         aliases: saved,
       },
       null,

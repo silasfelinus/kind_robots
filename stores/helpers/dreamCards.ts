@@ -5,9 +5,9 @@ import type {
   BuilderStep,
 } from '@/stores/helpers/builderCards'
 import {
-  DREAM_TYPES,
+  CREATABLE_DREAM_TYPES,
   dreamTypeLabel,
-  type DreamType,
+  type CreatableDreamType,
 } from '@/stores/helpers/dreamHelper'
 
 export type DreamCard = BuilderCard
@@ -15,12 +15,10 @@ export type DreamChoice = BuilderChoice
 export type DreamStep = BuilderStep
 
 export type DreamTypeChoice = BuilderChoice & {
-  value: DreamType
+  value: CreatableDreamType
 }
 
-const DREAM_TYPE_SUBTEXT: Record<DreamType, string> = {
-  PROJECT:
-    'A coordinated build target with status, repo links, live links, agents, reviews, and actual shipping energy.',
+const DREAM_TYPE_SUBTEXT: Record<CreatableDreamType, string> = {
   ART: 'A visual seed for image generation, mood boards, covers, and weird little art goblins.',
   BRAINSTORM: 'A container for generated idea lists and remix fodder.',
   PROMPTBOT: 'A bot concept, voice, role, or personality seed.',
@@ -34,11 +32,10 @@ const DREAM_TYPE_SUBTEXT: Record<DreamType, string> = {
     'A place where story can happen: physical, emotional, cosmic, or deeply cursed.',
   PITCH:
     'The classic one-sentence seed. Small enough to carry; dangerous enough to grow.',
-  GENRE: 'A genre, trope cluster, stylistic lane, or taste-map marker.',
   WISH: 'A direct request, intention, or desired outcome ready to become a useful Dream.',
 }
 
-export const DREAM_TYPE_CHOICES: DreamTypeChoice[] = DREAM_TYPES.map(
+export const DREAM_TYPE_CHOICES: DreamTypeChoice[] = CREATABLE_DREAM_TYPES.map(
   (type) => ({
     value: type,
     label: dreamTypeLabel(type),
@@ -58,7 +55,7 @@ export const DREAM_CARDS: BuilderCard[] = [
     heroImage: '/images/dreams/type.webp',
     tagline: 'One model, many jobs. Pick the job before feeding the gremlin.',
     narrative:
-      'Dreams cover the old pitch duties: art seeds, brainstorms, locations, scenarios, characters, rewards, prompt bots, narrators, genres, and reusable sparks. The type tells the builder how to treat the seed.',
+      'Dreams cover creative seeds: art, brainstorms, locations, scenarios, characters, rewards, prompt bots, narrators, wishes, and reusable sparks. Projects live in the Project workspace; reusable taxonomy lives in Facets.',
     required: true,
     restoresFields: ['dreamType'],
     steps: [
@@ -173,7 +170,7 @@ export const DREAM_CARDS: BuilderCard[] = [
         key: 'dreamExamples',
         title: 'Examples',
         narrative:
-          'Add examples separated by pipes. For BRAINSTORM and GENRE dreams, these become direct source material.',
+          'Add examples separated by pipes. For BRAINSTORM Dreams, these become direct source material; reusable genres and styles belong in Facets.',
         inputType: 'long',
         field: 'examples',
         placeholder:

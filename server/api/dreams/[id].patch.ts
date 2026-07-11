@@ -265,6 +265,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (existingDream.dreamType === 'GENRE') {
+      throw createError({
+        statusCode: 409,
+        message: 'Legacy Genre Dreams are read-only. Update the matching taxonomy through /api/facets.',
+      })
+    }
+
     assertDreamAccess({
       dream: existingDream,
       userId: user.id,
@@ -278,6 +285,13 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
+      })
+    }
+
+    if (body.dreamType === 'GENRE') {
+      throw createError({
+        statusCode: 409,
+        message: 'Reusable genres and taxonomy must be created through /api/facets, not /api/dreams.',
       })
     }
 

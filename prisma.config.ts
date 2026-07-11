@@ -3,7 +3,10 @@ import 'dotenv/config'
 import { defineConfig, env } from 'prisma/config'
 
 export default defineConfig({
-  schema: 'prisma/schema.prisma',
+  // Prisma 7 supports multi-file schemas when this points at the schema folder.
+  // schema.prisma remains the main schema; focused additive models can live in
+  // neighboring .prisma files without forcing unrelated whole-file rewrites.
+  schema: 'prisma',
   migrations: {
     path: 'prisma/migrations',
   },

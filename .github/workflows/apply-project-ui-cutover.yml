@@ -58,6 +58,24 @@ jobs:
               '',
               'remove Project Dream IDs from Project writes',
           )
+          page = replace_once(
+              page,
+              'function projectCardPath(slug: string): string {\n',
+              "function projectCardPath(slug: string | null): string {\n  slug = slug || 'project'\n",
+              'allow nullable Project card slug',
+          )
+          page = replace_once(
+              page,
+              'function projectHeroPath(slug: string): string {\n',
+              "function projectHeroPath(slug: string | null): string {\n  slug = slug || 'project'\n",
+              'allow nullable Project hero slug',
+          )
+          page = replace_once(
+              page,
+              'function projectIconPath(slug: string): string {\n',
+              "function projectIconPath(slug: string | null): string {\n  slug = slug || 'project'\n",
+              'allow nullable Project icon slug',
+          )
           '''
           if source.count(anchor) != 1:
               raise SystemExit(f'expected one Conductor assertion anchor, found {source.count(anchor)}')

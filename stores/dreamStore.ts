@@ -439,16 +439,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const brainstormDreams = computed(() =>
     filterDreamsByType('BRAINSTORM', dreams.value),
   )
-  const projectDreams = computed(() =>
-    filterDreamsByType('PROJECT', dreams.value),
-  )
-  const publicProjectDreams = computed(() =>
-    filterPublicDreams(
-      projectDreams.value,
-      currentUserId.value,
-      userStore.isAdmin,
-    ),
-  )
 
   const dreamsByTitle = computed(() => groupDreamsByTitle(dreams.value))
 
@@ -2082,8 +2072,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
     artDreams,
     pitchDreams,
     brainstormDreams,
-    projectDreams,
-    publicProjectDreams,
     dreamsByTitle,
     selectedTitleDreams,
     selectedDreamCast,

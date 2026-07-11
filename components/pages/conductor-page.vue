@@ -131,11 +131,11 @@
       </template>
 
       <!-- Non-admin project count -->
-      <template v-else-if="!userStore.isAdmin && dreamStore.hasLoaded">
+      <template v-else-if="!userStore.isAdmin && projectStore.loaded">
         <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
         <span class="flex items-baseline gap-0.5">
           <span class="text-sm font-black leading-none text-primary">{{
-            dreamStore.publicProjectDreams.length
+            projectStore.publicProjects.length
           }}</span>
           <span class="text-[0.62rem] font-semibold text-base-content/50"
             >projects</span
@@ -243,7 +243,7 @@
     <div v-if="!userStore.isAdmin" class="flex min-h-0 flex-1 overflow-y-auto">
       <div class="w-full pb-4">
         <div
-          v-if="!dreamStore.hasLoaded"
+          v-if="!projectStore.loaded"
           class="grid grid-cols-2 gap-2 sm:grid-cols-4"
         >
           <div
@@ -258,7 +258,7 @@
             class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
           >
             <div
-              v-for="dream in dreamStore.publicProjectDreams"
+              v-for="dream in projectStore.publicProjects"
               :key="dream.id"
               class="group flex flex-col items-center gap-2 rounded-2xl border border-base-300 bg-base-200 p-3 text-center transition-all hover:border-primary/40 hover:shadow-md"
             >
@@ -283,7 +283,7 @@
             class="flex flex-col gap-2"
           >
             <div
-              v-for="dream in dreamStore.publicProjectDreams"
+              v-for="dream in projectStore.publicProjects"
               :key="dream.id"
               class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
             >
@@ -299,9 +299,9 @@
                 </p>
               </div>
               <span
-                v-if="dream.projectStatus"
+                v-if="dream.status"
                 class="badge badge-xs shrink-0 opacity-60"
-                >{{ dream.projectStatus }}</span
+                >{{ dream.status }}</span
               >
             </div>
           </div>
@@ -310,7 +310,7 @@
             class="grid gap-4 sm:grid-cols-2"
           >
             <div
-              v-for="dream in dreamStore.publicProjectDreams"
+              v-for="dream in projectStore.publicProjects"
               :key="dream.id"
               class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
               style="aspect-ratio: 16/9"
@@ -332,7 +332,7 @@
           </div>
           <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div
-              v-for="dream in dreamStore.publicProjectDreams"
+              v-for="dream in projectStore.publicProjects"
               :key="dream.id"
               class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
               style="aspect-ratio: 2/3"
@@ -362,7 +362,7 @@
             </div>
           </div>
           <p
-            v-if="!dreamStore.publicProjectDreams.length"
+            v-if="!projectStore.publicProjects.length"
             class="py-8 text-center text-sm text-base-content/50"
           >
             No public projects yet.
@@ -492,13 +492,11 @@
                     class="badge badge-sm font-bold"
                     :class="
                       priorityBadgeClass(
-                        getProjectPriority(
-                          projectDreamForSlug(project.slug)?.id,
-                        ),
+                        (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL',
                       )
                     "
                     >{{
-                      getProjectPriority(projectDreamForSlug(project.slug)?.id)
+                      (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'
                     }}</span
                   >
                 </div>
@@ -628,20 +626,20 @@
                   {{ project.name || project.slug }}
                 </p>
                 <p
-                  v-if="projectDreamForSlug(project.slug)?.flavorText"
+                  v-if="projectRecordForSlug(project.slug)?.flavorText"
                   class="line-clamp-2 w-full text-xs text-base-content/50"
                 >
-                  {{ projectDreamForSlug(project.slug)?.flavorText }}
+                  {{ projectRecordForSlug(project.slug)?.flavorText }}
                 </p>
                 <span
                   class="badge badge-xs"
                   :class="
                     priorityBadgeClass(
-                      getProjectPriority(projectDreamForSlug(project.slug)?.id),
+                      (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL',
                     )
                   "
                   >{{
-                    getProjectPriority(projectDreamForSlug(project.slug)?.id)
+                    (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'
                   }}</span
                 >
               </button>
@@ -666,7 +664,7 @@
                     {{ project.name || project.slug }}
                   </p>
                   <p class="text-xs text-base-content/50">
-                    {{ projectDreamForSlug(project.slug)?.flavorText }}
+                    {{ projectRecordForSlug(project.slug)?.flavorText }}
                   </p>
                 </div>
                 <div class="flex shrink-0 flex-col items-end gap-1">
@@ -674,13 +672,11 @@
                     class="badge badge-xs"
                     :class="
                       priorityBadgeClass(
-                        getProjectPriority(
-                          projectDreamForSlug(project.slug)?.id,
-                        ),
+                        (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL',
                       )
                     "
                     >{{
-                      getProjectPriority(projectDreamForSlug(project.slug)?.id)
+                      (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'
                     }}</span
                   >
                   <span
@@ -1004,7 +1000,7 @@
                   </p>
                   <p class="text-xs text-base-content/50">
                     {{
-                      projectDreamForSlug(project.slug)?.flavorText ??
+                      projectRecordForSlug(project.slug)?.flavorText ??
                       'Future project'
                     }}
                   </p>
@@ -1511,13 +1507,13 @@
             <ConductorProjectWaypoints
               :project-id="linkedProject.id"
               :project-title="linkedProject.title || selectedProject.slug"
-              :dream-id="linkedDream?.id ?? null"
+              :dream-id="null"
               :waypoints="linkedProject.waypoints"
             />
             <ConductorProjectChat
               :project-id="linkedProject.id"
               :project-title="linkedProject.title || selectedProject.slug"
-              :dream-id="linkedDream?.id ?? null"
+              :dream-id="null"
               :project-context="projectContextText"
             />
           </div>
@@ -1913,7 +1909,6 @@ import type {
   ConductorProject,
   ConductorPitch,
 } from '@/server/api/conductor/projects.get'
-import { useDreamStore } from '@/stores/dreamStore'
 import { useProjectStore, type ProjectWithRelations } from '@/stores/projectStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -1945,7 +1940,6 @@ type ProjectPatch = {
 }
 
 const userStore = useUserStore()
-const dreamStore = useDreamStore()
 const projectStore = useProjectStore()
 const pageStore = usePageStore()
 const todoStore = useTodoStore()
@@ -2017,10 +2011,6 @@ const projects = computed<ConductorProject[]>(() => {
 const allPitches = computed(() => conductorStore.pitches)
 const pendingPitches = computed(() => conductorStore.pendingPitches)
 
-function projectDreamForSlug(slug: string) {
-  return dreamStore.projectDreams.find((dream) => dream.slug === slug) ?? null
-}
-
 function projectRecordForSlug(slug: string) {
   return projectStore.projectForSlug(slug)
 }
@@ -2043,33 +2033,31 @@ function projectRecordToConductor(project: ProjectWithRelations): ConductorProje
   }
 }
 
-function projectCardPath(slug: string): string {
+function projectCardPath(slug: string | null): string {
+  slug = slug || 'project'
   return (
     projectRecordForSlug(slug)?.cardPath ??
-    projectDreamForSlug(slug)?.cardPath ??
     `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`
   )
 }
-function projectHeroPath(slug: string): string {
+function projectHeroPath(slug: string | null): string {
+  slug = slug || 'project'
   return (
     projectRecordForSlug(slug)?.heroPath ??
-    projectDreamForSlug(slug)?.heroPath ??
     `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`
   )
 }
-function projectIconPath(slug: string): string {
+function projectIconPath(slug: string | null): string {
+  slug = slug || 'project'
   return (
     projectRecordForSlug(slug)?.imagePath ??
-    projectDreamForSlug(slug)?.imagePath ??
     `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`
   )
 }
 
 const activeProjects = computed(() =>
   projects.value.filter((project) => {
-    const status =
-      projectRecordForSlug(project.slug)?.status ??
-      projectDreamForSlug(project.slug)?.projectStatus
+    const status = projectRecordForSlug(project.slug)?.status
     return status !== 'BRAINSTORM' && status !== 'ARCHIVED'
   }),
 )
@@ -2079,21 +2067,18 @@ const sortedActiveProjects = computed(() =>
     const order: Record<DreamPriority, number> = { HIGH: 0, NORMAL: 1, LOW: 2 }
     const pa =
       (projectRecordForSlug(a.slug)?.priority as DreamPriority | undefined) ??
-      getProjectPriority(projectDreamForSlug(a.slug)?.id)
+      'NORMAL'
     const pb =
       (projectRecordForSlug(b.slug)?.priority as DreamPriority | undefined) ??
-      getProjectPriority(projectDreamForSlug(b.slug)?.id)
+      'NORMAL'
     return (order[pa] ?? 1) - (order[pb] ?? 1)
   }),
 )
 
 const brainstormProjects = computed(() =>
-  projects.value.filter((project) => {
-    const status =
-      projectRecordForSlug(project.slug)?.status ??
-      projectDreamForSlug(project.slug)?.projectStatus
-    return status === 'BRAINSTORM'
-  }),
+  projects.value.filter(
+    (project) => projectRecordForSlug(project.slug)?.status === 'BRAINSTORM',
+  ),
 )
 
 const missingProjectSlugs = computed(() => {
@@ -2180,12 +2165,6 @@ const selectedProject = computed<ConductorProject | null>(() => {
 const linkedProject = computed(() =>
   selectedProject.value
     ? projectRecordForSlug(selectedProject.value.slug)
-    : null,
-)
-
-const linkedDream = computed(() =>
-  selectedProject.value
-    ? projectDreamForSlug(selectedProject.value.slug)
     : null,
 )
 
@@ -2297,22 +2276,17 @@ const workspaceCards = computed<BuilderCard[]>(() => {
   }
   sortedActiveProjects.value.forEach((project) => {
     const record = projectRecordForSlug(project.slug)
-    const dream = projectDreamForSlug(project.slug)
     result.push(
       makeCard(
         project.slug,
         record?.title || project.name || project.slug,
         kindIcon(project.kind),
-        record?.cardPath ?? dream?.cardPath ?? undefined,
+        record?.cardPath ?? undefined,
       ),
     )
   })
   return result
 })
-
-function getProjectPriority(dreamId?: number | null): DreamPriority {
-  return conductorStore.getProjectPriority(dreamId)
-}
 
 async function setPriority(priority: DreamPriority) {
   if (!linkedProject.value) return
@@ -2380,9 +2354,6 @@ async function refreshWorkspace() {
     projectStore.fetchProjects(projectOptions),
   ]
   if (userStore.isAdmin) work.push(conductorStore.fetchProjects(true))
-  if (!dreamStore.hasLoaded) {
-    work.push(dreamStore.fetchDreams({ dreamType: 'PROJECT' }))
-  }
   if (todoStore.hasLoaded) work.push(todoStore.fetchTodos(true))
   await Promise.all(work)
 }
@@ -2464,7 +2435,6 @@ onMounted(() => {
   if (saved && ['cards', 'heroes', 'icons', 'list'].includes(saved))
     projectGalleryMode.value = saved
   if (!projectStore.loaded) projectStore.fetchProjects()
-  if (!dreamStore.hasLoaded) dreamStore.fetchDreams({ dreamType: 'PROJECT' })
 })
 
 watch(projectGalleryMode, (mode) => {
@@ -2744,7 +2714,6 @@ async function submitProjectTask() {
       category: projectTaskCategory.value,
       priority: projectTaskPriority.value,
       projectId: linkedProject.value.id,
-      dreamId: linkedDream.value?.id ?? null,
     })
     projectTaskTitle.value = ''
     projectTaskDescription.value = ''
@@ -2765,7 +2734,6 @@ async function submitPolishPrompt() {
       category: 'KAIZEN',
       priority: 'NORMAL',
       projectId: linkedProject.value.id,
-      dreamId: linkedDream.value?.id ?? null,
     })
     polishPrompt.value = ''
     polishMessage.value = 'Kaizen logged!'
@@ -2786,7 +2754,6 @@ async function addDesiredFeature() {
       category: 'DESIRED_FEATURE',
       priority: 'NORMAL',
       projectId: linkedProject.value.id,
-      dreamId: linkedDream.value?.id ?? null,
       order: projectFeatures.value.length,
     })
     newFeatureTitle.value = ''

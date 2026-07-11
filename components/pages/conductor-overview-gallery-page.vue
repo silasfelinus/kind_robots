@@ -112,7 +112,7 @@
         v-if="userStore.isAdmin"
         type="button"
         class="btn btn-primary btn-xs gap-1 rounded-lg"
-        @click="startProjectDream"
+        @click="startProject"
       >
         <Icon name="kind-icon:plus" class="size-3" />
         New
@@ -534,7 +534,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ConductorProject } from '@/server/api/conductor/projects.get'
 import { useConductorStore, type DreamPriority } from '@/stores/conductorStore'
-import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useProjectStore, type ProjectWithRelations } from '@/stores/projectStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
@@ -571,7 +570,6 @@ type ProjectGalleryItem = {
   review: number
   done: number
   totalTasks: number
-  dreamId: number | null
   projectId: number | null
   iconPath: string
   cardPath: string
@@ -588,7 +586,6 @@ const galleryModeOptions: GalleryOption[] = [
 ]
 
 const conductorStore = useConductorStore()
-const dreamStore = useDreamStore()
 const projectStore = useProjectStore()
 const pageStore = usePageStore()
 const todoStore = useTodoStore()
@@ -596,11 +593,9 @@ const userStore = useUserStore()
 
 const projectGalleryMode = ref<GalleryMode>('cards')
 
-const isLoading = computed(
-  () => conductorStore.pending || projectStore.loading || dreamStore.loading,
-)
+const isLoading = computed(() => conductorStore.pending || projectStore.loading)
 const errorMessage = computed(
-  () => conductorStore.error || projectStore.error || dreamStore.error || '',
+  () => conductorStore.error || projectStore.error || '',
 )
 const brainstormCount = computed(
   () => conductorStore.pendingPitches.length + brainstormProjects.value.length,
@@ -608,17 +603,15 @@ const brainstormCount = computed(
 
 const activeProjects = computed(() => {
   return conductorStore.projects.filter((project) => {
-    const record = dbProjectForSlug(project.slug)
-    const status = record?.status ?? projectDreamForSlug(project.slug)?.projectStatus
+    const status = dbProjectForSlug(project.slug)?.status
     return status !== 'BRAINSTORM' && status !== 'ARCHIVED'
   })
 })
 
 const brainstormProjects = computed(() => {
-  return conductorStore.projects.filter((project) => {
-    const record = dbProjectForSlug(project.slug)
-    return (record?.status ?? projectDreamForSlug(project.slug)?.projectStatus) === 'BRAINSTORM'
-  })
+  return conductorStore.projects.filter(
+    (project) => dbProjectForSlug(project.slug)?.status === 'BRAINSTORM',
+  )
 })
 
 const sortedActiveProjects = computed(() => {
@@ -627,10 +620,10 @@ const sortedActiveProjects = computed(() => {
   return [...activeProjects.value].sort((a, b) => {
     const aPriority =
       (dbProjectForSlug(a.slug)?.priority as DreamPriority | undefined) ??
-      conductorStore.getProjectPriority(projectDreamForSlug(a.slug)?.id)
+      'NORMAL'
     const bPriority =
       (dbProjectForSlug(b.slug)?.priority as DreamPriority | undefined) ??
-      conductorStore.getProjectPriority(projectDreamForSlug(b.slug)?.id)
+      'NORMAL'
 
     return (order[aPriority] ?? 1) - (order[bPriority] ?? 1)
   })
@@ -752,20 +745,14 @@ async function ensureData(force = false) {
     await Promise.all([
       conductorStore.fetchProjects(force),
       projectStore.fetchProjects(projectOptions),
-      dreamStore.fetchDreams({ dreamType: 'PROJECT' }),
       todoStore.hasLoaded ? todoStore.fetchTodos(force) : Promise.resolve(),
     ])
     return
   }
 
-  await Promise.all([
-    force || !projectStore.loaded
-      ? projectStore.fetchProjects(projectOptions)
-      : Promise.resolve(projectStore.projects),
-    force || !dreamStore.hasLoaded
-      ? dreamStore.fetchDreams({ dreamType: 'PROJECT' })
-      : Promise.resolve(dreamStore.projectDreams),
-  ])
+  if (force || !projectStore.loaded) {
+    await projectStore.fetchProjects(projectOptions)
+  }
 }
 
 async function refreshGallery() {
@@ -792,42 +779,33 @@ function makeCard(
   }
 }
 
-function projectDreamForSlug(slug: string) {
-  return dreamStore.projectDreams.find((dream) => dream.slug === slug) ?? null
-}
-
 function dbProjectForSlug(slug: string) {
   return projectStore.projectForSlug(slug)
 }
 
 function itemFromProject(project: ConductorProject): ProjectGalleryItem {
   const record = dbProjectForSlug(project.slug)
-  const dream = projectDreamForSlug(project.slug)
   const priority =
-    (record?.priority as DreamPriority | undefined) ??
-    conductorStore.getProjectPriority(dream?.id)
+    (record?.priority as DreamPriority | undefined) ?? 'NORMAL'
   const counts = taskCounts(project)
   const details =
     record?.description ||
     record?.goal ||
-    dream?.description ||
-    dream?.pitch ||
     project.notesFromSilas ||
     `${project.name || project.slug} has ${project.tasks.length} tracked tasks across ${project.milestones.length} milestones.`
 
   return {
     slug: project.slug,
-    title: record?.title || project.name || getDreamTitle(dream) || project.slug,
+    title: record?.title || project.name || project.slug,
     flavor:
       record?.flavorText ||
-      dream?.flavorText ||
       project.notesFromSilas ||
       'Active Kind Robots project.',
     details,
     notes: project.notesFromSilas || '',
     kind: project.kind || 'project',
     kindLabel: formatKind(project.kind),
-    status: record?.status || dream?.projectStatus || 'ACTIVE',
+    status: record?.status || 'ACTIVE',
     priority,
     progress: Number.isFinite(project.progress) ? project.progress : 0,
     blocked: counts.blocked,
@@ -836,25 +814,21 @@ function itemFromProject(project: ConductorProject): ProjectGalleryItem {
     review: counts.review,
     done: counts.done,
     totalTasks: project.tasks.length,
-    dreamId: dream?.id ?? null,
     projectId: record?.id ?? null,
     iconPath:
       record?.imagePath ||
-      dream?.imagePath ||
       project.imagePath ||
       `${CONDUCTOR_IMG_BASE}/${project.slug}-icon.webp`,
     cardPath:
       record?.cardPath ||
-      dream?.cardPath ||
       project.cardPath ||
       `${CONDUCTOR_IMG_BASE}/${project.slug}-card.webp`,
     heroPath:
       record?.heroPath ||
-      dream?.heroPath ||
       project.heroPath ||
       `${CONDUCTOR_IMG_BASE}/${project.slug}-hero.webp`,
-    liveUrl: record?.liveUrl || dream?.liveUrl || '',
-    repoUrl: record?.repoUrl || dream?.repoUrl || '',
+    liveUrl: record?.liveUrl || '',
+    repoUrl: record?.repoUrl || '',
   }
 }
 
@@ -864,7 +838,6 @@ function itemFromProjectRecord(record: ProjectWithRelations): ProjectGalleryItem
     : null
   if (conductorProject) return itemFromProject(conductorProject)
 
-  const dream = record.slug ? projectDreamForSlug(record.slug) : null
   return {
     slug: record.slug || `project-${record.id}`,
     title: record.title,
@@ -885,22 +858,18 @@ function itemFromProjectRecord(record: ProjectWithRelations): ProjectGalleryItem
     review: 0,
     done: record.status === 'DONE' ? 1 : 0,
     totalTasks: record._count?.Todos ?? 0,
-    dreamId: dream?.id ?? null,
     projectId: record.id,
     iconPath:
       record.imagePath ||
-      dream?.imagePath ||
       `${CONDUCTOR_IMG_BASE}/${record.slug}-icon.webp`,
     cardPath:
       record.cardPath ||
-      dream?.cardPath ||
       `${CONDUCTOR_IMG_BASE}/${record.slug}-card.webp`,
     heroPath:
       record.heroPath ||
-      dream?.heroPath ||
       `${CONDUCTOR_IMG_BASE}/${record.slug}-hero.webp`,
-    liveUrl: record.liveUrl || dream?.liveUrl || '',
-    repoUrl: record.repoUrl || dream?.repoUrl || '',
+    liveUrl: record.liveUrl || '',
+    repoUrl: record.repoUrl || '',
   }
 }
 
@@ -926,7 +895,6 @@ function taskCounts(project: ConductorProject) {
 
 async function openProject(item: ProjectGalleryItem) {
   if (item.projectId) await projectStore.fetchProject(item.projectId)
-  if (item.dreamId) await dreamStore.selectDreamById(item.dreamId)
 
   if (userStore.isAdmin) {
     pageStore.setWorkspaceCardKey(item.slug)
@@ -938,7 +906,7 @@ async function openProject(item: ProjectGalleryItem) {
   }
 }
 
-async function startProjectDream() {
+async function startProject() {
   if (!import.meta.client) return
   const title = window.prompt('Project title')?.trim()
   if (!title) return
@@ -992,7 +960,4 @@ function formatKind(kind: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-function getDreamTitle(dream?: DreamWithRelations | null) {
-  return dream?.title || dream?.slug || ''
-}
 </script>

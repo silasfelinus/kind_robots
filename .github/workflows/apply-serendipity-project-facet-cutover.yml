@@ -26,7 +26,17 @@ jobs:
           fetch-depth: 1
           show-progress: false
       - name: Apply strict cutover
-        run: python utils/scripts/cutover_serendipity_project_facet.py
+        shell: bash
+        run: |
+          set -o pipefail
+          python utils/scripts/cutover_serendipity_project_facet.py 2>&1 | tee serendipity-cutover.log
+      - name: Upload cutover diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: serendipity-cutover-log
+          path: serendipity-cutover.log
+          if-no-files-found: error
       - uses: actions/setup-node@v4
         with:
           node-version: 24

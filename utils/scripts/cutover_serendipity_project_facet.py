@@ -78,14 +78,14 @@ page = replace_once(
 )
 page = replace_once(
     page,
-    "             from your GENRE dreams\n",
-    "             from your Facets\n",
+    'from your GENRE dreams',
+    'from your Facets',
     'update story grammar label',
 )
 page = replace_once(
     page,
-    "          Add LOCATION or GENRE dreams to unlock places and story grammars.\n",
-    "          Add LOCATION dreams or GENRE Facets to unlock places and story grammars.\n",
+    'Add LOCATION or GENRE dreams to unlock places and story grammars.',
+    'Add LOCATION dreams or GENRE Facets to unlock places and story grammars.',
     'update empty-state copy',
 )
 page = replace_once(

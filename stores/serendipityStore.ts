@@ -7,7 +7,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useChatStore } from '@/stores/chatStore'
 import { useConductorStore } from '@/stores/conductorStore'
-import { useDreamStore } from '@/stores/dreamStore'
+import { useProjectStore } from '@/stores/projectStore'
 import { useTodoStore } from '@/stores/todoStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -145,7 +145,7 @@ function extractQuestion(narrative: string): string {
 export const useSerendipityStore = defineStore('serendipityStore', () => {
   const chatStore = useChatStore()
   const conductorStore = useConductorStore()
-  const dreamStore = useDreamStore()
+  const projectStore = useProjectStore()
   const todoStore = useTodoStore()
   const userStore = useUserStore()
 
@@ -192,13 +192,10 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
     return keys
   })
 
-  const projectDreamId = computed(() => {
+  const projectId = computed(() => {
     const slug = session.value?.projectSlug
     if (!slug) return null
-    const dream = dreamStore.dreams.find(
-      (entry) => entry.dreamType === 'PROJECT' && entry.slug === slug,
-    )
-    return dream?.id ?? null
+    return projectStore.projectForSlug(slug)?.id ?? null
   })
 
   const availableHooks = computed<SerendipityRealHook[]>(() => {
@@ -207,8 +204,7 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
     const hooks: SerendipityRealHook[] = []
     for (const todo of todoStore.honeyDoTodos) {
       // Project-scoped honeydos first-class; unscoped ones ride along.
-      if (todo.dreamId != null && todo.dreamId !== projectDreamId.value)
-        continue
+      if (todo.projectId != null && todo.projectId !== projectId.value) continue
       if (usedHookKeys.value.has(`todo:${todo.id}`)) continue
       hooks.push({
         kind: 'honeydo',
@@ -341,7 +337,7 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
           title: `Story decision on ${question.projectSlug}/${question.conductorTaskId}: ${beat.answer.text.slice(0, 80)}`,
           description: `Captured by Serendipity for conductor task ${question.projectSlug}/${question.conductorTaskId} ("${context?.title ?? ''}").\n\nProtagonist's answer: ${beat.answer.text}\n\nThe conductor task stays needs-human until Silas edits the roadmap.`,
           category: 'AGENT',
-          dreamId: projectDreamId.value,
+          projectId: projectId.value,
         })
         ok = created !== null
       }
@@ -367,6 +363,7 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
       conductorStore.hasLoaded
         ? Promise.resolve()
         : conductorStore.fetchProjects(),
+      projectStore.loaded ? Promise.resolve() : projectStore.fetchProjects(),
     ])
   }
 

@@ -116,7 +116,7 @@
         </div>
       </div>
 
-      <div v-if="genreDreams.length" class="space-y-2">
+      <div v-if="storyGrammarFacets.length" class="space-y-2">
         <div class="flex items-center gap-2">
           <span
             class="text-xs font-bold uppercase tracking-wide text-base-content/50"
@@ -124,7 +124,7 @@
             Story grammar
           </span>
           <span class="text-[0.7rem] text-base-content/40">
-            from your GENRE dreams
+            from your Facets
           </span>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -141,7 +141,7 @@
             Any tale
           </button>
           <button
-            v-for="dream in genreDreams"
+            v-for="dream in storyGrammarFacets"
             :key="dream.slug ?? dream.id"
             type="button"
             class="btn btn-sm rounded-xl"
@@ -232,11 +232,11 @@
         </button>
         <p
           v-if="
-            !locationDreams.length && !genreDreams.length && !dreamStore.loading
+            !locationDreams.length && !storyGrammarFacets.length && !dreamStore.loading
           "
           class="text-xs text-base-content/50"
         >
-          Add LOCATION or GENRE dreams to unlock places and story grammars.
+          Add LOCATION dreams or GENRE Facets to unlock places and story grammars.
         </p>
       </div>
     </div>
@@ -438,6 +438,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
+import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
 import {
   SERENDIPITY_TONES,
   useSerendipityStore,
@@ -448,6 +449,7 @@ import {
 const store = useSerendipityStore()
 const conductorStore = useConductorStore()
 const dreamStore = useDreamStore()
+const facetStore = useFacetStore()
 
 const selectedTone = ref<SerendipityTone>('cozy')
 const selectedLocationSlug = ref<string | null>(null)
@@ -461,10 +463,8 @@ const locationDreams = computed(() =>
     (dream) => dream.dreamType === 'LOCATION' && dream.isActive && dream.slug,
   ),
 )
-const genreDreams = computed(() =>
-  dreamStore.dreams.filter(
-    (dream) => dream.dreamType === 'GENRE' && dream.isActive && dream.slug,
-  ),
+const storyGrammarFacets = computed(() =>
+  facetStore.activeFacets.filter((facet) => facet.kind === 'GENRE' && facet.slug),
 )
 
 const sessionRecap = computed(() => {
@@ -505,14 +505,14 @@ const sessionRecap = computed(() => {
 })
 
 function toIngredient(
-  dream: DreamWithRelations | undefined,
+  source: DreamWithRelations | FacetWithAliases | undefined,
 ): SerendipityIngredient | undefined {
-  if (!dream?.slug) return undefined
+  if (!source?.slug) return undefined
   return {
-    slug: dream.slug,
-    title: dream.title,
-    description: dream.description,
-    flavorText: dream.flavorText,
+    slug: source.slug,
+    title: source.title,
+    description: source.description,
+    flavorText: source.flavorText,
   }
 }
 
@@ -543,9 +543,9 @@ async function begin(surprise: boolean) {
         ),
       )
   const genre = surprise
-    ? toIngredient(pickRandom(genreDreams.value))
+    ? toIngredient(pickRandom(storyGrammarFacets.value))
     : toIngredient(
-        genreDreams.value.find(
+        storyGrammarFacets.value.find(
           (dream) => dream.slug === selectedGenreSlug.value,
         ),
       )
@@ -575,9 +575,12 @@ onMounted(() => {
   store.restoreFromLocalStorage()
   if (
     !dreamStore.hasLoaded ||
-    (!locationDreams.value.length && !genreDreams.value.length)
+    !locationDreams.value.length
   ) {
-    dreamStore.fetchDreams({ limit: 200 })
+    dreamStore.fetchDreams({ dreamType: 'LOCATION', limit: 200 })
+  }
+  if (!facetStore.loaded || !storyGrammarFacets.value.length) {
+    facetStore.fetchFacets({ kind: 'GENRE', take: 200 })
   }
   void store.loadRealSurfaces()
 })

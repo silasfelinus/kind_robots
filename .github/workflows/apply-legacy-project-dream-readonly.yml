@@ -1,0 +1,54 @@
+name: Apply Legacy Project Dream Readonly
+
+on:
+  push:
+    branches:
+      - agent/legacy-project-dream-readonly
+    paths:
+      - utils/scripts/apply_legacy_project_dream_readonly.py
+      - .github/workflows/apply-legacy-project-dream-readonly.yml
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://root:password@127.0.0.1:3306/kindrobots
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/legacy-project-dream-readonly
+          fetch-depth: 1
+          show-progress: false
+
+      - name: Apply strict readonly transformation
+        run: python utils/scripts/apply_legacy_project_dream_readonly.py
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Validate Vue and TypeScript
+        run: npm run test
+
+      - name: Commit validated application files
+        run: |
+          git config user.name "kind-robots-agent"
+          git config user.email "actions@users.noreply.github.com"
+          git add server/api/dreams/'[id].patch.ts' stores/dreamStore.ts
+          git commit -m "Make legacy Project Dreams read-only"
+          git push origin HEAD:agent/legacy-project-dream-readonly

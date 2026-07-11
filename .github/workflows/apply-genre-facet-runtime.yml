@@ -21,6 +21,19 @@ jobs:
           fetch-depth: 1
           show-progress: false
 
+      - name: Correct strict source counts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('utils/scripts/remove_genre_dream_runtime.py')
+          source = path.read_text(encoding='utf-8')
+          old = "page = replace_exact(page, 'genreDreams', 'genreFacets', 10, 'rename genre Dreams to Facets')"
+          new = "page = replace_exact(page, 'genreDreams', 'genreFacets', 7, 'rename genre Dreams to Facets')"
+          if source.count(old) != 1:
+              raise RuntimeError('expected one genreDreams count anchor')
+          path.write_text(source.replace(old, new), encoding='utf-8')
+          PY
+
       - name: Apply strict Genre-to-Facet runtime transformation
         shell: bash
         run: |

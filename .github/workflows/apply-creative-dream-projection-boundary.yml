@@ -22,7 +22,18 @@ jobs:
           show-progress: false
 
       - name: Apply strict creative Dream projection boundary
-        run: python utils/scripts/apply_creative_dream_projection_boundary.py
+        shell: bash
+        run: |
+          set -o pipefail
+          python utils/scripts/apply_creative_dream_projection_boundary.py 2>&1 | tee creative-dream-projection.log
+
+      - name: Upload transformation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: creative-dream-projection-log
+          path: creative-dream-projection.log
+          if-no-files-found: warn
 
       - name: Set up Node
         uses: actions/setup-node@v4

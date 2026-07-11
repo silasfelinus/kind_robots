@@ -51,11 +51,11 @@ jobs:
               'projectRecordForSlug(project.slug)?.flavorText',
               'replace Project gallery flavor fallbacks',
           )
-          page = replace_all(
-              page,
-              '              :dream-id="linkedDream?.id ?? null"\n',
+          page = re.sub(
+              r'^[ \t]*:dream-id="linkedDream\?\.id \?\? null"[ \t]*\r?\n',
               '',
-              'remove legacy Project Dream component props',
+              page,
+              flags=re.MULTILINE,
           )
           '''
           if source.count(anchor) != 1:

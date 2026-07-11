@@ -52,7 +52,7 @@ async function main() {
         })
       : null
 
-    const relationCounts = project
+    const dualLinkedCounts = project
       ? {
           chats: await prisma.chat.count({
             where: { dreamId: dream.id, projectId: project.id },
@@ -63,30 +63,30 @@ async function main() {
           reactions: await prisma.reaction.count({
             where: { dreamId: dream.id, projectId: project.id },
           }),
-          artJobs: await prisma.artJob.count({
-            where: { dreamId: dream.id, projectId: project.id },
-          }),
         }
-      : { chats: 0, todos: 0, reactions: 0, artJobs: 0 }
+      : { chats: 0, todos: 0, reactions: 0 }
 
     const legacyCounts = {
       chats: await prisma.chat.count({ where: { dreamId: dream.id } }),
       todos: await prisma.todo.count({ where: { dreamId: dream.id } }),
       reactions: await prisma.reaction.count({ where: { dreamId: dream.id } }),
-      artJobs: await prisma.artJob.count({ where: { dreamId: dream.id } }),
     }
+
+    const projectArtJobCount = project
+      ? await prisma.artJob.count({ where: { projectId: project.id } })
+      : 0
 
     projectResults.push({
       dream,
       project,
       legacyCounts,
-      dualLinkedCounts: relationCounts,
+      dualLinkedCounts,
+      projectArtJobCount,
       relationParity:
         project !== null &&
-        legacyCounts.chats === relationCounts.chats &&
-        legacyCounts.todos === relationCounts.todos &&
-        legacyCounts.reactions === relationCounts.reactions &&
-        legacyCounts.artJobs === relationCounts.artJobs,
+        legacyCounts.chats === dualLinkedCounts.chats &&
+        legacyCounts.todos === dualLinkedCounts.todos &&
+        legacyCounts.reactions === dualLinkedCounts.reactions,
     })
   }
 

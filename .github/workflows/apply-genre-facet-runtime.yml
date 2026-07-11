@@ -1,0 +1,78 @@
+name: Apply Genre Facet Runtime Cutover
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://root:password@127.0.0.1:3306/kindrobots
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/remove-genre-dream-runtime
+          fetch-depth: 1
+          show-progress: false
+
+      - name: Apply strict Genre-to-Facet runtime transformation
+        shell: bash
+        run: |
+          set -o pipefail
+          python utils/scripts/remove_genre_dream_runtime.py 2>&1 | tee genre-facet-runtime.log
+
+      - name: Upload transformation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: genre-facet-runtime-log
+          path: genre-facet-runtime.log
+          if-no-files-found: warn
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Validate Vue and TypeScript
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test 2>&1 | tee genre-facet-typecheck.log
+
+      - name: Upload TypeScript diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: genre-facet-typecheck-log
+          path: genre-facet-typecheck.log
+          if-no-files-found: warn
+
+      - name: Run Contract Tests
+        run: npm run test:contracts
+
+      - name: Commit validated runtime cutover
+        run: |
+          git config user.name "kind-robots-agent"
+          git config user.email "actions@users.noreply.github.com"
+          git add server/api/scenarios/index.get.ts \
+            'server/api/scenarios/[id].get.ts' \
+            stores/scenarioStore.ts \
+            stores/serendipityStore.ts \
+            components/pages/serendipity-page.vue \
+            cypress/e2e/api/facet-assignments.cy.ts
+          git commit -m "Move Scenario and Serendipity genre runtime to Facets"
+          git push origin HEAD:agent/remove-genre-dream-runtime

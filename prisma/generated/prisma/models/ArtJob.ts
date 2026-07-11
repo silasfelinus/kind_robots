@@ -35,6 +35,7 @@ export type ArtJobAvgAggregateOutputType = {
   id: number | null
   priority: number | null
   attempts: number | null
+  projectId: number | null
   artImageId: number | null
   userId: number | null
 }
@@ -43,6 +44,7 @@ export type ArtJobSumAggregateOutputType = {
   id: number | null
   priority: number | null
   attempts: number | null
+  projectId: number | null
   artImageId: number | null
   userId: number | null
 }
@@ -58,6 +60,7 @@ export type ArtJobMinAggregateOutputType = {
   claimedAt: Date | null
   claimedBy: string | null
   projectSlug: string | null
+  projectId: number | null
   artImageId: number | null
   error: string | null
   userId: number | null
@@ -74,6 +77,7 @@ export type ArtJobMaxAggregateOutputType = {
   claimedAt: Date | null
   claimedBy: string | null
   projectSlug: string | null
+  projectId: number | null
   artImageId: number | null
   error: string | null
   userId: number | null
@@ -91,6 +95,7 @@ export type ArtJobCountAggregateOutputType = {
   claimedAt: number
   claimedBy: number
   projectSlug: number
+  projectId: number
   artImageId: number
   error: number
   userId: number
@@ -102,6 +107,7 @@ export type ArtJobAvgAggregateInputType = {
   id?: true
   priority?: true
   attempts?: true
+  projectId?: true
   artImageId?: true
   userId?: true
 }
@@ -110,6 +116,7 @@ export type ArtJobSumAggregateInputType = {
   id?: true
   priority?: true
   attempts?: true
+  projectId?: true
   artImageId?: true
   userId?: true
 }
@@ -125,6 +132,7 @@ export type ArtJobMinAggregateInputType = {
   claimedAt?: true
   claimedBy?: true
   projectSlug?: true
+  projectId?: true
   artImageId?: true
   error?: true
   userId?: true
@@ -141,6 +149,7 @@ export type ArtJobMaxAggregateInputType = {
   claimedAt?: true
   claimedBy?: true
   projectSlug?: true
+  projectId?: true
   artImageId?: true
   error?: true
   userId?: true
@@ -158,6 +167,7 @@ export type ArtJobCountAggregateInputType = {
   claimedAt?: true
   claimedBy?: true
   projectSlug?: true
+  projectId?: true
   artImageId?: true
   error?: true
   userId?: true
@@ -262,6 +272,7 @@ export type ArtJobGroupByOutputType = {
   claimedAt: Date | null
   claimedBy: string | null
   projectSlug: string | null
+  projectId: number | null
   artImageId: number | null
   error: string | null
   userId: number
@@ -302,10 +313,12 @@ export type ArtJobWhereInput = {
   claimedAt?: Prisma.DateTimeNullableFilter<"ArtJob"> | Date | string | null
   claimedBy?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   projectSlug?: Prisma.StringNullableFilter<"ArtJob"> | string | null
+  projectId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
   artImageId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
   error?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   userId?: Prisma.IntFilter<"ArtJob"> | number
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
 }
 
 export type ArtJobOrderByWithRelationInput = {
@@ -320,10 +333,12 @@ export type ArtJobOrderByWithRelationInput = {
   claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   claimedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   projectSlug?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
+  Project?: Prisma.ProjectOrderByWithRelationInput
   _relevance?: Prisma.ArtJobOrderByRelevanceInput
 }
 
@@ -342,10 +357,12 @@ export type ArtJobWhereUniqueInput = Prisma.AtLeast<{
   claimedAt?: Prisma.DateTimeNullableFilter<"ArtJob"> | Date | string | null
   claimedBy?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   projectSlug?: Prisma.StringNullableFilter<"ArtJob"> | string | null
+  projectId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
   artImageId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
   error?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   userId?: Prisma.IntFilter<"ArtJob"> | number
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
 }, "id">
 
 export type ArtJobOrderByWithAggregationInput = {
@@ -360,6 +377,7 @@ export type ArtJobOrderByWithAggregationInput = {
   claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   claimedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   projectSlug?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -385,6 +403,7 @@ export type ArtJobScalarWhereWithAggregatesInput = {
   claimedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ArtJob"> | Date | string | null
   claimedBy?: Prisma.StringNullableWithAggregatesFilter<"ArtJob"> | string | null
   projectSlug?: Prisma.StringNullableWithAggregatesFilter<"ArtJob"> | string | null
+  projectId?: Prisma.IntNullableWithAggregatesFilter<"ArtJob"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"ArtJob"> | number | null
   error?: Prisma.StringNullableWithAggregatesFilter<"ArtJob"> | string | null
   userId?: Prisma.IntWithAggregatesFilter<"ArtJob"> | number
@@ -404,6 +423,7 @@ export type ArtJobCreateInput = {
   artImageId?: number | null
   error?: string | null
   User: Prisma.UserCreateNestedOneWithoutArtJobsInput
+  Project?: Prisma.ProjectCreateNestedOneWithoutArtJobsInput
 }
 
 export type ArtJobUncheckedCreateInput = {
@@ -418,6 +438,7 @@ export type ArtJobUncheckedCreateInput = {
   claimedAt?: Date | string | null
   claimedBy?: string | null
   projectSlug?: string | null
+  projectId?: number | null
   artImageId?: number | null
   error?: string | null
   userId: number
@@ -437,6 +458,7 @@ export type ArtJobUpdateInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutArtJobsNestedInput
+  Project?: Prisma.ProjectUpdateOneWithoutArtJobsNestedInput
 }
 
 export type ArtJobUncheckedUpdateInput = {
@@ -451,6 +473,7 @@ export type ArtJobUncheckedUpdateInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   claimedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -468,6 +491,7 @@ export type ArtJobCreateManyInput = {
   claimedAt?: Date | string | null
   claimedBy?: string | null
   projectSlug?: string | null
+  projectId?: number | null
   artImageId?: number | null
   error?: string | null
   userId: number
@@ -500,6 +524,7 @@ export type ArtJobUncheckedUpdateManyInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   claimedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -533,6 +558,7 @@ export type ArtJobCountOrderByAggregateInput = {
   claimedAt?: Prisma.SortOrder
   claimedBy?: Prisma.SortOrder
   projectSlug?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   error?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -542,6 +568,7 @@ export type ArtJobAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -557,6 +584,7 @@ export type ArtJobMaxOrderByAggregateInput = {
   claimedAt?: Prisma.SortOrder
   claimedBy?: Prisma.SortOrder
   projectSlug?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   error?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -573,6 +601,7 @@ export type ArtJobMinOrderByAggregateInput = {
   claimedAt?: Prisma.SortOrder
   claimedBy?: Prisma.SortOrder
   projectSlug?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   error?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -582,8 +611,51 @@ export type ArtJobSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+}
+
+export type ArtJobCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.ArtJobCreateWithoutProjectInput, Prisma.ArtJobUncheckedCreateWithoutProjectInput> | Prisma.ArtJobCreateWithoutProjectInput[] | Prisma.ArtJobUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.ArtJobCreateOrConnectWithoutProjectInput | Prisma.ArtJobCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.ArtJobCreateManyProjectInputEnvelope
+  connect?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+}
+
+export type ArtJobUncheckedCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.ArtJobCreateWithoutProjectInput, Prisma.ArtJobUncheckedCreateWithoutProjectInput> | Prisma.ArtJobCreateWithoutProjectInput[] | Prisma.ArtJobUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.ArtJobCreateOrConnectWithoutProjectInput | Prisma.ArtJobCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.ArtJobCreateManyProjectInputEnvelope
+  connect?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+}
+
+export type ArtJobUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtJobCreateWithoutProjectInput, Prisma.ArtJobUncheckedCreateWithoutProjectInput> | Prisma.ArtJobCreateWithoutProjectInput[] | Prisma.ArtJobUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.ArtJobCreateOrConnectWithoutProjectInput | Prisma.ArtJobCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.ArtJobUpsertWithWhereUniqueWithoutProjectInput | Prisma.ArtJobUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.ArtJobCreateManyProjectInputEnvelope
+  set?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  disconnect?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  delete?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  connect?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  update?: Prisma.ArtJobUpdateWithWhereUniqueWithoutProjectInput | Prisma.ArtJobUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.ArtJobUpdateManyWithWhereWithoutProjectInput | Prisma.ArtJobUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.ArtJobScalarWhereInput | Prisma.ArtJobScalarWhereInput[]
+}
+
+export type ArtJobUncheckedUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtJobCreateWithoutProjectInput, Prisma.ArtJobUncheckedCreateWithoutProjectInput> | Prisma.ArtJobCreateWithoutProjectInput[] | Prisma.ArtJobUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.ArtJobCreateOrConnectWithoutProjectInput | Prisma.ArtJobCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.ArtJobUpsertWithWhereUniqueWithoutProjectInput | Prisma.ArtJobUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.ArtJobCreateManyProjectInputEnvelope
+  set?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  disconnect?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  delete?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  connect?: Prisma.ArtJobWhereUniqueInput | Prisma.ArtJobWhereUniqueInput[]
+  update?: Prisma.ArtJobUpdateWithWhereUniqueWithoutProjectInput | Prisma.ArtJobUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.ArtJobUpdateManyWithWhereWithoutProjectInput | Prisma.ArtJobUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.ArtJobScalarWhereInput | Prisma.ArtJobScalarWhereInput[]
 }
 
 export type ArtJobCreateNestedManyWithoutUserInput = {
@@ -632,6 +704,86 @@ export type EnumArtJobStatusFieldUpdateOperationsInput = {
   set?: $Enums.ArtJobStatus
 }
 
+export type ArtJobCreateWithoutProjectInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  status?: $Enums.ArtJobStatus
+  engine?: $Enums.ServerType
+  payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priority?: number
+  attempts?: number
+  claimedAt?: Date | string | null
+  claimedBy?: string | null
+  projectSlug?: string | null
+  artImageId?: number | null
+  error?: string | null
+  User: Prisma.UserCreateNestedOneWithoutArtJobsInput
+}
+
+export type ArtJobUncheckedCreateWithoutProjectInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  status?: $Enums.ArtJobStatus
+  engine?: $Enums.ServerType
+  payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priority?: number
+  attempts?: number
+  claimedAt?: Date | string | null
+  claimedBy?: string | null
+  projectSlug?: string | null
+  artImageId?: number | null
+  error?: string | null
+  userId: number
+}
+
+export type ArtJobCreateOrConnectWithoutProjectInput = {
+  where: Prisma.ArtJobWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtJobCreateWithoutProjectInput, Prisma.ArtJobUncheckedCreateWithoutProjectInput>
+}
+
+export type ArtJobCreateManyProjectInputEnvelope = {
+  data: Prisma.ArtJobCreateManyProjectInput | Prisma.ArtJobCreateManyProjectInput[]
+  skipDuplicates?: boolean
+}
+
+export type ArtJobUpsertWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.ArtJobWhereUniqueInput
+  update: Prisma.XOR<Prisma.ArtJobUpdateWithoutProjectInput, Prisma.ArtJobUncheckedUpdateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.ArtJobCreateWithoutProjectInput, Prisma.ArtJobUncheckedCreateWithoutProjectInput>
+}
+
+export type ArtJobUpdateWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.ArtJobWhereUniqueInput
+  data: Prisma.XOR<Prisma.ArtJobUpdateWithoutProjectInput, Prisma.ArtJobUncheckedUpdateWithoutProjectInput>
+}
+
+export type ArtJobUpdateManyWithWhereWithoutProjectInput = {
+  where: Prisma.ArtJobScalarWhereInput
+  data: Prisma.XOR<Prisma.ArtJobUpdateManyMutationInput, Prisma.ArtJobUncheckedUpdateManyWithoutProjectInput>
+}
+
+export type ArtJobScalarWhereInput = {
+  AND?: Prisma.ArtJobScalarWhereInput | Prisma.ArtJobScalarWhereInput[]
+  OR?: Prisma.ArtJobScalarWhereInput[]
+  NOT?: Prisma.ArtJobScalarWhereInput | Prisma.ArtJobScalarWhereInput[]
+  id?: Prisma.IntFilter<"ArtJob"> | number
+  createdAt?: Prisma.DateTimeFilter<"ArtJob"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"ArtJob"> | Date | string | null
+  status?: Prisma.EnumArtJobStatusFilter<"ArtJob"> | $Enums.ArtJobStatus
+  engine?: Prisma.EnumServerTypeFilter<"ArtJob"> | $Enums.ServerType
+  payload?: Prisma.JsonFilter<"ArtJob">
+  priority?: Prisma.IntFilter<"ArtJob"> | number
+  attempts?: Prisma.IntFilter<"ArtJob"> | number
+  claimedAt?: Prisma.DateTimeNullableFilter<"ArtJob"> | Date | string | null
+  claimedBy?: Prisma.StringNullableFilter<"ArtJob"> | string | null
+  projectSlug?: Prisma.StringNullableFilter<"ArtJob"> | string | null
+  projectId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
+  artImageId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
+  error?: Prisma.StringNullableFilter<"ArtJob"> | string | null
+  userId?: Prisma.IntFilter<"ArtJob"> | number
+}
+
 export type ArtJobCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -645,6 +797,7 @@ export type ArtJobCreateWithoutUserInput = {
   projectSlug?: string | null
   artImageId?: number | null
   error?: string | null
+  Project?: Prisma.ProjectCreateNestedOneWithoutArtJobsInput
 }
 
 export type ArtJobUncheckedCreateWithoutUserInput = {
@@ -659,6 +812,7 @@ export type ArtJobUncheckedCreateWithoutUserInput = {
   claimedAt?: Date | string | null
   claimedBy?: string | null
   projectSlug?: string | null
+  projectId?: number | null
   artImageId?: number | null
   error?: string | null
 }
@@ -689,24 +843,71 @@ export type ArtJobUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.ArtJobUpdateManyMutationInput, Prisma.ArtJobUncheckedUpdateManyWithoutUserInput>
 }
 
-export type ArtJobScalarWhereInput = {
-  AND?: Prisma.ArtJobScalarWhereInput | Prisma.ArtJobScalarWhereInput[]
-  OR?: Prisma.ArtJobScalarWhereInput[]
-  NOT?: Prisma.ArtJobScalarWhereInput | Prisma.ArtJobScalarWhereInput[]
-  id?: Prisma.IntFilter<"ArtJob"> | number
-  createdAt?: Prisma.DateTimeFilter<"ArtJob"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableFilter<"ArtJob"> | Date | string | null
-  status?: Prisma.EnumArtJobStatusFilter<"ArtJob"> | $Enums.ArtJobStatus
-  engine?: Prisma.EnumServerTypeFilter<"ArtJob"> | $Enums.ServerType
-  payload?: Prisma.JsonFilter<"ArtJob">
-  priority?: Prisma.IntFilter<"ArtJob"> | number
-  attempts?: Prisma.IntFilter<"ArtJob"> | number
-  claimedAt?: Prisma.DateTimeNullableFilter<"ArtJob"> | Date | string | null
-  claimedBy?: Prisma.StringNullableFilter<"ArtJob"> | string | null
-  projectSlug?: Prisma.StringNullableFilter<"ArtJob"> | string | null
-  artImageId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
-  error?: Prisma.StringNullableFilter<"ArtJob"> | string | null
-  userId?: Prisma.IntFilter<"ArtJob"> | number
+export type ArtJobCreateManyProjectInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  status?: $Enums.ArtJobStatus
+  engine?: $Enums.ServerType
+  payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priority?: number
+  attempts?: number
+  claimedAt?: Date | string | null
+  claimedBy?: string | null
+  projectSlug?: string | null
+  artImageId?: number | null
+  error?: string | null
+  userId: number
+}
+
+export type ArtJobUpdateWithoutProjectInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumArtJobStatusFieldUpdateOperationsInput | $Enums.ArtJobStatus
+  engine?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  claimedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  User?: Prisma.UserUpdateOneRequiredWithoutArtJobsNestedInput
+}
+
+export type ArtJobUncheckedUpdateWithoutProjectInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumArtJobStatusFieldUpdateOperationsInput | $Enums.ArtJobStatus
+  engine?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  claimedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type ArtJobUncheckedUpdateManyWithoutProjectInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumArtJobStatusFieldUpdateOperationsInput | $Enums.ArtJobStatus
+  engine?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
+  payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  claimedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ArtJobCreateManyUserInput = {
@@ -721,6 +922,7 @@ export type ArtJobCreateManyUserInput = {
   claimedAt?: Date | string | null
   claimedBy?: string | null
   projectSlug?: string | null
+  projectId?: number | null
   artImageId?: number | null
   error?: string | null
 }
@@ -738,6 +940,7 @@ export type ArtJobUpdateWithoutUserInput = {
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Project?: Prisma.ProjectUpdateOneWithoutArtJobsNestedInput
 }
 
 export type ArtJobUncheckedUpdateWithoutUserInput = {
@@ -752,6 +955,7 @@ export type ArtJobUncheckedUpdateWithoutUserInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   claimedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -768,6 +972,7 @@ export type ArtJobUncheckedUpdateManyWithoutUserInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   claimedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -786,10 +991,12 @@ export type ArtJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   claimedAt?: boolean
   claimedBy?: boolean
   projectSlug?: boolean
+  projectId?: boolean
   artImageId?: boolean
   error?: boolean
   userId?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  Project?: boolean | Prisma.ArtJob$ProjectArgs<ExtArgs>
 }, ExtArgs["result"]["artJob"]>
 
 
@@ -806,20 +1013,23 @@ export type ArtJobSelectScalar = {
   claimedAt?: boolean
   claimedBy?: boolean
   projectSlug?: boolean
+  projectId?: boolean
   artImageId?: boolean
   error?: boolean
   userId?: boolean
 }
 
-export type ArtJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "status" | "engine" | "payload" | "priority" | "attempts" | "claimedAt" | "claimedBy" | "projectSlug" | "artImageId" | "error" | "userId", ExtArgs["result"]["artJob"]>
+export type ArtJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "status" | "engine" | "payload" | "priority" | "attempts" | "claimedAt" | "claimedBy" | "projectSlug" | "projectId" | "artImageId" | "error" | "userId", ExtArgs["result"]["artJob"]>
 export type ArtJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  Project?: boolean | Prisma.ArtJob$ProjectArgs<ExtArgs>
 }
 
 export type $ArtJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ArtJob"
   objects: {
     User: Prisma.$UserPayload<ExtArgs>
+    Project: Prisma.$ProjectPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -833,6 +1043,7 @@ export type $ArtJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     claimedAt: Date | null
     claimedBy: string | null
     projectSlug: string | null
+    projectId: number | null
     artImageId: number | null
     error: string | null
     userId: number
@@ -1177,6 +1388,7 @@ readonly fields: ArtJobFieldRefs;
 export interface Prisma__ArtJobClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Project<T extends Prisma.ArtJob$ProjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtJob$ProjectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1217,6 +1429,7 @@ export interface ArtJobFieldRefs {
   readonly claimedAt: Prisma.FieldRef<"ArtJob", 'DateTime'>
   readonly claimedBy: Prisma.FieldRef<"ArtJob", 'String'>
   readonly projectSlug: Prisma.FieldRef<"ArtJob", 'String'>
+  readonly projectId: Prisma.FieldRef<"ArtJob", 'Int'>
   readonly artImageId: Prisma.FieldRef<"ArtJob", 'Int'>
   readonly error: Prisma.FieldRef<"ArtJob", 'String'>
   readonly userId: Prisma.FieldRef<"ArtJob", 'Int'>
@@ -1565,6 +1778,25 @@ export type ArtJobDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many ArtJobs to delete.
    */
   limit?: number
+}
+
+/**
+ * ArtJob.Project
+ */
+export type ArtJob$ProjectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
 }
 
 /**

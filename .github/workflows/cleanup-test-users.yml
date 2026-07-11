@@ -1,0 +1,39 @@
+# Manually-triggered sweep for leaked cypress/test users. Dry run unless the
+# `delete` input is set to true. See scripts/cleanup-test-users.mjs for the
+# matching rules (cypress/testuser name patterns only; admins and ids <= 10
+# are never touched).
+name: Cleanup Test Users
+
+on:
+  workflow_dispatch:
+    inputs:
+      delete:
+        description: 'Actually delete matches (false = dry run)'
+        required: false
+        default: 'false'
+      limit:
+        description: 'Max users to process this run (empty = all)'
+        required: false
+        default: ''
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Run cleanup script
+        env:
+          BASE_API_URL: https://kind-robots.vercel.app/api
+          ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.delete }}" = "true" ]; then ARGS="--delete"; fi
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          node scripts/cleanup-test-users.mjs $ARGS

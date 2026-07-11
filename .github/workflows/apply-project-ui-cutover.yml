@@ -1,12 +1,6 @@
-name: Apply Project UI Cutover
+name: Finish Project UI Cutover
 
 on:
-  push:
-    branches:
-      - agent/remove-project-dream-ui-fallbacks
-    paths:
-      - utils/scripts/remove_project_dream_ui_fallbacks.py
-      - .github/workflows/apply-project-ui-cutover.yml
   pull_request:
     branches:
       - main
@@ -27,75 +21,91 @@ jobs:
           fetch-depth: 1
           show-progress: false
 
-      - name: Add strict residual template replacements
+      - name: Remove remaining Project Dream component bridges
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          path = Path('utils/scripts/remove_project_dream_ui_fallbacks.py')
-          source = path.read_text(encoding='utf-8')
-          source = source.replace(
-              'from pathlib import Path\n',
-              'from pathlib import Path\nimport re\n',
-              1,
-          )
-          anchor = "assert_absent(\n    page,"
-          insert = r'''page = re.sub(
-              r'getProjectPriority\(\s*projectDreamForSlug\(project\.slug\)\?\.id,?\s*\)',
-              "(projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'",
-              page,
-          )
-          page = replace_all(
-              page,
-              'projectDreamForSlug(project.slug)?.flavorText',
-              'projectRecordForSlug(project.slug)?.flavorText',
-              'replace Project gallery flavor fallbacks',
-          )
-          page = page.replace('linkedDream?.id ?? null', 'null')
-          page = replace_all(
-              page,
-              '      dreamId: linkedDream.value?.id ?? null,\n',
+          def replace_exact(source: str, old: str, new: str, expected: int, label: str) -> str:
+              count = source.count(old)
+              if count != expected:
+                  raise RuntimeError(f'{label}: expected {expected}, found {count}')
+              return source.replace(old, new)
+
+          parent_path = Path('components/pages/conductor-page.vue')
+          parent = parent_path.read_text(encoding='utf-8')
+          parent = replace_exact(
+              parent,
+              '              :dream-id="null"\n',
               '',
-              'remove Project Dream IDs from Project writes',
+              2,
+              'remove parent Dream compatibility props',
           )
-          page = replace_once(
-              page,
-              'function projectCardPath(slug: string): string {\n',
-              "function projectCardPath(slug: string | null): string {\n  slug = slug || 'project'\n",
-              'allow nullable Project card slug',
+          if 'linkedDream' in parent or ':dream-id=' in parent:
+              raise RuntimeError('parent still contains a Project Dream bridge')
+          parent_path.write_text(parent, encoding='utf-8')
+
+          waypoints_path = Path('components/pages/conductor-project-waypoints.vue')
+          waypoints = waypoints_path.read_text(encoding='utf-8')
+          waypoints = replace_exact(
+              waypoints,
+              '  dreamId?: number | null\n',
+              '',
+              1,
+              'remove waypoint Dream prop',
           )
-          page = replace_once(
-              page,
-              'function projectHeroPath(slug: string): string {\n',
-              "function projectHeroPath(slug: string | null): string {\n  slug = slug || 'project'\n",
-              'allow nullable Project hero slug',
+          waypoints = replace_exact(
+              waypoints,
+              '    dreamId: props.dreamId ?? null,\n',
+              '',
+              1,
+              'remove waypoint Dream write',
           )
-          page = replace_once(
-              page,
-              'function projectIconPath(slug: string): string {\n',
-              "function projectIconPath(slug: string | null): string {\n  slug = slug || 'project'\n",
-              'allow nullable Project icon slug',
+          if 'dreamId' in waypoints:
+              raise RuntimeError('waypoint component still contains dreamId')
+          waypoints_path.write_text(waypoints, encoding='utf-8')
+
+          chat_path = Path('components/pages/conductor-project-chat.vue')
+          chat = chat_path.read_text(encoding='utf-8')
+          chat = replace_exact(
+              chat,
+              '<!-- Direct AI contact for a single Project. New chats persist through projectId;\n     dreamId remains an optional compatibility link during the schema cutover. -->',
+              '<!-- Direct AI contact for a single Project. Chats persist through projectId. -->',
+              1,
+              'replace Project chat compatibility comment',
           )
-          '''
-          if source.count(anchor) != 1:
-              raise SystemExit(f'expected one Conductor assertion anchor, found {source.count(anchor)}')
-          source = source.replace(anchor, insert + anchor, 1)
-          path.write_text(source, encoding='utf-8')
+          chat = replace_exact(
+              chat,
+              '  dreamId?: number | null\n',
+              '',
+              1,
+              'remove Project chat Dream prop',
+          )
+          chat = replace_exact(
+              chat,
+              "const legacyChannel = computed(() =>\n  props.dreamId ? `dream-${props.dreamId}-assistant` : '',\n)\n",
+              '',
+              1,
+              'remove legacy Project Dream channel',
+          )
+          chat = replace_exact(
+              chat,
+              '        (legacyChannel.value && chat.channel === legacyChannel.value) ||\n',
+              '',
+              1,
+              'remove legacy channel filter',
+          )
+          chat = replace_exact(
+              chat,
+              '      dreamId: props.dreamId ?? null,\n',
+              '',
+              1,
+              'remove Project chat Dream write',
+          )
+          if 'dreamId' in chat or 'legacyChannel' in chat:
+              raise RuntimeError('Project chat still contains a Dream compatibility bridge')
+          chat_path.write_text(chat, encoding='utf-8')
           PY
-
-      - name: Apply strict Project UI transformation
-        shell: bash
-        run: |
-          set -o pipefail
-          python utils/scripts/remove_project_dream_ui_fallbacks.py 2>&1 | tee project-ui-cutover.log
-
-      - name: Upload transformation diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: project-ui-cutover-log
-          path: project-ui-cutover.log
-          if-no-files-found: error
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -110,25 +120,14 @@ jobs:
         run: npx prisma generate
 
       - name: Validate Vue and TypeScript
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run test 2>&1 | tee project-ui-typecheck.log
+        run: npm run test
 
-      - name: Upload Vue and TypeScript diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: project-ui-typecheck-log
-          path: project-ui-typecheck.log
-          if-no-files-found: warn
-
-      - name: Commit validated application files
+      - name: Commit validated component cleanup
         run: |
           git config user.name "kind-robots-agent"
           git config user.email "actions@users.noreply.github.com"
           git add components/pages/conductor-page.vue \
-            components/pages/conductor-overview-gallery-page.vue \
-            stores/dreamStore.ts
-          git commit -m "Remove Project Dream UI fallbacks"
+            components/pages/conductor-project-waypoints.vue \
+            components/pages/conductor-project-chat.vue
+          git commit -m "Remove remaining Project Dream component bridges"
           git push origin HEAD:agent/remove-project-dream-ui-fallbacks

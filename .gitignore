@@ -34,3 +34,4 @@ kindblank_*.sql
 /artifacts/schema-backfill/
 /artifacts/schema-parity/
 /artifacts/genre-facet-audit/
+/artifacts/legacy-dream-cleanup/

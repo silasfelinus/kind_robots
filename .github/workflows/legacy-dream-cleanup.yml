@@ -1,0 +1,113 @@
+# One-shot migration helper (Dream → Project/Facet migration, phase 4).
+# Audits the remaining legacy PROJECT/GENRE dreams, archives them to
+# archives/legacy-dreams/legacy-dreams.json, and — only when the `delete`
+# input is true — removes the rows so the enum-dropping schema migration
+# can deploy. Delete this workflow once the legacy rows are gone.
+#
+# Connectivity mirrors fallback-snapshot.yml: the database lives on a home
+# Unraid box reachable only over Tailscale, so the job joins the tailnet as
+# an ephemeral node. Required repository Actions secrets: DATABASE_URL
+# (tailnet host), TS_OAUTH_CLIENT_ID, TS_OAUTH_SECRET.
+#
+# Run order:
+#   1. dispatch with delete=false — review the audit artifacts and the
+#      committed archive diff
+#   2. dispatch with delete=true  — re-archives, deletes, verifies zero remain
+name: Legacy Dream Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      delete:
+        description: 'Actually delete legacy dreams (false = audit + archive only)'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: legacy-dream-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Require secrets
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL repository Actions secret is empty."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      # Join the tailnet as an ephemeral node (auto-removed after the run),
+      # after the npm/prisma steps so the tailnet session stays short.
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Genre/Facet relation audit
+        run: npx tsx utils/scripts/auditLegacyGenreDreamRelations.ts --output=artifacts/legacy-dream-cleanup/genre-relations.json
+
+      # Exits non-zero unless every legacy dream is cleanup-ready (Project/
+      # Facet parity holds and no unmigrated relations remain), which blocks
+      # the archive/delete steps below.
+      - name: Project/Facet parity gate
+        run: npx tsx utils/scripts/verifyProjectDreamFacetParity.ts --output=artifacts/legacy-dream-cleanup/parity.json
+
+      - name: Archive legacy dreams (and delete if requested)
+        run: |
+          ARGS=""
+          if [ "${{ inputs.delete }}" = "true" ]; then ARGS="--delete"; fi
+          npx tsx utils/scripts/archiveLegacyDreams.ts $ARGS
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-dream-cleanup-${{ github.run_id }}
+          path: |
+            artifacts/legacy-dream-cleanup/
+            archives/legacy-dreams/
+          retention-days: 90
+
+      - name: Commit archive if changed
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ -z "$(git status --porcelain archives/legacy-dreams)" ]; then
+            echo "No archive changes."
+            exit 0
+          fi
+          git config user.name "kind-robots-snapshot[bot]"
+          git config user.email "snapshot-bot@users.noreply.github.com"
+          git add archives/legacy-dreams
+          git commit -m "chore: archive legacy PROJECT/GENRE dreams before deletion"
+          git push origin main

@@ -269,7 +269,7 @@
           </div>
 
           <div
-            v-if="dreamStore.dreams.length > 0"
+            v-if="dreamStore.creativeDreams.length > 0"
             class="mt-3 flex flex-wrap justify-center gap-2 text-xs"
           >
             <span class="badge badge-ghost"
@@ -547,7 +547,7 @@ const canEditSelected = computed(() => {
 })
 
 const galleryDreams = computed<DreamWithRelations[]>(() => {
-  let dreams = dreamStore.dreams ?? []
+  let dreams = dreamStore.creativeDreams ?? []
 
   if (!showArchived.value) {
     dreams = dreams.filter((dream) => dream.isActive !== false)
@@ -607,7 +607,7 @@ const statusLine = computed(() => {
     ? `Selected: ${getDreamTitle(dreamStore.selectedDream)}`
     : 'No Dream selected'
 
-  const total = dreamStore.dreams.length
+  const total = dreamStore.creativeDreams.length
   const visible = filteredDreams.value.length
   const active = dreamStore.activeDreams?.length ?? galleryDreams.value.length
   const hidden = Math.max(total - visible, 0)
@@ -617,7 +617,7 @@ const statusLine = computed(() => {
 })
 
 const exclusionSummary = computed(() => {
-  const allDreams = dreamStore.dreams ?? []
+  const allDreams = dreamStore.creativeDreams ?? []
   const currentId = currentUserId.value
   const query = searchQuery.value.trim().toLowerCase()
 
@@ -681,11 +681,11 @@ const exclusionSummary = computed(() => {
 })
 
 const emptyStateTitle = computed(() => {
-  if (dreamStore.dreams.length === 0) {
+  if (dreamStore.creativeDreams.length === 0) {
     return 'No Dreams loaded.'
   }
 
-  return `${dreamStore.dreams.length} Dreams loaded, but none match this gallery.`
+  return `${dreamStore.creativeDreams.length} Dreams loaded, but none match this gallery.`
 })
 
 const emptyStateDetails = computed(() => {
@@ -732,7 +732,7 @@ const emptyStateDetails = computed(() => {
     )
   }
 
-  if (reasons.length === 0 && dreamStore.dreams.length > 0) {
+  if (reasons.length === 0 && dreamStore.creativeDreams.length > 0) {
     reasons.push(
       'Dreams are loaded, but the visible list is empty. Check isPublic, isMature, isActive, dreamType, or userId values.',
     )
@@ -776,7 +776,7 @@ async function refreshDreams(force = false) {
   isLoading.value = true
 
   try {
-    const shouldForceFetch = force || dreamStore.dreams.length === 0
+    const shouldForceFetch = force || dreamStore.creativeDreams.length === 0
 
     await dreamStore.initialize({
       force: shouldForceFetch,

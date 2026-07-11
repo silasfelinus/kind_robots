@@ -30,6 +30,7 @@ export type TodoAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   dreamId: number | null
+  projectId: number | null
   order: number | null
 }
 
@@ -37,6 +38,7 @@ export type TodoSumAggregateOutputType = {
   id: number | null
   userId: number | null
   dreamId: number | null
+  projectId: number | null
   order: number | null
 }
 
@@ -54,6 +56,7 @@ export type TodoMinAggregateOutputType = {
   imagePath: string | null
   userId: number | null
   dreamId: number | null
+  projectId: number | null
   order: number | null
 }
 
@@ -71,6 +74,7 @@ export type TodoMaxAggregateOutputType = {
   imagePath: string | null
   userId: number | null
   dreamId: number | null
+  projectId: number | null
   order: number | null
 }
 
@@ -88,6 +92,7 @@ export type TodoCountAggregateOutputType = {
   imagePath: number
   userId: number
   dreamId: number
+  projectId: number
   order: number
   _all: number
 }
@@ -97,6 +102,7 @@ export type TodoAvgAggregateInputType = {
   id?: true
   userId?: true
   dreamId?: true
+  projectId?: true
   order?: true
 }
 
@@ -104,6 +110,7 @@ export type TodoSumAggregateInputType = {
   id?: true
   userId?: true
   dreamId?: true
+  projectId?: true
   order?: true
 }
 
@@ -121,6 +128,7 @@ export type TodoMinAggregateInputType = {
   imagePath?: true
   userId?: true
   dreamId?: true
+  projectId?: true
   order?: true
 }
 
@@ -138,6 +146,7 @@ export type TodoMaxAggregateInputType = {
   imagePath?: true
   userId?: true
   dreamId?: true
+  projectId?: true
   order?: true
 }
 
@@ -155,6 +164,7 @@ export type TodoCountAggregateInputType = {
   imagePath?: true
   userId?: true
   dreamId?: true
+  projectId?: true
   order?: true
   _all?: true
 }
@@ -259,6 +269,7 @@ export type TodoGroupByOutputType = {
   imagePath: string | null
   userId: number | null
   dreamId: number | null
+  projectId: number | null
   order: number | null
   _count: TodoCountAggregateOutputType | null
   _avg: TodoAvgAggregateOutputType | null
@@ -299,8 +310,10 @@ export type TodoWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Todo"> | string | null
   userId?: Prisma.IntNullableFilter<"Todo"> | number | null
   dreamId?: Prisma.IntNullableFilter<"Todo"> | number | null
+  projectId?: Prisma.IntNullableFilter<"Todo"> | number | null
   order?: Prisma.IntNullableFilter<"Todo"> | number | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
+  Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
 }
 
 export type TodoOrderByWithRelationInput = {
@@ -317,8 +330,10 @@ export type TodoOrderByWithRelationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   order?: Prisma.SortOrderInput | Prisma.SortOrder
   Dream?: Prisma.DreamOrderByWithRelationInput
+  Project?: Prisma.ProjectOrderByWithRelationInput
   _relevance?: Prisma.TodoOrderByRelevanceInput
 }
 
@@ -339,8 +354,10 @@ export type TodoWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Todo"> | string | null
   userId?: Prisma.IntNullableFilter<"Todo"> | number | null
   dreamId?: Prisma.IntNullableFilter<"Todo"> | number | null
+  projectId?: Prisma.IntNullableFilter<"Todo"> | number | null
   order?: Prisma.IntNullableFilter<"Todo"> | number | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
+  Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
 }, "id">
 
 export type TodoOrderByWithAggregationInput = {
@@ -357,6 +374,7 @@ export type TodoOrderByWithAggregationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   order?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TodoCountOrderByAggregateInput
   _avg?: Prisma.TodoAvgOrderByAggregateInput
@@ -382,6 +400,7 @@ export type TodoScalarWhereWithAggregatesInput = {
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Todo"> | string | null
   userId?: Prisma.IntNullableWithAggregatesFilter<"Todo"> | number | null
   dreamId?: Prisma.IntNullableWithAggregatesFilter<"Todo"> | number | null
+  projectId?: Prisma.IntNullableWithAggregatesFilter<"Todo"> | number | null
   order?: Prisma.IntNullableWithAggregatesFilter<"Todo"> | number | null
 }
 
@@ -399,6 +418,7 @@ export type TodoCreateInput = {
   userId?: number | null
   order?: number | null
   Dream?: Prisma.DreamCreateNestedOneWithoutTodosInput
+  Project?: Prisma.ProjectCreateNestedOneWithoutTodosInput
 }
 
 export type TodoUncheckedCreateInput = {
@@ -415,6 +435,7 @@ export type TodoUncheckedCreateInput = {
   imagePath?: string | null
   userId?: number | null
   dreamId?: number | null
+  projectId?: number | null
   order?: number | null
 }
 
@@ -432,6 +453,7 @@ export type TodoUpdateInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Dream?: Prisma.DreamUpdateOneWithoutTodosNestedInput
+  Project?: Prisma.ProjectUpdateOneWithoutTodosNestedInput
 }
 
 export type TodoUncheckedUpdateInput = {
@@ -448,6 +470,7 @@ export type TodoUncheckedUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -465,6 +488,7 @@ export type TodoCreateManyInput = {
   imagePath?: string | null
   userId?: number | null
   dreamId?: number | null
+  projectId?: number | null
   order?: number | null
 }
 
@@ -497,6 +521,7 @@ export type TodoUncheckedUpdateManyInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -530,6 +555,7 @@ export type TodoCountOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   order?: Prisma.SortOrder
 }
 
@@ -537,6 +563,7 @@ export type TodoAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   order?: Prisma.SortOrder
 }
 
@@ -554,6 +581,7 @@ export type TodoMaxOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   order?: Prisma.SortOrder
 }
 
@@ -571,6 +599,7 @@ export type TodoMinOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   order?: Prisma.SortOrder
 }
 
@@ -578,6 +607,7 @@ export type TodoSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   order?: Prisma.SortOrder
 }
 
@@ -623,6 +653,48 @@ export type TodoUncheckedUpdateManyWithoutDreamNestedInput = {
   deleteMany?: Prisma.TodoScalarWhereInput | Prisma.TodoScalarWhereInput[]
 }
 
+export type TodoCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.TodoCreateWithoutProjectInput, Prisma.TodoUncheckedCreateWithoutProjectInput> | Prisma.TodoCreateWithoutProjectInput[] | Prisma.TodoUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.TodoCreateOrConnectWithoutProjectInput | Prisma.TodoCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.TodoCreateManyProjectInputEnvelope
+  connect?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+}
+
+export type TodoUncheckedCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.TodoCreateWithoutProjectInput, Prisma.TodoUncheckedCreateWithoutProjectInput> | Prisma.TodoCreateWithoutProjectInput[] | Prisma.TodoUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.TodoCreateOrConnectWithoutProjectInput | Prisma.TodoCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.TodoCreateManyProjectInputEnvelope
+  connect?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+}
+
+export type TodoUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.TodoCreateWithoutProjectInput, Prisma.TodoUncheckedCreateWithoutProjectInput> | Prisma.TodoCreateWithoutProjectInput[] | Prisma.TodoUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.TodoCreateOrConnectWithoutProjectInput | Prisma.TodoCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.TodoUpsertWithWhereUniqueWithoutProjectInput | Prisma.TodoUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.TodoCreateManyProjectInputEnvelope
+  set?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  disconnect?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  delete?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  connect?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  update?: Prisma.TodoUpdateWithWhereUniqueWithoutProjectInput | Prisma.TodoUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.TodoUpdateManyWithWhereWithoutProjectInput | Prisma.TodoUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.TodoScalarWhereInput | Prisma.TodoScalarWhereInput[]
+}
+
+export type TodoUncheckedUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.TodoCreateWithoutProjectInput, Prisma.TodoUncheckedCreateWithoutProjectInput> | Prisma.TodoCreateWithoutProjectInput[] | Prisma.TodoUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.TodoCreateOrConnectWithoutProjectInput | Prisma.TodoCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.TodoUpsertWithWhereUniqueWithoutProjectInput | Prisma.TodoUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.TodoCreateManyProjectInputEnvelope
+  set?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  disconnect?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  delete?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  connect?: Prisma.TodoWhereUniqueInput | Prisma.TodoWhereUniqueInput[]
+  update?: Prisma.TodoUpdateWithWhereUniqueWithoutProjectInput | Prisma.TodoUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.TodoUpdateManyWithWhereWithoutProjectInput | Prisma.TodoUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.TodoScalarWhereInput | Prisma.TodoScalarWhereInput[]
+}
+
 export type EnumTodoStatusFieldUpdateOperationsInput = {
   set?: $Enums.TodoStatus
 }
@@ -648,6 +720,7 @@ export type TodoCreateWithoutDreamInput = {
   imagePath?: string | null
   userId?: number | null
   order?: number | null
+  Project?: Prisma.ProjectCreateNestedOneWithoutTodosInput
 }
 
 export type TodoUncheckedCreateWithoutDreamInput = {
@@ -663,6 +736,7 @@ export type TodoUncheckedCreateWithoutDreamInput = {
   icon?: string | null
   imagePath?: string | null
   userId?: number | null
+  projectId?: number | null
   order?: number | null
 }
 
@@ -709,7 +783,67 @@ export type TodoScalarWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Todo"> | string | null
   userId?: Prisma.IntNullableFilter<"Todo"> | number | null
   dreamId?: Prisma.IntNullableFilter<"Todo"> | number | null
+  projectId?: Prisma.IntNullableFilter<"Todo"> | number | null
   order?: Prisma.IntNullableFilter<"Todo"> | number | null
+}
+
+export type TodoCreateWithoutProjectInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  description?: string | null
+  status?: $Enums.TodoStatus
+  priority?: $Enums.TodoPriority
+  category?: $Enums.TodoCategory
+  dueDate?: Date | string | null
+  icon?: string | null
+  imagePath?: string | null
+  userId?: number | null
+  order?: number | null
+  Dream?: Prisma.DreamCreateNestedOneWithoutTodosInput
+}
+
+export type TodoUncheckedCreateWithoutProjectInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  description?: string | null
+  status?: $Enums.TodoStatus
+  priority?: $Enums.TodoPriority
+  category?: $Enums.TodoCategory
+  dueDate?: Date | string | null
+  icon?: string | null
+  imagePath?: string | null
+  userId?: number | null
+  dreamId?: number | null
+  order?: number | null
+}
+
+export type TodoCreateOrConnectWithoutProjectInput = {
+  where: Prisma.TodoWhereUniqueInput
+  create: Prisma.XOR<Prisma.TodoCreateWithoutProjectInput, Prisma.TodoUncheckedCreateWithoutProjectInput>
+}
+
+export type TodoCreateManyProjectInputEnvelope = {
+  data: Prisma.TodoCreateManyProjectInput | Prisma.TodoCreateManyProjectInput[]
+  skipDuplicates?: boolean
+}
+
+export type TodoUpsertWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.TodoWhereUniqueInput
+  update: Prisma.XOR<Prisma.TodoUpdateWithoutProjectInput, Prisma.TodoUncheckedUpdateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.TodoCreateWithoutProjectInput, Prisma.TodoUncheckedCreateWithoutProjectInput>
+}
+
+export type TodoUpdateWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.TodoWhereUniqueInput
+  data: Prisma.XOR<Prisma.TodoUpdateWithoutProjectInput, Prisma.TodoUncheckedUpdateWithoutProjectInput>
+}
+
+export type TodoUpdateManyWithWhereWithoutProjectInput = {
+  where: Prisma.TodoScalarWhereInput
+  data: Prisma.XOR<Prisma.TodoUpdateManyMutationInput, Prisma.TodoUncheckedUpdateManyWithoutProjectInput>
 }
 
 export type TodoCreateManyDreamInput = {
@@ -725,6 +859,7 @@ export type TodoCreateManyDreamInput = {
   icon?: string | null
   imagePath?: string | null
   userId?: number | null
+  projectId?: number | null
   order?: number | null
 }
 
@@ -741,6 +876,7 @@ export type TodoUpdateWithoutDreamInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Project?: Prisma.ProjectUpdateOneWithoutTodosNestedInput
 }
 
 export type TodoUncheckedUpdateWithoutDreamInput = {
@@ -756,6 +892,7 @@ export type TodoUncheckedUpdateWithoutDreamInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -772,6 +909,74 @@ export type TodoUncheckedUpdateManyWithoutDreamInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type TodoCreateManyProjectInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  description?: string | null
+  status?: $Enums.TodoStatus
+  priority?: $Enums.TodoPriority
+  category?: $Enums.TodoCategory
+  dueDate?: Date | string | null
+  icon?: string | null
+  imagePath?: string | null
+  userId?: number | null
+  dreamId?: number | null
+  order?: number | null
+}
+
+export type TodoUpdateWithoutProjectInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTodoStatusFieldUpdateOperationsInput | $Enums.TodoStatus
+  priority?: Prisma.EnumTodoPriorityFieldUpdateOperationsInput | $Enums.TodoPriority
+  category?: Prisma.EnumTodoCategoryFieldUpdateOperationsInput | $Enums.TodoCategory
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Dream?: Prisma.DreamUpdateOneWithoutTodosNestedInput
+}
+
+export type TodoUncheckedUpdateWithoutProjectInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTodoStatusFieldUpdateOperationsInput | $Enums.TodoStatus
+  priority?: Prisma.EnumTodoPriorityFieldUpdateOperationsInput | $Enums.TodoPriority
+  category?: Prisma.EnumTodoCategoryFieldUpdateOperationsInput | $Enums.TodoCategory
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type TodoUncheckedUpdateManyWithoutProjectInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTodoStatusFieldUpdateOperationsInput | $Enums.TodoStatus
+  priority?: Prisma.EnumTodoPriorityFieldUpdateOperationsInput | $Enums.TodoPriority
+  category?: Prisma.EnumTodoCategoryFieldUpdateOperationsInput | $Enums.TodoCategory
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -791,8 +996,10 @@ export type TodoSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   imagePath?: boolean
   userId?: boolean
   dreamId?: boolean
+  projectId?: boolean
   order?: boolean
   Dream?: boolean | Prisma.Todo$DreamArgs<ExtArgs>
+  Project?: boolean | Prisma.Todo$ProjectArgs<ExtArgs>
 }, ExtArgs["result"]["todo"]>
 
 
@@ -811,18 +1018,21 @@ export type TodoSelectScalar = {
   imagePath?: boolean
   userId?: boolean
   dreamId?: boolean
+  projectId?: boolean
   order?: boolean
 }
 
-export type TodoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "status" | "priority" | "category" | "dueDate" | "icon" | "imagePath" | "userId" | "dreamId" | "order", ExtArgs["result"]["todo"]>
+export type TodoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "status" | "priority" | "category" | "dueDate" | "icon" | "imagePath" | "userId" | "dreamId" | "projectId" | "order", ExtArgs["result"]["todo"]>
 export type TodoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Dream?: boolean | Prisma.Todo$DreamArgs<ExtArgs>
+  Project?: boolean | Prisma.Todo$ProjectArgs<ExtArgs>
 }
 
 export type $TodoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Todo"
   objects: {
     Dream: Prisma.$DreamPayload<ExtArgs> | null
+    Project: Prisma.$ProjectPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -838,6 +1048,7 @@ export type $TodoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     imagePath: string | null
     userId: number | null
     dreamId: number | null
+    projectId: number | null
     order: number | null
   }, ExtArgs["result"]["todo"]>
   composites: {}
@@ -1180,6 +1391,7 @@ readonly fields: TodoFieldRefs;
 export interface Prisma__TodoClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Dream<T extends Prisma.Todo$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Todo$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Project<T extends Prisma.Todo$ProjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Todo$ProjectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1222,6 +1434,7 @@ export interface TodoFieldRefs {
   readonly imagePath: Prisma.FieldRef<"Todo", 'String'>
   readonly userId: Prisma.FieldRef<"Todo", 'Int'>
   readonly dreamId: Prisma.FieldRef<"Todo", 'Int'>
+  readonly projectId: Prisma.FieldRef<"Todo", 'Int'>
   readonly order: Prisma.FieldRef<"Todo", 'Int'>
 }
     
@@ -1587,6 +1800,25 @@ export type Todo$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.DreamInclude<ExtArgs> | null
   where?: Prisma.DreamWhereInput
+}
+
+/**
+ * Todo.Project
+ */
+export type Todo$ProjectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
 }
 
 /**

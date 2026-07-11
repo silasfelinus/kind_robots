@@ -29,6 +29,7 @@ export type AggregatePitchSheet = {
 export type PitchSheetAvgAggregateOutputType = {
   id: number | null
   dreamId: number | null
+  projectId: number | null
   artImageId: number | null
   userId: number | null
 }
@@ -36,6 +37,7 @@ export type PitchSheetAvgAggregateOutputType = {
 export type PitchSheetSumAggregateOutputType = {
   id: number | null
   dreamId: number | null
+  projectId: number | null
   artImageId: number | null
   userId: number | null
 }
@@ -45,6 +47,7 @@ export type PitchSheetMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   dreamId: number | null
+  projectId: number | null
   layoutKey: string | null
   title: string | null
   subtitle: string | null
@@ -81,6 +84,7 @@ export type PitchSheetMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   dreamId: number | null
+  projectId: number | null
   layoutKey: string | null
   title: string | null
   subtitle: string | null
@@ -117,6 +121,7 @@ export type PitchSheetCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   dreamId: number
+  projectId: number
   layoutKey: number
   title: number
   subtitle: number
@@ -154,6 +159,7 @@ export type PitchSheetCountAggregateOutputType = {
 export type PitchSheetAvgAggregateInputType = {
   id?: true
   dreamId?: true
+  projectId?: true
   artImageId?: true
   userId?: true
 }
@@ -161,6 +167,7 @@ export type PitchSheetAvgAggregateInputType = {
 export type PitchSheetSumAggregateInputType = {
   id?: true
   dreamId?: true
+  projectId?: true
   artImageId?: true
   userId?: true
 }
@@ -170,6 +177,7 @@ export type PitchSheetMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   dreamId?: true
+  projectId?: true
   layoutKey?: true
   title?: true
   subtitle?: true
@@ -206,6 +214,7 @@ export type PitchSheetMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   dreamId?: true
+  projectId?: true
   layoutKey?: true
   title?: true
   subtitle?: true
@@ -242,6 +251,7 @@ export type PitchSheetCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   dreamId?: true
+  projectId?: true
   layoutKey?: true
   title?: true
   subtitle?: true
@@ -365,7 +375,8 @@ export type PitchSheetGroupByOutputType = {
   id: number
   createdAt: Date
   updatedAt: Date | null
-  dreamId: number
+  dreamId: number | null
+  projectId: number | null
   layoutKey: string
   title: string
   subtitle: string | null
@@ -425,7 +436,8 @@ export type PitchSheetWhereInput = {
   id?: Prisma.IntFilter<"PitchSheet"> | number
   createdAt?: Prisma.DateTimeFilter<"PitchSheet"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"PitchSheet"> | Date | string | null
-  dreamId?: Prisma.IntFilter<"PitchSheet"> | number
+  dreamId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
+  projectId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   layoutKey?: Prisma.StringFilter<"PitchSheet"> | string
   title?: Prisma.StringFilter<"PitchSheet"> | string
   subtitle?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
@@ -456,7 +468,8 @@ export type PitchSheetWhereInput = {
   isActive?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isMature?: Prisma.BoolFilter<"PitchSheet"> | boolean
   designer?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
-  Dream?: Prisma.XOR<Prisma.DreamScalarRelationFilter, Prisma.DreamWhereInput>
+  Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
+  Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -465,7 +478,8 @@ export type PitchSheetOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  dreamId?: Prisma.SortOrder
+  dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -497,6 +511,7 @@ export type PitchSheetOrderByWithRelationInput = {
   isMature?: Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   Dream?: Prisma.DreamOrderByWithRelationInput
+  Project?: Prisma.ProjectOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.PitchSheetOrderByRelevanceInput
@@ -505,6 +520,7 @@ export type PitchSheetOrderByWithRelationInput = {
 export type PitchSheetWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   dreamId?: number
+  projectId?: number
   AND?: Prisma.PitchSheetWhereInput | Prisma.PitchSheetWhereInput[]
   OR?: Prisma.PitchSheetWhereInput[]
   NOT?: Prisma.PitchSheetWhereInput | Prisma.PitchSheetWhereInput[]
@@ -540,16 +556,18 @@ export type PitchSheetWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isMature?: Prisma.BoolFilter<"PitchSheet"> | boolean
   designer?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
-  Dream?: Prisma.XOR<Prisma.DreamScalarRelationFilter, Prisma.DreamWhereInput>
+  Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
+  Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id" | "dreamId">
+}, "id" | "dreamId" | "projectId">
 
 export type PitchSheetOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  dreamId?: Prisma.SortOrder
+  dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -594,7 +612,8 @@ export type PitchSheetScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"PitchSheet"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PitchSheet"> | Date | string
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PitchSheet"> | Date | string | null
-  dreamId?: Prisma.IntWithAggregatesFilter<"PitchSheet"> | number
+  dreamId?: Prisma.IntNullableWithAggregatesFilter<"PitchSheet"> | number | null
+  projectId?: Prisma.IntNullableWithAggregatesFilter<"PitchSheet"> | number | null
   layoutKey?: Prisma.StringWithAggregatesFilter<"PitchSheet"> | string
   title?: Prisma.StringWithAggregatesFilter<"PitchSheet"> | string
   subtitle?: Prisma.StringNullableWithAggregatesFilter<"PitchSheet"> | string | null
@@ -658,7 +677,8 @@ export type PitchSheetCreateInput = {
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
-  Dream: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
+  Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
   User?: Prisma.UserCreateNestedOneWithoutPitchSheetsInput
 }
@@ -667,7 +687,8 @@ export type PitchSheetUncheckedCreateInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  dreamId: number
+  dreamId?: number | null
+  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -731,7 +752,8 @@ export type PitchSheetUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Dream?: Prisma.DreamUpdateOneRequiredWithoutPitchSheetNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
+  Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchSheetsNestedInput
 }
@@ -740,7 +762,8 @@ export type PitchSheetUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dreamId?: Prisma.IntFieldUpdateOperationsInput | number
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -777,7 +800,8 @@ export type PitchSheetCreateManyInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  dreamId: number
+  dreamId?: number | null
+  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -847,7 +871,8 @@ export type PitchSheetUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dreamId?: Prisma.IntFieldUpdateOperationsInput | number
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -906,6 +931,7 @@ export type PitchSheetCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
@@ -941,6 +967,7 @@ export type PitchSheetCountOrderByAggregateInput = {
 export type PitchSheetAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -950,6 +977,7 @@ export type PitchSheetMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
@@ -986,6 +1014,7 @@ export type PitchSheetMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
@@ -1020,6 +1049,7 @@ export type PitchSheetMinOrderByAggregateInput = {
 export type PitchSheetSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -1098,6 +1128,38 @@ export type PitchSheetUncheckedUpdateOneWithoutDreamNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PitchSheetUpdateToOneWithWhereWithoutDreamInput, Prisma.PitchSheetUpdateWithoutDreamInput>, Prisma.PitchSheetUncheckedUpdateWithoutDreamInput>
 }
 
+export type PitchSheetCreateNestedOneWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.PitchSheetCreateWithoutProjectInput, Prisma.PitchSheetUncheckedCreateWithoutProjectInput>
+  connectOrCreate?: Prisma.PitchSheetCreateOrConnectWithoutProjectInput
+  connect?: Prisma.PitchSheetWhereUniqueInput
+}
+
+export type PitchSheetUncheckedCreateNestedOneWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.PitchSheetCreateWithoutProjectInput, Prisma.PitchSheetUncheckedCreateWithoutProjectInput>
+  connectOrCreate?: Prisma.PitchSheetCreateOrConnectWithoutProjectInput
+  connect?: Prisma.PitchSheetWhereUniqueInput
+}
+
+export type PitchSheetUpdateOneWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.PitchSheetCreateWithoutProjectInput, Prisma.PitchSheetUncheckedCreateWithoutProjectInput>
+  connectOrCreate?: Prisma.PitchSheetCreateOrConnectWithoutProjectInput
+  upsert?: Prisma.PitchSheetUpsertWithoutProjectInput
+  disconnect?: Prisma.PitchSheetWhereInput | boolean
+  delete?: Prisma.PitchSheetWhereInput | boolean
+  connect?: Prisma.PitchSheetWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PitchSheetUpdateToOneWithWhereWithoutProjectInput, Prisma.PitchSheetUpdateWithoutProjectInput>, Prisma.PitchSheetUncheckedUpdateWithoutProjectInput>
+}
+
+export type PitchSheetUncheckedUpdateOneWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.PitchSheetCreateWithoutProjectInput, Prisma.PitchSheetUncheckedCreateWithoutProjectInput>
+  connectOrCreate?: Prisma.PitchSheetCreateOrConnectWithoutProjectInput
+  upsert?: Prisma.PitchSheetUpsertWithoutProjectInput
+  disconnect?: Prisma.PitchSheetWhereInput | boolean
+  delete?: Prisma.PitchSheetWhereInput | boolean
+  connect?: Prisma.PitchSheetWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PitchSheetUpdateToOneWithWhereWithoutProjectInput, Prisma.PitchSheetUpdateWithoutProjectInput>, Prisma.PitchSheetUncheckedUpdateWithoutProjectInput>
+}
+
 export type PitchSheetCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.PitchSheetCreateWithoutUserInput, Prisma.PitchSheetUncheckedCreateWithoutUserInput> | Prisma.PitchSheetCreateWithoutUserInput[] | Prisma.PitchSheetUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.PitchSheetCreateOrConnectWithoutUserInput | Prisma.PitchSheetCreateOrConnectWithoutUserInput[]
@@ -1171,7 +1233,8 @@ export type PitchSheetCreateWithoutArtImageInput = {
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
-  Dream: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
+  Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
   User?: Prisma.UserCreateNestedOneWithoutPitchSheetsInput
 }
 
@@ -1179,7 +1242,8 @@ export type PitchSheetUncheckedCreateWithoutArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  dreamId: number
+  dreamId?: number | null
+  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1244,7 +1308,8 @@ export type PitchSheetScalarWhereInput = {
   id?: Prisma.IntFilter<"PitchSheet"> | number
   createdAt?: Prisma.DateTimeFilter<"PitchSheet"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"PitchSheet"> | Date | string | null
-  dreamId?: Prisma.IntFilter<"PitchSheet"> | number
+  dreamId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
+  projectId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   layoutKey?: Prisma.StringFilter<"PitchSheet"> | string
   title?: Prisma.StringFilter<"PitchSheet"> | string
   subtitle?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
@@ -1308,6 +1373,7 @@ export type PitchSheetCreateWithoutDreamInput = {
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
   User?: Prisma.UserCreateNestedOneWithoutPitchSheetsInput
 }
@@ -1316,6 +1382,7 @@ export type PitchSheetUncheckedCreateWithoutDreamInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1395,6 +1462,7 @@ export type PitchSheetUpdateWithoutDreamInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchSheetsNestedInput
 }
@@ -1403,6 +1471,169 @@ export type PitchSheetUncheckedUpdateWithoutDreamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hook?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight1Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight1Value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight1Icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight2Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight2Value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight2Icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight3Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight3Value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight3Icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail1Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail1Body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail2Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail2Body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail3Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail3Body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type PitchSheetCreateWithoutProjectInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  layoutKey?: string
+  title: string
+  subtitle?: string | null
+  hook?: string | null
+  pitch?: string | null
+  highlight1Label?: string | null
+  highlight1Value?: string | null
+  highlight1Icon?: string | null
+  highlight2Label?: string | null
+  highlight2Value?: string | null
+  highlight2Icon?: string | null
+  highlight3Label?: string | null
+  highlight3Value?: string | null
+  highlight3Icon?: string | null
+  detail1Label?: string | null
+  detail1Body?: string | null
+  detail2Label?: string | null
+  detail2Body?: string | null
+  detail3Label?: string | null
+  detail3Body?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  colorTheme?: string | null
+  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
+  designer?: string | null
+  Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
+  User?: Prisma.UserCreateNestedOneWithoutPitchSheetsInput
+}
+
+export type PitchSheetUncheckedCreateWithoutProjectInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  dreamId?: number | null
+  layoutKey?: string
+  title: string
+  subtitle?: string | null
+  hook?: string | null
+  pitch?: string | null
+  highlight1Label?: string | null
+  highlight1Value?: string | null
+  highlight1Icon?: string | null
+  highlight2Label?: string | null
+  highlight2Value?: string | null
+  highlight2Icon?: string | null
+  highlight3Label?: string | null
+  highlight3Value?: string | null
+  highlight3Icon?: string | null
+  detail1Label?: string | null
+  detail1Body?: string | null
+  detail2Label?: string | null
+  detail2Body?: string | null
+  detail3Label?: string | null
+  detail3Body?: string | null
+  imagePath?: string | null
+  artImageId?: number | null
+  icon?: string | null
+  colorTheme?: string | null
+  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  userId?: number | null
+  isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
+  designer?: string | null
+}
+
+export type PitchSheetCreateOrConnectWithoutProjectInput = {
+  where: Prisma.PitchSheetWhereUniqueInput
+  create: Prisma.XOR<Prisma.PitchSheetCreateWithoutProjectInput, Prisma.PitchSheetUncheckedCreateWithoutProjectInput>
+}
+
+export type PitchSheetUpsertWithoutProjectInput = {
+  update: Prisma.XOR<Prisma.PitchSheetUpdateWithoutProjectInput, Prisma.PitchSheetUncheckedUpdateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.PitchSheetCreateWithoutProjectInput, Prisma.PitchSheetUncheckedCreateWithoutProjectInput>
+  where?: Prisma.PitchSheetWhereInput
+}
+
+export type PitchSheetUpdateToOneWithWhereWithoutProjectInput = {
+  where?: Prisma.PitchSheetWhereInput
+  data: Prisma.XOR<Prisma.PitchSheetUpdateWithoutProjectInput, Prisma.PitchSheetUncheckedUpdateWithoutProjectInput>
+}
+
+export type PitchSheetUpdateWithoutProjectInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hook?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight1Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight1Value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight1Icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight2Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight2Value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight2Icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight3Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight3Value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlight3Icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail1Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail1Body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail2Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail2Body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail3Label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detail3Body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutPitchSheetsNestedInput
+}
+
+export type PitchSheetUncheckedUpdateWithoutProjectInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1466,7 +1697,8 @@ export type PitchSheetCreateWithoutUserInput = {
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
-  Dream: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
+  Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
 }
 
@@ -1474,7 +1706,8 @@ export type PitchSheetUncheckedCreateWithoutUserInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  dreamId: number
+  dreamId?: number | null
+  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1536,7 +1769,8 @@ export type PitchSheetCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  dreamId: number
+  dreamId?: number | null
+  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1599,7 +1833,8 @@ export type PitchSheetUpdateWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Dream?: Prisma.DreamUpdateOneRequiredWithoutPitchSheetNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
+  Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchSheetsNestedInput
 }
 
@@ -1607,7 +1842,8 @@ export type PitchSheetUncheckedUpdateWithoutArtImageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dreamId?: Prisma.IntFieldUpdateOperationsInput | number
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1643,7 +1879,8 @@ export type PitchSheetUncheckedUpdateManyWithoutArtImageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dreamId?: Prisma.IntFieldUpdateOperationsInput | number
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1679,7 +1916,8 @@ export type PitchSheetCreateManyUserInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  dreamId: number
+  dreamId?: number | null
+  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1742,7 +1980,8 @@ export type PitchSheetUpdateWithoutUserInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Dream?: Prisma.DreamUpdateOneRequiredWithoutPitchSheetNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
+  Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
 }
 
@@ -1750,7 +1989,8 @@ export type PitchSheetUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dreamId?: Prisma.IntFieldUpdateOperationsInput | number
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1786,7 +2026,8 @@ export type PitchSheetUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dreamId?: Prisma.IntFieldUpdateOperationsInput | number
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1825,6 +2066,7 @@ export type PitchSheetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   createdAt?: boolean
   updatedAt?: boolean
   dreamId?: boolean
+  projectId?: boolean
   layoutKey?: boolean
   title?: boolean
   subtitle?: boolean
@@ -1855,7 +2097,8 @@ export type PitchSheetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   isActive?: boolean
   isMature?: boolean
   designer?: boolean
-  Dream?: boolean | Prisma.DreamDefaultArgs<ExtArgs>
+  Dream?: boolean | Prisma.PitchSheet$DreamArgs<ExtArgs>
+  Project?: boolean | Prisma.PitchSheet$ProjectArgs<ExtArgs>
   ArtImage?: boolean | Prisma.PitchSheet$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.PitchSheet$UserArgs<ExtArgs>
 }, ExtArgs["result"]["pitchSheet"]>
@@ -1867,6 +2110,7 @@ export type PitchSheetSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   dreamId?: boolean
+  projectId?: boolean
   layoutKey?: boolean
   title?: boolean
   subtitle?: boolean
@@ -1899,9 +2143,10 @@ export type PitchSheetSelectScalar = {
   designer?: boolean
 }
 
-export type PitchSheetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "dreamId" | "layoutKey" | "title" | "subtitle" | "hook" | "pitch" | "highlight1Label" | "highlight1Value" | "highlight1Icon" | "highlight2Label" | "highlight2Value" | "highlight2Icon" | "highlight3Label" | "highlight3Value" | "highlight3Icon" | "detail1Label" | "detail1Body" | "detail2Label" | "detail2Body" | "detail3Label" | "detail3Body" | "imagePath" | "artImageId" | "icon" | "colorTheme" | "extraData" | "userId" | "isPublic" | "isActive" | "isMature" | "designer", ExtArgs["result"]["pitchSheet"]>
+export type PitchSheetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "dreamId" | "projectId" | "layoutKey" | "title" | "subtitle" | "hook" | "pitch" | "highlight1Label" | "highlight1Value" | "highlight1Icon" | "highlight2Label" | "highlight2Value" | "highlight2Icon" | "highlight3Label" | "highlight3Value" | "highlight3Icon" | "detail1Label" | "detail1Body" | "detail2Label" | "detail2Body" | "detail3Label" | "detail3Body" | "imagePath" | "artImageId" | "icon" | "colorTheme" | "extraData" | "userId" | "isPublic" | "isActive" | "isMature" | "designer", ExtArgs["result"]["pitchSheet"]>
 export type PitchSheetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Dream?: boolean | Prisma.DreamDefaultArgs<ExtArgs>
+  Dream?: boolean | Prisma.PitchSheet$DreamArgs<ExtArgs>
+  Project?: boolean | Prisma.PitchSheet$ProjectArgs<ExtArgs>
   ArtImage?: boolean | Prisma.PitchSheet$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.PitchSheet$UserArgs<ExtArgs>
 }
@@ -1909,7 +2154,8 @@ export type PitchSheetInclude<ExtArgs extends runtime.Types.Extensions.InternalA
 export type $PitchSheetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PitchSheet"
   objects: {
-    Dream: Prisma.$DreamPayload<ExtArgs>
+    Dream: Prisma.$DreamPayload<ExtArgs> | null
+    Project: Prisma.$ProjectPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
   }
@@ -1917,7 +2163,8 @@ export type $PitchSheetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     id: number
     createdAt: Date
     updatedAt: Date | null
-    dreamId: number
+    dreamId: number | null
+    projectId: number | null
     layoutKey: string
     title: string
     subtitle: string | null
@@ -2288,7 +2535,8 @@ readonly fields: PitchSheetFieldRefs;
  */
 export interface Prisma__PitchSheetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Dream<T extends Prisma.DreamDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DreamDefaultArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Dream<T extends Prisma.PitchSheet$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Project<T extends Prisma.PitchSheet$ProjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$ProjectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.PitchSheet$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.PitchSheet$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -2324,6 +2572,7 @@ export interface PitchSheetFieldRefs {
   readonly createdAt: Prisma.FieldRef<"PitchSheet", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PitchSheet", 'DateTime'>
   readonly dreamId: Prisma.FieldRef<"PitchSheet", 'Int'>
+  readonly projectId: Prisma.FieldRef<"PitchSheet", 'Int'>
   readonly layoutKey: Prisma.FieldRef<"PitchSheet", 'String'>
   readonly title: Prisma.FieldRef<"PitchSheet", 'String'>
   readonly subtitle: Prisma.FieldRef<"PitchSheet", 'String'>
@@ -2699,6 +2948,44 @@ export type PitchSheetDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many PitchSheets to delete.
    */
   limit?: number
+}
+
+/**
+ * PitchSheet.Dream
+ */
+export type PitchSheet$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dream
+   */
+  select?: Prisma.DreamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dream
+   */
+  omit?: Prisma.DreamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DreamInclude<ExtArgs> | null
+  where?: Prisma.DreamWhereInput
+}
+
+/**
+ * PitchSheet.Project
+ */
+export type PitchSheet$ProjectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
 }
 
 /**

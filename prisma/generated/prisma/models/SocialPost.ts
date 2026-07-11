@@ -262,7 +262,7 @@ export type SocialPostGroupByOutputType = {
   sourceId: number | null
   scheduledAt: Date | null
   isPublic: boolean
-  userId: number
+  userId: number | null
   isActive: boolean
   isMature: boolean
   audience: $Enums.PostAudience
@@ -304,11 +304,11 @@ export type SocialPostWhereInput = {
   sourceId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   scheduledAt?: Prisma.DateTimeNullableFilter<"SocialPost"> | Date | string | null
   isPublic?: Prisma.BoolFilter<"SocialPost"> | boolean
-  userId?: Prisma.IntFilter<"SocialPost"> | number
+  userId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   isActive?: Prisma.BoolFilter<"SocialPost"> | boolean
   isMature?: Prisma.BoolFilter<"SocialPost"> | boolean
   audience?: Prisma.EnumPostAudienceFilter<"SocialPost"> | $Enums.PostAudience
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   targets?: Prisma.SocialTargetListRelationFilter
 }
 
@@ -325,7 +325,7 @@ export type SocialPostOrderByWithRelationInput = {
   sourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   audience?: Prisma.SortOrder
@@ -350,11 +350,11 @@ export type SocialPostWhereUniqueInput = Prisma.AtLeast<{
   sourceId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   scheduledAt?: Prisma.DateTimeNullableFilter<"SocialPost"> | Date | string | null
   isPublic?: Prisma.BoolFilter<"SocialPost"> | boolean
-  userId?: Prisma.IntFilter<"SocialPost"> | number
+  userId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   isActive?: Prisma.BoolFilter<"SocialPost"> | boolean
   isMature?: Prisma.BoolFilter<"SocialPost"> | boolean
   audience?: Prisma.EnumPostAudienceFilter<"SocialPost"> | $Enums.PostAudience
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   targets?: Prisma.SocialTargetListRelationFilter
 }, "id">
 
@@ -371,7 +371,7 @@ export type SocialPostOrderByWithAggregationInput = {
   sourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   audience?: Prisma.SortOrder
@@ -398,7 +398,7 @@ export type SocialPostScalarWhereWithAggregatesInput = {
   sourceId?: Prisma.IntNullableWithAggregatesFilter<"SocialPost"> | number | null
   scheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SocialPost"> | Date | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"SocialPost"> | boolean
-  userId?: Prisma.IntWithAggregatesFilter<"SocialPost"> | number
+  userId?: Prisma.IntNullableWithAggregatesFilter<"SocialPost"> | number | null
   isActive?: Prisma.BoolWithAggregatesFilter<"SocialPost"> | boolean
   isMature?: Prisma.BoolWithAggregatesFilter<"SocialPost"> | boolean
   audience?: Prisma.EnumPostAudienceWithAggregatesFilter<"SocialPost"> | $Enums.PostAudience
@@ -419,7 +419,7 @@ export type SocialPostCreateInput = {
   isActive?: boolean
   isMature?: boolean
   audience?: $Enums.PostAudience
-  User: Prisma.UserCreateNestedOneWithoutSocialPostsInput
+  User?: Prisma.UserCreateNestedOneWithoutSocialPostsInput
   targets?: Prisma.SocialTargetCreateNestedManyWithoutPostInput
 }
 
@@ -436,7 +436,7 @@ export type SocialPostUncheckedCreateInput = {
   sourceId?: number | null
   scheduledAt?: Date | string | null
   isPublic?: boolean
-  userId: number
+  userId?: number | null
   isActive?: boolean
   isMature?: boolean
   audience?: $Enums.PostAudience
@@ -458,7 +458,7 @@ export type SocialPostUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   audience?: Prisma.EnumPostAudienceFieldUpdateOperationsInput | $Enums.PostAudience
-  User?: Prisma.UserUpdateOneRequiredWithoutSocialPostsNestedInput
+  User?: Prisma.UserUpdateOneWithoutSocialPostsNestedInput
   targets?: Prisma.SocialTargetUpdateManyWithoutPostNestedInput
 }
 
@@ -475,7 +475,7 @@ export type SocialPostUncheckedUpdateInput = {
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   audience?: Prisma.EnumPostAudienceFieldUpdateOperationsInput | $Enums.PostAudience
@@ -495,7 +495,7 @@ export type SocialPostCreateManyInput = {
   sourceId?: number | null
   scheduledAt?: Date | string | null
   isPublic?: boolean
-  userId: number
+  userId?: number | null
   isActive?: boolean
   isMature?: boolean
   audience?: $Enums.PostAudience
@@ -531,7 +531,7 @@ export type SocialPostUncheckedUpdateManyInput = {
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   audience?: Prisma.EnumPostAudienceFieldUpdateOperationsInput | $Enums.PostAudience
@@ -704,7 +704,7 @@ export type SocialPostCreateWithoutTargetsInput = {
   isActive?: boolean
   isMature?: boolean
   audience?: $Enums.PostAudience
-  User: Prisma.UserCreateNestedOneWithoutSocialPostsInput
+  User?: Prisma.UserCreateNestedOneWithoutSocialPostsInput
 }
 
 export type SocialPostUncheckedCreateWithoutTargetsInput = {
@@ -720,7 +720,7 @@ export type SocialPostUncheckedCreateWithoutTargetsInput = {
   sourceId?: number | null
   scheduledAt?: Date | string | null
   isPublic?: boolean
-  userId: number
+  userId?: number | null
   isActive?: boolean
   isMature?: boolean
   audience?: $Enums.PostAudience
@@ -757,7 +757,7 @@ export type SocialPostUpdateWithoutTargetsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   audience?: Prisma.EnumPostAudienceFieldUpdateOperationsInput | $Enums.PostAudience
-  User?: Prisma.UserUpdateOneRequiredWithoutSocialPostsNestedInput
+  User?: Prisma.UserUpdateOneWithoutSocialPostsNestedInput
 }
 
 export type SocialPostUncheckedUpdateWithoutTargetsInput = {
@@ -773,7 +773,7 @@ export type SocialPostUncheckedUpdateWithoutTargetsInput = {
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   audience?: Prisma.EnumPostAudienceFieldUpdateOperationsInput | $Enums.PostAudience
@@ -858,7 +858,7 @@ export type SocialPostScalarWhereInput = {
   sourceId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   scheduledAt?: Prisma.DateTimeNullableFilter<"SocialPost"> | Date | string | null
   isPublic?: Prisma.BoolFilter<"SocialPost"> | boolean
-  userId?: Prisma.IntFilter<"SocialPost"> | number
+  userId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   isActive?: Prisma.BoolFilter<"SocialPost"> | boolean
   isMature?: Prisma.BoolFilter<"SocialPost"> | boolean
   audience?: Prisma.EnumPostAudienceFilter<"SocialPost"> | $Enums.PostAudience
@@ -985,7 +985,7 @@ export type SocialPostSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   isActive?: boolean
   isMature?: boolean
   audience?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.SocialPost$UserArgs<ExtArgs>
   targets?: boolean | Prisma.SocialPost$targetsArgs<ExtArgs>
   _count?: boolean | Prisma.SocialPostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["socialPost"]>
@@ -1013,7 +1013,7 @@ export type SocialPostSelectScalar = {
 
 export type SocialPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "designer" | "title" | "body" | "mediaUrls" | "status" | "sourceType" | "sourceId" | "scheduledAt" | "isPublic" | "userId" | "isActive" | "isMature" | "audience", ExtArgs["result"]["socialPost"]>
 export type SocialPostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.SocialPost$UserArgs<ExtArgs>
   targets?: boolean | Prisma.SocialPost$targetsArgs<ExtArgs>
   _count?: boolean | Prisma.SocialPostCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1021,7 +1021,7 @@ export type SocialPostInclude<ExtArgs extends runtime.Types.Extensions.InternalA
 export type $SocialPostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SocialPost"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
+    User: Prisma.$UserPayload<ExtArgs> | null
     targets: Prisma.$SocialTargetPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1037,7 +1037,7 @@ export type $SocialPostPayload<ExtArgs extends runtime.Types.Extensions.Internal
     sourceId: number | null
     scheduledAt: Date | null
     isPublic: boolean
-    userId: number
+    userId: number | null
     isActive: boolean
     isMature: boolean
     audience: $Enums.PostAudience
@@ -1381,7 +1381,7 @@ readonly fields: SocialPostFieldRefs;
  */
 export interface Prisma__SocialPostClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.SocialPost$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SocialPost$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   targets<T extends Prisma.SocialPost$targetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SocialPost$targetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialTargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1773,6 +1773,25 @@ export type SocialPostDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many SocialPosts to delete.
    */
   limit?: number
+}
+
+/**
+ * SocialPost.User
+ */
+export type SocialPost$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

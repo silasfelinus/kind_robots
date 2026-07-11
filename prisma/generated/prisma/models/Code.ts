@@ -225,7 +225,7 @@ export type CodeGroupByOutputType = {
   id: number
   createdAt: Date
   updatedAt: Date
-  userId: number
+  userId: number | null
   title: string
   description: string | null
   icon: string | null
@@ -263,7 +263,7 @@ export type CodeWhereInput = {
   id?: Prisma.IntFilter<"Code"> | number
   createdAt?: Prisma.DateTimeFilter<"Code"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Code"> | Date | string
-  userId?: Prisma.IntFilter<"Code"> | number
+  userId?: Prisma.IntNullableFilter<"Code"> | number | null
   title?: Prisma.StringFilter<"Code"> | string
   description?: Prisma.StringNullableFilter<"Code"> | string | null
   icon?: Prisma.StringNullableFilter<"Code"> | string | null
@@ -272,14 +272,14 @@ export type CodeWhereInput = {
   isOfficial?: Prisma.BoolFilter<"Code"> | boolean
   isActive?: Prisma.BoolFilter<"Code"> | boolean
   isMature?: Prisma.BoolFilter<"Code"> | boolean
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type CodeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -299,7 +299,7 @@ export type CodeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CodeWhereInput | Prisma.CodeWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"Code"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Code"> | Date | string
-  userId?: Prisma.IntFilter<"Code"> | number
+  userId?: Prisma.IntNullableFilter<"Code"> | number | null
   title?: Prisma.StringFilter<"Code"> | string
   description?: Prisma.StringNullableFilter<"Code"> | string | null
   icon?: Prisma.StringNullableFilter<"Code"> | string | null
@@ -308,14 +308,14 @@ export type CodeWhereUniqueInput = Prisma.AtLeast<{
   isOfficial?: Prisma.BoolFilter<"Code"> | boolean
   isActive?: Prisma.BoolFilter<"Code"> | boolean
   isMature?: Prisma.BoolFilter<"Code"> | boolean
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type CodeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -338,7 +338,7 @@ export type CodeScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Code"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Code"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Code"> | Date | string
-  userId?: Prisma.IntWithAggregatesFilter<"Code"> | number
+  userId?: Prisma.IntNullableWithAggregatesFilter<"Code"> | number | null
   title?: Prisma.StringWithAggregatesFilter<"Code"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Code"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Code"> | string | null
@@ -367,7 +367,7 @@ export type CodeUncheckedCreateInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: number
+  userId?: number | null
   title: string
   description?: string | null
   icon?: string | null
@@ -389,14 +389,14 @@ export type CodeUpdateInput = {
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutCodesNestedInput
+  User?: Prisma.UserUpdateOneWithoutCodesNestedInput
 }
 
 export type CodeUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -411,7 +411,7 @@ export type CodeCreateManyInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: number
+  userId?: number | null
   title: string
   description?: string | null
   icon?: string | null
@@ -439,7 +439,7 @@ export type CodeUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -621,7 +621,7 @@ export type CodeScalarWhereInput = {
   id?: Prisma.IntFilter<"Code"> | number
   createdAt?: Prisma.DateTimeFilter<"Code"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Code"> | Date | string
-  userId?: Prisma.IntFilter<"Code"> | number
+  userId?: Prisma.IntNullableFilter<"Code"> | number | null
   title?: Prisma.StringFilter<"Code"> | string
   description?: Prisma.StringNullableFilter<"Code"> | string | null
   icon?: Prisma.StringNullableFilter<"Code"> | string | null
@@ -702,7 +702,7 @@ export type CodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isOfficial?: boolean
   isActive?: boolean
   isMature?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.Code$UserArgs<ExtArgs>
 }, ExtArgs["result"]["code"]>
 
 
@@ -724,19 +724,19 @@ export type CodeSelectScalar = {
 
 export type CodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "description" | "icon" | "graph" | "isPublic" | "isOfficial" | "isActive" | "isMature", ExtArgs["result"]["code"]>
 export type CodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.Code$UserArgs<ExtArgs>
 }
 
 export type $CodePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Code"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
+    User: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     createdAt: Date
     updatedAt: Date
-    userId: number
+    userId: number | null
     title: string
     description: string | null
     icon: string | null
@@ -1085,7 +1085,7 @@ readonly fields: CodeFieldRefs;
  */
 export interface Prisma__CodeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.Code$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Code$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1472,6 +1472,25 @@ export type CodeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Codes to delete.
    */
   limit?: number
+}
+
+/**
+ * Code.User
+ */
+export type Code$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

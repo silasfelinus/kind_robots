@@ -241,7 +241,7 @@ export type ChallengeGroupByOutputType = {
   judgeNotes: string | null
   status: $Enums.ChallengeStatus
   isMature: boolean
-  userId: number
+  userId: number | null
   _count: ChallengeCountAggregateOutputType | null
   _avg: ChallengeAvgAggregateOutputType | null
   _sum: ChallengeSumAggregateOutputType | null
@@ -279,8 +279,8 @@ export type ChallengeWhereInput = {
   judgeNotes?: Prisma.StringNullableFilter<"Challenge"> | string | null
   status?: Prisma.EnumChallengeStatusFilter<"Challenge"> | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFilter<"Challenge"> | boolean
-  userId?: Prisma.IntFilter<"Challenge"> | number
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  userId?: Prisma.IntNullableFilter<"Challenge"> | number | null
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Submissions?: Prisma.ChallengeSubmissionListRelationFilter
 }
 
@@ -296,7 +296,7 @@ export type ChallengeOrderByWithRelationInput = {
   judgeNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   Submissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
   _relevance?: Prisma.ChallengeOrderByRelevanceInput
@@ -317,8 +317,8 @@ export type ChallengeWhereUniqueInput = Prisma.AtLeast<{
   judgeNotes?: Prisma.StringNullableFilter<"Challenge"> | string | null
   status?: Prisma.EnumChallengeStatusFilter<"Challenge"> | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFilter<"Challenge"> | boolean
-  userId?: Prisma.IntFilter<"Challenge"> | number
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  userId?: Prisma.IntNullableFilter<"Challenge"> | number | null
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Submissions?: Prisma.ChallengeSubmissionListRelationFilter
 }, "id" | "slug">
 
@@ -334,7 +334,7 @@ export type ChallengeOrderByWithAggregationInput = {
   judgeNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ChallengeCountOrderByAggregateInput
   _avg?: Prisma.ChallengeAvgOrderByAggregateInput
   _max?: Prisma.ChallengeMaxOrderByAggregateInput
@@ -357,7 +357,7 @@ export type ChallengeScalarWhereWithAggregatesInput = {
   judgeNotes?: Prisma.StringNullableWithAggregatesFilter<"Challenge"> | string | null
   status?: Prisma.EnumChallengeStatusWithAggregatesFilter<"Challenge"> | $Enums.ChallengeStatus
   isMature?: Prisma.BoolWithAggregatesFilter<"Challenge"> | boolean
-  userId?: Prisma.IntWithAggregatesFilter<"Challenge"> | number
+  userId?: Prisma.IntNullableWithAggregatesFilter<"Challenge"> | number | null
 }
 
 export type ChallengeCreateInput = {
@@ -387,7 +387,7 @@ export type ChallengeUncheckedCreateInput = {
   judgeNotes?: string | null
   status?: $Enums.ChallengeStatus
   isMature?: boolean
-  userId?: number
+  userId?: number | null
   Submissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutChallengeInput
 }
 
@@ -402,7 +402,7 @@ export type ChallengeUpdateInput = {
   judgeNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutChallengesNestedInput
+  User?: Prisma.UserUpdateOneWithoutChallengesNestedInput
   Submissions?: Prisma.ChallengeSubmissionUpdateManyWithoutChallengeNestedInput
 }
 
@@ -418,7 +418,7 @@ export type ChallengeUncheckedUpdateInput = {
   judgeNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Submissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutChallengeNestedInput
 }
 
@@ -434,7 +434,7 @@ export type ChallengeCreateManyInput = {
   judgeNotes?: string | null
   status?: $Enums.ChallengeStatus
   isMature?: boolean
-  userId?: number
+  userId?: number | null
 }
 
 export type ChallengeUpdateManyMutationInput = {
@@ -462,7 +462,7 @@ export type ChallengeUncheckedUpdateManyInput = {
   judgeNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ChallengeListRelationFilter = {
@@ -677,7 +677,7 @@ export type ChallengeScalarWhereInput = {
   judgeNotes?: Prisma.StringNullableFilter<"Challenge"> | string | null
   status?: Prisma.EnumChallengeStatusFilter<"Challenge"> | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFilter<"Challenge"> | boolean
-  userId?: Prisma.IntFilter<"Challenge"> | number
+  userId?: Prisma.IntNullableFilter<"Challenge"> | number | null
 }
 
 export type ChallengeCreateWithoutSubmissionsInput = {
@@ -706,7 +706,7 @@ export type ChallengeUncheckedCreateWithoutSubmissionsInput = {
   judgeNotes?: string | null
   status?: $Enums.ChallengeStatus
   isMature?: boolean
-  userId?: number
+  userId?: number | null
 }
 
 export type ChallengeCreateOrConnectWithoutSubmissionsInput = {
@@ -736,7 +736,7 @@ export type ChallengeUpdateWithoutSubmissionsInput = {
   judgeNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutChallengesNestedInput
+  User?: Prisma.UserUpdateOneWithoutChallengesNestedInput
 }
 
 export type ChallengeUncheckedUpdateWithoutSubmissionsInput = {
@@ -751,7 +751,7 @@ export type ChallengeUncheckedUpdateWithoutSubmissionsInput = {
   judgeNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ChallengeCreateManyUserInput = {
@@ -855,7 +855,7 @@ export type ChallengeSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   status?: boolean
   isMature?: boolean
   userId?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.Challenge$UserArgs<ExtArgs>
   Submissions?: boolean | Prisma.Challenge$SubmissionsArgs<ExtArgs>
   _count?: boolean | Prisma.ChallengeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["challenge"]>
@@ -879,7 +879,7 @@ export type ChallengeSelectScalar = {
 
 export type ChallengeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "slug" | "title" | "challengeType" | "difficulty" | "promptText" | "judgeNotes" | "status" | "isMature" | "userId", ExtArgs["result"]["challenge"]>
 export type ChallengeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.Challenge$UserArgs<ExtArgs>
   Submissions?: boolean | Prisma.Challenge$SubmissionsArgs<ExtArgs>
   _count?: boolean | Prisma.ChallengeCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -887,7 +887,7 @@ export type ChallengeInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type $ChallengePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Challenge"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
+    User: Prisma.$UserPayload<ExtArgs> | null
     Submissions: Prisma.$ChallengeSubmissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -902,7 +902,7 @@ export type $ChallengePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     judgeNotes: string | null
     status: $Enums.ChallengeStatus
     isMature: boolean
-    userId: number
+    userId: number | null
   }, ExtArgs["result"]["challenge"]>
   composites: {}
 }
@@ -1243,7 +1243,7 @@ readonly fields: ChallengeFieldRefs;
  */
 export interface Prisma__ChallengeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.Challenge$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Challenge$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Submissions<T extends Prisma.Challenge$SubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Challenge$SubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengeSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1631,6 +1631,25 @@ export type ChallengeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many Challenges to delete.
    */
   limit?: number
+}
+
+/**
+ * Challenge.User
+ */
+export type Challenge$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

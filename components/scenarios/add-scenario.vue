@@ -72,11 +72,12 @@
       </section>
 
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="mb-3 text-lg font-bold text-base-content">Genres</h2>
-
-          <choice-manager label="genre" model="Scenario" />
-        </div>
+        <FacetPicker
+          v-model="facetIds"
+          owner-type="scenario"
+          :owner-id="scenarioStore.scenarioForm.id ?? null"
+          label="Scenario Facets"
+        />
 
         <label
           class="form-control rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -91,6 +92,21 @@
             class="textarea textarea-bordered min-h-28 w-full bg-base-200"
           />
         </label>
+
+        <details
+          class="rounded-2xl border border-base-300 bg-base-100 p-4 lg:col-span-2"
+        >
+          <summary class="cursor-pointer text-sm font-bold text-base-content/60">
+            Legacy genre compatibility
+          </summary>
+          <p class="mt-2 text-xs text-base-content/50">
+            Existing Genre Dream links remain available during the Facet migration.
+            New reusable genre data should be added as Facets above.
+          </p>
+          <div class="mt-3">
+            <choice-manager label="genre" model="Scenario" />
+          </div>
+        </details>
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
@@ -282,6 +298,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
+import { useFacetStore } from '@/stores/facetStore'
 import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
 import { useDreamStore } from '@/stores/dreamStore'
@@ -302,6 +319,7 @@ const emit = defineEmits<{
 const artStore = useArtStore()
 const choiceStore = useChoiceStore()
 const scenarioStore = useScenarioStore()
+const facetStore = useFacetStore()
 const uploadStore = useUploadStore()
 const userStore = useUserStore()
 const dreamStore = useDreamStore()
@@ -313,6 +331,7 @@ const introPrompt = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const uploadedPreviewImage = ref<string | null>(null)
+const facetIds = ref<number[]>([])
 
 const defaultPlaceholder = '/images/scenarios/space.webp'
 
@@ -428,6 +447,7 @@ async function prepareForm() {
 
 function resetForAdd() {
   scenarioStore.deselectScenario()
+  facetIds.value = []
 
   scenarioStore.scenarioForm = {
     title: '',
@@ -451,6 +471,7 @@ function resetForAdd() {
 
 function resetFromSelected() {
   if (!scenarioStore.selectedScenario) return
+  facetIds.value = []
 
   scenarioStore.scenarioForm = scenarioStore.toScenarioForm(
     scenarioStore.selectedScenario,
@@ -628,6 +649,10 @@ async function saveScenario() {
 
     const savedScenarioId =
       scenarioStore.selectedScenario?.id ?? scenarioStore.scenarioForm.id
+
+    if (savedScenarioId) {
+      await facetStore.setScenarioFacets(savedScenarioId, facetIds.value)
+    }
 
     if (selectedDream?.id && savedScenarioId) {
       const dreamResult = await dreamStore.setDreamScenario(savedScenarioId)

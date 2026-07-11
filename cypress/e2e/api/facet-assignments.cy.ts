@@ -1,0 +1,187 @@
+// /cypress/e2e/api/facet-assignments.cy.ts
+import { createLoggedInTestUser } from '../../support/api-auth'
+
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
+describe('Dream and Scenario Facet assignments', () => {
+  const apiBase = 'https://kind-robots.vercel.app/api'
+  const stamp = Date.now()
+  const facetSlug = `cowcore-${stamp}`
+  const cowAlias = `cow-${stamp}`
+  const cowsAlias = `cows-${stamp}`
+  let token = ''
+  let facetId = 0
+  let dreamId = 0
+  let scenarioId = 0
+
+  before(() => {
+    createLoggedInTestUser().then((auth) => {
+      token = auth.token
+    })
+  })
+
+  it('creates one canonical Facet with singular and plural aliases', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiBase}/facets`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        title: `CowCore ${stamp}`,
+        slug: facetSlug,
+        kind: 'CORE',
+        aliases: [cowAlias, cowsAlias],
+        isPublic: false,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.aliases).to.include(facetSlug)
+      expect(response.body.data.aliases).to.include(cowAlias)
+      expect(response.body.data.aliases).to.include(cowsAlias)
+      facetId = response.body.data.id
+    })
+  })
+
+  it('resolves canonical formatting variants and explicit aliases to one Facet', () => {
+    const keys = [
+      facetSlug,
+      `cowCore ${stamp}`,
+      `cow-core-${stamp}`,
+      cowAlias,
+      cowsAlias,
+    ]
+
+    keys.forEach((key) => {
+      cy.request(`${apiBase}/facets/${encodeURIComponent(key)}`).then(
+        (response) => {
+          expect(response.status).to.eq(200)
+          expect(response.body.success).to.be.true
+          expect(response.body.data.id).to.eq(facetId)
+        },
+      )
+    })
+  })
+
+  it('assigns the Facet to a Dream through an alias key', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiBase}/dreams`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        title: `Facet Dream ${stamp}`,
+        dreamType: 'PITCH',
+        description: 'Dream Facet assignment coverage.',
+        isPublic: false,
+        createCollection: false,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      dreamId = response.body.data.id
+    })
+
+    cy.request({
+      method: 'PUT',
+      url: `${apiBase}/dreams/${dreamId}/facets`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: { facetKeys: [cowAlias] },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data).to.have.length(1)
+      expect(response.body.data[0].id).to.eq(facetId)
+    })
+
+    cy.request({
+      url: `${apiBase}/dreams/${dreamId}/facets`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data.map((facet: { id: number }) => facet.id)).to.deep.eq([
+        facetId,
+      ])
+    })
+  })
+
+  it('assigns the same Facet to a Scenario through the plural alias', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiBase}/scenarios`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        title: `Facet Scenario ${stamp}`,
+        description: 'Scenario Facet assignment coverage.',
+        intros: [],
+        isPublic: false,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      scenarioId = response.body.data.id
+    })
+
+    cy.request({
+      method: 'PUT',
+      url: `${apiBase}/scenarios/${scenarioId}/facets`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: { facetKeys: [cowsAlias] },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data).to.have.length(1)
+      expect(response.body.data[0].id).to.eq(facetId)
+    })
+
+    cy.request({
+      url: `${apiBase}/scenarios/${scenarioId}/facets`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data[0].id).to.eq(facetId)
+    })
+  })
+
+  it('uses exact-set semantics when a Facet is removed', () => {
+    cy.request({
+      method: 'PUT',
+      url: `${apiBase}/dreams/${dreamId}/facets`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: { facetIds: [] },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data).to.deep.eq([])
+    })
+
+    cy.request({
+      url: `${apiBase}/dreams/${dreamId}/facets`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      expect(response.body.data).to.deep.eq([])
+    })
+  })
+
+  after(() => {
+    if (dreamId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/dreams/${dreamId}`,
+        headers: { Authorization: `Bearer ${token}` },
+        failOnStatusCode: false,
+      })
+    }
+
+    if (scenarioId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/scenarios/${scenarioId}`,
+        headers: { Authorization: `Bearer ${token}` },
+        failOnStatusCode: false,
+      })
+    }
+
+    if (facetId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/facets/${facetId}`,
+        headers: { Authorization: `Bearer ${token}` },
+        failOnStatusCode: false,
+      })
+    }
+  })
+})

@@ -1,6 +1,7 @@
 // /server/api/facets/[key].get.ts
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { errorHandler } from '~/server/utils/error'
+import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { resolveFacetAlias } from '~/server/utils/facetAliases'
 
 export default defineEventHandler(async (event) => {
@@ -8,13 +9,35 @@ export default defineEventHandler(async (event) => {
     const requested = getRouterParam(event, 'key')?.trim()
 
     if (!requested) {
-      throw createError({ statusCode: 400, message: 'Facet slug or alias is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Facet slug or alias is required.',
+      })
     }
 
-    const resolved = await resolveFacetAlias(requested)
+    const [resolved, auth] = await Promise.all([
+      resolveFacetAlias(requested),
+      getOptionalApiUser(event),
+    ])
 
-    if (!resolved) {
+    if (!resolved || !resolved.facet.isActive) {
       throw createError({ statusCode: 404, message: 'Facet not found.' })
+    }
+
+    const isOwner =
+      Boolean(auth?.user.id) && resolved.facet.userId === auth?.user.id
+    const canView =
+      auth?.isAdmin ||
+      isOwner ||
+      (resolved.facet.isPublic && !resolved.facet.isMature)
+
+    if (!canView) {
+      throw createError({
+        statusCode: auth ? 403 : 404,
+        message: auth
+          ? 'You do not have permission to view this Facet.'
+          : 'Facet not found.',
+      })
     }
 
     event.node.res.statusCode = 200

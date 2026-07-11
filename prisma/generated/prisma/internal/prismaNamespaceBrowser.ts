@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  FacetAlias: 'FacetAlias',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -61,6 +62,15 @@ export const ModelName = {
   Composition: 'Composition',
   Dream: 'Dream',
   DreamRelation: 'DreamRelation',
+  Project: 'Project',
+  Facet: 'Facet',
+  DreamFacet: 'DreamFacet',
+  ScenarioFacet: 'ScenarioFacet',
+  ProjectArtImage: 'ProjectArtImage',
+  ProjectArtCollection: 'ProjectArtCollection',
+  FacetArtImage: 'FacetArtImage',
+  FacetArtCollection: 'FacetArtCollection',
+  FacetRelation: 'FacetRelation',
   ExpressionMedia: 'ExpressionMedia',
   ExpressionTransition: 'ExpressionTransition',
   Log: 'Log',
@@ -114,6 +124,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const FacetAliasScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  facetId: 'facetId',
+  alias: 'alias',
+  lookupKey: 'lookupKey',
+  isCanonical: 'isCanonical',
+  isActive: 'isActive'
+} as const
+
+export type FacetAliasScalarFieldEnum = (typeof FacetAliasScalarFieldEnum)[keyof typeof FacetAliasScalarFieldEnum]
 
 
 export const ArtImageScalarFieldEnum = {
@@ -285,6 +309,7 @@ export const ChatScalarFieldEnum = {
   serverId: 'serverId',
   serverName: 'serverName',
   dreamId: 'dreamId',
+  projectId: 'projectId',
   isActive: 'isActive'
 } as const
 
@@ -395,7 +420,8 @@ export const DreamScalarFieldEnum = {
   isMature: 'isMature',
   isActive: 'isActive',
   artImageId: 'artImageId',
-  artCollectionId: 'artCollectionId'
+  artCollectionId: 'artCollectionId',
+  narratorId: 'narratorId'
 } as const
 
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
@@ -412,6 +438,139 @@ export const DreamRelationScalarFieldEnum = {
 } as const
 
 export type DreamRelationScalarFieldEnum = (typeof DreamRelationScalarFieldEnum)[keyof typeof DreamRelationScalarFieldEnum]
+
+
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  goal: 'goal',
+  waypoints: 'waypoints',
+  status: 'status',
+  priority: 'priority',
+  conductorSlug: 'conductorSlug',
+  repoUrl: 'repoUrl',
+  liveUrl: 'liveUrl',
+  channelKey: 'channelKey',
+  tabKey: 'tabKey',
+  lastSyncedAt: 'lastSyncedAt',
+  allowReviews: 'allowReviews',
+  highlightImage: 'highlightImage',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  designer: 'designer',
+  creationSource: 'creationSource',
+  userId: 'userId',
+  managerBotId: 'managerBotId',
+  artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const FacetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  kind: 'kind',
+  description: 'description',
+  flavorText: 'flavorText',
+  examples: 'examples',
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  icon: 'icon',
+  designer: 'designer',
+  creationSource: 'creationSource',
+  userId: 'userId',
+  artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive'
+} as const
+
+export type FacetScalarFieldEnum = (typeof FacetScalarFieldEnum)[keyof typeof FacetScalarFieldEnum]
+
+
+export const DreamFacetScalarFieldEnum = {
+  dreamId: 'dreamId',
+  facetId: 'facetId',
+  createdAt: 'createdAt'
+} as const
+
+export type DreamFacetScalarFieldEnum = (typeof DreamFacetScalarFieldEnum)[keyof typeof DreamFacetScalarFieldEnum]
+
+
+export const ScenarioFacetScalarFieldEnum = {
+  scenarioId: 'scenarioId',
+  facetId: 'facetId',
+  createdAt: 'createdAt'
+} as const
+
+export type ScenarioFacetScalarFieldEnum = (typeof ScenarioFacetScalarFieldEnum)[keyof typeof ScenarioFacetScalarFieldEnum]
+
+
+export const ProjectArtImageScalarFieldEnum = {
+  projectId: 'projectId',
+  artImageId: 'artImageId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectArtImageScalarFieldEnum = (typeof ProjectArtImageScalarFieldEnum)[keyof typeof ProjectArtImageScalarFieldEnum]
+
+
+export const ProjectArtCollectionScalarFieldEnum = {
+  projectId: 'projectId',
+  artCollectionId: 'artCollectionId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectArtCollectionScalarFieldEnum = (typeof ProjectArtCollectionScalarFieldEnum)[keyof typeof ProjectArtCollectionScalarFieldEnum]
+
+
+export const FacetArtImageScalarFieldEnum = {
+  facetId: 'facetId',
+  artImageId: 'artImageId',
+  createdAt: 'createdAt'
+} as const
+
+export type FacetArtImageScalarFieldEnum = (typeof FacetArtImageScalarFieldEnum)[keyof typeof FacetArtImageScalarFieldEnum]
+
+
+export const FacetArtCollectionScalarFieldEnum = {
+  facetId: 'facetId',
+  artCollectionId: 'artCollectionId',
+  createdAt: 'createdAt'
+} as const
+
+export type FacetArtCollectionScalarFieldEnum = (typeof FacetArtCollectionScalarFieldEnum)[keyof typeof FacetArtCollectionScalarFieldEnum]
+
+
+export const FacetRelationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  fromFacetId: 'fromFacetId',
+  toFacetId: 'toFacetId',
+  relationType: 'relationType',
+  note: 'note'
+} as const
+
+export type FacetRelationScalarFieldEnum = (typeof FacetRelationScalarFieldEnum)[keyof typeof FacetRelationScalarFieldEnum]
 
 
 export const ExpressionMediaScalarFieldEnum = {
@@ -560,6 +719,7 @@ export const PitchSheetScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   dreamId: 'dreamId',
+  projectId: 'projectId',
   layoutKey: 'layoutKey',
   title: 'title',
   subtitle: 'subtitle',
@@ -643,6 +803,8 @@ export const ReactionScalarFieldEnum = {
   rewardId: 'rewardId',
   chatId: 'chatId',
   dreamId: 'dreamId',
+  projectId: 'projectId',
+  facetId: 'facetId',
   artCollectionId: 'artCollectionId',
   butterflyId: 'butterflyId',
   characterId: 'characterId',
@@ -955,6 +1117,7 @@ export const ArtJobScalarFieldEnum = {
   claimedAt: 'claimedAt',
   claimedBy: 'claimedBy',
   projectSlug: 'projectSlug',
+  projectId: 'projectId',
   artImageId: 'artImageId',
   error: 'error',
   userId: 'userId'
@@ -1018,6 +1181,7 @@ export const TodoScalarFieldEnum = {
   imagePath: 'imagePath',
   userId: 'userId',
   dreamId: 'dreamId',
+  projectId: 'projectId',
   order: 'order'
 } as const
 
@@ -1233,6 +1397,14 @@ export const NullsOrder = {
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
+export const FacetAliasOrderByRelevanceFieldEnum = {
+  alias: 'alias',
+  lookupKey: 'lookupKey'
+} as const
+
+export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelevanceFieldEnum)[keyof typeof FacetAliasOrderByRelevanceFieldEnum]
+
+
 export const ArtImageOrderByRelevanceFieldEnum = {
   imageData: 'imageData',
   fileName: 'fileName',
@@ -1424,6 +1596,53 @@ export const DreamRelationOrderByRelevanceFieldEnum = {
 } as const
 
 export type DreamRelationOrderByRelevanceFieldEnum = (typeof DreamRelationOrderByRelevanceFieldEnum)[keyof typeof DreamRelationOrderByRelevanceFieldEnum]
+
+
+export const ProjectOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  goal: 'goal',
+  waypoints: 'waypoints',
+  conductorSlug: 'conductorSlug',
+  repoUrl: 'repoUrl',
+  liveUrl: 'liveUrl',
+  channelKey: 'channelKey',
+  tabKey: 'tabKey',
+  highlightImage: 'highlightImage',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  designer: 'designer'
+} as const
+
+export type ProjectOrderByRelevanceFieldEnum = (typeof ProjectOrderByRelevanceFieldEnum)[keyof typeof ProjectOrderByRelevanceFieldEnum]
+
+
+export const FacetOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  examples: 'examples',
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  icon: 'icon',
+  designer: 'designer'
+} as const
+
+export type FacetOrderByRelevanceFieldEnum = (typeof FacetOrderByRelevanceFieldEnum)[keyof typeof FacetOrderByRelevanceFieldEnum]
+
+
+export const FacetRelationOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type FacetRelationOrderByRelevanceFieldEnum = (typeof FacetRelationOrderByRelevanceFieldEnum)[keyof typeof FacetRelationOrderByRelevanceFieldEnum]
 
 
 export const ExpressionMediaOrderByRelevanceFieldEnum = {

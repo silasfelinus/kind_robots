@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/FacetAlias'
 export type * from './models/ArtImage'
 export type * from './models/ArtCollection'
 export type * from './models/Bot'
@@ -18,6 +19,15 @@ export type * from './models/Component'
 export type * from './models/Composition'
 export type * from './models/Dream'
 export type * from './models/DreamRelation'
+export type * from './models/Project'
+export type * from './models/Facet'
+export type * from './models/DreamFacet'
+export type * from './models/ScenarioFacet'
+export type * from './models/ProjectArtImage'
+export type * from './models/ProjectArtCollection'
+export type * from './models/FacetArtImage'
+export type * from './models/FacetArtCollection'
+export type * from './models/FacetRelation'
 export type * from './models/ExpressionMedia'
 export type * from './models/ExpressionTransition'
 export type * from './models/Log'

@@ -243,7 +243,8 @@ export const ChatType = {
   Story: 'Story',
   Scenario: 'Scenario',
   Character: 'Character',
-  Bot: 'Bot'
+  Bot: 'Bot',
+  Project: 'Project'
 } as const
 
 export type ChatType = (typeof ChatType)[keyof typeof ChatType]
@@ -278,6 +279,42 @@ export const ProjectStatus = {
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
 
 
+export const ProjectPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH'
+} as const
+
+export type ProjectPriority = (typeof ProjectPriority)[keyof typeof ProjectPriority]
+
+
+export const FacetKind = {
+  GENRE: 'GENRE',
+  ANIMAL: 'ANIMAL',
+  COLOR: 'COLOR',
+  THEME: 'THEME',
+  CORE: 'CORE',
+  MOOD: 'MOOD',
+  STYLE: 'STYLE',
+  SETTING: 'SETTING',
+  ART_DIRECTION: 'ART_DIRECTION',
+  OTHER: 'OTHER'
+} as const
+
+export type FacetKind = (typeof FacetKind)[keyof typeof FacetKind]
+
+
+export const FacetRelationType = {
+  IS_A: 'IS_A',
+  APPEARS_IN: 'APPEARS_IN',
+  CONTAINS: 'CONTAINS',
+  RELATED: 'RELATED',
+  INSPIRED_BY: 'INSPIRED_BY'
+} as const
+
+export type FacetRelationType = (typeof FacetRelationType)[keyof typeof FacetRelationType]
+
+
 export const DreamPriority = {
   LOW: 'LOW',
   NORMAL: 'NORMAL',
@@ -298,6 +335,8 @@ export const Reaction_reactionCategory = {
   COMPONENT: 'COMPONENT',
   COMPOSITION: 'COMPOSITION',
   DREAM: 'DREAM',
+  FACET: 'FACET',
+  PROJECT: 'PROJECT',
   MESSAGE: 'MESSAGE',
   POST: 'POST',
   PROMPT: 'PROMPT',

@@ -18,6 +18,15 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
+ * Model FacetAlias
+ * Alternate names that resolve to one canonical Facet.
+ * 
+ * lookupKey is formatting-insensitive: "cowCore", "cow-core", and "cow core"
+ * all normalize to "cowcore". Linguistic variants such as "cow" and "cows"
+ * remain explicit rows so aliases never merge unrelated concepts by accident.
+ */
+export type FacetAlias = Prisma.FacetAliasModel
+/**
  * Model ArtImage
  * ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
  */
@@ -73,6 +82,53 @@ export type Dream = Prisma.DreamModel
  * 
  */
 export type DreamRelation = Prisma.DreamRelationModel
+/**
+ * Model Project
+ * Projects are implementation records synchronized with Conductor. Creative world
+ * infrastructure belongs to Dream; lightweight reusable flavor belongs to Facet.
+ */
+export type Project = Prisma.ProjectModel
+/**
+ * Model Facet
+ * Facets are lightweight reusable creative building blocks: genres, animals,
+ * colors, themes, cores, moods, styles, settings, and art direction.
+ */
+export type Facet = Prisma.FacetModel
+/**
+ * Model DreamFacet
+ * 
+ */
+export type DreamFacet = Prisma.DreamFacetModel
+/**
+ * Model ScenarioFacet
+ * 
+ */
+export type ScenarioFacet = Prisma.ScenarioFacetModel
+/**
+ * Model ProjectArtImage
+ * 
+ */
+export type ProjectArtImage = Prisma.ProjectArtImageModel
+/**
+ * Model ProjectArtCollection
+ * 
+ */
+export type ProjectArtCollection = Prisma.ProjectArtCollectionModel
+/**
+ * Model FacetArtImage
+ * 
+ */
+export type FacetArtImage = Prisma.FacetArtImageModel
+/**
+ * Model FacetArtCollection
+ * 
+ */
+export type FacetArtCollection = Prisma.FacetArtCollectionModel
+/**
+ * Model FacetRelation
+ * 
+ */
+export type FacetRelation = Prisma.FacetRelationModel
 /**
  * Model ExpressionMedia
  * One row per (owner, expression). Holds stills AND reaction videos. Holds both emotions (face-only edits)

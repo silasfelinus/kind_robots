@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  FacetAlias: 'FacetAlias',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -394,6 +395,15 @@ export const ModelName = {
   Composition: 'Composition',
   Dream: 'Dream',
   DreamRelation: 'DreamRelation',
+  Project: 'Project',
+  Facet: 'Facet',
+  DreamFacet: 'DreamFacet',
+  ScenarioFacet: 'ScenarioFacet',
+  ProjectArtImage: 'ProjectArtImage',
+  ProjectArtCollection: 'ProjectArtCollection',
+  FacetArtImage: 'FacetArtImage',
+  FacetArtCollection: 'FacetArtCollection',
+  FacetRelation: 'FacetRelation',
   ExpressionMedia: 'ExpressionMedia',
   ExpressionTransition: 'ExpressionTransition',
   Log: 'Log',
@@ -446,10 +456,76 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
+    modelProps: "facetAlias" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    FacetAlias: {
+      payload: Prisma.$FacetAliasPayload<ExtArgs>
+      fields: Prisma.FacetAliasFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FacetAliasFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FacetAliasFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload>
+        }
+        findFirst: {
+          args: Prisma.FacetAliasFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FacetAliasFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload>
+        }
+        findMany: {
+          args: Prisma.FacetAliasFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload>[]
+        }
+        create: {
+          args: Prisma.FacetAliasCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload>
+        }
+        createMany: {
+          args: Prisma.FacetAliasCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FacetAliasDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload>
+        }
+        update: {
+          args: Prisma.FacetAliasUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload>
+        }
+        deleteMany: {
+          args: Prisma.FacetAliasDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FacetAliasUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FacetAliasUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetAliasPayload>
+        }
+        aggregate: {
+          args: Prisma.FacetAliasAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFacetAlias>
+        }
+        groupBy: {
+          args: Prisma.FacetAliasGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetAliasGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FacetAliasCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetAliasCountAggregateOutputType> | number
+        }
+      }
+    }
     ArtImage: {
       payload: Prisma.$ArtImagePayload<ExtArgs>
       fields: Prisma.ArtImageFieldRefs
@@ -1107,6 +1183,600 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DreamRelationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DreamRelationCountAggregateOutputType> | number
+        }
+      }
+    }
+    Project: {
+      payload: Prisma.$ProjectPayload<ExtArgs>
+      fields: Prisma.ProjectFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProjectDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
+        }
+        update: {
+          args: Prisma.ProjectUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProjectUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProject>
+        }
+        groupBy: {
+          args: Prisma.ProjectGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectCountAggregateOutputType> | number
+        }
+      }
+    }
+    Facet: {
+      payload: Prisma.$FacetPayload<ExtArgs>
+      fields: Prisma.FacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload>
+        }
+        findFirst: {
+          args: Prisma.FacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload>
+        }
+        findMany: {
+          args: Prisma.FacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload>[]
+        }
+        create: {
+          args: Prisma.FacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload>
+        }
+        createMany: {
+          args: Prisma.FacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload>
+        }
+        update: {
+          args: Prisma.FacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.FacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetPayload>
+        }
+        aggregate: {
+          args: Prisma.FacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFacet>
+        }
+        groupBy: {
+          args: Prisma.FacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    DreamFacet: {
+      payload: Prisma.$DreamFacetPayload<ExtArgs>
+      fields: Prisma.DreamFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DreamFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DreamFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.DreamFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DreamFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload>
+        }
+        findMany: {
+          args: Prisma.DreamFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload>[]
+        }
+        create: {
+          args: Prisma.DreamFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload>
+        }
+        createMany: {
+          args: Prisma.DreamFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.DreamFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload>
+        }
+        update: {
+          args: Prisma.DreamFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.DreamFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DreamFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.DreamFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.DreamFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDreamFacet>
+        }
+        groupBy: {
+          args: Prisma.DreamFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DreamFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DreamFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DreamFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    ScenarioFacet: {
+      payload: Prisma.$ScenarioFacetPayload<ExtArgs>
+      fields: Prisma.ScenarioFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ScenarioFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ScenarioFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.ScenarioFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ScenarioFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload>
+        }
+        findMany: {
+          args: Prisma.ScenarioFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload>[]
+        }
+        create: {
+          args: Prisma.ScenarioFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload>
+        }
+        createMany: {
+          args: Prisma.ScenarioFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ScenarioFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload>
+        }
+        update: {
+          args: Prisma.ScenarioFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.ScenarioFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ScenarioFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ScenarioFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScenarioFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.ScenarioFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateScenarioFacet>
+        }
+        groupBy: {
+          args: Prisma.ScenarioFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScenarioFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ScenarioFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScenarioFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectArtImage: {
+      payload: Prisma.$ProjectArtImagePayload<ExtArgs>
+      fields: Prisma.ProjectArtImageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectArtImageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectArtImageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectArtImageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectArtImageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload>
+        }
+        findMany: {
+          args: Prisma.ProjectArtImageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload>[]
+        }
+        create: {
+          args: Prisma.ProjectArtImageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload>
+        }
+        createMany: {
+          args: Prisma.ProjectArtImageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProjectArtImageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload>
+        }
+        update: {
+          args: Prisma.ProjectArtImageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectArtImageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectArtImageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProjectArtImageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtImagePayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectArtImageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectArtImage>
+        }
+        groupBy: {
+          args: Prisma.ProjectArtImageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectArtImageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectArtImageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectArtImageCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectArtCollection: {
+      payload: Prisma.$ProjectArtCollectionPayload<ExtArgs>
+      fields: Prisma.ProjectArtCollectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectArtCollectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectArtCollectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectArtCollectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectArtCollectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectArtCollectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectArtCollectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectArtCollectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProjectArtCollectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload>
+        }
+        update: {
+          args: Prisma.ProjectArtCollectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectArtCollectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectArtCollectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProjectArtCollectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectArtCollectionPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectArtCollectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectArtCollection>
+        }
+        groupBy: {
+          args: Prisma.ProjectArtCollectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectArtCollectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectArtCollectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectArtCollectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    FacetArtImage: {
+      payload: Prisma.$FacetArtImagePayload<ExtArgs>
+      fields: Prisma.FacetArtImageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FacetArtImageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FacetArtImageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload>
+        }
+        findFirst: {
+          args: Prisma.FacetArtImageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FacetArtImageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload>
+        }
+        findMany: {
+          args: Prisma.FacetArtImageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload>[]
+        }
+        create: {
+          args: Prisma.FacetArtImageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload>
+        }
+        createMany: {
+          args: Prisma.FacetArtImageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FacetArtImageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload>
+        }
+        update: {
+          args: Prisma.FacetArtImageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload>
+        }
+        deleteMany: {
+          args: Prisma.FacetArtImageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FacetArtImageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FacetArtImageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtImagePayload>
+        }
+        aggregate: {
+          args: Prisma.FacetArtImageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFacetArtImage>
+        }
+        groupBy: {
+          args: Prisma.FacetArtImageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetArtImageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FacetArtImageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetArtImageCountAggregateOutputType> | number
+        }
+      }
+    }
+    FacetArtCollection: {
+      payload: Prisma.$FacetArtCollectionPayload<ExtArgs>
+      fields: Prisma.FacetArtCollectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FacetArtCollectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FacetArtCollectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload>
+        }
+        findFirst: {
+          args: Prisma.FacetArtCollectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FacetArtCollectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload>
+        }
+        findMany: {
+          args: Prisma.FacetArtCollectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload>[]
+        }
+        create: {
+          args: Prisma.FacetArtCollectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload>
+        }
+        createMany: {
+          args: Prisma.FacetArtCollectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FacetArtCollectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload>
+        }
+        update: {
+          args: Prisma.FacetArtCollectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.FacetArtCollectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FacetArtCollectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FacetArtCollectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetArtCollectionPayload>
+        }
+        aggregate: {
+          args: Prisma.FacetArtCollectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFacetArtCollection>
+        }
+        groupBy: {
+          args: Prisma.FacetArtCollectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetArtCollectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FacetArtCollectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetArtCollectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    FacetRelation: {
+      payload: Prisma.$FacetRelationPayload<ExtArgs>
+      fields: Prisma.FacetRelationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FacetRelationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FacetRelationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload>
+        }
+        findFirst: {
+          args: Prisma.FacetRelationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FacetRelationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload>
+        }
+        findMany: {
+          args: Prisma.FacetRelationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload>[]
+        }
+        create: {
+          args: Prisma.FacetRelationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload>
+        }
+        createMany: {
+          args: Prisma.FacetRelationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FacetRelationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload>
+        }
+        update: {
+          args: Prisma.FacetRelationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload>
+        }
+        deleteMany: {
+          args: Prisma.FacetRelationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FacetRelationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FacetRelationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetRelationPayload>
+        }
+        aggregate: {
+          args: Prisma.FacetRelationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFacetRelation>
+        }
+        groupBy: {
+          args: Prisma.FacetRelationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetRelationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FacetRelationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetRelationCountAggregateOutputType> | number
         }
       }
     }
@@ -3591,6 +4261,20 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const FacetAliasScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  facetId: 'facetId',
+  alias: 'alias',
+  lookupKey: 'lookupKey',
+  isCanonical: 'isCanonical',
+  isActive: 'isActive'
+} as const
+
+export type FacetAliasScalarFieldEnum = (typeof FacetAliasScalarFieldEnum)[keyof typeof FacetAliasScalarFieldEnum]
+
+
 export const ArtImageScalarFieldEnum = {
   id: 'id',
   imageData: 'imageData',
@@ -3760,6 +4444,7 @@ export const ChatScalarFieldEnum = {
   serverId: 'serverId',
   serverName: 'serverName',
   dreamId: 'dreamId',
+  projectId: 'projectId',
   isActive: 'isActive'
 } as const
 
@@ -3870,7 +4555,8 @@ export const DreamScalarFieldEnum = {
   isMature: 'isMature',
   isActive: 'isActive',
   artImageId: 'artImageId',
-  artCollectionId: 'artCollectionId'
+  artCollectionId: 'artCollectionId',
+  narratorId: 'narratorId'
 } as const
 
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
@@ -3887,6 +4573,139 @@ export const DreamRelationScalarFieldEnum = {
 } as const
 
 export type DreamRelationScalarFieldEnum = (typeof DreamRelationScalarFieldEnum)[keyof typeof DreamRelationScalarFieldEnum]
+
+
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  goal: 'goal',
+  waypoints: 'waypoints',
+  status: 'status',
+  priority: 'priority',
+  conductorSlug: 'conductorSlug',
+  repoUrl: 'repoUrl',
+  liveUrl: 'liveUrl',
+  channelKey: 'channelKey',
+  tabKey: 'tabKey',
+  lastSyncedAt: 'lastSyncedAt',
+  allowReviews: 'allowReviews',
+  highlightImage: 'highlightImage',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  designer: 'designer',
+  creationSource: 'creationSource',
+  userId: 'userId',
+  managerBotId: 'managerBotId',
+  artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const FacetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  kind: 'kind',
+  description: 'description',
+  flavorText: 'flavorText',
+  examples: 'examples',
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  icon: 'icon',
+  designer: 'designer',
+  creationSource: 'creationSource',
+  userId: 'userId',
+  artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive'
+} as const
+
+export type FacetScalarFieldEnum = (typeof FacetScalarFieldEnum)[keyof typeof FacetScalarFieldEnum]
+
+
+export const DreamFacetScalarFieldEnum = {
+  dreamId: 'dreamId',
+  facetId: 'facetId',
+  createdAt: 'createdAt'
+} as const
+
+export type DreamFacetScalarFieldEnum = (typeof DreamFacetScalarFieldEnum)[keyof typeof DreamFacetScalarFieldEnum]
+
+
+export const ScenarioFacetScalarFieldEnum = {
+  scenarioId: 'scenarioId',
+  facetId: 'facetId',
+  createdAt: 'createdAt'
+} as const
+
+export type ScenarioFacetScalarFieldEnum = (typeof ScenarioFacetScalarFieldEnum)[keyof typeof ScenarioFacetScalarFieldEnum]
+
+
+export const ProjectArtImageScalarFieldEnum = {
+  projectId: 'projectId',
+  artImageId: 'artImageId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectArtImageScalarFieldEnum = (typeof ProjectArtImageScalarFieldEnum)[keyof typeof ProjectArtImageScalarFieldEnum]
+
+
+export const ProjectArtCollectionScalarFieldEnum = {
+  projectId: 'projectId',
+  artCollectionId: 'artCollectionId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectArtCollectionScalarFieldEnum = (typeof ProjectArtCollectionScalarFieldEnum)[keyof typeof ProjectArtCollectionScalarFieldEnum]
+
+
+export const FacetArtImageScalarFieldEnum = {
+  facetId: 'facetId',
+  artImageId: 'artImageId',
+  createdAt: 'createdAt'
+} as const
+
+export type FacetArtImageScalarFieldEnum = (typeof FacetArtImageScalarFieldEnum)[keyof typeof FacetArtImageScalarFieldEnum]
+
+
+export const FacetArtCollectionScalarFieldEnum = {
+  facetId: 'facetId',
+  artCollectionId: 'artCollectionId',
+  createdAt: 'createdAt'
+} as const
+
+export type FacetArtCollectionScalarFieldEnum = (typeof FacetArtCollectionScalarFieldEnum)[keyof typeof FacetArtCollectionScalarFieldEnum]
+
+
+export const FacetRelationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  fromFacetId: 'fromFacetId',
+  toFacetId: 'toFacetId',
+  relationType: 'relationType',
+  note: 'note'
+} as const
+
+export type FacetRelationScalarFieldEnum = (typeof FacetRelationScalarFieldEnum)[keyof typeof FacetRelationScalarFieldEnum]
 
 
 export const ExpressionMediaScalarFieldEnum = {
@@ -4035,6 +4854,7 @@ export const PitchSheetScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   dreamId: 'dreamId',
+  projectId: 'projectId',
   layoutKey: 'layoutKey',
   title: 'title',
   subtitle: 'subtitle',
@@ -4118,6 +4938,8 @@ export const ReactionScalarFieldEnum = {
   rewardId: 'rewardId',
   chatId: 'chatId',
   dreamId: 'dreamId',
+  projectId: 'projectId',
+  facetId: 'facetId',
   artCollectionId: 'artCollectionId',
   butterflyId: 'butterflyId',
   characterId: 'characterId',
@@ -4430,6 +5252,7 @@ export const ArtJobScalarFieldEnum = {
   claimedAt: 'claimedAt',
   claimedBy: 'claimedBy',
   projectSlug: 'projectSlug',
+  projectId: 'projectId',
   artImageId: 'artImageId',
   error: 'error',
   userId: 'userId'
@@ -4493,6 +5316,7 @@ export const TodoScalarFieldEnum = {
   imagePath: 'imagePath',
   userId: 'userId',
   dreamId: 'dreamId',
+  projectId: 'projectId',
   order: 'order'
 } as const
 
@@ -4708,6 +5532,14 @@ export const NullsOrder = {
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
+export const FacetAliasOrderByRelevanceFieldEnum = {
+  alias: 'alias',
+  lookupKey: 'lookupKey'
+} as const
+
+export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelevanceFieldEnum)[keyof typeof FacetAliasOrderByRelevanceFieldEnum]
+
+
 export const ArtImageOrderByRelevanceFieldEnum = {
   imageData: 'imageData',
   fileName: 'fileName',
@@ -4899,6 +5731,53 @@ export const DreamRelationOrderByRelevanceFieldEnum = {
 } as const
 
 export type DreamRelationOrderByRelevanceFieldEnum = (typeof DreamRelationOrderByRelevanceFieldEnum)[keyof typeof DreamRelationOrderByRelevanceFieldEnum]
+
+
+export const ProjectOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  goal: 'goal',
+  waypoints: 'waypoints',
+  conductorSlug: 'conductorSlug',
+  repoUrl: 'repoUrl',
+  liveUrl: 'liveUrl',
+  channelKey: 'channelKey',
+  tabKey: 'tabKey',
+  highlightImage: 'highlightImage',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  designer: 'designer'
+} as const
+
+export type ProjectOrderByRelevanceFieldEnum = (typeof ProjectOrderByRelevanceFieldEnum)[keyof typeof ProjectOrderByRelevanceFieldEnum]
+
+
+export const FacetOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  flavorText: 'flavorText',
+  examples: 'examples',
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  icon: 'icon',
+  designer: 'designer'
+} as const
+
+export type FacetOrderByRelevanceFieldEnum = (typeof FacetOrderByRelevanceFieldEnum)[keyof typeof FacetOrderByRelevanceFieldEnum]
+
+
+export const FacetRelationOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type FacetRelationOrderByRelevanceFieldEnum = (typeof FacetRelationOrderByRelevanceFieldEnum)[keyof typeof FacetRelationOrderByRelevanceFieldEnum]
 
 
 export const ExpressionMediaOrderByRelevanceFieldEnum = {
@@ -5356,16 +6235,16 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 
 
 /**
- * Reference to a field of type 'String'
+ * Reference to a field of type 'DateTime'
  */
-export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
     
 
 
 /**
- * Reference to a field of type 'DateTime'
+ * Reference to a field of type 'String'
  */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
     
 
 
@@ -5443,6 +6322,27 @@ export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'DreamRelationType'
  */
 export type EnumDreamRelationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamRelationType'>
+    
+
+
+/**
+ * Reference to a field of type 'ProjectPriority'
+ */
+export type EnumProjectPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectPriority'>
+    
+
+
+/**
+ * Reference to a field of type 'FacetKind'
+ */
+export type EnumFacetKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FacetKind'>
+    
+
+
+/**
+ * Reference to a field of type 'FacetRelationType'
+ */
+export type EnumFacetRelationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FacetRelationType'>
     
 
 
@@ -5807,6 +6707,7 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
+  facetAlias?: Prisma.FacetAliasOmit
   artImage?: Prisma.ArtImageOmit
   artCollection?: Prisma.ArtCollectionOmit
   bot?: Prisma.BotOmit
@@ -5817,6 +6718,15 @@ export type GlobalOmitConfig = {
   composition?: Prisma.CompositionOmit
   dream?: Prisma.DreamOmit
   dreamRelation?: Prisma.DreamRelationOmit
+  project?: Prisma.ProjectOmit
+  facet?: Prisma.FacetOmit
+  dreamFacet?: Prisma.DreamFacetOmit
+  scenarioFacet?: Prisma.ScenarioFacetOmit
+  projectArtImage?: Prisma.ProjectArtImageOmit
+  projectArtCollection?: Prisma.ProjectArtCollectionOmit
+  facetArtImage?: Prisma.FacetArtImageOmit
+  facetArtCollection?: Prisma.FacetArtCollectionOmit
+  facetRelation?: Prisma.FacetRelationOmit
   expressionMedia?: Prisma.ExpressionMediaOmit
   expressionTransition?: Prisma.ExpressionTransitionOmit
   log?: Prisma.LogOmit

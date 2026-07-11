@@ -232,7 +232,10 @@
         </button>
         <p
           v-if="
-            !locationDreams.length && !genreFacets.length && !dreamStore.loading || facetStore.loading
+            !locationDreams.length &&
+            !genreFacets.length &&
+            !dreamStore.loading &&
+            !facetStore.loading
           "
           class="text-xs text-base-content/50"
         >

@@ -30,11 +30,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Project access governs the collection. Do not additionally filter by the
+    // Todo creator: admins and project agents may create tasks on the owner's
+    // behalf, and those tasks still belong in the Project workspace.
     const todos = await prisma.todo.findMany({
-      where: {
-        projectId,
-        ...(auth.user.Role === 'ADMIN' ? {} : { userId: auth.user.id }),
-      },
+      where: { projectId },
       orderBy: [
         { order: 'asc' },
         { priority: 'asc' },

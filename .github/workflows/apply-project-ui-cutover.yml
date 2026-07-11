@@ -65,7 +65,6 @@ jobs:
           path.write_text(source, encoding='utf-8')
           PY
 
-      # Strict anchors keep this branch-only transformation fail-safe.
       - name: Apply strict Project UI transformation
         shell: bash
         run: |
@@ -93,7 +92,18 @@ jobs:
         run: npx prisma generate
 
       - name: Validate Vue and TypeScript
-        run: npm run test
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test 2>&1 | tee project-ui-typecheck.log
+
+      - name: Upload Vue and TypeScript diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-ui-typecheck-log
+          path: project-ui-typecheck.log
+          if-no-files-found: warn
 
       - name: Commit validated application files
         run: |

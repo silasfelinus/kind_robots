@@ -51,12 +51,7 @@ jobs:
               'projectRecordForSlug(project.slug)?.flavorText',
               'replace Project gallery flavor fallbacks',
           )
-          page = re.sub(
-              r'^[ \t]*:dream-id="linkedDream\?\.id \?\? null"[ \t]*\r?\n',
-              '',
-              page,
-              flags=re.MULTILINE,
-          )
+          page = page.replace('linkedDream?.id ?? null', 'null')
           '''
           if source.count(anchor) != 1:
               raise SystemExit(f'expected one Conductor assertion anchor, found {source.count(anchor)}')

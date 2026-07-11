@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/userStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import {
+  CREATABLE_DREAM_TYPES,
   DREAM_TYPES,
   buildBrainstormPrompt,
   buildDreamPayload,
@@ -294,6 +295,10 @@ function normalizeDream<T extends DreamWithRelations | Dream>(dream: T): T {
   return normalizeDreamType(dream) as T
 }
 
+function isCreativeDream(dream: Pick<Dream, 'dreamType'>): boolean {
+  return dream.dreamType !== 'PROJECT' && dream.dreamType !== 'GENRE'
+}
+
 function normalizeDreamForm(input: Partial<DreamForm>): DreamForm {
   return {
     ...input,
@@ -406,7 +411,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const apiResponse = ref('')
   const maxTokens = ref(500)
 
-  const dreamTypes = DREAM_TYPES.filter((type) => type !== 'PROJECT')
+  const dreamTypes = CREATABLE_DREAM_TYPES
 
   const currentUserId = computed(
     () => userStore.user?.id ?? userStore.userId ?? 10,
@@ -414,20 +419,25 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const selectedDreamId = computed(() => selectedDream.value?.id ?? null)
   const selectedDreamChats = computed(() => dreamChats.value)
 
+  const creativeDreams = computed(() => dreams.value.filter(isCreativeDream))
   const activeDreams = computed(() =>
-    dreams.value.filter((dream) => dream.isActive),
+    creativeDreams.value.filter((dream) => dream.isActive),
   )
   const ownedDreams = computed(() =>
-    dreams.value.filter((dream) => dream.userId === currentUserId.value),
+    creativeDreams.value.filter((dream) => dream.userId === currentUserId.value),
   )
 
   const publicDreams = computed(() =>
-    filterPublicDreams(dreams.value, currentUserId.value, userStore.isAdmin),
+    filterPublicDreams(
+      creativeDreams.value,
+      currentUserId.value,
+      userStore.isAdmin,
+    ),
   )
 
   const visibleDreams = computed(() =>
     filterVisibleDreams(
-      dreams.value,
+      creativeDreams.value,
       currentUserId.value,
       userStore.showMature,
       userStore.isAdmin,
@@ -489,7 +499,9 @@ export const useDreamStore = defineStore('dreamStore', () => {
   })
 
   const newestDreamsDisplay = computed(() =>
-    newestDreams.value.map((dream) => ({ ...dream, isNewest: true })),
+    newestDreams.value
+      .filter(isCreativeDream)
+      .map((dream) => ({ ...dream, isNewest: true })),
   )
   const latestDreamChat = computed(() => dreamChats.value.at(-1) ?? null)
   const hasSelectedDream = computed(() => Boolean(selectedDream.value?.id))
@@ -736,6 +748,33 @@ export const useDreamStore = defineStore('dreamStore', () => {
     )
 
     hydrateFromLegacyPitchStorage()
+
+    selectedDreams.value = selectedDreams.value.filter(isCreativeDream)
+
+    if (selectedDream.value && !isCreativeDream(selectedDream.value)) {
+      selectedDream.value = null
+      dreamForm.value = {}
+      dreamChats.value = []
+      chatForm.value = {}
+    }
+
+    if (selectedTitle.value && !isCreativeDream(selectedTitle.value)) {
+      selectedTitle.value = null
+    }
+
+    if (
+      dreamForm.value.dreamType === 'PROJECT' ||
+      dreamForm.value.dreamType === 'GENRE'
+    ) {
+      dreamForm.value = {}
+    }
+
+    if (
+      selectedDreamType.value === 'PROJECT' ||
+      selectedDreamType.value === 'GENRE'
+    ) {
+      selectedDreamType.value = null
+    }
   }
 
   function loadFromLocalStorage() {
@@ -2065,6 +2104,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     currentUserId,
     selectedDreamId,
     selectedDreamChats,
+    creativeDreams,
     activeDreams,
     publicDreams,
     ownedDreams,

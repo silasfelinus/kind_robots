@@ -203,7 +203,7 @@ const subtitleLine = computed(() => {
 })
 
 const visibleDreams = computed<DreamWithRelations[]>(() => {
-  let dreams = dreamStore.dreams ?? []
+  let dreams = dreamStore.creativeDreams ?? []
 
   dreams = dreams.filter((dream) => dream.isActive !== false)
 

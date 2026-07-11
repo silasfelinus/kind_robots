@@ -105,13 +105,21 @@ async function assertRelatedRecordsExist(options: {
   if (dreamId) {
     const dream = await prisma.dream.findUnique({
       where: { id: dreamId },
-      select: { id: true },
+      select: { id: true, dreamType: true },
     })
 
     if (!dream) {
       throw createError({
         statusCode: 404,
         message: `Dream ID not found: ${dreamId}.`,
+      })
+    }
+
+    if (dream.dreamType === 'PROJECT') {
+      throw createError({
+        statusCode: 409,
+        message:
+          'Project chats must use projectId and /api/projects; legacy Project Dream chat writes are disabled.',
       })
     }
   }

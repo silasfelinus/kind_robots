@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-11T22:47:10.083Z",
+  "generatedAt": "2026-07-11T23:05:09.010Z",
   "note": "Archival copy of the legacy PROJECT/GENRE dreams taken immediately before their deletion. Live data moved to the Project and Facet models (kind_robots PRs #172/#173 and follow-ups).",
   "counts": {
     "total": 49,

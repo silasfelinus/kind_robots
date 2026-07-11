@@ -18,6 +18,7 @@ type ChatListQuery = {
   botId?: string | string[]
   characterId?: string | string[]
   dreamId?: string | string[]
+  projectId?: string | string[]
   promptId?: string | string[]
   artImageId?: string | string[]
   serverId?: string | string[]
@@ -33,6 +34,8 @@ type OptionalUser = {
   role: string | null
   hasBearerToken: boolean
 }
+
+type ProjectChatAccess = 'all' | 'public'
 
 const chatTypes: ChatType[] = [
   'ToBot',
@@ -78,7 +81,6 @@ function normalizeText(value: unknown): string | undefined {
   if (typeof raw !== 'string') return undefined
 
   const text = raw.trim()
-
   return text || undefined
 }
 
@@ -143,6 +145,37 @@ async function assertDreamChatAccess(
   })
 }
 
+async function getProjectChatAccess(
+  projectId: number,
+  viewer: OptionalUser,
+): Promise<ProjectChatAccess> {
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      userId: true,
+      isPublic: true,
+      isActive: true,
+    },
+  })
+
+  if (!project || !project.isActive) {
+    throw createError({
+      statusCode: 404,
+      message: `Project with ID ${projectId} not found.`,
+    })
+  }
+
+  if (viewer.id && project.userId === viewer.id) return 'all'
+  if (isAdmin(viewer.role)) return 'all'
+  if (project.isPublic) return 'public'
+
+  throw createError({
+    statusCode: viewer.hasBearerToken ? 403 : 401,
+    message: 'You do not have permission to view this Project chat history.',
+  })
+}
+
 function addOptionalIdFilter(
   where: Prisma.ChatWhereInput,
   field: keyof Prisma.ChatWhereInput,
@@ -185,9 +218,19 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    const projectId = normalizePositiveInt(query.projectId)
     const dreamId = normalizePositiveInt(query.dreamId)
 
-    if (dreamId) {
+    if (projectId) {
+      const access = await getProjectChatAccess(projectId, viewer)
+      where.projectId = projectId
+
+      if (access === 'public') {
+        where.OR = viewer.id
+          ? [{ isPublic: true }, { userId: viewer.id }, { recipientId: viewer.id }]
+          : [{ isPublic: true }]
+      }
+    } else if (dreamId) {
       await assertDreamChatAccess(dreamId, viewer)
       where.dreamId = dreamId
     } else if (mine) {
@@ -259,8 +302,9 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handled.message || 'Failed to load chats.',
-      data: null,
+      message: handled.message,
+      data: [],
+      count: 0,
       statusCode: event.node.res.statusCode,
     }
   }

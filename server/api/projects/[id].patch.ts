@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
     if (body.title !== undefined) data.title = normalizeOptionalText(body.title) ?? existing.title
     if (body.slug !== undefined) data.slug = normalizeSlug(body.slug)
     if (body.description !== undefined) data.description = normalizeOptionalText(body.description)
+    if (body.pitch !== undefined) data.pitch = normalizeOptionalText(body.pitch)
     if (body.flavorText !== undefined) data.flavorText = normalizeOptionalText(body.flavorText)
     if (body.goal !== undefined) data.goal = normalizeOptionalText(body.goal)
     if (body.waypoints !== undefined) data.waypoints = normalizeOptionalText(body.waypoints)

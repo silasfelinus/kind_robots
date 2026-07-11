@@ -62,14 +62,25 @@ export const useProjectStore = defineStore('projectStore', () => {
   const error = ref<string | null>(null)
 
   const activeProjects = computed(() =>
-    projects.value.filter((project) => project.isActive && project.status !== 'ARCHIVED'),
+    projects.value.filter(
+      (project) => project.isActive && project.status !== 'ARCHIVED',
+    ),
   )
   const publicProjects = computed(() =>
-    activeProjects.value.filter((project) => project.isPublic && !project.isMature),
+    activeProjects.value.filter(
+      (project) => project.isPublic && !project.isMature,
+    ),
   )
-  const projectsBySlug = computed(
-    () => new Map(projects.value.flatMap((project) => (project.slug ? [[project.slug, project]] : []))),
-  )
+  const projectsBySlug = computed(() => {
+    const index = new Map<string, ProjectWithRelations>()
+
+    for (const project of projects.value) {
+      if (project.slug) index.set(project.slug, project)
+      if (project.conductorSlug) index.set(project.conductorSlug, project)
+    }
+
+    return index
+  })
 
   function projectForSlug(slug?: string | null): ProjectWithRelations | null {
     if (!slug) return null
@@ -80,18 +91,24 @@ export const useProjectStore = defineStore('projectStore', () => {
     const index = projects.value.findIndex((entry) => entry.id === project.id)
     if (index >= 0) projects.value[index] = project
     else projects.value.unshift(project)
-    if (selectedProject.value?.id === project.id) selectedProject.value = project
+    if (selectedProject.value?.id === project.id) {
+      selectedProject.value = project
+    }
     return project
   }
 
-  async function fetchProjects(options: ProjectListOptions = {}): Promise<ProjectWithRelations[]> {
+  async function fetchProjects(
+    options: ProjectListOptions = {},
+  ): Promise<ProjectWithRelations[]> {
     loading.value = true
     error.value = null
     try {
       const response = await performFetch<ProjectWithRelations[]>(
         `/api/projects${queryString(options)}`,
       )
-      if (!response.success) throw new Error(response.message || 'Failed to fetch Projects.')
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch Projects.')
+      }
       projects.value = response.data ?? []
       loaded.value = true
       return projects.value
@@ -103,11 +120,15 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   }
 
-  async function fetchProject(key: number | string): Promise<ProjectWithRelations> {
+  async function fetchProject(
+    key: number | string,
+  ): Promise<ProjectWithRelations> {
     loading.value = true
     error.value = null
     try {
-      const response = await performFetch<ProjectWithRelations>(`/api/projects/${key}`)
+      const response = await performFetch<ProjectWithRelations>(
+        `/api/projects/${key}`,
+      )
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Project not found.')
       }
@@ -143,11 +164,14 @@ export const useProjectStore = defineStore('projectStore', () => {
   ): Promise<ProjectWithRelations> {
     saving.value = true
     try {
-      const response = await performFetch<ProjectWithRelations>(`/api/projects/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      })
+      const response = await performFetch<ProjectWithRelations>(
+        `/api/projects/${id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+        },
+      )
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to update Project.')
       }
@@ -160,9 +184,10 @@ export const useProjectStore = defineStore('projectStore', () => {
   async function archiveProject(id: number): Promise<ProjectWithRelations> {
     saving.value = true
     try {
-      const response = await performFetch<ProjectWithRelations>(`/api/projects/${id}`, {
-        method: 'DELETE',
-      })
+      const response = await performFetch<ProjectWithRelations>(
+        `/api/projects/${id}`,
+        { method: 'DELETE' },
+      )
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to archive Project.')
       }

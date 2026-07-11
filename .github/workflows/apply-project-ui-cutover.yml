@@ -1,0 +1,53 @@
+name: Apply Project UI Cutover
+
+on:
+  push:
+    branches:
+      - agent/remove-project-dream-ui-fallbacks
+    paths:
+      - utils/scripts/remove_project_dream_ui_fallbacks.py
+      - .github/workflows/apply-project-ui-cutover.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://root:password@127.0.0.1:3306/kindrobots
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/remove-project-dream-ui-fallbacks
+          fetch-depth: 1
+          show-progress: false
+
+      - name: Apply strict Project UI transformation
+        run: python utils/scripts/remove_project_dream_ui_fallbacks.py
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Validate Vue and TypeScript
+        run: npm run test
+
+      - name: Commit validated application files
+        run: |
+          git config user.name "kind-robots-agent"
+          git config user.email "actions@users.noreply.github.com"
+          git add components/pages/conductor-page.vue \
+            components/pages/conductor-overview-gallery-page.vue \
+            stores/dreamStore.ts
+          git commit -m "Remove Project Dream UI fallbacks"
+          git push origin HEAD:agent/remove-project-dream-ui-fallbacks

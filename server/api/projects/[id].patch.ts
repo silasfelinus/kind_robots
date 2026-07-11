@@ -4,6 +4,7 @@ import type { Prisma, ProjectPriority, ProjectStatus } from '~/prisma/generated/
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
+import { enforceProjectCap } from '~/server/utils/projectCap'
 import {
   assertProjectAccess,
   getProjectId,
@@ -16,6 +17,10 @@ import {
 } from './index'
 
 type ProjectPatchBody = Record<string, unknown>
+
+function countsTowardProjectCap(status: ProjectStatus, isActive: boolean) {
+  return isActive && (status === 'ACTIVE' || status === 'PAUSED')
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -30,6 +35,23 @@ export default defineEventHandler(async (event) => {
     assertProjectAccess(existing, auth.user)
     const body = await readBody<ProjectPatchBody>(event)
     const data: Prisma.ProjectUncheckedUpdateInput = {}
+
+    const nextStatus = projectStatuses.has(body.status as ProjectStatus)
+      ? (body.status as ProjectStatus)
+      : existing.status
+    const nextIsActive =
+      typeof body.isActive === 'boolean' ? body.isActive : existing.isActive
+
+    if (
+      !countsTowardProjectCap(existing.status, existing.isActive) &&
+      countsTowardProjectCap(nextStatus, nextIsActive)
+    ) {
+      await enforceProjectCap({
+        userId: auth.user.id,
+        userRole: auth.user.Role,
+        isAdmin: auth.isAdmin || auth.user.id === 1,
+      })
+    }
 
     if (body.title !== undefined) data.title = normalizeOptionalText(body.title) ?? existing.title
     if (body.slug !== undefined) data.slug = normalizeSlug(body.slug)

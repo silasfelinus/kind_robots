@@ -3,11 +3,17 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
+type DreamSummary = {
+  id: number
+  dreamType: string
+}
+
 describe('Legacy Project Dream write guards', () => {
   const apiBase = 'https://kind-robots.vercel.app/api'
   const stamp = Date.now()
   let token = ''
   let dreamId = 0
+  let legacyProjectDreamId = 0
 
   before(() => {
     createLoggedInTestUser().then((auth) => {
@@ -62,6 +68,45 @@ describe('Legacy Project Dream write guards', () => {
       expect(response.status).to.eq(409)
       expect(response.body.success).to.be.false
       expect(response.body.message).to.contain('/api/projects')
+    })
+  })
+
+  it('finds a readable legacy Project Dream compatibility row', () => {
+    cy.request({
+      method: 'GET',
+      url: `${apiBase}/dreams?dreamType=PROJECT&limit=1`,
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('array').and.not.be.empty
+
+      const projectDream = (response.body.data as DreamSummary[]).find(
+        (dream) => dream.dreamType === 'PROJECT',
+      )
+      expect(projectDream).to.exist
+      legacyProjectDreamId = projectDream?.id ?? 0
+    })
+  })
+
+  it('rejects new chats through a legacy Project Dream ID', () => {
+    expect(legacyProjectDreamId).to.be.greaterThan(0)
+
+    cy.request({
+      method: 'POST',
+      url: `${apiBase}/chats`,
+      headers: { Authorization: `Bearer ${token}` },
+      failOnStatusCode: false,
+      body: {
+        type: 'Dream',
+        sender: 'Cypress Project Guard',
+        content: 'This chat must be routed through projectId instead.',
+        dreamId: legacyProjectDreamId,
+        isPublic: false,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(409)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.contain('projectId')
     })
   })
 

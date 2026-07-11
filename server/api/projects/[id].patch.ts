@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
     assertProjectAccess(existing, auth.user)
     const body = await readBody<ProjectPatchBody>(event)
-    const data: Prisma.ProjectUpdateInput = {}
+    const data: Prisma.ProjectUncheckedUpdateInput = {}
 
     if (body.title !== undefined) data.title = normalizeOptionalText(body.title) ?? existing.title
     if (body.slug !== undefined) data.slug = normalizeSlug(body.slug)

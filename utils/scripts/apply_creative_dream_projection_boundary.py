@@ -63,7 +63,7 @@ gallery = replace_exact(
     gallery,
     'dreamStore.dreams',
     'dreamStore.creativeDreams',
-    7,
+    8,
     'use creative Dreams throughout general gallery',
 )
 DREAM_GALLERY.write_text(gallery, encoding='utf-8')

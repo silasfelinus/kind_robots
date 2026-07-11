@@ -122,6 +122,14 @@ async function assertRelatedRecordsExist(options: {
           'Project chats must use projectId and /api/projects; legacy Project Dream chat writes are disabled.',
       })
     }
+
+    if (dream.dreamType === 'GENRE') {
+      throw createError({
+        statusCode: 409,
+        message:
+          'Legacy Genre Dream chat writes are disabled. Use first-class Facets for reusable taxonomy.',
+      })
+    }
   }
 
   if (serverId) {

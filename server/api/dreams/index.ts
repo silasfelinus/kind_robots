@@ -373,6 +373,13 @@ export function normalizeDreamType(value: unknown): DreamType {
     })
   }
 
+  if (normalized === 'GENRE') {
+    throw createError({
+      statusCode: 409,
+      message: 'Reusable genres and taxonomy must be created through /api/facets, not /api/dreams.',
+    })
+  }
+
   return normalized
 }
 

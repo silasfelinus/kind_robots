@@ -246,6 +246,7 @@ export default defineEventHandler(async (event) => {
         id: true,
         userId: true,
         title: true,
+        dreamType: true,
         isPublic: true,
       },
     })
@@ -254,6 +255,13 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 404,
         message: 'Dream not found.',
+      })
+    }
+
+    if (existingDream.dreamType === 'PROJECT') {
+      throw createError({
+        statusCode: 409,
+        message: 'Legacy Project Dreams are read-only. Update the matching record through /api/projects.',
       })
     }
 
@@ -270,6 +278,18 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
+      })
+    }
+
+    if (
+      body.dreamType === 'PROJECT' ||
+      body.projectStatus !== undefined ||
+      body.repoUrl !== undefined ||
+      body.liveUrl !== undefined
+    ) {
+      throw createError({
+        statusCode: 409,
+        message: 'Project fields must be updated through /api/projects, not /api/dreams.',
       })
     }
 

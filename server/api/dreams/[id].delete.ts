@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
       select: {
         id: true,
         title: true,
+        dreamType: true,
         userId: true,
         isPublic: true,
       },
@@ -28,6 +29,14 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 404,
         message: `Dream with ID ${id} not found.`,
+      })
+    }
+
+    if (dream.dreamType === 'PROJECT') {
+      throw createError({
+        statusCode: 409,
+        message:
+          'Legacy Project Dreams are protected compatibility records and cannot be deleted through /api/dreams.',
       })
     }
 

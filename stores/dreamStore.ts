@@ -116,7 +116,6 @@ export interface FetchDreamOptions {
   galleryId?: number
   scenarioId?: number
   dreamType?: DreamType | string
-  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
   tagId?: number
   characterId?: number
   rewardId?: number
@@ -295,10 +294,6 @@ function normalizeDream<T extends DreamWithRelations | Dream>(dream: T): T {
   return normalizeDreamType(dream) as T
 }
 
-function isCreativeDream(dream: Pick<Dream, 'dreamType'>): boolean {
-  return dream.dreamType !== 'PROJECT' && dream.dreamType !== 'GENRE'
-}
-
 function normalizeDreamForm(input: Partial<DreamForm>): DreamForm {
   return {
     ...input,
@@ -419,7 +414,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const selectedDreamId = computed(() => selectedDream.value?.id ?? null)
   const selectedDreamChats = computed(() => dreamChats.value)
 
-  const creativeDreams = computed(() => dreams.value.filter(isCreativeDream))
+  const creativeDreams = computed(() => dreams.value)
   const activeDreams = computed(() =>
     creativeDreams.value.filter((dream) => dream.isActive),
   )
@@ -499,9 +494,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
   })
 
   const newestDreamsDisplay = computed(() =>
-    newestDreams.value
-      .filter(isCreativeDream)
-      .map((dream) => ({ ...dream, isNewest: true })),
+    newestDreams.value.map((dream) => ({ ...dream, isNewest: true })),
   )
   const latestDreamChat = computed(() => dreamChats.value.at(-1) ?? null)
   const hasSelectedDream = computed(() => Boolean(selectedDream.value?.id))
@@ -748,33 +741,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
     )
 
     hydrateFromLegacyPitchStorage()
-
-    selectedDreams.value = selectedDreams.value.filter(isCreativeDream)
-
-    if (selectedDream.value && !isCreativeDream(selectedDream.value)) {
-      selectedDream.value = null
-      dreamForm.value = {}
-      dreamChats.value = []
-      chatForm.value = {}
-    }
-
-    if (selectedTitle.value && !isCreativeDream(selectedTitle.value)) {
-      selectedTitle.value = null
-    }
-
-    if (
-      dreamForm.value.dreamType === 'PROJECT' ||
-      dreamForm.value.dreamType === 'GENRE'
-    ) {
-      dreamForm.value = {}
-    }
-
-    if (
-      selectedDreamType.value === 'PROJECT' ||
-      selectedDreamType.value === 'GENRE'
-    ) {
-      selectedDreamType.value = null
-    }
   }
 
   function loadFromLocalStorage() {
@@ -962,7 +928,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
           dreamType: options.dreamType
             ? parseDreamType(options.dreamType)
             : undefined,
-          projectStatus: options.projectStatus,
           tagId: options.tagId,
           characterId: options.characterId,
           rewardId: options.rewardId,

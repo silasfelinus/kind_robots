@@ -46,11 +46,6 @@ type DreamPatchBody = {
   isMature?: boolean
   isActive?: boolean
   allowReviews?: boolean
-  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
-  repoUrl?: string | null
-  liveUrl?: string | null
-  goal?: string | null
-  waypoints?: string | null
   characterIds?: number[]
   rewardIds?: number[]
   artImageIds?: number[]
@@ -216,16 +211,6 @@ function getUpdateSummary(body: DreamPatchBody): string {
     changes.push('settings')
   }
 
-  if (
-    body.projectStatus !== undefined ||
-    body.repoUrl !== undefined ||
-    body.liveUrl !== undefined ||
-    body.goal !== undefined ||
-    body.waypoints !== undefined
-  ) {
-    changes.push('project')
-  }
-
   if (!changes.length) return 'Dream updated.'
 
   return `Dream updated: ${changes.join(', ')}.`
@@ -258,20 +243,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (existingDream.dreamType === 'PROJECT') {
-      throw createError({
-        statusCode: 409,
-        message: 'Legacy Project Dreams are read-only. Update the matching record through /api/projects.',
-      })
-    }
-
-    if (existingDream.dreamType === 'GENRE') {
-      throw createError({
-        statusCode: 409,
-        message: 'Legacy Genre Dreams are read-only. Update the matching taxonomy through /api/facets.',
-      })
-    }
-
     assertDreamAccess({
       dream: existingDream,
       userId: user.id,
@@ -285,25 +256,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
-      })
-    }
-
-    if (body.dreamType === 'GENRE') {
-      throw createError({
-        statusCode: 409,
-        message: 'Reusable genres and taxonomy must be created through /api/facets, not /api/dreams.',
-      })
-    }
-
-    if (
-      body.dreamType === 'PROJECT' ||
-      body.projectStatus !== undefined ||
-      body.repoUrl !== undefined ||
-      body.liveUrl !== undefined
-    ) {
-      throw createError({
-        statusCode: 409,
-        message: 'Project fields must be updated through /api/projects, not /api/dreams.',
       })
     }
 
@@ -406,36 +358,6 @@ export default defineEventHandler(async (event) => {
 
     if (typeof body.isActive === 'boolean') {
       dataInput.isActive = body.isActive
-    }
-
-    const validProjectStatuses = [
-      'ACTIVE',
-      'PAUSED',
-      'DONE',
-      'ARCHIVED',
-      'BRAINSTORM',
-    ] as const
-    if (
-      body.projectStatus !== undefined &&
-      validProjectStatuses.includes(body.projectStatus)
-    ) {
-      dataInput.projectStatus = body.projectStatus
-    }
-
-    if (body.repoUrl !== undefined) {
-      setTextField(dataInput, 'repoUrl', body.repoUrl)
-    }
-
-    if (body.liveUrl !== undefined) {
-      setTextField(dataInput, 'liveUrl', body.liveUrl)
-    }
-
-    if (body.goal !== undefined) {
-      setTextField(dataInput, 'goal', body.goal)
-    }
-
-    if (body.waypoints !== undefined) {
-      setTextField(dataInput, 'waypoints', body.waypoints)
     }
 
     if (typeof body.allowReviews === 'boolean') {

@@ -4539,12 +4539,6 @@ export const DreamScalarFieldEnum = {
   imagePath: 'imagePath',
   cardPath: 'cardPath',
   heroPath: 'heroPath',
-  projectStatus: 'projectStatus',
-  priority: 'priority',
-  goal: 'goal',
-  waypoints: 'waypoints',
-  repoUrl: 'repoUrl',
-  liveUrl: 'liveUrl',
   allowReviews: 'allowReviews',
   highlightImage: 'highlightImage',
   icon: 'icon',
@@ -5715,10 +5709,6 @@ export const DreamOrderByRelevanceFieldEnum = {
   imagePath: 'imagePath',
   cardPath: 'cardPath',
   heroPath: 'heroPath',
-  goal: 'goal',
-  waypoints: 'waypoints',
-  repoUrl: 'repoUrl',
-  liveUrl: 'liveUrl',
   highlightImage: 'highlightImage',
   icon: 'icon',
   designer: 'designer'
@@ -6300,20 +6290,6 @@ export type EnumDreamTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
- * Reference to a field of type 'ProjectStatus'
- */
-export type EnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectStatus'>
-    
-
-
-/**
- * Reference to a field of type 'DreamPriority'
- */
-export type EnumDreamPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamPriority'>
-    
-
-
-/**
  * Reference to a field of type 'CreationSource'
  */
 export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CreationSource'>
@@ -6324,6 +6300,13 @@ export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'DreamRelationType'
  */
 export type EnumDreamRelationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamRelationType'>
+    
+
+
+/**
+ * Reference to a field of type 'ProjectStatus'
+ */
+export type EnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectStatus'>
     
 
 

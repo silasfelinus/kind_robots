@@ -327,8 +327,6 @@ const typeIcon = computed(() => {
       return 'kind-icon:git-branch'
     case 'LOCATION':
       return 'kind-icon:map-pin'
-    case 'GENRE':
-      return 'kind-icon:library'
     case 'PITCH':
     default:
       return 'kind-icon:file-sparkles'
@@ -406,16 +404,6 @@ const theme = computed<SheetTheme>(() => {
         muted: '#52616f',
         paper: '#fff4df',
         soft: '#e3efff',
-      }
-    case 'GENRE':
-      return {
-        accent: '#4d5c23',
-        accent2: '#a16207',
-        deep: '#1c1d10',
-        ink: '#31351c',
-        muted: '#62644c',
-        paper: '#fdf1d7',
-        soft: '#f0ecd4',
       }
     case 'PITCH':
     default:

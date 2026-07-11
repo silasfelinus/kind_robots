@@ -3,13 +3,10 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import { enforceProjectCap } from '@/server/utils/projectCap'
 import type {
   CreationSource,
-  DreamPriority,
   DreamType,
   Prisma,
-  ProjectStatus,
 } from '~/prisma/generated/prisma/client'
 import {
   dreamInclude,
@@ -40,10 +37,6 @@ type DreamMutationInput = {
   highlightImage?: string | null
   icon?: string | null
   designer?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
-  projectStatus?: ProjectStatus | string | null
-  priority?: DreamPriority | string | null
   allowReviews?: boolean
   artImageId?: number | null
   artCollectionId?: number | null
@@ -85,20 +78,6 @@ function getDreamsFromBody(body: DreamBatchBody): DreamMutationInput[] {
   }
 
   return []
-}
-
-function normalizeProjectStatus(raw: unknown): ProjectStatus | undefined {
-  const valid: ProjectStatus[] = ['ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED', 'BRAINSTORM']
-  const s = String(raw ?? '').trim().toUpperCase()
-
-  return valid.includes(s as ProjectStatus) ? (s as ProjectStatus) : undefined
-}
-
-function normalizeProjectPriority(raw: unknown): DreamPriority | undefined {
-  const valid: DreamPriority[] = ['LOW', 'NORMAL', 'HIGH']
-  const s = String(raw ?? '').trim().toUpperCase()
-
-  return valid.includes(s as DreamPriority) ? (s as DreamPriority) : undefined
 }
 
 function collectionImagePath(slug: string, variant: StarterArtVariant) {
@@ -225,14 +204,6 @@ async function createDreamFromInput(
 
   const dreamTypeNormalized = normalizeDreamType(body.dreamType)
 
-  if (dreamTypeNormalized === 'PROJECT') {
-    await enforceProjectCap({
-      userId,
-      userRole: callerRole,
-      isAdmin: callerIsAdmin,
-    })
-  }
-
   const slug = body.slug?.trim()
     ? normalizeSlug(body.slug)
     : normalizeSlug(title)
@@ -302,10 +273,6 @@ async function createDreamFromInput(
     highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
     icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
     designer: normalizeOptionalText(body.designer) ?? sender,
-    repoUrl: normalizeOptionalText(body.repoUrl) ?? null,
-    liveUrl: normalizeOptionalText(body.liveUrl) ?? null,
-    projectStatus: normalizeProjectStatus(body.projectStatus),
-    priority: normalizeProjectPriority(body.priority) ?? 'NORMAL',
     allowReviews: body.allowReviews ?? false,
     isPublic,
     isMature,

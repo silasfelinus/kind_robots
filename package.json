@@ -18,7 +18,7 @@
     "build": "nuxi prepare && prisma generate && nuxi build",
     "start": "nuxi start",
     "generate": "nuxi prepare && nuxi generate",
-    "preview": "nuxi preview",
+    "preview": "nuxt preview",
     "lint": "npm run lint:js && npm run lint:prettier",
     "lint:js": "eslint .",
     "lint:prettier": "prettier --check .",
@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",
+    "@nuxt/icon": "^2.2.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "24.x",

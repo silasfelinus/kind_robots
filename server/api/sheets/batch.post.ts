@@ -25,7 +25,6 @@ const DREAM_TYPES = [
 ] as const satisfies readonly DreamType[]
 
 const DREAM_TYPE_SET = new Set<string>(DREAM_TYPES)
-const LEGACY_DREAM_TYPES = new Set(['PROJECT', 'GENRE'])
 
 const MODES = ['missing', 'refreshImages', 'overwrite'] as const
 type SheetBatchMode = (typeof MODES)[number]
@@ -63,18 +62,6 @@ function getPositiveIntegerArray(value: unknown): number[] | undefined {
 
 function getDreamTypes(value: unknown): DreamType[] | undefined {
   if (!Array.isArray(value)) return undefined
-
-  const legacyTypes = value.filter(
-    (entry): entry is string =>
-      typeof entry === 'string' && LEGACY_DREAM_TYPES.has(entry),
-  )
-  if (legacyTypes.length) {
-    throw createError({
-      statusCode: 409,
-      message:
-        'Project and Genre PitchSheets must be managed through /api/projects or /api/facets, not Dream batch processing.',
-    })
-  }
 
   const dreamTypes = value.filter(
     (entry): entry is DreamType =>

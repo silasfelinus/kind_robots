@@ -40,7 +40,7 @@ const DreamTypeSchema = z.enum([
   'SCENARIO',
   'LOCATION',
   'PITCH',
-  'GENRE',
+  'WISH',
 ])
 
 const CreationSourceSchema = z.enum([

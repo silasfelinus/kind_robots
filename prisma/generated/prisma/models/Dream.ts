@@ -61,12 +61,6 @@ export type DreamMinAggregateOutputType = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
-  projectStatus: $Enums.ProjectStatus | null
-  priority: $Enums.DreamPriority | null
-  goal: string | null
-  waypoints: string | null
-  repoUrl: string | null
-  liveUrl: string | null
   allowReviews: boolean | null
   highlightImage: string | null
   icon: string | null
@@ -96,12 +90,6 @@ export type DreamMaxAggregateOutputType = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
-  projectStatus: $Enums.ProjectStatus | null
-  priority: $Enums.DreamPriority | null
-  goal: string | null
-  waypoints: string | null
-  repoUrl: string | null
-  liveUrl: string | null
   allowReviews: boolean | null
   highlightImage: string | null
   icon: string | null
@@ -131,12 +119,6 @@ export type DreamCountAggregateOutputType = {
   imagePath: number
   cardPath: number
   heroPath: number
-  projectStatus: number
-  priority: number
-  goal: number
-  waypoints: number
-  repoUrl: number
-  liveUrl: number
   allowReviews: number
   highlightImage: number
   icon: number
@@ -184,12 +166,6 @@ export type DreamMinAggregateInputType = {
   imagePath?: true
   cardPath?: true
   heroPath?: true
-  projectStatus?: true
-  priority?: true
-  goal?: true
-  waypoints?: true
-  repoUrl?: true
-  liveUrl?: true
   allowReviews?: true
   highlightImage?: true
   icon?: true
@@ -219,12 +195,6 @@ export type DreamMaxAggregateInputType = {
   imagePath?: true
   cardPath?: true
   heroPath?: true
-  projectStatus?: true
-  priority?: true
-  goal?: true
-  waypoints?: true
-  repoUrl?: true
-  liveUrl?: true
   allowReviews?: true
   highlightImage?: true
   icon?: true
@@ -254,12 +224,6 @@ export type DreamCountAggregateInputType = {
   imagePath?: true
   cardPath?: true
   heroPath?: true
-  projectStatus?: true
-  priority?: true
-  goal?: true
-  waypoints?: true
-  repoUrl?: true
-  liveUrl?: true
   allowReviews?: true
   highlightImage?: true
   icon?: true
@@ -376,12 +340,6 @@ export type DreamGroupByOutputType = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
-  projectStatus: $Enums.ProjectStatus | null
-  priority: $Enums.DreamPriority | null
-  goal: string | null
-  waypoints: string | null
-  repoUrl: string | null
-  liveUrl: string | null
   allowReviews: boolean
   highlightImage: string | null
   icon: string | null
@@ -434,12 +392,6 @@ export type DreamWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Dream"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Dream"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Dream"> | string | null
-  projectStatus?: Prisma.EnumProjectStatusNullableFilter<"Dream"> | $Enums.ProjectStatus | null
-  priority?: Prisma.EnumDreamPriorityNullableFilter<"Dream"> | $Enums.DreamPriority | null
-  goal?: Prisma.StringNullableFilter<"Dream"> | string | null
-  waypoints?: Prisma.StringNullableFilter<"Dream"> | string | null
-  repoUrl?: Prisma.StringNullableFilter<"Dream"> | string | null
-  liveUrl?: Prisma.StringNullableFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolFilter<"Dream"> | boolean
   highlightImage?: Prisma.StringNullableFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableFilter<"Dream"> | string | null
@@ -489,12 +441,6 @@ export type DreamOrderByWithRelationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  projectStatus?: Prisma.SortOrderInput | Prisma.SortOrder
-  priority?: Prisma.SortOrderInput | Prisma.SortOrder
-  goal?: Prisma.SortOrderInput | Prisma.SortOrder
-  waypoints?: Prisma.SortOrderInput | Prisma.SortOrder
-  repoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  liveUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -548,12 +494,6 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Dream"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Dream"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Dream"> | string | null
-  projectStatus?: Prisma.EnumProjectStatusNullableFilter<"Dream"> | $Enums.ProjectStatus | null
-  priority?: Prisma.EnumDreamPriorityNullableFilter<"Dream"> | $Enums.DreamPriority | null
-  goal?: Prisma.StringNullableFilter<"Dream"> | string | null
-  waypoints?: Prisma.StringNullableFilter<"Dream"> | string | null
-  repoUrl?: Prisma.StringNullableFilter<"Dream"> | string | null
-  liveUrl?: Prisma.StringNullableFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolFilter<"Dream"> | boolean
   highlightImage?: Prisma.StringNullableFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableFilter<"Dream"> | string | null
@@ -603,12 +543,6 @@ export type DreamOrderByWithAggregationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  projectStatus?: Prisma.SortOrderInput | Prisma.SortOrder
-  priority?: Prisma.SortOrderInput | Prisma.SortOrder
-  goal?: Prisma.SortOrderInput | Prisma.SortOrder
-  waypoints?: Prisma.SortOrderInput | Prisma.SortOrder
-  repoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  liveUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -646,12 +580,6 @@ export type DreamScalarWhereWithAggregatesInput = {
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   cardPath?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   heroPath?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
-  projectStatus?: Prisma.EnumProjectStatusNullableWithAggregatesFilter<"Dream"> | $Enums.ProjectStatus | null
-  priority?: Prisma.EnumDreamPriorityNullableWithAggregatesFilter<"Dream"> | $Enums.DreamPriority | null
-  goal?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
-  waypoints?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
-  repoUrl?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
-  liveUrl?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolWithAggregatesFilter<"Dream"> | boolean
   highlightImage?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
@@ -680,12 +608,6 @@ export type DreamCreateInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -731,12 +653,6 @@ export type DreamUncheckedCreateInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -781,12 +697,6 @@ export type DreamUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -832,12 +742,6 @@ export type DreamUncheckedUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -883,12 +787,6 @@ export type DreamCreateManyInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -917,12 +815,6 @@ export type DreamUpdateManyMutationInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -948,12 +840,6 @@ export type DreamUncheckedUpdateManyInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1004,12 +890,6 @@ export type DreamCountOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
-  projectStatus?: Prisma.SortOrder
-  priority?: Prisma.SortOrder
-  goal?: Prisma.SortOrder
-  waypoints?: Prisma.SortOrder
-  repoUrl?: Prisma.SortOrder
-  liveUrl?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
@@ -1047,12 +927,6 @@ export type DreamMaxOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
-  projectStatus?: Prisma.SortOrder
-  priority?: Prisma.SortOrder
-  goal?: Prisma.SortOrder
-  waypoints?: Prisma.SortOrder
-  repoUrl?: Prisma.SortOrder
-  liveUrl?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
@@ -1082,12 +956,6 @@ export type DreamMinOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
-  projectStatus?: Prisma.SortOrder
-  priority?: Prisma.SortOrder
-  goal?: Prisma.SortOrder
-  waypoints?: Prisma.SortOrder
-  repoUrl?: Prisma.SortOrder
-  liveUrl?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
@@ -1445,14 +1313,6 @@ export type EnumDreamTypeFieldUpdateOperationsInput = {
   set?: $Enums.DreamType
 }
 
-export type NullableEnumProjectStatusFieldUpdateOperationsInput = {
-  set?: $Enums.ProjectStatus | null
-}
-
-export type NullableEnumDreamPriorityFieldUpdateOperationsInput = {
-  set?: $Enums.DreamPriority | null
-}
-
 export type EnumCreationSourceFieldUpdateOperationsInput = {
   set?: $Enums.CreationSource
 }
@@ -1695,12 +1555,6 @@ export type DreamCreateWithoutArtImageInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -1745,12 +1599,6 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -1804,12 +1652,6 @@ export type DreamCreateWithoutArtImagesInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -1854,12 +1696,6 @@ export type DreamUncheckedCreateWithoutArtImagesInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -1928,12 +1764,6 @@ export type DreamScalarWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Dream"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Dream"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Dream"> | string | null
-  projectStatus?: Prisma.EnumProjectStatusNullableFilter<"Dream"> | $Enums.ProjectStatus | null
-  priority?: Prisma.EnumDreamPriorityNullableFilter<"Dream"> | $Enums.DreamPriority | null
-  goal?: Prisma.StringNullableFilter<"Dream"> | string | null
-  waypoints?: Prisma.StringNullableFilter<"Dream"> | string | null
-  repoUrl?: Prisma.StringNullableFilter<"Dream"> | string | null
-  liveUrl?: Prisma.StringNullableFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolFilter<"Dream"> | boolean
   highlightImage?: Prisma.StringNullableFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableFilter<"Dream"> | string | null
@@ -1978,12 +1808,6 @@ export type DreamCreateWithoutArtCollectionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2028,12 +1852,6 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2087,12 +1905,6 @@ export type DreamCreateWithoutArtCollectionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2137,12 +1949,6 @@ export type DreamUncheckedCreateWithoutArtCollectionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2223,12 +2029,6 @@ export type DreamCreateWithoutBotsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2273,12 +2073,6 @@ export type DreamUncheckedCreateWithoutBotsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2327,12 +2121,6 @@ export type DreamCreateWithoutNarratorInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2377,12 +2165,6 @@ export type DreamUncheckedCreateWithoutNarratorInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2468,12 +2250,6 @@ export type DreamCreateWithoutCharactersInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2518,12 +2294,6 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2588,12 +2358,6 @@ export type DreamCreateWithoutChatsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2638,12 +2402,6 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2703,12 +2461,6 @@ export type DreamUpdateWithoutChatsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2753,12 +2505,6 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2802,12 +2548,6 @@ export type DreamCreateWithoutSourceCompositionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2852,12 +2592,6 @@ export type DreamUncheckedCreateWithoutSourceCompositionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2906,12 +2640,6 @@ export type DreamCreateWithoutCompositionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -2956,12 +2684,6 @@ export type DreamUncheckedCreateWithoutCompositionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3021,12 +2743,6 @@ export type DreamUpdateWithoutSourceCompositionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3071,12 +2787,6 @@ export type DreamUncheckedUpdateWithoutSourceCompositionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3131,12 +2841,6 @@ export type DreamUpdateWithoutCompositionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3181,12 +2885,6 @@ export type DreamUncheckedUpdateWithoutCompositionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3230,12 +2928,6 @@ export type DreamCreateWithoutRelationsFromInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3280,12 +2972,6 @@ export type DreamUncheckedCreateWithoutRelationsFromInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3334,12 +3020,6 @@ export type DreamCreateWithoutRelationsToInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3384,12 +3064,6 @@ export type DreamUncheckedCreateWithoutRelationsToInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3449,12 +3123,6 @@ export type DreamUpdateWithoutRelationsFromInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3499,12 +3167,6 @@ export type DreamUncheckedUpdateWithoutRelationsFromInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3559,12 +3221,6 @@ export type DreamUpdateWithoutRelationsToInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3609,12 +3265,6 @@ export type DreamUncheckedUpdateWithoutRelationsToInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3658,12 +3308,6 @@ export type DreamCreateWithoutFacetLinksInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3708,12 +3352,6 @@ export type DreamUncheckedCreateWithoutFacetLinksInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3773,12 +3411,6 @@ export type DreamUpdateWithoutFacetLinksInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3823,12 +3455,6 @@ export type DreamUncheckedUpdateWithoutFacetLinksInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3872,12 +3498,6 @@ export type DreamCreateWithoutPitchSheetInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3922,12 +3542,6 @@ export type DreamUncheckedCreateWithoutPitchSheetInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -3987,12 +3601,6 @@ export type DreamUpdateWithoutPitchSheetInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4037,12 +3645,6 @@ export type DreamUncheckedUpdateWithoutPitchSheetInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4086,12 +3688,6 @@ export type DreamCreateWithoutReactionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4136,12 +3732,6 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4201,12 +3791,6 @@ export type DreamUpdateWithoutReactionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4251,12 +3835,6 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4300,12 +3878,6 @@ export type DreamCreateWithoutRewardsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4350,12 +3922,6 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4420,12 +3986,6 @@ export type DreamCreateWithoutScenariosInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4470,12 +4030,6 @@ export type DreamUncheckedCreateWithoutScenariosInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4540,12 +4094,6 @@ export type DreamCreateWithoutUserInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4590,12 +4138,6 @@ export type DreamUncheckedCreateWithoutUserInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4665,12 +4207,6 @@ export type DreamCreateWithoutTodosInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4715,12 +4251,6 @@ export type DreamUncheckedCreateWithoutTodosInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4780,12 +4310,6 @@ export type DreamUpdateWithoutTodosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4830,12 +4354,6 @@ export type DreamUncheckedUpdateWithoutTodosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4879,12 +4397,6 @@ export type DreamCreateWithoutLifeRunsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4929,12 +4441,6 @@ export type DreamUncheckedCreateWithoutLifeRunsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -4994,12 +4500,6 @@ export type DreamUpdateWithoutLifeRunsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5044,12 +4544,6 @@ export type DreamUncheckedUpdateWithoutLifeRunsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5094,12 +4588,6 @@ export type DreamCreateManyArtImageInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -5127,12 +4615,6 @@ export type DreamUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5177,12 +4659,6 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5227,12 +4703,6 @@ export type DreamUncheckedUpdateManyWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5260,12 +4730,6 @@ export type DreamUpdateWithoutArtImagesInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5310,12 +4774,6 @@ export type DreamUncheckedUpdateWithoutArtImagesInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5360,12 +4818,6 @@ export type DreamUncheckedUpdateManyWithoutArtImagesInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5395,12 +4847,6 @@ export type DreamCreateManyArtCollectionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -5428,12 +4874,6 @@ export type DreamUpdateWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5478,12 +4918,6 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5528,12 +4962,6 @@ export type DreamUncheckedUpdateManyWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5561,12 +4989,6 @@ export type DreamUpdateWithoutArtCollectionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5611,12 +5033,6 @@ export type DreamUncheckedUpdateWithoutArtCollectionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5661,12 +5077,6 @@ export type DreamUncheckedUpdateManyWithoutArtCollectionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5696,12 +5106,6 @@ export type DreamCreateManyNarratorInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -5729,12 +5133,6 @@ export type DreamUpdateWithoutBotsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5779,12 +5177,6 @@ export type DreamUncheckedUpdateWithoutBotsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5829,12 +5221,6 @@ export type DreamUncheckedUpdateManyWithoutBotsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5863,12 +5249,6 @@ export type DreamUpdateWithoutNarratorInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5913,12 +5293,6 @@ export type DreamUncheckedUpdateWithoutNarratorInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5963,12 +5337,6 @@ export type DreamUncheckedUpdateManyWithoutNarratorInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5996,12 +5364,6 @@ export type DreamUpdateWithoutCharactersInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6046,12 +5408,6 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6096,12 +5452,6 @@ export type DreamUncheckedUpdateManyWithoutCharactersInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6130,12 +5480,6 @@ export type DreamUpdateWithoutRewardsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6180,12 +5524,6 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6230,12 +5568,6 @@ export type DreamUncheckedUpdateManyWithoutRewardsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6264,12 +5596,6 @@ export type DreamUpdateWithoutScenariosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6314,12 +5640,6 @@ export type DreamUncheckedUpdateWithoutScenariosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6364,12 +5684,6 @@ export type DreamUncheckedUpdateManyWithoutScenariosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6399,12 +5713,6 @@ export type DreamCreateManyUserInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
-  projectStatus?: $Enums.ProjectStatus | null
-  priority?: $Enums.DreamPriority | null
-  goal?: string | null
-  waypoints?: string | null
-  repoUrl?: string | null
-  liveUrl?: string | null
   allowReviews?: boolean
   highlightImage?: string | null
   icon?: string | null
@@ -6432,12 +5740,6 @@ export type DreamUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6482,12 +5784,6 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6532,12 +5828,6 @@ export type DreamUncheckedUpdateManyWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectStatus?: Prisma.NullableEnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus | null
-  priority?: Prisma.NullableEnumDreamPriorityFieldUpdateOperationsInput | $Enums.DreamPriority | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  repoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  liveUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6714,12 +6004,6 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   imagePath?: boolean
   cardPath?: boolean
   heroPath?: boolean
-  projectStatus?: boolean
-  priority?: boolean
-  goal?: boolean
-  waypoints?: boolean
-  repoUrl?: boolean
-  liveUrl?: boolean
   allowReviews?: boolean
   highlightImage?: boolean
   icon?: boolean
@@ -6772,12 +6056,6 @@ export type DreamSelectScalar = {
   imagePath?: boolean
   cardPath?: boolean
   heroPath?: boolean
-  projectStatus?: boolean
-  priority?: boolean
-  goal?: boolean
-  waypoints?: boolean
-  repoUrl?: boolean
-  liveUrl?: boolean
   allowReviews?: boolean
   highlightImage?: boolean
   icon?: boolean
@@ -6792,7 +6070,7 @@ export type DreamSelectScalar = {
   narratorId?: boolean
 }
 
-export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "dreamType" | "description" | "pitch" | "flavorText" | "examples" | "artPrompt" | "imagePath" | "cardPath" | "heroPath" | "projectStatus" | "priority" | "goal" | "waypoints" | "repoUrl" | "liveUrl" | "allowReviews" | "highlightImage" | "icon" | "designer" | "creationSource" | "userId" | "isPublic" | "isMature" | "isActive" | "artImageId" | "artCollectionId" | "narratorId", ExtArgs["result"]["dream"]>
+export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "dreamType" | "description" | "pitch" | "flavorText" | "examples" | "artPrompt" | "imagePath" | "cardPath" | "heroPath" | "allowReviews" | "highlightImage" | "icon" | "designer" | "creationSource" | "userId" | "isPublic" | "isMature" | "isActive" | "artImageId" | "artCollectionId" | "narratorId", ExtArgs["result"]["dream"]>
 export type DreamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.Dream$UserArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Dream$ArtImageArgs<ExtArgs>
@@ -6856,12 +6134,6 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     imagePath: string | null
     cardPath: string | null
     heroPath: string | null
-    projectStatus: $Enums.ProjectStatus | null
-    priority: $Enums.DreamPriority | null
-    goal: string | null
-    waypoints: string | null
-    repoUrl: string | null
-    liveUrl: string | null
     allowReviews: boolean
     highlightImage: string | null
     icon: string | null
@@ -7277,12 +6549,6 @@ export interface DreamFieldRefs {
   readonly imagePath: Prisma.FieldRef<"Dream", 'String'>
   readonly cardPath: Prisma.FieldRef<"Dream", 'String'>
   readonly heroPath: Prisma.FieldRef<"Dream", 'String'>
-  readonly projectStatus: Prisma.FieldRef<"Dream", 'ProjectStatus'>
-  readonly priority: Prisma.FieldRef<"Dream", 'DreamPriority'>
-  readonly goal: Prisma.FieldRef<"Dream", 'String'>
-  readonly waypoints: Prisma.FieldRef<"Dream", 'String'>
-  readonly repoUrl: Prisma.FieldRef<"Dream", 'String'>
-  readonly liveUrl: Prisma.FieldRef<"Dream", 'String'>
   readonly allowReviews: Prisma.FieldRef<"Dream", 'Boolean'>
   readonly highlightImage: Prisma.FieldRef<"Dream", 'String'>
   readonly icon: Prisma.FieldRef<"Dream", 'String'>

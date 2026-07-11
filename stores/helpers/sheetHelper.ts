@@ -9,7 +9,6 @@ export const pitchSheetDisplayTypes = [
   'SCENARIO',
   'LOCATION',
   'PITCH',
-  'GENRE',
 ] as const
 
 export type PitchSheetDisplayType = (typeof pitchSheetDisplayTypes)[number]
@@ -59,10 +58,6 @@ export const pitchSheetDefaults = {
     highlights: ['Promise', 'Builds Into', 'Status'],
     details: ['Big Idea', 'Why It Works', 'Next Step'],
   },
-  GENRE: {
-    highlights: ['Feels Like', 'Often Includes', 'Avoids'],
-    details: ['Genre Promise', 'Core Ingredients', 'Use This For'],
-  },
 } as const satisfies Record<PitchSheetDisplayType, PitchSheetDefaultLabels>
 
 export function getPitchSheetDisplayType(
@@ -77,7 +72,6 @@ export function getPitchSheetDisplayType(
     case 'SCENARIO':
     case 'LOCATION':
     case 'PITCH':
-    case 'GENRE':
       return dreamType
 
     case 'BRAINSTORM':

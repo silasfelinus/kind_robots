@@ -412,13 +412,6 @@ model Dream {
   imagePath         String?         @db.Text
   cardPath          String?         @db.Text
   heroPath          String?         @db.Text
-  // ── Project-specific (dreamType = PROJECT) ────────────────────────────────────────
-  projectStatus     ProjectStatus?
-  priority          DreamPriority?  @default(NORMAL)
-  goal              String?         @db.Text // what 100% completion looks like, concretely
-  waypoints         String?         @db.Text // pipe-delimited roadmap steps; "✓ " prefix = done, "~ " prefix = in progress
-  repoUrl           String?         @db.VarChar(512)
-  liveUrl           String?         @db.VarChar(512)
   allowReviews      Boolean         @default(false)
   highlightImage    String?         @db.VarChar(256)
   icon              String?
@@ -466,7 +459,6 @@ model Dream {
   @@index([isActive])
   @@index([artCollectionId])
   @@index([narratorId])
-  @@index([projectStatus])
 }
 
 model DreamRelation {
@@ -1753,12 +1745,10 @@ enum DreamType {
   PROMPTBOT
   NARRATOR
   CHARACTER
-  PROJECT
   REWARD
   SCENARIO
   LOCATION
   PITCH
-  GENRE
   WISH
 }
 
@@ -1795,12 +1785,6 @@ enum FacetRelationType {
   CONTAINS
   RELATED
   INSPIRED_BY
-}
-
-enum DreamPriority {
-  LOW
-  NORMAL
-  HIGH
 }
 
 enum Reaction_reactionCategory {

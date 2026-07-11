@@ -256,12 +256,10 @@ export const DreamType = {
   PROMPTBOT: 'PROMPTBOT',
   NARRATOR: 'NARRATOR',
   CHARACTER: 'CHARACTER',
-  PROJECT: 'PROJECT',
   REWARD: 'REWARD',
   SCENARIO: 'SCENARIO',
   LOCATION: 'LOCATION',
   PITCH: 'PITCH',
-  GENRE: 'GENRE',
   WISH: 'WISH'
 } as const
 
@@ -313,15 +311,6 @@ export const FacetRelationType = {
 } as const
 
 export type FacetRelationType = (typeof FacetRelationType)[keyof typeof FacetRelationType]
-
-
-export const DreamPriority = {
-  LOW: 'LOW',
-  NORMAL: 'NORMAL',
-  HIGH: 'HIGH'
-} as const
-
-export type DreamPriority = (typeof DreamPriority)[keyof typeof DreamPriority]
 
 
 export const Reaction_reactionCategory = {

@@ -4,11 +4,6 @@
   "scripts": {
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
-    "audit:schema-shift": "tsx utils/scripts/auditProjectDreamFacet.ts",
-    "audit:genre-facet-relations": "prisma generate && tsx utils/scripts/auditLegacyGenreDreamRelations.ts",
-    "backfill:schema-shift": "prisma generate && tsx utils/scripts/backfillProjectDreamFacet.ts",
-    "backfill:schema-shift:apply": "prisma generate && tsx utils/scripts/backfillProjectDreamFacet.ts --apply",
-    "verify:schema-shift": "prisma generate && tsx utils/scripts/verifyProjectDreamFacetParity.ts",
     "facet:alias": "prisma generate && tsx utils/scripts/setFacetAliases.ts",
     "trim:dry": "node ./utils/scripts/trim.mjs --dry-run",
     "trim": "node ./utils/scripts/trim.mjs",

@@ -23,12 +23,11 @@ type DreamType =
   | 'ART'
   | 'BRAINSTORM'
   | 'CHARACTER'
-  | 'PROJECT'
   | 'REWARD'
   | 'SCENARIO'
   | 'LOCATION'
   | 'PITCH'
-  | 'GENRE'
+  | 'WISH'
 
 type CreationSource = 'HUMAN' | 'AI' | 'HYBRID' | 'UPLOAD' | 'UNKNOWN'
 

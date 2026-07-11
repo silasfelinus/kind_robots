@@ -311,7 +311,7 @@ export type FacetGroupByOutputType = {
   icon: string | null
   designer: string | null
   creationSource: $Enums.CreationSource
-  userId: number
+  userId: number | null
   artImageId: number | null
   artCollectionId: number | null
   isPublic: boolean
@@ -359,13 +359,13 @@ export type FacetWhereInput = {
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
-  userId?: Prisma.IntFilter<"Facet"> | number
+  userId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Facet"> | number | null
   isPublic?: Prisma.BoolFilter<"Facet"> | boolean
   isMature?: Prisma.BoolFilter<"Facet"> | boolean
   isActive?: Prisma.BoolFilter<"Facet"> | boolean
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
   ArtImageLinks?: Prisma.FacetArtImageListRelationFilter
@@ -394,7 +394,7 @@ export type FacetOrderByWithRelationInput = {
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -433,13 +433,13 @@ export type FacetWhereUniqueInput = Prisma.AtLeast<{
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
-  userId?: Prisma.IntFilter<"Facet"> | number
+  userId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Facet"> | number | null
   isPublic?: Prisma.BoolFilter<"Facet"> | boolean
   isMature?: Prisma.BoolFilter<"Facet"> | boolean
   isActive?: Prisma.BoolFilter<"Facet"> | boolean
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
   ArtImageLinks?: Prisma.FacetArtImageListRelationFilter
@@ -468,7 +468,7 @@ export type FacetOrderByWithAggregationInput = {
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -501,7 +501,7 @@ export type FacetScalarWhereWithAggregatesInput = {
   icon?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceWithAggregatesFilter<"Facet"> | $Enums.CreationSource
-  userId?: Prisma.IntWithAggregatesFilter<"Facet"> | number
+  userId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Facet"> | boolean
@@ -557,7 +557,7 @@ export type FacetUncheckedCreateInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -591,7 +591,7 @@ export type FacetUpdateInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
@@ -620,7 +620,7 @@ export type FacetUncheckedUpdateInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -652,7 +652,7 @@ export type FacetCreateManyInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -698,7 +698,7 @@ export type FacetUncheckedUpdateManyInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1098,7 +1098,7 @@ export type FacetUncheckedCreateWithoutArtImageInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
   isMature?: boolean
@@ -1158,7 +1158,7 @@ export type FacetScalarWhereInput = {
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
-  userId?: Prisma.IntFilter<"Facet"> | number
+  userId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Facet"> | number | null
   isPublic?: Prisma.BoolFilter<"Facet"> | boolean
@@ -1213,7 +1213,7 @@ export type FacetUncheckedCreateWithoutArtCollectionInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   isPublic?: boolean
   isMature?: boolean
@@ -1300,7 +1300,7 @@ export type FacetUncheckedCreateWithoutDreamLinksInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -1349,7 +1349,7 @@ export type FacetUpdateWithoutDreamLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
@@ -1377,7 +1377,7 @@ export type FacetUncheckedUpdateWithoutDreamLinksInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1438,7 +1438,7 @@ export type FacetUncheckedCreateWithoutScenarioLinksInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -1487,7 +1487,7 @@ export type FacetUpdateWithoutScenarioLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
@@ -1515,7 +1515,7 @@ export type FacetUncheckedUpdateWithoutScenarioLinksInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1576,7 +1576,7 @@ export type FacetUncheckedCreateWithoutArtImageLinksInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -1625,7 +1625,7 @@ export type FacetUpdateWithoutArtImageLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollectionLinks?: Prisma.FacetArtCollectionUpdateManyWithoutFacetNestedInput
@@ -1653,7 +1653,7 @@ export type FacetUncheckedUpdateWithoutArtImageLinksInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1714,7 +1714,7 @@ export type FacetUncheckedCreateWithoutArtCollectionLinksInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -1763,7 +1763,7 @@ export type FacetUpdateWithoutArtCollectionLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
@@ -1791,7 +1791,7 @@ export type FacetUncheckedUpdateWithoutArtCollectionLinksInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1852,7 +1852,7 @@ export type FacetUncheckedCreateWithoutRelationsFromInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -1918,7 +1918,7 @@ export type FacetUncheckedCreateWithoutRelationsToInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -1967,7 +1967,7 @@ export type FacetUpdateWithoutRelationsFromInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
@@ -1995,7 +1995,7 @@ export type FacetUncheckedUpdateWithoutRelationsFromInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2039,7 +2039,7 @@ export type FacetUpdateWithoutRelationsToInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
@@ -2067,7 +2067,7 @@ export type FacetUncheckedUpdateWithoutRelationsToInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2128,7 +2128,7 @@ export type FacetUncheckedCreateWithoutReactionsInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
@@ -2177,7 +2177,7 @@ export type FacetUpdateWithoutReactionsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
@@ -2205,7 +2205,7 @@ export type FacetUncheckedUpdateWithoutReactionsInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2323,7 +2323,7 @@ export type FacetCreateManyArtImageInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artCollectionId?: number | null
   isPublic?: boolean
   isMature?: boolean
@@ -2349,7 +2349,7 @@ export type FacetUpdateWithoutArtImageInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
   ArtCollectionLinks?: Prisma.FacetArtCollectionUpdateManyWithoutFacetNestedInput
@@ -2377,7 +2377,7 @@ export type FacetUncheckedUpdateWithoutArtImageInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2408,7 +2408,7 @@ export type FacetUncheckedUpdateManyWithoutArtImageInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2432,7 +2432,7 @@ export type FacetCreateManyArtCollectionInput = {
   icon?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  userId?: number
+  userId?: number | null
   artImageId?: number | null
   isPublic?: boolean
   isMature?: boolean
@@ -2458,7 +2458,7 @@ export type FacetUpdateWithoutArtCollectionInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutFacetsNestedInput
+  User?: Prisma.UserUpdateOneWithoutFacetsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutFacetsPrimaryNestedInput
   ArtImageLinks?: Prisma.FacetArtImageUpdateManyWithoutFacetNestedInput
   ArtCollectionLinks?: Prisma.FacetArtCollectionUpdateManyWithoutFacetNestedInput
@@ -2486,7 +2486,7 @@ export type FacetUncheckedUpdateWithoutArtCollectionInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2517,7 +2517,7 @@ export type FacetUncheckedUpdateManyWithoutArtCollectionInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2741,7 +2741,7 @@ export type FacetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.Facet$UserArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Facet$ArtImageArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Facet$ArtCollectionArgs<ExtArgs>
   ArtImageLinks?: boolean | Prisma.Facet$ArtImageLinksArgs<ExtArgs>
@@ -2783,7 +2783,7 @@ export type FacetSelectScalar = {
 
 export type FacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "kind" | "description" | "flavorText" | "examples" | "artPrompt" | "imagePath" | "cardPath" | "heroPath" | "icon" | "designer" | "creationSource" | "userId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["facet"]>
 export type FacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.Facet$UserArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Facet$ArtImageArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Facet$ArtCollectionArgs<ExtArgs>
   ArtImageLinks?: boolean | Prisma.Facet$ArtImageLinksArgs<ExtArgs>
@@ -2799,7 +2799,7 @@ export type FacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type $FacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Facet"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
+    User: Prisma.$UserPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
     ArtImageLinks: Prisma.$FacetArtImagePayload<ExtArgs>[]
@@ -2827,7 +2827,7 @@ export type $FacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     icon: string | null
     designer: string | null
     creationSource: $Enums.CreationSource
-    userId: number
+    userId: number | null
     artImageId: number | null
     artCollectionId: number | null
     isPublic: boolean
@@ -3173,7 +3173,7 @@ readonly fields: FacetFieldRefs;
  */
 export interface Prisma__FacetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.Facet$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facet$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.Facet$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facet$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtCollection<T extends Prisma.Facet$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facet$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImageLinks<T extends Prisma.Facet$ArtImageLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facet$ArtImageLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacetArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3579,6 +3579,25 @@ export type FacetDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Facets to delete.
    */
   limit?: number
+}
+
+/**
+ * Facet.User
+ */
+export type Facet$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

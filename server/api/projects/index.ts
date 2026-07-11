@@ -104,7 +104,8 @@ export function normalizeNullableId(value: unknown): number | null | undefined {
 }
 
 export function assertProjectAccess(
-  project: { userId: number },
+  // null userId = orphaned (owner deleted): only admins can modify
+  project: { userId: number | null },
   user: { id: number; Role?: string | null },
 ): void {
   if (user.Role !== 'ADMIN' && project.userId !== user.id) {

@@ -8,12 +8,15 @@ describe('First-class Project workspace API', () => {
   const stamp = Date.now()
   const slug = `cypress-project-workspace-${stamp}`
   let token = ''
+  let userId = 0
   let projectId = 0
   let todoId = 0
+  let chatId = 0
 
   before(() => {
     createLoggedInTestUser().then((auth) => {
       token = auth.token
+      userId = auth.id
     })
   })
 
@@ -110,6 +113,50 @@ describe('First-class Project workspace API', () => {
     })
   })
 
+  it('persists and reloads Project assistant history', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiBase}/chats`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        type: 'Dream',
+        sender: 'project-workspace-cypress',
+        recipient: 'Project Assistant',
+        recipientId: null,
+        characterId: null,
+        content: `Project history ${stamp}`,
+        botResponse: 'Persisted Project response.',
+        channel: `project-${projectId}-assistant`,
+        isPublic: false,
+        userId,
+        projectId,
+        dreamId: null,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      expect(response.body.data.projectId).to.eq(projectId)
+      expect(response.body.data.dreamId).to.be.null
+      chatId = response.body.data.id
+    })
+
+    cy.request({
+      url: `${apiBase}/chats?projectId=${projectId}`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+
+      const projectChat = response.body.data.find(
+        (chat: { id: number; projectId: number; dreamId: number | null }) =>
+          chat.id === chatId,
+      )
+
+      expect(projectChat).to.exist
+      expect(projectChat.projectId).to.eq(projectId)
+      expect(projectChat.dreamId).to.be.null
+    })
+  })
+
   it('persists the completed workspace state', () => {
     cy.request({
       url: `${apiBase}/projects/${slug}`,
@@ -122,10 +169,20 @@ describe('First-class Project workspace API', () => {
       )
       expect(response.body.data.waypoints).to.include('Verify persistence')
       expect(response.body.data._count.Todos).to.be.greaterThan(0)
+      expect(response.body.data._count.Chats).to.be.greaterThan(0)
     })
   })
 
   after(() => {
+    if (chatId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/chats/${chatId}`,
+        headers: { Authorization: `Bearer ${token}` },
+        failOnStatusCode: false,
+      })
+    }
+
     if (todoId) {
       cy.request({
         method: 'DELETE',

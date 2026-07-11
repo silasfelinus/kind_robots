@@ -27,11 +27,17 @@ jobs:
           from pathlib import Path
           path = Path('utils/scripts/remove_genre_dream_runtime.py')
           source = path.read_text(encoding='utf-8')
-          old = "page = replace_exact(page, 'genreDreams', 'genreFacets', 10, 'rename genre Dreams to Facets')"
-          new = "page = replace_exact(page, 'genreDreams', 'genreFacets', 7, 'rename genre Dreams to Facets')"
-          if source.count(old) != 1:
-              raise RuntimeError('expected one genreDreams count anchor')
-          path.write_text(source.replace(old, new), encoding='utf-8')
+          replacements = {
+              "page = replace_exact(page, 'genreDreams', 'genreFacets', 10, 'rename genre Dreams to Facets')":
+                  "page = replace_exact(page, 'genreDreams', 'genreFacets', 7, 'rename genre Dreams to Facets')",
+              "page = replace_exact(page, 'selectedGenreSlug', 'selectedGrammarSlug', 4, 'use story grammar selection name')":
+                  "page = replace_exact(page, 'selectedGenreSlug', 'selectedGrammarSlug', 5, 'use story grammar selection name')",
+          }
+          for old, new in replacements.items():
+              if source.count(old) != 1:
+                  raise RuntimeError(f'expected one strict count anchor: {old}')
+              source = source.replace(old, new)
+          path.write_text(source, encoding='utf-8')
           PY
 
       - name: Apply strict Genre-to-Facet runtime transformation

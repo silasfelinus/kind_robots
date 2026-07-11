@@ -406,7 +406,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const apiResponse = ref('')
   const maxTokens = ref(500)
 
-  const dreamTypes = DREAM_TYPES
+  const dreamTypes = DREAM_TYPES.filter((type) => type !== 'PROJECT')
 
   const currentUserId = computed(
     () => userStore.user?.id ?? userStore.userId ?? 10,

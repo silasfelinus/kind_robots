@@ -748,6 +748,33 @@ export const useDreamStore = defineStore('dreamStore', () => {
     )
 
     hydrateFromLegacyPitchStorage()
+
+    selectedDreams.value = selectedDreams.value.filter(isCreativeDream)
+
+    if (selectedDream.value && !isCreativeDream(selectedDream.value)) {
+      selectedDream.value = null
+      dreamForm.value = {}
+      dreamChats.value = []
+      chatForm.value = {}
+    }
+
+    if (selectedTitle.value && !isCreativeDream(selectedTitle.value)) {
+      selectedTitle.value = null
+    }
+
+    if (
+      dreamForm.value.dreamType === 'PROJECT' ||
+      dreamForm.value.dreamType === 'GENRE'
+    ) {
+      dreamForm.value = {}
+    }
+
+    if (
+      selectedDreamType.value === 'PROJECT' ||
+      selectedDreamType.value === 'GENRE'
+    ) {
+      selectedDreamType.value = null
+    }
   }
 
   function loadFromLocalStorage() {

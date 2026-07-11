@@ -96,7 +96,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Run Contract Tests
-        run: npm run test:contracts
+        run: npm run test:art-request-yaml
 
       - name: Commit validated runtime cutover
         run: |

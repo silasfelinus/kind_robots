@@ -1,7 +1,13 @@
 // /server/api/scenarios/[id].get.ts
 import { defineEventHandler } from 'h3'
-import prisma from '../../utils/prisma'
-import { errorHandler } from '../../utils/error'
+import type { Prisma } from '~/prisma/generated/prisma/client'
+import prisma from '~/server/utils/prisma'
+import { errorHandler } from '~/server/utils/error'
+import { getOptionalApiUser } from '~/server/utils/authGuard'
+import {
+  facetSummarySelect,
+  hydrateFacetSummaries,
+} from '~/server/utils/facetAssignments'
 
 const dreamSelect = {
   id: true,
@@ -44,6 +50,20 @@ const characterSelect = {
   artImageId: true,
 }
 
+function facetVisibilityWhere(options: {
+  userId: number | null
+  isAdmin: boolean
+}): Prisma.FacetWhereInput {
+  const where: Prisma.FacetWhereInput = { isActive: true }
+  if (options.isAdmin) return where
+
+  where.isMature = false
+  where.OR = options.userId
+    ? [{ isPublic: true }, { userId: options.userId }]
+    : [{ isPublic: true }]
+  return where
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event.context.params?.id)
@@ -58,7 +78,13 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const data = await prisma.scenario.findUnique({
+    const auth = await getOptionalApiUser(event)
+    const facetWhere = facetVisibilityWhere({
+      userId: auth?.user.id ?? null,
+      isAdmin: auth?.isAdmin ?? false,
+    })
+
+    const row = await prisma.scenario.findUnique({
       where: { id },
       include: {
         Dreams: {
@@ -69,16 +95,23 @@ export default defineEventHandler(async (event) => {
           select: characterSelect,
           orderBy: { name: 'asc' },
         },
+        FacetLinks: {
+          where: { Facet: facetWhere },
+          select: {
+            Facet: { select: facetSummarySelect },
+          },
+        },
         _count: {
           select: {
             Dreams: true,
             Characters: true,
+            FacetLinks: true,
           },
         },
       },
     })
 
-    if (!data) {
+    if (!row) {
       event.node.res.statusCode = 404
 
       return {
@@ -86,6 +119,25 @@ export default defineEventHandler(async (event) => {
         message: 'Scenario not found.',
         statusCode: 404,
       }
+    }
+
+    const { FacetLinks, _count, ...scenario } = row
+    const Facets = (await hydrateFacetSummaries(
+      FacetLinks.map((link) => link.Facet),
+    )).sort((a, b) =>
+      a.kind === b.kind
+        ? a.title.localeCompare(b.title)
+        : a.kind.localeCompare(b.kind),
+    )
+
+    const data = {
+      ...scenario,
+      Facets,
+      _count: {
+        Dreams: _count.Dreams,
+        Characters: _count.Characters,
+        Facets: Facets.length,
+      },
     }
 
     event.node.res.statusCode = 200

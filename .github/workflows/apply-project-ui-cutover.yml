@@ -27,6 +27,43 @@ jobs:
           fetch-depth: 1
           show-progress: false
 
+      - name: Add strict residual template replacements
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('utils/scripts/remove_project_dream_ui_fallbacks.py')
+          source = path.read_text(encoding='utf-8')
+          source = source.replace(
+              'from pathlib import Path\n',
+              'from pathlib import Path\nimport re\n',
+              1,
+          )
+          anchor = "assert_absent(\n    page,"
+          insert = r'''page = re.sub(
+              r'getProjectPriority\(\s*projectDreamForSlug\(project\.slug\)\?\.id,?\s*\)',
+              "(projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'",
+              page,
+          )
+          page = replace_all(
+              page,
+              'projectDreamForSlug(project.slug)?.flavorText',
+              'projectRecordForSlug(project.slug)?.flavorText',
+              'replace Project gallery flavor fallbacks',
+          )
+          page = replace_all(
+              page,
+              '              :dream-id="linkedDream?.id ?? null"\n',
+              '',
+              'remove legacy Project Dream component props',
+          )
+          '''
+          if source.count(anchor) != 1:
+              raise SystemExit(f'expected one Conductor assertion anchor, found {source.count(anchor)}')
+          source = source.replace(anchor, insert + anchor, 1)
+          path.write_text(source, encoding='utf-8')
+          PY
+
       # Strict anchors keep this branch-only transformation fail-safe.
       - name: Apply strict Project UI transformation
         shell: bash

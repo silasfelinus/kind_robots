@@ -29,7 +29,18 @@ jobs:
 
       # Strict anchors keep this branch-only transformation fail-safe.
       - name: Apply strict Project UI transformation
-        run: python utils/scripts/remove_project_dream_ui_fallbacks.py
+        shell: bash
+        run: |
+          set -o pipefail
+          python utils/scripts/remove_project_dream_ui_fallbacks.py 2>&1 | tee project-ui-cutover.log
+
+      - name: Upload transformation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-ui-cutover-log
+          path: project-ui-cutover.log
+          if-no-files-found: error
 
       - name: Set up Node
         uses: actions/setup-node@v4

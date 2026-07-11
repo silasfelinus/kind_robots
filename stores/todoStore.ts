@@ -20,8 +20,9 @@ export interface Todo {
   icon: string | null
   imagePath: string | null
   userId: number | null
-  dreamId: number | null   // project scope (PROJECT Dream)
-  order: number | null     // display order (DESIRED_FEATURE)
+  dreamId: number | null
+  projectId: number | null
+  order: number | null
 }
 
 export type TodoCreate = {
@@ -33,6 +34,7 @@ export type TodoCreate = {
   icon?: string | null
   imagePath?: string | null
   dreamId?: number | null
+  projectId?: number | null
   order?: number | null
 }
 
@@ -46,6 +48,7 @@ export type TodoUpdate = {
   icon?: string | null
   imagePath?: string | null
   dreamId?: number | null
+  projectId?: number | null
   order?: number | null
 }
 
@@ -56,35 +59,59 @@ export const useTodoStore = defineStore('todoStore', () => {
   const lastError = ref<string | null>(null)
 
   const openTodos = computed(() =>
-    todos.value.filter((t) => t.status === 'OPEN'),
+    todos.value.filter((todo) => todo.status === 'OPEN'),
   )
   const doneTodos = computed(() =>
-    todos.value.filter((t) => t.status === 'DONE'),
+    todos.value.filter((todo) => todo.status === 'DONE'),
   )
   const archivedTodos = computed(() =>
-    todos.value.filter((t) => t.status === 'ARCHIVED'),
+    todos.value.filter((todo) => todo.status === 'ARCHIVED'),
   )
 
   const agentTodos = computed(() =>
-    openTodos.value.filter((t) => !t.category || t.category === 'AGENT'),
+    openTodos.value.filter((todo) => !todo.category || todo.category === 'AGENT'),
   )
   const kaizenTodos = computed(() =>
-    openTodos.value.filter((t) => t.category === 'KAIZEN'),
+    openTodos.value.filter((todo) => todo.category === 'KAIZEN'),
   )
   const honeyDoTodos = computed(() =>
-    openTodos.value.filter((t) => t.category === 'HONEYDO'),
+    openTodos.value.filter((todo) => todo.category === 'HONEYDO'),
   )
 
   function dreamKaizens(dreamId: number) {
     return computed(() =>
-      openTodos.value.filter((t) => t.dreamId === dreamId && t.category === 'KAIZEN'),
+      openTodos.value.filter(
+        (todo) => todo.dreamId === dreamId && todo.category === 'KAIZEN',
+      ),
     )
   }
 
   function dreamFeatures(dreamId: number) {
     return computed(() =>
       todos.value
-        .filter((t) => t.dreamId === dreamId && t.category === 'DESIRED_FEATURE')
+        .filter(
+          (todo) =>
+            todo.dreamId === dreamId && todo.category === 'DESIRED_FEATURE',
+        )
+        .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999)),
+    )
+  }
+
+  function projectKaizens(projectId: number) {
+    return computed(() =>
+      openTodos.value.filter(
+        (todo) => todo.projectId === projectId && todo.category === 'KAIZEN',
+      ),
+    )
+  }
+
+  function projectFeatures(projectId: number) {
+    return computed(() =>
+      todos.value
+        .filter(
+          (todo) =>
+            todo.projectId === projectId && todo.category === 'DESIRED_FEATURE',
+        )
         .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999)),
     )
   }
@@ -93,14 +120,35 @@ export const useTodoStore = defineStore('todoStore', () => {
     loading.value = true
     lastError.value = null
     try {
-      const res = await performFetch<Todo[]>(`/api/todos/dream/${dreamId}`)
-      if (!res.success || !res.data) throw new Error(res.message || 'Failed to fetch dream todos')
-      // Merge into main list (replace existing dream-scoped entries, keep others)
-      const others = todos.value.filter((t) => t.dreamId !== dreamId)
-      todos.value = [...others, ...res.data]
+      const response = await performFetch<Todo[]>(`/api/todos/dream/${dreamId}`)
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch Dream todos')
+      }
+      const others = todos.value.filter((todo) => todo.dreamId !== dreamId)
+      todos.value = [...others, ...response.data]
     } catch (error) {
       handleError(error, 'fetchDreamTodos')
-      lastError.value = error instanceof Error ? error.message : 'Failed to fetch dream todos'
+      lastError.value =
+        error instanceof Error ? error.message : 'Failed to fetch Dream todos'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchProjectTodos(projectId: number): Promise<void> {
+    loading.value = true
+    lastError.value = null
+    try {
+      const response = await performFetch<Todo[]>(`/api/todos/project/${projectId}`)
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch Project todos')
+      }
+      const others = todos.value.filter((todo) => todo.projectId !== projectId)
+      todos.value = [...others, ...response.data]
+    } catch (error) {
+      handleError(error, 'fetchProjectTodos')
+      lastError.value =
+        error instanceof Error ? error.message : 'Failed to fetch Project todos'
     } finally {
       loading.value = false
     }
@@ -111,15 +159,15 @@ export const useTodoStore = defineStore('todoStore', () => {
     lastError.value = null
 
     try {
-      const res = await performFetch<Todo[]>(
+      const response = await performFetch<Todo[]>(
         `/api/todos${includeArchived ? '?includeArchived=1' : ''}`,
       )
 
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to fetch todos')
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch todos')
       }
 
-      todos.value = res.data
+      todos.value = response.data
       hasLoaded.value = true
     } catch (error) {
       handleError(error, 'fetchTodos')
@@ -136,17 +184,17 @@ export const useTodoStore = defineStore('todoStore', () => {
     lastError.value = null
 
     try {
-      const res = await performFetch<Todo>('/api/todos', {
+      const response = await performFetch<Todo>('/api/todos', {
         method: 'POST',
         body: JSON.stringify(data),
       })
 
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to create todo')
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to create todo')
       }
 
-      todos.value = [res.data, ...todos.value]
-      return res.data
+      todos.value = [response.data, ...todos.value]
+      return response.data
     } catch (error) {
       handleError(error, 'createTodo')
       lastError.value =
@@ -162,17 +210,17 @@ export const useTodoStore = defineStore('todoStore', () => {
     lastError.value = null
 
     try {
-      const res = await performFetch<Todo>(`/api/todos/${id}`, {
+      const response = await performFetch<Todo>(`/api/todos/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
 
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to update todo')
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update todo')
       }
 
-      const idx = todos.value.findIndex((t) => t.id === id)
-      if (idx !== -1) todos.value[idx] = res.data
+      const index = todos.value.findIndex((todo) => todo.id === id)
+      if (index !== -1) todos.value[index] = response.data
 
       return true
     } catch (error) {
@@ -188,15 +236,15 @@ export const useTodoStore = defineStore('todoStore', () => {
     lastError.value = null
 
     try {
-      const res = await performFetch(`/api/todos/${id}`, {
+      const response = await performFetch(`/api/todos/${id}`, {
         method: 'DELETE',
       })
 
-      if (!res.success) {
-        throw new Error(res.message || 'Failed to delete todo')
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete todo')
       }
 
-      todos.value = todos.value.filter((t) => t.id !== id)
+      todos.value = todos.value.filter((todo) => todo.id !== id)
       return true
     } catch (error) {
       handleError(error, 'deleteTodo')
@@ -230,8 +278,11 @@ export const useTodoStore = defineStore('todoStore', () => {
     honeyDoTodos,
     dreamKaizens,
     dreamFeatures,
+    projectKaizens,
+    projectFeatures,
     fetchTodos,
     fetchDreamTodos,
+    fetchProjectTodos,
     createTodo,
     updateTodo,
     deleteTodo,

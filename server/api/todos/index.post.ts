@@ -1,5 +1,5 @@
 // /server/api/todos/index.post.ts
-import { defineEventHandler, readBody, createError, H3Error } from 'h3'
+import { createError, defineEventHandler, H3Error, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -19,6 +19,7 @@ type TodoCreateBody = {
   icon?: string | null
   imagePath?: string | null
   dreamId?: number | null
+  projectId?: number | null
   order?: number | null
 }
 
@@ -26,7 +27,6 @@ function normalizeDueDate(value?: string | null): Date | null {
   if (!value) return null
 
   const dueDate = new Date(value)
-
   if (Number.isNaN(dueDate.getTime())) {
     throw createError({ statusCode: 400, message: 'dueDate must be a valid date' })
   }
@@ -46,21 +46,43 @@ function normalizeCategory(value?: TodoCategoryValue): TodoCategoryValue {
     : 'AGENT'
 }
 
+function normalizeId(value?: number | null): number | null {
+  return Number.isInteger(value) && Number(value) > 0 ? Number(value) : null
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireApiUser(event)
     const userId = auth.user.id
-
     const body = await readBody<TodoCreateBody>(event)
-
     const title = body?.title?.trim()
+
     if (!title) {
       throw createError({ statusCode: 400, message: 'title is required' })
     }
 
-    const dreamId = body.dreamId && Number.isInteger(body.dreamId) && body.dreamId > 0
-      ? body.dreamId : null
-    const order = body.order != null && Number.isInteger(body.order) ? body.order : null
+    const dreamId = normalizeId(body.dreamId)
+    const projectId = normalizeId(body.projectId)
+    const order =
+      body.order != null && Number.isInteger(body.order) ? body.order : null
+
+    if (projectId) {
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { userId: true },
+      })
+
+      if (!project) {
+        throw createError({ statusCode: 404, message: 'Project not found.' })
+      }
+
+      if (auth.user.Role !== 'ADMIN' && project.userId !== userId) {
+        throw createError({
+          statusCode: 403,
+          message: 'You do not have permission to add Todos to this Project.',
+        })
+      }
+    }
 
     const todo = await prisma.todo.create({
       data: {
@@ -74,6 +96,7 @@ export default defineEventHandler(async (event) => {
         imagePath: body.imagePath ?? null,
         userId,
         dreamId,
+        projectId,
         order,
       },
     })

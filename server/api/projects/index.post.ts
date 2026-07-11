@@ -17,6 +17,7 @@ type ProjectCreateBody = {
   title?: unknown
   slug?: unknown
   description?: unknown
+  pitch?: unknown
   flavorText?: unknown
   goal?: unknown
   waypoints?: unknown
@@ -64,6 +65,7 @@ export default defineEventHandler(async (event) => {
         title,
         slug,
         description: normalizeOptionalText(body.description),
+        pitch: normalizeOptionalText(body.pitch),
         flavorText: normalizeOptionalText(body.flavorText),
         goal: normalizeOptionalText(body.goal),
         waypoints: normalizeOptionalText(body.waypoints),

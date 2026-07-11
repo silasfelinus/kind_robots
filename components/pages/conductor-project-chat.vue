@@ -1,7 +1,6 @@
 <!-- /components/pages/conductor-project-chat.vue -->
-<!-- Direct AI contact for a single project. Streams responses through the
-     standard chat stream infrastructure; chats persist on the Dream via
-     dreamId + a per-project channel. -->
+<!-- Direct AI contact for a single Project. New chats persist through projectId;
+     dreamId remains an optional compatibility link during the schema cutover. -->
 <template>
   <div class="space-y-3 rounded-2xl border border-primary/20 bg-base-100 p-4">
     <div class="flex items-center gap-2">
@@ -51,7 +50,7 @@
       <input
         v-model="message"
         type="text"
-        :placeholder="`Ask about ${dreamTitle}...`"
+        :placeholder="`Ask about ${projectTitle}...`"
         class="input input-bordered input-sm flex-1 rounded-xl text-sm"
         :disabled="isResponding"
       />
@@ -80,8 +79,9 @@ type BotCafeMessage = {
 }
 
 const props = defineProps<{
-  dreamId: number
-  dreamTitle: string
+  projectId: number
+  projectTitle: string
+  dreamId?: number | null
   projectContext: string
 }>()
 
@@ -93,13 +93,18 @@ const errorMessage = ref('')
 const sessionChatIds = ref<number[]>([])
 const threadEl = ref<HTMLElement | null>(null)
 
-const channel = computed(() => `dream-${props.dreamId}-assistant`)
+const channel = computed(() => `project-${props.projectId}-assistant`)
+const legacyChannel = computed(() =>
+  props.dreamId ? `dream-${props.dreamId}-assistant` : '',
+)
 
 const projectChats = computed(() =>
   chatStore.chats
     .filter(
       (chat) =>
+        chat.projectId === props.projectId ||
         chat.channel === channel.value ||
+        (legacyChannel.value && chat.channel === legacyChannel.value) ||
         sessionChatIds.value.includes(chat.id),
     )
     .sort((a, b) => a.id - b.id),
@@ -113,7 +118,7 @@ const isResponding = computed(() =>
 
 const systemPrompt = computed(() =>
   [
-    `You are the Kind Robots project assistant for the project "${props.dreamTitle}".`,
+    `You are the Kind Robots project assistant for the project "${props.projectTitle}".`,
     'Help the user move this project forward through small, incremental steps (kaizen).',
     'Be concrete and encouraging: suggest next actions, help refine the goal and roadmap,',
     'and point out where the user can help most right now. Keep answers short and useful.',
@@ -126,8 +131,9 @@ const systemPrompt = computed(() =>
 function buildMessages(latestPrompt: string): BotCafeMessage[] {
   const history = projectChats.value.flatMap((chat) => {
     const turns: BotCafeMessage[] = [{ role: 'user', content: chat.content }]
-    if (chat.botResponse)
+    if (chat.botResponse) {
       turns.push({ role: 'assistant', content: chat.botResponse })
+    }
     return turns
   })
 
@@ -159,7 +165,8 @@ async function sendMessage() {
       type: 'Dream',
       isPublic: false,
       channel: channel.value,
-      dreamId: props.dreamId,
+      projectId: props.projectId,
+      dreamId: props.dreamId ?? null,
     })
 
     sessionChatIds.value.push(newChat.id)

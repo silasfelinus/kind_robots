@@ -1,6 +1,6 @@
 // GET /api/appmaker/apps — the AppMaker inventory (appmaker/t-004).
 // scaffolded: slugs with a workspace folder at apps/<slug>/ in the conductor repo.
-// pending:    open scaffold-request todos whose folder hasn't landed yet.
+// pending:    open scaffold-request Todos whose folder hasn't landed yet.
 import { defineEventHandler, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
@@ -22,7 +22,12 @@ export default defineEventHandler(async () => {
         category: 'AGENT',
         title: { startsWith: "Scaffold new app '" },
       },
-      select: { title: true, dreamId: true, createdAt: true },
+      select: {
+        title: true,
+        projectId: true,
+        dreamId: true,
+        createdAt: true,
+      },
       orderBy: { createdAt: 'desc' },
     })
 
@@ -30,7 +35,12 @@ export default defineEventHandler(async () => {
       .map((todo) => {
         const slug = SCAFFOLD_TITLE_RE.exec(todo.title)?.[1]
         return slug
-          ? { slug, dreamId: todo.dreamId, requestedAt: todo.createdAt }
+          ? {
+              slug,
+              projectId: todo.projectId,
+              dreamId: todo.dreamId,
+              requestedAt: todo.createdAt,
+            }
           : null
       })
       .filter((item): item is NonNullable<typeof item> => item !== null)

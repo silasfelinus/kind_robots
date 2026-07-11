@@ -1,8 +1,7 @@
 // POST /api/appmaker/scaffold-request — self-serve app creation (appmaker/t-004).
-// Creates the PROJECT Dream (slug parity) owned by the requesting user, then
-// files an AGENT todo under the worker account so the next Worker cycle runs
-// scripts/new_app.py. Server-side caps apply; no admin gate by design
-// (Silas, 2026-07-02: build the self-serve end state).
+// Creates the first-class Project owned by the requesting user, then files an
+// AGENT Todo under the worker account so the next Worker cycle runs
+// scripts/new_app.py. Server-side caps apply; no admin gate by design.
 import { defineEventHandler, readBody, createError, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
@@ -50,57 +49,73 @@ export default defineEventHandler(async (event) => {
     }
 
     const description = body.description?.trim() || null
+    const [existingProject, existingDream] = await Promise.all([
+      prisma.project.findFirst({
+        where: { OR: [{ slug }, { conductorSlug: slug }] },
+        select: { id: true },
+      }),
+      prisma.dream.findUnique({
+        where: { slug },
+        select: { id: true },
+      }),
+    ])
 
-    const existing = await prisma.dream.findUnique({
-      where: { slug },
-      select: { id: true },
-    })
-    if (existing) {
+    if (existingProject || existingDream) {
       throw createError({ statusCode: 409, message: `Slug '${slug}' is already taken.` })
     }
 
     const isAdmin = user.Role === 'ADMIN' || user.id === 1
     await enforceProjectCap({ userId: user.id, userRole: user.Role, isAdmin })
 
-    const dream = await prisma.dream.create({
-      data: {
-        title,
-        slug,
-        description,
-        dreamType: 'PROJECT',
-        projectStatus: 'ACTIVE',
-        userId: user.id,
-        isPublic: true,
-      },
-    })
-
-    // The Worker only reads its own todo queue (fetch_todos.py runs with the
-    // worker account's token), so the request is filed there — not under the
-    // requesting user.
     const scaffoldCommand =
       `python scripts/new_app.py ${slug} --title "${title}"` +
       (description ? ` --description "${description.replace(/"/g, "'")}"` : '')
 
-    const todo = await prisma.todo.create({
-      data: {
-        title: `Scaffold new app '${slug}' with scripts/new_app.py`,
-        description: [
-          `AppMaker self-serve request from user ${user.id}.`,
-          `Run: ${scaffoldCommand}`,
-          `Dream ${dream.id} already exists (slug parity) — do not create another.`,
-        ].join('\n'),
-        status: 'OPEN',
-        priority: 'NORMAL',
-        category: 'AGENT',
-        userId: getWorkerUserId(),
-        dreamId: dream.id,
-      },
+    const { project, todo } = await prisma.$transaction(async (tx) => {
+      const project = await tx.project.create({
+        data: {
+          title,
+          slug,
+          conductorSlug: slug,
+          description,
+          status: 'ACTIVE',
+          priority: 'NORMAL',
+          userId: user.id,
+          isPublic: true,
+          isActive: true,
+        },
+      })
+
+      // The Worker only reads its own Todo queue, so the request is filed under
+      // the worker account while remaining scoped to the requester's Project.
+      const todo = await tx.todo.create({
+        data: {
+          title: `Scaffold new app '${slug}' with scripts/new_app.py`,
+          description: [
+            `AppMaker self-serve request from user ${user.id}.`,
+            `Run: ${scaffoldCommand}`,
+            `Project ${project.id} already exists (slug parity) — do not create another.`,
+          ].join('\n'),
+          status: 'OPEN',
+          priority: 'NORMAL',
+          category: 'AGENT',
+          userId: getWorkerUserId(),
+          projectId: project.id,
+        },
+      })
+
+      return { project, todo }
     })
 
     event.node.res.statusCode = 201
     return {
       success: true,
-      data: { dreamId: dream.id, slug, todoId: todo.id },
+      data: {
+        projectId: project.id,
+        dreamId: null,
+        slug,
+        todoId: todo.id,
+      },
     }
   } catch (error) {
     if (error instanceof H3Error) throw error

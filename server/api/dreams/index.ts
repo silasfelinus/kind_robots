@@ -362,9 +362,18 @@ export function normalizeOptionalText(
 }
 
 export function normalizeDreamType(value: unknown): DreamType {
-  return dreamTypes.includes(value as DreamType)
+  const normalized = dreamTypes.includes(value as DreamType)
     ? (value as DreamType)
     : 'PITCH'
+
+  if (normalized === 'PROJECT') {
+    throw createError({
+      statusCode: 409,
+      message: 'Projects must be created through /api/projects, not /api/dreams.',
+    })
+  }
+
+  return normalized
 }
 
 export function parseDreamType(value: unknown): DreamType | null {

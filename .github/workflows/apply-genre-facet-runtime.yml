@@ -48,6 +48,19 @@ jobs:
           set -o pipefail
           python utils/scripts/remove_genre_dream_runtime.py 2>&1 | tee genre-facet-runtime.log
 
+      - name: Fix nullable Project selector key
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('components/pages/serendipity-page.vue')
+          source = path.read_text(encoding='utf-8')
+          old = ':key="project.slug"'
+          new = ':key="project.slug ?? project.id"'
+          if source.count(old) != 1:
+              raise RuntimeError(f'expected one Project selector key, found {source.count(old)}')
+          path.write_text(source.replace(old, new), encoding='utf-8')
+          PY
+
       - name: Upload transformation diagnostics
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,6 +1,5 @@
 <!-- /components/pages/conductor-project-chat.vue -->
-<!-- Direct AI contact for a single Project. New chats persist through projectId;
-     dreamId remains an optional compatibility link during the schema cutover. -->
+<!-- Direct AI contact for a single Project. Chats persist through projectId. -->
 <template>
   <div class="space-y-3 rounded-2xl border border-primary/20 bg-base-100 p-4">
     <div class="flex items-center gap-2">
@@ -91,7 +90,6 @@ type BotCafeMessage = {
 const props = defineProps<{
   projectId: number
   projectTitle: string
-  dreamId?: number | null
   projectContext: string
 }>()
 
@@ -106,9 +104,6 @@ const sessionChatIds = ref<number[]>([])
 const threadEl = ref<HTMLElement | null>(null)
 
 const channel = computed(() => `project-${props.projectId}-assistant`)
-const legacyChannel = computed(() =>
-  props.dreamId ? `dream-${props.dreamId}-assistant` : '',
-)
 
 const projectChats = computed(() =>
   chatStore.chats
@@ -116,7 +111,6 @@ const projectChats = computed(() =>
       (chat) =>
         chat.projectId === props.projectId ||
         chat.channel === channel.value ||
-        (legacyChannel.value && chat.channel === legacyChannel.value) ||
         sessionChatIds.value.includes(chat.id),
     )
     .sort((a, b) => a.id - b.id),
@@ -215,7 +209,6 @@ async function sendMessage() {
       isPublic: false,
       channel: channel.value,
       projectId: props.projectId,
-      dreamId: props.dreamId ?? null,
     })
 
     sessionChatIds.value.push(newChat.id)

@@ -1507,13 +1507,11 @@
             <ConductorProjectWaypoints
               :project-id="linkedProject.id"
               :project-title="linkedProject.title || selectedProject.slug"
-              :dream-id="null"
               :waypoints="linkedProject.waypoints"
             />
             <ConductorProjectChat
               :project-id="linkedProject.id"
               :project-title="linkedProject.title || selectedProject.slug"
-              :dream-id="null"
               :project-context="projectContextText"
             />
           </div>

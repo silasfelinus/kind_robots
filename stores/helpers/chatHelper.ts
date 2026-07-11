@@ -183,6 +183,18 @@ export async function fetchChatsForUser(userId: number): Promise<Chat[]> {
   return response.data || []
 }
 
+export async function fetchChatsForProject(projectId: number): Promise<Chat[]> {
+  const response = await performFetch<Chat[]>(
+    `/api/chats?projectId=${projectId}&take=100`,
+  )
+
+  if (!response.success) {
+    throw new Error(response.message || 'Failed to fetch Project chats')
+  }
+
+  return response.data || []
+}
+
 export async function fetchInboxChatsForUser(userId: number): Promise<Chat[]> {
   const response = await performFetch<Chat[]>(`/api/chats/user/inbox/${userId}`)
 

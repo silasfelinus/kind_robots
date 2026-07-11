@@ -24,6 +24,7 @@ jobs:
           fetch-depth: 1
           show-progress: false
 
+      # Strict anchors keep this branch-only transformation fail-safe.
       - name: Apply strict Project UI transformation
         run: python utils/scripts/remove_project_dream_ui_fallbacks.py
 

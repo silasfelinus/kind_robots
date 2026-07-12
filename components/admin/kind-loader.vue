@@ -3,6 +3,8 @@
     <loading-messages
       v-if="showOverlay"
       :stores-ready="storesReady"
+      @covered="handleOverlayCovered"
+      @hiding="handleOverlayHiding"
       @hidden="handleOverlayHidden"
     />
   </div>
@@ -34,6 +36,7 @@ import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { useButterflyStore } from '@/stores/butterflyStore'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 
 const errorStore = useErrorStore()
@@ -59,6 +62,7 @@ const componentStore = useComponentStore()
 const randomStore = useRandomStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()
+const butterflyStore = useButterflyStore()
 
 const emit = defineEmits<{
   covered: []
@@ -75,6 +79,10 @@ function handleOverlayCovered() {
   if (coveredEmitted.value) return
   coveredEmitted.value = true
   emit('covered')
+}
+
+function handleOverlayHiding() {
+  butterflyStore.setShowSwarm(false)
 }
 
 function emitReadyOnce() {

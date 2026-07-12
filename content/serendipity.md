@@ -7,6 +7,9 @@ icon: kind-icon:sparkles
 tooltip: You are the protagonist. The story is on your side.
 dottitip: The story asks the questions this time. Answer honestly, it can tell.
 amitip: A to-do list wearing a fairy tale is still a fairy tale. Let it in.
+dashboardKey: scenario
+dashboardTab: serendipity
+cards: navCards
 ---
 
 :serendipity-page

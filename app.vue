@@ -132,11 +132,15 @@
         </Transition>
       </section>
 
-      <div class="pointer-events-auto fixed bottom-3 right-3 z-50">
+      <div class="pointer-events-auto fixed bottom-3 right-3 z-40">
         <button
           type="button"
           class="btn btn-circle btn-sm shadow-2xl"
-          :class="bottomMode === 'closed' ? 'btn-ghost border border-base-300 bg-base-100' : 'btn-primary'"
+          :class="
+            bottomMode === 'closed'
+              ? 'btn-ghost border border-base-300 bg-base-100'
+              : 'btn-primary'
+          "
           :aria-label="bottomFabLabel"
           :title="bottomFabLabel"
           @click="cycleBottomMode"
@@ -298,23 +302,36 @@ const footerVars = computed<CSSProperties>(() => {
   } as CSSProperties
 })
 
-const BOTTOM_MODES: BottomMode[] = ['closed', 'hand', 'narrator-compact', 'narrator-open']
+const BOTTOM_MODES: BottomMode[] = [
+  'closed',
+  'hand',
+  'narrator-compact',
+  'narrator-open',
+]
 
 const bottomFabIcon = computed(() => {
   switch (bottomMode.value) {
-    case 'hand': return 'kind-icon:card'
-    case 'narrator-compact': return 'kind-icon:robot-color'
-    case 'narrator-open': return 'kind-icon:close'
-    default: return 'kind-icon:sparkles'
+    case 'hand':
+      return 'kind-icon:card'
+    case 'narrator-compact':
+      return 'kind-icon:robot-color'
+    case 'narrator-open':
+      return 'kind-icon:close'
+    default:
+      return 'kind-icon:sparkles'
   }
 })
 
 const bottomFabLabel = computed(() => {
   switch (bottomMode.value) {
-    case 'hand': return 'Cards open — click for narrator'
-    case 'narrator-compact': return 'Narrator docked — click to open'
-    case 'narrator-open': return 'Narrator open — click to close'
-    default: return 'Open workspace tools'
+    case 'hand':
+      return 'Cards open — click for narrator'
+    case 'narrator-compact':
+      return 'Narrator docked — click to open'
+    case 'narrator-open':
+      return 'Narrator open — click to close'
+    default:
+      return 'Open workspace tools'
   }
 })
 
@@ -335,7 +352,10 @@ function setNarratorRendered(value: boolean): void {
   narratorRendered.value = value
 
   if (!value) {
-    if (bottomMode.value === 'narrator-compact' || bottomMode.value === 'narrator-open') {
+    if (
+      bottomMode.value === 'narrator-compact' ||
+      bottomMode.value === 'narrator-open'
+    ) {
       bottomMode.value = 'closed'
     }
     narratorCompactMessageVisible.value = false

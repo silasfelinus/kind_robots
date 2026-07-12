@@ -197,6 +197,7 @@
             <thead>
               <tr class="text-[11px]">
                 <th>#</th>
+                <th>Art</th>
                 <th>Engine</th>
                 <th>Status</th>
                 <th>Att</th>
@@ -208,6 +209,26 @@
             <tbody>
               <tr v-for="job in artJobStore.jobs" :key="job.id" class="text-xs">
                 <td>{{ job.id }}</td>
+                <td>
+                  <a
+                    v-if="jobImageSrc(job)"
+                    :href="jobImageSrc(job)"
+                    target="_blank"
+                    rel="noopener"
+                    :title="`ArtImage ${job.artImageId}`"
+                  >
+                    <img
+                      :src="jobImageSrc(job)"
+                      class="h-10 w-10 rounded-md object-cover"
+                      alt="generated art"
+                    />
+                  </a>
+                  <span
+                    v-else-if="job.status === 'DONE'"
+                    class="text-base-content/40"
+                    >—</span
+                  >
+                </td>
                 <td>{{ job.engine }}</td>
                 <td>
                   <span
@@ -228,9 +249,18 @@
                 </td>
                 <td class="whitespace-nowrap">
                   <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-2xl"
+                    title="Clone into a fresh job"
+                    @click="artJobStore.reenqueueJob(job.id)"
+                  >
+                    Re-run
+                  </button>
+                  <button
                     v-if="job.status !== 'DONE'"
                     type="button"
                     class="btn btn-ghost btn-xs rounded-2xl"
+                    title="Reset this job to PENDING"
                     @click="artJobStore.requeueJob(job.id)"
                   >
                     Requeue
@@ -247,7 +277,7 @@
               </tr>
               <tr v-if="!artJobStore.jobs.length">
                 <td
-                  colspan="7"
+                  colspan="8"
                   class="text-center text-xs text-base-content/50"
                 >
                   No {{ artJobStore.jobStatusFilter }} jobs.
@@ -318,6 +348,11 @@ function statusClass(status: string): string {
   if (status === 'OFFLINE') return 'text-error'
   if (status === 'DEGRADED') return 'text-warning'
   return 'text-base-content/50'
+}
+
+function jobImageSrc(job: { artImageId?: number | null }): string {
+  if (typeof job.artImageId !== 'number') return ''
+  return artJobStore.imageSrcById[job.artImageId] || ''
 }
 
 function jobStatusClass(status: string): string {

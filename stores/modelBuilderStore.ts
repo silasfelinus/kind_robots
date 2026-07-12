@@ -68,6 +68,8 @@ export interface BuildItem {
   promptDraft: string
   artImageId: number | null
   imagePath: string | null
+  targetType: string | null
+  targetId: number | null
   error: string | null
 }
 
@@ -100,6 +102,7 @@ interface ModelBuilderState {
   loadingRuns: boolean
   startingRun: boolean
   generatingItemId: string | null
+  committingItemId: string | null
   statusMessage: string
   statusTone: 'success' | 'error'
 }
@@ -125,6 +128,8 @@ interface ServerItem {
   fieldsDraft: string | null
   promptDraft: string | null
   artImageId: number | null
+  targetType: string | null
+  targetId: number | null
   error: string | null
   Artifacts?: ServerArtifact[]
 }
@@ -235,6 +240,8 @@ function adaptItem(server: ServerItem): BuildItem {
     promptDraft: server.promptDraft ?? '',
     artImageId: server.artImageId ?? null,
     imagePath: artifact?.promotedPath ?? artifact?.draftPath ?? null,
+    targetType: server.targetType ?? null,
+    targetId: server.targetId ?? null,
     error: server.error ?? null,
   }
 }
@@ -266,6 +273,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     loadingRuns: false,
     startingRun: false,
     generatingItemId: null,
+    committingItemId: null,
     statusMessage: '',
     statusTone: 'success',
   })
@@ -792,18 +800,62 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
-  // Records the user's approval of the final diff. The durable create / update /
-  // link / promote happens through model APIs in a later gated milestone — this
-  // only marks the item approved-for-commit (persisted so it survives resume).
-  function approveCommit(itemId: string): void {
+  interface CommitTarget {
+    type: string
+    id: number
+    created?: boolean
+    linked?: boolean
+  }
+
+  // Execute the durable commit for an item through the server executor: promote
+  // the asset, update the source, or create + link a new record — idempotently.
+  async function commitItem(itemId: string): Promise<boolean> {
     const item = findItem(itemId)
-    if (!item) return
-    item.stages.COMMIT = {
-      status: 'approved',
-      note: 'Approved for commit — durable write pending backend execution.',
+    if (!item) return false
+
+    state.committingItemId = item.id
+    item.error = null
+    clearStatus()
+
+    try {
+      const response = await performFetch<{
+        alreadyCommitted?: boolean
+        target?: CommitTarget | null
+      }>(
+        `/api/model-builder/items/${item.id}/commit`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' },
+        1,
+        60_000,
+      )
+
+      if (!response.success) {
+        throw new Error(response.message || 'Commit failed.')
+      }
+
+      const target = response.data?.target ?? null
+      item.stages.COMMIT = {
+        status: 'approved',
+        note: target ? `Committed → ${target.type} #${target.id}` : 'Committed.',
+      }
+      if (target) {
+        item.targetType = target.type
+        item.targetId = target.id
+      }
+      setStatus(
+        'success',
+        target
+          ? `${item.label} committed → ${target.type} #${target.id}.`
+          : `${item.label} committed.`,
+      )
+      return true
+    } catch (error) {
+      handleError(error, 'committing build item')
+      item.error = error instanceof Error ? error.message : 'Commit failed.'
+      setStatus('error', item.error)
+      return false
+    } finally {
+      state.committingItemId = null
     }
-    pushItem(item, { stageStatuses: item.stages }, { stage: 'COMMIT' })
-    setStatus('success', `${item.label} approved for commit.`)
   }
 
   // --- persistence / resume -------------------------------------------------
@@ -972,7 +1024,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     draftText,
     generateItemAsset,
     previewCommit,
-    approveCommit,
+    commitItem,
     resumeRun,
     fetchRuns,
     openRun,

@@ -247,18 +247,32 @@
       </div>
 
       <p class="mt-1 text-[10px] leading-snug text-base-content/40">
-        The durable create / update / link / promote runs through the model APIs
-        in a later gated milestone. Approving here records the final diff only.
+        Commit writes durably and idempotently: ASSET_ONLY promotes the asset,
+        UPDATE writes a source field, CREATE makes a private draft record and
+        links it. Re-running is safe — it won't duplicate.
       </p>
 
-      <div class="mt-1.5 flex justify-end">
+      <div class="mt-1.5 flex items-center justify-end gap-2">
+        <span
+          v-if="item.targetId"
+          class="mr-auto text-[10px] font-semibold text-success"
+        >
+          Committed → {{ item.targetType }} #{{ item.targetId }}
+        </span>
         <button
           type="button"
           class="btn btn-xs btn-success rounded-lg"
-          :disabled="isLocked('COMMIT') || item.stages.COMMIT.status === 'approved'"
-          @click="store.approveCommit(item.id)"
+          :disabled="
+            isLocked('COMMIT') ||
+            item.stages.COMMIT.status === 'approved' ||
+            isCommitting
+          "
+          @click="store.commitItem(item.id)"
         >
-          {{ item.stages.COMMIT.status === 'approved' ? 'Approved' : 'Approve commit' }}
+          <span v-if="isCommitting" class="loading loading-dots loading-xs" />
+          <template v-else>
+            {{ item.stages.COMMIT.status === 'approved' ? 'Committed' : 'Execute commit' }}
+          </template>
         </button>
       </div>
     </section>
@@ -294,6 +308,7 @@ watch(
 )
 
 const isGenerating = computed(() => store.generatingItemId === props.itemId)
+const isCommitting = computed(() => store.committingItemId === props.itemId)
 
 function isDrafting(field: DraftField): boolean {
   return (

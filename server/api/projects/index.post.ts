@@ -1,11 +1,15 @@
 // /server/api/projects/index.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import type { ProjectPriority, ProjectStatus } from '~/prisma/generated/prisma/client'
+import type {
+  ProjectPriority,
+  ProjectStatus,
+} from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { enforceProjectCap } from '~/server/utils/projectCap'
 import {
+  normalizeNullableDateTime,
   normalizeNullableId,
   normalizeOptionalText,
   normalizeSlug,
@@ -25,6 +29,7 @@ type ProjectCreateBody = {
   status?: unknown
   priority?: unknown
   conductorSlug?: unknown
+  lastSyncedAt?: unknown
   repoUrl?: unknown
   liveUrl?: unknown
   channelKey?: unknown
@@ -50,7 +55,10 @@ export default defineEventHandler(async (event) => {
     const title = normalizeOptionalText(body?.title)
 
     if (!title) {
-      throw createError({ statusCode: 400, message: 'Project title is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Project title is required.',
+      })
     }
 
     const slug = normalizeSlug(body.slug ?? title)
@@ -81,6 +89,7 @@ export default defineEventHandler(async (event) => {
         status,
         priority,
         conductorSlug: normalizeSlug(body.conductorSlug ?? slug),
+        lastSyncedAt: normalizeNullableDateTime(body.lastSyncedAt),
         repoUrl: normalizeOptionalText(body.repoUrl),
         liveUrl: normalizeOptionalText(body.liveUrl),
         channelKey: normalizeOptionalText(body.channelKey),

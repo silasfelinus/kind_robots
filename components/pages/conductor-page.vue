@@ -258,23 +258,23 @@
             class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
           >
             <div
-              v-for="dream in projectStore.publicProjects"
-              :key="dream.id"
+              v-for="project in projectStore.publicProjects"
+              :key="project.id"
               class="group flex flex-col items-center gap-2 rounded-2xl border border-base-300 bg-base-200 p-3 text-center transition-all hover:border-primary/40 hover:shadow-md"
             >
               <img
-                :src="projectIconPath(dream.slug)"
-                :alt="dream.title"
+                :src="projectIconPath(project.slug)"
+                :alt="project.title"
                 class="size-12 rounded-xl border border-base-300 object-cover"
               />
               <p class="w-full truncate text-xs font-semibold">
-                {{ dream.title }}
+                {{ project.title }}
               </p>
               <p
-                v-if="dream.flavorText"
+                v-if="project.flavorText"
                 class="line-clamp-2 w-full text-xs text-base-content/50"
               >
-                {{ dream.flavorText }}
+                {{ project.flavorText }}
               </p>
             </div>
           </div>
@@ -283,25 +283,25 @@
             class="flex flex-col gap-2"
           >
             <div
-              v-for="dream in projectStore.publicProjects"
-              :key="dream.id"
+              v-for="project in projectStore.publicProjects"
+              :key="project.id"
               class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
             >
               <img
-                :src="projectIconPath(dream.slug)"
-                :alt="dream.title"
+                :src="projectIconPath(project.slug)"
+                :alt="project.title"
                 class="size-9 shrink-0 rounded-xl border border-base-300 object-cover"
               />
               <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold">{{ dream.title }}</p>
+                <p class="truncate text-sm font-bold">{{ project.title }}</p>
                 <p class="truncate text-xs text-base-content/50">
-                  {{ dream.flavorText }}
+                  {{ project.flavorText }}
                 </p>
               </div>
               <span
-                v-if="dream.status"
+                v-if="project.status"
                 class="badge badge-xs shrink-0 opacity-60"
-                >{{ dream.status }}</span
+                >{{ project.status }}</span
               >
             </div>
           </div>
@@ -310,36 +310,36 @@
             class="grid gap-4 sm:grid-cols-2"
           >
             <div
-              v-for="dream in projectStore.publicProjects"
-              :key="dream.id"
+              v-for="project in projectStore.publicProjects"
+              :key="project.id"
               class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
               style="aspect-ratio: 16/9"
             >
               <img
-                :src="projectHeroPath(dream.slug)"
-                :alt="dream.title"
+                :src="projectHeroPath(project.slug)"
+                :alt="project.title"
                 class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div
                 class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-12"
               >
-                <p class="truncate text-sm font-bold">{{ dream.title }}</p>
+                <p class="truncate text-sm font-bold">{{ project.title }}</p>
                 <p class="text-xs text-base-content/60">
-                  {{ dream.flavorText }}
+                  {{ project.flavorText }}
                 </p>
               </div>
             </div>
           </div>
           <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div
-              v-for="dream in projectStore.publicProjects"
-              :key="dream.id"
+              v-for="project in projectStore.publicProjects"
+              :key="project.id"
               class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
               style="aspect-ratio: 2/3"
             >
               <img
-                :src="projectCardPath(dream.slug)"
-                :alt="dream.title"
+                :src="projectCardPath(project.slug)"
+                :alt="project.title"
                 class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div
@@ -347,16 +347,16 @@
               >
                 <div class="flex items-center gap-2">
                   <img
-                    :src="projectIconPath(dream.slug)"
+                    :src="projectIconPath(project.slug)"
                     alt=""
                     class="size-7 shrink-0 rounded-lg border border-white/20 object-cover"
                   />
                   <p class="min-w-0 truncate text-sm font-bold leading-tight">
-                    {{ dream.title }}
+                    {{ project.title }}
                   </p>
                 </div>
                 <p class="mt-1 text-xs text-base-content/60">
-                  {{ dream.flavorText }}
+                  {{ project.flavorText }}
                 </p>
               </div>
             </div>
@@ -492,11 +492,15 @@
                     class="badge badge-sm font-bold"
                     :class="
                       priorityBadgeClass(
-                        (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL',
+                        (projectRecordForSlug(project.slug)?.priority as
+                          | ProjectPriorityLevel
+                          | undefined) ?? 'NORMAL',
                       )
                     "
                     >{{
-                      (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'
+                      (projectRecordForSlug(project.slug)?.priority as
+                        | ProjectPriorityLevel
+                        | undefined) ?? 'NORMAL'
                     }}</span
                   >
                 </div>
@@ -635,11 +639,15 @@
                   class="badge badge-xs"
                   :class="
                     priorityBadgeClass(
-                      (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL',
+                      (projectRecordForSlug(project.slug)?.priority as
+                        | ProjectPriorityLevel
+                        | undefined) ?? 'NORMAL',
                     )
                   "
                   >{{
-                    (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'
+                    (projectRecordForSlug(project.slug)?.priority as
+                      | ProjectPriorityLevel
+                      | undefined) ?? 'NORMAL'
                   }}</span
                 >
               </button>
@@ -672,11 +680,15 @@
                     class="badge badge-xs"
                     :class="
                       priorityBadgeClass(
-                        (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL',
+                        (projectRecordForSlug(project.slug)?.priority as
+                          | ProjectPriorityLevel
+                          | undefined) ?? 'NORMAL',
                       )
                     "
                     >{{
-                      (projectRecordForSlug(project.slug)?.priority as DreamPriority | undefined) ?? 'NORMAL'
+                      (projectRecordForSlug(project.slug)?.priority as
+                        | ProjectPriorityLevel
+                        | undefined) ?? 'NORMAL'
                     }}</span
                   >
                   <span
@@ -1227,7 +1239,11 @@
               </div>
               <div class="min-w-0 flex-1">
                 <h3 class="truncate text-xl font-black leading-tight">
-                  {{ linkedProject?.title || selectedProject.name || selectedProject.slug }}
+                  {{
+                    linkedProject?.title ||
+                    selectedProject.name ||
+                    selectedProject.slug
+                  }}
                 </h3>
                 <p class="text-xs text-base-content/60">
                   {{ selectedProject.progress }}% complete &middot;
@@ -1266,7 +1282,11 @@
           >
             <select
               class="select select-bordered select-sm rounded-xl font-bold"
-              :class="prioritySelectClass(linkedProject.priority as DreamPriority)"
+              :class="
+                prioritySelectClass(
+                  linkedProject.priority as ProjectPriorityLevel,
+                )
+              "
               :value="linkedProject.priority"
               :disabled="projectSaving"
               @change="handlePriorityChange"
@@ -1330,7 +1350,9 @@
                   : 'btn-ghost border border-base-300'
               "
               :disabled="projectSaving"
-              @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
+              @click="
+                patchProject({ allowReviews: !linkedProject.allowReviews })
+              "
             >
               <Icon name="kind-icon:chat" class="size-3.5" />{{
                 linkedProject.allowReviews ? 'Reviews On' : 'Reviews Off'
@@ -1488,7 +1510,8 @@
                 name="kind-icon:dream"
                 class="mx-auto mb-1 size-5 opacity-40"
               />
-              No Project record linked for <strong>{{ selectedProject.slug }}</strong>
+              No Project record linked for
+              <strong>{{ selectedProject.slug }}</strong>
             </div>
 
             <ConductorArtGallery
@@ -1907,13 +1930,16 @@ import type {
   ConductorProject,
   ConductorPitch,
 } from '@/server/api/conductor/projects.get'
-import { useProjectStore, type ProjectWithRelations } from '@/stores/projectStore'
+import {
+  useProjectStore,
+  type ProjectPriorityLevel,
+  type ProjectWithRelations,
+} from '@/stores/projectStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
 import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
-import type { DreamPriority } from '@/stores/conductorStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import ConductorArtGallery from '@/components/pages/conductor-art-gallery.vue'
 import ConductorProjectWaypoints from '@/components/pages/conductor-project-waypoints.vue'
@@ -1934,7 +1960,7 @@ type ProjectPatch = {
   isMature?: boolean
   allowReviews?: boolean
   status?: ProjectStatus
-  priority?: DreamPriority
+  priority?: ProjectPriorityLevel
 }
 
 const userStore = useUserStore()
@@ -1980,7 +2006,7 @@ const pitchEditTexts = ref<Record<string, string>>({})
 
 const newTodoTitle = ref('')
 const newTodoDescription = ref('')
-const newTodoPriority = ref<DreamPriority>('NORMAL')
+const newTodoPriority = ref<ProjectPriorityLevel>('NORMAL')
 const newTodoCategory = ref<TodoCategory>('AGENT')
 const todoFilter = ref<'OPEN' | 'DONE' | 'ARCHIVED'>('OPEN')
 const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
@@ -1998,7 +2024,9 @@ const error = computed(() =>
 
 const projects = computed<ConductorProject[]>(() => {
   const conductorProjects = conductorStore.projects
-  const conductorSlugs = new Set(conductorProjects.map((project) => project.slug))
+  const conductorSlugs = new Set(
+    conductorProjects.map((project) => project.slug),
+  )
   const databaseOnlyProjects = projectStore.projects.flatMap((project) => {
     const slug = project.conductorSlug || project.slug
     if (!slug || conductorSlugs.has(slug)) return []
@@ -2013,7 +2041,9 @@ function projectRecordForSlug(slug: string) {
   return projectStore.projectForSlug(slug)
 }
 
-function projectRecordToConductor(project: ProjectWithRelations): ConductorProject {
+function projectRecordToConductor(
+  project: ProjectWithRelations,
+): ConductorProject {
   const slug = project.conductorSlug || project.slug || `project-${project.id}`
   return {
     slug,
@@ -2022,12 +2052,9 @@ function projectRecordToConductor(project: ProjectWithRelations): ConductorProje
     milestones: [],
     tasks: [],
     progress: project.status === 'DONE' ? 100 : 0,
-    imagePath:
-      project.imagePath || `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`,
-    cardPath:
-      project.cardPath || `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`,
-    heroPath:
-      project.heroPath || `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`,
+    imagePath: project.imagePath || `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`,
+    cardPath: project.cardPath || `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`,
+    heroPath: project.heroPath || `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`,
   }
 }
 
@@ -2062,13 +2089,19 @@ const activeProjects = computed(() =>
 
 const sortedActiveProjects = computed(() =>
   [...activeProjects.value].sort((a, b) => {
-    const order: Record<DreamPriority, number> = { HIGH: 0, NORMAL: 1, LOW: 2 }
+    const order: Record<ProjectPriorityLevel, number> = {
+      HIGH: 0,
+      NORMAL: 1,
+      LOW: 2,
+    }
     const pa =
-      (projectRecordForSlug(a.slug)?.priority as DreamPriority | undefined) ??
-      'NORMAL'
+      (projectRecordForSlug(a.slug)?.priority as
+        | ProjectPriorityLevel
+        | undefined) ?? 'NORMAL'
     const pb =
-      (projectRecordForSlug(b.slug)?.priority as DreamPriority | undefined) ??
-      'NORMAL'
+      (projectRecordForSlug(b.slug)?.priority as
+        | ProjectPriorityLevel
+        | undefined) ?? 'NORMAL'
     return (order[pa] ?? 1) - (order[pb] ?? 1)
   }),
 )
@@ -2286,7 +2319,7 @@ const workspaceCards = computed<BuilderCard[]>(() => {
   return result
 })
 
-async function setPriority(priority: DreamPriority) {
+async function setPriority(priority: ProjectPriorityLevel) {
   if (!linkedProject.value) return
   await patchProject({ priority })
 }
@@ -2348,9 +2381,7 @@ async function refreshWorkspace() {
   const projectOptions = userStore.isAdmin
     ? { includeInactive: true, includeMature: true }
     : {}
-  const work: Promise<unknown>[] = [
-    projectStore.fetchProjects(projectOptions),
-  ]
+  const work: Promise<unknown>[] = [projectStore.fetchProjects(projectOptions)]
   if (userStore.isAdmin) work.push(conductorStore.fetchProjects(true))
   if (todoStore.hasLoaded) work.push(todoStore.fetchTodos(true))
   await Promise.all(work)
@@ -2364,7 +2395,9 @@ async function syncMissingProjects() {
   try {
     const count = missingProjectSlugs.value.length
     for (const slug of missingProjectSlugs.value) {
-      const project = conductorStore.projects.find((entry) => entry.slug === slug)
+      const project = conductorStore.projects.find(
+        (entry) => entry.slug === slug,
+      )
       await projectStore.createProject({
         title: project?.name || slug,
         slug,
@@ -2516,7 +2549,7 @@ function handleProjectStatusChange(event: Event) {
 function handlePriorityChange(event: Event) {
   const target = event.target as HTMLSelectElement | null
   if (!target) return
-  setPriority(target.value as DreamPriority)
+  setPriority(target.value as ProjectPriorityLevel)
 }
 
 function blockedCount(project: ConductorProject) {
@@ -2547,13 +2580,13 @@ function taskStatusSummary(project: ConductorProject): [string, number][] {
   })
 }
 
-function priorityBadgeClass(priority: DreamPriority): string {
+function priorityBadgeClass(priority: ProjectPriorityLevel): string {
   if (priority === 'HIGH') return 'badge-error'
   if (priority === 'LOW') return 'badge-ghost'
   return 'badge-warning'
 }
 
-function prioritySelectClass(priority: DreamPriority): string {
+function prioritySelectClass(priority: ProjectPriorityLevel): string {
   if (priority === 'HIGH') return 'border-error/50 text-error'
   if (priority === 'LOW') return 'border-success/50 text-success'
   return 'border-warning/50 text-warning'
@@ -2663,7 +2696,7 @@ function milestoneBadgeClass(status: string) {
 const projectTaskTitle = ref('')
 const projectTaskDescription = ref('')
 const projectTaskCategory = ref<TodoCategory>('AGENT')
-const projectTaskPriority = ref<DreamPriority>('NORMAL')
+const projectTaskPriority = ref<ProjectPriorityLevel>('NORMAL')
 const projectTaskSubmitting = ref(false)
 
 // Kaizen / polish prompt (t-004, t-006)
@@ -2776,7 +2809,8 @@ async function moveFeatureUp(index: number) {
     todoStore.updateTodo(features[index]!.id, { order: index - 1 }),
     todoStore.updateTodo(features[index - 1]!.id, { order: index }),
   ])
-  if (linkedProject.value) await todoStore.fetchProjectTodos(linkedProject.value.id)
+  if (linkedProject.value)
+    await todoStore.fetchProjectTodos(linkedProject.value.id)
 }
 
 async function moveFeatureDown(index: number) {
@@ -2786,6 +2820,7 @@ async function moveFeatureDown(index: number) {
     todoStore.updateTodo(features[index]!.id, { order: index + 1 }),
     todoStore.updateTodo(features[index + 1]!.id, { order: index }),
   ])
-  if (linkedProject.value) await todoStore.fetchProjectTodos(linkedProject.value.id)
+  if (linkedProject.value)
+    await todoStore.fetchProjectTodos(linkedProject.value.id)
 }
 </script>

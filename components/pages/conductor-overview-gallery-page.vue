@@ -167,8 +167,8 @@
         <Icon name="kind-icon:cards" class="h-12 w-12 text-primary/50" />
         <p class="text-lg font-black">No projects found.</p>
         <p class="max-w-lg text-sm text-base-content/55">
-          Create a Project or sync the Conductor roadmap, then the gallery
-          will show up with actual drip.
+          Create a Project or sync the Conductor roadmap, then the gallery will
+          show up with actual drip.
         </p>
       </div>
 
@@ -533,8 +533,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ConductorProject } from '@/server/api/conductor/projects.get'
-import { useConductorStore, type DreamPriority } from '@/stores/conductorStore'
-import { useProjectStore, type ProjectWithRelations } from '@/stores/projectStore'
+import { useConductorStore } from '@/stores/conductorStore'
+import {
+  useProjectStore,
+  type ProjectPriorityLevel,
+  type ProjectWithRelations,
+} from '@/stores/projectStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
 import { useUserStore } from '@/stores/userStore'
@@ -562,7 +566,7 @@ type ProjectGalleryItem = {
   kind: string
   kindLabel: string
   status: string
-  priority: DreamPriority
+  priority: ProjectPriorityLevel
   progress: number
   blocked: number
   needsHuman: number
@@ -615,32 +619,46 @@ const brainstormProjects = computed(() => {
 })
 
 const sortedActiveProjects = computed(() => {
-  const order: Record<DreamPriority, number> = { HIGH: 0, NORMAL: 1, LOW: 2 }
+  const order: Record<ProjectPriorityLevel, number> = {
+    HIGH: 0,
+    NORMAL: 1,
+    LOW: 2,
+  }
 
   return [...activeProjects.value].sort((a, b) => {
     const aPriority =
-      (dbProjectForSlug(a.slug)?.priority as DreamPriority | undefined) ??
-      'NORMAL'
+      (dbProjectForSlug(a.slug)?.priority as
+        | ProjectPriorityLevel
+        | undefined) ?? 'NORMAL'
     const bPriority =
-      (dbProjectForSlug(b.slug)?.priority as DreamPriority | undefined) ??
-      'NORMAL'
+      (dbProjectForSlug(b.slug)?.priority as
+        | ProjectPriorityLevel
+        | undefined) ?? 'NORMAL'
 
     return (order[aPriority] ?? 1) - (order[bPriority] ?? 1)
   })
 })
 
 const adminItems = computed<ProjectGalleryItem[]>(() => {
-  const conductorItems = sortedActiveProjects.value.map((project) => itemFromProject(project))
-  const conductorSlugs = new Set(conductorStore.projects.map((project) => project.slug))
+  const conductorItems = sortedActiveProjects.value.map((project) =>
+    itemFromProject(project),
+  )
+  const conductorSlugs = new Set(
+    conductorStore.projects.map((project) => project.slug),
+  )
   const databaseOnlyItems = projectStore.activeProjects.flatMap((project) =>
-    project.slug && !conductorSlugs.has(project.slug) ? [itemFromProjectRecord(project)] : [],
+    project.slug && !conductorSlugs.has(project.slug)
+      ? [itemFromProjectRecord(project)]
+      : [],
   )
   return [...conductorItems, ...databaseOnlyItems]
 })
 
 const publicItems = computed<ProjectGalleryItem[]>(() => {
   return projectStore.publicProjects
-    .flatMap((project) => (project.slug ? [itemFromProjectRecord(project)] : []))
+    .flatMap((project) =>
+      project.slug ? [itemFromProjectRecord(project)] : [],
+    )
     .sort((a, b) => a.title.localeCompare(b.title))
 })
 
@@ -786,7 +804,7 @@ function dbProjectForSlug(slug: string) {
 function itemFromProject(project: ConductorProject): ProjectGalleryItem {
   const record = dbProjectForSlug(project.slug)
   const priority =
-    (record?.priority as DreamPriority | undefined) ?? 'NORMAL'
+    (record?.priority as ProjectPriorityLevel | undefined) ?? 'NORMAL'
   const counts = taskCounts(project)
   const details =
     record?.description ||
@@ -832,7 +850,9 @@ function itemFromProject(project: ConductorProject): ProjectGalleryItem {
   }
 }
 
-function itemFromProjectRecord(record: ProjectWithRelations): ProjectGalleryItem {
+function itemFromProjectRecord(
+  record: ProjectWithRelations,
+): ProjectGalleryItem {
   const conductorProject = record.slug
     ? conductorStore.projects.find((project) => project.slug === record.slug)
     : null
@@ -850,7 +870,7 @@ function itemFromProjectRecord(record: ProjectWithRelations): ProjectGalleryItem
     kind: 'project',
     kindLabel: 'Project',
     status: record.status,
-    priority: record.priority as DreamPriority,
+    priority: record.priority as ProjectPriorityLevel,
     progress: record.status === 'DONE' ? 100 : 0,
     blocked: 0,
     needsHuman: 0,
@@ -860,14 +880,11 @@ function itemFromProjectRecord(record: ProjectWithRelations): ProjectGalleryItem
     totalTasks: record._count?.Todos ?? 0,
     projectId: record.id,
     iconPath:
-      record.imagePath ||
-      `${CONDUCTOR_IMG_BASE}/${record.slug}-icon.webp`,
+      record.imagePath || `${CONDUCTOR_IMG_BASE}/${record.slug}-icon.webp`,
     cardPath:
-      record.cardPath ||
-      `${CONDUCTOR_IMG_BASE}/${record.slug}-card.webp`,
+      record.cardPath || `${CONDUCTOR_IMG_BASE}/${record.slug}-card.webp`,
     heroPath:
-      record.heroPath ||
-      `${CONDUCTOR_IMG_BASE}/${record.slug}-hero.webp`,
+      record.heroPath || `${CONDUCTOR_IMG_BASE}/${record.slug}-hero.webp`,
     liveUrl: record.liveUrl || '',
     repoUrl: record.repoUrl || '',
   }
@@ -918,7 +935,10 @@ async function startProject() {
     status: 'BRAINSTORM',
     designer: userStore.username || 'Kind Designer',
   })
-  await projectStore.fetchProjects({ includeInactive: true, includeMature: true })
+  await projectStore.fetchProjects({
+    includeInactive: true,
+    includeMature: true,
+  })
   pageStore.setWorkspaceCardKey(project.slug || 'overview')
 }
 
@@ -936,7 +956,7 @@ function modeButtonClass(mode: GalleryMode) {
     : 'btn-ghost'
 }
 
-function priorityBadgeClass(priority: DreamPriority): string {
+function priorityBadgeClass(priority: ProjectPriorityLevel): string {
   if (priority === 'HIGH') return 'badge-error'
   if (priority === 'LOW') return 'badge-ghost'
   return 'badge-warning'
@@ -959,5 +979,4 @@ function formatKind(kind: string) {
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
-
 </script>

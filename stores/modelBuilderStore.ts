@@ -96,6 +96,8 @@ interface ModelBuilderState {
   recipeKey: RecipeKey | null
   selections: Record<string, OutputSelection>
   run: BuildRun | null
+  runs: BuildRun[]
+  loadingRuns: boolean
   startingRun: boolean
   generatingItemId: string | null
   statusMessage: string
@@ -260,6 +262,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     recipeKey: null,
     selections: {},
     run: null,
+    runs: [],
+    loadingRuns: false,
     startingRun: false,
     generatingItemId: null,
     statusMessage: '',
@@ -843,6 +847,77 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
+  // --- run history ----------------------------------------------------------
+
+  async function fetchRuns(): Promise<void> {
+    state.loadingRuns = true
+    try {
+      const response = await performFetch<ServerRun[]>(
+        '/api/model-builder/runs?take=50',
+      )
+      if (response.success && Array.isArray(response.data)) {
+        state.runs = response.data.map(adaptRun)
+      } else if (!response.success) {
+        setStatus('error', response.message || 'Failed to load run history.')
+      }
+    } catch (error) {
+      handleError(error, 'loading run history')
+    } finally {
+      state.loadingRuns = false
+    }
+  }
+
+  async function openRun(runId: string): Promise<void> {
+    const cached = state.runs.find((entry) => entry.id === runId)
+    if (cached) {
+      state.run = cached
+      state.sourceType = cached.sourceType
+      state.recipeKey = cached.recipeKey
+      state.step = 'run'
+      setActiveRunId(Number(runId))
+      return
+    }
+
+    try {
+      const response = await performFetch<ServerRun>(
+        `/api/model-builder/runs/${runId}`,
+      )
+      if (response.success && response.data) {
+        state.run = adaptRun(response.data)
+        state.sourceType = state.run.sourceType
+        state.recipeKey = state.run.recipeKey
+        state.step = 'run'
+        setActiveRunId(response.data.id)
+      } else if (!response.success) {
+        setStatus('error', response.message || 'Failed to open run.')
+      }
+    } catch (error) {
+      handleError(error, 'opening build run')
+    }
+  }
+
+  async function cancelRun(runId: string): Promise<void> {
+    try {
+      const response = await performFetch(
+        `/api/model-builder/runs/${runId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'CANCELLED' }),
+        },
+      )
+      if (!response.success) {
+        setStatus('error', response.message || 'Failed to cancel run.')
+        return
+      }
+      state.runs = state.runs.filter((entry) => entry.id !== runId)
+      if (state.run?.id === runId) resetRun()
+      setStatus('success', 'Run cancelled.')
+    } catch (error) {
+      handleError(error, 'cancelling build run')
+    }
+  }
+
   function goToStep(step: BuilderStep): void {
     state.step = step
   }
@@ -899,6 +974,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     previewCommit,
     approveCommit,
     resumeRun,
+    fetchRuns,
+    openRun,
+    cancelRun,
     goToStep,
     resetRun,
     resetAll,

@@ -1,12 +1,33 @@
 <!-- /components/model-builder/model-builder-source-picker.vue -->
 <template>
   <div class="flex min-h-0 flex-1 flex-col gap-3">
-    <div>
-      <h3 class="text-base font-black text-base-content">1. Pick a source model</h3>
-      <p class="mt-1 text-xs text-base-content/60">
-        Choose the existing record to upgrade or expand from. Every run keeps a
-        snapshot of this source.
-      </p>
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <h3 class="text-base font-black text-base-content">1. Pick a source model</h3>
+        <p class="mt-1 text-xs text-base-content/60">
+          Choose the existing record to upgrade or expand from. Every run keeps a
+          snapshot of this source.
+        </p>
+      </div>
+
+      <!-- View toggle — mirrors the project gallery's mode switch -->
+      <div class="flex shrink-0 items-center gap-0.5">
+        <button
+          v-for="mode in viewModes"
+          :key="mode.value"
+          type="button"
+          class="btn btn-xs rounded-md px-1.5"
+          :class="
+            viewMode === mode.value
+              ? 'btn-primary'
+              : 'btn-ghost text-base-content/50'
+          "
+          :title="mode.label"
+          @click="setViewMode(mode.value)"
+        >
+          <Icon :name="mode.icon" class="h-3.5 w-3.5" />
+        </button>
+      </div>
     </div>
 
     <!-- Source type tabs -->
@@ -36,7 +57,7 @@
     </p>
 
     <!-- Records -->
-    <div class="min-h-0 flex-1">
+    <div class="min-h-0 flex-1 overflow-y-auto">
       <div
         v-if="!store.sourceType"
         class="flex h-full min-h-32 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-sm text-base-content/50"
@@ -67,9 +88,47 @@
         </button>
       </div>
 
+      <!-- GALLERY: image-forward tiles, packs tight to kill whitespace -->
       <div
-        v-else
-        class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
+        v-else-if="viewMode === 'gallery'"
+        class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+      >
+        <button
+          v-for="record in store.sources"
+          :key="record.id"
+          type="button"
+          class="group flex flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-left transition hover:border-primary hover:shadow-md"
+          @click="store.selectSource(record)"
+        >
+          <div class="grid aspect-square w-full place-items-center overflow-hidden bg-base-200">
+            <img
+              v-if="recordImage(record)"
+              :src="recordImage(record)"
+              :alt="store.sourceLabel(record)"
+              class="h-full w-full object-cover transition group-hover:scale-105"
+              loading="lazy"
+            />
+            <Icon
+              v-else
+              :name="activeType?.icon || 'kind-icon:blueprint'"
+              class="h-7 w-7 text-base-content/25"
+            />
+          </div>
+          <div class="min-w-0 p-2">
+            <span class="block truncate text-xs font-bold text-base-content">
+              {{ store.sourceLabel(record) }}
+            </span>
+            <span class="text-[10px] uppercase tracking-wide text-base-content/35">
+              #{{ record.id }}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      <!-- GRID: horizontal cards, thumbnail + text -->
+      <div
+        v-else-if="viewMode === 'grid'"
+        class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
         <button
           v-for="record in store.sources"
@@ -111,18 +170,83 @@
           </div>
         </button>
       </div>
+
+      <!-- LIST: dense single-column rows for fast scanning -->
+      <div v-else class="flex flex-col gap-1">
+        <button
+          v-for="record in store.sources"
+          :key="record.id"
+          type="button"
+          class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 px-2.5 py-1.5 text-left transition hover:border-primary hover:bg-base-200"
+          @click="store.selectSource(record)"
+        >
+          <div
+            class="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-base-200"
+          >
+            <img
+              v-if="recordImage(record)"
+              :src="recordImage(record)"
+              :alt="store.sourceLabel(record)"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+            <Icon
+              v-else
+              :name="activeType?.icon || 'kind-icon:blueprint'"
+              class="h-4 w-4 text-base-content/30"
+            />
+          </div>
+          <span class="shrink-0 truncate text-sm font-bold text-base-content">
+            {{ store.sourceLabel(record) }}
+          </span>
+          <span
+            v-if="subtitle(record)"
+            class="min-w-0 flex-1 truncate text-xs text-base-content/50"
+          >
+            {{ subtitle(record) }}
+          </span>
+          <span
+            class="ml-auto shrink-0 text-[10px] uppercase tracking-wide text-base-content/35"
+          >
+            #{{ record.id }}
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
 import type { SourceRecord } from '@/stores/modelBuilderStore'
 import { SOURCE_TYPES, getSourceType } from '@/stores/helpers/modelBuilderRecipes'
 
 const store = useModelBuilderStore()
 const sourceTypes = SOURCE_TYPES
+
+type ViewMode = 'gallery' | 'grid' | 'list'
+
+const viewModes: { value: ViewMode; label: string; icon: string }[] = [
+  { value: 'gallery', label: 'Gallery', icon: 'kind-icon:image' },
+  { value: 'grid', label: 'Grid', icon: 'kind-icon:cards' },
+  { value: 'list', label: 'List', icon: 'kind-icon:document' },
+]
+
+const VIEW_STORAGE_KEY = 'model-builder-source-view'
+const viewMode = ref<ViewMode>('grid')
+
+onMounted(() => {
+  const saved = localStorage.getItem(VIEW_STORAGE_KEY)
+  if (saved && viewModes.some((mode) => mode.value === saved)) {
+    viewMode.value = saved as ViewMode
+  }
+})
+
+function setViewMode(mode: ViewMode): void {
+  viewMode.value = mode
+  localStorage.setItem(VIEW_STORAGE_KEY, mode)
+}
 
 const activeType = computed(() =>
   store.sourceType ? getSourceType(store.sourceType) : undefined,

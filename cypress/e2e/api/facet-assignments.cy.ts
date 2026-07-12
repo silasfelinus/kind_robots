@@ -104,9 +104,9 @@ describe('Dream and Scenario Facet assignments', () => {
       }),
     ).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.data.map((facet: { id: number }) => facet.id)).to.deep.eq([
-        facetId,
-      ])
+      expect(
+        response.body.data.map((facet: { id: number }) => facet.id),
+      ).to.deep.eq([facetId])
     })
   })
 
@@ -172,9 +172,9 @@ describe('Dream and Scenario Facet assignments', () => {
         (entry: { id: number }) => entry.id === scenarioId,
       )
       expect(scenario).to.exist
-      expect(scenario.Facets.map((facet: { id: number }) => facet.id)).to.deep.eq([
-        facetId,
-      ])
+      expect(
+        scenario.Facets.map((facet: { id: number }) => facet.id),
+      ).to.deep.eq([facetId])
     })
   })
 
@@ -194,6 +194,47 @@ describe('Dream and Scenario Facet assignments', () => {
       headers: { Authorization: `Bearer ${token}` },
     }).then((response) => {
       expect(response.body.data).to.deep.eq([])
+    })
+  })
+
+  it('updates the Facet in place and keeps alias resolution consistent', () => {
+    const bovineAlias = `bovine-${stamp}`
+
+    cy.request({
+      method: 'PATCH',
+      url: `${apiBase}/facets/${facetId}`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        description: 'Everything cows, updated.',
+        kind: 'THEME',
+        aliases: [cowAlias, bovineAlias],
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.kind).to.eq('THEME')
+      expect(response.body.data.description).to.eq('Everything cows, updated.')
+      expect(response.body.data.aliases).to.include(facetSlug)
+      expect(response.body.data.aliases).to.include(cowAlias)
+      expect(response.body.data.aliases).to.include(bovineAlias)
+      // cowsAlias was omitted from the exact set, so it no longer resolves.
+      expect(response.body.data.aliases).to.not.include(cowsAlias)
+    })
+
+    cy.request({
+      url: `${apiBase}/facets/${encodeURIComponent(bovineAlias)}`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data.id).to.eq(facetId)
+    })
+
+    cy.request({
+      url: `${apiBase}/facets/${encodeURIComponent(cowsAlias)}`,
+      headers: { Authorization: `Bearer ${token}` },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(404)
     })
   })
 

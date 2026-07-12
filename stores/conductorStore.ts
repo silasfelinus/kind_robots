@@ -1,7 +1,8 @@
 // stores/conductorStore.ts
 // Single source of truth for conductor workspace state.
-// Owns the API fetch, localStorage-backed pitch votes and project priorities,
-// and any shared state consumed by conductor-page or future conductor components.
+// Owns the API fetch, localStorage-backed pitch votes, and any shared state
+// consumed by conductor-page or future conductor components. Project records
+// (status, priority, waypoints…) live in projectStore against /api/projects.
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type {
@@ -12,11 +13,9 @@ import type {
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { performFetch } from '@/stores/utils'
 
-export type DreamPriority = 'LOW' | 'NORMAL' | 'HIGH'
 export type PitchVote = 'approved' | 'passed'
 
 const VOTE_KEY = 'kr.workspacePitchVotes'
-const PRIORITY_KEY = 'kr.projectPriorities'
 const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 
@@ -71,7 +70,9 @@ export const useConductorStore = defineStore('conductor', () => {
   const pending = ref(false)
   const error = ref<string | null>(null)
 
-  const liveProjects = computed<ConductorProject[]>(() => data.value?.projects ?? [])
+  const liveProjects = computed<ConductorProject[]>(
+    () => data.value?.projects ?? [],
+  )
   const projects = computed<ConductorProject[]>(() =>
     liveProjects.value.length ? liveProjects.value : fallbackProjects,
   )
@@ -133,25 +134,6 @@ export const useConductorStore = defineStore('conductor', () => {
     lsSet(VOTE_KEY, next)
   }
 
-  // ── Project priorities (localStorage-backed) ──────────────────────────────
-  const localPriorities = ref<Record<number, DreamPriority>>(
-    lsGet<Record<number, DreamPriority>>(PRIORITY_KEY) ?? {},
-  )
-
-  function getProjectPriority(projectId?: number | null): DreamPriority {
-    if (!projectId) return 'NORMAL'
-    return localPriorities.value[projectId] ?? 'NORMAL'
-  }
-
-  async function setProjectPriority(
-    projectId: number,
-    priority: DreamPriority,
-  ): Promise<{ ok: boolean; message?: string }> {
-    localPriorities.value = { ...localPriorities.value, [projectId]: priority }
-    lsSet(PRIORITY_KEY, localPriorities.value)
-    return { ok: true }
-  }
-
   return {
     // API state
     data,
@@ -168,9 +150,5 @@ export const useConductorStore = defineStore('conductor', () => {
     pitchVote,
     voteOnPitch,
     clearVote,
-    // Project priorities
-    localPriorities,
-    getProjectPriority,
-    setProjectPriority,
   }
 })

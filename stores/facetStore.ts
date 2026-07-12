@@ -46,10 +46,8 @@ export type FacetCreateInput = {
   isMature?: boolean
 }
 
-type ApiResult<T> = {
-  success: boolean
-  data?: T
-  message?: string
+export type FacetUpdateInput = Partial<FacetCreateInput> & {
+  isActive?: boolean
 }
 
 function toQuery(options: FacetListOptions): string {
@@ -89,7 +87,7 @@ export const useFacetStore = defineStore('facetStore', () => {
 
   function facetForKey(value?: string | null): FacetWithAliases | null {
     const lookupKey = normalizeFacetLookupKey(value || '')
-    return lookupKey ? facetsByLookupKey.value.get(lookupKey) ?? null : null
+    return lookupKey ? (facetsByLookupKey.value.get(lookupKey) ?? null) : null
   }
 
   function upsertFacet(facet: FacetWithAliases): FacetWithAliases {
@@ -153,6 +151,53 @@ export const useFacetStore = defineStore('facetStore', () => {
       })
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create Facet.')
+      }
+      return upsertFacet(response.data)
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause.message : String(cause)
+      throw cause
+    } finally {
+      saving.value = false
+    }
+  }
+
+  async function updateFacet(
+    id: number,
+    input: FacetUpdateInput,
+  ): Promise<FacetWithAliases> {
+    saving.value = true
+    error.value = null
+    try {
+      const response = await performFetch<FacetWithAliases>(
+        `/api/facets/${id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+        },
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update Facet.')
+      }
+      return upsertFacet(response.data)
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause.message : String(cause)
+      throw cause
+    } finally {
+      saving.value = false
+    }
+  }
+
+  async function archiveFacet(id: number): Promise<FacetWithAliases> {
+    saving.value = true
+    error.value = null
+    try {
+      const response = await performFetch<FacetWithAliases>(
+        `/api/facets/${id}`,
+        { method: 'DELETE' },
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to archive Facet.')
       }
       return upsertFacet(response.data)
     } catch (cause) {
@@ -246,6 +291,8 @@ export const useFacetStore = defineStore('facetStore', () => {
     fetchFacets,
     resolveFacet,
     createFacet,
+    updateFacet,
+    archiveFacet,
     fetchDreamFacets,
     setDreamFacets,
     fetchScenarioFacets,

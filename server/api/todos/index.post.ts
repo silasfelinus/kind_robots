@@ -5,7 +5,12 @@ import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 
 const todoPriorities = ['LOW', 'NORMAL', 'HIGH'] as const
-const todoCategories = ['AGENT', 'KAIZEN', 'HONEYDO', 'DESIRED_FEATURE'] as const
+const todoCategories = [
+  'AGENT',
+  'KAIZEN',
+  'HONEYDO',
+  'DESIRED_FEATURE',
+] as const
 
 type TodoPriorityValue = (typeof todoPriorities)[number]
 type TodoCategoryValue = (typeof todoCategories)[number]
@@ -28,7 +33,10 @@ function normalizeDueDate(value?: string | null): Date | null {
 
   const dueDate = new Date(value)
   if (Number.isNaN(dueDate.getTime())) {
-    throw createError({ statusCode: 400, message: 'dueDate must be a valid date' })
+    throw createError({
+      statusCode: 400,
+      message: 'dueDate must be a valid date',
+    })
   }
 
   return dueDate
@@ -80,6 +88,24 @@ export default defineEventHandler(async (event) => {
         throw createError({
           statusCode: 403,
           message: 'You do not have permission to add Todos to this Project.',
+        })
+      }
+    }
+
+    if (dreamId) {
+      const dream = await prisma.dream.findUnique({
+        where: { id: dreamId },
+        select: { userId: true },
+      })
+
+      if (!dream) {
+        throw createError({ statusCode: 404, message: 'Dream not found.' })
+      }
+
+      if (auth.user.Role !== 'ADMIN' && dream.userId !== userId) {
+        throw createError({
+          statusCode: 403,
+          message: 'You do not have permission to add Todos to this Dream.',
         })
       }
     }

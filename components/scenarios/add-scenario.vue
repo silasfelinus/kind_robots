@@ -96,12 +96,14 @@
         <details
           class="rounded-2xl border border-base-300 bg-base-100 p-4 lg:col-span-2"
         >
-          <summary class="cursor-pointer text-sm font-bold text-base-content/60">
-            Legacy genre compatibility
+          <summary
+            class="cursor-pointer text-sm font-bold text-base-content/60"
+          >
+            Freeform genre tags
           </summary>
           <p class="mt-2 text-xs text-base-content/50">
-            Existing Genre Dream links remain available during the Facet migration.
-            New reusable genre data should be added as Facets above.
+            Quick comma-separated genre tags stored on this scenario. For
+            reusable genre data shared across scenarios, add Facets above.
           </p>
           <div class="mt-3">
             <choice-manager label="genre" model="Scenario" />

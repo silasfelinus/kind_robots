@@ -23,6 +23,8 @@ type DreamAccessInput = {
 export const dreamTypes: DreamType[] = [
   'ART',
   'BRAINSTORM',
+  'PROMPTBOT',
+  'NARRATOR',
   'CHARACTER',
   'REWARD',
   'SCENARIO',

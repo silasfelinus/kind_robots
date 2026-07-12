@@ -113,6 +113,13 @@
       <code-workbench class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
+    <section
+      v-else-if="activeTab === 'artjob'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <artjob-manager class="h-full min-h-0 flex-1 overflow-hidden" />
+    </section>
+
     <div
       v-else
       class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
@@ -139,6 +146,7 @@ type ArtTab =
   | 'coloring'
   | 'workbench'
   | 'art-test'
+  | 'artjob'
 
 type LegacyArtTab = ArtTab | 'upload'
 
@@ -160,6 +168,7 @@ const validTabs: LegacyArtTab[] = [
   'coloring',
   'workbench',
   'art-test',
+  'artjob',
 ]
 
 const isLoadingManager = ref(false)

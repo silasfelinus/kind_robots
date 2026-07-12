@@ -1,12 +1,12 @@
 // /server/api/server/health/[id].patch.ts
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
-import prisma from './../../../utils/prisma'
 import { errorHandler } from './../../../utils/error'
 import {
   canReadServer,
   getOptionalAuthUser,
   parseId,
   readServerById,
+  recordServerHealthCheck,
 } from './../../../utils/serverApi'
 
 type BrowserHealthReport = {
@@ -33,13 +33,18 @@ export default defineEventHandler(async (event) => {
 
     const body = (await readBody(event)) as BrowserHealthReport
     const ok = Boolean(body.ok)
+    const checkedAt = new Date()
+    const lastStatus = ok ? 'ONLINE' : 'OFFLINE'
 
-    const updatedServer = await prisma.server.update({
-      where: { id },
-      data: {
-        lastCheckedAt: new Date(),
-        lastStatus: ok ? 'ONLINE' : 'OFFLINE',
-      },
+    // Refresh the point-in-time status AND append a history row so the browser
+    // check contributes to the uptime chart.
+    await recordServerHealthCheck({
+      serverId: id,
+      ok,
+      latencyMs: typeof body.latencyMs === 'number' ? body.latencyMs : null,
+      source: 'browser',
+      note: ok ? null : (body.message ?? null),
+      checkedAt,
     })
 
     return {
@@ -48,10 +53,10 @@ export default defineEventHandler(async (event) => {
         ? 'Browser health report saved.'
         : body.message || 'Browser health report saved as offline.',
       data: {
-        id: updatedServer.id,
-        title: updatedServer.title,
-        lastCheckedAt: updatedServer.lastCheckedAt,
-        lastStatus: updatedServer.lastStatus,
+        id: server.id,
+        title: server.title,
+        lastCheckedAt: checkedAt,
+        lastStatus,
         ok,
         status: typeof body.status === 'number' ? body.status : 0,
         statusText:

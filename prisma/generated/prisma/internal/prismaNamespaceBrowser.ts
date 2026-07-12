@@ -90,6 +90,7 @@ export const ModelName = {
   Reward: 'Reward',
   Scenario: 'Scenario',
   Server: 'Server',
+  ServerHealthCheck: 'ServerHealthCheck',
   SmartIcon: 'SmartIcon',
   SocialPost: 'SocialPost',
   SocialTarget: 'SocialTarget',
@@ -1017,6 +1018,21 @@ export const ServerScalarFieldEnum = {
 } as const
 
 export type ServerScalarFieldEnum = (typeof ServerScalarFieldEnum)[keyof typeof ServerScalarFieldEnum]
+
+
+export const ServerHealthCheckScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  serverId: 'serverId',
+  checkedAt: 'checkedAt',
+  status: 'status',
+  ok: 'ok',
+  latencyMs: 'latencyMs',
+  source: 'source',
+  note: 'note'
+} as const
+
+export type ServerHealthCheckScalarFieldEnum = (typeof ServerHealthCheckScalarFieldEnum)[keyof typeof ServerHealthCheckScalarFieldEnum]
 
 
 export const SmartIconScalarFieldEnum = {
@@ -1977,6 +1993,14 @@ export const ServerOrderByRelevanceFieldEnum = {
 } as const
 
 export type ServerOrderByRelevanceFieldEnum = (typeof ServerOrderByRelevanceFieldEnum)[keyof typeof ServerOrderByRelevanceFieldEnum]
+
+
+export const ServerHealthCheckOrderByRelevanceFieldEnum = {
+  source: 'source',
+  note: 'note'
+} as const
+
+export type ServerHealthCheckOrderByRelevanceFieldEnum = (typeof ServerHealthCheckOrderByRelevanceFieldEnum)[keyof typeof ServerHealthCheckOrderByRelevanceFieldEnum]
 
 
 export const SmartIconOrderByRelevanceFieldEnum = {

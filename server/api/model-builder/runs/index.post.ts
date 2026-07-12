@@ -16,6 +16,9 @@ type RunItemInput = {
   generation?: unknown
   quantityIndex?: unknown
   stageStatuses?: unknown
+  pitch?: unknown
+  fieldsDraft?: unknown
+  promptDraft?: unknown
 }
 
 type RunCreateBody = {
@@ -80,6 +83,9 @@ export default defineEventHandler(async (event) => {
           ? (item.stageStatuses as Prisma.InputJsonValue)
           : ({} as Prisma.InputJsonValue)
 
+      const text = (value: unknown): string | null =>
+        typeof value === 'string' && value.trim() ? value : null
+
       return {
         outputKey,
         label:
@@ -92,6 +98,9 @@ export default defineEventHandler(async (event) => {
             ? Number(item.quantityIndex)
             : 0,
         stageStatuses,
+        pitch: text(item.pitch),
+        fieldsDraft: text(item.fieldsDraft),
+        promptDraft: text(item.promptDraft),
       }
     })
 

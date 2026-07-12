@@ -4,12 +4,15 @@
     <div
       class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
     >
-      <div class="relative aspect-4/3 overflow-hidden bg-base-300">
+      <div
+        class="relative overflow-hidden bg-base-300"
+        :class="{ 'aspect-4/3': !imagePath }"
+      >
         <img
           v-if="imagePath"
           :src="imagePath"
           :alt="title"
-          class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+          class="block h-auto w-full transition-transform duration-500 hover:scale-105"
         />
 
         <div

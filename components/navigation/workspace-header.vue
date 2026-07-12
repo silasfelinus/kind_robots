@@ -67,7 +67,9 @@
               {{ shellTitle }}
             </span>
 
-            <span class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg">
+            <span
+              class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg"
+            >
               {{ activeTitle }}
             </span>
           </span>
@@ -114,7 +116,9 @@
               </span>
 
               <span class="flex min-w-0 flex-col items-start">
-                <span class="max-w-full truncate text-sm font-black xl:text-base">
+                <span
+                  class="max-w-full truncate text-sm font-black xl:text-base"
+                >
                   {{ tab.label }}
                 </span>
 
@@ -141,12 +145,16 @@
           {{ shellTitle }}
         </p>
 
-        <h1 class="truncate text-sm font-black text-base-content sm:text-base xl:text-xl">
+        <h1
+          class="truncate text-sm font-black text-base-content sm:text-base xl:text-xl"
+        >
           {{ activeTitle }}
         </h1>
       </section>
 
-      <section class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5">
+      <section
+        class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5"
+      >
         <server-selector class="header-control-item min-w-0" />
         <login-switcher class="header-control-item min-w-0" />
         <mana-widget class="shrink-0" />
@@ -157,7 +165,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   isDashboardKey,
   type DashboardKey,
@@ -171,6 +179,7 @@ const fallbackIcon = 'kind-icon:sparkles'
 const navStore = useNavStore()
 const pageStore = usePageStore()
 const router = useRouter()
+const route = useRoute()
 
 const shellTitle = computed(
   () => pageStore.room || pageStore.title || 'Kind Robots',
@@ -289,6 +298,14 @@ watch(
 
 function selectTabFromDropdown(tabKey: string): void {
   setTab(tabKey)
+
+  // When a tab lives on its own route (a project page stitched into this
+  // channel), navigate there. Tabs that share the current channel route keep
+  // rendering inline via the channel manager, so behavior is unchanged for them.
+  const tab = resolvedTabs.value.find((entry) => entry.key === tabKey)
+  if (tab?.route && tab.route !== route.path) {
+    router.push(tab.route)
+  }
 
   if (typeof document !== 'undefined') {
     const el = document.activeElement as HTMLElement | null

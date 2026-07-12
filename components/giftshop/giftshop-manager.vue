@@ -153,6 +153,8 @@ const swarmMemo = computed(() => {
     forum:
       'Forum open. The butterflies are moderating discourse with tiny clipboards and unreasonable confidence.',
     mana: 'Wallet open. The butterflies audit every mana transaction with tiny green visors and zero chill.',
+    mermaids:
+      'Lagoon open. The butterflies are rowing Silas’s novel out to the tide, guarding the one paragraph of AI like it owes them money.',
   }
 
   return messages[activeTab.value]

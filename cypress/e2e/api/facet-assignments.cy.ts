@@ -52,13 +52,16 @@ describe('Dream and Scenario Facet assignments', () => {
     ]
 
     keys.forEach((key) => {
-      cy.request(`${apiBase}/facets/${encodeURIComponent(key)}`).then(
-        (response) => {
-          expect(response.status).to.eq(200)
-          expect(response.body.success).to.be.true
-          expect(response.body.data.id).to.eq(facetId)
-        },
-      )
+      // The Facet is created isPublic: false, so lookups must authenticate
+      // as its owner or the visibility check answers 404.
+      cy.request({
+        url: `${apiBase}/facets/${encodeURIComponent(key)}`,
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body.success).to.be.true
+        expect(response.body.data.id).to.eq(facetId)
+      })
     })
   })
 

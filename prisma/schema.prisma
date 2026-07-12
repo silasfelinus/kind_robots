@@ -1014,7 +1014,11 @@ model Prompt {
   isActive       Boolean        @default(true)
   artPrompt      String?        @db.Text
   imagePath      String?        @db.VarChar(764)
-  // Art queue fields
+  // DEPRECATED art queue fields — superseded by the durable ArtJob model.
+  // Generation now flows through ArtJob (see /api/art/enqueue + the relay);
+  // these columns are no longer written. Pending rows were migrated to ArtJob
+  // by utils/scripts/migratePromptsToArtJobs.ts. Kept for history until a
+  // follow-up migration drops them (and the ArtStatus enum).
   serverId       Int?
   artStatus      ArtStatus?
   batchId        String?
@@ -1903,6 +1907,9 @@ model Todo {
   @@index([projectId])
 }
 
+/// DEPRECATED — legacy state machine for the bolted-on Prompt art queue.
+/// Superseded by ArtJobStatus on the durable ArtJob model. Retained only until
+/// the Prompt.artStatus column is dropped in a follow-up migration.
 enum ArtStatus {
   PENDING
   QUEUED

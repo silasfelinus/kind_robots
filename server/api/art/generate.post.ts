@@ -1,4 +1,11 @@
 // /server/api/art/generate.post.ts
+//
+// Direct/relay-only synchronous A1111 txt2img render. This dials the render
+// server inline and returns a finished ArtImage, so it only works from a
+// caller that can reach the GPU box (the home relay agent, or an on-tailnet
+// tool). The browser art flow no longer calls this — it enqueues via
+// /api/art/enqueue and the relay drains the queue. Kept as the relay's
+// execution surface; do not wire new browser callers to it.
 import { createError, defineEventHandler, readBody } from 'h3'
 import type { H3Event } from 'h3'
 import { requireMachineUser } from '../../utils/authGuard'

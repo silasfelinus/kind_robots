@@ -1,4 +1,9 @@
 // /server/api/comfy/kontext/generate.post.ts
+//
+// Direct/relay-only synchronous Flux Kontext render. Dials the Comfy server
+// inline, so it only works from a caller on the home tailnet. The browser
+// enqueues via /api/art/enqueue (engine "kontext"), which reuses the shared
+// Kontext workflow builder (./utils/workflow.ts).
 import { createError, defineEventHandler, readBody } from 'h3'
 import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'

@@ -4,7 +4,7 @@
 //   - ArtCollection.slug  ← slugified label (curated collections only by default)
 //   - Scenario.slug       ← slugified title
 //   - Resource.slug       ← slugified customLabel, falling back to name
-//   - Milestone.triggerCode is backfilled by the migration itself.
+//   - Achievement.triggerCode is backfilled by the migration itself.
 //
 // Slugs are optional, so collisions are skipped rather than suffixed — the
 // first record wins and the rest stay unslugged for a human to resolve.

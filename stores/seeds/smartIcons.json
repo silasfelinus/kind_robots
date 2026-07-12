@@ -126,13 +126,13 @@
     "modelType": "user"
   },
   {
-    "title": "Milestones",
+    "title": "Achievements",
     "type": "directory",
     "userId": 10,
     "designer": "content-seeder",
     "icon": "kind-icon:jellybean",
     "label": "Jellybean Quests Gallery",
-    "link": "/milestones",
+    "link": "/achievements",
     "component": "dashboard-nav",
     "isPublic": true,
     "description": "Ready for a hunt? Find all 11 jellybeans hidden across the site.",

@@ -94,11 +94,11 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'milestones'"
+      v-else-if="activeTab === 'achievements'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
     >
       <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-        <milestone-gallery />
+        <achievement-gallery />
       </div>
     </section>
 

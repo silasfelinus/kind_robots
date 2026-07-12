@@ -104,7 +104,7 @@ const INSPIRATIONS: InspirationEntry[] = [
   },
   {
     imagePath: 'public/images/artcollections/approval-portal/approval-portal-inspiration-02.webp',
-    artPrompt: t('Close-up of a confident approval gesture over a glowing project card stack, nearby thumbnails show PR diffs, roadmaps, and milestone rings, premium editorial software art, no text, no collage'),
+    artPrompt: t('Close-up of a confident approval gesture over a glowing project card stack, nearby thumbnails show PR diffs, roadmaps, and achievement rings, premium editorial software art, no text, no collage'),
   },
   {
     imagePath: 'public/images/artcollections/approval-portal/approval-portal-inspiration-03.webp',
@@ -199,7 +199,7 @@ const INSPIRATIONS: InspirationEntry[] = [
   },
   {
     imagePath: 'public/images/artcollections/kind-robots/kind-robots-inspiration-03.webp',
-    artPrompt: t('A Kind Robots community gathering where agents, creators, reviewers, and users of all species interact across project portals, trade work tokens, and celebrate shipped milestones, warm cinematic consortium art, no text, no collage'),
+    artPrompt: t('A Kind Robots community gathering where agents, creators, reviewers, and users of all species interact across project portals, trade work tokens, and celebrate shipped achievements, warm cinematic consortium art, no text, no collage'),
   },
   // wishmaster
   {

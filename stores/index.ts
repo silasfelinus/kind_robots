@@ -48,9 +48,9 @@ export const loadErrorStore = async () => {
   return useErrorStore()
 }
 
-export const loadMilestoneStore = async () => {
-  const { useMilestoneStore } = await import('@/stores/milestoneStore')
-  return useMilestoneStore()
+export const loadAchievementStore = async () => {
+  const { useAchievementStore } = await import('@/stores/achievementStore')
+  return useAchievementStore()
 }
 
 export const loadReactionStore = async () => {

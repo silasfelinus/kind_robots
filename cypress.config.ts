@@ -73,7 +73,7 @@ const sweepTargets: SweepTarget[] = [
   { label: 'servers', path: '/server' },
   { label: 'components', path: '/components' },
   { label: 'reactions', path: '/reactions' },
-  { label: 'milestones', path: '/milestones' },
+  { label: 'achievements', path: '/achievements' },
 ]
 
 const cypressFixturePattern = /cypress|relationship-\d+|reaction-fixture-|pancake-sunrise-collection|justfortesting|Bad-Server-/i

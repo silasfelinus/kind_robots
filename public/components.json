@@ -184,14 +184,14 @@
     ]
   },
   {
-    "folderName": "milestones",
+    "folderName": "achievements",
     "components": [
-      "earned-milestone-card",
-      "locked-milestones",
-      "milestone-gallery",
-      "milestone-leaderboard",
-      "milestone-popup",
-      "unearned-milestone-card"
+      "earned-achievement-card",
+      "locked-achievements",
+      "achievement-gallery",
+      "achievement-leaderboard",
+      "achievement-popup",
+      "unearned-achievement-card"
     ]
   },
   {
@@ -227,7 +227,6 @@
       "conductor-overview-gallery-page",
       "conductor-page",
       "conductor-project-chat",
-      "conductor-project-waypoints",
       "kaizen-popup",
       "kind-prompts",
       "match-leaderboard",

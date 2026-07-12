@@ -456,7 +456,6 @@ const projectCatalog = computed<ProjectSearchRecord[]>(() => {
         project.flavorText,
         project.pitch,
         project.goal,
-        project.waypoints,
       ]
         .filter(Boolean)
         .join(' '),

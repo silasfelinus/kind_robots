@@ -222,9 +222,9 @@ const SNAPSHOTS: SnapshotSpec[] = [
     ),
   },
   {
-    // Milestones have no isPublic flag — every row is a game definition
-    key: 'milestones',
-    delegate: 'milestone',
+    // Achievements have no isPublic flag — every row is a game definition
+    key: 'achievements',
+    delegate: 'achievement',
     cap: 500,
     select: fields(
       'id',

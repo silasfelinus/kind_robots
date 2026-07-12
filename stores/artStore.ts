@@ -448,7 +448,7 @@ export const useArtStore = defineStore('artStore', () => {
       return (
         !record.botId &&
         !record.componentId &&
-        !record.milestoneId &&
+        !record.achievementId &&
         !record.resourceId &&
         !record.rewardId &&
         !record.chatId &&

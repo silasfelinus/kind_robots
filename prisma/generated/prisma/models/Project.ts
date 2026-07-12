@@ -53,7 +53,6 @@ export type ProjectMinAggregateOutputType = {
   pitch: string | null
   flavorText: string | null
   goal: string | null
-  waypoints: string | null
   status: $Enums.ProjectStatus | null
   priority: $Enums.ProjectPriority | null
   conductorSlug: string | null
@@ -89,7 +88,6 @@ export type ProjectMaxAggregateOutputType = {
   pitch: string | null
   flavorText: string | null
   goal: string | null
-  waypoints: string | null
   status: $Enums.ProjectStatus | null
   priority: $Enums.ProjectPriority | null
   conductorSlug: string | null
@@ -125,7 +123,6 @@ export type ProjectCountAggregateOutputType = {
   pitch: number
   flavorText: number
   goal: number
-  waypoints: number
   status: number
   priority: number
   conductorSlug: number
@@ -179,7 +176,6 @@ export type ProjectMinAggregateInputType = {
   pitch?: true
   flavorText?: true
   goal?: true
-  waypoints?: true
   status?: true
   priority?: true
   conductorSlug?: true
@@ -215,7 +211,6 @@ export type ProjectMaxAggregateInputType = {
   pitch?: true
   flavorText?: true
   goal?: true
-  waypoints?: true
   status?: true
   priority?: true
   conductorSlug?: true
@@ -251,7 +246,6 @@ export type ProjectCountAggregateInputType = {
   pitch?: true
   flavorText?: true
   goal?: true
-  waypoints?: true
   status?: true
   priority?: true
   conductorSlug?: true
@@ -374,7 +368,6 @@ export type ProjectGroupByOutputType = {
   pitch: string | null
   flavorText: string | null
   goal: string | null
-  waypoints: string | null
   status: $Enums.ProjectStatus
   priority: $Enums.ProjectPriority
   conductorSlug: string | null
@@ -433,7 +426,6 @@ export type ProjectWhereInput = {
   pitch?: Prisma.StringNullableFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
-  waypoints?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFilter<"Project"> | $Enums.ProjectPriority
   conductorSlug?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -480,7 +472,6 @@ export type ProjectOrderByWithRelationInput = {
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   flavorText?: Prisma.SortOrderInput | Prisma.SortOrder
   goal?: Prisma.SortOrderInput | Prisma.SortOrder
-  waypoints?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   conductorSlug?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -532,7 +523,6 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   pitch?: Prisma.StringNullableFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
-  waypoints?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFilter<"Project"> | $Enums.ProjectPriority
   repoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -578,7 +568,6 @@ export type ProjectOrderByWithAggregationInput = {
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   flavorText?: Prisma.SortOrderInput | Prisma.SortOrder
   goal?: Prisma.SortOrderInput | Prisma.SortOrder
-  waypoints?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   conductorSlug?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -622,7 +611,6 @@ export type ProjectScalarWhereWithAggregatesInput = {
   pitch?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   goal?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
-  waypoints?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusWithAggregatesFilter<"Project"> | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityWithAggregatesFilter<"Project"> | $Enums.ProjectPriority
   conductorSlug?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
@@ -657,7 +645,6 @@ export type ProjectCreateInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -700,7 +687,6 @@ export type ProjectUncheckedCreateInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -742,7 +728,6 @@ export type ProjectUpdateInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -785,7 +770,6 @@ export type ProjectUncheckedUpdateInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -828,7 +812,6 @@ export type ProjectCreateManyInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -863,7 +846,6 @@ export type ProjectUpdateManyMutationInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -895,7 +877,6 @@ export type ProjectUncheckedUpdateManyInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -952,7 +933,6 @@ export type ProjectCountOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   flavorText?: Prisma.SortOrder
   goal?: Prisma.SortOrder
-  waypoints?: Prisma.SortOrder
   status?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   conductorSlug?: Prisma.SortOrder
@@ -996,7 +976,6 @@ export type ProjectMaxOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   flavorText?: Prisma.SortOrder
   goal?: Prisma.SortOrder
-  waypoints?: Prisma.SortOrder
   status?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   conductorSlug?: Prisma.SortOrder
@@ -1032,7 +1011,6 @@ export type ProjectMinOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   flavorText?: Prisma.SortOrder
   goal?: Prisma.SortOrder
-  waypoints?: Prisma.SortOrder
   status?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   conductorSlug?: Prisma.SortOrder
@@ -1364,7 +1342,6 @@ export type ProjectCreateWithoutArtImageInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1406,7 +1383,6 @@ export type ProjectUncheckedCreateWithoutArtImageInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1477,7 +1453,6 @@ export type ProjectScalarWhereInput = {
   pitch?: Prisma.StringNullableFilter<"Project"> | string | null
   flavorText?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
-  waypoints?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFilter<"Project"> | $Enums.ProjectPriority
   conductorSlug?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -1512,7 +1487,6 @@ export type ProjectCreateWithoutArtCollectionInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1554,7 +1528,6 @@ export type ProjectUncheckedCreateWithoutArtCollectionInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1621,7 +1594,6 @@ export type ProjectCreateWithoutManagerInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1663,7 +1635,6 @@ export type ProjectUncheckedCreateWithoutManagerInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1730,7 +1701,6 @@ export type ProjectCreateWithoutChatsInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1772,7 +1742,6 @@ export type ProjectUncheckedCreateWithoutChatsInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1829,7 +1798,6 @@ export type ProjectUpdateWithoutChatsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1871,7 +1839,6 @@ export type ProjectUncheckedUpdateWithoutChatsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1912,7 +1879,6 @@ export type ProjectCreateWithoutArtImageLinksInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -1954,7 +1920,6 @@ export type ProjectUncheckedCreateWithoutArtImageLinksInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2011,7 +1976,6 @@ export type ProjectUpdateWithoutArtImageLinksInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2053,7 +2017,6 @@ export type ProjectUncheckedUpdateWithoutArtImageLinksInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2094,7 +2057,6 @@ export type ProjectCreateWithoutArtCollectionLinksInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2136,7 +2098,6 @@ export type ProjectUncheckedCreateWithoutArtCollectionLinksInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2193,7 +2154,6 @@ export type ProjectUpdateWithoutArtCollectionLinksInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2235,7 +2195,6 @@ export type ProjectUncheckedUpdateWithoutArtCollectionLinksInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2276,7 +2235,6 @@ export type ProjectCreateWithoutPitchSheetInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2318,7 +2276,6 @@ export type ProjectUncheckedCreateWithoutPitchSheetInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2375,7 +2332,6 @@ export type ProjectUpdateWithoutPitchSheetInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2417,7 +2373,6 @@ export type ProjectUncheckedUpdateWithoutPitchSheetInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2458,7 +2413,6 @@ export type ProjectCreateWithoutReactionsInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2500,7 +2454,6 @@ export type ProjectUncheckedCreateWithoutReactionsInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2557,7 +2510,6 @@ export type ProjectUpdateWithoutReactionsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2599,7 +2551,6 @@ export type ProjectUncheckedUpdateWithoutReactionsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2640,7 +2591,6 @@ export type ProjectCreateWithoutUserInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2682,7 +2632,6 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2749,7 +2698,6 @@ export type ProjectCreateWithoutArtJobsInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2791,7 +2739,6 @@ export type ProjectUncheckedCreateWithoutArtJobsInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2848,7 +2795,6 @@ export type ProjectUpdateWithoutArtJobsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2890,7 +2836,6 @@ export type ProjectUncheckedUpdateWithoutArtJobsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2931,7 +2876,6 @@ export type ProjectCreateWithoutTodosInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -2973,7 +2917,6 @@ export type ProjectUncheckedCreateWithoutTodosInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -3030,7 +2973,6 @@ export type ProjectUpdateWithoutTodosInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3072,7 +3014,6 @@ export type ProjectUncheckedUpdateWithoutTodosInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3114,7 +3055,6 @@ export type ProjectCreateManyArtImageInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -3148,7 +3088,6 @@ export type ProjectUpdateWithoutArtImageInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3190,7 +3129,6 @@ export type ProjectUncheckedUpdateWithoutArtImageInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3232,7 +3170,6 @@ export type ProjectUncheckedUpdateManyWithoutArtImageInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3267,7 +3204,6 @@ export type ProjectCreateManyArtCollectionInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -3301,7 +3237,6 @@ export type ProjectUpdateWithoutArtCollectionInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3343,7 +3278,6 @@ export type ProjectUncheckedUpdateWithoutArtCollectionInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3385,7 +3319,6 @@ export type ProjectUncheckedUpdateManyWithoutArtCollectionInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3420,7 +3353,6 @@ export type ProjectCreateManyManagerInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -3454,7 +3386,6 @@ export type ProjectUpdateWithoutManagerInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3496,7 +3427,6 @@ export type ProjectUncheckedUpdateWithoutManagerInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3538,7 +3468,6 @@ export type ProjectUncheckedUpdateManyWithoutManagerInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3573,7 +3502,6 @@ export type ProjectCreateManyUserInput = {
   pitch?: string | null
   flavorText?: string | null
   goal?: string | null
-  waypoints?: string | null
   status?: $Enums.ProjectStatus
   priority?: $Enums.ProjectPriority
   conductorSlug?: string | null
@@ -3607,7 +3535,6 @@ export type ProjectUpdateWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3649,7 +3576,6 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3691,7 +3617,6 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  waypoints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   priority?: Prisma.EnumProjectPriorityFieldUpdateOperationsInput | $Enums.ProjectPriority
   conductorSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3802,7 +3727,6 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   pitch?: boolean
   flavorText?: boolean
   goal?: boolean
-  waypoints?: boolean
   status?: boolean
   priority?: boolean
   conductorSlug?: boolean
@@ -3852,7 +3776,6 @@ export type ProjectSelectScalar = {
   pitch?: boolean
   flavorText?: boolean
   goal?: boolean
-  waypoints?: boolean
   status?: boolean
   priority?: boolean
   conductorSlug?: boolean
@@ -3878,7 +3801,7 @@ export type ProjectSelectScalar = {
   isActive?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "waypoints" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.Project$UserArgs<ExtArgs>
   Manager?: boolean | Prisma.Project$ManagerArgs<ExtArgs>
@@ -3919,7 +3842,6 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     pitch: string | null
     flavorText: string | null
     goal: string | null
-    waypoints: string | null
     status: $Enums.ProjectStatus
     priority: $Enums.ProjectPriority
     conductorSlug: string | null
@@ -4332,7 +4254,6 @@ export interface ProjectFieldRefs {
   readonly pitch: Prisma.FieldRef<"Project", 'String'>
   readonly flavorText: Prisma.FieldRef<"Project", 'String'>
   readonly goal: Prisma.FieldRef<"Project", 'String'>
-  readonly waypoints: Prisma.FieldRef<"Project", 'String'>
   readonly status: Prisma.FieldRef<"Project", 'ProjectStatus'>
   readonly priority: Prisma.FieldRef<"Project", 'ProjectPriority'>
   readonly conductorSlug: Prisma.FieldRef<"Project", 'String'>

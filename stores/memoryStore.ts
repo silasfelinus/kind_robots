@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue'
 import confetti from 'canvas-confetti'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useDisplayStore } from './displayStore'
-import { useMilestoneStore } from './milestoneStore'
+import { useAchievementStore } from './achievementStore'
 import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
@@ -243,7 +243,7 @@ function createId(prefix: string): string {
 
 export const useMemoryStore = defineStore('memoryStore', () => {
   const userStore = useUserStore()
-  const milestoneStore = useMilestoneStore()
+  const achievementStore = useAchievementStore()
   const displayStore = useDisplayStore()
   const promptStore = usePromptStore()
   const artStore = useArtStore()
@@ -748,14 +748,14 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     updateHighScore()
 
     try {
-      await milestoneStore.initialize()
+      await achievementStore.initialize()
 
       if (score.value > matchRecord.value) {
-        await milestoneStore.updateMatchRecord(score.value)
+        await achievementStore.updateMatchRecord(score.value)
       }
 
       if (score.value >= 50) {
-        await milestoneStore.rewardMilestone(5)
+        await achievementStore.rewardAchievement(5)
       }
     } catch (error) {
       handleError(error, 'updating memory dungeon score')

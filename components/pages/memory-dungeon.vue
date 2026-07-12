@@ -493,7 +493,7 @@
 
 <script setup lang="ts">
 import { useMemoryStore } from '@/stores/memoryStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import {
   computed,
   nextTick,
@@ -557,7 +557,7 @@ type MemoryStoreWithFlexibleReset = typeof memoryStore & {
 }
 
 const memoryStore = useMemoryStore()
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 
 const STARTING_MAX_LIVES = 3
 const MAX_POSSIBLE_LIVES = 8
@@ -844,7 +844,7 @@ const boardGridStyle = computed<CSSProperties>(() => ({
   gap: `${boardGap.value}px`,
 }))
 
-const leaderboard = computed(() => milestoneStore.highMatchScores)
+const leaderboard = computed(() => achievementStore.highMatchScores)
 
 const galleryCards = computed(() => memoryStore.galleryImages as DungeonCard[])
 
@@ -1444,8 +1444,8 @@ function usePowerup(powerup: Powerup) {
 }
 
 onMounted(async () => {
-  if (!milestoneStore.highMatchScores.length) {
-    await milestoneStore.fetchHighMatchScores()
+  if (!achievementStore.highMatchScores.length) {
+    await achievementStore.fetchHighMatchScores()
   }
 
   await artStore.initialize({

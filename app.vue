@@ -24,7 +24,7 @@
       <animation-layer />
       <butterfly-layer class="pointer-events-none fixed inset-0 z-60" />
       <fx-clear-all />
-      <milestone-popup />
+      <achievement-popup />
     </ClientOnly>
 
     <section

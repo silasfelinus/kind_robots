@@ -1522,16 +1522,8 @@
             />
           </div>
 
-          <!-- WAYPOINTS + PROJECT ASSISTANT -->
-          <div
-            v-if="linkedProject"
-            class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
-          >
-            <ConductorProjectWaypoints
-              :project-id="linkedProject.id"
-              :project-title="linkedProject.title || selectedProject.slug"
-              :waypoints="linkedProject.waypoints"
-            />
+          <!-- PROJECT ASSISTANT -->
+          <div v-if="linkedProject" class="shrink-0">
             <ConductorProjectChat
               :project-id="linkedProject.id"
               :project-title="linkedProject.title || selectedProject.slug"
@@ -1942,7 +1934,6 @@ import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import ConductorArtGallery from '@/components/pages/conductor-art-gallery.vue'
-import ConductorProjectWaypoints from '@/components/pages/conductor-project-waypoints.vue'
 import ConductorProjectChat from '@/components/pages/conductor-project-chat.vue'
 import KaizenPopup from '@/components/pages/kaizen-popup.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
@@ -2211,8 +2202,12 @@ const projectContextText = computed(() => {
   if (record.goal) lines.push(`Goal (100% looks like): ${record.goal}`)
   if (record.pitch) lines.push(`Pitch: ${record.pitch}`)
   if (record.description) lines.push(`Description: ${record.description}`)
-  if (record.waypoints)
-    lines.push(`Waypoints (✓ = done, ~ = in progress): ${record.waypoints}`)
+  if (project.milestones.length)
+    lines.push(
+      `Milestones: ${project.milestones
+        .map((milestone) => `${milestone.title} (${milestone.status})`)
+        .join('; ')}`,
+    )
   if (project.notesFromSilas)
     lines.push(`Notes from Silas: ${project.notesFromSilas}`)
 

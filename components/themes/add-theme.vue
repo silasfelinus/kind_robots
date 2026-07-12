@@ -221,10 +221,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
 const themeStore = useThemeStore()
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 
 const themeError = ref('')
 const isSaving = ref(false)
@@ -328,7 +328,7 @@ async function applyBuiltInTheme(theme: string) {
     : result.message || 'Failed to apply theme'
 
   if (result.success) {
-    milestoneStore.rewardMilestone(9)
+    achievementStore.rewardAchievement(9)
   }
 }
 
@@ -350,7 +350,7 @@ async function applySharedTheme(theme: Theme) {
     : result.message || 'Failed to apply theme'
 
   if (result.success) {
-    milestoneStore.rewardMilestone(9)
+    achievementStore.rewardAchievement(9)
   }
 }
 
@@ -381,7 +381,7 @@ async function applyPreviewTheme() {
       : result.message || 'Failed to preview theme'
 
     if (result.success) {
-      milestoneStore.rewardMilestone(9)
+      achievementStore.rewardAchievement(9)
     }
   } catch (error: unknown) {
     themeError.value =
@@ -430,7 +430,7 @@ async function saveTheme() {
         : result.message || 'Failed to apply saved theme'
     }
 
-    milestoneStore.rewardMilestone(9)
+    achievementStore.rewardAchievement(9)
     themeStore.resetThemeForm()
   } catch (error: unknown) {
     themeError.value =

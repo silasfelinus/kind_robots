@@ -33,17 +33,17 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
-// Access the milestone store
-const milestoneStore = useMilestoneStore()
+// Access the achievement store
+const achievementStore = useAchievementStore()
 
 // Fetch leaderboard data
-const leaderboard = computed(() => milestoneStore.highClickScores)
+const leaderboard = computed(() => achievementStore.highClickScores)
 
 onMounted(async () => {
-  if (!milestoneStore.highClickScores.length) {
-    await milestoneStore.fetchHighClickScores()
+  if (!achievementStore.highClickScores.length) {
+    await achievementStore.fetchHighClickScores()
   }
 })
 </script>

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
-import { useMilestoneStore } from './milestoneStore'
+import { useAchievementStore } from './achievementStore'
 import { generateUsername } from '@/utils/generateUsername'
 import { useArtStore } from './artStore'
 import {
@@ -79,7 +79,7 @@ export const useUserStore = defineStore('userStore', () => {
   const loading = ref(false)
   const lastError = ref<string | null>(null)
   const stayLoggedIn = ref(true)
-  const milestones = ref<number[]>([])
+  const achievements = ref<number[]>([])
   const users = ref<User[]>([])
   const recipient = ref<User | null>(null)
   const googleToken = ref(false)
@@ -799,14 +799,14 @@ export const useUserStore = defineStore('userStore', () => {
     }
 
     try {
-      const milestoneStore = useMilestoneStore()
+      const achievementStore = useAchievementStore()
 
       await Promise.all([
-        milestoneStore.fetchMilestones(),
-        milestoneStore.fetchMilestoneRecords(),
+        achievementStore.fetchAchievements(),
+        achievementStore.fetchAchievementRecords(),
       ])
 
-      const count = milestoneStore.milestoneCountForUser
+      const count = achievementStore.achievementCountForUser
       const updatedKarma = count * 1000
       const updatedMana = count
 
@@ -854,7 +854,7 @@ export const useUserStore = defineStore('userStore', () => {
     loading,
     lastError,
     stayLoggedIn,
-    milestones,
+    achievements,
     users,
     recipient,
     googleToken,

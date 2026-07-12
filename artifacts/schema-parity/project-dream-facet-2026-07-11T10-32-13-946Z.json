@@ -1,0 +1,1039 @@
+{
+  "generatedAt": "2026-07-11T10:32:13.946Z",
+  "databaseCoverage": {
+    "projectDreamCount": 29,
+    "genreDreamCount": 20,
+    "pitchSheetCount": 37
+  },
+  "cleanupReady": true,
+  "blockerCount": 0,
+  "blockers": {
+    "projectDreamsMissingSlug": [],
+    "projectDreamsMissingProject": [],
+    "projectRelationParityFailures": [],
+    "genreDreamsMissingSlug": [],
+    "genreDreamsMissingFacet": [],
+    "genreScenarioParityFailures": [],
+    "invalidPitchSheets": []
+  },
+  "projectResults": [
+    {
+      "dream": {
+        "id": 273,
+        "title": "Kind Robots",
+        "slug": "kind-robots"
+      },
+      "project": {
+        "id": 1,
+        "slug": "kind-robots",
+        "conductorSlug": "kind-robots"
+      },
+      "legacyCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 274,
+        "title": "Humboldt Scoop",
+        "slug": "humboldt-scoop"
+      },
+      "project": {
+        "id": 2,
+        "slug": "humboldt-scoop",
+        "conductorSlug": "humboldt-scoop"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 275,
+        "title": "Humboldt Scoop Cms",
+        "slug": "humboldt-scoop-cms"
+      },
+      "project": {
+        "id": 3,
+        "slug": "humboldt-scoop-cms",
+        "conductorSlug": "humboldt-scoop-cms"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 276,
+        "title": "Approval Portal",
+        "slug": "approval-portal"
+      },
+      "project": {
+        "id": 4,
+        "slug": "approval-portal",
+        "conductorSlug": "approval-portal"
+      },
+      "legacyCounts": {
+        "chats": 2,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 2,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 277,
+        "title": "Digital Storefront",
+        "slug": "digital-storefront"
+      },
+      "project": {
+        "id": 5,
+        "slug": "digital-storefront",
+        "conductorSlug": "digital-storefront"
+      },
+      "legacyCounts": {
+        "chats": 102,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 102,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 278,
+        "title": "Brainstorm",
+        "slug": "brainstorm"
+      },
+      "project": {
+        "id": 6,
+        "slug": "brainstorm",
+        "conductorSlug": "brainstorm"
+      },
+      "legacyCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 279,
+        "title": "Mermaids Of Venice",
+        "slug": "mermaids-of-venice"
+      },
+      "project": {
+        "id": 7,
+        "slug": "mermaids-of-venice",
+        "conductorSlug": "mermaids-of-venice"
+      },
+      "legacyCounts": {
+        "chats": 96,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 96,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 280,
+        "title": "Coat Dance",
+        "slug": "coat-dance"
+      },
+      "project": {
+        "id": 8,
+        "slug": "coat-dance",
+        "conductorSlug": "coat-dance"
+      },
+      "legacyCounts": {
+        "chats": 119,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 119,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 324,
+        "title": "Sketchy",
+        "slug": "sketchy"
+      },
+      "project": {
+        "id": 9,
+        "slug": "sketchy",
+        "conductorSlug": "sketchy"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 325,
+        "title": "Storymaker",
+        "slug": "storymaker"
+      },
+      "project": {
+        "id": 10,
+        "slug": "storymaker",
+        "conductorSlug": "storymaker"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 326,
+        "title": "Media Watchlist",
+        "slug": "media-watchlist"
+      },
+      "project": {
+        "id": 11,
+        "slug": "media-watchlist",
+        "conductorSlug": "media-watchlist"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 327,
+        "title": "Conductor App",
+        "slug": "conductor-app"
+      },
+      "project": {
+        "id": 12,
+        "slug": "conductor-app",
+        "conductorSlug": "conductor-app"
+      },
+      "legacyCounts": {
+        "chats": 140,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 140,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 328,
+        "title": "Alexa Integration",
+        "slug": "alexa-integration"
+      },
+      "project": {
+        "id": 13,
+        "slug": "alexa-integration",
+        "conductorSlug": "alexa-integration"
+      },
+      "legacyCounts": {
+        "chats": 140,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 140,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 329,
+        "title": "Art Generator Connect",
+        "slug": "art-generator-connect"
+      },
+      "project": {
+        "id": 14,
+        "slug": "art-generator-connect",
+        "conductorSlug": "art-generator-connect"
+      },
+      "legacyCounts": {
+        "chats": 138,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 138,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 330,
+        "title": "Conductor",
+        "slug": "conductor"
+      },
+      "project": {
+        "id": 15,
+        "slug": "conductor",
+        "conductorSlug": "conductor"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 554,
+        "title": "Superkate Services Calculator",
+        "slug": "superkate-services-calculator"
+      },
+      "project": {
+        "id": 16,
+        "slug": "superkate-services-calculator",
+        "conductorSlug": "superkate-services-calculator"
+      },
+      "legacyCounts": {
+        "chats": 136,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 136,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 555,
+        "title": "Global Ui",
+        "slug": "global-ui"
+      },
+      "project": {
+        "id": 17,
+        "slug": "global-ui",
+        "conductorSlug": "global-ui"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 556,
+        "title": "Pinball Hero",
+        "slug": "pinball-hero"
+      },
+      "project": {
+        "id": 18,
+        "slug": "pinball-hero",
+        "conductorSlug": "pinball-hero"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 557,
+        "title": "Career Transition",
+        "slug": "career-transition"
+      },
+      "project": {
+        "id": 19,
+        "slug": "career-transition",
+        "conductorSlug": "career-transition"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 558,
+        "title": "Engagement",
+        "slug": "engagement"
+      },
+      "project": {
+        "id": 20,
+        "slug": "engagement",
+        "conductorSlug": "engagement"
+      },
+      "legacyCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 559,
+        "title": "Wishmaster",
+        "slug": "wishmaster"
+      },
+      "project": {
+        "id": 21,
+        "slug": "wishmaster",
+        "conductorSlug": "wishmaster"
+      },
+      "legacyCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 137,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 560,
+        "title": "Challenge Center",
+        "slug": "challenge-center"
+      },
+      "project": {
+        "id": 22,
+        "slug": "challenge-center",
+        "conductorSlug": "challenge-center"
+      },
+      "legacyCounts": {
+        "chats": 136,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 136,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 561,
+        "title": "Serendipity",
+        "slug": "serendipity"
+      },
+      "project": {
+        "id": 23,
+        "slug": "serendipity",
+        "conductorSlug": "serendipity"
+      },
+      "legacyCounts": {
+        "chats": 138,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 138,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 562,
+        "title": "Appmaker",
+        "slug": "appmaker"
+      },
+      "project": {
+        "id": 24,
+        "slug": "appmaker",
+        "conductorSlug": "appmaker"
+      },
+      "legacyCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 563,
+        "title": "Recipe Box",
+        "slug": "recipe-box"
+      },
+      "project": {
+        "id": 25,
+        "slug": "recipe-box",
+        "conductorSlug": "recipe-box"
+      },
+      "legacyCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 139,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 564,
+        "title": "Davinci",
+        "slug": "davinci"
+      },
+      "project": {
+        "id": 26,
+        "slug": "davinci",
+        "conductorSlug": "davinci"
+      },
+      "legacyCounts": {
+        "chats": 128,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 128,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 604,
+        "title": "Packmaker",
+        "slug": "packmaker"
+      },
+      "project": {
+        "id": 27,
+        "slug": "packmaker",
+        "conductorSlug": "packmaker"
+      },
+      "legacyCounts": {
+        "chats": 94,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 94,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 12,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 625,
+        "title": "Ecosystem Map",
+        "slug": "ecosystem-map"
+      },
+      "project": {
+        "id": 28,
+        "slug": "ecosystem-map",
+        "conductorSlug": "ecosystem-map"
+      },
+      "legacyCounts": {
+        "chats": 68,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 68,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 3,
+      "relationParity": true
+    },
+    {
+      "dream": {
+        "id": 686,
+        "title": "Mural Design",
+        "slug": "mural-design"
+      },
+      "project": {
+        "id": 29,
+        "slug": "mural-design",
+        "conductorSlug": "mural-design"
+      },
+      "legacyCounts": {
+        "chats": 32,
+        "todos": 0,
+        "reactions": 0
+      },
+      "dualLinkedCounts": {
+        "chats": 32,
+        "todos": 0,
+        "reactions": 0
+      },
+      "projectArtJobCount": 0,
+      "relationParity": true
+    }
+  ],
+  "facetResults": [
+    {
+      "dream": {
+        "id": 166,
+        "title": "WeirdCore",
+        "slug": "weirdcore"
+      },
+      "facet": {
+        "id": 1,
+        "slug": "weirdcore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 10,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 167,
+        "title": "ZombieCore",
+        "slug": "zombiecore"
+      },
+      "facet": {
+        "id": 2,
+        "slug": "zombiecore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 4,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 168,
+        "title": "Weird West",
+        "slug": "weird-west"
+      },
+      "facet": {
+        "id": 3,
+        "slug": "weird-west",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 5,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 169,
+        "title": "Animal Protagonists",
+        "slug": "animal-protagonists"
+      },
+      "facet": {
+        "id": 4,
+        "slug": "animal-protagonists",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 7,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 170,
+        "title": "Weird Capitalism",
+        "slug": "weird-capitalism"
+      },
+      "facet": {
+        "id": 5,
+        "slug": "weird-capitalism",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 6,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 171,
+        "title": "FutureCore",
+        "slug": "futurecore"
+      },
+      "facet": {
+        "id": 6,
+        "slug": "futurecore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 7,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 172,
+        "title": "Space Adventures",
+        "slug": "space-adventures"
+      },
+      "facet": {
+        "id": 7,
+        "slug": "space-adventures",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 9,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 173,
+        "title": "oddCore",
+        "slug": "oddcore"
+      },
+      "facet": {
+        "id": 8,
+        "slug": "oddcore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 8,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 174,
+        "title": "Fractured Fairy Tales",
+        "slug": "fractured-fairy-tales"
+      },
+      "facet": {
+        "id": 9,
+        "slug": "fractured-fairy-tales",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 6,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 175,
+        "title": "EldritchCore",
+        "slug": "eldritchcore"
+      },
+      "facet": {
+        "id": 10,
+        "slug": "eldritchcore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 7,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 176,
+        "title": "MythCore",
+        "slug": "mythcore"
+      },
+      "facet": {
+        "id": 11,
+        "slug": "mythcore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 6,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 177,
+        "title": "CozyCore",
+        "slug": "cozycore"
+      },
+      "facet": {
+        "id": 12,
+        "slug": "cozycore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 7,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 178,
+        "title": "Chrononauts",
+        "slug": "chrononauts"
+      },
+      "facet": {
+        "id": 13,
+        "slug": "chrononauts",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 6,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 179,
+        "title": "Artificial Intelligence",
+        "slug": "artificial-intelligence"
+      },
+      "facet": {
+        "id": 14,
+        "slug": "artificial-intelligence",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 6,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 180,
+        "title": "Villain Era",
+        "slug": "villain-era"
+      },
+      "facet": {
+        "id": 15,
+        "slug": "villain-era",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 7,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 181,
+        "title": "CircusCore",
+        "slug": "circuscore"
+      },
+      "facet": {
+        "id": 16,
+        "slug": "circuscore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 6,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 182,
+        "title": "EcoCore",
+        "slug": "ecocore"
+      },
+      "facet": {
+        "id": 17,
+        "slug": "ecocore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 5,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 184,
+        "title": "The Big Blue",
+        "slug": "the-big-blue"
+      },
+      "facet": {
+        "id": 18,
+        "slug": "the-big-blue",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 5,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 185,
+        "title": "KaijuCore",
+        "slug": "kaijucore"
+      },
+      "facet": {
+        "id": 19,
+        "slug": "kaijucore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 4,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    },
+    {
+      "dream": {
+        "id": 186,
+        "title": "crimeCore",
+        "slug": "crimecore"
+      },
+      "facet": {
+        "id": 20,
+        "slug": "crimecore",
+        "kind": "GENRE",
+        "isActive": true
+      },
+      "legacyScenarioCount": 5,
+      "missingScenarioLinks": [],
+      "scenarioParity": true
+    }
+  ]
+}

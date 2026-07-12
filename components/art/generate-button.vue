@@ -50,7 +50,7 @@
       >
         <span v-if="artStore.isGenerating" class="flex items-center gap-2">
           <span class="loading loading-dots loading-sm" />
-          {{ busyLabel }}
+          {{ busyText }}
         </span>
 
         <span v-else class="flex items-center gap-2">
@@ -162,6 +162,15 @@ const serverChoice = ref<ServerChoice>('default')
 const resultImage = computed(
   () => artStore.lastGeneratedArtImage || artStore.currentArtImage || null,
 )
+
+// While a generation is in flight it now goes through the durable ArtJob
+// queue: reflect whether the job is waiting for the relay ("Queued…") or
+// actively rendering ("Rendering…"). Falls back to the caller's busyLabel.
+const busyText = computed(() => {
+  if (artStore.queueState === 'queued') return 'Queued…'
+  if (artStore.queueState === 'rendering') return 'Rendering…'
+  return props.busyLabel
+})
 
 const serverOptions = computed<Server[]>(() => {
   return Array.isArray(artStore.generationServers)

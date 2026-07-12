@@ -46,11 +46,6 @@ type DreamPatchBody = {
   isMature?: boolean
   isActive?: boolean
   allowReviews?: boolean
-  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
-  repoUrl?: string | null
-  liveUrl?: string | null
-  goal?: string | null
-  waypoints?: string | null
   characterIds?: number[]
   rewardIds?: number[]
   artImageIds?: number[]
@@ -216,16 +211,6 @@ function getUpdateSummary(body: DreamPatchBody): string {
     changes.push('settings')
   }
 
-  if (
-    body.projectStatus !== undefined ||
-    body.repoUrl !== undefined ||
-    body.liveUrl !== undefined ||
-    body.goal !== undefined ||
-    body.waypoints !== undefined
-  ) {
-    changes.push('project')
-  }
-
   if (!changes.length) return 'Dream updated.'
 
   return `Dream updated: ${changes.join(', ')}.`
@@ -246,6 +231,7 @@ export default defineEventHandler(async (event) => {
         id: true,
         userId: true,
         title: true,
+        dreamType: true,
         isPublic: true,
       },
     })
@@ -372,36 +358,6 @@ export default defineEventHandler(async (event) => {
 
     if (typeof body.isActive === 'boolean') {
       dataInput.isActive = body.isActive
-    }
-
-    const validProjectStatuses = [
-      'ACTIVE',
-      'PAUSED',
-      'DONE',
-      'ARCHIVED',
-      'BRAINSTORM',
-    ] as const
-    if (
-      body.projectStatus !== undefined &&
-      validProjectStatuses.includes(body.projectStatus)
-    ) {
-      dataInput.projectStatus = body.projectStatus
-    }
-
-    if (body.repoUrl !== undefined) {
-      setTextField(dataInput, 'repoUrl', body.repoUrl)
-    }
-
-    if (body.liveUrl !== undefined) {
-      setTextField(dataInput, 'liveUrl', body.liveUrl)
-    }
-
-    if (body.goal !== undefined) {
-      setTextField(dataInput, 'goal', body.goal)
-    }
-
-    if (body.waypoints !== undefined) {
-      setTextField(dataInput, 'waypoints', body.waypoints)
     }
 
     if (typeof body.allowReviews === 'boolean') {

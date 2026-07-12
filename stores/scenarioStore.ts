@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import type {
   Character,
   Dream,
+  Facet,
   Scenario,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
@@ -32,6 +33,24 @@ type ScenarioDream = Pick<
   | 'highlightImage'
   | 'icon'
 >
+
+type ScenarioFacet = Pick<
+  Facet,
+  | 'id'
+  | 'title'
+  | 'slug'
+  | 'kind'
+  | 'description'
+  | 'flavorText'
+  | 'imagePath'
+  | 'icon'
+  | 'userId'
+  | 'isPublic'
+  | 'isMature'
+  | 'isActive'
+> & {
+  aliases: string[]
+}
 
 type ScenarioCharacter = Pick<
   Character,
@@ -67,9 +86,11 @@ type ScenarioCharacter = Pick<
 
 export interface ScenarioWithRelations extends Scenario {
   Dreams?: ScenarioDream[]
+  Facets?: ScenarioFacet[]
   Characters?: ScenarioCharacter[]
   _count?: {
     Dreams?: number
+    Facets?: number
     Characters?: number
   }
 }
@@ -86,6 +107,7 @@ export interface ScenarioForm extends Omit<
 > {
   intros?: string[] | string
   dreamIds?: number[]
+  facetIds?: number[]
   characterIds?: number[]
 }
 
@@ -198,12 +220,13 @@ function toScenarioForm(scenario: ScenarioWithRelations): ScenarioForm {
     ...scenario,
     intros: normalizeIntrosForForm(scenario.intros),
     dreamIds: scenario.Dreams?.map((dream) => dream.id) ?? [],
+    facetIds: scenario.Facets?.map((facet) => facet.id) ?? [],
     characterIds: scenario.Characters?.map((character) => character.id) ?? [],
   }
 }
 
 function toScenarioPayload(form: ScenarioForm) {
-  const { Dreams, Characters, _count, ...payload } = form
+  const { Dreams, Facets, Characters, _count, ...payload } = form
 
   return {
     ...payload,
@@ -261,6 +284,22 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     )
   })
 
+  const scenarioFacets = computed(() => {
+    const map = new Map<number, ScenarioFacet>()
+
+    for (const scenario of scenarios.value) {
+      for (const facet of scenario.Facets ?? []) {
+        map.set(facet.id, facet)
+      }
+    }
+
+    return Array.from(map.values()).sort((a, b) =>
+      a.kind === b.kind
+        ? a.title.localeCompare(b.title)
+        : a.kind.localeCompare(b.kind),
+    )
+  })
+
   const scenariosByDream = computed(() => {
     const groups = new Map<number, ScenarioWithRelations[]>()
 
@@ -279,6 +318,23 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
   function getScenariosForDream(dreamId: number): ScenarioWithRelations[] {
     return scenariosByDream.value.get(dreamId) ?? []
+  }
+
+  const scenariosByFacet = computed(() => {
+    const groups = new Map<number, ScenarioWithRelations[]>()
+
+    for (const facet of scenarioFacets.value) groups.set(facet.id, [])
+    for (const scenario of scenarios.value) {
+      for (const facet of scenario.Facets ?? []) {
+        groups.get(facet.id)?.push(scenario)
+      }
+    }
+
+    return groups
+  })
+
+  function getScenariosForFacet(facetId: number): ScenarioWithRelations[] {
+    return scenariosByFacet.value.get(facetId) ?? []
   }
 
   const hasUnsavedChanges = computed(
@@ -769,9 +825,12 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     toScenarioForm,
     toScenarioPayload,
     scenarioDreams,
+    scenarioFacets,
     scenariosByDream,
+    scenariosByFacet,
     getScenariosForDream,
+    getScenariosForFacet,
   }
 })
 
-export type { Scenario, ScenarioCharacter, ScenarioDream }
+export type { Scenario, ScenarioCharacter, ScenarioDream, ScenarioFacet }

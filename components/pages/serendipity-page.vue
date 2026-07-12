@@ -1,6 +1,6 @@
 <!-- /components/pages/serendipity-page.vue -->
-<!-- Serendipity (serendipity/t-002..t-006): themed intro with a Dreams-fed
-     theme picker, the full story weaving loop on chat streams (momentum,
+<!-- Serendipity (serendipity/t-002..t-006): themed intro with LOCATION Dreams
+     and reusable Facets, the full story weaving loop on chat streams (momentum,
      answer-steered beats, gentle finale), real-task weaving (HONEYDO todos
      and needs-human conductor tasks as in-world questions), and the Story
      ledger's per-item Apply write-back (t-006 wiring approved by Silas
@@ -116,7 +116,7 @@
         </div>
       </div>
 
-      <div v-if="genreDreams.length" class="space-y-2">
+      <div v-if="genreFacets.length" class="space-y-2">
         <div class="flex items-center gap-2">
           <span
             class="text-xs font-bold uppercase tracking-wide text-base-content/50"
@@ -124,7 +124,7 @@
             Story grammar
           </span>
           <span class="text-[0.7rem] text-base-content/40">
-            from your GENRE dreams
+            from reusable Facets
           </span>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -132,26 +132,26 @@
             type="button"
             class="btn btn-sm rounded-xl"
             :class="
-              !selectedGenreSlug
+              !selectedGrammarSlug
                 ? 'btn-secondary'
                 : 'btn-ghost border border-base-300'
             "
-            @click="selectedGenreSlug = null"
+            @click="selectedGrammarSlug = null"
           >
             Any tale
           </button>
           <button
-            v-for="dream in genreDreams"
+            v-for="dream in genreFacets"
             :key="dream.slug ?? dream.id"
             type="button"
             class="btn btn-sm rounded-xl"
             :class="
-              dream.slug === selectedGenreSlug
+              dream.slug === selectedGrammarSlug
                 ? 'btn-secondary'
                 : 'btn-ghost border border-base-300'
             "
             :title="dream.flavorText ?? dream.description ?? undefined"
-            @click="selectedGenreSlug = dream.slug"
+            @click="selectedGrammarSlug = dream.slug"
           >
             {{ dream.title }}
           </button>
@@ -163,7 +163,7 @@
         class="flex items-center gap-2 text-xs text-base-content/50"
       >
         <span class="loading loading-spinner loading-xs" />
-        Gathering places and story grammars from your Dreams…
+        Gathering places and story grammars…
       </p>
 
       <label class="form-control w-full max-w-md">
@@ -179,11 +179,11 @@
         >
           <option value="">A story just for me</option>
           <option
-            v-for="project in conductorStore.projects"
-            :key="project.slug"
+            v-for="project in projectStore.activeProjects"
+            :key="project.slug ?? project.id"
             :value="project.slug"
           >
-            {{ project.name || project.slug }}
+            {{ project.title || project.slug }}
           </option>
         </select>
       </label>
@@ -232,11 +232,14 @@
         </button>
         <p
           v-if="
-            !locationDreams.length && !genreDreams.length && !dreamStore.loading
+            !locationDreams.length &&
+            !genreFacets.length &&
+            !dreamStore.loading &&
+            !facetStore.loading
           "
           class="text-xs text-base-content/50"
         >
-          Add LOCATION or GENRE dreams to unlock places and story grammars.
+          Add LOCATION Dreams or story-grammar Facets to unlock more doors.
         </p>
       </div>
     </div>
@@ -436,8 +439,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useConductorStore } from '@/stores/conductorStore'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
+import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
+import { useProjectStore } from '@/stores/projectStore'
 import {
   SERENDIPITY_TONES,
   useSerendipityStore,
@@ -446,12 +450,13 @@ import {
 } from '@/stores/serendipityStore'
 
 const store = useSerendipityStore()
-const conductorStore = useConductorStore()
 const dreamStore = useDreamStore()
+const facetStore = useFacetStore()
+const projectStore = useProjectStore()
 
 const selectedTone = ref<SerendipityTone>('cozy')
 const selectedLocationSlug = ref<string | null>(null)
-const selectedGenreSlug = ref<string | null>(null)
+const selectedGrammarSlug = ref<string | null>(null)
 const selectedProjectSlug = ref('')
 const vibeInput = ref('')
 const answerInput = ref('')
@@ -461,9 +466,10 @@ const locationDreams = computed(() =>
     (dream) => dream.dreamType === 'LOCATION' && dream.isActive && dream.slug,
   ),
 )
-const genreDreams = computed(() =>
-  dreamStore.dreams.filter(
-    (dream) => dream.dreamType === 'GENRE' && dream.isActive && dream.slug,
+const storyGrammarKinds = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])
+const genreFacets = computed(() =>
+  facetStore.activeFacets.filter(
+    (facet) => storyGrammarKinds.has(facet.kind) && facet.slug,
   ),
 )
 
@@ -504,15 +510,19 @@ const sessionRecap = computed(() => {
   return items
 })
 
+type IngredientSource =
+  | Pick<DreamWithRelations, 'slug' | 'title' | 'description' | 'flavorText'>
+  | Pick<FacetWithAliases, 'slug' | 'title' | 'description' | 'flavorText'>
+
 function toIngredient(
-  dream: DreamWithRelations | undefined,
+  source: IngredientSource | undefined,
 ): SerendipityIngredient | undefined {
-  if (!dream?.slug) return undefined
+  if (!source?.slug) return undefined
   return {
-    slug: dream.slug,
-    title: dream.title,
-    description: dream.description,
-    flavorText: dream.flavorText,
+    slug: source.slug,
+    title: source.title,
+    description: source.description,
+    flavorText: source.flavorText,
   }
 }
 
@@ -543,10 +553,10 @@ async function begin(surprise: boolean) {
         ),
       )
   const genre = surprise
-    ? toIngredient(pickRandom(genreDreams.value))
+    ? toIngredient(pickRandom(genreFacets.value))
     : toIngredient(
-        genreDreams.value.find(
-          (dream) => dream.slug === selectedGenreSlug.value,
+        genreFacets.value.find(
+          (dream) => dream.slug === selectedGrammarSlug.value,
         ),
       )
   await store.beginStory({
@@ -573,12 +583,10 @@ function startOver() {
 
 onMounted(() => {
   store.restoreFromLocalStorage()
-  if (
-    !dreamStore.hasLoaded ||
-    (!locationDreams.value.length && !genreDreams.value.length)
-  ) {
-    dreamStore.fetchDreams({ limit: 200 })
+  if (!dreamStore.hasLoaded || !locationDreams.value.length) {
+    void dreamStore.fetchDreams({ dreamType: 'LOCATION', limit: 200 })
   }
+  if (!facetStore.loaded) void facetStore.fetchFacets({ take: 250 })
   void store.loadRealSurfaces()
 })
 </script>

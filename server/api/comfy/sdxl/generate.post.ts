@@ -1,4 +1,9 @@
 // /server/api/comfy/sdxl/generate.post.ts
+//
+// Direct/relay-only synchronous Comfy (SDXL/SD) render. Dials the Comfy server
+// inline, so it only works from a caller on the home tailnet (relay agent or
+// on-box tool). The browser enqueues via /api/art/enqueue instead (engine
+// "comfy"), which reuses this route's workflow builder (./utils/workflow.ts).
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -20,6 +25,11 @@ import {
 import { manaGate } from '../../../utils/manaGate'
 import { estimateArtCostUsd } from '../../../utils/manaCost'
 import { requireApiUser } from '../../../utils/authGuard'
+import {
+  buildDefaultComfyWorkflow,
+  patchComfyWorkflow,
+  type ComfyWorkflow,
+} from './utils/workflow'
 
 type ComfyGenerateRequestData = RequestData &
   CheckpointResourceRequestData & {
@@ -28,14 +38,6 @@ type ComfyGenerateRequestData = RequestData &
     workflow?: ComfyWorkflow | null
     workflowJson?: ComfyWorkflow | null
   }
-
-type ComfyWorkflow = Record<string, ComfyWorkflowNode>
-
-type ComfyWorkflowNode = {
-  class_type?: string
-  inputs?: Record<string, unknown>
-  _meta?: Record<string, unknown>
-}
 
 type ComfyPromptResponse = {
   prompt_id?: string
@@ -466,181 +468,6 @@ async function fetchComfyImageAsBase64(
 
   const arrayBuffer = await response.arrayBuffer()
   return Buffer.from(arrayBuffer).toString('base64')
-}
-
-function patchComfyWorkflow(
-  workflow: ComfyWorkflow,
-  input: Omit<GenerateComfyImageInput, 'server' | 'workflow'>,
-): void {
-  const positiveText = input.prompt
-  const negativeText = input.negativePrompt || ''
-  const seed = input.seed ?? -1
-  const steps = input.steps ?? 20
-  const cfg = input.cfgValue || 3
-  const sampler = normalizeComfySampler(input.sampler)
-  const checkpoint = input.checkpoint || ''
-
-  for (const node of Object.values(workflow)) {
-    if (!node?.inputs) continue
-
-    const classType = node.class_type || ''
-    const title = getNodeTitle(node)
-
-    if (classType === 'CheckpointLoaderSimple' && checkpoint) {
-      assignIfKeyExists(node.inputs, 'ckpt_name', checkpoint)
-    }
-
-    if (classType === 'KSampler') {
-      assignIfKeyExists(node.inputs, 'seed', seed)
-      assignIfKeyExists(node.inputs, 'steps', steps)
-      assignIfKeyExists(node.inputs, 'cfg', cfg)
-      assignIfKeyExists(node.inputs, 'sampler_name', sampler)
-    }
-
-    if (classType === 'CLIPTextEncode') {
-      const label = `${title} ${JSON.stringify(node.inputs)}`.toLowerCase()
-
-      if (label.includes('negative')) {
-        assignIfKeyExists(node.inputs, 'text', negativeText)
-      } else if (label.includes('positive') || label.includes('prompt')) {
-        assignIfKeyExists(node.inputs, 'text', positiveText)
-      }
-    }
-
-    if (classType === 'CLIPTextEncodeFlux') {
-      const label = `${title} ${JSON.stringify(node.inputs)}`.toLowerCase()
-
-      if (label.includes('negative')) {
-        assignIfKeyExists(node.inputs, 'clip_l', negativeText)
-        assignIfKeyExists(node.inputs, 't5xxl', negativeText)
-      } else {
-        assignIfKeyExists(node.inputs, 'clip_l', positiveText)
-        assignIfKeyExists(node.inputs, 't5xxl', positiveText)
-      }
-    }
-
-    if ('noise_seed' in node.inputs) {
-      node.inputs.noise_seed = seed
-    }
-
-    if ('guidance' in node.inputs) {
-      node.inputs.guidance = cfg
-    }
-
-    if ('denoise' in node.inputs && typeof node.inputs.denoise !== 'number') {
-      node.inputs.denoise = 1
-    }
-  }
-}
-
-function buildDefaultComfyWorkflow({
-  prompt,
-  negativePrompt,
-  cfgValue,
-  seed,
-  steps,
-  checkpoint,
-  sampler,
-}: Omit<GenerateComfyImageInput, 'server' | 'workflow'>): ComfyWorkflow {
-  return {
-    '1': {
-      class_type: 'CheckpointLoaderSimple',
-      inputs: {
-        ckpt_name: checkpoint || 'v1-5-pruned-emaonly.safetensors',
-      },
-    },
-    '2': {
-      class_type: 'CLIPTextEncode',
-      inputs: {
-        text: prompt,
-        clip: ['1', 1],
-      },
-      _meta: {
-        title: 'Positive Prompt',
-      },
-    },
-    '3': {
-      class_type: 'CLIPTextEncode',
-      inputs: {
-        text: negativePrompt || '',
-        clip: ['1', 1],
-      },
-      _meta: {
-        title: 'Negative Prompt',
-      },
-    },
-    '4': {
-      class_type: 'EmptyLatentImage',
-      inputs: {
-        width: 1024,
-        height: 1024,
-        batch_size: 1,
-      },
-    },
-    '5': {
-      class_type: 'KSampler',
-      inputs: {
-        seed: seed ?? -1,
-        steps: steps ?? 20,
-        cfg: cfgValue || 3,
-        sampler_name: normalizeComfySampler(sampler),
-        scheduler: 'normal',
-        denoise: 1,
-        model: ['1', 0],
-        positive: ['2', 0],
-        negative: ['3', 0],
-        latent_image: ['4', 0],
-      },
-    },
-    '6': {
-      class_type: 'VAEDecode',
-      inputs: {
-        samples: ['5', 0],
-        vae: ['1', 2],
-      },
-    },
-    '7': {
-      class_type: 'SaveImage',
-      inputs: {
-        filename_prefix: 'kindrobots',
-        images: ['6', 0],
-      },
-    },
-  }
-}
-
-function normalizeComfySampler(sampler?: string | null): string {
-  const value = sampler?.trim()
-
-  if (!value) return 'euler'
-
-  const lookup: Record<string, string> = {
-    'Euler a': 'euler_ancestral',
-    Euler: 'euler',
-    LMS: 'lms',
-    Heun: 'heun',
-    DPM2: 'dpm_2',
-    'DPM2 a': 'dpm_2_ancestral',
-    DDIM: 'ddim',
-  }
-
-  return lookup[value] || value
-}
-
-function getNodeTitle(node: ComfyWorkflowNode): string {
-  const title = node._meta?.title
-
-  return typeof title === 'string' ? title : ''
-}
-
-function assignIfKeyExists(
-  inputs: Record<string, unknown>,
-  key: string,
-  value: unknown,
-): void {
-  if (key in inputs) {
-    inputs[key] = value
-  }
 }
 
 function getComfyHeaders(includeJson = true): HeadersInit {

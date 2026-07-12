@@ -1,4 +1,12 @@
 // /server/api/prompts/generate.post.ts
+//
+// DEPRECATED — legacy synchronous "art_prompts" driver. Takes a promptId and
+// walks the bolted-on Prompt.artStatus state machine (QUEUED → GENERATING →
+// DONE) while dialing the render server inline. It is superseded by the durable
+// ArtJob queue: producers now enqueue via /api/art/enqueue (or the conductor
+// scripts) and the home relay renders. Kept only until the Prompt.artStatus
+// columns are dropped; do not wire new callers to it. Pending Prompt rows are
+// migrated to ArtJob by utils/scripts/migratePromptsToArtJobs.ts.
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'

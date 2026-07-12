@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
       select: {
         id: true,
         title: true,
+        dreamType: true,
         userId: true,
         isPublic: true,
       },

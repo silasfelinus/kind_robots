@@ -471,6 +471,13 @@
                 </div>
               </div>
             </div>
+            <!-- Facets -->
+            <FacetPicker
+              v-model="artFacetIds"
+              owner-type="artImage"
+              :owner-id="currentArtImage?.id ?? null"
+              label="Facets"
+            />
             <!-- Remix -->
             <div class="rounded-2xl border border-primary/30 bg-primary/10 p-3">
               <div class="mb-2 flex items-center justify-between gap-2">
@@ -532,6 +539,7 @@ const collectionSearch = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const remixPrompt = ref('')
+const artFacetIds = ref<number[]>([])
 const deleteArmed = ref(false)
 const isDeleting = ref(false)
 const isSettingAvatar = ref(false)

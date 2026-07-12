@@ -4,10 +4,6 @@
   "scripts": {
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
-    "audit:schema-shift": "tsx utils/scripts/auditProjectDreamFacet.ts",
-    "backfill:schema-shift": "prisma generate && tsx utils/scripts/backfillProjectDreamFacet.ts",
-    "backfill:schema-shift:apply": "prisma generate && tsx utils/scripts/backfillProjectDreamFacet.ts --apply",
-    "verify:schema-shift": "prisma generate && tsx utils/scripts/verifyProjectDreamFacetParity.ts",
     "facet:alias": "prisma generate && tsx utils/scripts/setFacetAliases.ts",
     "trim:dry": "node ./utils/scripts/trim.mjs --dry-run",
     "trim": "node ./utils/scripts/trim.mjs",
@@ -32,6 +28,7 @@
     "postinstall": "nuxi prepare",
     "snapshot:fallback": "tsx utils/scripts/snapshotFallback.ts",
     "backfill:slugs": "tsx utils/scripts/backfillSlugs.ts",
+    "migrate:art-jobs": "tsx utils/scripts/migratePromptsToArtJobs.ts",
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",

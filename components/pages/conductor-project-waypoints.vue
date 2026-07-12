@@ -207,7 +207,6 @@ import { useTodoStore } from '@/stores/todoStore'
 const props = defineProps<{
   projectId: number
   projectTitle: string
-  dreamId?: number | null
   waypoints: string | null | undefined
 }>()
 
@@ -403,7 +402,6 @@ async function requestDraft() {
     priority: 'NORMAL',
     category: 'AGENT',
     projectId: props.projectId,
-    dreamId: props.dreamId ?? null,
   })
   if (!created) draftRequested.value = false
 }

@@ -11,18 +11,17 @@ export const DREAM_TYPES = [
   'PROMPTBOT',
   'NARRATOR',
   'CHARACTER',
-  'PROJECT',
   'REWARD',
   'SCENARIO',
   'LOCATION',
   'PITCH',
-  'GENRE',
   'WISH',
 ] as const satisfies readonly PrismaDreamType[]
 
 export type DreamType = (typeof DREAM_TYPES)[number]
+export type CreatableDreamType = DreamType
 
-type DreamWithRequiredSlug<T> = T & { slug: string }
+export const CREATABLE_DREAM_TYPES = DREAM_TYPES
 
 export const CREATION_SOURCES = [
   'HUMAN',
@@ -55,7 +54,6 @@ const LEGACY_DREAM_TYPE_MAP: Record<string, DreamType> = {
   RANDOMLIST: 'BRAINSTORM',
   TEXT: 'PITCH',
   TITLE: 'BRAINSTORM',
-  VIBE: 'GENRE',
   WEIRDLANDIA: 'LOCATION',
 }
 
@@ -65,12 +63,10 @@ const DREAM_TYPE_LABELS: Record<DreamType, string> = {
   PROMPTBOT: 'Prompt Bot',
   NARRATOR: 'Narrator',
   CHARACTER: 'Character',
-  PROJECT: 'Project',
   REWARD: 'Reward',
   SCENARIO: 'Scenario',
   LOCATION: 'Location',
   PITCH: 'Pitch',
-  GENRE: 'Genre',
   WISH: 'Wish',
 }
 
@@ -131,25 +127,11 @@ export function sortDreamsByNewest<T extends { id: number }>(a: T, b: T) {
 }
 
 export function filterDreamsByType<T extends Partial<Dream>>(
-  type: 'PROJECT',
-  dreams: T[],
-): DreamWithRequiredSlug<T>[]
-export function filterDreamsByType<T extends Partial<Dream>>(
   type: DreamType,
   dreams: T[],
-): T[]
-export function filterDreamsByType<T extends Partial<Dream>>(
-  type: DreamType,
-  dreams: T[],
-): T[] | DreamWithRequiredSlug<T>[] {
-  const typedDreams = dreams.filter(
+): T[] {
+  return dreams.filter(
     (dream) => parseDreamType(dream.dreamType as string) === type,
-  )
-
-  if (type !== 'PROJECT') return typedDreams
-
-  return typedDreams.filter(
-    (dream): dream is DreamWithRequiredSlug<T> => Boolean(cleanString(dream.slug)),
   )
 }
 

@@ -46,11 +46,11 @@ export type FacetCreateInput = {
   isMature?: boolean
 }
 
-type ApiResult<T> = {
-  success: boolean
-  data?: T
-  message?: string
+export type FacetUpdateInput = Partial<FacetCreateInput> & {
+  isActive?: boolean
 }
+
+export type FacetOwnerType = 'dream' | 'scenario' | 'artImage'
 
 function toQuery(options: FacetListOptions): string {
   const query = new URLSearchParams()
@@ -70,6 +70,7 @@ export const useFacetStore = defineStore('facetStore', () => {
   const error = ref<string | null>(null)
   const dreamFacetIds = ref<Record<number, number[]>>({})
   const scenarioFacetIds = ref<Record<number, number[]>>({})
+  const artImageFacetIds = ref<Record<number, number[]>>({})
 
   const activeFacets = computed(() =>
     facets.value.filter((facet) => facet.isActive),
@@ -89,7 +90,7 @@ export const useFacetStore = defineStore('facetStore', () => {
 
   function facetForKey(value?: string | null): FacetWithAliases | null {
     const lookupKey = normalizeFacetLookupKey(value || '')
-    return lookupKey ? facetsByLookupKey.value.get(lookupKey) ?? null : null
+    return lookupKey ? (facetsByLookupKey.value.get(lookupKey) ?? null) : null
   }
 
   function upsertFacet(facet: FacetWithAliases): FacetWithAliases {
@@ -163,12 +164,71 @@ export const useFacetStore = defineStore('facetStore', () => {
     }
   }
 
+  async function updateFacet(
+    id: number,
+    input: FacetUpdateInput,
+  ): Promise<FacetWithAliases> {
+    saving.value = true
+    error.value = null
+    try {
+      const response = await performFetch<FacetWithAliases>(
+        `/api/facets/${id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+        },
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update Facet.')
+      }
+      return upsertFacet(response.data)
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause.message : String(cause)
+      throw cause
+    } finally {
+      saving.value = false
+    }
+  }
+
+  async function archiveFacet(id: number): Promise<FacetWithAliases> {
+    saving.value = true
+    error.value = null
+    try {
+      const response = await performFetch<FacetWithAliases>(
+        `/api/facets/${id}`,
+        { method: 'DELETE' },
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to archive Facet.')
+      }
+      return upsertFacet(response.data)
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause.message : String(cause)
+      throw cause
+    } finally {
+      saving.value = false
+    }
+  }
+
+  const ownerFacetEndpoints: Record<FacetOwnerType, (id: number) => string> = {
+    dream: (id) => `/api/dreams/${id}/facets`,
+    scenario: (id) => `/api/scenarios/${id}/facets`,
+    artImage: (id) => `/api/art/image/${id}/facets`,
+  }
+
+  function ownerFacetIndex(ownerType: FacetOwnerType) {
+    if (ownerType === 'dream') return dreamFacetIds
+    if (ownerType === 'scenario') return scenarioFacetIds
+    return artImageFacetIds
+  }
+
   async function fetchOwnerFacets(
-    ownerType: 'dream' | 'scenario',
+    ownerType: FacetOwnerType,
     ownerId: number,
   ): Promise<FacetWithAliases[]> {
     const response = await performFetch<FacetWithAliases[]>(
-      `/api/${ownerType === 'dream' ? 'dreams' : 'scenarios'}/${ownerId}/facets`,
+      ownerFacetEndpoints[ownerType](ownerId),
     )
     if (!response.success) {
       throw new Error(response.message || 'Failed to fetch assigned Facets.')
@@ -176,14 +236,14 @@ export const useFacetStore = defineStore('facetStore', () => {
 
     const assigned = response.data ?? []
     for (const facet of assigned) upsertFacet(facet)
-    const ids = assigned.map((facet) => facet.id)
-    if (ownerType === 'dream') dreamFacetIds.value[ownerId] = ids
-    else scenarioFacetIds.value[ownerId] = ids
+    ownerFacetIndex(ownerType).value[ownerId] = assigned.map(
+      (facet) => facet.id,
+    )
     return assigned
   }
 
   async function setOwnerFacets(
-    ownerType: 'dream' | 'scenario',
+    ownerType: FacetOwnerType,
     ownerId: number,
     facetIds: number[],
   ): Promise<FacetWithAliases[]> {
@@ -191,7 +251,7 @@ export const useFacetStore = defineStore('facetStore', () => {
     error.value = null
     try {
       const response = await performFetch<FacetWithAliases[]>(
-        `/api/${ownerType === 'dream' ? 'dreams' : 'scenarios'}/${ownerId}/facets`,
+        ownerFacetEndpoints[ownerType](ownerId),
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -204,9 +264,9 @@ export const useFacetStore = defineStore('facetStore', () => {
 
       const assigned = response.data ?? []
       for (const facet of assigned) upsertFacet(facet)
-      const ids = assigned.map((facet) => facet.id)
-      if (ownerType === 'dream') dreamFacetIds.value[ownerId] = ids
-      else scenarioFacetIds.value[ownerId] = ids
+      ownerFacetIndex(ownerType).value[ownerId] = assigned.map(
+        (facet) => facet.id,
+      )
       return assigned
     } catch (cause) {
       error.value = cause instanceof Error ? cause.message : String(cause)
@@ -232,6 +292,14 @@ export const useFacetStore = defineStore('facetStore', () => {
     return setOwnerFacets('scenario', scenarioId, facetIds)
   }
 
+  function fetchArtImageFacets(artImageId: number) {
+    return fetchOwnerFacets('artImage', artImageId)
+  }
+
+  function setArtImageFacets(artImageId: number, facetIds: number[]) {
+    return setOwnerFacets('artImage', artImageId, facetIds)
+  }
+
   return {
     facets,
     loading,
@@ -240,15 +308,22 @@ export const useFacetStore = defineStore('facetStore', () => {
     error,
     dreamFacetIds,
     scenarioFacetIds,
+    artImageFacetIds,
     activeFacets,
     facetsByLookupKey,
     facetForKey,
     fetchFacets,
     resolveFacet,
     createFacet,
+    updateFacet,
+    archiveFacet,
+    fetchOwnerFacets,
+    setOwnerFacets,
     fetchDreamFacets,
     setDreamFacets,
     fetchScenarioFacets,
     setScenarioFacets,
+    fetchArtImageFacets,
+    setArtImageFacets,
   }
 })

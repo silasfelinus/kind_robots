@@ -13,6 +13,7 @@ describe('Dream and Scenario Facet assignments', () => {
   let facetId = 0
   let dreamId = 0
   let scenarioId = 0
+  let artImageId = 0
 
   before(() => {
     createLoggedInTestUser().then((auth) => {
@@ -52,13 +53,16 @@ describe('Dream and Scenario Facet assignments', () => {
     ]
 
     keys.forEach((key) => {
-      cy.request(`${apiBase}/facets/${encodeURIComponent(key)}`).then(
-        (response) => {
-          expect(response.status).to.eq(200)
-          expect(response.body.success).to.be.true
-          expect(response.body.data.id).to.eq(facetId)
-        },
-      )
+      // The Facet is created isPublic: false, so lookups must authenticate
+      // as its owner or the visibility check answers 404.
+      cy.request({
+        url: `${apiBase}/facets/${encodeURIComponent(key)}`,
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body.success).to.be.true
+        expect(response.body.data.id).to.eq(facetId)
+      })
     })
   })
 
@@ -79,25 +83,31 @@ describe('Dream and Scenario Facet assignments', () => {
       dreamId = response.body.data.id
     })
 
-    cy.request({
-      method: 'PUT',
-      url: `${apiBase}/dreams/${dreamId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-      body: { facetKeys: [cowAlias] },
-    }).then((response) => {
+    // dreamId is only set inside the .then above, so every dependent URL must
+    // be built lazily (inside its own .then) rather than at enqueue time.
+    cy.then(() =>
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/dreams/${dreamId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetKeys: [cowAlias] },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data).to.have.length(1)
       expect(response.body.data[0].id).to.eq(facetId)
     })
 
-    cy.request({
-      url: `${apiBase}/dreams/${dreamId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((response) => {
+    cy.then(() =>
+      cy.request({
+        url: `${apiBase}/dreams/${dreamId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body.data.map((facet: { id: number }) => facet.id)).to.deep.eq([
-        facetId,
-      ])
+      expect(
+        response.body.data.map((facet: { id: number }) => facet.id),
+      ).to.deep.eq([facetId])
     })
   })
 
@@ -117,23 +127,55 @@ describe('Dream and Scenario Facet assignments', () => {
       scenarioId = response.body.data.id
     })
 
-    cy.request({
-      method: 'PUT',
-      url: `${apiBase}/scenarios/${scenarioId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-      body: { facetKeys: [cowsAlias] },
-    }).then((response) => {
+    // Same lazy-URL rule as the Dream test: scenarioId is assigned in the
+    // .then above, after this test body has already enqueued its commands.
+    cy.then(() =>
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/scenarios/${scenarioId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetKeys: [cowsAlias] },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data).to.have.length(1)
       expect(response.body.data[0].id).to.eq(facetId)
     })
 
-    cy.request({
-      url: `${apiBase}/scenarios/${scenarioId}/facets`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((response) => {
+    cy.then(() =>
+      cy.request({
+        url: `${apiBase}/scenarios/${scenarioId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data[0].id).to.eq(facetId)
+    })
+
+    cy.then(() =>
+      cy.request({
+        url: `${apiBase}/scenarios/${scenarioId}`,
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data.Facets).to.have.length(1)
+      expect(response.body.data.Facets[0].id).to.eq(facetId)
+      expect(response.body.data.Facets[0].aliases).to.include(cowsAlias)
+      expect(response.body.data._count.Facets).to.eq(1)
+    })
+
+    cy.request({
+      url: `${apiBase}/scenarios`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      const scenario = response.body.data.find(
+        (entry: { id: number }) => entry.id === scenarioId,
+      )
+      expect(scenario).to.exist
+      expect(
+        scenario.Facets.map((facet: { id: number }) => facet.id),
+      ).to.deep.eq([facetId])
     })
   })
 
@@ -156,6 +198,95 @@ describe('Dream and Scenario Facet assignments', () => {
     })
   })
 
+  it('assigns the Facet to an ArtImage and reads it back', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiBase}/art/image`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        promptString: `facet assignment fixture ${stamp}`,
+        path: ' ',
+        imagePath: 'justfortesting',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      artImageId = response.body.data.id
+
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/art/image/${artImageId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetIds: [facetId] },
+      }).then((putResponse) => {
+        expect(putResponse.status).to.eq(200)
+        expect(putResponse.body.success).to.be.true
+        expect(putResponse.body.data).to.have.length(1)
+        expect(putResponse.body.data[0].id).to.eq(facetId)
+      })
+
+      cy.request({
+        url: `${apiBase}/art/image/${artImageId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((getResponse) => {
+        expect(getResponse.status).to.eq(200)
+        expect(getResponse.body.data).to.have.length(1)
+        expect(getResponse.body.data[0].id).to.eq(facetId)
+      })
+
+      // Exact-set semantics: an empty set clears the link.
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/art/image/${artImageId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetIds: [] },
+      }).then((clearResponse) => {
+        expect(clearResponse.status).to.eq(200)
+        expect(clearResponse.body.data).to.deep.eq([])
+      })
+    })
+  })
+
+  it('updates the Facet in place and keeps alias resolution consistent', () => {
+    const bovineAlias = `bovine-${stamp}`
+
+    cy.request({
+      method: 'PATCH',
+      url: `${apiBase}/facets/${facetId}`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        description: 'Everything cows, updated.',
+        kind: 'THEME',
+        aliases: [cowAlias, bovineAlias],
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.kind).to.eq('THEME')
+      expect(response.body.data.description).to.eq('Everything cows, updated.')
+      expect(response.body.data.aliases).to.include(facetSlug)
+      expect(response.body.data.aliases).to.include(cowAlias)
+      expect(response.body.data.aliases).to.include(bovineAlias)
+      // cowsAlias was omitted from the exact set, so it no longer resolves.
+      expect(response.body.data.aliases).to.not.include(cowsAlias)
+    })
+
+    cy.request({
+      url: `${apiBase}/facets/${encodeURIComponent(bovineAlias)}`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.data.id).to.eq(facetId)
+    })
+
+    cy.request({
+      url: `${apiBase}/facets/${encodeURIComponent(cowsAlias)}`,
+      headers: { Authorization: `Bearer ${token}` },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(404)
+    })
+  })
+
   after(() => {
     if (dreamId) {
       cy.request({
@@ -170,6 +301,15 @@ describe('Dream and Scenario Facet assignments', () => {
       cy.request({
         method: 'DELETE',
         url: `${apiBase}/scenarios/${scenarioId}`,
+        headers: { Authorization: `Bearer ${token}` },
+        failOnStatusCode: false,
+      })
+    }
+
+    if (artImageId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/art/image/${artImageId}`,
         headers: { Authorization: `Bearer ${token}` },
         failOnStatusCode: false,
       })

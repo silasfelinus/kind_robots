@@ -1,7 +1,4 @@
 // stores/conductorStore.ts
-// Single source of truth for conductor workspace state.
-// Owns the API fetch, localStorage-backed pitch votes and project priorities,
-// and any shared state consumed by conductor-page or future conductor components.
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type {
@@ -12,11 +9,17 @@ import type {
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { performFetch } from '@/stores/utils'
 
-export type DreamPriority = 'LOW' | 'NORMAL' | 'HIGH'
 export type PitchVote = 'approved' | 'passed'
+export type PitchStatus =
+  | 'awaiting-silas'
+  | 'approved'
+  | 'rejected'
+  | 'duplicate'
+  | 'superseded'
+  | 'archived'
+export type PitchBucket = 'review' | 'approved' | 'rejected' | 'archived'
 
-const VOTE_KEY = 'kr.workspacePitchVotes'
-const PRIORITY_KEY = 'kr.projectPriorities'
+const LEGACY_VOTE_KEY = 'kr.workspacePitchVotes'
 const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 
@@ -48,30 +51,48 @@ const fallbackProjects: ConductorProject[] = CONDUCTOR_CARDS.map((card) => ({
   notesFromSilas: card.description,
 }))
 
-function lsGet<T>(key: string): T | null {
-  if (!import.meta.client) return null
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as T) : null
-  } catch {
-    return null
-  }
+export function normalizePitchStatus(status?: string | null): PitchStatus {
+  const value = (status ?? '').trim().toLowerCase()
+  if (value === 'approved') return 'approved'
+  if (['rejected', 'passed', 'declined'].includes(value)) return 'rejected'
+  if (value === 'duplicate') return 'duplicate'
+  if (value === 'superseded') return 'superseded'
+  if (['archived', 'retired', 'withdrawn'].includes(value)) return 'archived'
+  return 'awaiting-silas'
 }
 
-function lsSet(key: string, value: unknown): void {
+export function pitchBucket(status?: string | null): PitchBucket {
+  const normalized = normalizePitchStatus(status)
+  if (normalized === 'approved') return 'approved'
+  if (normalized === 'rejected') return 'rejected'
+  if (
+    normalized === 'duplicate' ||
+    normalized === 'superseded' ||
+    normalized === 'archived'
+  ) {
+    return 'archived'
+  }
+  return 'review'
+}
+
+function clearLegacyVotes(): void {
   if (!import.meta.client) return
   try {
-    localStorage.setItem(key, JSON.stringify(value))
+    localStorage.removeItem(LEGACY_VOTE_KEY)
   } catch {}
 }
 
 export const useConductorStore = defineStore('conductor', () => {
-  // ── API state ─────────────────────────────────────────────────────────────
   const data = ref<ConductorData | null>(null)
   const pending = ref(false)
   const error = ref<string | null>(null)
+  const pitchUpdateError = ref<string | null>(null)
+  const updatingPitchSlugs = ref<string[]>([])
+  const optimisticPitchStatuses = ref<Record<string, PitchStatus>>({})
 
-  const liveProjects = computed<ConductorProject[]>(() => data.value?.projects ?? [])
+  const liveProjects = computed<ConductorProject[]>(
+    () => data.value?.projects ?? [],
+  )
   const projects = computed<ConductorProject[]>(() =>
     liveProjects.value.length ? liveProjects.value : fallbackProjects,
   )
@@ -81,8 +102,30 @@ export const useConductorStore = defineStore('conductor', () => {
     () => data.value !== null || fallbackProjects.length > 0,
   )
 
+  function pitchStatus(slug: string): PitchStatus {
+    const optimistic = optimisticPitchStatuses.value[slug]
+    if (optimistic) return optimistic
+    const pitch = pitches.value.find((entry) => entry.slug === slug)
+    return normalizePitchStatus(pitch?.status)
+  }
+
   const pendingPitches = computed(() =>
-    pitches.value.filter((p) => p.status.includes('awaiting')),
+    pitches.value.filter((pitch) => pitchBucket(pitchStatus(pitch.slug)) === 'review'),
+  )
+  const approvedPitches = computed(() =>
+    pitches.value.filter(
+      (pitch) => pitchBucket(pitchStatus(pitch.slug)) === 'approved',
+    ),
+  )
+  const rejectedPitches = computed(() =>
+    pitches.value.filter(
+      (pitch) => pitchBucket(pitchStatus(pitch.slug)) === 'rejected',
+    ),
+  )
+  const archivedPitches = computed(() =>
+    pitches.value.filter(
+      (pitch) => pitchBucket(pitchStatus(pitch.slug)) === 'archived',
+    ),
   )
 
   async function fetchProjects(force = false): Promise<void> {
@@ -92,93 +135,107 @@ export const useConductorStore = defineStore('conductor', () => {
     error.value = null
     try {
       data.value = await $fetch<ConductorData>('/api/conductor/projects')
-    } catch (e) {
+      clearLegacyVotes()
+    } catch (cause) {
       error.value = fallbackProjects.length
         ? null
-        : e instanceof Error
-          ? e.message
-          : String(e)
+        : cause instanceof Error
+          ? cause.message
+          : String(cause)
     } finally {
       pending.value = false
     }
   }
 
-  // ── Pitch votes ───────────────────────────────────────────────────────────
-  // Stored in localStorage for instant UI feedback; each vote is also
-  // persisted to the conductor repo via the pitch-vote API so agents see it.
-  const votedPitches = ref<Record<string, PitchVote>>(
-    lsGet<Record<string, PitchVote>>(VOTE_KEY) ?? {},
-  )
-
-  function pitchVote(slug: string): PitchVote | null {
-    return votedPitches.value[slug] ?? null
-  }
-
-  function voteOnPitch(slug: string, choice: PitchVote): void {
-    votedPitches.value = { ...votedPitches.value, [slug]: choice }
-    lsSet(VOTE_KEY, votedPitches.value)
-    // pitch-vote is admin-gated server-side; send the signed-in user's JWT.
-    performFetch('/api/conductor/pitch-vote', {
-      method: 'POST',
-      body: JSON.stringify({ slug, vote: choice }),
-    }).catch((err) => {
-      console.error('[conductor] pitch vote failed to persist to repo:', err)
-    })
-  }
-
-  function clearVote(slug: string): void {
-    const next = { ...votedPitches.value }
-    delete next[slug]
-    votedPitches.value = next
-    lsSet(VOTE_KEY, next)
-  }
-
-  // ── Project priorities (localStorage-backed, synced to API) ───────────────
-  const localPriorities = ref<Record<number, DreamPriority>>(
-    lsGet<Record<number, DreamPriority>>(PRIORITY_KEY) ?? {},
-  )
-
-  function getProjectPriority(dreamId?: number | null): DreamPriority {
-    if (!dreamId) return 'NORMAL'
-    return localPriorities.value[dreamId] ?? 'NORMAL'
-  }
-
-  async function setProjectPriority(
-    dreamId: number,
-    priority: DreamPriority,
-  ): Promise<{ ok: boolean; message?: string }> {
-    localPriorities.value = { ...localPriorities.value, [dreamId]: priority }
-    lsSet(PRIORITY_KEY, localPriorities.value)
-    try {
-      await $fetch(`/api/dreams/${dreamId}/priority`, {
-        method: 'PATCH',
-        body: { priority },
-      })
-      return { ok: true }
-    } catch {
-      return { ok: false, message: 'Priority save failed (local only)' }
+  function replacePitchStatus(slug: string, status: PitchStatus): void {
+    if (!data.value) return
+    data.value = {
+      ...data.value,
+      pitches: data.value.pitches.map((pitch) =>
+        pitch.slug === slug ? { ...pitch, status } : pitch,
+      ),
     }
   }
 
+  async function updatePitchStatus(
+    slug: string,
+    status: PitchStatus,
+  ): Promise<boolean> {
+    if (updatingPitchSlugs.value.includes(slug)) return false
+
+    updatingPitchSlugs.value = [...updatingPitchSlugs.value, slug]
+    optimisticPitchStatuses.value = {
+      ...optimisticPitchStatuses.value,
+      [slug]: status,
+    }
+    pitchUpdateError.value = null
+
+    try {
+      const response = await performFetch<{ status: PitchStatus }>(
+        '/api/conductor/pitch-vote',
+        {
+          method: 'POST',
+          body: JSON.stringify({ slug, vote: status }),
+        },
+      )
+
+      if (!response.success) {
+        throw new Error(response.message || 'Pitch status update failed')
+      }
+
+      replacePitchStatus(slug, status)
+      return true
+    } catch (cause) {
+      pitchUpdateError.value =
+        cause instanceof Error ? cause.message : 'Pitch status update failed'
+      return false
+    } finally {
+      const next = { ...optimisticPitchStatuses.value }
+      delete next[slug]
+      optimisticPitchStatuses.value = next
+      updatingPitchSlugs.value = updatingPitchSlugs.value.filter(
+        (entry) => entry !== slug,
+      )
+    }
+  }
+
+  function pitchVote(slug: string): PitchVote | null {
+    const status = pitchStatus(slug)
+    if (status === 'approved') return 'approved'
+    if (status !== 'awaiting-silas') return 'passed'
+    return null
+  }
+
+  function voteOnPitch(slug: string, choice: PitchVote): Promise<boolean> {
+    return updatePitchStatus(
+      slug,
+      choice === 'approved' ? 'approved' : 'rejected',
+    )
+  }
+
+  function clearVote(slug: string): Promise<boolean> {
+    return updatePitchStatus(slug, 'awaiting-silas')
+  }
+
   return {
-    // API state
     data,
     pending,
     error,
+    pitchUpdateError,
+    updatingPitchSlugs,
     projects,
     pitches,
     fetchedAt,
     hasLoaded,
     pendingPitches,
+    approvedPitches,
+    rejectedPitches,
+    archivedPitches,
     fetchProjects,
-    // Pitch votes
-    votedPitches,
+    pitchStatus,
+    updatePitchStatus,
     pitchVote,
     voteOnPitch,
     clearVote,
-    // Project priorities
-    localPriorities,
-    getProjectPriority,
-    setProjectPriority,
   }
 })

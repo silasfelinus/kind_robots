@@ -22,7 +22,6 @@ const DREAM_TYPES = [
   'SCENARIO',
   'LOCATION',
   'PITCH',
-  'GENRE',
 ] as const satisfies readonly DreamType[]
 
 const DREAM_TYPE_SET = new Set<string>(DREAM_TYPES)

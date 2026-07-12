@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/userStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import {
+  CREATABLE_DREAM_TYPES,
   DREAM_TYPES,
   buildBrainstormPrompt,
   buildDreamPayload,
@@ -115,7 +116,6 @@ export interface FetchDreamOptions {
   galleryId?: number
   scenarioId?: number
   dreamType?: DreamType | string
-  projectStatus?: 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
   tagId?: number
   characterId?: number
   rewardId?: number
@@ -406,7 +406,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const apiResponse = ref('')
   const maxTokens = ref(500)
 
-  const dreamTypes = DREAM_TYPES
+  const dreamTypes = CREATABLE_DREAM_TYPES
 
   const currentUserId = computed(
     () => userStore.user?.id ?? userStore.userId ?? 10,
@@ -414,20 +414,25 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const selectedDreamId = computed(() => selectedDream.value?.id ?? null)
   const selectedDreamChats = computed(() => dreamChats.value)
 
+  const creativeDreams = computed(() => dreams.value)
   const activeDreams = computed(() =>
-    dreams.value.filter((dream) => dream.isActive),
+    creativeDreams.value.filter((dream) => dream.isActive),
   )
   const ownedDreams = computed(() =>
-    dreams.value.filter((dream) => dream.userId === currentUserId.value),
+    creativeDreams.value.filter((dream) => dream.userId === currentUserId.value),
   )
 
   const publicDreams = computed(() =>
-    filterPublicDreams(dreams.value, currentUserId.value, userStore.isAdmin),
+    filterPublicDreams(
+      creativeDreams.value,
+      currentUserId.value,
+      userStore.isAdmin,
+    ),
   )
 
   const visibleDreams = computed(() =>
     filterVisibleDreams(
-      dreams.value,
+      creativeDreams.value,
       currentUserId.value,
       userStore.showMature,
       userStore.isAdmin,
@@ -438,16 +443,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const pitchDreams = computed(() => filterDreamsByType('PITCH', dreams.value))
   const brainstormDreams = computed(() =>
     filterDreamsByType('BRAINSTORM', dreams.value),
-  )
-  const projectDreams = computed(() =>
-    filterDreamsByType('PROJECT', dreams.value),
-  )
-  const publicProjectDreams = computed(() =>
-    filterPublicDreams(
-      projectDreams.value,
-      currentUserId.value,
-      userStore.isAdmin,
-    ),
   )
 
   const dreamsByTitle = computed(() => groupDreamsByTitle(dreams.value))
@@ -933,7 +928,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
           dreamType: options.dreamType
             ? parseDreamType(options.dreamType)
             : undefined,
-          projectStatus: options.projectStatus,
           tagId: options.tagId,
           characterId: options.characterId,
           rewardId: options.rewardId,
@@ -2075,6 +2069,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
     currentUserId,
     selectedDreamId,
     selectedDreamChats,
+    creativeDreams,
     activeDreams,
     publicDreams,
     ownedDreams,
@@ -2082,8 +2077,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
     artDreams,
     pitchDreams,
     brainstormDreams,
-    projectDreams,
-    publicProjectDreams,
     dreamsByTitle,
     selectedTitleDreams,
     selectedDreamCast,

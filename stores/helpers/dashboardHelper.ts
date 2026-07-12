@@ -169,6 +169,20 @@ export const dashboardConfigs = {
           'Coat Dance is the creative video-remix corner: take motion and costume and remix them into short, delightful loops that move exactly as ridiculously as intended.',
         route: '/coat-dance',
       },
+      {
+        key: 'artjob',
+        label: 'ArtJob',
+        icon: 'kind-icon:server',
+        title: 'ArtJob Pipeline',
+        summary: 'Manage art servers and watch the generation queue.',
+        image: tabImage('art', 'artjob'),
+        flourish: '⚙',
+        tagline: 'The control room for the art-generation pipeline.',
+        narrative:
+          'Admin control room for art generation: manage ComfyUI/SD servers, watch uptime, track images created vs failed, and inspect, requeue, or cancel jobs in the ArtJob queue.',
+        route: '/artjob',
+        requiredRole: 'ADMIN',
+      },
     ],
   },
 

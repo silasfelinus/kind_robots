@@ -122,6 +122,15 @@ For tab `{tab}` in channel `{channel}`:
    inside that manager.
 5. Optional: give the tab its own route with Recipe A (set the tab's
    `route:` to the new page).
+6. **Register the placement on the Project DB row** (easy to forget — the
+   front-end wiring above does NOT set it). Set `liveUrl` (the route),
+   `channelKey` (`{channel}`), and `tabKey` (`{tab}`) on the project's
+   `Project` row so it's launchable from Conductor and resolvable by the
+   placement resolver. Declaratively: add `liveUrl`/`channelKey`/`tabKey` to the
+   project's entry in `conductor/project-overrides.yaml` (or its
+   `roadmap.yaml`), and `conductor/scripts/sync_projects.py` upserts them via
+   `PATCH /api/projects/{slug}`. (The `/api/projects` POST/PATCH already accept
+   these fields; nothing else sends them.)
 
 ## Recipe C — new channel (Silas approval required)
 

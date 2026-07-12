@@ -297,7 +297,6 @@ export const CURRENT_MODEL_REGISTRY = {
       'pitch',
       'flavorText',
       'goal',
-      'waypoints',
       'conductorSlug',
       'repoUrl',
       'liveUrl',

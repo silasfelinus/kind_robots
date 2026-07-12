@@ -500,7 +500,6 @@ model Project {
   pitch           String?         @db.Text
   flavorText      String?         @db.VarChar(512)
   goal            String?         @db.Text
-  waypoints       String?         @db.Text
   status          ProjectStatus   @default(BRAINSTORM)
   priority        ProjectPriority @default(NORMAL)
   conductorSlug   String?         @unique @db.VarChar(255)

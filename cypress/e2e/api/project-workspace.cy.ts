@@ -32,7 +32,6 @@ describe('First-class Project workspace API', () => {
         description: 'Project detail workspace API coverage.',
         pitch: 'The north-star intent belongs to Project.',
         goal: 'All Project detail controls persist without a Project Dream.',
-        waypoints: 'Create Project | ~ Exercise workspace | Verify persistence',
         status: 'ACTIVE',
         priority: 'HIGH',
         isPublic: false,
@@ -55,7 +54,6 @@ describe('First-class Project workspace API', () => {
       body: {
         pitch: 'Updated first-class Project intent.',
         goal: 'Project workspace cutover is complete.',
-        waypoints: '✓ Create Project | ✓ Exercise workspace | ~ Verify persistence',
         status: 'PAUSED',
         priority: 'LOW',
         allowReviews: true,
@@ -167,7 +165,6 @@ describe('First-class Project workspace API', () => {
       expect(response.body.data.pitch).to.eq(
         'Updated first-class Project intent.',
       )
-      expect(response.body.data.waypoints).to.include('Verify persistence')
       expect(response.body.data._count.Todos).to.be.greaterThan(0)
       expect(response.body.data._count.Chats).to.be.greaterThan(0)
     })

@@ -2,7 +2,7 @@
 // Single source of truth for conductor workspace state.
 // Owns the API fetch, localStorage-backed pitch votes, and any shared state
 // consumed by conductor-page or future conductor components. Project records
-// (status, priority, waypoints…) live in projectStore against /api/projects.
+// (status, priority, goal…) live in projectStore against /api/projects.
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type {

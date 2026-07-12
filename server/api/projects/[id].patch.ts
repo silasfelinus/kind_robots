@@ -67,8 +67,6 @@ export default defineEventHandler(async (event) => {
     if (body.flavorText !== undefined)
       data.flavorText = normalizeOptionalText(body.flavorText)
     if (body.goal !== undefined) data.goal = normalizeOptionalText(body.goal)
-    if (body.waypoints !== undefined)
-      data.waypoints = normalizeOptionalText(body.waypoints)
     if (body.conductorSlug !== undefined)
       data.conductorSlug = normalizeSlug(body.conductorSlug)
     if (body.lastSyncedAt !== undefined)

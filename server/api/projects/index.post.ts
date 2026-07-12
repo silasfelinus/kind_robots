@@ -25,7 +25,6 @@ type ProjectCreateBody = {
   pitch?: unknown
   flavorText?: unknown
   goal?: unknown
-  waypoints?: unknown
   status?: unknown
   priority?: unknown
   conductorSlug?: unknown
@@ -85,7 +84,6 @@ export default defineEventHandler(async (event) => {
         pitch: normalizeOptionalText(body.pitch),
         flavorText: normalizeOptionalText(body.flavorText),
         goal: normalizeOptionalText(body.goal),
-        waypoints: normalizeOptionalText(body.waypoints),
         status,
         priority,
         conductorSlug: normalizeSlug(body.conductorSlug ?? slug),

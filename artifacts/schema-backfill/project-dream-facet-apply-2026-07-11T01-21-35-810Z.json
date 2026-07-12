@@ -1,0 +1,1508 @@
+{
+  "generatedAt": "2026-07-11T01:21:35.810Z",
+  "mode": "apply",
+  "safety": {
+    "deletesLegacyDreams": false,
+    "clearsLegacyDreamRelations": false,
+    "projectScopedRowsKeepDreamId": true,
+    "genreWorldInfrastructureRemainsOnLegacyDream": true,
+    "pitchSheetsMoveOnlyWhenTheirOwnerIsAProjectDream": true
+  },
+  "summary": {
+    "projectDreams": 29,
+    "genreDreams": 20,
+    "missingProjectSlugs": 0,
+    "missingFacetSlugs": 0,
+    "projectDreamsWithCreativeRelations": 0,
+    "projectPitchSheets": 0,
+    "projectChatsToDualLink": 3534,
+    "projectTodosToDualLink": 0,
+    "projectReactionsToDualLink": 0,
+    "facetScenarioLinksToCreate": 126,
+    "legacyFacetCharacterLinksPreserved": 457
+  },
+  "blockers": {
+    "missingProjectSlugs": [],
+    "missingFacetSlugs": [],
+    "projectDreamsWithCreativeRelations": []
+  },
+  "projects": [
+    {
+      "sourceDreamId": 273,
+      "title": "Kind Robots",
+      "slug": "kind-robots",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 139,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 274,
+      "title": "Humboldt Scoop",
+      "slug": "humboldt-scoop",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 275,
+      "title": "Humboldt Scoop Cms",
+      "slug": "humboldt-scoop-cms",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 276,
+      "title": "Approval Portal",
+      "slug": "approval-portal",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 2,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 277,
+      "title": "Digital Storefront",
+      "slug": "digital-storefront",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 102,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 278,
+      "title": "Brainstorm",
+      "slug": "brainstorm",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 139,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 279,
+      "title": "Mermaids Of Venice",
+      "slug": "mermaids-of-venice",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 96,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 280,
+      "title": "Coat Dance",
+      "slug": "coat-dance",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 119,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 324,
+      "title": "Sketchy",
+      "slug": "sketchy",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 3,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 325,
+      "title": "Storymaker",
+      "slug": "storymaker",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 3,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 326,
+      "title": "Media Watchlist",
+      "slug": "media-watchlist",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 3,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 327,
+      "title": "Conductor App",
+      "slug": "conductor-app",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 140,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 3,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 328,
+      "title": "Alexa Integration",
+      "slug": "alexa-integration",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 140,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 3,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 329,
+      "title": "Art Generator Connect",
+      "slug": "art-generator-connect",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 138,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 3,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 330,
+      "title": "Conductor",
+      "slug": "conductor",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 3,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 554,
+      "title": "Superkate Services Calculator",
+      "slug": "superkate-services-calculator",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 136,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 555,
+      "title": "Global Ui",
+      "slug": "global-ui",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 556,
+      "title": "Pinball Hero",
+      "slug": "pinball-hero",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 557,
+      "title": "Career Transition",
+      "slug": "career-transition",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 558,
+      "title": "Engagement",
+      "slug": "engagement",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 139,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 559,
+      "title": "Wishmaster",
+      "slug": "wishmaster",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 137,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 560,
+      "title": "Challenge Center",
+      "slug": "challenge-center",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 136,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 561,
+      "title": "Serendipity",
+      "slug": "serendipity",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 138,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 562,
+      "title": "Appmaker",
+      "slug": "appmaker",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 139,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 563,
+      "title": "Recipe Box",
+      "slug": "recipe-box",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 139,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 564,
+      "title": "Davinci",
+      "slug": "davinci",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 128,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 604,
+      "title": "Packmaker",
+      "slug": "packmaker",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 94,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 625,
+      "title": "Ecosystem Map",
+      "slug": "ecosystem-map",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 68,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    },
+    {
+      "sourceDreamId": 686,
+      "title": "Mural Design",
+      "slug": "mural-design",
+      "pitchSheetId": null,
+      "counts": {
+        "Chats": 32,
+        "Todos": 0,
+        "Reactions": 0,
+        "Characters": 0,
+        "Rewards": 0,
+        "Scenarios": 0,
+        "Bots": 0
+      },
+      "artImageLinks": 0,
+      "artCollectionLinks": 0
+    }
+  ],
+  "facets": [
+    {
+      "sourceDreamId": 166,
+      "title": "WeirdCore",
+      "slug": "weirdcore",
+      "scenarioLinks": 10,
+      "counts": {
+        "Characters": 47,
+        "Rewards": 0,
+        "Scenarios": 10,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 47,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 167,
+      "title": "ZombieCore",
+      "slug": "zombiecore",
+      "scenarioLinks": 4,
+      "counts": {
+        "Characters": 10,
+        "Rewards": 0,
+        "Scenarios": 4,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 10,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 168,
+      "title": "Weird West",
+      "slug": "weird-west",
+      "scenarioLinks": 5,
+      "counts": {
+        "Characters": 18,
+        "Rewards": 0,
+        "Scenarios": 5,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 18,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 169,
+      "title": "Animal Protagonists",
+      "slug": "animal-protagonists",
+      "scenarioLinks": 7,
+      "counts": {
+        "Characters": 30,
+        "Rewards": 0,
+        "Scenarios": 7,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 30,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 170,
+      "title": "Weird Capitalism",
+      "slug": "weird-capitalism",
+      "scenarioLinks": 6,
+      "counts": {
+        "Characters": 18,
+        "Rewards": 0,
+        "Scenarios": 6,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 18,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 171,
+      "title": "FutureCore",
+      "slug": "futurecore",
+      "scenarioLinks": 7,
+      "counts": {
+        "Characters": 11,
+        "Rewards": 0,
+        "Scenarios": 7,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 11,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 172,
+      "title": "Space Adventures",
+      "slug": "space-adventures",
+      "scenarioLinks": 9,
+      "counts": {
+        "Characters": 14,
+        "Rewards": 0,
+        "Scenarios": 9,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 14,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 173,
+      "title": "oddCore",
+      "slug": "oddcore",
+      "scenarioLinks": 8,
+      "counts": {
+        "Characters": 31,
+        "Rewards": 0,
+        "Scenarios": 8,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 31,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 174,
+      "title": "Fractured Fairy Tales",
+      "slug": "fractured-fairy-tales",
+      "scenarioLinks": 6,
+      "counts": {
+        "Characters": 14,
+        "Rewards": 0,
+        "Scenarios": 6,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 14,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 175,
+      "title": "EldritchCore",
+      "slug": "eldritchcore",
+      "scenarioLinks": 7,
+      "counts": {
+        "Characters": 35,
+        "Rewards": 0,
+        "Scenarios": 7,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 35,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 176,
+      "title": "MythCore",
+      "slug": "mythcore",
+      "scenarioLinks": 6,
+      "counts": {
+        "Characters": 27,
+        "Rewards": 0,
+        "Scenarios": 6,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 27,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 177,
+      "title": "CozyCore",
+      "slug": "cozycore",
+      "scenarioLinks": 7,
+      "counts": {
+        "Characters": 49,
+        "Rewards": 0,
+        "Scenarios": 7,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 49,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 178,
+      "title": "Chrononauts",
+      "slug": "chrononauts",
+      "scenarioLinks": 6,
+      "counts": {
+        "Characters": 12,
+        "Rewards": 0,
+        "Scenarios": 6,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 12,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 179,
+      "title": "Artificial Intelligence",
+      "slug": "artificial-intelligence",
+      "scenarioLinks": 6,
+      "counts": {
+        "Characters": 28,
+        "Rewards": 0,
+        "Scenarios": 6,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 28,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 180,
+      "title": "Villain Era",
+      "slug": "villain-era",
+      "scenarioLinks": 7,
+      "counts": {
+        "Characters": 25,
+        "Rewards": 0,
+        "Scenarios": 7,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 25,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 181,
+      "title": "CircusCore",
+      "slug": "circuscore",
+      "scenarioLinks": 6,
+      "counts": {
+        "Characters": 22,
+        "Rewards": 0,
+        "Scenarios": 6,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 22,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 182,
+      "title": "EcoCore",
+      "slug": "ecocore",
+      "scenarioLinks": 5,
+      "counts": {
+        "Characters": 26,
+        "Rewards": 0,
+        "Scenarios": 5,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 26,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 184,
+      "title": "The Big Blue",
+      "slug": "the-big-blue",
+      "scenarioLinks": 5,
+      "counts": {
+        "Characters": 14,
+        "Rewards": 0,
+        "Scenarios": 5,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 14,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 185,
+      "title": "KaijuCore",
+      "slug": "kaijucore",
+      "scenarioLinks": 4,
+      "counts": {
+        "Characters": 9,
+        "Rewards": 0,
+        "Scenarios": 4,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 9,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    },
+    {
+      "sourceDreamId": 186,
+      "title": "crimeCore",
+      "slug": "crimecore",
+      "scenarioLinks": 5,
+      "counts": {
+        "Characters": 17,
+        "Rewards": 0,
+        "Scenarios": 5,
+        "Bots": 1,
+        "Chats": 1
+      },
+      "preservedOnLegacyDream": {
+        "characters": 17,
+        "rewards": 0,
+        "bots": 1,
+        "chats": 1
+      }
+    }
+  ],
+  "completedAt": "2026-07-11T01:21:54.969Z",
+  "results": {
+    "projects": [
+      {
+        "sourceDreamId": 273,
+        "projectId": 1,
+        "slug": "kind-robots",
+        "chatsLinked": 139,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 274,
+        "projectId": 2,
+        "slug": "humboldt-scoop",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 275,
+        "projectId": 3,
+        "slug": "humboldt-scoop-cms",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 276,
+        "projectId": 4,
+        "slug": "approval-portal",
+        "chatsLinked": 2,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 277,
+        "projectId": 5,
+        "slug": "digital-storefront",
+        "chatsLinked": 102,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 278,
+        "projectId": 6,
+        "slug": "brainstorm",
+        "chatsLinked": 139,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 279,
+        "projectId": 7,
+        "slug": "mermaids-of-venice",
+        "chatsLinked": 96,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 280,
+        "projectId": 8,
+        "slug": "coat-dance",
+        "chatsLinked": 119,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 324,
+        "projectId": 9,
+        "slug": "sketchy",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 3,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 325,
+        "projectId": 10,
+        "slug": "storymaker",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 3,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 326,
+        "projectId": 11,
+        "slug": "media-watchlist",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 3,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 327,
+        "projectId": 12,
+        "slug": "conductor-app",
+        "chatsLinked": 140,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 3,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 328,
+        "projectId": 13,
+        "slug": "alexa-integration",
+        "chatsLinked": 140,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 3,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 329,
+        "projectId": 14,
+        "slug": "art-generator-connect",
+        "chatsLinked": 138,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 3,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 330,
+        "projectId": 15,
+        "slug": "conductor",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 3,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 554,
+        "projectId": 16,
+        "slug": "superkate-services-calculator",
+        "chatsLinked": 136,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 555,
+        "projectId": 17,
+        "slug": "global-ui",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 556,
+        "projectId": 18,
+        "slug": "pinball-hero",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 557,
+        "projectId": 19,
+        "slug": "career-transition",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 558,
+        "projectId": 20,
+        "slug": "engagement",
+        "chatsLinked": 139,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 559,
+        "projectId": 21,
+        "slug": "wishmaster",
+        "chatsLinked": 137,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 560,
+        "projectId": 22,
+        "slug": "challenge-center",
+        "chatsLinked": 136,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 561,
+        "projectId": 23,
+        "slug": "serendipity",
+        "chatsLinked": 138,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 562,
+        "projectId": 24,
+        "slug": "appmaker",
+        "chatsLinked": 139,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 563,
+        "projectId": 25,
+        "slug": "recipe-box",
+        "chatsLinked": 139,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 564,
+        "projectId": 26,
+        "slug": "davinci",
+        "chatsLinked": 128,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 604,
+        "projectId": 27,
+        "slug": "packmaker",
+        "chatsLinked": 94,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 12,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 625,
+        "projectId": 28,
+        "slug": "ecosystem-map",
+        "chatsLinked": 68,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 3,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      },
+      {
+        "sourceDreamId": 686,
+        "projectId": 29,
+        "slug": "mural-design",
+        "chatsLinked": 32,
+        "todosLinked": 0,
+        "reactionsLinked": 0,
+        "artJobsLinked": 0,
+        "pitchSheetMoved": false,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0
+      }
+    ],
+    "facets": [
+      {
+        "sourceDreamId": 166,
+        "facetId": 1,
+        "slug": "weirdcore",
+        "scenariosLinked": 10,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 47,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 167,
+        "facetId": 2,
+        "slug": "zombiecore",
+        "scenariosLinked": 4,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 10,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 168,
+        "facetId": 3,
+        "slug": "weird-west",
+        "scenariosLinked": 5,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 18,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 169,
+        "facetId": 4,
+        "slug": "animal-protagonists",
+        "scenariosLinked": 7,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 30,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 170,
+        "facetId": 5,
+        "slug": "weird-capitalism",
+        "scenariosLinked": 6,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 18,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 171,
+        "facetId": 6,
+        "slug": "futurecore",
+        "scenariosLinked": 7,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 11,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 172,
+        "facetId": 7,
+        "slug": "space-adventures",
+        "scenariosLinked": 9,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 14,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 173,
+        "facetId": 8,
+        "slug": "oddcore",
+        "scenariosLinked": 8,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 31,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 174,
+        "facetId": 9,
+        "slug": "fractured-fairy-tales",
+        "scenariosLinked": 6,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 14,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 175,
+        "facetId": 10,
+        "slug": "eldritchcore",
+        "scenariosLinked": 7,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 35,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 176,
+        "facetId": 11,
+        "slug": "mythcore",
+        "scenariosLinked": 6,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 27,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 177,
+        "facetId": 12,
+        "slug": "cozycore",
+        "scenariosLinked": 7,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 49,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 178,
+        "facetId": 13,
+        "slug": "chrononauts",
+        "scenariosLinked": 6,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 12,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 179,
+        "facetId": 14,
+        "slug": "artificial-intelligence",
+        "scenariosLinked": 6,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 28,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 180,
+        "facetId": 15,
+        "slug": "villain-era",
+        "scenariosLinked": 7,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 25,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 181,
+        "facetId": 16,
+        "slug": "circuscore",
+        "scenariosLinked": 6,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 22,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 182,
+        "facetId": 17,
+        "slug": "ecocore",
+        "scenariosLinked": 5,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 26,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 184,
+        "facetId": 18,
+        "slug": "the-big-blue",
+        "scenariosLinked": 5,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 14,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 185,
+        "facetId": 19,
+        "slug": "kaijucore",
+        "scenariosLinked": 4,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 9,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      },
+      {
+        "sourceDreamId": 186,
+        "facetId": 20,
+        "slug": "crimecore",
+        "scenariosLinked": 5,
+        "artImagesLinked": 0,
+        "artCollectionsLinked": 0,
+        "preservedLegacyCharacters": 17,
+        "preservedLegacyRewards": 0,
+        "preservedLegacyBots": 1,
+        "preservedLegacyChats": 1
+      }
+    ]
+  },
+  "verification": {
+    "invalidPitchSheetOwners": 0,
+    "projectsPresent": 29,
+    "facetsPresent": 20,
+    "expectedProjects": 29,
+    "expectedFacets": 20
+  }
+}

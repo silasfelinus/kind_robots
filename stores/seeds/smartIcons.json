@@ -236,5 +236,19 @@
     "description": "Here's the behind-the-scenes look at the components that make up our site.",
     "category": "ami",
     "modelType": "ami"
+  },
+  {
+    "title": "Model Builder",
+    "type": "directory",
+    "userId": 10,
+    "designer": "content-seeder",
+    "icon": "kind-icon:blueprint",
+    "label": "Model Builder Room",
+    "link": "/model-builder",
+    "component": "builder-nav",
+    "isPublic": true,
+    "description": "Upgrade or expand existing Kind Robots records through four reviewable gates.",
+    "category": "model",
+    "modelType": "builder"
   }
 ]

@@ -32,6 +32,11 @@ import {
   type RecipeKey,
   type SourceTypeKey,
 } from '@/stores/helpers/modelBuilderRecipes'
+import {
+  CREATE_TARGETS,
+  defaultFieldsTemplate,
+  fieldsBrief,
+} from '@/stores/helpers/modelBuilderFields'
 
 export type BuilderStep = 'source' | 'recipe' | 'run'
 
@@ -79,6 +84,7 @@ export interface BuildRun {
   sourceType: SourceTypeKey
   sourceId: number
   sourceLabel: string
+  sourceSnapshot: Record<string, unknown> | null
   recipeKey: RecipeKey
   items: BuildItem[]
 }
@@ -140,6 +146,7 @@ interface ServerRun {
   sourceType: string
   sourceId: number
   sourceLabel: string | null
+  sourceSnapshot: unknown
   recipeKey: string
   Items: ServerItem[]
 }
@@ -149,17 +156,10 @@ const runIdKey = 'modelBuilder:runId'
 const MAX_BATCH = 12
 
 // Which draft field an AI suggestion targets. `artPrompt` matches the /api/suggest
-// convention used by the art generator.
+// convention used by the art generator. Per-field prompt text lives in the
+// registered 'model-builder' suggest sheet (server/utils/suggest/sheets), so the
+// store just names the field.
 export type DraftField = 'pitch' | 'fields' | 'artPrompt'
-
-const DRAFT_INSTRUCTIONS: Record<DraftField, string> = {
-  pitch:
-    'Write a concise 2-3 sentence pitch describing why this output exists for the source record and what it should convey. Return only the pitch text.',
-  fields:
-    'Propose the concrete schema fields and relationships this output should write, as short "field: value" lines grounded in the source record. Return only the field list.',
-  artPrompt:
-    'Write a single vivid image-generation prompt for this output, grounded in the source record. Comma-separated descriptors, no preamble. Return only the prompt.',
-}
 
 function safeGet(key: string): string | null {
   if (!isClient) return null
@@ -213,6 +213,17 @@ function stageIndex(key: BuildStageKey): number {
   return BUILD_STAGES.findIndex((stage) => stage.key === key)
 }
 
+// Which model an item ultimately writes to: CREATE items target the mapped
+// expansion type; UPDATE/ASSET_ONLY items target the run's source model.
+function resolveTargetModel(
+  action: BuildAction,
+  outputKey: string,
+  sourceType: SourceTypeKey,
+): SourceTypeKey {
+  if (action === 'CREATE') return CREATE_TARGETS[outputKey] ?? sourceType
+  return sourceType
+}
+
 // Turn a catalog size ('256×256', '512×768', 'square', undefined) into pixel
 // dimensions for the art generator.
 function sizeToDimensions(size?: string): { width: number; height: number } {
@@ -253,6 +264,10 @@ function adaptRun(server: ServerRun): BuildRun {
     sourceType: server.sourceType as SourceTypeKey,
     sourceId: server.sourceId,
     sourceLabel: server.sourceLabel ?? '',
+    sourceSnapshot:
+      server.sourceSnapshot && typeof server.sourceSnapshot === 'object'
+        ? (server.sourceSnapshot as Record<string, unknown>)
+        : null,
     recipeKey: server.recipeKey as RecipeKey,
     items: Array.isArray(server.Items) ? server.Items.map(adaptItem) : [],
   }
@@ -414,10 +429,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       return
     }
 
+    const runSourceType = state.sourceType
     const itemsPayload: Array<Record<string, unknown>> = []
     for (const output of recipeOutputs.value) {
       const selection = state.selections[output.key]
       if (!selection?.on) continue
+
+      // Model-aware pre-fill: CREATE/UPDATE items start with the target model's
+      // required/defaulted fields as a skeleton, so FIELDS isn't a blank box.
+      const targetModel = resolveTargetModel(
+        output.action,
+        output.key,
+        runSourceType,
+      )
+      const fieldsDraft =
+        output.action === 'ASSET_ONLY' ? '' : defaultFieldsTemplate(targetModel)
 
       const count = output.quantity ? selection.quantity : 1
       for (let index = 0; index < count; index++) {
@@ -428,6 +454,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           generation: output.generation,
           quantityIndex: index,
           stageStatuses: freshStages(),
+          fieldsDraft,
         })
       }
     }
@@ -594,6 +621,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item || !state.run) return false
 
+    const targetModel = resolveTargetModel(
+      item.action,
+      item.outputKey,
+      state.run.sourceType,
+    )
+
     const serverStore = useServerStore()
     const activeServer = serverStore.activeTextServer
     const serverSnapshot = activeServer
@@ -634,12 +667,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
               output: item.outputKey,
               itemLabel: item.label,
               action: item.action,
+              targetModel,
+              expectedFields: fieldsBrief(targetModel),
               pitch: item.pitch,
               fields: item.fieldsDraft,
               source: state.selectedSource ?? undefined,
             },
             extra: {
-              instruction: instruction || DRAFT_INSTRUCTIONS[field],
+              // The registered 'model-builder' suggest sheet owns the per-field
+              // prompt; only override it when the caller passes an explicit one.
+              ...(instruction ? { instruction } : {}),
               sourceLabel: state.run.sourceLabel,
             },
           }),

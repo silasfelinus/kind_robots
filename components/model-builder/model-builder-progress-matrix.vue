@@ -20,6 +20,43 @@
       </button>
     </div>
 
+    <!-- Source context: what we already have on the record we're building from -->
+    <div
+      v-if="source"
+      class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+    >
+      <div
+        class="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-base-200"
+      >
+        <img
+          v-if="sourceImage"
+          :src="sourceImage"
+          :alt="run?.sourceLabel"
+          class="h-full w-full object-cover"
+          loading="lazy"
+        />
+        <Icon v-else name="kind-icon:blueprint" class="h-6 w-6 text-base-content/30" />
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="truncate text-sm font-bold text-base-content">
+            {{ run?.sourceLabel }}
+          </span>
+          <span class="badge badge-xs badge-ghost">{{ run?.sourceType }}</span>
+          <span class="text-[10px] text-base-content/35">#{{ run?.sourceId }}</span>
+        </div>
+        <p
+          v-if="sourceBlurb"
+          class="mt-0.5 line-clamp-3 text-xs leading-snug text-base-content/60"
+        >
+          {{ sourceBlurb }}
+        </p>
+        <p v-else class="mt-0.5 text-xs italic text-base-content/40">
+          No description on this record yet.
+        </p>
+      </div>
+    </div>
+
     <!-- Stage matrix -->
     <div class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100">
       <table class="table table-sm">
@@ -92,6 +129,49 @@ const run = computed(() => store.run)
 const recipeLabel = computed(() =>
   run.value ? getRecipe(run.value.recipeKey)?.label : '',
 )
+
+// The source record we're building from — snapshot survives resume; fall back to
+// the freshly-picked record.
+const source = computed<Record<string, unknown> | null>(
+  () => run.value?.sourceSnapshot ?? store.selectedSource ?? null,
+)
+
+function str(record: Record<string, unknown>, key: string): string {
+  const value = record[key]
+  return typeof value === 'string' ? value : ''
+}
+
+const sourceImage = computed(() => {
+  const record = source.value
+  if (!record) return ''
+  const art = record.ArtImage as
+    | { thumbnailPath?: string; imagePath?: string }
+    | undefined
+  return (
+    str(record, 'imagePath') ||
+    str(record, 'avatarImage') ||
+    art?.thumbnailPath ||
+    art?.imagePath ||
+    ''
+  )
+})
+
+const sourceBlurb = computed(() => {
+  const record = source.value
+  if (!record) return ''
+  for (const key of [
+    'description',
+    'pitch',
+    'backstory',
+    'flavorText',
+    'botIntro',
+    'subtitle',
+  ]) {
+    const value = str(record, key)
+    if (value.trim()) return value
+  }
+  return ''
+})
 
 const selectedItemId = ref<string>(run.value?.items[0]?.id ?? '')
 const selectedItem = computed(() =>

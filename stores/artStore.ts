@@ -215,6 +215,9 @@ type ArtStoreState = {
   generationMessageTone: 'success' | 'error'
   lastGeneratedArtImage: ArtImage | null
   selectedGenerationCollectionId: number | null
+  // Async ArtJob queue state for the in-flight generation (enqueue → poll).
+  queueState: 'queued' | 'rendering' | null
+  currentJobId: number | null
 }
 
 const isClient = typeof window !== 'undefined'
@@ -328,6 +331,8 @@ export const useArtStore = defineStore('artStore', () => {
     generationMessageTone: 'success',
     lastGeneratedArtImage: null,
     selectedGenerationCollectionId: null,
+    queueState: null,
+    currentJobId: null,
     artForm: {
       promptString: '',
       negativePrompt: '',
@@ -1871,33 +1876,6 @@ export const useArtStore = defineStore('artStore', () => {
     return String(errorData)
   }
 
-  async function generateComfyImageFromBrowserServer(
-    server: Server,
-    data: GenerateArtData,
-  ): Promise<string> {
-    throw new Error(
-      `Browser Comfy generation is not wired yet for "${server.title}".`,
-    )
-  }
-
-  async function generateFluxImageFromBrowserServer(
-    server: Server,
-    data: GenerateArtData,
-  ): Promise<string> {
-    throw new Error(
-      `Browser Flux generation is not wired yet for "${server.title}".`,
-    )
-  }
-
-  async function generateKontextImageFromBrowserServer(
-    server: Server,
-    data: GenerateArtData,
-  ): Promise<string> {
-    throw new Error(
-      `Browser Kontext generation is not wired yet for "${server.title}".`,
-    )
-  }
-
   async function saveBrowserGeneratedArtImage(
     data: GenerateArtData & { imageBase64: string },
   ): Promise<ArtImage> {
@@ -1919,56 +1897,6 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     return response.data
-  }
-
-  async function generateBrowserArtImage(
-    server: Server,
-    data: GenerateArtData,
-    engine: ArtImageGenerationEngine,
-  ): Promise<ArtImage> {
-    if (engine === 'a1111') {
-      const imageBase64 = await generateImageFromBrowserServer(server, data)
-
-      return await saveBrowserGeneratedArtImage({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    if (engine === 'comfy') {
-      const imageBase64 = await generateComfyImageFromBrowserServer(
-        server,
-        data,
-      )
-
-      return await saveBrowserGeneratedArtImage({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    if (engine === 'flux') {
-      const imageBase64 = await generateFluxImageFromBrowserServer(server, data)
-
-      return await saveBrowserGeneratedArtImage({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    if (engine === 'kontext') {
-      const imageBase64 = await generateKontextImageFromBrowserServer(
-        server,
-        data,
-      )
-
-      return await saveBrowserGeneratedArtImage({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    throw new Error(`Unsupported browser generation engine: ${engine}`)
   }
 
   function getBackendArtImageGenerationEndpoint(
@@ -2102,6 +2030,117 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     return response.data
+  }
+
+  // ---------------------------------------------------------------------------
+  // Durable ArtJob queue path (the default for every engine except OpenAI).
+  // Enqueue via /api/art/enqueue, poll /api/art/queue/:id until the home relay
+  // renders + completes the job, then load the resulting ArtImage. Mirrors the
+  // pattern in stores/stylistStore.ts.
+  // ---------------------------------------------------------------------------
+  const ART_QUEUE_POLL_MS = 5_000
+  const ART_QUEUE_TIMEOUT_MS = 10 * 60_000
+
+  type QueuedArtJob = {
+    id: number
+    status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
+    artImageId?: number | null
+    error?: string | null
+  }
+
+  function queueSleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  async function enqueueArtJob(
+    data: GenerateArtData,
+    engine: ArtImageGenerationEngine,
+  ): Promise<number> {
+    const response = await performFetch<{ jobId: number; status: string }>(
+      '/api/art/enqueue',
+      {
+        method: 'POST',
+        body: JSON.stringify({ ...data, engine }),
+        headers: { 'Content-Type': 'application/json' },
+      },
+      2,
+      60_000,
+    )
+
+    if (!response.success || !response.data?.jobId) {
+      throw new Error(response.message || 'Failed to queue art job.')
+    }
+
+    return response.data.jobId
+  }
+
+  async function waitForQueuedArtJob(jobId: number): Promise<QueuedArtJob> {
+    const startedAt = Date.now()
+
+    while (Date.now() - startedAt < ART_QUEUE_TIMEOUT_MS) {
+      const response = await performFetch<{ job: QueuedArtJob }>(
+        `/api/art/queue/${jobId}`,
+        { method: 'GET' },
+        2,
+        20_000,
+      )
+
+      const job = response.success ? response.data?.job : null
+
+      if (
+        job?.status === 'DONE' ||
+        job?.status === 'FAILED' ||
+        job?.status === 'CANCELLED'
+      ) {
+        return job
+      }
+
+      // Surface "queued" vs "rendering" so the button can tell whether the
+      // home relay has claimed the job yet.
+      if (job?.status === 'PENDING' || job?.status === 'RUNNING') {
+        state.queueState = job.status === 'RUNNING' ? 'rendering' : 'queued'
+      }
+
+      await queueSleep(ART_QUEUE_POLL_MS)
+    }
+
+    throw new Error(
+      'The studio engine is still catching up. The job stays queued and its image will appear once the engine finishes — no need to resubmit.',
+    )
+  }
+
+  // Enqueue an ArtJob, wait for the relay to render it, then load the finished
+  // ArtImage (with image data) so callers get the same ArtImage the synchronous
+  // path used to return inline.
+  async function enqueueAndRenderArtImage(
+    data: GenerateArtData,
+    engine: ArtImageGenerationEngine,
+  ): Promise<ArtImage> {
+    state.queueState = 'queued'
+
+    const jobId = await enqueueArtJob(data, engine)
+    state.currentJobId = jobId
+
+    const job = await waitForQueuedArtJob(jobId)
+
+    if (job.status !== 'DONE' || !job.artImageId) {
+      throw new Error(
+        job.error || `Art job ${jobId} ${job.status.toLowerCase()}.`,
+      )
+    }
+
+    const image = await getArtImageById(job.artImageId, {
+      force: true,
+      includeImageData: true,
+    })
+
+    if (!image) {
+      throw new Error(
+        `Art job ${jobId} finished but its image (${job.artImageId}) could not be loaded.`,
+      )
+    }
+
+    return image
   }
 
   async function ensureCollectionsReady(): Promise<void> {
@@ -2297,40 +2336,22 @@ export const useArtStore = defineStore('artStore', () => {
           }
         : data
 
+      // Hosted Kontext (no explicit server): enqueue an image-to-image job so
+      // the home relay renders it, same as every other engine.
       if (resolvedData.engine === 'kontext' && !server) {
         const dataWithHostedKontext: GenerateArtData = {
           ...data,
           serverId: null,
           serverName: null,
           engine: 'kontext',
-          transport: 'backend',
         }
 
-        const image = await generateBackendArtImage(
+        const image = await enqueueAndRenderArtImage(
           dataWithHostedKontext,
           'kontext',
         )
 
-        addOrUpdateArtImages([image])
-
-        state.generatedArtImages = mergeUniqueArtImages(
-          state.generatedArtImages,
-          [image],
-        )
-
-        state.currentArtImage = image
-        state.lastGeneratedArtImage = image
-
-        await addGeneratedArtImageToCollections(
-          image,
-          dataWithHostedKontext.userId || 10,
-          dataWithHostedKontext.artCollectionId,
-        )
-
-        setGenerationMessage(
-          'success',
-          'Image created and added to collections.',
-        )
+        await applyGeneratedArtImage(image, dataWithHostedKontext)
 
         return {
           success: true,
@@ -2348,36 +2369,16 @@ export const useArtStore = defineStore('artStore', () => {
       const dataWithServer: GenerateArtData = {
         ...resolvedData,
         engine: route.engine,
-        transport:
-          route.engine === 'comfy' ||
-          route.engine === 'flux' ||
-          route.engine === 'kontext'
-            ? 'backend'
-            : route.transport,
       }
 
+      // OpenAI runs on the backend directly (no home relay needed), so it stays
+      // synchronous. Every other engine goes through the durable ArtJob queue.
       const image =
-        dataWithServer.transport === 'browser'
-          ? await generateBrowserArtImage(server, dataWithServer, route.engine)
-          : await generateBackendArtImage(dataWithServer, route.engine)
+        route.engine === 'openai'
+          ? await generateBackendArtImage(dataWithServer, 'openai')
+          : await enqueueAndRenderArtImage(dataWithServer, route.engine)
 
-      addOrUpdateArtImages([image])
-
-      state.generatedArtImages = mergeUniqueArtImages(
-        state.generatedArtImages,
-        [image],
-      )
-
-      state.currentArtImage = image
-      state.lastGeneratedArtImage = image
-
-      await addGeneratedArtImageToCollections(
-        image,
-        dataWithServer.userId || 10,
-        dataWithServer.artCollectionId,
-      )
-
-      setGenerationMessage('success', 'Image created and added to collections.')
+      await applyGeneratedArtImage(image, dataWithServer)
 
       return {
         success: true,
@@ -2399,8 +2400,34 @@ export const useArtStore = defineStore('artStore', () => {
     } finally {
       state.loading = false
       state.isGenerating = false
+      state.queueState = null
+      state.currentJobId = null
       animationStore.stop()
     }
+  }
+
+  // Shared tail for a freshly generated image: cache it, track it as the
+  // latest generation, and link it into the selected collections.
+  async function applyGeneratedArtImage(
+    image: ArtImage,
+    data: GenerateArtData,
+  ): Promise<void> {
+    addOrUpdateArtImages([image])
+
+    state.generatedArtImages = mergeUniqueArtImages(state.generatedArtImages, [
+      image,
+    ])
+
+    state.currentArtImage = image
+    state.lastGeneratedArtImage = image
+
+    await addGeneratedArtImageToCollections(
+      image,
+      data.userId || 10,
+      data.artCollectionId,
+    )
+
+    setGenerationMessage('success', 'Image created and added to collections.')
   }
 
   function resetInitialization(): void {

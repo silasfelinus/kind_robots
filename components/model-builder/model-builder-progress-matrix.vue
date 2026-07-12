@@ -10,14 +10,29 @@
           {{ store.runProgress.committed }}/{{ store.runProgress.total }} committed
         </p>
       </div>
-      <button
-        type="button"
-        class="btn btn-xs btn-ghost shrink-0 rounded-xl text-base-content/60"
-        @click="store.resetRun()"
-      >
-        <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
-        New run
-      </button>
+      <div class="flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary rounded-xl"
+          :disabled="store.autoBuilding"
+          title="Draft, generate, and commit every item automatically"
+          @click="store.autoBuildRun()"
+        >
+          <span v-if="store.autoBuilding" class="loading loading-dots loading-xs" />
+          <template v-else>
+            <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
+            Auto-build all
+          </template>
+        </button>
+        <button
+          type="button"
+          class="btn btn-xs btn-ghost rounded-xl text-base-content/60"
+          @click="store.resetRun()"
+        >
+          <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+          New run
+        </button>
+      </div>
     </div>
 
     <!-- Source context: what we already have on the record we're building from -->

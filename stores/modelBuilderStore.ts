@@ -32,6 +32,11 @@ import {
   type RecipeKey,
   type SourceTypeKey,
 } from '@/stores/helpers/modelBuilderRecipes'
+import {
+  CREATE_TARGETS,
+  defaultFieldsTemplate,
+  fieldsBrief,
+} from '@/stores/helpers/modelBuilderFields'
 
 export type BuilderStep = 'source' | 'recipe' | 'run'
 
@@ -206,6 +211,17 @@ function normalizeStages(raw: unknown): Record<BuildStageKey, StageState> {
 
 function stageIndex(key: BuildStageKey): number {
   return BUILD_STAGES.findIndex((stage) => stage.key === key)
+}
+
+// Which model an item ultimately writes to: CREATE items target the mapped
+// expansion type; UPDATE/ASSET_ONLY items target the run's source model.
+function resolveTargetModel(
+  action: BuildAction,
+  outputKey: string,
+  sourceType: SourceTypeKey,
+): SourceTypeKey {
+  if (action === 'CREATE') return CREATE_TARGETS[outputKey] ?? sourceType
+  return sourceType
 }
 
 // Turn a catalog size ('256×256', '512×768', 'square', undefined) into pixel
@@ -413,10 +429,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       return
     }
 
+    const runSourceType = state.sourceType
     const itemsPayload: Array<Record<string, unknown>> = []
     for (const output of recipeOutputs.value) {
       const selection = state.selections[output.key]
       if (!selection?.on) continue
+
+      // Model-aware pre-fill: CREATE/UPDATE items start with the target model's
+      // required/defaulted fields as a skeleton, so FIELDS isn't a blank box.
+      const targetModel = resolveTargetModel(
+        output.action,
+        output.key,
+        runSourceType,
+      )
+      const fieldsDraft =
+        output.action === 'ASSET_ONLY' ? '' : defaultFieldsTemplate(targetModel)
 
       const count = output.quantity ? selection.quantity : 1
       for (let index = 0; index < count; index++) {
@@ -427,6 +454,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           generation: output.generation,
           quantityIndex: index,
           stageStatuses: freshStages(),
+          fieldsDraft,
         })
       }
     }
@@ -593,6 +621,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item || !state.run) return false
 
+    const targetModel = resolveTargetModel(
+      item.action,
+      item.outputKey,
+      state.run.sourceType,
+    )
+
     const serverStore = useServerStore()
     const activeServer = serverStore.activeTextServer
     const serverSnapshot = activeServer
@@ -633,6 +667,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
               output: item.outputKey,
               itemLabel: item.label,
               action: item.action,
+              targetModel,
+              expectedFields: fieldsBrief(targetModel),
               pitch: item.pitch,
               fields: item.fieldsDraft,
               source: state.selectedSource ?? undefined,

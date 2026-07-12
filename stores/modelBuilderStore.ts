@@ -107,8 +107,11 @@ interface ModelBuilderState {
   runs: BuildRun[]
   loadingRuns: boolean
   startingRun: boolean
+  includeArt: boolean
   generatingItemId: string | null
   committingItemId: string | null
+  autoBuilding: boolean
+  autoBuildingItemId: string | null
   statusMessage: string
   statusTone: 'success' | 'error'
 }
@@ -287,8 +290,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     runs: [],
     loadingRuns: false,
     startingRun: false,
+    includeArt: true,
     generatingItemId: null,
     committingItemId: null,
+    autoBuilding: false,
+    autoBuildingItemId: null,
     statusMessage: '',
     statusTone: 'success',
   })
@@ -895,6 +901,87 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
+  // --- auto-build: walk an item (or the whole run) to completion ------------
+
+  function toggleIncludeArt(value?: boolean): void {
+    state.includeArt = typeof value === 'boolean' ? value : !state.includeArt
+  }
+
+  // Run one item through every gate automatically with sensible defaults: draft
+  // what's empty, generate art only when wanted, and commit. "Create directly"
+  // for CREATE/UPDATE items when art is off. Returns whether it committed.
+  async function autoBuildItem(itemId: string): Promise<boolean> {
+    const item = findItem(itemId)
+    if (!item || !state.run) return false
+
+    const isAsset = item.action === 'ASSET_ONLY'
+    const wantArt = state.includeArt && item.generation === 'image'
+
+    // An ASSET_ONLY item is nothing but its art — can't auto-build without it.
+    if (isAsset && !wantArt) {
+      setStatus(
+        'error',
+        `${item.label} is asset-only — enable art to auto-build it.`,
+      )
+      return false
+    }
+
+    state.autoBuildingItemId = item.id
+    try {
+      if (item.stages.PITCH.status !== 'approved') {
+        if (!item.pitch.trim()) await draftText(itemId, 'pitch')
+        approveStage(itemId, 'PITCH')
+      }
+
+      if (item.stages.FIELDS_AND_PROMPTS.status !== 'approved') {
+        if (!isAsset) await draftText(itemId, 'fields')
+        if (wantArt) await draftText(itemId, 'artPrompt')
+        approveStage(itemId, 'FIELDS_AND_PROMPTS')
+      }
+
+      if (item.stages.GENERATE_ASSETS.status !== 'approved') {
+        if (wantArt) {
+          const generated = await generateItemAsset(itemId)
+          if (!generated) return false
+        }
+        approveStage(itemId, 'GENERATE_ASSETS')
+      }
+
+      if (item.stages.COMMIT.status !== 'approved') {
+        return await commitItem(itemId)
+      }
+      return true
+    } finally {
+      state.autoBuildingItemId = null
+    }
+  }
+
+  // Auto-build every not-yet-committed item in the run, in order.
+  async function autoBuildRun(): Promise<void> {
+    if (!state.run || state.autoBuilding) return
+    state.autoBuilding = true
+    clearStatus()
+
+    const items = [...state.run.items]
+    let committed = 0
+    try {
+      for (const item of items) {
+        if (item.stages.COMMIT.status === 'approved') {
+          committed++
+          continue
+        }
+        const ok = await autoBuildItem(item.id)
+        if (ok) committed++
+      }
+      setStatus(
+        'success',
+        `Auto-build finished: ${committed}/${items.length} committed.`,
+      )
+    } finally {
+      state.autoBuilding = false
+    }
+  }
+
   // --- persistence / resume -------------------------------------------------
 
   function setActiveRunId(id: number): void {
@@ -1062,6 +1149,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     generateItemAsset,
     previewCommit,
     commitItem,
+    toggleIncludeArt,
+    autoBuildItem,
+    autoBuildRun,
     resumeRun,
     fetchRuns,
     openRun,

@@ -3,6 +3,8 @@
     <loading-messages
       v-if="showOverlay"
       :stores-ready="storesReady"
+      @covered="handleOverlayCovered"
+      @hiding="handleOverlayHiding"
       @hidden="handleOverlayHidden"
     />
   </div>
@@ -34,6 +36,7 @@ import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { useButterflyStore } from '@/stores/butterflyStore'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 
 const errorStore = useErrorStore()
@@ -59,6 +62,7 @@ const componentStore = useComponentStore()
 const randomStore = useRandomStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()
+const butterflyStore = useButterflyStore()
 
 const emit = defineEmits<{
   covered: []
@@ -77,6 +81,10 @@ function handleOverlayCovered() {
   emit('covered')
 }
 
+function handleOverlayHiding() {
+  butterflyStore.setShowSwarm(false)
+}
+
 function emitReadyOnce() {
   if (pageReadyEmitted.value) return
   pageReadyEmitted.value = true
@@ -89,8 +97,6 @@ function handleOverlayHidden() {
   emitReadyOnce()
 }
 
-// Run a batch of store inits in parallel. allSettled (not all) so one
-// rejecting store never aborts its siblings or the rest of the boot.
 async function runWave(
   label: string,
   tasks: Array<Promise<unknown> | void | undefined>,
@@ -117,8 +123,6 @@ async function runWave(
 }
 
 async function initializeServerAndCheckpoints() {
-  // Servers must fully load before checkpoints can resolve their active server.
-  // This is the single place both are initialized — galleries must not re-fetch.
   await errorStore.handleError(
     async () => {
       if (
@@ -133,7 +137,6 @@ async function initializeServerAndCheckpoints() {
     'Error initializing server store',
   )
 
-  // Checkpoints depend on servers being present so they can resolve activeArtServer.
   await errorStore.handleError(
     async () => {
       checkpointStore.initialize()
@@ -145,8 +148,6 @@ async function initializeServerAndCheckpoints() {
 
 async function initializeStores() {
   try {
-    // Synchronous, order-independent: only touches the module-level builder
-    // registry. Done first so any builder UI in the first paint has configs.
     ensureBuildersRegistered()
 
     if (!displayStore.isInitialized) {
@@ -157,8 +158,6 @@ async function initializeStores() {
       )
     }
 
-    // First wave: user identity (session-restore from stored token) and UI
-    // chrome. Everything downstream depends on these.
     await runWave('identity + chrome', [
       userStore.initialize?.(),
       pageStore.initialize?.(),
@@ -169,17 +168,14 @@ async function initializeStores() {
       themeStore.initialize({ fetchShared: true }),
     ])
 
-    // Servers + checkpoints are sequential: checkpoints need a loaded server array.
     await initializeServerAndCheckpoints()
 
-    // Second wave: content stores that may reference servers but don't block server init.
     await runWave('content stores', [
       artStore.initialize?.(),
       botStore.initialize?.(),
       chatStore.initialize?.(),
     ])
 
-    // Third wave: everything else.
     await runWave('remaining stores', [
       characterStore.initialize?.(),
       promptStore.initialize?.(),

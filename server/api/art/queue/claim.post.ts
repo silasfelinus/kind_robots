@@ -38,7 +38,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = (await readBody(event).catch(() => null)) as ClaimRequestBody | null
+    const body = (await readBody(event).catch(
+      () => null,
+    )) as ClaimRequestBody | null
     const claimedBy = body?.agentId?.trim().slice(0, 255) || 'relay'
 
     const engines = (body?.engines || ['A1111', 'COMFY'])
@@ -52,6 +54,25 @@ export default defineEventHandler(async (event) => {
     const supportsInputImages = body?.supportsInputImages === true
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
     const skippedIds: number[] = []
+
+    // Reap zombies: a RUNNING job whose claim went stale AND has already used up
+    // all its attempts is never re-offered (the candidate query requires
+    // attempts < MAX_ATTEMPTS) and never completed — it would sit RUNNING
+    // forever. Mark those FAILED so they surface in the dashboard instead of
+    // silently stalling the queue. Runs opportunistically on each claim poll.
+    await prisma.artJob.updateMany({
+      where: {
+        status: 'RUNNING',
+        claimedAt: { lt: staleBefore },
+        attempts: { gte: MAX_ATTEMPTS },
+      },
+      data: {
+        status: 'FAILED',
+        error: `Stale claim reaped: relay stopped responding after ${MAX_ATTEMPTS} attempts.`,
+        claimedAt: null,
+        claimedBy: null,
+      },
+    })
 
     for (let attempt = 0; attempt < CLAIM_CANDIDATE_TRIES; attempt++) {
       const candidate = await prisma.artJob.findFirst({

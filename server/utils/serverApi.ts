@@ -339,3 +339,41 @@ export function buildServerAuthHeaders(server: Server): HeadersInit {
 
   return headers
 }
+
+// Record a health/uptime sample: append a ServerHealthCheck history row and
+// refresh the point-in-time Server.lastStatus/lastCheckedAt. Shared by the
+// relay heartbeat (/api/server/heartbeat) and the browser/server health checks
+// (/api/server/health/[id]). Best-effort — callers treat failures as non-fatal.
+export async function recordServerHealthCheck(input: {
+  serverId: number
+  ok: boolean
+  status?: ServerStatus
+  latencyMs?: number | null
+  source?: string
+  note?: string | null
+  checkedAt?: Date
+}): Promise<void> {
+  const status: ServerStatus = input.status ?? (input.ok ? 'ONLINE' : 'OFFLINE')
+  const checkedAt = input.checkedAt ?? new Date()
+
+  await prisma.$transaction([
+    prisma.serverHealthCheck.create({
+      data: {
+        serverId: input.serverId,
+        checkedAt,
+        status,
+        ok: input.ok,
+        latencyMs:
+          typeof input.latencyMs === 'number'
+            ? Math.round(input.latencyMs)
+            : null,
+        source: (input.source || 'server').slice(0, 32),
+        note: input.note ?? null,
+      },
+    }),
+    prisma.server.update({
+      where: { id: input.serverId },
+      data: { lastStatus: status, lastCheckedAt: checkedAt },
+    }),
+  ])
+}

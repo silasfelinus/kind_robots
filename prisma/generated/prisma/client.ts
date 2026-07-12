@@ -271,6 +271,15 @@ export type Scenario = Prisma.ScenarioModel
  */
 export type Server = Prisma.ServerModel
 /**
+ * Model ServerHealthCheck
+ * Time-series health/uptime samples for a Server. The point-in-time
+ * `Server.lastStatus`/`lastCheckedAt` are overwritten on every check; this
+ * table keeps history so the ArtJob dashboard can show ComfyUI/SD uptime over
+ * time. Rows are written by the relay heartbeat (/api/server/heartbeat) and by
+ * the browser/server health checks (/api/server/health/[id]).
+ */
+export type ServerHealthCheck = Prisma.ServerHealthCheckModel
+/**
  * Model SmartIcon
  * Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands
  */

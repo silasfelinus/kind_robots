@@ -8,6 +8,19 @@
       <h4 class="text-sm font-black text-base-content">{{ item.label }}</h4>
       <span class="badge badge-sm badge-ghost">{{ item.action }}</span>
       <span class="badge badge-sm badge-ghost">{{ item.generation }}</span>
+      <button
+        type="button"
+        class="btn btn-xs btn-ghost ml-auto gap-1 rounded-lg text-primary"
+        :disabled="isAutoBuilding"
+        title="Draft, generate, and commit this item automatically"
+        @click="store.autoBuildItem(item.id)"
+      >
+        <span v-if="isAutoBuilding" class="loading loading-dots loading-xs" />
+        <template v-else>
+          <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
+          Auto
+        </template>
+      </button>
     </div>
 
     <p
@@ -309,6 +322,7 @@ watch(
 
 const isGenerating = computed(() => store.generatingItemId === props.itemId)
 const isCommitting = computed(() => store.committingItemId === props.itemId)
+const isAutoBuilding = computed(() => store.autoBuildingItemId === props.itemId)
 
 function isDrafting(field: DraftField): boolean {
   return (

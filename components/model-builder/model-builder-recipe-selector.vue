@@ -108,11 +108,24 @@
 
     <!-- Footer -->
     <div
-      class="flex shrink-0 items-center justify-between gap-2 border-t border-base-300 pt-2"
+      class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-2"
     >
-      <span class="text-xs text-base-content/60">
-        {{ store.selectedOutputCount }} output{{ store.selectedOutputCount === 1 ? '' : 's' }} selected
-      </span>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-base-content/60">
+          {{ store.selectedOutputCount }} output{{ store.selectedOutputCount === 1 ? '' : 's' }} selected
+        </span>
+        <label
+          class="flex cursor-pointer items-center gap-1.5 text-xs text-base-content/70"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-xs checkbox-primary"
+            :checked="store.includeArt"
+            @change="onIncludeArt($event)"
+          />
+          Include art
+        </label>
+      </div>
       <button
         type="button"
         class="btn btn-primary btn-sm rounded-xl"
@@ -145,6 +158,10 @@ const sourceLabel = computed(() => store.sourceLabel(store.selectedSource))
 function onQuantity(key: string, event: Event): void {
   const value = Number((event.target as HTMLInputElement).value)
   store.setOutputQuantity(key, value)
+}
+
+function onIncludeArt(event: Event): void {
+  store.toggleIncludeArt((event.target as HTMLInputElement).checked)
 }
 
 function actionBadge(action: BuildAction): string {

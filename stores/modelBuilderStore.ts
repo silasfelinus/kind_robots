@@ -7,12 +7,12 @@
 // reject, rerun, or resume at any stage; editing upstream work marks
 // downstream work stale without deleting it.
 //
-// This front-end slice keeps run state on the client (localStorage) for resume
-// and reuses the existing art generator for GENERATE_ASSETS. Durable
-// server-side BuildRun/BuildItem persistence and the idempotent final COMMIT
-// write are a later, human-gated milestone (see conductor model-builder
-// roadmap t-004 / t-013 / t-014); COMMIT here produces a preview diff only and
-// never silently rewrites a canonical model.
+// Run state is DURABLE: runs, items, artifacts, and revisions persist through
+// the /api/model-builder endpoints so a run resumes across devices and
+// sessions. The store mutates local state optimistically, then persists in the
+// background. GENERATE_ASSETS reuses the existing art generator; COMMIT is still
+// preview-only — the durable create/update/link/promote is a later gated
+// milestone (roadmap t-013/t-015) and never silently rewrites a canonical model.
 
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
@@ -56,7 +56,7 @@ export interface SourceRecord {
 }
 
 export interface BuildItem {
-  id: string // stable within a run: `${outputKey}#${quantityIndex}`
+  id: string // durable server id (as a string, for keying)
   outputKey: string
   label: string
   action: BuildAction
@@ -96,13 +96,49 @@ interface ModelBuilderState {
   recipeKey: RecipeKey | null
   selections: Record<string, OutputSelection>
   run: BuildRun | null
+  startingRun: boolean
   generatingItemId: string | null
   statusMessage: string
   statusTone: 'success' | 'error'
 }
 
+// --- server record shapes (loose — only the fields we read) ----------------
+
+interface ServerArtifact {
+  id: number
+  draftPath?: string | null
+  promotedPath?: string | null
+  artImageId?: number | null
+}
+
+interface ServerItem {
+  id: number
+  outputKey: string
+  label: string | null
+  action: BuildAction
+  generation: string
+  quantityIndex: number
+  stageStatuses: unknown
+  pitch: string | null
+  fieldsDraft: string | null
+  promptDraft: string | null
+  artImageId: number | null
+  error: string | null
+  Artifacts?: ServerArtifact[]
+}
+
+interface ServerRun {
+  id: number
+  createdAt: string
+  sourceType: string
+  sourceId: number
+  sourceLabel: string | null
+  recipeKey: string
+  Items: ServerItem[]
+}
+
 const isClient = typeof window !== 'undefined'
-const runStorageKey = 'modelBuilder:run'
+const runIdKey = 'modelBuilder:runId'
 const MAX_BATCH = 12
 
 // Which draft field an AI suggestion targets. `artPrompt` matches the /api/suggest
@@ -141,18 +177,28 @@ function safeRemove(key: string): void {
   } catch {}
 }
 
-function makeRunId(sourceType: SourceTypeKey, sourceId: number): string {
-  // No Math.random / Date.now dependency for the id core so a resumed run keeps
-  // a stable identity; createdAt carries the timestamp separately.
-  return `${sourceType.toLowerCase()}-${sourceId}-${BUILD_STAGES.length}`
-}
-
 // Initial stage map: PITCH is workable, the rest are locked behind it.
 function freshStages(): Record<BuildStageKey, StageState> {
   const stages = {} as Record<BuildStageKey, StageState>
   BUILD_STAGES.forEach((stage, index) => {
     stages[stage.key] = { status: index === 0 ? 'ready' : 'locked' }
   })
+  return stages
+}
+
+// Coerce a persisted stageStatuses JSON blob back into a complete stage map,
+// filling any missing gate with a locked default.
+function normalizeStages(raw: unknown): Record<BuildStageKey, StageState> {
+  const stages = freshStages()
+  if (raw && typeof raw === 'object') {
+    const source = raw as Record<string, StageState>
+    for (const stage of BUILD_STAGES) {
+      const value = source[stage.key]
+      if (value && typeof value.status === 'string') {
+        stages[stage.key] = { status: value.status, note: value.note }
+      }
+    }
+  }
   return stages
 }
 
@@ -169,6 +215,40 @@ function sizeToDimensions(size?: string): { width: number; height: number } {
   return { width: Number(match[1]), height: Number(match[2]) }
 }
 
+function adaptItem(server: ServerItem): BuildItem {
+  const artifact =
+    server.Artifacts && server.Artifacts.length
+      ? server.Artifacts[server.Artifacts.length - 1]
+      : null
+  return {
+    id: String(server.id),
+    outputKey: server.outputKey,
+    label: server.label ?? server.outputKey,
+    action: server.action,
+    generation: server.generation as GenerationKind,
+    quantityIndex: server.quantityIndex,
+    stages: normalizeStages(server.stageStatuses),
+    pitch: server.pitch ?? '',
+    fieldsDraft: server.fieldsDraft ?? '',
+    promptDraft: server.promptDraft ?? '',
+    artImageId: server.artImageId ?? null,
+    imagePath: artifact?.promotedPath ?? artifact?.draftPath ?? null,
+    error: server.error ?? null,
+  }
+}
+
+function adaptRun(server: ServerRun): BuildRun {
+  return {
+    id: String(server.id),
+    createdAt: server.createdAt,
+    sourceType: server.sourceType as SourceTypeKey,
+    sourceId: server.sourceId,
+    sourceLabel: server.sourceLabel ?? '',
+    recipeKey: server.recipeKey as RecipeKey,
+    items: Array.isArray(server.Items) ? server.Items.map(adaptItem) : [],
+  }
+}
+
 export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   const state = reactive<ModelBuilderState>({
     step: 'source',
@@ -180,6 +260,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     recipeKey: null,
     selections: {},
     run: null,
+    startingRun: false,
     generatingItemId: null,
     statusMessage: '',
     statusTone: 'success',
@@ -195,9 +276,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const config = state.sourceType ? getSourceType(state.sourceType) : undefined
     const field = config?.titleField ?? 'title'
     const value = record[field] ?? record.title ?? record.name ?? record.slug
-    return typeof value === 'string' && value.trim()
-      ? value
-      : `#${record.id}`
+    return typeof value === 'string' && value.trim() ? value : `#${record.id}`
   }
 
   const selectedRecipe = computed(() =>
@@ -210,12 +289,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   const selectedOutputCount = computed(
     () =>
-      Object.values(state.selections).filter((selection) => selection.on)
-        .length,
+      Object.values(state.selections).filter((selection) => selection.on).length,
   )
 
   const canStartRun = computed(
-    () => Boolean(state.selectedSource && state.recipeKey && selectedOutputCount.value > 0),
+    () =>
+      Boolean(
+        state.selectedSource &&
+          state.recipeKey &&
+          selectedOutputCount.value > 0 &&
+          !state.startingRun,
+      ),
   )
 
   const runProgress = computed(() => {
@@ -306,52 +390,101 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     selection.quantity = Math.max(1, Math.min(MAX_BATCH, Math.floor(quantity) || 1))
   }
 
-  // --- step 3: build run + gated stage advancement -------------------------
+  // --- step 3: create the durable run --------------------------------------
 
-  function startRun(): void {
-    if (!state.selectedSource || !state.sourceType || !state.recipeKey) return
+  async function startRun(): Promise<void> {
+    if (
+      !state.selectedSource ||
+      !state.sourceType ||
+      !state.recipeKey ||
+      state.startingRun
+    ) {
+      return
+    }
 
-    const items: BuildItem[] = []
+    const itemsPayload: Array<Record<string, unknown>> = []
     for (const output of recipeOutputs.value) {
       const selection = state.selections[output.key]
       if (!selection?.on) continue
 
       const count = output.quantity ? selection.quantity : 1
       for (let index = 0; index < count; index++) {
-        items.push({
-          id: `${output.key}#${index}`,
+        itemsPayload.push({
           outputKey: output.key,
           label: count > 1 ? `${output.label} ${index + 1}` : output.label,
           action: output.action,
           generation: output.generation,
           quantityIndex: index,
-          stages: freshStages(),
-          pitch: '',
-          fieldsDraft: '',
-          promptDraft: '',
-          artImageId: null,
-          imagePath: null,
-          error: null,
+          stageStatuses: freshStages(),
         })
       }
     }
 
-    state.run = {
-      id: makeRunId(state.sourceType, state.selectedSource.id),
-      createdAt: nowIso(),
-      sourceType: state.sourceType,
-      sourceId: state.selectedSource.id,
-      sourceLabel: sourceLabel(state.selectedSource),
-      recipeKey: state.recipeKey,
-      items,
+    if (!itemsPayload.length) return
+
+    state.startingRun = true
+    clearStatus()
+
+    try {
+      const response = await performFetch<ServerRun>('/api/model-builder/runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceType: state.sourceType,
+          sourceId: state.selectedSource.id,
+          sourceLabel: sourceLabel(state.selectedSource),
+          sourceSnapshot: state.selectedSource,
+          recipeKey: state.recipeKey,
+          selections: state.selections,
+          items: itemsPayload,
+        }),
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to start build run.')
+      }
+
+      state.run = adaptRun(response.data)
+      setActiveRunId(response.data.id)
+      state.step = 'run'
+      setStatus(
+        'success',
+        `Started a ${getRecipe(state.recipeKey)?.label} run with ${state.run.items.length} item${state.run.items.length === 1 ? '' : 's'}.`,
+      )
+    } catch (error) {
+      handleError(error, 'starting build run')
+      setStatus(
+        'error',
+        error instanceof Error ? error.message : 'Failed to start build run.',
+      )
+    } finally {
+      state.startingRun = false
     }
-    state.step = 'run'
-    persistRun()
-    setStatus('success', `Started a ${getRecipe(state.recipeKey)?.label} run with ${items.length} item${items.length === 1 ? '' : 's'}.`)
   }
 
   function findItem(itemId: string): BuildItem | undefined {
     return state.run?.items.find((item) => item.id === itemId)
+  }
+
+  // Background persistence of a single item. Callers mutate local state first
+  // (optimistic) and pass only the changed fields; a draft change also carries
+  // stage metadata so the server records a revision.
+  function pushItem(
+    item: BuildItem,
+    payload: Record<string, unknown>,
+    meta?: { stage?: string; reason?: string },
+  ): void {
+    performFetch(`/api/model-builder/items/${item.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, ...meta }),
+    })
+      .then((response) => {
+        if (!response.success) {
+          setStatus('error', response.message || 'Failed to save changes.')
+        }
+      })
+      .catch((error) => handleError(error, 'saving build item'))
   }
 
   // Stale-invalidation: editing an upstream stage marks every downstream stage
@@ -361,7 +494,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     BUILD_STAGES.forEach((stage, index) => {
       if (index <= from) return
       const current = item.stages[stage.key].status
-      if (current === 'approved' || current === 'ready' || current === 'in-progress') {
+      if (
+        current === 'approved' ||
+        current === 'ready' ||
+        current === 'in-progress'
+      ) {
         item.stages[stage.key] = { status: 'stale' }
       }
     })
@@ -371,20 +508,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item) return
     item.stages[stageKey] = { status: 'approved' }
-    // Unlock the next stage.
     const next = BUILD_STAGES[stageIndex(stageKey) + 1]
     if (next && item.stages[next.key].status === 'locked') {
       item.stages[next.key] = { status: 'ready' }
     }
-    persistRun()
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
   }
 
-  function rejectStage(itemId: string, stageKey: BuildStageKey, note?: string): void {
+  function rejectStage(
+    itemId: string,
+    stageKey: BuildStageKey,
+    note?: string,
+  ): void {
     const item = findItem(itemId)
     if (!item) return
     item.stages[stageKey] = { status: 'rejected', note }
     markDownstreamStale(item, stageKey)
-    persistRun()
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
   }
 
   // Reopen a stale/approved stage for editing and invalidate downstream.
@@ -393,7 +533,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!item) return
     item.stages[stageKey] = { status: 'ready' }
     markDownstreamStale(item, stageKey)
-    persistRun()
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
   }
 
   function updatePitch(itemId: string, value: string): void {
@@ -401,7 +541,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!item) return
     item.pitch = value
     markDownstreamStale(item, 'PITCH')
-    persistRun()
+    pushItem(
+      item,
+      { stageStatuses: item.stages, pitch: item.pitch },
+      { stage: 'PITCH', reason: 'edited pitch' },
+    )
   }
 
   function updateFields(itemId: string, value: string): void {
@@ -409,7 +553,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!item) return
     item.fieldsDraft = value
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
-    persistRun()
+    pushItem(
+      item,
+      { stageStatuses: item.stages, fieldsDraft: item.fieldsDraft },
+      { stage: 'FIELDS_AND_PROMPTS', reason: 'edited fields' },
+    )
   }
 
   function updatePrompt(itemId: string, value: string): void {
@@ -417,7 +565,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!item) return
     item.promptDraft = value
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
-    persistRun()
+    pushItem(
+      item,
+      { stageStatuses: item.stages, promptDraft: item.promptDraft },
+      { stage: 'FIELDS_AND_PROMPTS', reason: 'edited prompt' },
+    )
   }
 
   // --- AI drafting: reuse the existing /api/suggest text generator -----------
@@ -489,8 +641,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }
 
       const value = result.data.value.trim()
-      // Route through the manual-edit setters so downstream stages stale exactly
-      // as they would on a hand edit.
+      // Route through the manual-edit setters so downstream stages stale and the
+      // draft persists exactly as on a hand edit.
       if (field === 'pitch') updatePitch(itemId, value)
       else if (field === 'fields') updateFields(itemId, value)
       else updatePrompt(itemId, value)
@@ -513,13 +665,40 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // --- GENERATE_ASSETS: reuse the existing art generator --------------------
 
+  async function recordArtifact(
+    item: BuildItem,
+    image: { id: number; imagePath?: string | null },
+    output: BuildOutputConfig | undefined,
+    prompt: string,
+    dims: { width: number; height: number },
+  ): Promise<void> {
+    try {
+      await performFetch(`/api/model-builder/items/${item.id}/artifacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: 'image',
+          provider: output?.engine ?? null,
+          prompt,
+          width: dims.width,
+          height: dims.height,
+          artImageId: image.id,
+          draftPath: image.imagePath ?? null,
+          reviewState: 'PENDING',
+        }),
+      })
+    } catch (error) {
+      handleError(error, 'recording build artifact')
+    }
+  }
+
   async function generateItemAsset(itemId: string): Promise<boolean> {
     const item = findItem(itemId)
     if (!item || !state.run) return false
 
     if (item.generation !== 'image') {
-      // Non-image generation kinds (text, plan, video, 3d) are described in the
-      // brief but not wired into this front-end slice yet.
+      // Non-image generation kinds (text, plan, video, 3d) are catalogued but
+      // not wired into this slice yet.
       item.error = `${item.generation} generation is not wired into the front-end slice yet.`
       item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
       setStatus('error', item.error)
@@ -534,7 +713,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
 
     const output = getOutput(item.outputKey)
-    const { width, height } = sizeToDimensions(output?.size)
+    const dims = sizeToDimensions(output?.size)
     const artStore = useArtStore()
 
     state.generatingItemId = item.id
@@ -548,8 +727,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const result = await artStore.generateCurrentArt({
         promptString: prompt,
         title: `${state.run.sourceLabel} — ${item.label}`,
-        width,
-        height,
+        width: dims.width,
+        height: dims.height,
         engine: output?.engine,
         isPublic: false,
       })
@@ -562,8 +741,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.artImageId = image.id
       item.imagePath = image.imagePath ?? null
       item.stages.GENERATE_ASSETS = { status: 'ready' }
+
+      await recordArtifact(item, image, output, prompt, dims)
+      pushItem(item, {
+        stageStatuses: item.stages,
+        artImageId: item.artImageId,
+      })
+
       setStatus('success', `Generated a candidate for ${item.label}.`)
-      persistRun()
       return true
     } catch (error) {
       handleError(error, 'generating model builder asset')
@@ -603,9 +788,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
-  // Records the user's approval of the final diff. The actual durable create /
-  // update / link / promote happens through model APIs in a later gated
-  // milestone — this scaffold only marks the item as approved-for-commit.
+  // Records the user's approval of the final diff. The durable create / update /
+  // link / promote happens through model APIs in a later gated milestone — this
+  // only marks the item approved-for-commit (persisted so it survives resume).
   function approveCommit(itemId: string): void {
     const item = findItem(itemId)
     if (!item) return
@@ -613,33 +798,48 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       status: 'approved',
       note: 'Approved for commit — durable write pending backend execution.',
     }
-    persistRun()
+    pushItem(item, { stageStatuses: item.stages }, { stage: 'COMMIT' })
     setStatus('success', `${item.label} approved for commit.`)
   }
 
   // --- persistence / resume -------------------------------------------------
 
-  function persistRun(): void {
-    if (!state.run) {
-      safeRemove(runStorageKey)
-      return
-    }
-    safeSet(runStorageKey, JSON.stringify(state.run))
+  function setActiveRunId(id: number): void {
+    safeSet(runIdKey, String(id))
   }
 
-  function resumeRun(): void {
-    const raw = safeGet(runStorageKey)
-    if (!raw) return
+  // Resume the most recent run: the remembered run id if still present, else the
+  // newest non-cancelled run for this user. Silent on failure (e.g. signed out).
+  async function resumeRun(): Promise<void> {
     try {
-      const parsed = JSON.parse(raw) as BuildRun
-      if (parsed && Array.isArray(parsed.items)) {
-        state.run = parsed
-        state.sourceType = parsed.sourceType
-        state.recipeKey = parsed.recipeKey
+      const remembered = safeGet(runIdKey)
+      let data: ServerRun | undefined
+
+      if (remembered) {
+        const response = await performFetch<ServerRun>(
+          `/api/model-builder/runs/${remembered}`,
+        )
+        if (response.success && response.data) data = response.data
+      }
+
+      if (!data) {
+        const response = await performFetch<ServerRun[]>(
+          '/api/model-builder/runs?take=1',
+        )
+        if (response.success && Array.isArray(response.data) && response.data.length) {
+          data = response.data[0]
+        }
+      }
+
+      if (data) {
+        state.run = adaptRun(data)
+        state.sourceType = data.sourceType as SourceTypeKey
+        state.recipeKey = data.recipeKey as RecipeKey
         state.step = 'run'
+        setActiveRunId(data.id)
       }
     } catch {
-      safeRemove(runStorageKey)
+      // Not signed in, or no runs yet — start fresh at the source picker.
     }
   }
 
@@ -647,10 +847,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.step = step
   }
 
+  // Leave this run behind (its server record and history remain) and start a new
+  // one. Does not delete the durable run.
   function resetRun(): void {
     state.run = null
     state.step = state.selectedSource ? 'recipe' : 'source'
-    safeRemove(runStorageKey)
+    safeRemove(runIdKey)
     clearStatus()
   }
 
@@ -663,7 +865,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.selections = {}
     state.run = null
     state.generatingItemId = null
-    safeRemove(runStorageKey)
+    safeRemove(runIdKey)
     clearStatus()
   }
 
@@ -704,7 +906,3 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     clearStatus,
   }
 })
-
-function nowIso(): string {
-  return new Date().toISOString()
-}

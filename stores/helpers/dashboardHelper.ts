@@ -158,6 +158,18 @@ export const dashboardConfigs = {
         route: '/wonderlab',
       },
       {
+        key: 'coat-dance',
+        label: 'Coat Dance',
+        icon: 'kind-icon:sparkles',
+        title: 'Coat Dance',
+        summary:
+          'A playful video-remix project that sets coats and motion dancing.',
+        image: tabImage('art', 'coat-dance'),
+        narrative:
+          'Coat Dance is the creative video-remix corner: take motion and costume and remix them into short, delightful loops that move exactly as ridiculously as intended.',
+        route: '/coat-dance',
+      },
+      {
         key: 'artjob',
         label: 'ArtJob',
         icon: 'kind-icon:server',
@@ -225,6 +237,18 @@ export const dashboardConfigs = {
         narrative:
           'The free-play corner of the Academy: remix images with the full experimental style catalog, no curriculum, no quiz, just tasteful visual crimes.',
         route: '/academy',
+      },
+      {
+        key: 'sketchy',
+        label: 'Sketchy',
+        icon: 'kind-icon:pencil',
+        title: 'Sketchy',
+        summary:
+          'Daily drawing assignments and gentle critique to build a sketching habit.',
+        image: tabImage('academy', 'sketchy'),
+        narrative:
+          'Sketchy hands you a drawing assignment, a timer, and a kind critique. Show up daily, fill the page, and watch a real drawing habit sneak up on you.',
+        route: '/sketchy',
       },
     ],
   },
@@ -389,6 +413,30 @@ export const dashboardConfigs = {
         route: '/art',
         requiredBeforeNext: ['style'],
       },
+      {
+        key: 'packs',
+        label: 'Packmaker',
+        icon: 'kind-icon:box',
+        title: 'Packmaker',
+        summary:
+          'Bundle reusable content into shareable, permissioned packs and DLC.',
+        image: tabImage('builder', 'packs'),
+        narrative:
+          'Packmaker turns loose creations into tidy, shareable packs: pick the contents, set access, and ship reusable content bundles other builders can drop straight in.',
+        route: '/packs',
+      },
+      {
+        key: 'model-builder',
+        label: 'Model Builder',
+        icon: 'kind-icon:blueprint',
+        title: 'Model Builder',
+        summary:
+          'Define a schema, wire its records, and run the build — a reusable maker of makers.',
+        image: tabImage('builder', 'model-builder'),
+        narrative:
+          'Model Builder is the meta-tool: describe a record shape, generate its build-and-run surface, and stamp out new creation tools without hand-writing each one.',
+        route: '/model-builder',
+      },
     ],
   },
 
@@ -450,6 +498,56 @@ export const dashboardConfigs = {
         narrative:
           'Review Conductor project progress, pitches awaiting your vote, task gates, roadmap state, and the agent-loop items that need a human checkpoint.',
         route: '/conductor',
+        requiredRole: 'ADMIN',
+      },
+      {
+        key: 'wishmaster',
+        label: 'Wishmaster',
+        icon: 'kind-icon:sparkles',
+        title: 'Wishmaster',
+        summary: 'Turn wishes into scoped, buildable project seeds.',
+        image: tabImage('conductor', 'wishmaster'),
+        narrative:
+          'Wishmaster takes a raw wish and shapes it into a scoped, buildable project seed — the front door where a "wouldn\'t it be nice" becomes an actual plan.',
+        route: '/wishmaster',
+        requiredRole: 'ADMIN',
+      },
+      {
+        key: 'appmaker',
+        label: 'AppMaker',
+        icon: 'kind-icon:foundry',
+        title: 'AppMaker',
+        summary: 'Draft and scaffold new app ideas into project shape.',
+        image: tabImage('conductor', 'appmaker'),
+        narrative:
+          'AppMaker is the workshop for turning app ideas into structured projects — capture the concept, shape the surface, and hand it to the build loop.',
+        route: '/appmaker',
+        requiredRole: 'ADMIN',
+      },
+      {
+        key: 'scoop-cms',
+        label: 'Scoop CMS',
+        icon: 'kind-icon:heart',
+        title: 'Humboldt Scoop CMS',
+        summary:
+          'Admin console for the Humboldt Scoop customer and route management.',
+        image: tabImage('conductor', 'scoop-cms'),
+        narrative:
+          'The back office for the Humboldt Scoop: manage customers, schedules, and routes for the real-world pet-waste service from one admin console.',
+        route: '/scoop-cms',
+        requiredRole: 'ADMIN',
+      },
+      {
+        key: 'conductor-app',
+        label: 'Conductor App',
+        icon: 'kind-icon:external-link',
+        title: 'Conductor App',
+        summary:
+          'The external Flutter client for steering Conductor on the go.',
+        image: tabImage('conductor', 'conductor-app'),
+        narrative:
+          'Conductor App is the companion Flutter client for steering projects from a phone. This is its launch pad and status inside Kind Robots.',
+        route: '/conductor-app',
         requiredRole: 'ADMIN',
       },
     ],
@@ -764,6 +862,18 @@ export const dashboardConfigs = {
           'Manage your mana wallet, check balances, and keep the magical economy from rolling under the couch.',
         route: '/sanctuary',
       },
+      {
+        key: 'mermaids',
+        label: 'Mermaids',
+        icon: 'kind-icon:mermaid',
+        title: 'Mermaids of Venice',
+        summary:
+          "Silas Knight's novel — the book, a note from the author, and one paragraph of AI.",
+        image: tabImage('giftshop', 'mermaids'),
+        narrative:
+          'A subversive tale of gods moonlighting as street performers in a submerged Venice. Six years hand-carved; the only AI on the page is the paragraph that admits it.',
+        route: '/mermaids',
+      },
     ],
   },
 
@@ -824,6 +934,42 @@ export const dashboardConfigs = {
         narrative:
           'Create a new scenario with an intro, choices, stakes, and enough room for the player to surprise the narrator.',
         route: '/stories',
+      },
+      {
+        key: 'storymaker',
+        label: 'Storymaker',
+        icon: 'kind-icon:story',
+        title: 'Storymaker',
+        summary:
+          'Weave characters, places, and treasures into a collaborative unfolding story.',
+        image: tabImage('scenario', 'storymaker'),
+        narrative:
+          'Storymaker is the long-form loom: bring your cast, settings, and rewards together and let the narrator help you spin a collaborative story that actually goes somewhere.',
+        route: '/storymaker',
+      },
+      {
+        key: 'serendipity',
+        label: 'Serendipity',
+        icon: 'kind-icon:sparkles',
+        title: 'Serendipity',
+        summary:
+          'A second-person story that quietly helps your real projects along.',
+        image: tabImage('scenario', 'serendipity'),
+        narrative:
+          'Step through the Story Door: a second-person adventure woven by the Serendipity bot whose gentle questions nudge your real to-dos forward while you play.',
+        route: '/serendipity',
+      },
+      {
+        key: 'serendipity-voice',
+        label: 'Serendipity Voice',
+        icon: 'kind-icon:microphone',
+        title: 'Serendipity (Voice)',
+        summary:
+          'The spoken-word version of Serendipity — listen, answer aloud, keep moving.',
+        image: tabImage('scenario', 'serendipity-voice'),
+        narrative:
+          'Serendipity with a voice: hear the story, answer out loud, and let a hands-free narrator carry the helpful little fairy tale while you keep your hands busy.',
+        route: '/serendipity-voice',
       },
     ],
   },
@@ -1046,6 +1192,103 @@ export const dashboardConfigs = {
         narrative:
           'Color a simplified mural page, assign one paint ID across multiple sections, override individual shapes, and save the palette before the paint goblin eats the swatches.',
         route: '/mural',
+      },
+      {
+        key: 'davinci',
+        label: 'Da Vinci',
+        icon: 'kind-icon:castle',
+        title: 'Da Vinci Life Sim',
+        summary:
+          'A generative life-and-legacy simulation with a thousand ways to leave a mark.',
+        image: tabImage('wonder', 'davinci'),
+        flourish: '✒',
+        tagline: 'Live a life. Leave a legacy.',
+        narrative:
+          'Step into a generative life simulation of ambition, craft, and rivalry — hundreds of achievements, branching choices, and a legacy that remembers what you built.',
+        route: '/davinci',
+      },
+      {
+        key: 'watchlist',
+        label: 'Watchlist',
+        icon: 'kind-icon:movie',
+        title: 'Media Watchlist',
+        summary:
+          'A structured log of what to watch, what you finished, and what to queue next.',
+        image: tabImage('wonder', 'watchlist'),
+        flourish: '▷',
+        tagline: 'Everything you meant to watch, in one honest list.',
+        narrative:
+          'Track films and shows across a clean, structured watchlist — queue, in-progress, and finished — so the "what should we watch" argument finally has a source of truth.',
+        route: '/watchlist',
+      },
+      {
+        key: 'ruler-hooked',
+        label: 'Ruler Hooked',
+        icon: 'kind-icon:crown',
+        title: 'Ruler Hooked',
+        summary:
+          'A fishing-meets-kingdom-management slideshow sim of tides, catches, and crowns.',
+        image: tabImage('wonder', 'ruler-hooked'),
+        flourish: '⚓',
+        tagline: 'Rule the shore. Answer to the tide.',
+        narrative:
+          'Cast lines, manage a seaside kingdom, and ride the slideshow of tides and decisions where every catch reshapes the realm you rule.',
+        route: '/ruler-hooked',
+      },
+      {
+        key: 'newsfeed',
+        label: 'Newsfeed',
+        icon: 'kind-icon:scroll',
+        title: 'Kind Robots Newsfeed',
+        summary:
+          'A programmable, remixable homepage feed of what the swarm is making.',
+        image: tabImage('wonder', 'newsfeed'),
+        flourish: '❋',
+        tagline: 'The front page the swarm writes itself.',
+        narrative:
+          'A programmable feed of fresh art, stories, pitches, and project milestones — the living homepage that shows what Kind Robots is dreaming up right now.',
+        route: '/newsfeed',
+      },
+      {
+        key: 'humboldt-scoop',
+        label: 'Humboldt Scoop',
+        icon: 'kind-icon:heart',
+        title: 'The Humboldt Scoop',
+        summary:
+          'A friendly bridge to the Humboldt Scoop pet-care service and its story.',
+        image: tabImage('wonder', 'humboldt-scoop'),
+        flourish: '✷',
+        tagline: 'Small business, big heart, tidy yards.',
+        narrative:
+          'Meet the Humboldt Scoop — the real-world pet-waste service with a warm story — and jump straight to booking on its own site.',
+        route: '/humboldt-scoop',
+      },
+      {
+        key: 'voice-lab',
+        label: 'Voice Lab',
+        icon: 'kind-icon:microphone',
+        title: 'Voice Lab',
+        summary: 'The experimental Alexa/voice bridge and its relay status.',
+        image: tabImage('wonder', 'voice-lab'),
+        flourish: '◍',
+        tagline: 'Kind Robots, out loud.',
+        narrative:
+          'The voice frontier: an Alexa skill and local relay that let Serendipity and friends speak and listen. Watch the relay status and learn how to plug in.',
+        route: '/voice-lab',
+      },
+      {
+        key: 'challenges',
+        label: 'Challenges',
+        icon: 'kind-icon:trophy',
+        title: 'Challenge Center',
+        summary:
+          'A generative comparison arena — submit contenders and vote on head-to-head matchups.',
+        image: tabImage('wonder', 'challenges'),
+        flourish: '⚔',
+        tagline: 'Two enter. The swarm decides.',
+        narrative:
+          'Pit generated contenders against each other in themed challenges, cast votes on head-to-head matchups, and watch the leaderboard crown the community favorite.',
+        route: '/challenges',
       },
     ],
   },

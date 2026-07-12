@@ -7,6 +7,9 @@ icon: kind-icon:butterfly
 tooltip: Say "Serendipity, turn butterflies on" and watch it happen here.
 dottitip: The house is listening. Speak kindly.
 amitip: Your voice becomes a butterfly. Try it.
+dashboardKey: scenario
+dashboardTab: serendipity-voice
+cards: navCards
 ---
 
 :serendipity-voice-page

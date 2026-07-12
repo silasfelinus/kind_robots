@@ -34,7 +34,20 @@
         :disabled="!isEditable('PITCH')"
         @change="store.updatePitch(item.id, pitch)"
       />
-      <div class="mt-1.5 flex justify-end gap-1.5">
+      <div class="mt-1.5 flex items-center justify-end gap-1.5">
+        <button
+          v-if="isEditable('PITCH')"
+          type="button"
+          class="btn btn-xs btn-ghost mr-auto gap-1 rounded-lg text-secondary"
+          :disabled="isDrafting('pitch')"
+          @click="draft('pitch')"
+        >
+          <span v-if="isDrafting('pitch')" class="loading loading-dots loading-xs" />
+          <template v-else>
+            <Icon name="kind-icon:magic" class="h-3.5 w-3.5" />
+            Draft with AI
+          </template>
+        </button>
         <button
           v-if="item.stages.PITCH.status === 'approved'"
           type="button"
@@ -64,9 +77,24 @@
           {{ item.stages.FIELDS_AND_PROMPTS.status }}
         </span>
       </div>
-      <label class="mb-0.5 block text-[10px] uppercase text-base-content/40">
-        Proposed fields / relationships
-      </label>
+      <div class="mb-0.5 flex items-center justify-between">
+        <label class="block text-[10px] uppercase text-base-content/40">
+          Proposed fields / relationships
+        </label>
+        <button
+          v-if="isEditable('FIELDS_AND_PROMPTS')"
+          type="button"
+          class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
+          :disabled="isDrafting('fields')"
+          @click="draft('fields')"
+        >
+          <span v-if="isDrafting('fields')" class="loading loading-dots loading-xs" />
+          <template v-else>
+            <Icon name="kind-icon:magic" class="h-3 w-3" />
+            Draft
+          </template>
+        </button>
+      </div>
       <textarea
         v-model="fields"
         rows="2"
@@ -75,9 +103,24 @@
         :disabled="!isEditable('FIELDS_AND_PROMPTS')"
         @change="store.updateFields(item.id, fields)"
       />
-      <label class="mb-0.5 block text-[10px] uppercase text-base-content/40">
-        Generation prompt
-      </label>
+      <div class="mb-0.5 flex items-center justify-between">
+        <label class="block text-[10px] uppercase text-base-content/40">
+          Generation prompt
+        </label>
+        <button
+          v-if="isEditable('FIELDS_AND_PROMPTS')"
+          type="button"
+          class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
+          :disabled="isDrafting('artPrompt')"
+          @click="draft('artPrompt')"
+        >
+          <span v-if="isDrafting('artPrompt')" class="loading loading-dots loading-xs" />
+          <template v-else>
+            <Icon name="kind-icon:magic" class="h-3 w-3" />
+            Draft
+          </template>
+        </button>
+      </div>
       <textarea
         v-model="prompt"
         rows="2"
@@ -223,8 +266,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
+import type { DraftField } from '@/stores/modelBuilderStore'
 import type { BuildStageKey } from '@/stores/helpers/modelBuilderRecipes'
 
 const props = defineProps<{ itemId: string }>()
@@ -238,7 +282,29 @@ const pitch = ref(item.value?.pitch ?? '')
 const fields = ref(item.value?.fieldsDraft ?? '')
 const prompt = ref(item.value?.promptDraft ?? '')
 
+// Keep the textareas in sync when the store's draft fields change under us —
+// e.g. an AI draft writes into the item.
+watch(
+  () => [item.value?.pitch, item.value?.fieldsDraft, item.value?.promptDraft],
+  () => {
+    pitch.value = item.value?.pitch ?? ''
+    fields.value = item.value?.fieldsDraft ?? ''
+    prompt.value = item.value?.promptDraft ?? ''
+  },
+)
+
 const isGenerating = computed(() => store.generatingItemId === props.itemId)
+
+function isDrafting(field: DraftField): boolean {
+  return (
+    store.draftingField?.itemId === props.itemId &&
+    store.draftingField?.field === field
+  )
+}
+
+function draft(field: DraftField): void {
+  store.draftText(props.itemId, field)
+}
 
 const preview = computed(() => store.previewCommit(props.itemId))
 

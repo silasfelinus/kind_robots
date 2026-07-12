@@ -15,9 +15,10 @@
 // never silently rewrites a canonical model.
 
 import { defineStore } from 'pinia'
-import { computed, reactive, toRefs } from 'vue'
+import { computed, reactive, ref, toRefs } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
+import { useServerStore } from '@/stores/serverStore'
 import {
   BUILD_STAGES,
   getOutput,
@@ -104,6 +105,19 @@ const isClient = typeof window !== 'undefined'
 const runStorageKey = 'modelBuilder:run'
 const MAX_BATCH = 12
 
+// Which draft field an AI suggestion targets. `artPrompt` matches the /api/suggest
+// convention used by the art generator.
+export type DraftField = 'pitch' | 'fields' | 'artPrompt'
+
+const DRAFT_INSTRUCTIONS: Record<DraftField, string> = {
+  pitch:
+    'Write a concise 2-3 sentence pitch describing why this output exists for the source record and what it should convey. Return only the pitch text.',
+  fields:
+    'Propose the concrete schema fields and relationships this output should write, as short "field: value" lines grounded in the source record. Return only the field list.',
+  artPrompt:
+    'Write a single vivid image-generation prompt for this output, grounded in the source record. Comma-separated descriptors, no preamble. Return only the prompt.',
+}
+
 function safeGet(key: string): string | null {
   if (!isClient) return null
   try {
@@ -170,6 +184,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     statusMessage: '',
     statusTone: 'success',
   })
+
+  // Per-button spinner state for AI drafting: which item/field is in flight.
+  const draftingField = ref<{ itemId: string; field: DraftField } | null>(null)
 
   // --- display helpers ------------------------------------------------------
 
@@ -403,6 +420,97 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     persistRun()
   }
 
+  // --- AI drafting: reuse the existing /api/suggest text generator -----------
+
+  async function draftText(
+    itemId: string,
+    field: DraftField,
+    instruction?: string,
+  ): Promise<boolean> {
+    const item = findItem(itemId)
+    if (!item || !state.run) return false
+
+    const serverStore = useServerStore()
+    const activeServer = serverStore.activeTextServer
+    const serverSnapshot = activeServer
+      ? {
+          serverType: activeServer.serverType ?? null,
+          baseUrl: activeServer.baseUrl ?? null,
+          endpointPath: activeServer.endpointPath ?? null,
+          model: activeServer.model ?? null,
+        }
+      : undefined
+
+    const current =
+      field === 'pitch'
+        ? item.pitch
+        : field === 'fields'
+          ? item.fieldsDraft
+          : item.promptDraft
+
+    draftingField.value = { itemId, field }
+    clearStatus()
+
+    try {
+      const result = await performFetch<{ value: string }>(
+        '/api/suggest',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            builder: 'model-builder',
+            server: serverSnapshot,
+            field,
+            stepKey: field,
+            current,
+            context: {
+              sourceType: state.run.sourceType,
+              sourceLabel: state.run.sourceLabel,
+              recipe: state.run.recipeKey,
+              output: item.outputKey,
+              itemLabel: item.label,
+              action: item.action,
+              pitch: item.pitch,
+              fields: item.fieldsDraft,
+              source: state.selectedSource ?? undefined,
+            },
+            extra: {
+              instruction: instruction || DRAFT_INSTRUCTIONS[field],
+              sourceLabel: state.run.sourceLabel,
+            },
+          }),
+        },
+        2,
+        60_000,
+      )
+
+      if (!result.success || !result.data?.value) {
+        throw new Error(result.message || 'The model returned nothing useful.')
+      }
+
+      const value = result.data.value.trim()
+      // Route through the manual-edit setters so downstream stages stale exactly
+      // as they would on a hand edit.
+      if (field === 'pitch') updatePitch(itemId, value)
+      else if (field === 'fields') updateFields(itemId, value)
+      else updatePrompt(itemId, value)
+
+      setStatus(
+        'success',
+        `Drafted ${field === 'artPrompt' ? 'prompt' : field} for ${item.label}.`,
+      )
+      return true
+    } catch (error) {
+      handleError(error, 'drafting model builder text')
+      const message =
+        error instanceof Error ? error.message : 'Draft request failed.'
+      setStatus('error', message)
+      return false
+    } finally {
+      draftingField.value = null
+    }
+  }
+
   // --- GENERATE_ASSETS: reuse the existing art generator --------------------
 
   async function generateItemAsset(itemId: string): Promise<boolean> {
@@ -561,6 +669,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   return {
     ...toRefs(state),
+    draftingField,
     // computed
     selectedRecipe,
     recipeOutputs,
@@ -583,6 +692,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     updatePitch,
     updateFields,
     updatePrompt,
+    draftText,
     generateItemAsset,
     previewCommit,
     approveCommit,

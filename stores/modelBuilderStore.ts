@@ -79,6 +79,7 @@ export interface BuildRun {
   sourceType: SourceTypeKey
   sourceId: number
   sourceLabel: string
+  sourceSnapshot: Record<string, unknown> | null
   recipeKey: RecipeKey
   items: BuildItem[]
 }
@@ -140,6 +141,7 @@ interface ServerRun {
   sourceType: string
   sourceId: number
   sourceLabel: string | null
+  sourceSnapshot: unknown
   recipeKey: string
   Items: ServerItem[]
 }
@@ -246,6 +248,10 @@ function adaptRun(server: ServerRun): BuildRun {
     sourceType: server.sourceType as SourceTypeKey,
     sourceId: server.sourceId,
     sourceLabel: server.sourceLabel ?? '',
+    sourceSnapshot:
+      server.sourceSnapshot && typeof server.sourceSnapshot === 'object'
+        ? (server.sourceSnapshot as Record<string, unknown>)
+        : null,
     recipeKey: server.recipeKey as RecipeKey,
     items: Array.isArray(server.Items) ? server.Items.map(adaptItem) : [],
   }

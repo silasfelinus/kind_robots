@@ -75,21 +75,40 @@
           v-for="record in store.sources"
           :key="record.id"
           type="button"
-          class="flex flex-col items-start gap-0.5 rounded-2xl border border-base-300 bg-base-100 p-3 text-left transition hover:border-primary hover:bg-base-200"
+          class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-2.5 text-left transition hover:border-primary hover:bg-base-200"
           @click="store.selectSource(record)"
         >
-          <span class="truncate text-sm font-bold text-base-content">
-            {{ store.sourceLabel(record) }}
-          </span>
-          <span
-            v-if="subtitle(record)"
-            class="line-clamp-2 text-xs text-base-content/55"
+          <div
+            class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-base-200"
           >
-            {{ subtitle(record) }}
-          </span>
-          <span class="mt-1 text-[10px] uppercase tracking-wide text-base-content/35">
-            #{{ record.id }}
-          </span>
+            <img
+              v-if="recordImage(record)"
+              :src="recordImage(record)"
+              :alt="store.sourceLabel(record)"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+            <Icon
+              v-else
+              :name="activeType?.icon || 'kind-icon:blueprint'"
+              class="h-5 w-5 text-base-content/30"
+            />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <span class="block truncate text-sm font-bold text-base-content">
+              {{ store.sourceLabel(record) }}
+            </span>
+            <span
+              v-if="subtitle(record)"
+              class="line-clamp-2 text-xs text-base-content/55"
+            >
+              {{ subtitle(record) }}
+            </span>
+            <span class="text-[10px] uppercase tracking-wide text-base-content/35">
+              #{{ record.id }}
+            </span>
+          </div>
         </button>
       </div>
     </div>
@@ -114,5 +133,18 @@ function subtitle(record: SourceRecord): string {
   if (!field) return ''
   const value = record[field]
   return typeof value === 'string' ? value : ''
+}
+
+// Resolve a record's existing art for the source thumbnail, checking the common
+// direct fields then the linked ArtImage.
+function recordImage(record: SourceRecord): string {
+  const art = record.ArtImage as { thumbnailPath?: string; imagePath?: string } | undefined
+  const candidate =
+    (record.imagePath as string) ||
+    (record.avatarImage as string) ||
+    art?.thumbnailPath ||
+    art?.imagePath ||
+    ''
+  return typeof candidate === 'string' ? candidate : ''
 }
 </script>

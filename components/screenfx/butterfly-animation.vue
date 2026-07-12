@@ -58,10 +58,10 @@ interface NavigatorPerformanceHints extends Navigator {
 
 const PROFILES: Record<PerformanceProfileName, PerformanceProfile> = {
   off: { name: 'off', count: 0, fps: 0, size: 0, speed: 0 },
-  low: { name: 'low', count: 5, fps: 24, size: 1.2, speed: 0.68 },
-  balanced: { name: 'balanced', count: 24, fps: 30, size: 0.82, speed: 0.86 },
-  high: { name: 'high', count: 56, fps: 45, size: 0.58, speed: 1 },
-  ultra: { name: 'ultra', count: 100, fps: 60, size: 0.42, speed: 1.08 },
+  low: { name: 'low', count: 6, fps: 24, size: 0.96, speed: 0.72 },
+  balanced: { name: 'balanced', count: 18, fps: 30, size: 0.84, speed: 0.88 },
+  high: { name: 'high', count: 32, fps: 45, size: 0.74, speed: 1 },
+  ultra: { name: 'ultra', count: 48, fps: 60, size: 0.66, speed: 1.06 },
 }
 
 const PROFILE_ORDER: PerformanceProfileName[] = [
@@ -72,6 +72,11 @@ const PROFILE_ORDER: PerformanceProfileName[] = [
   'ultra',
 ]
 
+const QUALITY_STORAGE_KEY = 'kind-loader-butterfly-quality'
+const SAMPLE_SIZE = 30
+const PROFILE_CHANGE_COOLDOWN_MS = 350
+const BUTTERFLY_HALF_SIZE = 35
+
 const butterflyStore = useButterflyStore()
 const stage = ref<HTMLElement | null>(null)
 const profile = ref<PerformanceProfile>(PROFILES.balanced)
@@ -79,16 +84,65 @@ const butterflies = shallowRef<ButterflyParticle[]>([])
 
 let butterflyElements: HTMLElement[] = []
 let animationFrameId: number | null = null
+let resizeTimeoutId: number | null = null
 let lastAnimationTime = 0
 let lastRafTime = 0
+let lastProfileChangeAt = 0
 let viewportWidth = 0
 let viewportHeight = 0
 let frameSamples: number[] = []
-let hasBenchmarked = false
+let healthySampleWindows = 0
 let rebuilding = false
+let profileCeiling: PerformanceProfileName = 'balanced'
 
 function randomRange(min: number, max: number): number {
   return Math.random() * (max - min) + min
+}
+
+function profileIndex(name: PerformanceProfileName): number {
+  return PROFILE_ORDER.indexOf(name)
+}
+
+function isPerformanceProfileName(
+  value: string | null,
+): value is PerformanceProfileName {
+  return value !== null && PROFILE_ORDER.includes(value as PerformanceProfileName)
+}
+
+function clampProfileToCeiling(
+  name: PerformanceProfileName,
+  ceiling: PerformanceProfileName,
+): PerformanceProfileName {
+  return PROFILE_ORDER[Math.min(profileIndex(name), profileIndex(ceiling))] || 'off'
+}
+
+function shiftProfile(
+  name: PerformanceProfileName,
+  steps: number,
+): PerformanceProfileName {
+  const nextIndex = Math.min(
+    PROFILE_ORDER.length - 1,
+    Math.max(0, profileIndex(name) + steps),
+  )
+
+  return PROFILE_ORDER[nextIndex] || 'off'
+}
+
+function readStoredProfileLimit(): PerformanceProfileName | null {
+  try {
+    const stored = window.sessionStorage.getItem(QUALITY_STORAGE_KEY)
+    return isPerformanceProfileName(stored) ? stored : null
+  } catch {
+    return null
+  }
+}
+
+function storeProfileLimit(name: PerformanceProfileName): void {
+  try {
+    window.sessionStorage.setItem(QUALITY_STORAGE_KEY, name)
+  } catch {
+    return
+  }
 }
 
 function detectPerformanceProfile(): PerformanceProfileName {
@@ -108,7 +162,7 @@ function detectPerformanceProfile(): PerformanceProfileName {
 
   let score = 2
 
-  if (cores >= 12) score += 2
+  if (cores >= 12) score += 1
   else if (cores >= 8) score += 1
   else if (cores > 0 && cores <= 4) score -= 1
 
@@ -121,15 +175,29 @@ function detectPerformanceProfile(): PerformanceProfileName {
   const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
   const pixelLoad = window.innerWidth * window.innerHeight * pixelRatio ** 2
 
-  if (pixelLoad >= 16_000_000) score -= 2
-  else if (pixelLoad >= 8_000_000) score -= 1
+  if (pixelLoad >= 12_000_000) score -= 2
+  else if (pixelLoad >= 6_000_000) score -= 1
 
   if (connection?.effectiveType === '2g') score -= 1
 
-  if (score >= 5) return 'ultra'
-  if (score >= 3) return 'high'
-  if (score >= 2) return 'balanced'
-  return 'low'
+  let detected: PerformanceProfileName
+
+  if (score >= 4) detected = 'ultra'
+  else if (score >= 3) detected = 'high'
+  else if (score >= 2) detected = 'balanced'
+  else detected = 'low'
+
+  const storedLimit = readStoredProfileLimit()
+  return storedLimit
+    ? clampProfileToCeiling(detected, storedLimit)
+    : detected
+}
+
+function getWarmupProfile(
+  ceiling: PerformanceProfileName,
+): PerformanceProfileName {
+  if (ceiling === 'off' || ceiling === 'low') return ceiling
+  return clampProfileToCeiling('balanced', ceiling)
 }
 
 function createParticle(
@@ -141,7 +209,7 @@ function createParticle(
     Math.random() > 0.5
       ? butterflyStore.complementaryColor(primaryColor)
       : butterflyStore.analogousColor(primaryColor)
-  const wingSpeed = Math.round(randomRange(360, 680))
+  const wingSpeed = Math.round(randomRange(480, 780))
 
   return {
     id: index,
@@ -152,7 +220,7 @@ function createParticle(
     turnRate: randomRange(0.3, 0.9),
     phase: randomRange(0, Math.PI * 2),
     bob: randomRange(5, 14),
-    scale: activeProfile.size * randomRange(0.72, 1.18),
+    scale: activeProfile.size * randomRange(0.78, 1.16),
     wingStyle: {
       background: `radial-gradient(circle at 30% 28%, ${primaryColor}, ${secondaryColor} 76%)`,
       animationDuration: `${wingSpeed}ms`,
@@ -180,50 +248,161 @@ function stopAnimation(): void {
 function resetFrameTiming(): void {
   lastAnimationTime = 0
   lastRafTime = 0
+  frameSamples = []
+  healthySampleWindows = 0
 }
 
-function benchmarkFrame(rawDelta: number): number {
-  if (hasBenchmarked || rawDelta <= 0 || rawDelta >= 250) return 0
+function getPercentile(samples: number[], percentile: number): number {
+  if (!samples.length) return 0
 
-  frameSamples.push(rawDelta)
-  if (frameSamples.length < 45) return 0
+  const ordered = [...samples].sort((a, b) => a - b)
+  const index = Math.min(
+    ordered.length - 1,
+    Math.floor(ordered.length * percentile),
+  )
 
-  hasBenchmarked = true
+  return ordered[index] || 0
+}
 
-  const average =
-    frameSamples.reduce((total, delta) => total + delta, 0) /
-    frameSamples.length
-  const slowRatio =
-    frameSamples.filter((delta) => delta > 24).length / frameSamples.length
+function samplePerformance(rawDelta: number, now: number): number {
+  if (rawDelta <= 0) return 0
+  if (now - lastProfileChangeAt < PROFILE_CHANGE_COOLDOWN_MS) return 0
 
+  if (rawDelta >= 180) {
+    frameSamples = []
+    healthySampleWindows = 0
+    return -1
+  }
+
+  frameSamples.push(Math.min(rawDelta, 180))
+  if (frameSamples.length < SAMPLE_SIZE) return 0
+
+  const samples = frameSamples
   frameSamples = []
 
-  if (average > 34 || slowRatio > 0.4) return 2
-  if (average > 23 || slowRatio > 0.18) return 1
-  return 0
-}
+  const currentBudget = 1000 / profile.value.fps
+  const average =
+    samples.reduce((total, delta) => total + delta, 0) / samples.length
+  const p90 = getPercentile(samples, 0.9)
+  const slowRatio =
+    samples.filter((delta) => delta > currentBudget * 1.45).length /
+    samples.length
+  const severeRatio =
+    samples.filter((delta) => delta > currentBudget * 2.2).length /
+    samples.length
 
-function getDowngradedProfile(steps: number): PerformanceProfileName {
-  const currentIndex = PROFILE_ORDER.indexOf(profile.value.name)
-  return PROFILE_ORDER[Math.max(0, currentIndex - steps)] || 'off'
+  if (
+    severeRatio > 0.12 ||
+    average > currentBudget * 1.75 ||
+    p90 > currentBudget * 2.4
+  ) {
+    healthySampleWindows = 0
+    return -2
+  }
+
+  if (
+    slowRatio > 0.22 ||
+    average > currentBudget * 1.28 ||
+    p90 > currentBudget * 1.7
+  ) {
+    healthySampleWindows = 0
+    return -1
+  }
+
+  const nextProfileName = shiftProfile(profile.value.name, 1)
+  if (
+    nextProfileName === profile.value.name ||
+    profileIndex(nextProfileName) > profileIndex(profileCeiling)
+  ) {
+    healthySampleWindows = 0
+    return 0
+  }
+
+  const nextBudget = 1000 / PROFILES[nextProfileName].fps
+  const canSustainNextProfile =
+    average <= nextBudget * 1.08 && p90 <= nextBudget * 1.3
+
+  if (!canSustainNextProfile) {
+    healthySampleWindows = 0
+    return 0
+  }
+
+  healthySampleWindows += 1
+  if (healthySampleWindows < 1) return 0
+
+  healthySampleWindows = 0
+  return 1
 }
 
 async function applyProfile(name: PerformanceProfileName): Promise<void> {
-  if (profile.value.name === name && butterflies.value.length) return
+  const nextProfile = PROFILES[name]
+
+  if (
+    profile.value.name === name &&
+    butterflies.value.length === nextProfile.count
+  ) {
+    return
+  }
 
   rebuilding = true
   stopAnimation()
-  profile.value = PROFILES[name]
-  butterflies.value = Array.from({ length: profile.value.count }, (_, index) =>
-    createParticle(index, profile.value),
-  )
+
+  const previousProfile = profile.value
+  const previousParticles = butterflies.value
+  const retainedParticles = previousParticles.slice(0, nextProfile.count)
+
+  if (
+    retainedParticles.length &&
+    previousProfile.size > 0 &&
+    previousProfile.speed > 0
+  ) {
+    const sizeRatio = nextProfile.size / previousProfile.size
+    const speedRatio = nextProfile.speed / previousProfile.speed
+
+    for (const butterfly of retainedParticles) {
+      butterfly.scale *= sizeRatio
+      butterfly.speed *= speedRatio
+    }
+  }
+
+  const nextParticles = [...retainedParticles]
+
+  for (
+    let index = nextParticles.length;
+    index < nextProfile.count;
+    index += 1
+  ) {
+    nextParticles.push(createParticle(index, nextProfile))
+  }
+
+  profile.value = nextProfile
+  butterflies.value = nextParticles
 
   await nextTick()
   cacheButterflyElements()
   updateParticles(performance.now(), 0)
   resetFrameTiming()
+  lastProfileChangeAt = performance.now()
   rebuilding = false
   startAnimation()
+}
+
+function lowerAndLockProfile(steps: number): void {
+  const nextProfileName = shiftProfile(profile.value.name, -Math.abs(steps))
+  profileCeiling = clampProfileToCeiling(profileCeiling, nextProfileName)
+  storeProfileLimit(profileCeiling)
+  void applyProfile(nextProfileName)
+}
+
+function raiseProfile(steps: number): void {
+  const requestedProfile = shiftProfile(profile.value.name, Math.abs(steps))
+  const nextProfileName = clampProfileToCeiling(
+    requestedProfile,
+    profileCeiling,
+  )
+
+  if (nextProfileName === profile.value.name) return
+  void applyProfile(nextProfileName)
 }
 
 function updateParticles(now: number, deltaSeconds: number): void {
@@ -249,9 +428,10 @@ function updateParticles(now: number, deltaSeconds: number): void {
     if (butterfly.y > viewportHeight + margin) butterfly.y = -margin
 
     const heading = (butterfly.angle * 180) / Math.PI + 90
-    const tilt = Math.cos(butterfly.angle) >= 0 ? 118 : 32
+    const pitch = 48 + Math.sin(now * 0.0007 + butterfly.phase) * 6
+    const bank = Math.sin(now * 0.001 + butterfly.phase) * 10
 
-    element.style.transform = `translate3d(${butterfly.x}px, ${butterfly.y}px, 0) rotateZ(${heading}deg) rotate3d(1, 0.5, 0, ${tilt}deg) scale(${butterfly.scale})`
+    element.style.transform = `translate3d(${butterfly.x - BUTTERFLY_HALF_SIZE}px, ${butterfly.y - BUTTERFLY_HALF_SIZE}px, 0) rotateZ(${heading}deg) rotateX(${pitch}deg) rotateY(${bank}deg) scale(${butterfly.scale})`
   }
 }
 
@@ -263,9 +443,15 @@ function animate(now: number): void {
   const rawDelta = lastRafTime ? now - lastRafTime : 0
   lastRafTime = now
 
-  const downgradeSteps = benchmarkFrame(rawDelta)
-  if (downgradeSteps > 0) {
-    void applyProfile(getDowngradedProfile(downgradeSteps))
+  const profileAdjustment = samplePerformance(rawDelta, now)
+
+  if (profileAdjustment < 0) {
+    lowerAndLockProfile(Math.abs(profileAdjustment))
+    return
+  }
+
+  if (profileAdjustment > 0) {
+    raiseProfile(profileAdjustment)
     return
   }
 
@@ -304,17 +490,46 @@ function handleVisibilityChange(): void {
   startAnimation()
 }
 
+function handleResize(): void {
+  syncViewport()
+
+  if (resizeTimeoutId !== null) {
+    window.clearTimeout(resizeTimeoutId)
+  }
+
+  resizeTimeoutId = window.setTimeout(() => {
+    resizeTimeoutId = null
+    const detectedCeiling = detectPerformanceProfile()
+
+    if (profileIndex(detectedCeiling) >= profileIndex(profileCeiling)) return
+
+    profileCeiling = detectedCeiling
+    storeProfileLimit(profileCeiling)
+
+    if (profileIndex(profile.value.name) > profileIndex(profileCeiling)) {
+      void applyProfile(profileCeiling)
+    }
+  }, 150)
+}
+
 onMounted(async () => {
   syncViewport()
-  await applyProfile(detectPerformanceProfile())
+  profileCeiling = detectPerformanceProfile()
+  await applyProfile(getWarmupProfile(profileCeiling))
 
-  window.addEventListener('resize', syncViewport, { passive: true })
+  window.addEventListener('resize', handleResize, { passive: true })
   document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onBeforeUnmount(() => {
   stopAnimation()
-  window.removeEventListener('resize', syncViewport)
+
+  if (resizeTimeoutId !== null) {
+    window.clearTimeout(resizeTimeoutId)
+    resizeTimeoutId = null
+  }
+
+  window.removeEventListener('resize', handleResize)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>
@@ -323,22 +538,22 @@ onBeforeUnmount(() => {
 @keyframes flutter-left {
   0%,
   100% {
-    transform: rotateY(18deg);
+    transform: rotateY(16deg);
   }
 
   50% {
-    transform: rotateY(72deg);
+    transform: rotateY(66deg);
   }
 }
 
 @keyframes flutter-right {
   0%,
   100% {
-    transform: rotateY(-18deg);
+    transform: rotateY(-16deg);
   }
 
   50% {
-    transform: rotateY(-72deg);
+    transform: rotateY(-66deg);
   }
 }
 
@@ -355,8 +570,9 @@ onBeforeUnmount(() => {
   height: 70px;
   opacity: 0.74;
   pointer-events: none;
+  transform-origin: center;
   transform-style: preserve-3d;
-  backface-visibility: hidden;
+  backface-visibility: visible;
   contain: layout paint style;
   will-change: transform;
 }
@@ -369,7 +585,7 @@ onBeforeUnmount(() => {
   height: 42px;
   border-radius: 72% 42% 68% 38%;
   opacity: 0.78;
-  backface-visibility: hidden;
+  backface-visibility: visible;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
   will-change: transform;
@@ -386,11 +602,6 @@ onBeforeUnmount(() => {
   border-radius: 42% 72% 38% 68%;
   transform-origin: 0 52%;
   animation-name: flutter-right;
-}
-
-.butterfly-animation--low .left-wing,
-.butterfly-animation--low .right-wing {
-  animation-timing-function: steps(4, end);
 }
 
 .butterfly-animation--ultra .butterfly {

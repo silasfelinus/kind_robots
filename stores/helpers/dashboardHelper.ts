@@ -523,6 +523,26 @@ export const dashboardConfigs = {
     ],
   },
 
+  facets: {
+    key: 'facets',
+    label: 'Facets',
+    defaultTab: 'library',
+    tabs: [
+      {
+        key: 'library',
+        label: 'Library',
+        icon: 'kind-icon:tag',
+        title: 'Facet Library',
+        summary:
+          'Browse, edit, and organize the reusable flavor of the ecosystem.',
+        image: tabImage('facets', 'library'),
+        narrative:
+          'Facets are the small reusable building blocks — genres, animals, colors, themes, cores, moods, styles, settings, and art direction — that Dreams, Scenarios, and Art share. Browse the library, refine titles and aliases, and keep the flavor vocabulary tidy.',
+        route: '/facets',
+      },
+    ],
+  },
+
   footer: {
     key: 'footer',
     label: 'Footer',

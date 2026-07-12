@@ -1,6 +1,7 @@
 // /server/api/chatgpt/index.post.ts
 import { createError, defineEventHandler, readBody, type H3Event } from 'h3'
 import { ZodError } from 'zod'
+import { Prisma } from '~/prisma/generated/prisma/client'
 import {
   resolveChatGptActor,
   type ChatGptActor,
@@ -15,14 +16,17 @@ import {
   listContent,
   setContentActive,
   updateContent,
-} from '~/server/chatgpt/services/contentService'
-import { getImage, uploadImage } from '~/server/chatgpt/services/imageService'
+} from '~/server/chatgpt/services/currentContentService'
+import {
+  getImage,
+  uploadImage,
+} from '~/server/chatgpt/services/currentImageService'
 import {
   addRelation,
   listRelations,
   removeRelation,
-} from '~/server/chatgpt/services/relationService'
-import { describeChatGptApi } from '~/server/chatgpt/services/metaService'
+} from '~/server/chatgpt/services/currentRelationService'
+import { describeChatGptApi } from '~/server/chatgpt/services/currentMetaService'
 
 type ChatGptApiResponse<TData = unknown> = {
   success: boolean
@@ -39,10 +43,9 @@ type ChatGptRequestContext<
   request: TOperation
 }
 
-type OperationHandler<TOperation extends ChatGptOperation = ChatGptOperation> =
-  (
-    context: ChatGptRequestContext<TOperation>,
-  ) => Promise<ChatGptApiResponse> | ChatGptApiResponse
+type OperationHandler<TOperation extends ChatGptOperation = ChatGptOperation> = (
+  context: ChatGptRequestContext<TOperation>,
+) => Promise<ChatGptApiResponse> | ChatGptApiResponse
 
 const operationHandlers = {
   'content.create': ({ actor, request }) =>
@@ -90,9 +93,9 @@ const operationHandlers = {
 
   'image.get': ({ actor, request }) =>
     getImage({
+      actor,
       id: request.id,
       format: request.format,
-      actor,
       thumbnail: request.thumbnail,
       maxWidth: request.maxWidth,
       maxHeight: request.maxHeight,
@@ -120,10 +123,7 @@ const operationHandlers = {
       toResource: request.toResource,
     }),
 
-  'meta.describe': ({ actor }) =>
-    describeChatGptApi({
-      actor,
-    }),
+  'meta.describe': ({ actor }) => describeChatGptApi({ actor }),
 } satisfies Partial<{
   [TOperation in ChatGptOperation['operation']]: OperationHandler<
     Extract<ChatGptOperation, { operation: TOperation }>
@@ -149,6 +149,48 @@ function normalizeZodError(error: ZodError) {
     code: issue.code,
     message: issue.message,
   }))
+}
+
+function normalizePrismaError(error: unknown): never {
+  if (error instanceof Prisma.PrismaClientValidationError) {
+    throw createError({
+      statusCode: 422,
+      statusMessage: 'Request values do not match the current Prisma schema',
+      data: {
+        success: false,
+        message:
+          'Prisma rejected one or more field values. Check enum, date, JSON, and relation value types.',
+      },
+    })
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    const statusCode =
+      error.code === 'P2025'
+        ? 404
+        : error.code === 'P2002' || error.code === 'P2003'
+          ? 409
+          : 400
+
+    throw createError({
+      statusCode,
+      statusMessage: 'The database rejected the requested content operation',
+      data: {
+        success: false,
+        code: error.code,
+        message:
+          error.code === 'P2002'
+            ? 'A record already exists with a value that must be unique.'
+            : error.code === 'P2003'
+              ? 'A referenced record does not exist or cannot be related.'
+              : error.code === 'P2025'
+                ? 'The requested record was not found.'
+                : 'The requested database operation could not be completed.',
+      },
+    })
+  }
+
+  throw error
 }
 
 export default defineEventHandler(async (event) => {
@@ -177,6 +219,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    throw error
+    return normalizePrismaError(error)
   }
 })

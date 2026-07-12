@@ -11,7 +11,10 @@ import type {
 import { performFetch } from '@/stores/utils'
 
 export type ProjectWithRelations = Project & {
-  Manager?: Pick<Bot, 'id' | 'name' | 'slug' | 'avatarImage' | 'imagePath'> | null
+  Manager?: Pick<
+    Bot,
+    'id' | 'name' | 'slug' | 'avatarImage' | 'imagePath'
+  > | null
   ArtImage?: Partial<ArtImage> | null
   ArtCollection?: Partial<ArtCollection> | null
   PitchSheet?: Partial<PitchSheet> | null
@@ -25,6 +28,8 @@ export type ProjectWithRelations = Project & {
   }
 }
 
+export type ProjectPriorityLevel = Project['priority']
+
 export type ProjectListOptions = {
   mine?: boolean
   includeInactive?: boolean
@@ -35,12 +40,6 @@ export type ProjectListOptions = {
   search?: string
   take?: number
   skip?: number
-}
-
-type ApiResult<T> = {
-  success: boolean
-  data?: T
-  message?: string
 }
 
 function queryString(options: ProjectListOptions): string {
@@ -144,11 +143,14 @@ export const useProjectStore = defineStore('projectStore', () => {
   ): Promise<ProjectWithRelations> {
     saving.value = true
     try {
-      const response = await performFetch<ProjectWithRelations>('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      })
+      const response = await performFetch<ProjectWithRelations>(
+        '/api/projects',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+        },
+      )
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create Project.')
       }

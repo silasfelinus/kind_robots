@@ -1,16 +1,16 @@
 import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useConductorStore } from '@/stores/conductorStore'
-import { useDreamStore } from '@/stores/dreamStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useProjectStore } from '@/stores/projectStore'
 import { useTodoStore } from '@/stores/todoStore'
 import { useUserStore } from '@/stores/userStore'
 
 export default defineNuxtPlugin(() => {
   const route = useRoute()
   const conductorStore = useConductorStore()
-  const dreamStore = useDreamStore()
   const pageStore = usePageStore()
+  const projectStore = useProjectStore()
   const todoStore = useTodoStore()
   const userStore = useUserStore()
 
@@ -34,7 +34,7 @@ export default defineNuxtPlugin(() => {
     try {
       await Promise.all([
         conductorStore.fetchProjects(true),
-        dreamStore.fetchDreams({ dreamType: 'PROJECT' }),
+        projectStore.fetchProjects(),
         todoStore.hasLoaded ? todoStore.fetchTodos(true) : Promise.resolve(),
       ])
     } finally {

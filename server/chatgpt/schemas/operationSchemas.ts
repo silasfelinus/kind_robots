@@ -2,12 +2,15 @@
 import { z } from 'zod'
 
 export const ChatGptResourceSchema = z.enum([
-  'artImage',
   'artCollection',
+  'artImage',
   'bot',
   'character',
   'chat',
+  'composition',
   'dream',
+  'facet',
+  'project',
   'prompt',
   'resource',
   'reward',
@@ -104,12 +107,12 @@ export const ChatGptOperationSchema = z.discriminatedUnion('operation', [
   z
     .object({
       operation: z.literal('image.get'),
-      id: z.number().int().positive(),
+      id: PositiveIntSchema,
       format: ChatGptImageFormatSchema.optional(),
       thumbnail: z.boolean().optional(),
-      maxWidth: z.number().int().positive().optional(),
-      maxHeight: z.number().int().positive().optional(),
-      quality: z.number().int().positive().max(100).optional(),
+      maxWidth: PositiveIntSchema.optional(),
+      maxHeight: PositiveIntSchema.optional(),
+      quality: PositiveIntSchema.max(100).optional(),
     })
     .strict(),
 

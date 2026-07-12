@@ -50,20 +50,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
-// Access the milestone store
-const milestoneStore = useMilestoneStore()
+// Access the achievement store
+const achievementStore = useAchievementStore()
 
 // State for toggle
 const isOpen = ref(false)
 
 // Fetch match leaderboard data
-const leaderboard = computed(() => milestoneStore.highMatchScores)
+const leaderboard = computed(() => achievementStore.highMatchScores)
 
 onMounted(async () => {
-  if (!milestoneStore.highMatchScores.length) {
-    await milestoneStore.fetchHighMatchScores()
+  if (!achievementStore.highMatchScores.length) {
+    await achievementStore.fetchHighMatchScores()
   }
 })
 </script>

@@ -686,7 +686,7 @@ export type UserWhereInput = {
   Projects?: Prisma.ProjectListRelationFilter
   Facets?: Prisma.FacetListRelationFilter
   Logs?: Prisma.LogListRelationFilter
-  Milestones?: Prisma.MilestoneRecordListRelationFilter
+  Achievements?: Prisma.AchievementRecordListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   ClaimedPrompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
@@ -783,7 +783,7 @@ export type UserOrderByWithRelationInput = {
   Projects?: Prisma.ProjectOrderByRelationAggregateInput
   Facets?: Prisma.FacetOrderByRelationAggregateInput
   Logs?: Prisma.LogOrderByRelationAggregateInput
-  Milestones?: Prisma.MilestoneRecordOrderByRelationAggregateInput
+  Achievements?: Prisma.AchievementRecordOrderByRelationAggregateInput
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
   ClaimedPrompts?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
@@ -884,7 +884,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Projects?: Prisma.ProjectListRelationFilter
   Facets?: Prisma.FacetListRelationFilter
   Logs?: Prisma.LogListRelationFilter
-  Milestones?: Prisma.MilestoneRecordListRelationFilter
+  Achievements?: Prisma.AchievementRecordListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   ClaimedPrompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
@@ -1109,7 +1109,7 @@ export type UserCreateInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -1206,7 +1206,7 @@ export type UserUncheckedCreateInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -1300,7 +1300,7 @@ export type UserUpdateInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -1397,7 +1397,7 @@ export type UserUncheckedUpdateInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -2072,18 +2072,18 @@ export type UserUpdateOneRequiredWithoutManaTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutManaTransactionsInput, Prisma.UserUpdateWithoutManaTransactionsInput>, Prisma.UserUncheckedUpdateWithoutManaTransactionsInput>
 }
 
-export type UserCreateNestedOneWithoutMilestonesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutMilestonesInput, Prisma.UserUncheckedCreateWithoutMilestonesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMilestonesInput
+export type UserCreateNestedOneWithoutAchievementsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAchievementsInput, Prisma.UserUncheckedCreateWithoutAchievementsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAchievementsInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutMilestonesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutMilestonesInput, Prisma.UserUncheckedCreateWithoutMilestonesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMilestonesInput
-  upsert?: Prisma.UserUpsertWithoutMilestonesInput
+export type UserUpdateOneRequiredWithoutAchievementsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAchievementsInput, Prisma.UserUncheckedCreateWithoutAchievementsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAchievementsInput
+  upsert?: Prisma.UserUpsertWithoutAchievementsInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMilestonesInput, Prisma.UserUpdateWithoutMilestonesInput>, Prisma.UserUncheckedUpdateWithoutMilestonesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAchievementsInput, Prisma.UserUpdateWithoutAchievementsInput>, Prisma.UserUncheckedUpdateWithoutAchievementsInput>
 }
 
 export type UserCreateNestedOneWithoutPitchSheetsInput = {
@@ -2486,7 +2486,7 @@ export type UserCreateWithoutArtImagesInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -2582,7 +2582,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -2681,7 +2681,7 @@ export type UserCreateWithoutArtImageInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -2776,7 +2776,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -2890,7 +2890,7 @@ export type UserUpdateWithoutArtImagesInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -2986,7 +2986,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -3159,7 +3159,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -3255,7 +3255,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -3364,7 +3364,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -3460,7 +3460,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -3553,7 +3553,7 @@ export type UserCreateWithoutBotsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -3649,7 +3649,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -3758,7 +3758,7 @@ export type UserUpdateWithoutBotsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -3854,7 +3854,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -3948,7 +3948,7 @@ export type UserCreateWithoutCharactersInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -4044,7 +4044,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -4153,7 +4153,7 @@ export type UserUpdateWithoutCharactersInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -4249,7 +4249,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -4341,7 +4341,7 @@ export type UserCreateWithoutChatsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -4437,7 +4437,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -4546,7 +4546,7 @@ export type UserUpdateWithoutChatsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -4642,7 +4642,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -4736,7 +4736,7 @@ export type UserCreateWithoutCodesInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -4832,7 +4832,7 @@ export type UserUncheckedCreateWithoutCodesInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -4941,7 +4941,7 @@ export type UserUpdateWithoutCodesInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -5037,7 +5037,7 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -5130,7 +5130,7 @@ export type UserCreateWithoutCompositionsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -5226,7 +5226,7 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -5335,7 +5335,7 @@ export type UserUpdateWithoutCompositionsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -5431,7 +5431,7 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -5523,7 +5523,7 @@ export type UserCreateWithoutDreamsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -5619,7 +5619,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -5728,7 +5728,7 @@ export type UserUpdateWithoutDreamsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -5824,7 +5824,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -5917,7 +5917,7 @@ export type UserCreateWithoutProjectsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -6013,7 +6013,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -6122,7 +6122,7 @@ export type UserUpdateWithoutProjectsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -6218,7 +6218,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -6311,7 +6311,7 @@ export type UserCreateWithoutFacetsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -6407,7 +6407,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -6516,7 +6516,7 @@ export type UserUpdateWithoutFacetsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -6612,7 +6612,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -6705,7 +6705,7 @@ export type UserCreateWithoutLogsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -6801,7 +6801,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -6910,7 +6910,7 @@ export type UserUpdateWithoutLogsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -7006,7 +7006,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -7099,7 +7099,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -7195,7 +7195,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -7304,7 +7304,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -7400,7 +7400,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -7427,7 +7427,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutMilestonesInput = {
+export type UserCreateWithoutAchievementsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   username: string
@@ -7521,7 +7521,7 @@ export type UserCreateWithoutMilestonesInput = {
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutMilestonesInput = {
+export type UserUncheckedCreateWithoutAchievementsInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -7616,23 +7616,23 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutMilestonesInput = {
+export type UserCreateOrConnectWithoutAchievementsInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutMilestonesInput, Prisma.UserUncheckedCreateWithoutMilestonesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAchievementsInput, Prisma.UserUncheckedCreateWithoutAchievementsInput>
 }
 
-export type UserUpsertWithoutMilestonesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutMilestonesInput, Prisma.UserUncheckedUpdateWithoutMilestonesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutMilestonesInput, Prisma.UserUncheckedCreateWithoutMilestonesInput>
+export type UserUpsertWithoutAchievementsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAchievementsInput, Prisma.UserUncheckedUpdateWithoutAchievementsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAchievementsInput, Prisma.UserUncheckedCreateWithoutAchievementsInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutMilestonesInput = {
+export type UserUpdateToOneWithWhereWithoutAchievementsInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutMilestonesInput, Prisma.UserUncheckedUpdateWithoutMilestonesInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAchievementsInput, Prisma.UserUncheckedUpdateWithoutAchievementsInput>
 }
 
-export type UserUpdateWithoutMilestonesInput = {
+export type UserUpdateWithoutAchievementsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
@@ -7726,7 +7726,7 @@ export type UserUpdateWithoutMilestonesInput = {
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutMilestonesInput = {
+export type UserUncheckedUpdateWithoutAchievementsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7888,7 +7888,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -7984,7 +7984,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -8093,7 +8093,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -8189,7 +8189,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -8282,7 +8282,7 @@ export type UserCreateWithoutPromptsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
@@ -8378,7 +8378,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
@@ -8476,7 +8476,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
@@ -8572,7 +8572,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
@@ -8681,7 +8681,7 @@ export type UserUpdateWithoutPromptsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
@@ -8777,7 +8777,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
@@ -8881,7 +8881,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
@@ -8977,7 +8977,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
@@ -9070,7 +9070,7 @@ export type UserCreateWithoutReactionsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
@@ -9166,7 +9166,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
@@ -9275,7 +9275,7 @@ export type UserUpdateWithoutReactionsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
@@ -9371,7 +9371,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
@@ -9464,7 +9464,7 @@ export type UserCreateWithoutResourcesInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -9560,7 +9560,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -9669,7 +9669,7 @@ export type UserUpdateWithoutResourcesInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -9765,7 +9765,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -9858,7 +9858,7 @@ export type UserCreateWithoutRewardsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -9954,7 +9954,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -10063,7 +10063,7 @@ export type UserUpdateWithoutRewardsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -10159,7 +10159,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -10252,7 +10252,7 @@ export type UserCreateWithoutScenariosInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -10348,7 +10348,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -10457,7 +10457,7 @@ export type UserUpdateWithoutScenariosInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -10553,7 +10553,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -10646,7 +10646,7 @@ export type UserCreateWithoutServersInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -10742,7 +10742,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -10851,7 +10851,7 @@ export type UserUpdateWithoutServersInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -10947,7 +10947,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -11040,7 +11040,7 @@ export type UserCreateWithoutSmartIconsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -11136,7 +11136,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -11245,7 +11245,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -11341,7 +11341,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -11434,7 +11434,7 @@ export type UserCreateWithoutSocialPostsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -11530,7 +11530,7 @@ export type UserUncheckedCreateWithoutSocialPostsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -11639,7 +11639,7 @@ export type UserUpdateWithoutSocialPostsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -11735,7 +11735,7 @@ export type UserUncheckedUpdateWithoutSocialPostsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -11828,7 +11828,7 @@ export type UserCreateWithoutThemesInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -11924,7 +11924,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -12033,7 +12033,7 @@ export type UserUpdateWithoutThemesInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -12129,7 +12129,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -12222,7 +12222,7 @@ export type UserCreateWithoutStylistClientsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -12318,7 +12318,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -12427,7 +12427,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -12523,7 +12523,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -12616,7 +12616,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -12712,7 +12712,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -12821,7 +12821,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -12917,7 +12917,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -13010,7 +13010,7 @@ export type UserCreateWithoutArtJobsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -13106,7 +13106,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -13215,7 +13215,7 @@ export type UserUpdateWithoutArtJobsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -13311,7 +13311,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -13403,7 +13403,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -13499,7 +13499,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -13608,7 +13608,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -13704,7 +13704,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -13798,7 +13798,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -13894,7 +13894,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -13992,7 +13992,7 @@ export type UserCreateWithoutReferredByInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -14088,7 +14088,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -14197,7 +14197,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -14293,7 +14293,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -14397,7 +14397,7 @@ export type UserUpdateWithoutReferredByInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -14493,7 +14493,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -14586,7 +14586,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -14682,7 +14682,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -14780,7 +14780,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -14876,7 +14876,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -14985,7 +14985,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -15081,7 +15081,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -15185,7 +15185,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -15281,7 +15281,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -15374,7 +15374,7 @@ export type UserCreateWithoutChallengesInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -15470,7 +15470,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -15579,7 +15579,7 @@ export type UserUpdateWithoutChallengesInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -15675,7 +15675,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -15768,7 +15768,7 @@ export type UserCreateWithoutLifeRunsInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -15864,7 +15864,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -15973,7 +15973,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -16069,7 +16069,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -16162,7 +16162,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
@@ -16258,7 +16258,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
   ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
@@ -16367,7 +16367,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -16463,7 +16463,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -16616,7 +16616,7 @@ export type UserUpdateWithoutArtImageInput = {
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
@@ -16711,7 +16711,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
@@ -16814,7 +16814,7 @@ export type UserCountOutputType = {
   Projects: number
   Facets: number
   Logs: number
-  Milestones: number
+  Achievements: number
   Prompts: number
   ClaimedPrompts: number
   Reactions: number
@@ -16851,7 +16851,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Projects?: boolean | UserCountOutputTypeCountProjectsArgs
   Facets?: boolean | UserCountOutputTypeCountFacetsArgs
   Logs?: boolean | UserCountOutputTypeCountLogsArgs
-  Milestones?: boolean | UserCountOutputTypeCountMilestonesArgs
+  Achievements?: boolean | UserCountOutputTypeCountAchievementsArgs
   Prompts?: boolean | UserCountOutputTypeCountPromptsArgs
   ClaimedPrompts?: boolean | UserCountOutputTypeCountClaimedPromptsArgs
   Reactions?: boolean | UserCountOutputTypeCountReactionsArgs
@@ -16960,8 +16960,8 @@ export type UserCountOutputTypeCountLogsArgs<ExtArgs extends runtime.Types.Exten
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountMilestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MilestoneRecordWhereInput
+export type UserCountOutputTypeCountAchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AchievementRecordWhereInput
 }
 
 /**
@@ -17195,7 +17195,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Projects?: boolean | Prisma.User$ProjectsArgs<ExtArgs>
   Facets?: boolean | Prisma.User$FacetsArgs<ExtArgs>
   Logs?: boolean | Prisma.User$LogsArgs<ExtArgs>
-  Milestones?: boolean | Prisma.User$MilestonesArgs<ExtArgs>
+  Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   Prompts?: boolean | Prisma.User$PromptsArgs<ExtArgs>
   ClaimedPrompts?: boolean | Prisma.User$ClaimedPromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.User$ReactionsArgs<ExtArgs>
@@ -17299,7 +17299,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Projects?: boolean | Prisma.User$ProjectsArgs<ExtArgs>
   Facets?: boolean | Prisma.User$FacetsArgs<ExtArgs>
   Logs?: boolean | Prisma.User$LogsArgs<ExtArgs>
-  Milestones?: boolean | Prisma.User$MilestonesArgs<ExtArgs>
+  Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   Prompts?: boolean | Prisma.User$PromptsArgs<ExtArgs>
   ClaimedPrompts?: boolean | Prisma.User$ClaimedPromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.User$ReactionsArgs<ExtArgs>
@@ -17341,7 +17341,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Projects: Prisma.$ProjectPayload<ExtArgs>[]
     Facets: Prisma.$FacetPayload<ExtArgs>[]
     Logs: Prisma.$LogPayload<ExtArgs>[]
-    Milestones: Prisma.$MilestoneRecordPayload<ExtArgs>[]
+    Achievements: Prisma.$AchievementRecordPayload<ExtArgs>[]
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
     ClaimedPrompts: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
@@ -17777,7 +17777,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Projects<T extends Prisma.User$ProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Facets<T extends Prisma.User$FacetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$FacetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Logs<T extends Prisma.User$LogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Milestones<T extends Prisma.User$MilestonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$MilestonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MilestoneRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Achievements<T extends Prisma.User$AchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AchievementRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Prompts<T extends Prisma.User$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ClaimedPrompts<T extends Prisma.User$ClaimedPromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ClaimedPromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.User$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -18478,27 +18478,27 @@ export type User$LogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 }
 
 /**
- * User.Milestones
+ * User.Achievements
  */
-export type User$MilestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$AchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the MilestoneRecord
+   * Select specific fields to fetch from the AchievementRecord
    */
-  select?: Prisma.MilestoneRecordSelect<ExtArgs> | null
+  select?: Prisma.AchievementRecordSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the MilestoneRecord
+   * Omit specific fields from the AchievementRecord
    */
-  omit?: Prisma.MilestoneRecordOmit<ExtArgs> | null
+  omit?: Prisma.AchievementRecordOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.MilestoneRecordInclude<ExtArgs> | null
-  where?: Prisma.MilestoneRecordWhereInput
-  orderBy?: Prisma.MilestoneRecordOrderByWithRelationInput | Prisma.MilestoneRecordOrderByWithRelationInput[]
-  cursor?: Prisma.MilestoneRecordWhereUniqueInput
+  include?: Prisma.AchievementRecordInclude<ExtArgs> | null
+  where?: Prisma.AchievementRecordWhereInput
+  orderBy?: Prisma.AchievementRecordOrderByWithRelationInput | Prisma.AchievementRecordOrderByWithRelationInput[]
+  cursor?: Prisma.AchievementRecordWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.MilestoneRecordScalarFieldEnum | Prisma.MilestoneRecordScalarFieldEnum[]
+  distinct?: Prisma.AchievementRecordScalarFieldEnum | Prisma.AchievementRecordScalarFieldEnum[]
 }
 
 /**

@@ -5,8 +5,9 @@
 //
 //   1. payload shape  — the seed file parses, validates, and has unique keys
 //   2. import         — a full --write import completes
-//   3. link integrity — every ending has its Milestone, every achievement has
-//                       its ending + milestone, triggerCodes match the keys
+//   3. link integrity — every ending has its Achievement, every life
+//                       achievement has its ending + achievement, triggerCodes
+//                       match the keys
 //   4. art boundary   — no seeded row points at an ArtImage
 //   5. idempotency    — a second import leaves every count unchanged
 //
@@ -59,42 +60,42 @@ async function main() {
 
     console.log('2. import (--write pass 1)')
     await importEndings(prisma, endings)
-    const [milestones1, endings1, achievements1] = await davinciCounts(
+    const [achievements1, endings1, lifeAchievements1] = await davinciCounts(
       prisma,
       outcomeKeys,
     )
     check(
-      milestones1 === endings.length,
-      `milestone count matches payloads (${milestones1})`,
+      achievements1 === endings.length,
+      `achievement count matches payloads (${achievements1})`,
     )
     check(
       endings1 === endings.length,
       `LifeEnding count matches payloads (${endings1})`,
     )
     check(
-      achievements1 === endings.length,
-      `LifeAchievement count matches payloads (${achievements1})`,
+      lifeAchievements1 === endings.length,
+      `LifeAchievement count matches payloads (${lifeAchievements1})`,
     )
 
     console.log('3. link integrity')
     const unlinkedEndings = await prisma.lifeEnding.count({
-      where: { outcomeKey: { in: outcomeKeys }, milestoneId: null },
+      where: { outcomeKey: { in: outcomeKeys }, achievementId: null },
     })
     check(
       unlinkedEndings === 0,
-      `endings missing milestoneId: ${unlinkedEndings}`,
+      `endings missing achievementId: ${unlinkedEndings}`,
     )
 
     const conditionKeys = outcomeKeys.map((k) => `ending:${k}`)
-    const unlinkedAchievements = await prisma.lifeAchievement.count({
+    const unlinkedLifeAchievements = await prisma.lifeAchievement.count({
       where: {
         conditionKey: { in: conditionKeys },
-        OR: [{ endingId: null }, { milestoneId: null }],
+        OR: [{ endingId: null }, { achievementId: null }],
       },
     })
     check(
-      unlinkedAchievements === 0,
-      `achievements missing endingId/milestoneId: ${unlinkedAchievements}`,
+      unlinkedLifeAchievements === 0,
+      `life achievements missing endingId/achievementId: ${unlinkedLifeAchievements}`,
     )
 
     // Spot-check that links point at the right rows, not just any rows.
@@ -102,18 +103,18 @@ async function main() {
     if (!sample) throw new Error('seed file has no payloads to spot-check')
     const sampleEnding = await prisma.lifeEnding.findUnique({
       where: { outcomeKey: sample.outcomeKey },
-      include: { Milestone: true, Achievements: true },
+      include: { Achievement: true, Achievements: true },
     })
     check(
-      sampleEnding?.Milestone?.triggerCode ===
+      sampleEnding?.Achievement?.triggerCode ===
         `davinci-ending-${sample.outcomeKey}`,
-      'sample ending links to the milestone with its own triggerCode',
+      'sample ending links to the achievement with its own triggerCode',
     )
     check(
       sampleEnding?.Achievements.some(
         (a) => a.conditionKey === `ending:${sample.outcomeKey}`,
       ),
-      'sample ending links to the achievement with its own conditionKey',
+      'sample ending links to the life achievement with its own conditionKey',
     )
 
     console.log('4. art boundary')
@@ -127,41 +128,41 @@ async function main() {
       },
     })
     check(endingsWithArt === 0, `endings with ArtImage ids: ${endingsWithArt}`)
-    const achievementsWithArt = await prisma.lifeAchievement.count({
+    const lifeAchievementsWithArt = await prisma.lifeAchievement.count({
       where: { conditionKey: { in: conditionKeys }, artImageId: { not: null } },
     })
     check(
-      achievementsWithArt === 0,
-      `achievements with ArtImage ids: ${achievementsWithArt}`,
+      lifeAchievementsWithArt === 0,
+      `life achievements with ArtImage ids: ${lifeAchievementsWithArt}`,
     )
-    const milestonesWithArt = await prisma.milestone.count({
+    const achievementsWithArt = await prisma.achievement.count({
       where: {
         triggerCode: { startsWith: 'davinci-ending-' },
         artImageId: { not: null },
       },
     })
     check(
-      milestonesWithArt === 0,
-      `davinci milestones with ArtImage ids: ${milestonesWithArt}`,
+      achievementsWithArt === 0,
+      `davinci achievements with ArtImage ids: ${achievementsWithArt}`,
     )
 
     console.log('5. idempotency (--write pass 2)')
     await importEndings(prisma, endings)
-    const [milestones2, endings2, achievements2] = await davinciCounts(
+    const [achievements2, endings2, lifeAchievements2] = await davinciCounts(
       prisma,
       outcomeKeys,
     )
     check(
-      milestones2 === milestones1,
-      `milestone count unchanged (${milestones1} -> ${milestones2})`,
+      achievements2 === achievements1,
+      `achievement count unchanged (${achievements1} -> ${achievements2})`,
     )
     check(
       endings2 === endings1,
       `LifeEnding count unchanged (${endings1} -> ${endings2})`,
     )
     check(
-      achievements2 === achievements1,
-      `LifeAchievement count unchanged (${achievements1} -> ${achievements2})`,
+      lifeAchievements2 === lifeAchievements1,
+      `LifeAchievement count unchanged (${lifeAchievements1} -> ${lifeAchievements2})`,
     )
 
     if (failures > 0) {

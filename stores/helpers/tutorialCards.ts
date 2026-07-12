@@ -343,7 +343,7 @@ export const tutorialChannels = {
     title: 'Your Account',
     tagline: 'Configure your profile, your look, and your people.',
     overview:
-      'Your home base. Configure your account, build an avatar, manage friends, chase milestones, theme the app, and keep up with conversations.',
+      'Your home base. Configure your account, build an avatar, manage friends, chase achievements, theme the app, and keep up with conversations.',
     sections: [
       {
         key: 'dashboard',
@@ -364,10 +364,10 @@ export const tutorialChannels = {
         image: tutorialImage('home', 'friends'),
       },
       {
-        key: 'milestones',
-        title: 'Milestones',
+        key: 'achievements',
+        title: 'Achievements',
         body: 'Collect jellybeans hidden throughout the site and track the rewards you unlock.',
-        image: tutorialImage('home', 'milestones'),
+        image: tutorialImage('home', 'achievements'),
       },
       {
         key: 'themes',

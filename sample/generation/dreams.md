@@ -34,8 +34,7 @@ Required: `title`. Always set: `slug`, `dreamType`, `description`,
 
 Project block (PROJECT only): `projectStatus` (`ACTIVE/PAUSED/DONE/
 ARCHIVED/BRAINSTORM`), `priority` (`LOW/NORMAL/HIGH`), `goal` (what 100%
-looks like, concretely), `waypoints` (pipe-delimited steps; `✓ ` prefix =
-done, `~ ` = in progress), `repoUrl`, `liveUrl`.
+looks like, concretely), `repoUrl`, `liveUrl`.
 
 Relations worth setting at generation time: `ArtImage`/`artImageId`
 (primary image), `artCollectionId` (primary collection), `Characters`,

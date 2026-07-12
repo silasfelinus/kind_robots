@@ -295,7 +295,7 @@ import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useUserStore } from '@/stores/userStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 import SwarmIcon from '@/components/icons/swarm-icon.vue'
@@ -325,7 +325,7 @@ const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 const route = useRoute()
 
 const { isEditing, editableIcons, activeIcons } = storeToRefs(smartbarStore)
@@ -360,7 +360,7 @@ function computedLabel(icon: SmartIcon): string {
         ? userStore.user?.username || 'User'
         : 'Login?'
     case 'jellybean-icon':
-      return `${milestoneStore.milestoneCountForUser || 0} /11`
+      return `${achievementStore.achievementCountForUser || 0} /11`
     case 'swarm-icon':
       return butterflyStore.butterflies.some((b) => !b.isExiting)
         ? 'Swarm On'

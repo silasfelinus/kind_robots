@@ -22,9 +22,9 @@
             v-if="state.topScore >= 20 && state.pressCount >= 1"
             class="bg-accent p-4 rounded-lg shadow-lg border m-2"
           >
-            <h2 class="text-xl">Last Milestone</h2>
+            <h2 class="text-xl">Last Achievement</h2>
             <p class="text-lg">
-              {{ state.lastMilestone }}
+              {{ state.lastAchievement }}
             </p>
           </div>
         </transition>
@@ -130,13 +130,13 @@
 import { reactive, onMounted, ref } from 'vue'
 import confetti from 'canvas-confetti'
 import responses from '../../assets/buttonResponses'
-import milestones from '../../assets/buttonMilestones'
+import achievements from '../../assets/buttonAchievements'
 import { useUserStore } from '../../stores/userStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
 const userStore = useUserStore()
 
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 
 const state = reactive({
   pressed: false,
@@ -147,7 +147,7 @@ const state = reactive({
   showResetPopup: false,
   resetConfirmed: false,
   previousMessage: '',
-  lastMilestone: '',
+  lastAchievement: '',
 })
 const buttonRef = ref<HTMLElement | null>(null)
 
@@ -188,7 +188,7 @@ const pressedButton = () => {
   }
 
   if (state.pressCount == 100) {
-    milestoneStore.rewardMilestone(5)
+    achievementStore.rewardAchievement(5)
   }
 
   // Save to localStorage every 10 clicks to optimize performance
@@ -198,18 +198,18 @@ const pressedButton = () => {
     submitTopScore()
   }
 
-  let isMilestone = false
+  let isAchievement = false
 
-  milestones.forEach((milestone) => {
-    if (state.pressCount === milestone.count) {
-      state.buttonText = milestone.message
-      state.lastMilestone = milestone.message // Store the last milestone message
+  achievements.forEach((achievement) => {
+    if (state.pressCount === achievement.count) {
+      state.buttonText = achievement.message
+      state.lastAchievement = achievement.message // Store the last achievement message
       triggerConfetti()
-      isMilestone = true
+      isAchievement = true
     }
   })
 
-  if (!isMilestone) {
+  if (!isAchievement) {
     const next =
       responses[Math.floor(Math.random() * responses.length)] ??
       'The button stares back at you.'
@@ -220,10 +220,10 @@ const pressedButton = () => {
   state.previousMessage = tempMessage // Set the previous message after updating the buttonText
 }
 const submitTopScore = async () => {
-  const updateStatus = await milestoneStore.updateClickRecord(state.topScore)
+  const updateStatus = await achievementStore.updateClickRecord(state.topScore)
   if (updateStatus === 'Updated') {
     // Refresh the leaderboard
-    await milestoneStore.fetchHighClickScores()
+    await achievementStore.fetchHighClickScores()
   }
 }
 

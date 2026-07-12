@@ -357,7 +357,7 @@ describe('ArtCollection API Tests', () => {
       expect(firstImage).to.not.have.property('characterId')
       expect(firstImage).to.not.have.property('botId')
       expect(firstImage).to.not.have.property('componentId')
-      expect(firstImage).to.not.have.property('milestoneId')
+      expect(firstImage).to.not.have.property('achievementId')
       expect(firstImage).to.not.have.property('chatId')
     })
   })

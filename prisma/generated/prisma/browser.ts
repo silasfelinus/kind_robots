@@ -27,6 +27,37 @@ export * from './enums';
  */
 export type FacetAlias = Prisma.FacetAliasModel
 /**
+ * Model ModelBuildRun
+ * One resumable Model Builder run: a source record, a chosen recipe, and the
+ * build items produced from the selected outputs. `sourceSnapshot` freezes the
+ * source at run start so later drift is detectable; `selections`/`usage` are
+ * free-form JSON. `sourceType`/`recipeKey` are catalog keys (VarChar, not
+ * enums) so evolving the front-end recipe catalog needs no migration.
+ */
+export type ModelBuildRun = Prisma.ModelBuildRunModel
+/**
+ * Model ModelBuildItem
+ * One requested output within a run. `stageStatuses` is the four-gate map
+ * ({ PITCH: { status, note }, ... }); `pitch`/`fieldsDraft`/`promptDraft` are
+ * the editable drafts; `targetType`/`targetId` point at a durable target row
+ * for CREATE/UPDATE actions (draft-early or final). `idempotencyKey` guards the
+ * eventual final commit against duplicate writes.
+ */
+export type ModelBuildItem = Prisma.ModelBuildItemModel
+/**
+ * Model ModelBuildArtifact
+ * A generated or assembled output for an item, with provenance. Draft outputs
+ * live at `draftPath`; canonical promotion (a later gated step) sets
+ * `promotedPath` and `reviewState`. `artImageId` links a persisted ArtImage.
+ */
+export type ModelBuildArtifact = Prisma.ModelBuildArtifactModel
+/**
+ * Model ModelBuildRevision
+ * Append-only revision history for an item stage. Editing an upstream stage
+ * records the previous and next payloads so nothing is silently lost.
+ */
+export type ModelBuildRevision = Prisma.ModelBuildRevisionModel
+/**
  * Model ArtImage
  * ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
  */
@@ -153,20 +184,20 @@ export type ExpressionTransition = Prisma.ExpressionTransitionModel
  */
 export type Log = Prisma.LogModel
 /**
- * Model Milestone
- * website achievements! This holds the milestones that can be achieved (in the flavor text we refer to them as "jellybeans"). They are not user editable and set by myself. only about 1/3 are currently utilized, and one of my biggest todos before public release.
+ * Model Achievement
+ * website achievements! This holds the achievements that can be earned (in the flavor text we refer to them as "jellybeans"). They are not user editable and set by myself. only about 1/3 are currently utilized, and one of my biggest todos before public release.
  */
-export type Milestone = Prisma.MilestoneModel
+export type Achievement = Prisma.AchievementModel
 /**
  * Model ManaTransaction
  * 
  */
 export type ManaTransaction = Prisma.ManaTransactionModel
 /**
- * Model MilestoneRecord
- * the records of milestones earned. They record the date, username, id, etc. Users are given the option to clear their milestones so they can hunt fresh. I use this extensively in debugging.
+ * Model AchievementRecord
+ * the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.
  */
-export type MilestoneRecord = Prisma.MilestoneRecordModel
+export type AchievementRecord = Prisma.AchievementRecordModel
 /**
  * Model NarratorTopic
  * 
@@ -278,7 +309,7 @@ export type Referral = Prisma.ReferralModel
  * Directed relationship between two users with a typed role.
  * One row per (userId, relatedUserId, type). Symmetric types (FRIEND) are
  * normalized in the app layer so a single row represents the mutual link.
- * Follows the ButterflyRecord/MilestoneRecord pattern (explicit join model,
+ * Follows the ButterflyRecord/AchievementRecord pattern (explicit join model,
  * not implicit M2M) so we can attach status + timestamps + future metadata.
  */
 export type UserRelation = Prisma.UserRelationModel

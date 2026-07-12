@@ -38,13 +38,13 @@ failure. It writes — point it at a scratch database, never production.
 
 Per ending payload:
 
-- **Milestone** upserted by `triggerCode` (`davinci-ending-{outcomeKey}`),
+- **Achievement** upserted by `triggerCode` (`davinci-ending-{outcomeKey}`),
   non-repeatable, active, with icon/imagePath as path strings and the art
   prompt stored for the future local generator pipeline.
-- **LifeEnding** upserted by `outcomeKey`, linked to the Milestone via
-  `milestoneId`.
+- **LifeEnding** upserted by `outcomeKey`, linked to the Achievement via
+  `achievementId`.
 - **LifeAchievement** matched by `conditionKey` (`ending:{outcomeKey}`),
-  type `ENDING`, linked to both the Milestone and the LifeEnding.
+  type `ENDING`, linked to both the Achievement and the LifeEnding.
 
 ## What it deliberately does NOT do
 

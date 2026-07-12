@@ -46,7 +46,7 @@ on the `LifeChoice` row for audit.
 ### `POST /api/davinci/runs/:id/resolve`
 
 (Existing — davinci/t-009.) Resolves accumulated stats into the 10-bit
-`outcomeKey`, marks the run `COMPLETE`, and awards the linked Milestone +
+`outcomeKey`, marks the run `COMPLETE`, and awards the linked Achievement +
 LifeAchievement once per user.
 
 ## Stat model

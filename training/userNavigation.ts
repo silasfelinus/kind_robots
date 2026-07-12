@@ -36,7 +36,7 @@ export const userNavigation: navigationData[] = [
     image: '/images/fantasycore/fantasycore-749.webp',
     description:
       'Our Record of Discovered Jellybeans, and Clues to their Whereabouts.',
-    path: '/milestones',
+    path: '/achievements',
   },
   {
     title: 'Art Match',

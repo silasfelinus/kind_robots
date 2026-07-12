@@ -9,6 +9,34 @@
 * 🟢 You can import this file directly.
 */
 
+export const ModelBuildStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ModelBuildStatus = (typeof ModelBuildStatus)[keyof typeof ModelBuildStatus]
+
+
+export const ModelBuildAction = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  ASSET_ONLY: 'ASSET_ONLY'
+} as const
+
+export type ModelBuildAction = (typeof ModelBuildAction)[keyof typeof ModelBuildAction]
+
+
+export const ModelBuildReviewState = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ModelBuildReviewState = (typeof ModelBuildReviewState)[keyof typeof ModelBuildReviewState]
+
+
 export const DreamRelationType = {
   IS_A: 'IS_A',
   APPEARS_IN: 'APPEARS_IN',

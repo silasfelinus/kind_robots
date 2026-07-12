@@ -36,7 +36,7 @@ type CreateArtImagePayload = {
 
   botId?: number | null
   componentId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
@@ -46,7 +46,7 @@ type CreateArtImagePayload = {
 
   botIds?: number[]
   componentIds?: number[]
-  milestoneIds?: number[]
+  achievementIds?: number[]
   promptIds?: number[]
   resourceIds?: number[]
   rewardIds?: number[]
@@ -188,8 +188,8 @@ function buildCreateData(
     Components: connectMany(
       mergeIds(body.componentIds, body.componentId ? [body.componentId] : []),
     ),
-    Milestones: connectMany(
-      mergeIds(body.milestoneIds, body.milestoneId ? [body.milestoneId] : []),
+    Achievements: connectMany(
+      mergeIds(body.achievementIds, body.achievementId ? [body.achievementId] : []),
     ),
     Prompts: connectMany(
       mergeIds(body.promptIds, body.promptId ? [body.promptId] : []),

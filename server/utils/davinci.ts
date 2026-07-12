@@ -43,16 +43,16 @@ export interface ResolveLifeRunResult {
   outcomeKey: string
   stats: Record<string, number>
   ending: { id: number; title: string; slug: string; victoryType: string }
-  milestoneId: number | null
-  milestoneRecordId: number | null
-  milestoneAwarded: boolean
   achievementId: number | null
-  unlockId: number | null
+  achievementRecordId: number | null
   achievementAwarded: boolean
+  lifeAchievementId: number | null
+  unlockId: number | null
+  lifeAchievementAwarded: boolean
 }
 
 // Resolves a LifeRun's stats into its deterministic ending and awards the
-// linked Milestone + LifeAchievement. Idempotent: re-resolving an already
+// linked Achievement + LifeAchievement. Idempotent: re-resolving an already
 // completed run re-derives the same ending and awards nothing twice.
 //
 // Duplicate-unlock guard: LifeAchievementUnlock's unique
@@ -108,41 +108,41 @@ export async function resolveLifeRunEnding(
       },
     })
 
-    // Award the linked Milestone (davinci-ending-{outcomeKey}) once per user.
-    let milestoneRecordId: number | null = null
-    let milestoneAwarded = false
-    if (ending.milestoneId) {
-      const existingRecord = await tx.milestoneRecord.findFirst({
-        where: { milestoneId: ending.milestoneId, userId },
+    // Award the linked Achievement (davinci-ending-{outcomeKey}) once per user.
+    let achievementRecordId: number | null = null
+    let achievementAwarded = false
+    if (ending.achievementId) {
+      const existingRecord = await tx.achievementRecord.findFirst({
+        where: { achievementId: ending.achievementId, userId },
         select: { id: true },
       })
       if (existingRecord) {
-        milestoneRecordId = existingRecord.id
+        achievementRecordId = existingRecord.id
       } else {
-        const record = await tx.milestoneRecord.create({
+        const record = await tx.achievementRecord.create({
           data: {
-            milestoneId: ending.milestoneId,
+            achievementId: ending.achievementId,
             userId,
             username: username ?? null,
           },
         })
-        milestoneRecordId = record.id
-        milestoneAwarded = true
+        achievementRecordId = record.id
+        achievementAwarded = true
       }
     }
 
     // Award the linked LifeAchievement once per user (global guard — see above).
-    let achievementId: number | null = null
+    let lifeAchievementId: number | null = null
     let unlockId: number | null = null
-    let achievementAwarded = false
-    const achievement = await tx.lifeAchievement.findFirst({
+    let lifeAchievementAwarded = false
+    const lifeAchievement = await tx.lifeAchievement.findFirst({
       where: { endingId: ending.id, isActive: true },
       select: { id: true },
     })
-    if (achievement) {
-      achievementId = achievement.id
+    if (lifeAchievement) {
+      lifeAchievementId = lifeAchievement.id
       const existingUnlock = await tx.lifeAchievementUnlock.findFirst({
-        where: { userId, achievementId: achievement.id },
+        where: { userId, achievementId: lifeAchievement.id },
         select: { id: true },
       })
       if (existingUnlock) {
@@ -151,14 +151,14 @@ export async function resolveLifeRunEnding(
         const unlock = await tx.lifeAchievementUnlock.create({
           data: {
             userId,
-            achievementId: achievement.id,
+            achievementId: lifeAchievement.id,
             lifeRunId: run.id,
-            milestoneRecordId,
+            achievementRecordId,
             data: { outcomeKey },
           },
         })
         unlockId = unlock.id
-        achievementAwarded = true
+        lifeAchievementAwarded = true
       }
     }
 
@@ -171,12 +171,12 @@ export async function resolveLifeRunEnding(
         slug: ending.slug,
         victoryType: ending.victoryType,
       },
-      milestoneId: ending.milestoneId,
-      milestoneRecordId,
-      milestoneAwarded,
-      achievementId,
-      unlockId,
+      achievementId: ending.achievementId,
+      achievementRecordId,
       achievementAwarded,
+      lifeAchievementId,
+      unlockId,
+      lifeAchievementAwarded,
     }
   })
 }

@@ -11,7 +11,7 @@ A Project represents implementation work managed by Kind Robots and optionally s
 Project owns:
 
 - identity and presentation
-- project status, priority, goal, and waypoints
+- project status, priority, and goal
 - repository and live URLs
 - `conductorSlug`
 - `channelKey` and `tabKey`

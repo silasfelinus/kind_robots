@@ -1,7 +1,7 @@
 <!-- /components/content/icons/jellybean-icon.vue -->
 <template>
   <router-link
-    to="/milestones"
+    to="/achievements"
     class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
   >
     <Icon
@@ -14,12 +14,12 @@
 <script setup lang="ts">
 // /components/content/icons/jellybean-icon.vue
 import { computed } from 'vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 
 const navLabel = computed(() => {
-  const count = milestoneStore.milestoneCountForUser || 0
+  const count = achievementStore.achievementCountForUser || 0
   return `${count} /11`
 })
 

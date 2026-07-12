@@ -15,7 +15,7 @@ The first migration is additive. Legacy Project-shaped and Facet-shaped Dream ro
 Kind Robots owns Project identity and presentation:
 
 - title, slug, description, and flavor text
-- status, priority, goal, and waypoints
+- status, priority, and goal
 - repository and live URLs
 - `channelKey` and `tabKey`
 - manager Bot

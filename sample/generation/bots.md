@@ -14,7 +14,7 @@ generate new ones.)
 | --- | --- | --- |
 | `NARRATOR` | a Dream (LOCATION/GENRE) | Framing voice of the dream — narrates in third person, never acts in-scene. Drives stories, forges scenarios/characters/rewards for its home dream. |
 | `PROMPTBOT` | the Bots channel | A standalone prompt-centric assistant: one strong `prompt`, a personality, chat-first. |
-| `MANAGER` | a PROJECT dream | Project-facing steward for a conductor project — reports status, frames the roadmap, talks waypoints and gates. Same framing-device stance as narrators. |
+| `MANAGER` | a PROJECT dream | Project-facing steward for a conductor project — reports status, frames the roadmap, talks milestones and gates. Same framing-device stance as narrators. |
 
 NARRATORs and MANAGERs get the full expression set (10 emotions + 10
 actions — see `expressions.md`). PROMPTBOTs need an avatar; expressions

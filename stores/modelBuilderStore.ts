@@ -149,17 +149,10 @@ const runIdKey = 'modelBuilder:runId'
 const MAX_BATCH = 12
 
 // Which draft field an AI suggestion targets. `artPrompt` matches the /api/suggest
-// convention used by the art generator.
+// convention used by the art generator. Per-field prompt text lives in the
+// registered 'model-builder' suggest sheet (server/utils/suggest/sheets), so the
+// store just names the field.
 export type DraftField = 'pitch' | 'fields' | 'artPrompt'
-
-const DRAFT_INSTRUCTIONS: Record<DraftField, string> = {
-  pitch:
-    'Write a concise 2-3 sentence pitch describing why this output exists for the source record and what it should convey. Return only the pitch text.',
-  fields:
-    'Propose the concrete schema fields and relationships this output should write, as short "field: value" lines grounded in the source record. Return only the field list.',
-  artPrompt:
-    'Write a single vivid image-generation prompt for this output, grounded in the source record. Comma-separated descriptors, no preamble. Return only the prompt.',
-}
 
 function safeGet(key: string): string | null {
   if (!isClient) return null
@@ -639,7 +632,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
               source: state.selectedSource ?? undefined,
             },
             extra: {
-              instruction: instruction || DRAFT_INSTRUCTIONS[field],
+              // The registered 'model-builder' suggest sheet owns the per-field
+              // prompt; only override it when the caller passes an explicit one.
+              ...(instruction ? { instruction } : {}),
               sourceLabel: state.run.sourceLabel,
             },
           }),

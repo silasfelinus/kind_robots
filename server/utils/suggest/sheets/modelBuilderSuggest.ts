@@ -22,6 +22,8 @@ function buildSourceContext(context: Record<string, unknown>): string[] {
   push('Output', context.output)
   push('Item', context.itemLabel)
   push('Action', context.action)
+  push('Target model', context.targetModel)
+  push('Fields to fill', context.expectedFields)
 
   const source =
     context.source && typeof context.source === 'object'
@@ -86,7 +88,7 @@ Rules:
     pitch:
       'Write a concise 2–3 sentence pitch for this output — why it exists for the source record and what it should convey. Ground it in the source canon.',
     fields:
-      'Propose the concrete schema fields and relationships this output should write, as short "field: value" lines that fit the source model and stay true to its canon.',
+      'Fill in the target model as concrete "field: value" lines, one per line, using every field in "Fields to fill" (respect required fields and pick a valid option for choice fields). Invent a specific, characterful record grounded in the source canon — real names and effects, not vague summaries.',
     artPrompt:
       'Write a single vivid image-generation prompt for this output, grounded in the source record\'s look and canon. Comma-separated descriptors, no sentences.',
   },

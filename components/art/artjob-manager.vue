@@ -57,22 +57,6 @@
         {{ artJobStore.error }}
       </div>
 
-      <!-- Stat tiles -->
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        <div
-          v-for="tile in statTiles"
-          :key="tile.label"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
-          <div class="text-2xl font-bold" :class="tile.class">
-            {{ tile.value }}
-          </div>
-          <div class="text-[11px] uppercase tracking-wide text-base-content/60">
-            {{ tile.label }}
-          </div>
-        </div>
-      </div>
-
       <div
         v-if="stats?.oldestPending"
         class="rounded-2xl border border-warning/40 bg-warning/10 p-2 text-xs text-warning"
@@ -175,7 +159,19 @@
       <!-- Queue -->
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
         <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <h3 class="text-sm font-semibold">Queue</h3>
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-semibold">Queue</h3>
+            <span
+              v-if="(stats?.staleRunningCount ?? 0) > 0"
+              class="badge badge-xs badge-error rounded-2xl"
+              title="RUNNING jobs on a stale claim (relay likely died mid-render)"
+            >
+              {{ stats?.staleRunningCount }} stale
+            </span>
+            <span class="text-[11px] text-base-content/50">
+              {{ stats?.imagesCreatedInWindow ?? 0 }} imgs / {{ windowHours }}h
+            </span>
+          </div>
           <div class="flex flex-wrap gap-1">
             <button
               v-for="f in statusFilters"
@@ -188,6 +184,9 @@
               @click="artJobStore.fetchJobs(f)"
             >
               {{ f }}
+              <span class="ml-1 font-mono opacity-70">{{
+                statusCount(f)
+              }}</span>
             </button>
           </div>
         </div>
@@ -323,25 +322,14 @@ const isLoading = computed(
     artJobStore.loadingJobs,
 )
 
-const statTiles = computed(() => {
+// Count shown on each queue filter toggle. ALL sums every status.
+function statusCount(filter: ArtJobStatus | 'ALL'): number {
   const depth = stats.value?.queueDepth ?? {}
-  return [
-    { label: 'Pending', value: depth.PENDING ?? 0, class: 'text-warning' },
-    { label: 'Running', value: depth.RUNNING ?? 0, class: 'text-info' },
-    { label: 'Done', value: depth.DONE ?? 0, class: 'text-success' },
-    { label: 'Failed', value: depth.FAILED ?? 0, class: 'text-error' },
-    {
-      label: 'Stale',
-      value: stats.value?.staleRunningCount ?? 0,
-      class: 'text-error',
-    },
-    {
-      label: `Images/${windowHours.value}h`,
-      value: stats.value?.imagesCreatedInWindow ?? 0,
-      class: 'text-primary',
-    },
-  ]
-})
+  if (filter === 'ALL') {
+    return Object.values(depth).reduce((a, b) => a + b, 0)
+  }
+  return depth[filter] ?? 0
+}
 
 function statusClass(status: string): string {
   if (status === 'ONLINE') return 'text-success'

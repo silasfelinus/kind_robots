@@ -423,6 +423,7 @@ export const ModelName = {
   Reward: 'Reward',
   Scenario: 'Scenario',
   Server: 'Server',
+  ServerHealthCheck: 'ServerHealthCheck',
   SmartIcon: 'SmartIcon',
   SocialPost: 'SocialPost',
   SocialTarget: 'SocialTarget',
@@ -460,7 +461,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
+    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3038,6 +3039,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ServerHealthCheck: {
+      payload: Prisma.$ServerHealthCheckPayload<ExtArgs>
+      fields: Prisma.ServerHealthCheckFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServerHealthCheckFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServerHealthCheckFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload>
+        }
+        findFirst: {
+          args: Prisma.ServerHealthCheckFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServerHealthCheckFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload>
+        }
+        findMany: {
+          args: Prisma.ServerHealthCheckFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload>[]
+        }
+        create: {
+          args: Prisma.ServerHealthCheckCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload>
+        }
+        createMany: {
+          args: Prisma.ServerHealthCheckCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ServerHealthCheckDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload>
+        }
+        update: {
+          args: Prisma.ServerHealthCheckUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServerHealthCheckDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServerHealthCheckUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ServerHealthCheckUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServerHealthCheckPayload>
+        }
+        aggregate: {
+          args: Prisma.ServerHealthCheckAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServerHealthCheck>
+        }
+        groupBy: {
+          args: Prisma.ServerHealthCheckGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServerHealthCheckGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServerHealthCheckCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServerHealthCheckCountAggregateOutputType> | number
+        }
+      }
+    }
     SmartIcon: {
       payload: Prisma.$SmartIconPayload<ExtArgs>
       fields: Prisma.SmartIconFieldRefs
@@ -5418,6 +5485,21 @@ export const ServerScalarFieldEnum = {
 export type ServerScalarFieldEnum = (typeof ServerScalarFieldEnum)[keyof typeof ServerScalarFieldEnum]
 
 
+export const ServerHealthCheckScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  serverId: 'serverId',
+  checkedAt: 'checkedAt',
+  status: 'status',
+  ok: 'ok',
+  latencyMs: 'latencyMs',
+  source: 'source',
+  note: 'note'
+} as const
+
+export type ServerHealthCheckScalarFieldEnum = (typeof ServerHealthCheckScalarFieldEnum)[keyof typeof ServerHealthCheckScalarFieldEnum]
+
+
 export const SmartIconScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -6378,6 +6460,14 @@ export const ServerOrderByRelevanceFieldEnum = {
 export type ServerOrderByRelevanceFieldEnum = (typeof ServerOrderByRelevanceFieldEnum)[keyof typeof ServerOrderByRelevanceFieldEnum]
 
 
+export const ServerHealthCheckOrderByRelevanceFieldEnum = {
+  source: 'source',
+  note: 'note'
+} as const
+
+export type ServerHealthCheckOrderByRelevanceFieldEnum = (typeof ServerHealthCheckOrderByRelevanceFieldEnum)[keyof typeof ServerHealthCheckOrderByRelevanceFieldEnum]
+
+
 export const SmartIconOrderByRelevanceFieldEnum = {
   title: 'title',
   type: 'type',
@@ -7153,6 +7243,7 @@ export type GlobalOmitConfig = {
   reward?: Prisma.RewardOmit
   scenario?: Prisma.ScenarioOmit
   server?: Prisma.ServerOmit
+  serverHealthCheck?: Prisma.ServerHealthCheckOmit
   smartIcon?: Prisma.SmartIconOmit
   socialPost?: Prisma.SocialPostOmit
   socialTarget?: Prisma.SocialTargetOmit

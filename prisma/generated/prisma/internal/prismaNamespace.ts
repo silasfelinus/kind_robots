@@ -385,6 +385,10 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   FacetAlias: 'FacetAlias',
+  ModelBuildRun: 'ModelBuildRun',
+  ModelBuildItem: 'ModelBuildItem',
+  ModelBuildArtifact: 'ModelBuildArtifact',
+  ModelBuildRevision: 'ModelBuildRevision',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -407,9 +411,9 @@ export const ModelName = {
   ExpressionMedia: 'ExpressionMedia',
   ExpressionTransition: 'ExpressionTransition',
   Log: 'Log',
-  Milestone: 'Milestone',
+  Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
-  MilestoneRecord: 'MilestoneRecord',
+  AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
   PitchSheet: 'PitchSheet',
@@ -456,7 +460,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
+    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -523,6 +527,270 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FacetAliasCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FacetAliasCountAggregateOutputType> | number
+        }
+      }
+    }
+    ModelBuildRun: {
+      payload: Prisma.$ModelBuildRunPayload<ExtArgs>
+      fields: Prisma.ModelBuildRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModelBuildRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModelBuildRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload>
+        }
+        findFirst: {
+          args: Prisma.ModelBuildRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModelBuildRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload>
+        }
+        findMany: {
+          args: Prisma.ModelBuildRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload>[]
+        }
+        create: {
+          args: Prisma.ModelBuildRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload>
+        }
+        createMany: {
+          args: Prisma.ModelBuildRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ModelBuildRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload>
+        }
+        update: {
+          args: Prisma.ModelBuildRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModelBuildRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModelBuildRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ModelBuildRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRunPayload>
+        }
+        aggregate: {
+          args: Prisma.ModelBuildRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModelBuildRun>
+        }
+        groupBy: {
+          args: Prisma.ModelBuildRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModelBuildRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    ModelBuildItem: {
+      payload: Prisma.$ModelBuildItemPayload<ExtArgs>
+      fields: Prisma.ModelBuildItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModelBuildItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModelBuildItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload>
+        }
+        findFirst: {
+          args: Prisma.ModelBuildItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModelBuildItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload>
+        }
+        findMany: {
+          args: Prisma.ModelBuildItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload>[]
+        }
+        create: {
+          args: Prisma.ModelBuildItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload>
+        }
+        createMany: {
+          args: Prisma.ModelBuildItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ModelBuildItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload>
+        }
+        update: {
+          args: Prisma.ModelBuildItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModelBuildItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModelBuildItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ModelBuildItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildItemPayload>
+        }
+        aggregate: {
+          args: Prisma.ModelBuildItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModelBuildItem>
+        }
+        groupBy: {
+          args: Prisma.ModelBuildItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModelBuildItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    ModelBuildArtifact: {
+      payload: Prisma.$ModelBuildArtifactPayload<ExtArgs>
+      fields: Prisma.ModelBuildArtifactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModelBuildArtifactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModelBuildArtifactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload>
+        }
+        findFirst: {
+          args: Prisma.ModelBuildArtifactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModelBuildArtifactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload>
+        }
+        findMany: {
+          args: Prisma.ModelBuildArtifactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload>[]
+        }
+        create: {
+          args: Prisma.ModelBuildArtifactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload>
+        }
+        createMany: {
+          args: Prisma.ModelBuildArtifactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ModelBuildArtifactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload>
+        }
+        update: {
+          args: Prisma.ModelBuildArtifactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModelBuildArtifactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModelBuildArtifactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ModelBuildArtifactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildArtifactPayload>
+        }
+        aggregate: {
+          args: Prisma.ModelBuildArtifactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModelBuildArtifact>
+        }
+        groupBy: {
+          args: Prisma.ModelBuildArtifactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildArtifactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModelBuildArtifactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildArtifactCountAggregateOutputType> | number
+        }
+      }
+    }
+    ModelBuildRevision: {
+      payload: Prisma.$ModelBuildRevisionPayload<ExtArgs>
+      fields: Prisma.ModelBuildRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModelBuildRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModelBuildRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.ModelBuildRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModelBuildRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.ModelBuildRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.ModelBuildRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.ModelBuildRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ModelBuildRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload>
+        }
+        update: {
+          args: Prisma.ModelBuildRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModelBuildRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModelBuildRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ModelBuildRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModelBuildRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.ModelBuildRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModelBuildRevision>
+        }
+        groupBy: {
+          args: Prisma.ModelBuildRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModelBuildRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModelBuildRevisionCountAggregateOutputType> | number
         }
       }
     }
@@ -1978,69 +2246,69 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Milestone: {
-      payload: Prisma.$MilestonePayload<ExtArgs>
-      fields: Prisma.MilestoneFieldRefs
+    Achievement: {
+      payload: Prisma.$AchievementPayload<ExtArgs>
+      fields: Prisma.AchievementFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.MilestoneFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload> | null
+          args: Prisma.AchievementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.MilestoneFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload>
+          args: Prisma.AchievementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload>
         }
         findFirst: {
-          args: Prisma.MilestoneFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload> | null
+          args: Prisma.AchievementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.MilestoneFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload>
+          args: Prisma.AchievementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload>
         }
         findMany: {
-          args: Prisma.MilestoneFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload>[]
+          args: Prisma.AchievementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload>[]
         }
         create: {
-          args: Prisma.MilestoneCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload>
+          args: Prisma.AchievementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload>
         }
         createMany: {
-          args: Prisma.MilestoneCreateManyArgs<ExtArgs>
+          args: Prisma.AchievementCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         delete: {
-          args: Prisma.MilestoneDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload>
+          args: Prisma.AchievementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload>
         }
         update: {
-          args: Prisma.MilestoneUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload>
+          args: Prisma.AchievementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload>
         }
         deleteMany: {
-          args: Prisma.MilestoneDeleteManyArgs<ExtArgs>
+          args: Prisma.AchievementDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.MilestoneUpdateManyArgs<ExtArgs>
+          args: Prisma.AchievementUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         upsert: {
-          args: Prisma.MilestoneUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestonePayload>
+          args: Prisma.AchievementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementPayload>
         }
         aggregate: {
-          args: Prisma.MilestoneAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMilestone>
+          args: Prisma.AchievementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAchievement>
         }
         groupBy: {
-          args: Prisma.MilestoneGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MilestoneGroupByOutputType>[]
+          args: Prisma.AchievementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AchievementGroupByOutputType>[]
         }
         count: {
-          args: Prisma.MilestoneCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MilestoneCountAggregateOutputType> | number
+          args: Prisma.AchievementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AchievementCountAggregateOutputType> | number
         }
       }
     }
@@ -2110,69 +2378,69 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    MilestoneRecord: {
-      payload: Prisma.$MilestoneRecordPayload<ExtArgs>
-      fields: Prisma.MilestoneRecordFieldRefs
+    AchievementRecord: {
+      payload: Prisma.$AchievementRecordPayload<ExtArgs>
+      fields: Prisma.AchievementRecordFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.MilestoneRecordFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload> | null
+          args: Prisma.AchievementRecordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.MilestoneRecordFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload>
+          args: Prisma.AchievementRecordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload>
         }
         findFirst: {
-          args: Prisma.MilestoneRecordFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload> | null
+          args: Prisma.AchievementRecordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.MilestoneRecordFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload>
+          args: Prisma.AchievementRecordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload>
         }
         findMany: {
-          args: Prisma.MilestoneRecordFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload>[]
+          args: Prisma.AchievementRecordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload>[]
         }
         create: {
-          args: Prisma.MilestoneRecordCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload>
+          args: Prisma.AchievementRecordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload>
         }
         createMany: {
-          args: Prisma.MilestoneRecordCreateManyArgs<ExtArgs>
+          args: Prisma.AchievementRecordCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         delete: {
-          args: Prisma.MilestoneRecordDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload>
+          args: Prisma.AchievementRecordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload>
         }
         update: {
-          args: Prisma.MilestoneRecordUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload>
+          args: Prisma.AchievementRecordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload>
         }
         deleteMany: {
-          args: Prisma.MilestoneRecordDeleteManyArgs<ExtArgs>
+          args: Prisma.AchievementRecordDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.MilestoneRecordUpdateManyArgs<ExtArgs>
+          args: Prisma.AchievementRecordUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         upsert: {
-          args: Prisma.MilestoneRecordUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneRecordPayload>
+          args: Prisma.AchievementRecordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementRecordPayload>
         }
         aggregate: {
-          args: Prisma.MilestoneRecordAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMilestoneRecord>
+          args: Prisma.AchievementRecordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAchievementRecord>
         }
         groupBy: {
-          args: Prisma.MilestoneRecordGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MilestoneRecordGroupByOutputType>[]
+          args: Prisma.AchievementRecordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AchievementRecordGroupByOutputType>[]
         }
         count: {
-          args: Prisma.MilestoneRecordCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MilestoneRecordCountAggregateOutputType> | number
+          args: Prisma.AchievementRecordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AchievementRecordCountAggregateOutputType> | number
         }
       }
     }
@@ -4275,6 +4543,91 @@ export const FacetAliasScalarFieldEnum = {
 export type FacetAliasScalarFieldEnum = (typeof FacetAliasScalarFieldEnum)[keyof typeof FacetAliasScalarFieldEnum]
 
 
+export const ModelBuildRunScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  status: 'status',
+  userId: 'userId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  sourceLabel: 'sourceLabel',
+  sourceSnapshot: 'sourceSnapshot',
+  recipeKey: 'recipeKey',
+  recipeVersion: 'recipeVersion',
+  selections: 'selections',
+  usageInfo: 'usageInfo',
+  cancelledAt: 'cancelledAt'
+} as const
+
+export type ModelBuildRunScalarFieldEnum = (typeof ModelBuildRunScalarFieldEnum)[keyof typeof ModelBuildRunScalarFieldEnum]
+
+
+export const ModelBuildItemScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  runId: 'runId',
+  outputKey: 'outputKey',
+  label: 'label',
+  action: 'action',
+  generation: 'generation',
+  quantityIndex: 'quantityIndex',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  stageStatuses: 'stageStatuses',
+  pitch: 'pitch',
+  fieldsDraft: 'fieldsDraft',
+  promptDraft: 'promptDraft',
+  relationshipDraft: 'relationshipDraft',
+  staleReason: 'staleReason',
+  error: 'error',
+  idempotencyKey: 'idempotencyKey',
+  artImageId: 'artImageId'
+} as const
+
+export type ModelBuildItemScalarFieldEnum = (typeof ModelBuildItemScalarFieldEnum)[keyof typeof ModelBuildItemScalarFieldEnum]
+
+
+export const ModelBuildArtifactScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  itemId: 'itemId',
+  kind: 'kind',
+  provider: 'provider',
+  model: 'model',
+  seed: 'seed',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  width: 'width',
+  height: 'height',
+  workflow: 'workflow',
+  format: 'format',
+  artImageId: 'artImageId',
+  draftPath: 'draftPath',
+  promotedPath: 'promotedPath',
+  reviewState: 'reviewState',
+  usageInfo: 'usageInfo'
+} as const
+
+export type ModelBuildArtifactScalarFieldEnum = (typeof ModelBuildArtifactScalarFieldEnum)[keyof typeof ModelBuildArtifactScalarFieldEnum]
+
+
+export const ModelBuildRevisionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  itemId: 'itemId',
+  stage: 'stage',
+  previousPayload: 'previousPayload',
+  nextPayload: 'nextPayload',
+  actor: 'actor',
+  reason: 'reason'
+} as const
+
+export type ModelBuildRevisionScalarFieldEnum = (typeof ModelBuildRevisionScalarFieldEnum)[keyof typeof ModelBuildRevisionScalarFieldEnum]
+
+
 export const ArtImageScalarFieldEnum = {
   id: 'id',
   imageData: 'imageData',
@@ -4756,7 +5109,7 @@ export const LogScalarFieldEnum = {
 export type LogScalarFieldEnum = (typeof LogScalarFieldEnum)[keyof typeof LogScalarFieldEnum]
 
 
-export const MilestoneScalarFieldEnum = {
+export const AchievementScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -4775,7 +5128,7 @@ export const MilestoneScalarFieldEnum = {
   imagePath: 'imagePath'
 } as const
 
-export type MilestoneScalarFieldEnum = (typeof MilestoneScalarFieldEnum)[keyof typeof MilestoneScalarFieldEnum]
+export type AchievementScalarFieldEnum = (typeof AchievementScalarFieldEnum)[keyof typeof AchievementScalarFieldEnum]
 
 
 export const ManaTransactionScalarFieldEnum = {
@@ -4795,17 +5148,17 @@ export const ManaTransactionScalarFieldEnum = {
 export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
 
 
-export const MilestoneRecordScalarFieldEnum = {
+export const AchievementRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   username: 'username',
-  milestoneId: 'milestoneId',
+  achievementId: 'achievementId',
   userId: 'userId',
   isConfirmed: 'isConfirmed'
 } as const
 
-export type MilestoneRecordScalarFieldEnum = (typeof MilestoneRecordScalarFieldEnum)[keyof typeof MilestoneRecordScalarFieldEnum]
+export type AchievementRecordScalarFieldEnum = (typeof AchievementRecordScalarFieldEnum)[keyof typeof AchievementRecordScalarFieldEnum]
 
 
 export const NarratorTopicScalarFieldEnum = {
@@ -5440,7 +5793,7 @@ export const LifeEndingScalarFieldEnum = {
   heroImage: 'heroImage',
   iconArtImageId: 'iconArtImageId',
   heroArtImageId: 'heroArtImageId',
-  milestoneId: 'milestoneId',
+  achievementId: 'achievementId',
   artPrompt: 'artPrompt',
   metadata: 'metadata',
   isActive: 'isActive'
@@ -5461,7 +5814,7 @@ export const LifeAchievementScalarFieldEnum = {
   icon: 'icon',
   imagePath: 'imagePath',
   artImageId: 'artImageId',
-  milestoneId: 'milestoneId',
+  achievementId: 'achievementId',
   endingId: 'endingId',
   metadata: 'metadata',
   isActive: 'isActive'
@@ -5476,7 +5829,7 @@ export const LifeAchievementUnlockScalarFieldEnum = {
   userId: 'userId',
   lifeRunId: 'lifeRunId',
   achievementId: 'achievementId',
-  milestoneRecordId: 'milestoneRecordId',
+  achievementRecordId: 'achievementRecordId',
   data: 'data'
 } as const
 
@@ -5504,19 +5857,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -5533,6 +5886,73 @@ export const FacetAliasOrderByRelevanceFieldEnum = {
 } as const
 
 export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelevanceFieldEnum)[keyof typeof FacetAliasOrderByRelevanceFieldEnum]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const ModelBuildRunOrderByRelevanceFieldEnum = {
+  sourceType: 'sourceType',
+  sourceLabel: 'sourceLabel',
+  recipeKey: 'recipeKey',
+  recipeVersion: 'recipeVersion'
+} as const
+
+export type ModelBuildRunOrderByRelevanceFieldEnum = (typeof ModelBuildRunOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRunOrderByRelevanceFieldEnum]
+
+
+export const ModelBuildItemOrderByRelevanceFieldEnum = {
+  outputKey: 'outputKey',
+  label: 'label',
+  generation: 'generation',
+  targetType: 'targetType',
+  pitch: 'pitch',
+  fieldsDraft: 'fieldsDraft',
+  promptDraft: 'promptDraft',
+  staleReason: 'staleReason',
+  error: 'error',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type ModelBuildItemOrderByRelevanceFieldEnum = (typeof ModelBuildItemOrderByRelevanceFieldEnum)[keyof typeof ModelBuildItemOrderByRelevanceFieldEnum]
+
+
+export const ModelBuildArtifactOrderByRelevanceFieldEnum = {
+  kind: 'kind',
+  provider: 'provider',
+  model: 'model',
+  seed: 'seed',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  format: 'format',
+  draftPath: 'draftPath',
+  promotedPath: 'promotedPath'
+} as const
+
+export type ModelBuildArtifactOrderByRelevanceFieldEnum = (typeof ModelBuildArtifactOrderByRelevanceFieldEnum)[keyof typeof ModelBuildArtifactOrderByRelevanceFieldEnum]
+
+
+export const ModelBuildRevisionOrderByRelevanceFieldEnum = {
+  stage: 'stage',
+  actor: 'actor',
+  reason: 'reason'
+} as const
+
+export type ModelBuildRevisionOrderByRelevanceFieldEnum = (typeof ModelBuildRevisionOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRevisionOrderByRelevanceFieldEnum]
 
 
 export const ArtImageOrderByRelevanceFieldEnum = {
@@ -5641,23 +6061,6 @@ export const ChatOrderByRelevanceFieldEnum = {
 } as const
 
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const CodeOrderByRelevanceFieldEnum = {
@@ -5804,7 +6207,7 @@ export const LogOrderByRelevanceFieldEnum = {
 export type LogOrderByRelevanceFieldEnum = (typeof LogOrderByRelevanceFieldEnum)[keyof typeof LogOrderByRelevanceFieldEnum]
 
 
-export const MilestoneOrderByRelevanceFieldEnum = {
+export const AchievementOrderByRelevanceFieldEnum = {
   label: 'label',
   message: 'message',
   icon: 'icon',
@@ -5816,7 +6219,7 @@ export const MilestoneOrderByRelevanceFieldEnum = {
   imagePath: 'imagePath'
 } as const
 
-export type MilestoneOrderByRelevanceFieldEnum = (typeof MilestoneOrderByRelevanceFieldEnum)[keyof typeof MilestoneOrderByRelevanceFieldEnum]
+export type AchievementOrderByRelevanceFieldEnum = (typeof AchievementOrderByRelevanceFieldEnum)[keyof typeof AchievementOrderByRelevanceFieldEnum]
 
 
 export const ManaTransactionOrderByRelevanceFieldEnum = {
@@ -5828,11 +6231,11 @@ export const ManaTransactionOrderByRelevanceFieldEnum = {
 export type ManaTransactionOrderByRelevanceFieldEnum = (typeof ManaTransactionOrderByRelevanceFieldEnum)[keyof typeof ManaTransactionOrderByRelevanceFieldEnum]
 
 
-export const MilestoneRecordOrderByRelevanceFieldEnum = {
+export const AchievementRecordOrderByRelevanceFieldEnum = {
   username: 'username'
 } as const
 
-export type MilestoneRecordOrderByRelevanceFieldEnum = (typeof MilestoneRecordOrderByRelevanceFieldEnum)[keyof typeof MilestoneRecordOrderByRelevanceFieldEnum]
+export type AchievementRecordOrderByRelevanceFieldEnum = (typeof AchievementRecordOrderByRelevanceFieldEnum)[keyof typeof AchievementRecordOrderByRelevanceFieldEnum]
 
 
 export const NarratorTopicOrderByRelevanceFieldEnum = {
@@ -6248,16 +6651,9 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Rarity'
+ * Reference to a field of type 'ModelBuildStatus'
  */
-export type EnumRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Rarity'>
-    
-
-
-/**
- * Reference to a field of type 'ChatType'
- */
-export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChatType'>
+export type EnumModelBuildStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelBuildStatus'>
     
 
 
@@ -6272,6 +6668,34 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'ModelBuildAction'
+ */
+export type EnumModelBuildActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelBuildAction'>
+    
+
+
+/**
+ * Reference to a field of type 'ModelBuildReviewState'
+ */
+export type EnumModelBuildReviewStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelBuildReviewState'>
+    
+
+
+/**
+ * Reference to a field of type 'Rarity'
+ */
+export type EnumRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Rarity'>
+    
+
+
+/**
+ * Reference to a field of type 'ChatType'
+ */
+export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChatType'>
     
 
 
@@ -6693,6 +7117,10 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   facetAlias?: Prisma.FacetAliasOmit
+  modelBuildRun?: Prisma.ModelBuildRunOmit
+  modelBuildItem?: Prisma.ModelBuildItemOmit
+  modelBuildArtifact?: Prisma.ModelBuildArtifactOmit
+  modelBuildRevision?: Prisma.ModelBuildRevisionOmit
   artImage?: Prisma.ArtImageOmit
   artCollection?: Prisma.ArtCollectionOmit
   bot?: Prisma.BotOmit
@@ -6715,9 +7143,9 @@ export type GlobalOmitConfig = {
   expressionMedia?: Prisma.ExpressionMediaOmit
   expressionTransition?: Prisma.ExpressionTransitionOmit
   log?: Prisma.LogOmit
-  milestone?: Prisma.MilestoneOmit
+  achievement?: Prisma.AchievementOmit
   manaTransaction?: Prisma.ManaTransactionOmit
-  milestoneRecord?: Prisma.MilestoneRecordOmit
+  achievementRecord?: Prisma.AchievementRecordOmit
   narratorTopic?: Prisma.NarratorTopicOmit
   narratorThread?: Prisma.NarratorThreadOmit
   pitchSheet?: Prisma.PitchSheetOmit

@@ -940,12 +940,12 @@ export const dashboardConfigs = {
         route: '/dashboard',
       },
       {
-        key: 'milestones',
-        label: 'Milestones',
+        key: 'achievements',
+        label: 'Achievements',
         icon: 'kind-icon:trophy',
-        title: 'Milestones',
+        title: 'Achievements',
         summary: 'Track achievements, rewards, and progress.',
-        image: tabImage('home', 'milestones'),
+        image: tabImage('home', 'achievements'),
         narrative:
           'Track achievements, rewards, progress, and the little victory stickers that prove the journey is doing numbers.',
         route: '/dashboard',

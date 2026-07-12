@@ -18,7 +18,7 @@ import { useRandomStore } from '@/stores/randomStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useReactionStore } from '@/stores/reactionStore'
@@ -44,7 +44,7 @@ const serverStore = useServerStore()
 const checkpointStore = useCheckpointStore()
 const artStore = useArtStore()
 const botStore = useBotStore()
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 const promptStore = usePromptStore()
 const reactionStore = useReactionStore()
 const rewardStore = useRewardStore()
@@ -165,7 +165,7 @@ async function initializeStores() {
       navStore.initialize?.(),
       smartbarStore.initialize?.(),
       consoleStore.initialize?.(),
-      milestoneStore.initialize?.(),
+      achievementStore.initialize?.(),
       themeStore.initialize({ fetchShared: true }),
     ])
 

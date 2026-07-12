@@ -62,7 +62,7 @@ model ArtImage {
   FacetsPrimary        Facet[]               @relation("FacetPrimaryArtImage")
   ProjectLinks         ProjectArtImage[]
   FacetLinks           FacetArtImage[]
-  Milestones           Milestone[]
+  Achievements         Achievement[]
   Prompts              Prompt[]
   Reactions            Reaction[]
   ChallengeSubmissions ChallengeSubmission[]
@@ -815,31 +815,31 @@ model Log {
   @@index([userId], map: "Log_userId_fkey")
 }
 
-/// website achievements! This holds the milestones that can be achieved (in the flavor text we refer to them as "jellybeans"). They are not user editable and set by myself. only about 1/3 are currently utilized, and one of my biggest todos before public release.
-model Milestone {
-  id               Int               @id @default(autoincrement())
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime?         @default(now()) @updatedAt
-  label            String            @db.VarChar(764)
-  message          String            @db.VarChar(764)
-  icon             String?           @db.VarChar(764)
-  karma            Int               @default(0)
-  pageHint         String?           @db.VarChar(764)
-  subtleHint       String?           @db.VarChar(764)
-  triggerCode      String?           @unique(length: 255) @db.VarChar(764)
-  tooltip          String?           @db.VarChar(764)
-  isActive         Boolean           @default(false)
-  isRepeatable     Boolean           @default(true)
-  artImageId       Int?
-  artPrompt        String?           @db.Text
-  imagePath        String?           @db.VarChar(764)
-  ArtImage         ArtImage?         @relation(fields: [artImageId], references: [id])
-  MilestoneRecords MilestoneRecord[]
+/// website achievements! This holds the achievements that can be earned (in the flavor text we refer to them as "jellybeans"). They are not user editable and set by myself. only about 1/3 are currently utilized, and one of my biggest todos before public release.
+model Achievement {
+  id                 Int                 @id @default(autoincrement())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime?           @default(now()) @updatedAt
+  label              String              @db.VarChar(764)
+  message            String              @db.VarChar(764)
+  icon               String?             @db.VarChar(764)
+  karma              Int                 @default(0)
+  pageHint           String?             @db.VarChar(764)
+  subtleHint         String?             @db.VarChar(764)
+  triggerCode        String?             @unique(length: 255) @db.VarChar(764)
+  tooltip            String?             @db.VarChar(764)
+  isActive           Boolean             @default(false)
+  isRepeatable       Boolean             @default(true)
+  artImageId         Int?
+  artPrompt          String?             @db.Text
+  imagePath          String?             @db.VarChar(764)
+  ArtImage           ArtImage?           @relation(fields: [artImageId], references: [id])
+  AchievementRecords AchievementRecord[]
 
   LifeEndings      LifeEnding[]
   LifeAchievements LifeAchievement[]
 
-  @@index([artImageId], map: "Milestone_artImageId_fkey")
+  @@index([artImageId], map: "Achievement_artImageId_fkey")
 }
 
 enum ManaReason {
@@ -875,22 +875,22 @@ model ManaTransaction {
   @@index([userId, createdAt])
 }
 
-/// the records of milestones earned. They record the date, username, id, etc. Users are given the option to clear their milestones so they can hunt fresh. I use this extensively in debugging.
-model MilestoneRecord {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @default(now()) @updatedAt
-  username    String?   @db.VarChar(764)
-  milestoneId Int
-  userId      Int
-  isConfirmed Boolean   @default(false)
-  Milestones  Milestone @relation(fields: [milestoneId], references: [id])
-  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+/// the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.
+model AchievementRecord {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime?   @default(now()) @updatedAt
+  username      String?     @db.VarChar(764)
+  achievementId Int
+  userId        Int
+  isConfirmed   Boolean     @default(false)
+  Achievement   Achievement @relation(fields: [achievementId], references: [id])
+  User          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   LifeAchievementUnlocks LifeAchievementUnlock[]
 
-  @@index([milestoneId], map: "MilestoneRecord_milestoneId_fkey")
-  @@index([userId], map: "MilestoneRecord_userId_fkey")
+  @@index([achievementId], map: "AchievementRecord_achievementId_fkey")
+  @@index([userId], map: "AchievementRecord_userId_fkey")
 }
 
 model NarratorTopic {
@@ -1484,7 +1484,7 @@ model User {
   Projects              Project[]
   Facets                Facet[]
   Logs                  Log[]
-  Milestones            MilestoneRecord[]
+  Achievements          AchievementRecord[]
   Prompts               Prompt[]           @relation("PromptUser")
   ClaimedPrompts        Prompt[]           @relation("PromptClaimer")
   Reactions             Reaction[]
@@ -1650,7 +1650,7 @@ enum RelationStatus {
 /// Directed relationship between two users with a typed role.
 /// One row per (userId, relatedUserId, type). Symmetric types (FRIEND) are
 /// normalized in the app layer so a single row represents the mutual link.
-/// Follows the ButterflyRecord/MilestoneRecord pattern (explicit join model,
+/// Follows the ButterflyRecord/AchievementRecord pattern (explicit join model,
 /// not implicit M2M) so we can attach status + timestamps + future metadata.
 model UserRelation {
   id            Int            @id @default(autoincrement())
@@ -2066,7 +2066,7 @@ model Contender {
 // choices (LifeChoice) that move stats (LifeStat), collects generated art along
 // the way (LifeRunArt), and resolves to an ending (LifeEnding) with achievements
 // (LifeAchievement / LifeAchievementUnlock). Piggybacks on the existing art,
-// milestone, chat, and user systems.
+// achievement, chat, and user systems.
 
 enum LifeRunStatus {
   ACTIVE
@@ -2197,21 +2197,21 @@ model LifeEnding {
   heroImage      String? @db.VarChar(764)
   iconArtImageId Int?
   heroArtImageId Int?
-  milestoneId    Int?
+  achievementId  Int?
 
   artPrompt String? @db.Text
   metadata  Json?
   isActive  Boolean @default(true)
 
-  IconArtImage ArtImage?  @relation("LifeEndingIconArtImage", fields: [iconArtImageId], references: [id], onDelete: SetNull)
-  HeroArtImage ArtImage?  @relation("LifeEndingHeroArtImage", fields: [heroArtImageId], references: [id], onDelete: SetNull)
-  Milestone    Milestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  IconArtImage ArtImage?    @relation("LifeEndingIconArtImage", fields: [iconArtImageId], references: [id], onDelete: SetNull)
+  HeroArtImage ArtImage?    @relation("LifeEndingHeroArtImage", fields: [heroArtImageId], references: [id], onDelete: SetNull)
+  Achievement  Achievement? @relation(fields: [achievementId], references: [id], onDelete: SetNull)
 
   Runs         LifeRun[]
   Achievements LifeAchievement[]
 
   @@index([victoryType])
-  @@index([milestoneId])
+  @@index([achievementId])
   @@index([iconArtImageId])
   @@index([heroArtImageId])
   @@index([isActive])
@@ -2231,21 +2231,21 @@ model LifeAchievement {
   icon        String? @db.VarChar(764)
   imagePath   String? @db.VarChar(764)
   artImageId  Int?
-  milestoneId Int?
+  achievementId Int?
   endingId    Int?
 
   metadata Json?
   isActive Boolean @default(true)
 
-  ArtImage  ArtImage?               @relation(fields: [artImageId], references: [id], onDelete: SetNull)
-  Milestone Milestone?              @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
-  Ending    LifeEnding?             @relation(fields: [endingId], references: [id], onDelete: SetNull)
-  Unlocks   LifeAchievementUnlock[]
+  ArtImage    ArtImage?               @relation(fields: [artImageId], references: [id], onDelete: SetNull)
+  Achievement Achievement?            @relation(fields: [achievementId], references: [id], onDelete: SetNull)
+  Ending      LifeEnding?             @relation(fields: [endingId], references: [id], onDelete: SetNull)
+  Unlocks     LifeAchievementUnlock[]
 
   @@index([achievementType])
   @@index([conditionKey])
   @@index([artImageId])
-  @@index([milestoneId])
+  @@index([achievementId])
   @@index([endingId])
   @@index([isActive])
 }
@@ -2254,23 +2254,23 @@ model LifeAchievementUnlock {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 
-  userId            Int
-  lifeRunId         Int?
-  achievementId     Int
-  milestoneRecordId Int?
+  userId              Int
+  lifeRunId           Int?
+  achievementId       Int
+  achievementRecordId Int?
 
   data Json?
 
-  User            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  LifeRun         LifeRun?         @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
-  Achievement     LifeAchievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  MilestoneRecord MilestoneRecord? @relation(fields: [milestoneRecordId], references: [id], onDelete: SetNull)
+  User              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  LifeRun           LifeRun?           @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
+  Achievement       LifeAchievement    @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  AchievementRecord AchievementRecord? @relation(fields: [achievementRecordId], references: [id], onDelete: SetNull)
 
   @@unique([userId, achievementId, lifeRunId])
   @@index([userId])
   @@index([lifeRunId])
   @@index([achievementId])
-  @@index([milestoneRecordId])
+  @@index([achievementRecordId])
 }
 
 model LifeRunArt {

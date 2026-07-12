@@ -118,7 +118,7 @@ import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useUserStore } from '@/stores/userStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import type { SmartIcon } from '@/stores/smartbarStore'
 
@@ -140,7 +140,7 @@ const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 const butterflyStore = useButterflyStore()
 const route = useRoute()
 
@@ -175,7 +175,7 @@ const computedLabel = computed(() => {
         ? userStore.user?.username || 'User'
         : 'Login?'
     case 'jellybean-icon':
-      return `${milestoneStore.milestoneCountForUser || 0} /11`
+      return `${achievementStore.achievementCountForUser || 0} /11`
     case 'swarm-icon':
       return activeButterflyCount.value > 0
         ? `${activeButterflyCount.value} Butterflies`

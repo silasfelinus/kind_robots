@@ -20,7 +20,7 @@ type PatchUser = {
 type ArtImageConnectionBody = {
   botId?: number | null
   componentId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
@@ -39,7 +39,7 @@ type ArtImageConnectionBody = {
   artCollectionIds?: number[]
   botIds?: number[]
   componentIds?: number[]
-  milestoneIds?: number[]
+  achievementIds?: number[]
   promptIds?: number[]
   resourceIds?: number[]
   rewardIds?: number[]
@@ -54,7 +54,7 @@ type ArtImageConnectionBody = {
   disconnectArtCollectionIds?: number[]
   disconnectBotIds?: number[]
   disconnectComponentIds?: number[]
-  disconnectMilestoneIds?: number[]
+  disconnectAchievementIds?: number[]
   disconnectPromptIds?: number[]
   disconnectResourceIds?: number[]
   disconnectRewardIds?: number[]
@@ -69,7 +69,7 @@ type ArtImageConnectionBody = {
   clearArtCollections?: boolean
   clearBots?: boolean
   clearComponents?: boolean
-  clearMilestones?: boolean
+  clearAchievements?: boolean
   clearPrompts?: boolean
   clearResources?: boolean
   clearRewards?: boolean
@@ -82,7 +82,7 @@ type ListConnectionKey =
   | 'Chats'
   | 'Characters'
   | 'Components'
-  | 'Milestones'
+  | 'Achievements'
   | 'Scenarios'
   | 'Dreams'
   | 'Reactions'
@@ -258,10 +258,10 @@ export default defineEventHandler(async (event) => {
 
     addListConnection(
       data,
-      'Milestones',
-      mergeIds(body.milestoneIds, body.milestoneId ? [body.milestoneId] : []),
-      cleanIds(body.disconnectMilestoneIds),
-      Boolean(body.clearMilestones),
+      'Achievements',
+      mergeIds(body.achievementIds, body.achievementId ? [body.achievementId] : []),
+      cleanIds(body.disconnectAchievementIds),
+      Boolean(body.clearAchievements),
     )
 
 

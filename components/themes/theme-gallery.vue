@@ -395,13 +395,13 @@
 <script setup lang="ts">
 // /components/content/themes/theme-gallery.vue
 import { computed, onMounted, ref } from 'vue'
-import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
 type ThemeFilter = 'all' | 'default' | 'shared'
 
 const themeStore = useThemeStore()
-const milestoneStore = useMilestoneStore()
+const achievementStore = useAchievementStore()
 
 const themeError = ref('')
 const inspectValues = ref<string | null>(null)
@@ -679,7 +679,7 @@ async function applyBuiltInTheme(theme: string): Promise<void> {
 
   const snapshot = await themeStore.getActiveThemeSnapshot(theme)
   inspectValues.value = JSON.stringify(snapshot, null, 2)
-  milestoneStore.rewardMilestone(9)
+  achievementStore.rewardAchievement(9)
 }
 
 async function applySharedTheme(theme: Theme): Promise<void> {
@@ -704,7 +704,7 @@ async function applySharedTheme(theme: Theme): Promise<void> {
 
   const snapshot = await themeStore.getActiveThemeSnapshot(theme.name)
   inspectValues.value = JSON.stringify(snapshot, null, 2)
-  milestoneStore.rewardMilestone(9)
+  achievementStore.rewardAchievement(9)
 }
 
 function handleThemeEdit(theme: Theme): void {

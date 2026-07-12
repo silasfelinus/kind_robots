@@ -30,14 +30,14 @@ export type LifeEndingAvgAggregateOutputType = {
   id: number | null
   iconArtImageId: number | null
   heroArtImageId: number | null
-  milestoneId: number | null
+  achievementId: number | null
 }
 
 export type LifeEndingSumAggregateOutputType = {
   id: number | null
   iconArtImageId: number | null
   heroArtImageId: number | null
-  milestoneId: number | null
+  achievementId: number | null
 }
 
 export type LifeEndingMinAggregateOutputType = {
@@ -53,7 +53,7 @@ export type LifeEndingMinAggregateOutputType = {
   heroImage: string | null
   iconArtImageId: number | null
   heroArtImageId: number | null
-  milestoneId: number | null
+  achievementId: number | null
   artPrompt: string | null
   isActive: boolean | null
 }
@@ -71,7 +71,7 @@ export type LifeEndingMaxAggregateOutputType = {
   heroImage: string | null
   iconArtImageId: number | null
   heroArtImageId: number | null
-  milestoneId: number | null
+  achievementId: number | null
   artPrompt: string | null
   isActive: boolean | null
 }
@@ -89,7 +89,7 @@ export type LifeEndingCountAggregateOutputType = {
   heroImage: number
   iconArtImageId: number
   heroArtImageId: number
-  milestoneId: number
+  achievementId: number
   artPrompt: number
   metadata: number
   isActive: number
@@ -101,14 +101,14 @@ export type LifeEndingAvgAggregateInputType = {
   id?: true
   iconArtImageId?: true
   heroArtImageId?: true
-  milestoneId?: true
+  achievementId?: true
 }
 
 export type LifeEndingSumAggregateInputType = {
   id?: true
   iconArtImageId?: true
   heroArtImageId?: true
-  milestoneId?: true
+  achievementId?: true
 }
 
 export type LifeEndingMinAggregateInputType = {
@@ -124,7 +124,7 @@ export type LifeEndingMinAggregateInputType = {
   heroImage?: true
   iconArtImageId?: true
   heroArtImageId?: true
-  milestoneId?: true
+  achievementId?: true
   artPrompt?: true
   isActive?: true
 }
@@ -142,7 +142,7 @@ export type LifeEndingMaxAggregateInputType = {
   heroImage?: true
   iconArtImageId?: true
   heroArtImageId?: true
-  milestoneId?: true
+  achievementId?: true
   artPrompt?: true
   isActive?: true
 }
@@ -160,7 +160,7 @@ export type LifeEndingCountAggregateInputType = {
   heroImage?: true
   iconArtImageId?: true
   heroArtImageId?: true
-  milestoneId?: true
+  achievementId?: true
   artPrompt?: true
   metadata?: true
   isActive?: true
@@ -266,7 +266,7 @@ export type LifeEndingGroupByOutputType = {
   heroImage: string | null
   iconArtImageId: number | null
   heroArtImageId: number | null
-  milestoneId: number | null
+  achievementId: number | null
   artPrompt: string | null
   metadata: runtime.JsonValue | null
   isActive: boolean
@@ -308,13 +308,13 @@ export type LifeEndingWhereInput = {
   heroImage?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   iconArtImageId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
   heroArtImageId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
-  milestoneId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
+  achievementId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   metadata?: Prisma.JsonNullableFilter<"LifeEnding">
   isActive?: Prisma.BoolFilter<"LifeEnding"> | boolean
   IconArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   HeroArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  Milestone?: Prisma.XOR<Prisma.MilestoneNullableScalarRelationFilter, Prisma.MilestoneWhereInput> | null
+  Achievement?: Prisma.XOR<Prisma.AchievementNullableScalarRelationFilter, Prisma.AchievementWhereInput> | null
   Runs?: Prisma.LifeRunListRelationFilter
   Achievements?: Prisma.LifeAchievementListRelationFilter
 }
@@ -332,13 +332,13 @@ export type LifeEndingOrderByWithRelationInput = {
   heroImage?: Prisma.SortOrderInput | Prisma.SortOrder
   iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  milestoneId?: Prisma.SortOrderInput | Prisma.SortOrder
+  achievementId?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   IconArtImage?: Prisma.ArtImageOrderByWithRelationInput
   HeroArtImage?: Prisma.ArtImageOrderByWithRelationInput
-  Milestone?: Prisma.MilestoneOrderByWithRelationInput
+  Achievement?: Prisma.AchievementOrderByWithRelationInput
   Runs?: Prisma.LifeRunOrderByRelationAggregateInput
   Achievements?: Prisma.LifeAchievementOrderByRelationAggregateInput
   _relevance?: Prisma.LifeEndingOrderByRelevanceInput
@@ -360,13 +360,13 @@ export type LifeEndingWhereUniqueInput = Prisma.AtLeast<{
   heroImage?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   iconArtImageId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
   heroArtImageId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
-  milestoneId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
+  achievementId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   metadata?: Prisma.JsonNullableFilter<"LifeEnding">
   isActive?: Prisma.BoolFilter<"LifeEnding"> | boolean
   IconArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   HeroArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  Milestone?: Prisma.XOR<Prisma.MilestoneNullableScalarRelationFilter, Prisma.MilestoneWhereInput> | null
+  Achievement?: Prisma.XOR<Prisma.AchievementNullableScalarRelationFilter, Prisma.AchievementWhereInput> | null
   Runs?: Prisma.LifeRunListRelationFilter
   Achievements?: Prisma.LifeAchievementListRelationFilter
 }, "id" | "slug" | "outcomeKey">
@@ -384,7 +384,7 @@ export type LifeEndingOrderByWithAggregationInput = {
   heroImage?: Prisma.SortOrderInput | Prisma.SortOrder
   iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  milestoneId?: Prisma.SortOrderInput | Prisma.SortOrder
+  achievementId?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -411,7 +411,7 @@ export type LifeEndingScalarWhereWithAggregatesInput = {
   heroImage?: Prisma.StringNullableWithAggregatesFilter<"LifeEnding"> | string | null
   iconArtImageId?: Prisma.IntNullableWithAggregatesFilter<"LifeEnding"> | number | null
   heroArtImageId?: Prisma.IntNullableWithAggregatesFilter<"LifeEnding"> | number | null
-  milestoneId?: Prisma.IntNullableWithAggregatesFilter<"LifeEnding"> | number | null
+  achievementId?: Prisma.IntNullableWithAggregatesFilter<"LifeEnding"> | number | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"LifeEnding"> | string | null
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"LifeEnding">
   isActive?: Prisma.BoolWithAggregatesFilter<"LifeEnding"> | boolean
@@ -432,7 +432,7 @@ export type LifeEndingCreateInput = {
   isActive?: boolean
   IconArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingIconsInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
-  Milestone?: Prisma.MilestoneCreateNestedOneWithoutLifeEndingsInput
+  Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   Runs?: Prisma.LifeRunCreateNestedManyWithoutEndingInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
 }
@@ -450,7 +450,7 @@ export type LifeEndingUncheckedCreateInput = {
   heroImage?: string | null
   iconArtImageId?: number | null
   heroArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -473,7 +473,7 @@ export type LifeEndingUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   IconArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingIconsNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
-  Milestone?: Prisma.MilestoneUpdateOneWithoutLifeEndingsNestedInput
+  Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   Runs?: Prisma.LifeRunUpdateManyWithoutEndingNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
 }
@@ -491,7 +491,7 @@ export type LifeEndingUncheckedUpdateInput = {
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -512,7 +512,7 @@ export type LifeEndingCreateManyInput = {
   heroImage?: string | null
   iconArtImageId?: number | null
   heroArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -546,7 +546,7 @@ export type LifeEndingUncheckedUpdateManyInput = {
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -586,7 +586,7 @@ export type LifeEndingCountOrderByAggregateInput = {
   heroImage?: Prisma.SortOrder
   iconArtImageId?: Prisma.SortOrder
   heroArtImageId?: Prisma.SortOrder
-  milestoneId?: Prisma.SortOrder
+  achievementId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -596,7 +596,7 @@ export type LifeEndingAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   iconArtImageId?: Prisma.SortOrder
   heroArtImageId?: Prisma.SortOrder
-  milestoneId?: Prisma.SortOrder
+  achievementId?: Prisma.SortOrder
 }
 
 export type LifeEndingMaxOrderByAggregateInput = {
@@ -612,7 +612,7 @@ export type LifeEndingMaxOrderByAggregateInput = {
   heroImage?: Prisma.SortOrder
   iconArtImageId?: Prisma.SortOrder
   heroArtImageId?: Prisma.SortOrder
-  milestoneId?: Prisma.SortOrder
+  achievementId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
@@ -630,7 +630,7 @@ export type LifeEndingMinOrderByAggregateInput = {
   heroImage?: Prisma.SortOrder
   iconArtImageId?: Prisma.SortOrder
   heroArtImageId?: Prisma.SortOrder
-  milestoneId?: Prisma.SortOrder
+  achievementId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
@@ -639,7 +639,7 @@ export type LifeEndingSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   iconArtImageId?: Prisma.SortOrder
   heroArtImageId?: Prisma.SortOrder
-  milestoneId?: Prisma.SortOrder
+  achievementId?: Prisma.SortOrder
 }
 
 export type LifeEndingCreateNestedManyWithoutIconArtImageInput = {
@@ -726,45 +726,45 @@ export type LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput = {
   deleteMany?: Prisma.LifeEndingScalarWhereInput | Prisma.LifeEndingScalarWhereInput[]
 }
 
-export type LifeEndingCreateNestedManyWithoutMilestoneInput = {
-  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutMilestoneInput, Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput> | Prisma.LifeEndingCreateWithoutMilestoneInput[] | Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput[]
-  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput | Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput[]
-  createMany?: Prisma.LifeEndingCreateManyMilestoneInputEnvelope
+export type LifeEndingCreateNestedManyWithoutAchievementInput = {
+  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutAchievementInput, Prisma.LifeEndingUncheckedCreateWithoutAchievementInput> | Prisma.LifeEndingCreateWithoutAchievementInput[] | Prisma.LifeEndingUncheckedCreateWithoutAchievementInput[]
+  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutAchievementInput | Prisma.LifeEndingCreateOrConnectWithoutAchievementInput[]
+  createMany?: Prisma.LifeEndingCreateManyAchievementInputEnvelope
   connect?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
 }
 
-export type LifeEndingUncheckedCreateNestedManyWithoutMilestoneInput = {
-  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutMilestoneInput, Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput> | Prisma.LifeEndingCreateWithoutMilestoneInput[] | Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput[]
-  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput | Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput[]
-  createMany?: Prisma.LifeEndingCreateManyMilestoneInputEnvelope
+export type LifeEndingUncheckedCreateNestedManyWithoutAchievementInput = {
+  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutAchievementInput, Prisma.LifeEndingUncheckedCreateWithoutAchievementInput> | Prisma.LifeEndingCreateWithoutAchievementInput[] | Prisma.LifeEndingUncheckedCreateWithoutAchievementInput[]
+  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutAchievementInput | Prisma.LifeEndingCreateOrConnectWithoutAchievementInput[]
+  createMany?: Prisma.LifeEndingCreateManyAchievementInputEnvelope
   connect?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
 }
 
-export type LifeEndingUpdateManyWithoutMilestoneNestedInput = {
-  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutMilestoneInput, Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput> | Prisma.LifeEndingCreateWithoutMilestoneInput[] | Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput[]
-  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput | Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput[]
-  upsert?: Prisma.LifeEndingUpsertWithWhereUniqueWithoutMilestoneInput | Prisma.LifeEndingUpsertWithWhereUniqueWithoutMilestoneInput[]
-  createMany?: Prisma.LifeEndingCreateManyMilestoneInputEnvelope
+export type LifeEndingUpdateManyWithoutAchievementNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutAchievementInput, Prisma.LifeEndingUncheckedCreateWithoutAchievementInput> | Prisma.LifeEndingCreateWithoutAchievementInput[] | Prisma.LifeEndingUncheckedCreateWithoutAchievementInput[]
+  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutAchievementInput | Prisma.LifeEndingCreateOrConnectWithoutAchievementInput[]
+  upsert?: Prisma.LifeEndingUpsertWithWhereUniqueWithoutAchievementInput | Prisma.LifeEndingUpsertWithWhereUniqueWithoutAchievementInput[]
+  createMany?: Prisma.LifeEndingCreateManyAchievementInputEnvelope
   set?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
   disconnect?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
   delete?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
   connect?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
-  update?: Prisma.LifeEndingUpdateWithWhereUniqueWithoutMilestoneInput | Prisma.LifeEndingUpdateWithWhereUniqueWithoutMilestoneInput[]
-  updateMany?: Prisma.LifeEndingUpdateManyWithWhereWithoutMilestoneInput | Prisma.LifeEndingUpdateManyWithWhereWithoutMilestoneInput[]
+  update?: Prisma.LifeEndingUpdateWithWhereUniqueWithoutAchievementInput | Prisma.LifeEndingUpdateWithWhereUniqueWithoutAchievementInput[]
+  updateMany?: Prisma.LifeEndingUpdateManyWithWhereWithoutAchievementInput | Prisma.LifeEndingUpdateManyWithWhereWithoutAchievementInput[]
   deleteMany?: Prisma.LifeEndingScalarWhereInput | Prisma.LifeEndingScalarWhereInput[]
 }
 
-export type LifeEndingUncheckedUpdateManyWithoutMilestoneNestedInput = {
-  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutMilestoneInput, Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput> | Prisma.LifeEndingCreateWithoutMilestoneInput[] | Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput[]
-  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput | Prisma.LifeEndingCreateOrConnectWithoutMilestoneInput[]
-  upsert?: Prisma.LifeEndingUpsertWithWhereUniqueWithoutMilestoneInput | Prisma.LifeEndingUpsertWithWhereUniqueWithoutMilestoneInput[]
-  createMany?: Prisma.LifeEndingCreateManyMilestoneInputEnvelope
+export type LifeEndingUncheckedUpdateManyWithoutAchievementNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeEndingCreateWithoutAchievementInput, Prisma.LifeEndingUncheckedCreateWithoutAchievementInput> | Prisma.LifeEndingCreateWithoutAchievementInput[] | Prisma.LifeEndingUncheckedCreateWithoutAchievementInput[]
+  connectOrCreate?: Prisma.LifeEndingCreateOrConnectWithoutAchievementInput | Prisma.LifeEndingCreateOrConnectWithoutAchievementInput[]
+  upsert?: Prisma.LifeEndingUpsertWithWhereUniqueWithoutAchievementInput | Prisma.LifeEndingUpsertWithWhereUniqueWithoutAchievementInput[]
+  createMany?: Prisma.LifeEndingCreateManyAchievementInputEnvelope
   set?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
   disconnect?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
   delete?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
   connect?: Prisma.LifeEndingWhereUniqueInput | Prisma.LifeEndingWhereUniqueInput[]
-  update?: Prisma.LifeEndingUpdateWithWhereUniqueWithoutMilestoneInput | Prisma.LifeEndingUpdateWithWhereUniqueWithoutMilestoneInput[]
-  updateMany?: Prisma.LifeEndingUpdateManyWithWhereWithoutMilestoneInput | Prisma.LifeEndingUpdateManyWithWhereWithoutMilestoneInput[]
+  update?: Prisma.LifeEndingUpdateWithWhereUniqueWithoutAchievementInput | Prisma.LifeEndingUpdateWithWhereUniqueWithoutAchievementInput[]
+  updateMany?: Prisma.LifeEndingUpdateManyWithWhereWithoutAchievementInput | Prisma.LifeEndingUpdateManyWithWhereWithoutAchievementInput[]
   deleteMany?: Prisma.LifeEndingScalarWhereInput | Prisma.LifeEndingScalarWhereInput[]
 }
 
@@ -818,7 +818,7 @@ export type LifeEndingCreateWithoutIconArtImageInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
-  Milestone?: Prisma.MilestoneCreateNestedOneWithoutLifeEndingsInput
+  Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   Runs?: Prisma.LifeRunCreateNestedManyWithoutEndingInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
 }
@@ -835,7 +835,7 @@ export type LifeEndingUncheckedCreateWithoutIconArtImageInput = {
   icon?: string | null
   heroImage?: string | null
   heroArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -867,7 +867,7 @@ export type LifeEndingCreateWithoutHeroArtImageInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
   IconArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingIconsInput
-  Milestone?: Prisma.MilestoneCreateNestedOneWithoutLifeEndingsInput
+  Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   Runs?: Prisma.LifeRunCreateNestedManyWithoutEndingInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
 }
@@ -884,7 +884,7 @@ export type LifeEndingUncheckedCreateWithoutHeroArtImageInput = {
   icon?: string | null
   heroImage?: string | null
   iconArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -934,7 +934,7 @@ export type LifeEndingScalarWhereInput = {
   heroImage?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   iconArtImageId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
   heroArtImageId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
-  milestoneId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
+  achievementId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   metadata?: Prisma.JsonNullableFilter<"LifeEnding">
   isActive?: Prisma.BoolFilter<"LifeEnding"> | boolean
@@ -956,7 +956,7 @@ export type LifeEndingUpdateManyWithWhereWithoutHeroArtImageInput = {
   data: Prisma.XOR<Prisma.LifeEndingUpdateManyMutationInput, Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageInput>
 }
 
-export type LifeEndingCreateWithoutMilestoneInput = {
+export type LifeEndingCreateWithoutAchievementInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title: string
@@ -975,7 +975,7 @@ export type LifeEndingCreateWithoutMilestoneInput = {
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
 }
 
-export type LifeEndingUncheckedCreateWithoutMilestoneInput = {
+export type LifeEndingUncheckedCreateWithoutAchievementInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -995,30 +995,30 @@ export type LifeEndingUncheckedCreateWithoutMilestoneInput = {
   Achievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutEndingInput
 }
 
-export type LifeEndingCreateOrConnectWithoutMilestoneInput = {
+export type LifeEndingCreateOrConnectWithoutAchievementInput = {
   where: Prisma.LifeEndingWhereUniqueInput
-  create: Prisma.XOR<Prisma.LifeEndingCreateWithoutMilestoneInput, Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput>
+  create: Prisma.XOR<Prisma.LifeEndingCreateWithoutAchievementInput, Prisma.LifeEndingUncheckedCreateWithoutAchievementInput>
 }
 
-export type LifeEndingCreateManyMilestoneInputEnvelope = {
-  data: Prisma.LifeEndingCreateManyMilestoneInput | Prisma.LifeEndingCreateManyMilestoneInput[]
+export type LifeEndingCreateManyAchievementInputEnvelope = {
+  data: Prisma.LifeEndingCreateManyAchievementInput | Prisma.LifeEndingCreateManyAchievementInput[]
   skipDuplicates?: boolean
 }
 
-export type LifeEndingUpsertWithWhereUniqueWithoutMilestoneInput = {
+export type LifeEndingUpsertWithWhereUniqueWithoutAchievementInput = {
   where: Prisma.LifeEndingWhereUniqueInput
-  update: Prisma.XOR<Prisma.LifeEndingUpdateWithoutMilestoneInput, Prisma.LifeEndingUncheckedUpdateWithoutMilestoneInput>
-  create: Prisma.XOR<Prisma.LifeEndingCreateWithoutMilestoneInput, Prisma.LifeEndingUncheckedCreateWithoutMilestoneInput>
+  update: Prisma.XOR<Prisma.LifeEndingUpdateWithoutAchievementInput, Prisma.LifeEndingUncheckedUpdateWithoutAchievementInput>
+  create: Prisma.XOR<Prisma.LifeEndingCreateWithoutAchievementInput, Prisma.LifeEndingUncheckedCreateWithoutAchievementInput>
 }
 
-export type LifeEndingUpdateWithWhereUniqueWithoutMilestoneInput = {
+export type LifeEndingUpdateWithWhereUniqueWithoutAchievementInput = {
   where: Prisma.LifeEndingWhereUniqueInput
-  data: Prisma.XOR<Prisma.LifeEndingUpdateWithoutMilestoneInput, Prisma.LifeEndingUncheckedUpdateWithoutMilestoneInput>
+  data: Prisma.XOR<Prisma.LifeEndingUpdateWithoutAchievementInput, Prisma.LifeEndingUncheckedUpdateWithoutAchievementInput>
 }
 
-export type LifeEndingUpdateManyWithWhereWithoutMilestoneInput = {
+export type LifeEndingUpdateManyWithWhereWithoutAchievementInput = {
   where: Prisma.LifeEndingScalarWhereInput
-  data: Prisma.XOR<Prisma.LifeEndingUpdateManyMutationInput, Prisma.LifeEndingUncheckedUpdateManyWithoutMilestoneInput>
+  data: Prisma.XOR<Prisma.LifeEndingUpdateManyMutationInput, Prisma.LifeEndingUncheckedUpdateManyWithoutAchievementInput>
 }
 
 export type LifeEndingCreateWithoutRunsInput = {
@@ -1036,7 +1036,7 @@ export type LifeEndingCreateWithoutRunsInput = {
   isActive?: boolean
   IconArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingIconsInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
-  Milestone?: Prisma.MilestoneCreateNestedOneWithoutLifeEndingsInput
+  Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
 }
 
@@ -1053,7 +1053,7 @@ export type LifeEndingUncheckedCreateWithoutRunsInput = {
   heroImage?: string | null
   iconArtImageId?: number | null
   heroArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -1091,7 +1091,7 @@ export type LifeEndingUpdateWithoutRunsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   IconArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingIconsNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
-  Milestone?: Prisma.MilestoneUpdateOneWithoutLifeEndingsNestedInput
+  Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
 }
 
@@ -1108,7 +1108,7 @@ export type LifeEndingUncheckedUpdateWithoutRunsInput = {
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1130,7 +1130,7 @@ export type LifeEndingCreateWithoutAchievementsInput = {
   isActive?: boolean
   IconArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingIconsInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
-  Milestone?: Prisma.MilestoneCreateNestedOneWithoutLifeEndingsInput
+  Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   Runs?: Prisma.LifeRunCreateNestedManyWithoutEndingInput
 }
 
@@ -1147,7 +1147,7 @@ export type LifeEndingUncheckedCreateWithoutAchievementsInput = {
   heroImage?: string | null
   iconArtImageId?: number | null
   heroArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -1185,7 +1185,7 @@ export type LifeEndingUpdateWithoutAchievementsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   IconArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingIconsNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
-  Milestone?: Prisma.MilestoneUpdateOneWithoutLifeEndingsNestedInput
+  Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   Runs?: Prisma.LifeRunUpdateManyWithoutEndingNestedInput
 }
 
@@ -1202,7 +1202,7 @@ export type LifeEndingUncheckedUpdateWithoutAchievementsInput = {
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1221,7 +1221,7 @@ export type LifeEndingCreateManyIconArtImageInput = {
   icon?: string | null
   heroImage?: string | null
   heroArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -1239,7 +1239,7 @@ export type LifeEndingCreateManyHeroArtImageInput = {
   icon?: string | null
   heroImage?: string | null
   iconArtImageId?: number | null
-  milestoneId?: number | null
+  achievementId?: number | null
   artPrompt?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: boolean
@@ -1259,7 +1259,7 @@ export type LifeEndingUpdateWithoutIconArtImageInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
-  Milestone?: Prisma.MilestoneUpdateOneWithoutLifeEndingsNestedInput
+  Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   Runs?: Prisma.LifeRunUpdateManyWithoutEndingNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
 }
@@ -1276,7 +1276,7 @@ export type LifeEndingUncheckedUpdateWithoutIconArtImageInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1296,7 +1296,7 @@ export type LifeEndingUncheckedUpdateManyWithoutIconArtImageInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1316,7 +1316,7 @@ export type LifeEndingUpdateWithoutHeroArtImageInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   IconArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingIconsNestedInput
-  Milestone?: Prisma.MilestoneUpdateOneWithoutLifeEndingsNestedInput
+  Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   Runs?: Prisma.LifeRunUpdateManyWithoutEndingNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
 }
@@ -1333,7 +1333,7 @@ export type LifeEndingUncheckedUpdateWithoutHeroArtImageInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1353,13 +1353,13 @@ export type LifeEndingUncheckedUpdateManyWithoutHeroArtImageInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  achievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
-export type LifeEndingCreateManyMilestoneInput = {
+export type LifeEndingCreateManyAchievementInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1377,7 +1377,7 @@ export type LifeEndingCreateManyMilestoneInput = {
   isActive?: boolean
 }
 
-export type LifeEndingUpdateWithoutMilestoneInput = {
+export type LifeEndingUpdateWithoutAchievementInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1396,7 +1396,7 @@ export type LifeEndingUpdateWithoutMilestoneInput = {
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
 }
 
-export type LifeEndingUncheckedUpdateWithoutMilestoneInput = {
+export type LifeEndingUncheckedUpdateWithoutAchievementInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1416,7 +1416,7 @@ export type LifeEndingUncheckedUpdateWithoutMilestoneInput = {
   Achievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutEndingNestedInput
 }
 
-export type LifeEndingUncheckedUpdateManyWithoutMilestoneInput = {
+export type LifeEndingUncheckedUpdateManyWithoutAchievementInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1487,13 +1487,13 @@ export type LifeEndingSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   heroImage?: boolean
   iconArtImageId?: boolean
   heroArtImageId?: boolean
-  milestoneId?: boolean
+  achievementId?: boolean
   artPrompt?: boolean
   metadata?: boolean
   isActive?: boolean
   IconArtImage?: boolean | Prisma.LifeEnding$IconArtImageArgs<ExtArgs>
   HeroArtImage?: boolean | Prisma.LifeEnding$HeroArtImageArgs<ExtArgs>
-  Milestone?: boolean | Prisma.LifeEnding$MilestoneArgs<ExtArgs>
+  Achievement?: boolean | Prisma.LifeEnding$AchievementArgs<ExtArgs>
   Runs?: boolean | Prisma.LifeEnding$RunsArgs<ExtArgs>
   Achievements?: boolean | Prisma.LifeEnding$AchievementsArgs<ExtArgs>
   _count?: boolean | Prisma.LifeEndingCountOutputTypeDefaultArgs<ExtArgs>
@@ -1514,17 +1514,17 @@ export type LifeEndingSelectScalar = {
   heroImage?: boolean
   iconArtImageId?: boolean
   heroArtImageId?: boolean
-  milestoneId?: boolean
+  achievementId?: boolean
   artPrompt?: boolean
   metadata?: boolean
   isActive?: boolean
 }
 
-export type LifeEndingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "outcomeKey" | "summary" | "victoryType" | "icon" | "heroImage" | "iconArtImageId" | "heroArtImageId" | "milestoneId" | "artPrompt" | "metadata" | "isActive", ExtArgs["result"]["lifeEnding"]>
+export type LifeEndingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "outcomeKey" | "summary" | "victoryType" | "icon" | "heroImage" | "iconArtImageId" | "heroArtImageId" | "achievementId" | "artPrompt" | "metadata" | "isActive", ExtArgs["result"]["lifeEnding"]>
 export type LifeEndingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   IconArtImage?: boolean | Prisma.LifeEnding$IconArtImageArgs<ExtArgs>
   HeroArtImage?: boolean | Prisma.LifeEnding$HeroArtImageArgs<ExtArgs>
-  Milestone?: boolean | Prisma.LifeEnding$MilestoneArgs<ExtArgs>
+  Achievement?: boolean | Prisma.LifeEnding$AchievementArgs<ExtArgs>
   Runs?: boolean | Prisma.LifeEnding$RunsArgs<ExtArgs>
   Achievements?: boolean | Prisma.LifeEnding$AchievementsArgs<ExtArgs>
   _count?: boolean | Prisma.LifeEndingCountOutputTypeDefaultArgs<ExtArgs>
@@ -1535,7 +1535,7 @@ export type $LifeEndingPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     IconArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     HeroArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
-    Milestone: Prisma.$MilestonePayload<ExtArgs> | null
+    Achievement: Prisma.$AchievementPayload<ExtArgs> | null
     Runs: Prisma.$LifeRunPayload<ExtArgs>[]
     Achievements: Prisma.$LifeAchievementPayload<ExtArgs>[]
   }
@@ -1552,7 +1552,7 @@ export type $LifeEndingPayload<ExtArgs extends runtime.Types.Extensions.Internal
     heroImage: string | null
     iconArtImageId: number | null
     heroArtImageId: number | null
-    milestoneId: number | null
+    achievementId: number | null
     artPrompt: string | null
     metadata: runtime.JsonValue | null
     isActive: boolean
@@ -1898,7 +1898,7 @@ export interface Prisma__LifeEndingClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   IconArtImage<T extends Prisma.LifeEnding$IconArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$IconArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   HeroArtImage<T extends Prisma.LifeEnding$HeroArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$HeroArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Milestone<T extends Prisma.LifeEnding$MilestoneArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$MilestoneArgs<ExtArgs>>): Prisma.Prisma__MilestoneClient<runtime.Types.Result.GetResult<Prisma.$MilestonePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Achievement<T extends Prisma.LifeEnding$AchievementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$AchievementArgs<ExtArgs>>): Prisma.Prisma__AchievementClient<runtime.Types.Result.GetResult<Prisma.$AchievementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Runs<T extends Prisma.LifeEnding$RunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$RunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Achievements<T extends Prisma.LifeEnding$AchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$AchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1942,7 +1942,7 @@ export interface LifeEndingFieldRefs {
   readonly heroImage: Prisma.FieldRef<"LifeEnding", 'String'>
   readonly iconArtImageId: Prisma.FieldRef<"LifeEnding", 'Int'>
   readonly heroArtImageId: Prisma.FieldRef<"LifeEnding", 'Int'>
-  readonly milestoneId: Prisma.FieldRef<"LifeEnding", 'Int'>
+  readonly achievementId: Prisma.FieldRef<"LifeEnding", 'Int'>
   readonly artPrompt: Prisma.FieldRef<"LifeEnding", 'String'>
   readonly metadata: Prisma.FieldRef<"LifeEnding", 'Json'>
   readonly isActive: Prisma.FieldRef<"LifeEnding", 'Boolean'>
@@ -2332,22 +2332,22 @@ export type LifeEnding$HeroArtImageArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
- * LifeEnding.Milestone
+ * LifeEnding.Achievement
  */
-export type LifeEnding$MilestoneArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type LifeEnding$AchievementArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Milestone
+   * Select specific fields to fetch from the Achievement
    */
-  select?: Prisma.MilestoneSelect<ExtArgs> | null
+  select?: Prisma.AchievementSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Milestone
+   * Omit specific fields from the Achievement
    */
-  omit?: Prisma.MilestoneOmit<ExtArgs> | null
+  omit?: Prisma.AchievementOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.MilestoneInclude<ExtArgs> | null
-  where?: Prisma.MilestoneWhereInput
+  include?: Prisma.AchievementInclude<ExtArgs> | null
+  where?: Prisma.AchievementWhereInput
 }
 
 /**

@@ -4,15 +4,15 @@
 // by conductor's scripts/generate_davinci_endings.py (JSON or JSONL).
 //
 // For each of the 1024 ending payloads it upserts:
-//   - Milestone        by triggerCode  (davinci-ending-{outcomeKey})
-//   - LifeEnding       by outcomeKey   (linked to the Milestone)
+//   - Achievement      by triggerCode  (davinci-ending-{outcomeKey})
+//   - LifeEnding       by outcomeKey   (linked to the Achievement)
 //   - LifeAchievement  by conditionKey (ending:{outcomeKey}, linked to both)
 //
 // It NEVER creates ArtImage rows and never touches iconArtImageId /
 // heroArtImageId / artImageId — icon and hero images are seeded as path
 // strings only, until the local generator pipeline produces real files.
 //
-// Boundary: single-invocation only. The achievement find-then-write is not
+// Boundary: single-invocation only. The LifeAchievement find-then-write is not
 // atomic, so don't run two imports against the same database concurrently.
 //
 // Usage (tsx, not ts-node — the repo is ESM and ts-node can't resolve the
@@ -43,7 +43,7 @@ export interface EndingPayload {
   heroImage: string
   artPrompt: string
   metadata: Prisma.InputJsonValue
-  milestone: {
+  achievement: {
     label: string
     message: string
     icon: string
@@ -54,7 +54,7 @@ export interface EndingPayload {
     imagePath: string
     artPrompt: string
   }
-  achievement: {
+  lifeAchievement: {
     title: string
     slug: string
     achievementType: string
@@ -109,16 +109,22 @@ export function validate(ending: EndingPayload, index: number): void {
       `${where}: victoryType "${ending.victoryType}" is not valid`,
     )
   }
-  if (ending.milestone?.triggerCode !== `davinci-ending-${ending.outcomeKey}`) {
-    throw new Error(`${where}: milestone.triggerCode does not match outcomeKey`)
-  }
-  if (ending.achievement?.conditionKey !== `ending:${ending.outcomeKey}`) {
+  if (
+    ending.achievement?.triggerCode !== `davinci-ending-${ending.outcomeKey}`
+  ) {
     throw new Error(
-      `${where}: achievement.conditionKey does not match outcomeKey`,
+      `${where}: achievement.triggerCode does not match outcomeKey`,
     )
   }
-  if (ending.achievement.achievementType !== 'ENDING') {
-    throw new Error(`${where}: achievement.achievementType must be ENDING`)
+  if (ending.lifeAchievement?.conditionKey !== `ending:${ending.outcomeKey}`) {
+    throw new Error(
+      `${where}: lifeAchievement.conditionKey does not match outcomeKey`,
+    )
+  }
+  if (ending.lifeAchievement.achievementType !== 'ENDING') {
+    throw new Error(
+      `${where}: lifeAchievement.achievementType must be ENDING`,
+    )
   }
 }
 
@@ -136,8 +142,8 @@ export async function importEnding(
   prisma: PrismaClient,
   ending: EndingPayload,
 ): Promise<void> {
-  const m = ending.milestone
-  const milestoneData = {
+  const m = ending.achievement
+  const achievementData = {
     label: m.label,
     message: m.message,
     icon: m.icon,
@@ -147,10 +153,10 @@ export async function importEnding(
     imagePath: m.imagePath,
     artPrompt: m.artPrompt,
   }
-  const milestone = await prisma.milestone.upsert({
+  const achievement = await prisma.achievement.upsert({
     where: { triggerCode: m.triggerCode },
-    update: milestoneData,
-    create: { ...milestoneData, triggerCode: m.triggerCode },
+    update: achievementData,
+    create: { ...achievementData, triggerCode: m.triggerCode },
   })
 
   const endingData = {
@@ -162,7 +168,7 @@ export async function importEnding(
     heroImage: ending.heroImage,
     artPrompt: ending.artPrompt,
     metadata: ending.metadata,
-    milestoneId: milestone.id,
+    achievementId: achievement.id,
     isActive: true,
   }
   const lifeEnding = await prisma.lifeEnding.upsert({
@@ -171,8 +177,8 @@ export async function importEnding(
     create: { ...endingData, outcomeKey: ending.outcomeKey },
   })
 
-  const a = ending.achievement
-  const achievementData = {
+  const a = ending.lifeAchievement
+  const lifeAchievementData = {
     title: a.title,
     slug: a.slug,
     achievementType: 'ENDING' as const,
@@ -181,9 +187,9 @@ export async function importEnding(
     icon: a.icon,
     imagePath: a.imagePath,
     // LifeAchievement has no artPrompt column — the prompt lives on the
-    // linked Milestone and LifeEnding rows.
+    // linked Achievement and LifeEnding rows.
     metadata: ending.metadata,
-    milestoneId: milestone.id,
+    achievementId: achievement.id,
     endingId: lifeEnding.id,
     isActive: true,
   }
@@ -198,10 +204,10 @@ export async function importEnding(
   if (existing) {
     await prisma.lifeAchievement.update({
       where: { id: existing.id },
-      data: achievementData,
+      data: lifeAchievementData,
     })
   } else {
-    await prisma.lifeAchievement.create({ data: achievementData })
+    await prisma.lifeAchievement.create({ data: lifeAchievementData })
   }
 }
 
@@ -220,7 +226,7 @@ export async function importEndings(
 
 export function davinciCounts(prisma: PrismaClient, outcomeKeys: string[]) {
   return Promise.all([
-    prisma.milestone.count({
+    prisma.achievement.count({
       where: { triggerCode: { startsWith: 'davinci-ending-' } },
     }),
     prisma.lifeEnding.count({
@@ -247,15 +253,15 @@ async function main() {
     console.log(`Parsed ${endings.length} ending payloads from ${filePath}`)
 
     const outcomeKeys = endings.map((ending) => ending.outcomeKey)
-    const [existingMilestones, existingEndings, existingAchievements] =
+    const [existingAchievements, existingEndings, existingLifeAchievements] =
       await davinciCounts(prisma, outcomeKeys)
     console.log(
-      `Existing: ${existingMilestones} milestones, ${existingEndings} endings, ${existingAchievements} achievements`,
+      `Existing: ${existingAchievements} achievements, ${existingEndings} endings, ${existingLifeAchievements} life achievements`,
     )
 
     if (!WRITE) {
       console.log(
-        `[dry run] Would upsert ${endings.length} milestones, endings, and achievements. Re-run with --write to apply.`,
+        `[dry run] Would upsert ${endings.length} achievements, endings, and life achievements. Re-run with --write to apply.`,
       )
       return
     }
@@ -264,12 +270,12 @@ async function main() {
       console.log(`  ...${done}/${total}`),
     )
 
-    const [milestones, lifeEndings, achievements] = await davinciCounts(
+    const [achievements, lifeEndings, lifeAchievements] = await davinciCounts(
       prisma,
       outcomeKeys,
     )
     console.log(
-      `Done. Totals now: ${milestones} davinci-ending milestones, ${lifeEndings} LifeEndings, ${achievements} ENDING achievements.`,
+      `Done. Totals now: ${achievements} davinci-ending achievements, ${lifeEndings} LifeEndings, ${lifeAchievements} ENDING life achievements.`,
     )
   } finally {
     await prisma.$disconnect()

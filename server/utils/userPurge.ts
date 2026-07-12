@@ -75,8 +75,8 @@ export async function deleteUserWithOwnedData(
         await tx.karmaTransaction.deleteMany({ where: { userId } }),
       )
       track(
-        'milestoneRecords',
-        await tx.milestoneRecord.deleteMany({ where: { userId } }),
+        'achievementRecords',
+        await tx.achievementRecord.deleteMany({ where: { userId } }),
       )
 
       await tx.user.delete({ where: { id: userId } })

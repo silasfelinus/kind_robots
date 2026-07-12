@@ -35,12 +35,12 @@ Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
 | File:line                                           | Exposure                                                                                 |
 | --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `server/api/milestones/updateClickRecord.put.ts:26` | unauth `prisma.user.update` on any userId from body                                      |
-| `server/api/milestones/updateMatchRecord.put.ts:26` | same — writes matchRecord on any user                                                    |
-| `server/api/milestones/[id].patch.ts:37`            | unauth update + raw body mass-assignment                                                 |
-| `server/api/milestones/[id].delete.ts:21`           | unauth delete                                                                            |
-| `server/api/milestones/index.post.ts:24`            | unauth batch create                                                                      |
-| `server/api/milestones/records/[id].patch.ts:45`    | unauth update + mass-assignment                                                          |
+| `server/api/achievements/updateClickRecord.put.ts:26` | unauth `prisma.user.update` on any userId from body                                      |
+| `server/api/achievements/updateMatchRecord.put.ts:26` | same — writes matchRecord on any user                                                    |
+| `server/api/achievements/[id].patch.ts:37`            | unauth update + raw body mass-assignment                                                 |
+| `server/api/achievements/[id].delete.ts:21`           | unauth delete                                                                            |
+| `server/api/achievements/index.post.ts:24`            | unauth batch create                                                                      |
+| `server/api/achievements/records/[id].patch.ts:45`    | unauth update + mass-assignment                                                          |
 | `server/api/components/[id].delete.ts:21`           | no auth import at all                                                                    |
 | `server/api/components/[id].patch.ts:128`           | unauth update                                                                            |
 | `server/api/components/index.post.ts:89`            | unauth upsert                                                                            |
@@ -68,7 +68,7 @@ a field-guarded typed `UpdateInput` builder (see `sample/[id].patch.ts`).
 - `server/api/reactions/[id].patch.ts:61-63`
 - `server/api/reactions/chat/[id].patch.ts:40-42`
 - `server/api/reactions/component/[id].patch.ts:41-43`
-- plus the unauthenticated milestones/components ones above
+- plus the unauthenticated achievements/components ones above
 
 ### A4. Bugs
 
@@ -81,15 +81,15 @@ a field-guarded typed `UpdateInput` builder (see `sample/[id].patch.ts`).
 ### A5. Consistency
 
 - **Admin-check drift:** ~25 files still use `Role === 'ADMIN'`-only instead of the newer `Role === 'ADMIN' || user.id === 1` (available as `userIsAdmin()` in `server/utils/authUser.ts`) — including the canonical `scenarios/[id].patch.ts|delete.ts|batch.patch.ts` themselves. `users/*` and `prompts/[id].patch.ts` are owner-only with no admin bypass at all.
-- **Envelope drift:** `milestones/*` omit `message`; `bots/seed.post.ts` returns `{success,data}`; `art/sd/setModel.post.ts` returns `{success,message,model}` (no data); `relations/*` use `setResponseStatus` and omit `statusCode`.
+- **Envelope drift:** `achievements/*` omit `message`; `bots/seed.post.ts` returns `{success,data}`; `art/sd/setModel.post.ts` returns `{success,message,model}` (no data); `relations/*` use `setResponseStatus` and omit `statusCode`.
 - **console.log noise:** 47 hits; worst `characters/generate.ts` (17), `users/register.post.ts` (5), and 2 in the canonical `scenarios/[id].delete.ts`.
 - **Batch pattern:** full `created/skipped/failed` + 207 only in `scenarios/*`; `bots/batch.post.ts` and `characters/batch.post.ts` have neither.
 
 ### Endpoint fix order (top 10)
 
-1. `milestones/updateClickRecord.put.ts` + `updateMatchRecord.put.ts` — unauth User-table writes
+1. `achievements/updateClickRecord.put.ts` + `updateMatchRecord.put.ts` — unauth User-table writes
 2. `components/` — all 4 mutating routes
-3. `milestones/[id].patch.ts`, `[id].delete.ts`, `index.post.ts`, `records/[id].patch.ts`
+3. `achievements/[id].patch.ts`, `[id].delete.ts`, `index.post.ts`, `records/[id].patch.ts`
 4. `stripe/checkout.post.ts` + `subscribe.post.ts` — userId from auth, never body
 5. `art/upload.post.ts` — require auth; drop `|| 10`
 6. `art/sd/setModel.post.ts` — admin/machine gate
@@ -113,7 +113,7 @@ a field-guarded typed `UpdateInput` builder (see `sample/[id].patch.ts`).
 
 `list.value = res.data` instead of Map-merge, by descending traffic:
 `userStore:508` (81 uses), `serverStore:772` (24), `dreamStore:950` (20, and
-filtered fetches replace the whole collection; also no snapshot), `milestoneStore:218,271`
+filtered fetches replace the whole collection; also no snapshot), `achievementStore:218,271`
 (14, achievement data), `chatStore:1517` (13), plus `botStore:535`,
 `characterStore:365`, `promptStore:438`, `smartbarStore:233`, `sheetStore`,
 `todoStore`, `resourceStore`, `memoryStore`.
@@ -124,7 +124,7 @@ filtered fetches replace the whole collection; also no snapshot), `milestoneStor
 
 ### B3. MEDIUM / LOW
 
-- No `error`/`setError`/`clearError` trio: codeStore, componentStore, collectionStore, randomStore, chatStore, storyStore, conductorStore. `lastError` naming drift: userStore, milestoneStore, smartbarStore, todoStore, cartStore.
+- No `error`/`setError`/`clearError` trio: codeStore, componentStore, collectionStore, randomStore, chatStore, storyStore, conductorStore. `lastError` naming drift: userStore, achievementStore, smartbarStore, todoStore, cartStore.
 - Missing snapshot fallback on content models that could use it: dreamStore, artStore, serverStore, chatStore, collectionStore.
 - `conductorStore:153` uses `$fetch` directly (skips circuit breaker); `promptStore:953` stream fetch sends no auth.
 - Redundant manual `Content-Type` on ~20 `performFetch` calls (incl. rewardStore itself) — noise, zero risk. `performFetch` injects Content-Type + Authorization.
@@ -136,7 +136,7 @@ filtered fetches replace the whole collection; also no snapshot), `milestoneStor
 3. `componentStore` — swap raw fetch → performFetch (circuit breaker)
 4. `dreamStore` — 20 uses, filtered-fetch clobber, no snapshot
 5. `userStore` — 81 uses, overwrite + lastError (touch carefully, it's auth)
-6. `milestoneStore` — achievement records overwritten on fetch
+6. `achievementStore` — achievement records overwritten on fetch
 7. `chatStore` — no error trio, no force, manual auth header (streaming hot path)
 8. `sheetStore` + `todoStore` — no initialize/dedupe; quick wins
 9. `serverStore` — 24 uses, overwrite (external-fetch exceptions OK to keep)

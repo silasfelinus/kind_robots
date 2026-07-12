@@ -52,6 +52,10 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   FacetAlias: 'FacetAlias',
+  ModelBuildRun: 'ModelBuildRun',
+  ModelBuildItem: 'ModelBuildItem',
+  ModelBuildArtifact: 'ModelBuildArtifact',
+  ModelBuildRevision: 'ModelBuildRevision',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -74,9 +78,9 @@ export const ModelName = {
   ExpressionMedia: 'ExpressionMedia',
   ExpressionTransition: 'ExpressionTransition',
   Log: 'Log',
-  Milestone: 'Milestone',
+  Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
-  MilestoneRecord: 'MilestoneRecord',
+  AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
   PitchSheet: 'PitchSheet',
@@ -138,6 +142,91 @@ export const FacetAliasScalarFieldEnum = {
 } as const
 
 export type FacetAliasScalarFieldEnum = (typeof FacetAliasScalarFieldEnum)[keyof typeof FacetAliasScalarFieldEnum]
+
+
+export const ModelBuildRunScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  status: 'status',
+  userId: 'userId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  sourceLabel: 'sourceLabel',
+  sourceSnapshot: 'sourceSnapshot',
+  recipeKey: 'recipeKey',
+  recipeVersion: 'recipeVersion',
+  selections: 'selections',
+  usageInfo: 'usageInfo',
+  cancelledAt: 'cancelledAt'
+} as const
+
+export type ModelBuildRunScalarFieldEnum = (typeof ModelBuildRunScalarFieldEnum)[keyof typeof ModelBuildRunScalarFieldEnum]
+
+
+export const ModelBuildItemScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  runId: 'runId',
+  outputKey: 'outputKey',
+  label: 'label',
+  action: 'action',
+  generation: 'generation',
+  quantityIndex: 'quantityIndex',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  stageStatuses: 'stageStatuses',
+  pitch: 'pitch',
+  fieldsDraft: 'fieldsDraft',
+  promptDraft: 'promptDraft',
+  relationshipDraft: 'relationshipDraft',
+  staleReason: 'staleReason',
+  error: 'error',
+  idempotencyKey: 'idempotencyKey',
+  artImageId: 'artImageId'
+} as const
+
+export type ModelBuildItemScalarFieldEnum = (typeof ModelBuildItemScalarFieldEnum)[keyof typeof ModelBuildItemScalarFieldEnum]
+
+
+export const ModelBuildArtifactScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  itemId: 'itemId',
+  kind: 'kind',
+  provider: 'provider',
+  model: 'model',
+  seed: 'seed',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  width: 'width',
+  height: 'height',
+  workflow: 'workflow',
+  format: 'format',
+  artImageId: 'artImageId',
+  draftPath: 'draftPath',
+  promotedPath: 'promotedPath',
+  reviewState: 'reviewState',
+  usageInfo: 'usageInfo'
+} as const
+
+export type ModelBuildArtifactScalarFieldEnum = (typeof ModelBuildArtifactScalarFieldEnum)[keyof typeof ModelBuildArtifactScalarFieldEnum]
+
+
+export const ModelBuildRevisionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  itemId: 'itemId',
+  stage: 'stage',
+  previousPayload: 'previousPayload',
+  nextPayload: 'nextPayload',
+  actor: 'actor',
+  reason: 'reason'
+} as const
+
+export type ModelBuildRevisionScalarFieldEnum = (typeof ModelBuildRevisionScalarFieldEnum)[keyof typeof ModelBuildRevisionScalarFieldEnum]
 
 
 export const ArtImageScalarFieldEnum = {
@@ -621,7 +710,7 @@ export const LogScalarFieldEnum = {
 export type LogScalarFieldEnum = (typeof LogScalarFieldEnum)[keyof typeof LogScalarFieldEnum]
 
 
-export const MilestoneScalarFieldEnum = {
+export const AchievementScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -640,7 +729,7 @@ export const MilestoneScalarFieldEnum = {
   imagePath: 'imagePath'
 } as const
 
-export type MilestoneScalarFieldEnum = (typeof MilestoneScalarFieldEnum)[keyof typeof MilestoneScalarFieldEnum]
+export type AchievementScalarFieldEnum = (typeof AchievementScalarFieldEnum)[keyof typeof AchievementScalarFieldEnum]
 
 
 export const ManaTransactionScalarFieldEnum = {
@@ -660,17 +749,17 @@ export const ManaTransactionScalarFieldEnum = {
 export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
 
 
-export const MilestoneRecordScalarFieldEnum = {
+export const AchievementRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   username: 'username',
-  milestoneId: 'milestoneId',
+  achievementId: 'achievementId',
   userId: 'userId',
   isConfirmed: 'isConfirmed'
 } as const
 
-export type MilestoneRecordScalarFieldEnum = (typeof MilestoneRecordScalarFieldEnum)[keyof typeof MilestoneRecordScalarFieldEnum]
+export type AchievementRecordScalarFieldEnum = (typeof AchievementRecordScalarFieldEnum)[keyof typeof AchievementRecordScalarFieldEnum]
 
 
 export const NarratorTopicScalarFieldEnum = {
@@ -1305,7 +1394,7 @@ export const LifeEndingScalarFieldEnum = {
   heroImage: 'heroImage',
   iconArtImageId: 'iconArtImageId',
   heroArtImageId: 'heroArtImageId',
-  milestoneId: 'milestoneId',
+  achievementId: 'achievementId',
   artPrompt: 'artPrompt',
   metadata: 'metadata',
   isActive: 'isActive'
@@ -1326,7 +1415,7 @@ export const LifeAchievementScalarFieldEnum = {
   icon: 'icon',
   imagePath: 'imagePath',
   artImageId: 'artImageId',
-  milestoneId: 'milestoneId',
+  achievementId: 'achievementId',
   endingId: 'endingId',
   metadata: 'metadata',
   isActive: 'isActive'
@@ -1341,7 +1430,7 @@ export const LifeAchievementUnlockScalarFieldEnum = {
   userId: 'userId',
   lifeRunId: 'lifeRunId',
   achievementId: 'achievementId',
-  milestoneRecordId: 'milestoneRecordId',
+  achievementRecordId: 'achievementRecordId',
   data: 'data'
 } as const
 
@@ -1369,19 +1458,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -1398,6 +1487,73 @@ export const FacetAliasOrderByRelevanceFieldEnum = {
 } as const
 
 export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelevanceFieldEnum)[keyof typeof FacetAliasOrderByRelevanceFieldEnum]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const ModelBuildRunOrderByRelevanceFieldEnum = {
+  sourceType: 'sourceType',
+  sourceLabel: 'sourceLabel',
+  recipeKey: 'recipeKey',
+  recipeVersion: 'recipeVersion'
+} as const
+
+export type ModelBuildRunOrderByRelevanceFieldEnum = (typeof ModelBuildRunOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRunOrderByRelevanceFieldEnum]
+
+
+export const ModelBuildItemOrderByRelevanceFieldEnum = {
+  outputKey: 'outputKey',
+  label: 'label',
+  generation: 'generation',
+  targetType: 'targetType',
+  pitch: 'pitch',
+  fieldsDraft: 'fieldsDraft',
+  promptDraft: 'promptDraft',
+  staleReason: 'staleReason',
+  error: 'error',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type ModelBuildItemOrderByRelevanceFieldEnum = (typeof ModelBuildItemOrderByRelevanceFieldEnum)[keyof typeof ModelBuildItemOrderByRelevanceFieldEnum]
+
+
+export const ModelBuildArtifactOrderByRelevanceFieldEnum = {
+  kind: 'kind',
+  provider: 'provider',
+  model: 'model',
+  seed: 'seed',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  format: 'format',
+  draftPath: 'draftPath',
+  promotedPath: 'promotedPath'
+} as const
+
+export type ModelBuildArtifactOrderByRelevanceFieldEnum = (typeof ModelBuildArtifactOrderByRelevanceFieldEnum)[keyof typeof ModelBuildArtifactOrderByRelevanceFieldEnum]
+
+
+export const ModelBuildRevisionOrderByRelevanceFieldEnum = {
+  stage: 'stage',
+  actor: 'actor',
+  reason: 'reason'
+} as const
+
+export type ModelBuildRevisionOrderByRelevanceFieldEnum = (typeof ModelBuildRevisionOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRevisionOrderByRelevanceFieldEnum]
 
 
 export const ArtImageOrderByRelevanceFieldEnum = {
@@ -1506,23 +1662,6 @@ export const ChatOrderByRelevanceFieldEnum = {
 } as const
 
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const CodeOrderByRelevanceFieldEnum = {
@@ -1669,7 +1808,7 @@ export const LogOrderByRelevanceFieldEnum = {
 export type LogOrderByRelevanceFieldEnum = (typeof LogOrderByRelevanceFieldEnum)[keyof typeof LogOrderByRelevanceFieldEnum]
 
 
-export const MilestoneOrderByRelevanceFieldEnum = {
+export const AchievementOrderByRelevanceFieldEnum = {
   label: 'label',
   message: 'message',
   icon: 'icon',
@@ -1681,7 +1820,7 @@ export const MilestoneOrderByRelevanceFieldEnum = {
   imagePath: 'imagePath'
 } as const
 
-export type MilestoneOrderByRelevanceFieldEnum = (typeof MilestoneOrderByRelevanceFieldEnum)[keyof typeof MilestoneOrderByRelevanceFieldEnum]
+export type AchievementOrderByRelevanceFieldEnum = (typeof AchievementOrderByRelevanceFieldEnum)[keyof typeof AchievementOrderByRelevanceFieldEnum]
 
 
 export const ManaTransactionOrderByRelevanceFieldEnum = {
@@ -1693,11 +1832,11 @@ export const ManaTransactionOrderByRelevanceFieldEnum = {
 export type ManaTransactionOrderByRelevanceFieldEnum = (typeof ManaTransactionOrderByRelevanceFieldEnum)[keyof typeof ManaTransactionOrderByRelevanceFieldEnum]
 
 
-export const MilestoneRecordOrderByRelevanceFieldEnum = {
+export const AchievementRecordOrderByRelevanceFieldEnum = {
   username: 'username'
 } as const
 
-export type MilestoneRecordOrderByRelevanceFieldEnum = (typeof MilestoneRecordOrderByRelevanceFieldEnum)[keyof typeof MilestoneRecordOrderByRelevanceFieldEnum]
+export type AchievementRecordOrderByRelevanceFieldEnum = (typeof AchievementRecordOrderByRelevanceFieldEnum)[keyof typeof AchievementRecordOrderByRelevanceFieldEnum]
 
 
 export const NarratorTopicOrderByRelevanceFieldEnum = {

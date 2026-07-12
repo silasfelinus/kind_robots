@@ -494,7 +494,7 @@ export type ArtImageWhereInput = {
   FacetsPrimary?: Prisma.FacetListRelationFilter
   ProjectLinks?: Prisma.ProjectArtImageListRelationFilter
   FacetLinks?: Prisma.FacetArtImageListRelationFilter
-  Milestones?: Prisma.MilestoneListRelationFilter
+  Achievements?: Prisma.AchievementListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
@@ -563,7 +563,7 @@ export type ArtImageOrderByWithRelationInput = {
   FacetsPrimary?: Prisma.FacetOrderByRelationAggregateInput
   ProjectLinks?: Prisma.ProjectArtImageOrderByRelationAggregateInput
   FacetLinks?: Prisma.FacetArtImageOrderByRelationAggregateInput
-  Milestones?: Prisma.MilestoneOrderByRelationAggregateInput
+  Achievements?: Prisma.AchievementOrderByRelationAggregateInput
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
@@ -636,7 +636,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   FacetsPrimary?: Prisma.FacetListRelationFilter
   ProjectLinks?: Prisma.ProjectArtImageListRelationFilter
   FacetLinks?: Prisma.FacetArtImageListRelationFilter
-  Milestones?: Prisma.MilestoneListRelationFilter
+  Achievements?: Prisma.AchievementListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
@@ -785,7 +785,7 @@ export type ArtImageCreateInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -851,7 +851,7 @@ export type ArtImageUncheckedCreateInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -916,7 +916,7 @@ export type ArtImageUpdateInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -982,7 +982,7 @@ export type ArtImageUncheckedUpdateInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -1271,18 +1271,6 @@ export type ArtImageScalarRelationFilter = {
   isNot?: Prisma.ArtImageWhereInput
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
 }
@@ -1535,20 +1523,20 @@ export type ArtImageUpdateOneWithoutExpressionMediaNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutExpressionMediaInput, Prisma.ArtImageUpdateWithoutExpressionMediaInput>, Prisma.ArtImageUncheckedUpdateWithoutExpressionMediaInput>
 }
 
-export type ArtImageCreateNestedOneWithoutMilestonesInput = {
-  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutMilestonesInput, Prisma.ArtImageUncheckedCreateWithoutMilestonesInput>
-  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutMilestonesInput
+export type ArtImageCreateNestedOneWithoutAchievementsInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutAchievementsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutAchievementsInput
   connect?: Prisma.ArtImageWhereUniqueInput
 }
 
-export type ArtImageUpdateOneWithoutMilestonesNestedInput = {
-  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutMilestonesInput, Prisma.ArtImageUncheckedCreateWithoutMilestonesInput>
-  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutMilestonesInput
-  upsert?: Prisma.ArtImageUpsertWithoutMilestonesInput
+export type ArtImageUpdateOneWithoutAchievementsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutAchievementsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutAchievementsInput
+  upsert?: Prisma.ArtImageUpsertWithoutAchievementsInput
   disconnect?: Prisma.ArtImageWhereInput | boolean
   delete?: Prisma.ArtImageWhereInput | boolean
   connect?: Prisma.ArtImageWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutMilestonesInput, Prisma.ArtImageUpdateWithoutMilestonesInput>, Prisma.ArtImageUncheckedUpdateWithoutMilestonesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutAchievementsInput, Prisma.ArtImageUpdateWithoutAchievementsInput>, Prisma.ArtImageUncheckedUpdateWithoutAchievementsInput>
 }
 
 export type ArtImageCreateNestedOneWithoutPitchSheetsInput = {
@@ -1967,7 +1955,7 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -2032,7 +2020,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -2157,7 +2145,7 @@ export type ArtImageCreateWithoutBotsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -2222,7 +2210,7 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -2302,7 +2290,7 @@ export type ArtImageUpdateWithoutBotsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -2367,7 +2355,7 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2431,7 +2419,7 @@ export type ArtImageCreateWithoutCharactersInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -2496,7 +2484,7 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -2576,7 +2564,7 @@ export type ArtImageUpdateWithoutCharactersInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -2641,7 +2629,7 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2705,7 +2693,7 @@ export type ArtImageCreateWithoutChatsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -2770,7 +2758,7 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -2850,7 +2838,7 @@ export type ArtImageUpdateWithoutChatsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -2915,7 +2903,7 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2979,7 +2967,7 @@ export type ArtImageCreateWithoutComponentsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -3044,7 +3032,7 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -3124,7 +3112,7 @@ export type ArtImageUpdateWithoutComponentsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -3189,7 +3177,7 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3254,7 +3242,7 @@ export type ArtImageCreateWithoutCompositionsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -3319,7 +3307,7 @@ export type ArtImageUncheckedCreateWithoutCompositionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -3399,7 +3387,7 @@ export type ArtImageUpdateWithoutCompositionsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -3464,7 +3452,7 @@ export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3527,7 +3515,7 @@ export type ArtImageCreateWithoutDreamsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -3592,7 +3580,7 @@ export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -3661,7 +3649,7 @@ export type ArtImageCreateWithoutDreamsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -3726,7 +3714,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -3806,7 +3794,7 @@ export type ArtImageUpdateWithoutDreamsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -3871,7 +3859,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3951,7 +3939,7 @@ export type ArtImageCreateWithoutProjectsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -4016,7 +4004,7 @@ export type ArtImageUncheckedCreateWithoutProjectsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -4096,7 +4084,7 @@ export type ArtImageUpdateWithoutProjectsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -4161,7 +4149,7 @@ export type ArtImageUncheckedUpdateWithoutProjectsPrimaryInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4225,7 +4213,7 @@ export type ArtImageCreateWithoutFacetsPrimaryInput = {
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -4290,7 +4278,7 @@ export type ArtImageUncheckedCreateWithoutFacetsPrimaryInput = {
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -4370,7 +4358,7 @@ export type ArtImageUpdateWithoutFacetsPrimaryInput = {
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -4435,7 +4423,7 @@ export type ArtImageUncheckedUpdateWithoutFacetsPrimaryInput = {
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4499,7 +4487,7 @@ export type ArtImageCreateWithoutProjectLinksInput = {
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -4564,7 +4552,7 @@ export type ArtImageUncheckedCreateWithoutProjectLinksInput = {
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -4644,7 +4632,7 @@ export type ArtImageUpdateWithoutProjectLinksInput = {
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -4709,7 +4697,7 @@ export type ArtImageUncheckedUpdateWithoutProjectLinksInput = {
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4773,7 +4761,7 @@ export type ArtImageCreateWithoutFacetLinksInput = {
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -4838,7 +4826,7 @@ export type ArtImageUncheckedCreateWithoutFacetLinksInput = {
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -4918,7 +4906,7 @@ export type ArtImageUpdateWithoutFacetLinksInput = {
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -4983,7 +4971,7 @@ export type ArtImageUncheckedUpdateWithoutFacetLinksInput = {
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5047,7 +5035,7 @@ export type ArtImageCreateWithoutExpressionMediaInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -5112,7 +5100,7 @@ export type ArtImageUncheckedCreateWithoutExpressionMediaInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -5192,7 +5180,7 @@ export type ArtImageUpdateWithoutExpressionMediaInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -5257,7 +5245,7 @@ export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5276,7 +5264,7 @@ export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
-export type ArtImageCreateWithoutMilestonesInput = {
+export type ArtImageCreateWithoutAchievementsInput = {
   imageData?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -5340,7 +5328,7 @@ export type ArtImageCreateWithoutMilestonesInput = {
   LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
 }
 
-export type ArtImageUncheckedCreateWithoutMilestonesInput = {
+export type ArtImageUncheckedCreateWithoutAchievementsInput = {
   id?: number
   imageData?: string | null
   createdAt?: Date | string
@@ -5405,23 +5393,23 @@ export type ArtImageUncheckedCreateWithoutMilestonesInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
 }
 
-export type ArtImageCreateOrConnectWithoutMilestonesInput = {
+export type ArtImageCreateOrConnectWithoutAchievementsInput = {
   where: Prisma.ArtImageWhereUniqueInput
-  create: Prisma.XOR<Prisma.ArtImageCreateWithoutMilestonesInput, Prisma.ArtImageUncheckedCreateWithoutMilestonesInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutAchievementsInput>
 }
 
-export type ArtImageUpsertWithoutMilestonesInput = {
-  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutMilestonesInput, Prisma.ArtImageUncheckedUpdateWithoutMilestonesInput>
-  create: Prisma.XOR<Prisma.ArtImageCreateWithoutMilestonesInput, Prisma.ArtImageUncheckedCreateWithoutMilestonesInput>
+export type ArtImageUpsertWithoutAchievementsInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutAchievementsInput, Prisma.ArtImageUncheckedUpdateWithoutAchievementsInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutAchievementsInput, Prisma.ArtImageUncheckedCreateWithoutAchievementsInput>
   where?: Prisma.ArtImageWhereInput
 }
 
-export type ArtImageUpdateToOneWithWhereWithoutMilestonesInput = {
+export type ArtImageUpdateToOneWithWhereWithoutAchievementsInput = {
   where?: Prisma.ArtImageWhereInput
-  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutMilestonesInput, Prisma.ArtImageUncheckedUpdateWithoutMilestonesInput>
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutAchievementsInput, Prisma.ArtImageUncheckedUpdateWithoutAchievementsInput>
 }
 
-export type ArtImageUpdateWithoutMilestonesInput = {
+export type ArtImageUpdateWithoutAchievementsInput = {
   imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5485,7 +5473,7 @@ export type ArtImageUpdateWithoutMilestonesInput = {
   LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
 }
 
-export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
+export type ArtImageUncheckedUpdateWithoutAchievementsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5596,7 +5584,7 @@ export type ArtImageCreateWithoutPitchSheetsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -5661,7 +5649,7 @@ export type ArtImageUncheckedCreateWithoutPitchSheetsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -5741,7 +5729,7 @@ export type ArtImageUpdateWithoutPitchSheetsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -5806,7 +5794,7 @@ export type ArtImageUncheckedUpdateWithoutPitchSheetsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5870,7 +5858,7 @@ export type ArtImageCreateWithoutPromptsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
@@ -5935,7 +5923,7 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
@@ -6015,7 +6003,7 @@ export type ArtImageUpdateWithoutPromptsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
@@ -6080,7 +6068,7 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
@@ -6144,7 +6132,7 @@ export type ArtImageCreateWithoutReactionsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
@@ -6209,7 +6197,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
@@ -6289,7 +6277,7 @@ export type ArtImageUpdateWithoutReactionsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
@@ -6354,7 +6342,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
@@ -6417,7 +6405,7 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -6482,7 +6470,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -6557,7 +6545,7 @@ export type ArtImageCreateWithoutLoraResourcesInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -6622,7 +6610,7 @@ export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -6691,7 +6679,7 @@ export type ArtImageCreateWithoutResourcesInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -6756,7 +6744,7 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -6868,7 +6856,7 @@ export type ArtImageUpdateWithoutResourcesInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -6933,7 +6921,7 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6997,7 +6985,7 @@ export type ArtImageCreateWithoutRewardsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -7062,7 +7050,7 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -7142,7 +7130,7 @@ export type ArtImageUpdateWithoutRewardsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -7207,7 +7195,7 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -7271,7 +7259,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -7336,7 +7324,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -7416,7 +7404,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -7481,7 +7469,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -7544,7 +7532,7 @@ export type ArtImageCreateWithoutServerInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -7609,7 +7597,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -7699,7 +7687,7 @@ export type ArtImageCreateWithoutUserInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -7764,7 +7752,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -7839,7 +7827,7 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -7904,7 +7892,7 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -8000,7 +7988,7 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -8065,7 +8053,7 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -8129,7 +8117,7 @@ export type ArtImageCreateWithoutChallengeSubmissionsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
@@ -8194,7 +8182,7 @@ export type ArtImageUncheckedCreateWithoutChallengeSubmissionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
@@ -8274,7 +8262,7 @@ export type ArtImageUpdateWithoutChallengeSubmissionsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
@@ -8339,7 +8327,7 @@ export type ArtImageUncheckedUpdateWithoutChallengeSubmissionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
@@ -8403,7 +8391,7 @@ export type ArtImageCreateWithoutContendersInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -8468,7 +8456,7 @@ export type ArtImageUncheckedCreateWithoutContendersInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -8548,7 +8536,7 @@ export type ArtImageUpdateWithoutContendersInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -8613,7 +8601,7 @@ export type ArtImageUncheckedUpdateWithoutContendersInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -8677,7 +8665,7 @@ export type ArtImageCreateWithoutLifeEndingIconsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -8742,7 +8730,7 @@ export type ArtImageUncheckedCreateWithoutLifeEndingIconsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -8811,7 +8799,7 @@ export type ArtImageCreateWithoutLifeEndingHeroesInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -8876,7 +8864,7 @@ export type ArtImageUncheckedCreateWithoutLifeEndingHeroesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -8956,7 +8944,7 @@ export type ArtImageUpdateWithoutLifeEndingIconsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -9021,7 +9009,7 @@ export type ArtImageUncheckedUpdateWithoutLifeEndingIconsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9096,7 +9084,7 @@ export type ArtImageUpdateWithoutLifeEndingHeroesInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -9161,7 +9149,7 @@ export type ArtImageUncheckedUpdateWithoutLifeEndingHeroesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9225,7 +9213,7 @@ export type ArtImageCreateWithoutLifeAchievementsInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -9290,7 +9278,7 @@ export type ArtImageUncheckedCreateWithoutLifeAchievementsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -9370,7 +9358,7 @@ export type ArtImageUpdateWithoutLifeAchievementsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -9435,7 +9423,7 @@ export type ArtImageUncheckedUpdateWithoutLifeAchievementsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9499,7 +9487,7 @@ export type ArtImageCreateWithoutLifeRunArtInput = {
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
@@ -9564,7 +9552,7 @@ export type ArtImageUncheckedCreateWithoutLifeRunArtInput = {
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
@@ -9644,7 +9632,7 @@ export type ArtImageUpdateWithoutLifeRunArtInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -9709,7 +9697,7 @@ export type ArtImageUncheckedUpdateWithoutLifeRunArtInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9773,7 +9761,7 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -9838,7 +9826,7 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9939,7 +9927,7 @@ export type ArtImageUpdateWithoutDreamsInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -10004,7 +9992,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10143,7 +10131,7 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -10208,7 +10196,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10310,7 +10298,7 @@ export type ArtImageUpdateWithoutLoraResourcesInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -10375,7 +10363,7 @@ export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10513,7 +10501,7 @@ export type ArtImageUpdateWithoutServerInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -10578,7 +10566,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10716,7 +10704,7 @@ export type ArtImageUpdateWithoutUserInput = {
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
@@ -10781,7 +10769,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10853,7 +10841,7 @@ export type ArtImageCountOutputType = {
   FacetsPrimary: number
   ProjectLinks: number
   FacetLinks: number
-  Milestones: number
+  Achievements: number
   Prompts: number
   Reactions: number
   ChallengeSubmissions: number
@@ -10883,7 +10871,7 @@ export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   FacetsPrimary?: boolean | ArtImageCountOutputTypeCountFacetsPrimaryArgs
   ProjectLinks?: boolean | ArtImageCountOutputTypeCountProjectLinksArgs
   FacetLinks?: boolean | ArtImageCountOutputTypeCountFacetLinksArgs
-  Milestones?: boolean | ArtImageCountOutputTypeCountMilestonesArgs
+  Achievements?: boolean | ArtImageCountOutputTypeCountAchievementsArgs
   Prompts?: boolean | ArtImageCountOutputTypeCountPromptsArgs
   Reactions?: boolean | ArtImageCountOutputTypeCountReactionsArgs
   ChallengeSubmissions?: boolean | ArtImageCountOutputTypeCountChallengeSubmissionsArgs
@@ -10985,8 +10973,8 @@ export type ArtImageCountOutputTypeCountFacetLinksArgs<ExtArgs extends runtime.T
 /**
  * ArtImageCountOutputType without action
  */
-export type ArtImageCountOutputTypeCountMilestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MilestoneWhereInput
+export type ArtImageCountOutputTypeCountAchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AchievementWhereInput
 }
 
 /**
@@ -11152,7 +11140,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   FacetsPrimary?: boolean | Prisma.ArtImage$FacetsPrimaryArgs<ExtArgs>
   ProjectLinks?: boolean | Prisma.ArtImage$ProjectLinksArgs<ExtArgs>
   FacetLinks?: boolean | Prisma.ArtImage$FacetLinksArgs<ExtArgs>
-  Milestones?: boolean | Prisma.ArtImage$MilestonesArgs<ExtArgs>
+  Achievements?: boolean | Prisma.ArtImage$AchievementsArgs<ExtArgs>
   Prompts?: boolean | Prisma.ArtImage$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.ArtImage$ReactionsArgs<ExtArgs>
   ChallengeSubmissions?: boolean | Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs>
@@ -11228,7 +11216,7 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   FacetsPrimary?: boolean | Prisma.ArtImage$FacetsPrimaryArgs<ExtArgs>
   ProjectLinks?: boolean | Prisma.ArtImage$ProjectLinksArgs<ExtArgs>
   FacetLinks?: boolean | Prisma.ArtImage$FacetLinksArgs<ExtArgs>
-  Milestones?: boolean | Prisma.ArtImage$MilestonesArgs<ExtArgs>
+  Achievements?: boolean | Prisma.ArtImage$AchievementsArgs<ExtArgs>
   Prompts?: boolean | Prisma.ArtImage$PromptsArgs<ExtArgs>
   Reactions?: boolean | Prisma.ArtImage$ReactionsArgs<ExtArgs>
   ChallengeSubmissions?: boolean | Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs>
@@ -11265,7 +11253,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     FacetsPrimary: Prisma.$FacetPayload<ExtArgs>[]
     ProjectLinks: Prisma.$ProjectArtImagePayload<ExtArgs>[]
     FacetLinks: Prisma.$FacetArtImagePayload<ExtArgs>[]
-    Milestones: Prisma.$MilestonePayload<ExtArgs>[]
+    Achievements: Prisma.$AchievementPayload<ExtArgs>[]
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
     ChallengeSubmissions: Prisma.$ChallengeSubmissionPayload<ExtArgs>[]
@@ -11673,7 +11661,7 @@ export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime
   FacetsPrimary<T extends Prisma.ArtImage$FacetsPrimaryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$FacetsPrimaryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProjectLinks<T extends Prisma.ArtImage$ProjectLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ProjectLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   FacetLinks<T extends Prisma.ArtImage$FacetLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$FacetLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacetArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Milestones<T extends Prisma.ArtImage$MilestonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$MilestonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MilestonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Achievements<T extends Prisma.ArtImage$AchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$AchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AchievementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Prompts<T extends Prisma.ArtImage$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.ArtImage$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ChallengeSubmissions<T extends Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ChallengeSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengeSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -12418,27 +12406,27 @@ export type ArtImage$FacetLinksArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * ArtImage.Milestones
+ * ArtImage.Achievements
  */
-export type ArtImage$MilestonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ArtImage$AchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Milestone
+   * Select specific fields to fetch from the Achievement
    */
-  select?: Prisma.MilestoneSelect<ExtArgs> | null
+  select?: Prisma.AchievementSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Milestone
+   * Omit specific fields from the Achievement
    */
-  omit?: Prisma.MilestoneOmit<ExtArgs> | null
+  omit?: Prisma.AchievementOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.MilestoneInclude<ExtArgs> | null
-  where?: Prisma.MilestoneWhereInput
-  orderBy?: Prisma.MilestoneOrderByWithRelationInput | Prisma.MilestoneOrderByWithRelationInput[]
-  cursor?: Prisma.MilestoneWhereUniqueInput
+  include?: Prisma.AchievementInclude<ExtArgs> | null
+  where?: Prisma.AchievementWhereInput
+  orderBy?: Prisma.AchievementOrderByWithRelationInput | Prisma.AchievementOrderByWithRelationInput[]
+  cursor?: Prisma.AchievementWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.MilestoneScalarFieldEnum | Prisma.MilestoneScalarFieldEnum[]
+  distinct?: Prisma.AchievementScalarFieldEnum | Prisma.AchievementScalarFieldEnum[]
 }
 
 /**

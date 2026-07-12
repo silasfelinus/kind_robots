@@ -157,6 +157,20 @@ export const dashboardConfigs = {
           'Test image generators directly with quick prompts, fast iteration, and a healthy distrust of default settings.',
         route: '/wonderlab',
       },
+      {
+        key: 'artjob',
+        label: 'ArtJob',
+        icon: 'kind-icon:server',
+        title: 'ArtJob Pipeline',
+        summary: 'Manage art servers and watch the generation queue.',
+        image: tabImage('art', 'artjob'),
+        flourish: '⚙',
+        tagline: 'The control room for the art-generation pipeline.',
+        narrative:
+          'Admin control room for art generation: manage ComfyUI/SD servers, watch uptime, track images created vs failed, and inspect, requeue, or cancel jobs in the ArtJob queue.',
+        route: '/artjob',
+        requiredRole: 'ADMIN',
+      },
     ],
   },
 

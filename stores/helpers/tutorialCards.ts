@@ -269,6 +269,12 @@ export const tutorialChannels = {
         image: tutorialImage('art', 'workbench'),
         underConstruction: true,
       },
+      {
+        key: 'artjob',
+        title: 'ArtJob Pipeline (Admin)',
+        body: 'The admin control room for art generation: manage ComfyUI/SD servers, watch uptime, track images created vs failed, and inspect, requeue, or cancel jobs in the queue.',
+        image: tutorialImage('art', 'artjob'),
+      },
     ],
   },
 

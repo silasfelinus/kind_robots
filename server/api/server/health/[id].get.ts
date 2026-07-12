@@ -1,6 +1,5 @@
 // /server/api/server/health/[id].get.ts
 import { createError, defineEventHandler, getRouterParam } from 'h3'
-import prisma from './../../../utils/prisma'
 import { errorHandler } from './../../../utils/error'
 import {
   buildServerAuthHeaders,
@@ -9,6 +8,7 @@ import {
   getOptionalAuthUser,
   parseId,
   readServerById,
+  recordServerHealthCheck,
 } from './../../../utils/serverApi'
 
 type HealthReport = {
@@ -119,12 +119,12 @@ export default defineEventHandler(async (event) => {
         : `Health endpoint returned HTTP ${response.status}.`,
     }
 
-    await prisma.server.update({
-      where: { id },
-      data: {
-        lastCheckedAt: new Date(),
-        lastStatus: response.ok ? 'ONLINE' : 'OFFLINE',
-      },
+    await recordServerHealthCheck({
+      serverId: id,
+      ok: response.ok,
+      latencyMs: report.latencyMs,
+      source: 'server',
+      note: response.ok ? null : report.message,
     })
 
     event.node.res.statusCode = response.ok ? 200 : 502

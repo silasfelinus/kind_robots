@@ -13,6 +13,7 @@ describe('Dream and Scenario Facet assignments', () => {
   let facetId = 0
   let dreamId = 0
   let scenarioId = 0
+  let artImageId = 0
 
   before(() => {
     createLoggedInTestUser().then((auth) => {
@@ -197,6 +198,54 @@ describe('Dream and Scenario Facet assignments', () => {
     })
   })
 
+  it('assigns the Facet to an ArtImage and reads it back', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiBase}/art/image`,
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        promptString: `facet assignment fixture ${stamp}`,
+        path: ' ',
+        imagePath: 'justfortesting',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      artImageId = response.body.data.id
+
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/art/image/${artImageId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetIds: [facetId] },
+      }).then((putResponse) => {
+        expect(putResponse.status).to.eq(200)
+        expect(putResponse.body.success).to.be.true
+        expect(putResponse.body.data).to.have.length(1)
+        expect(putResponse.body.data[0].id).to.eq(facetId)
+      })
+
+      cy.request({
+        url: `${apiBase}/art/image/${artImageId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((getResponse) => {
+        expect(getResponse.status).to.eq(200)
+        expect(getResponse.body.data).to.have.length(1)
+        expect(getResponse.body.data[0].id).to.eq(facetId)
+      })
+
+      // Exact-set semantics: an empty set clears the link.
+      cy.request({
+        method: 'PUT',
+        url: `${apiBase}/art/image/${artImageId}/facets`,
+        headers: { Authorization: `Bearer ${token}` },
+        body: { facetIds: [] },
+      }).then((clearResponse) => {
+        expect(clearResponse.status).to.eq(200)
+        expect(clearResponse.body.data).to.deep.eq([])
+      })
+    })
+  })
+
   it('updates the Facet in place and keeps alias resolution consistent', () => {
     const bovineAlias = `bovine-${stamp}`
 
@@ -252,6 +301,15 @@ describe('Dream and Scenario Facet assignments', () => {
       cy.request({
         method: 'DELETE',
         url: `${apiBase}/scenarios/${scenarioId}`,
+        headers: { Authorization: `Bearer ${token}` },
+        failOnStatusCode: false,
+      })
+    }
+
+    if (artImageId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/art/image/${artImageId}`,
         headers: { Authorization: `Bearer ${token}` },
         failOnStatusCode: false,
       })

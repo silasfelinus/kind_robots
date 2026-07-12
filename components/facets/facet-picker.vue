@@ -6,12 +6,17 @@
       <div class="min-w-0 flex-1">
         <h3 class="text-sm font-bold">{{ label }}</h3>
         <p class="text-xs text-base-content/50">
-          Reusable flavor shared by Dreams and Scenarios. Aliases resolve to one
-          canonical Facet.
+          Reusable flavor shared by Dreams, Scenarios, and Art. Aliases resolve
+          to one canonical Facet.
         </p>
       </div>
-      <span v-if="saving || loadingAssignments" class="loading loading-spinner loading-xs" />
-      <span class="badge badge-ghost badge-sm">{{ selectedFacets.length }}</span>
+      <span
+        v-if="saving || loadingAssignments"
+        class="loading loading-spinner loading-xs"
+      />
+      <span class="badge badge-ghost badge-sm">{{
+        selectedFacets.length
+      }}</span>
     </div>
 
     <div v-if="selectedFacets.length" class="flex flex-wrap gap-2">
@@ -50,9 +55,13 @@
           :disabled="selectedIds.has(facet.id) || saving"
           @click="addFacet(facet.id)"
         >
-          <span class="badge badge-outline badge-xs shrink-0">{{ kindLabel(facet.kind) }}</span>
+          <span class="badge badge-outline badge-xs shrink-0">{{
+            kindLabel(facet.kind)
+          }}</span>
           <span class="min-w-0 flex-1">
-            <span class="block truncate text-sm font-semibold">{{ facet.title }}</span>
+            <span class="block truncate text-sm font-semibold">{{
+              facet.title
+            }}</span>
             <span class="block truncate text-xs text-base-content/40">
               {{ facet.aliases.join(' · ') }}
             </span>
@@ -60,14 +69,19 @@
           <Icon name="kind-icon:plus" class="size-3.5 shrink-0" />
         </button>
 
-        <p v-if="!searchResults.length" class="px-3 py-3 text-xs text-base-content/40">
+        <p
+          v-if="!searchResults.length"
+          class="px-3 py-3 text-xs text-base-content/40"
+        >
           No matching Facet. Create one below.
         </p>
       </div>
     </div>
 
     <details class="rounded-xl border border-base-300 bg-base-200/60">
-      <summary class="cursor-pointer px-3 py-2 text-xs font-bold text-base-content/60">
+      <summary
+        class="cursor-pointer px-3 py-2 text-xs font-bold text-base-content/60"
+      >
         Create a new Facet
       </summary>
       <div class="grid gap-2 border-t border-base-300 p-3 sm:grid-cols-2">
@@ -77,7 +91,10 @@
           class="input input-bordered input-sm rounded-xl"
           placeholder="Canonical title, e.g. CowCore"
         />
-        <select v-model="newKind" class="select select-bordered select-sm rounded-xl">
+        <select
+          v-model="newKind"
+          class="select select-bordered select-sm rounded-xl"
+        >
           <option v-for="kind in facetKinds" :key="kind" :value="kind">
             {{ kindLabel(kind) }}
           </option>
@@ -94,7 +111,10 @@
           :disabled="!newTitle.trim() || facetStore.saving"
           @click="createAndAddFacet"
         >
-          <span v-if="facetStore.saving" class="loading loading-spinner loading-xs" />
+          <span
+            v-if="facetStore.saving"
+            class="loading loading-spinner loading-xs"
+          />
           <Icon v-else name="kind-icon:plus" class="size-3.5" />
           Create and attach
         </button>
@@ -110,6 +130,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { FacetKind } from '~/prisma/generated/prisma/client'
 import {
   useFacetStore,
+  type FacetOwnerType,
   type FacetWithAliases,
 } from '@/stores/facetStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
@@ -117,7 +138,7 @@ import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 const props = withDefaults(
   defineProps<{
     modelValue: number[]
-    ownerType: 'dream' | 'scenario'
+    ownerType: FacetOwnerType
     ownerId?: number | null
     label?: string
   }>(),
@@ -191,10 +212,7 @@ watch(
     loadingAssignments.value = true
     errorMessage.value = ''
     try {
-      const facets =
-        ownerType === 'dream'
-          ? await facetStore.fetchDreamFacets(ownerId)
-          : await facetStore.fetchScenarioFacets(ownerId)
+      const facets = await facetStore.fetchOwnerFacets(ownerType, ownerId)
       emit(
         'update:modelValue',
         facets.map((facet) => facet.id),
@@ -228,11 +246,7 @@ async function persist(next: number[]) {
 
   errorMessage.value = ''
   try {
-    if (props.ownerType === 'dream') {
-      await facetStore.setDreamFacets(props.ownerId, next)
-    } else {
-      await facetStore.setScenarioFacets(props.ownerId, next)
-    }
+    await facetStore.setOwnerFacets(props.ownerType, props.ownerId, next)
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Facets could not be saved.'

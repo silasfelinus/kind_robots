@@ -130,6 +130,15 @@ export default defineEventHandler(async (event) => {
       body.aliases !== undefined ? normalizeAliases(body.aliases) : null
 
     const updated = await prisma.$transaction(async (tx) => {
+      // Restoring an archived Facet must also revive its aliases — archive
+      // (DELETE) deactivates them all, which would leave lookups dead.
+      if (body.isActive === true) {
+        await tx.facetAlias.updateMany({
+          where: { facetId: id },
+          data: { isActive: true },
+        })
+      }
+
       if (nextSlug && nextSlug !== existing.slug) {
         const lookupKey = normalizeFacetLookupKey(nextSlug)
         const taken = await tx.facetAlias.findUnique({

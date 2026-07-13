@@ -128,7 +128,8 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       visibleChannels.value.find(
         (channel) =>
           channel.channelKey === normalized ||
-          channel.dashboardKey === normalized,
+          channel.dashboardKey === normalized ||
+          channel.tabs.some((tab) => tab.dashboardKey === normalized),
       ) ?? null
     )
   }

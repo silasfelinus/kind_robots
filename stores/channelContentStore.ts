@@ -54,7 +54,10 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     if (!isClient) return
 
     try {
-      localStorage.setItem(channelTabsStorageKey, JSON.stringify(activeTabs.value))
+      localStorage.setItem(
+        channelTabsStorageKey,
+        JSON.stringify(activeTabs.value),
+      )
     } catch {}
   }
 
@@ -151,7 +154,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     const stored = activeTabs.value[channel.channelKey]
 
     return channel.tabs.some((tab) => tab.tabKey === stored)
-      ? stored
+      ? (stored ?? channel.defaultTab)
       : channel.defaultTab
   }
 

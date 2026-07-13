@@ -13,7 +13,8 @@
           <p class="mt-2 max-w-3xl text-sm leading-relaxed text-base-content/65">
             Apply the canonical channel, tab, and live URL map to existing
             Project rows. The operation uses the normal guarded Project PATCH
-            endpoint and reports every updated, unchanged, and missing slug.
+            endpoint and reports every updated, unchanged, missing, or failed
+            slug.
           </p>
         </div>
 
@@ -61,7 +62,7 @@
             <h2 class="font-black">Backfill controls</h2>
             <p class="mt-1 text-sm text-base-content/60">
               Existing non-empty live URLs are preserved unless overwrite is
-              enabled.
+              enabled. Individual failures do not stop the remaining rows.
             </p>
           </div>
 
@@ -116,7 +117,7 @@
 
       <section
         v-if="result"
-        class="grid gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm lg:grid-cols-3 lg:p-5"
+        class="grid gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4 xl:p-5"
       >
         <article>
           <div class="flex items-center justify-between gap-2">
@@ -174,6 +175,26 @@
             </li>
           </ul>
         </article>
+
+        <article>
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="font-black text-error">Failed</h2>
+            <span class="badge badge-error">{{ result.failed.length }}</span>
+          </div>
+          <ul class="mt-3 space-y-1.5 text-sm">
+            <li
+              v-for="failure in result.failed"
+              :key="failure.slug"
+              class="rounded-lg bg-error/10 px-2.5 py-1.5"
+            >
+              <p class="font-black">{{ failure.slug }}</p>
+              <p class="mt-0.5 text-xs text-error/80">{{ failure.message }}</p>
+            </li>
+            <li v-if="!result.failed.length" class="text-base-content/45">
+              No Project updates failed.
+            </li>
+          </ul>
+        </article>
       </section>
     </template>
   </section>
@@ -181,21 +202,18 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useProjectStore } from '@/stores/projectStore'
+import {
+  useProjectStore,
+  type ApplyPlacementsResult,
+} from '@/stores/projectStore'
 import { useUserStore } from '@/stores/userStore'
 import { PROJECT_PLACEMENTS } from '@/utils/projectPlacements'
-
-type PlacementResult = {
-  updated: string[]
-  unchanged: string[]
-  missing: string[]
-}
 
 const projectStore = useProjectStore()
 const userStore = useUserStore()
 const overwriteLiveUrl = ref(false)
 const applying = ref(false)
-const result = ref<PlacementResult | null>(null)
+const result = ref<ApplyPlacementsResult | null>(null)
 const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
 
@@ -243,8 +261,10 @@ async function applyPlacements(): Promise<void> {
 
   try {
     result.value = await projectStore.applyPlacements(overwriteLiveUrl.value)
+    const tone = result.value.failed.length ? 'error' : 'success'
     setMessage(
-      `Placement pass complete: ${result.value.updated.length} updated, ${result.value.unchanged.length} unchanged, ${result.value.missing.length} missing.`,
+      `Placement pass complete: ${result.value.updated.length} updated, ${result.value.unchanged.length} unchanged, ${result.value.missing.length} missing, ${result.value.failed.length} failed.`,
+      tone,
     )
   } catch (error) {
     setMessage(

@@ -2,14 +2,16 @@
 contentType: tab
 channelKey: build
 tabKey: art
+dashboardKey: builder
+dashboardTab: art
 label: Art
 title: Art Builder
 subtitle: Generate and remix images
 description: Build prompts, choose models, generate images, and refine the results.
 icon: kind-icon:palette
-route: /art
+route: /builder
 modelType: art
-sort: 10
+sort: 60
 cards: art
 requiredBeforeNext:
   - style

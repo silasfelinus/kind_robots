@@ -7,6 +7,7 @@ import {
   resolveChannels,
   type ChannelContentItem,
   type ChannelLocationInput,
+  type ResolvedChannelLocation,
 } from '@/stores/helpers/channelContent'
 import { useUserStore } from '@/stores/userStore'
 import { handleError } from '@/stores/utils'
@@ -32,6 +33,18 @@ function readStoredTabs(): Record<string, string> {
   } catch {
     return {}
   }
+}
+
+function routePath(value?: string | null): string {
+  const raw = String(value ?? '')
+    .split(/[?#]/)[0]
+    ?.trim()
+
+  if (!raw) return '/'
+  if (raw === '/') return raw
+
+  const prefixed = raw.startsWith('/') ? raw : `/${raw}`
+  return prefixed.replace(/\/+$/, '')
 }
 
 export const useChannelContentStore = defineStore('channelContentStore', () => {
@@ -186,6 +199,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     const resolved = tab?.tabKey || channel.defaultTab
 
     if (!resolved) return ''
+    if (activeTabs.value[channel.channelKey] === resolved) return resolved
 
     activeTabs.value = {
       ...activeTabs.value,
@@ -196,8 +210,44 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     return resolved
   }
 
-  function resolveLocation(input: ChannelLocationInput) {
+  function resolveLocation(
+    input: ChannelLocationInput,
+  ): ResolvedChannelLocation | null {
     return resolveChannelLocation(visibleChannels.value, input)
+  }
+
+  function resolveActiveLocation(
+    input: ChannelLocationInput,
+  ): ResolvedChannelLocation | null {
+    const location = resolveLocation(input)
+    if (!location) return null
+
+    const path = routePath(input.path)
+    const routeTabs = location.channel.tabs.filter((tab) => tab.route === path)
+
+    if (routeTabs.length <= 1) return location
+
+    const activeTabKey = getActiveTab(location.channel.channelKey)
+    const activeTab = routeTabs.find((tab) => tab.tabKey === activeTabKey)
+
+    return activeTab
+      ? {
+          channel: location.channel,
+          tab: activeTab,
+        }
+      : location
+  }
+
+  function activateLocation(
+    input: ChannelLocationInput,
+  ): ResolvedChannelLocation | null {
+    const location = resolveActiveLocation(input)
+
+    if (location?.tab) {
+      setActiveTab(location.channel.channelKey, location.tab.tabKey)
+    }
+
+    return location
   }
 
   function reset(): void {
@@ -227,6 +277,8 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     getActiveTab,
     setActiveTab,
     resolveLocation,
+    resolveActiveLocation,
+    activateLocation,
     reset,
   }
 })

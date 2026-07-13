@@ -6,10 +6,10 @@ label: Sanctuary
 title: Sanctuary
 room: Butterfly Sanctuary
 subtitle: The heart of Kind Robots
-description: Our story, values, anti-malaria mission, community, and gift shop.
+description: Our story, values, anti-malaria mission, community, butterflies, and gift shop.
 icon: kind-icon:butterfly
 route: /sanctuary
-defaultTab: about
+defaultTab: sanctuary
 sort: 60
 loadingMessage: Loading Sanctuary...
 refreshLabel: Refresh Sanctuary

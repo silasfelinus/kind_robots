@@ -32,6 +32,15 @@ const tutorialSchema = z.object({
   underConstruction: z.boolean().optional(),
 })
 
+const contentNavigationSchema = z.union([
+  z.boolean(),
+  z.object({
+    title: z.string(),
+    icon: z.string(),
+    description: z.string(),
+  }),
+])
+
 const sharedNavigationSchema = z.object({
   title: z.string().optional(),
   label: z.string().optional(),
@@ -73,6 +82,7 @@ const pageSchema = sharedNavigationSchema.extend({
   artPrompt: z.string().optional(),
   footer: z.string().optional(),
   footerState: z.string().optional(),
+  navigation: contentNavigationSchema.default(false),
 })
 
 const channelSchema = sharedNavigationSchema.extend({

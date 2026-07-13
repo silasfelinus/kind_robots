@@ -44,6 +44,9 @@ jobs:
       - name: Channel resolver contract
         run: npm run test:channel-resolver
 
+      - name: Navigation route access contract
+        run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
+
       - name: Channel artwork audit
         run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
 

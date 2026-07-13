@@ -40,3 +40,6 @@ jobs:
 
       - name: Channel content contract
         run: npm run test:channel-content
+
+      - name: Channel resolver contract
+        run: npm run test:channel-resolver

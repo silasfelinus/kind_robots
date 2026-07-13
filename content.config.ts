@@ -22,6 +22,7 @@ const navigationCardSchema = z.object({
 
 const contentSchema = z.object({
   title: z.string().optional(),
+  label: z.string().optional(),
   room: z.string().optional(),
   subtitle: z.string().optional(),
   description: z.string().optional(),
@@ -123,7 +124,7 @@ export type PageBrief = {
   dashboardKey?: string
   summary?: string
   dashboardTab?: string
-  cards?: string
+  cards?: string | z.infer<typeof navigationCardSchema>[]
   loadingMessage?: string
   refreshLabel?: string
 }

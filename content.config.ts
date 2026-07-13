@@ -20,6 +20,18 @@ const navigationCardSchema = z.object({
   action: z.string().optional(),
 })
 
+const tutorialSchema = z.object({
+  enabled: z.boolean().optional(),
+  title: z.string().optional(),
+  overview: z.string().optional(),
+  tagline: z.string().optional(),
+  hero: z.string().optional(),
+  earnings: z.string().optional(),
+  body: z.string().optional(),
+  image: z.string().optional(),
+  underConstruction: z.boolean().optional(),
+})
+
 const contentSchema = z.object({
   title: z.string().optional(),
   label: z.string().optional(),
@@ -48,6 +60,7 @@ const contentSchema = z.object({
   component: z.string().optional(),
   modelType: z.string().optional(),
   cards: z.union([z.string(), z.array(navigationCardSchema)]).optional(),
+  tutorial: tutorialSchema.optional(),
   requiredBeforeNext: z.array(z.string()).optional(),
   requiredRole: z.string().optional(),
   requiredPermission: z.string().optional(),
@@ -125,6 +138,7 @@ export type PageBrief = {
   summary?: string
   dashboardTab?: string
   cards?: string | z.infer<typeof navigationCardSchema>[]
+  tutorial?: z.infer<typeof tutorialSchema>
   loadingMessage?: string
   refreshLabel?: string
 }

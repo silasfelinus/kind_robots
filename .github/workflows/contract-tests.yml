@@ -45,4 +45,13 @@ jobs:
         run: npm run test:channel-resolver
 
       - name: Channel artwork audit
-        run: npm run audit:channel-assets
+        run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
+
+      - name: Upload channel artwork report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: channel-artwork-audit
+          path: channel-artwork-audit.txt
+          if-no-files-found: error
+          retention-days: 14

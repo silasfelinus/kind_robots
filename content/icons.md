@@ -6,8 +6,8 @@ description: 'Customize your smart bar.'
 image: splash/icons.png
 icon: fa-solid:icons
 tooltip: 'See all icons available to personalize your Kind Robots experience.'
-dottitip: AMI, how many icons is too many icons?
-amitip: The correct number of icons is 'yes.'
+dottiTip: AMI, how many icons is too many icons?
+amiTip: The correct number of icons is 'yes.'
 sort: gallery
 ---
 

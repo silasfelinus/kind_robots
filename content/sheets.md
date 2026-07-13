@@ -9,8 +9,8 @@ layout: 'default'
 icon: kind-icon:file-sparkles
 category: dreams
 tooltip: 'View PitchSheets for Dreams.'
-dottitip: 'A good pitch turns a database row into a dare.'
-amitip: 'I like the ones with butterflies. This is not a conflict of interest.'
+dottiTip: 'A good pitch turns a database row into a dare.'
+amiTip: 'I like the ones with butterflies. This is not a conflict of interest.'
 sort: highlight
 navComponent: 'dream-nav'
 ---

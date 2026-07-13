@@ -6,8 +6,8 @@ description: 'Welcome to the Kind Robots Forum — a freeform chat space for use
 image: splash/forum.png
 icon: kind-icon:forum
 tooltip: 'Jump into the conversation and let your ideas unfold.'
-dottitip: 'Threads help us track the chaos. Use them wisely.'
-amitip: 'I replied to a reply but someone already replied to their reply. Was that wrong?'
+dottiTip: 'Threads help us track the chaos. Use them wisely.'
+amiTip: 'I replied to a reply but someone already replied to their reply. Was that wrong?'
 sort: highlight
 ---
 

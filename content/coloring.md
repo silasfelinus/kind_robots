@@ -6,8 +6,10 @@ description: Color AI-generated pages by tapping regions, browse finished art, g
 image: nav/heroes/art.webp
 icon: kind-icon:paintbrush
 tooltip: Open a page, fill the regions, save your palette, and make more art.
-dottitip: Stay inside the lines or don't — the robots aren't judging. Much.
-amitip: I colored a butterfly forty-one times. No regrets. 🦋🎨
+dottiTip: Stay inside the lines or don't — the robots aren't judging. Much.
+amiTip: I colored a butterfly forty-one times. No regrets. 🦋🎨
+channelKey: play
+tabKey: coloring
 dashboardKey: art
 dashboardTab: coloring
 cards: navCards

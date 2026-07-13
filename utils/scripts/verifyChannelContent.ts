@@ -108,30 +108,10 @@ function addError(
   errors.push(`${document.file}: ${message}`)
 }
 
-function validateDocument(
+function validateAccess(
   errors: string[],
   document: NavigationDocument,
 ): void {
-  if (!document.contentType) addError(errors, document, 'missing contentType')
-  if (!document.channelKey) addError(errors, document, 'missing channelKey')
-  if (!['channel', 'tab', 'page'].includes(document.contentType)) {
-    addError(errors, document, `invalid contentType ${document.contentType}`)
-  }
-  if (
-    document.channelKey &&
-    !navigationKeyPattern.test(document.channelKey)
-  ) {
-    addError(errors, document, 'channelKey must use lowercase kebab-case')
-  }
-  if (document.tabKey && !navigationKeyPattern.test(document.tabKey)) {
-    addError(errors, document, 'tabKey must use lowercase kebab-case')
-  }
-  if (
-    document.defaultTab &&
-    !navigationKeyPattern.test(document.defaultTab)
-  ) {
-    addError(errors, document, 'defaultTab must use lowercase kebab-case')
-  }
   if (document.requiredRole && !allowedRoles.has(document.requiredRole)) {
     addError(errors, document, `unknown requiredRole ${document.requiredRole}`)
   }
@@ -147,6 +127,44 @@ function validateDocument(
   }
 }
 
+function validateKey(
+  errors: string[],
+  document: NavigationDocument,
+  label: string,
+  value: string,
+): void {
+  if (value && !navigationKeyPattern.test(value)) {
+    addError(errors, document, `${label} must use lowercase kebab-case`)
+  }
+}
+
+function validateChannelDocument(
+  errors: string[],
+  document: NavigationDocument,
+): void {
+  if (!document.contentType) addError(errors, document, 'missing contentType')
+  if (!document.channelKey) addError(errors, document, 'missing channelKey')
+  if (!['channel', 'tab'].includes(document.contentType)) {
+    addError(errors, document, `invalid contentType ${document.contentType}`)
+  }
+  validateKey(errors, document, 'channelKey', document.channelKey)
+  validateKey(errors, document, 'tabKey', document.tabKey)
+  validateKey(errors, document, 'defaultTab', document.defaultTab)
+  validateAccess(errors, document)
+}
+
+function validatePageDocument(
+  errors: string[],
+  document: NavigationDocument,
+): void {
+  if (document.contentType && document.contentType !== 'page') {
+    addError(errors, document, `unexpected page contentType ${document.contentType}`)
+  }
+  validateKey(errors, document, 'channelKey', document.channelKey)
+  validateKey(errors, document, 'tabKey', document.tabKey)
+  validateAccess(errors, document)
+}
+
 async function main(): Promise<void> {
   const documents = await Promise.all(
     (await markdownFiles(channelsDirectory)).map(readDocument),
@@ -160,7 +178,7 @@ async function main(): Promise<void> {
   const tabsByLocation = new Map<string, NavigationDocument>()
   const tabsByChannelRoute = new Map<string, NavigationDocument[]>()
 
-  for (const document of documents) validateDocument(errors, document)
+  for (const document of documents) validateChannelDocument(errors, document)
 
   for (const channel of channels) {
     if (!channel.defaultTab) addError(errors, channel, 'missing defaultTab')
@@ -222,7 +240,7 @@ async function main(): Promise<void> {
   const pageDocuments = await Promise.all(pageFiles.map(readDocument))
   let placedPages = 0
   for (const page of pageDocuments) {
-    validateDocument(errors, page)
+    validatePageDocument(errors, page)
     if (!page.channelKey && !page.tabKey) continue
     placedPages += 1
     if (!page.channelKey || !page.tabKey) {

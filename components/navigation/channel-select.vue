@@ -93,6 +93,7 @@ const fallbackChannel: ResolvedChannel = {
   refreshLabel: 'Refresh Home',
   dottiTip: '',
   amiTip: '',
+  tutorial: null,
   tabs: [],
 }
 

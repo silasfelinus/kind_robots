@@ -1,5 +1,4 @@
 // /stores/helpers/channelContent.ts
-import type { ContentCollectionItem } from '@nuxt/content'
 
 export type NavigationCard = {
   key: string
@@ -23,7 +22,7 @@ export type TutorialContent = {
   underConstruction?: boolean
 }
 
-export type ChannelContentItem = ContentCollectionItem & {
+export type ChannelContentItem = {
   contentType?: 'page' | 'channel' | 'tab'
   channelKey?: string
   tabKey?: string
@@ -57,6 +56,9 @@ export type ChannelContentItem = ContentCollectionItem & {
   amiTip?: string
   dottitip?: string
   amitip?: string
+  path?: string
+  stem?: string
+  id?: string
 }
 
 export type ResolvedTutorialSection = {
@@ -149,30 +151,40 @@ export type ResolvedChannelLocation = {
   tab: ResolvedTab | null
 }
 
-function stringValue(value: unknown): string {
+function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
-function sortValue(value: unknown): number {
+function order(value: unknown): number {
   if (typeof value === 'number' && Number.isFinite(value)) return value
-  if (typeof value === 'string') {
-    const parsed = Number(value)
-    if (Number.isFinite(parsed)) return parsed
-  }
-  return 0
+  const parsed = Number(text(value))
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
-function imageValue(
-  image: unknown,
+function normalizedRoute(value: unknown): string {
+  const route = text(value)
+  if (!route) return ''
+  if (route === '/') return route
+  const prefixed = route.startsWith('/') ? route : `/${route}`
+  return prefixed.replace(/\/+$/, '')
+}
+
+function normalizedPath(value: unknown): string {
+  return normalizedRoute(text(value).split(/[?#]/)[0]) || '/'
+}
+
+function imagePath(
+  value: unknown,
   channelKey: string,
   tabKey?: string,
   dashboardKey?: string,
   dashboardTab?: string,
 ): string {
-  const explicit = stringValue(image)
+  const explicit = text(value)
   if (explicit) {
-    if (explicit.startsWith('/') || explicit.startsWith('http')) return explicit
-    return `/images/${explicit}`
+    return explicit.startsWith('/') || explicit.startsWith('http')
+      ? explicit
+      : `/images/${explicit}`
   }
 
   if (tabKey && dashboardKey && dashboardTab) {
@@ -184,70 +196,55 @@ function imageValue(
     : `/images/channels/${channelKey}/channel.webp`
 }
 
-function tutorialImageValue(image: unknown, fallback: string): string {
-  const explicit = stringValue(image)
+function tutorialImage(value: unknown, fallback: string): string {
+  const explicit = text(value)
   if (!explicit) return fallback
-  if (explicit.startsWith('/') || explicit.startsWith('http')) return explicit
-  return `/images/${explicit}`
+  return explicit.startsWith('/') || explicit.startsWith('http')
+    ? explicit
+    : `/images/${explicit}`
 }
 
-function tipValue(camelCase: unknown, legacyLowercase: unknown): string {
-  return stringValue(camelCase) || stringValue(legacyLowercase)
+function dialogue(camelCase: unknown, legacy: unknown): string {
+  return text(camelCase) || text(legacy)
 }
 
-function routeValue(value: unknown): string {
-  const route = stringValue(value)
-  if (!route) return ''
-  if (route === '/') return route
-  return route.startsWith('/') ? route.replace(/\/+$/, '') : `/${route}`
+function roleAllows(requiredRole: string, role: string): boolean {
+  return !requiredRole || role === 'ADMIN' || requiredRole === role
 }
 
-function pathValue(value: unknown): string {
-  const path = routeValue(stringValue(value).split(/[?#]/)[0])
-  return path || '/'
-}
-
-function matchesRole(requiredRole: string, role: string): boolean {
-  if (!requiredRole) return true
-  if (role === 'ADMIN') return true
-  return requiredRole === role
-}
-
-function findTab(
+function resolveTab(
   channel: ResolvedChannel,
   input: ChannelLocationInput,
 ): ResolvedTab | null {
-  const tabKey = stringValue(input.tabKey)
-  const dashboardKey = stringValue(input.dashboardKey)
-  const dashboardTab = stringValue(input.dashboardTab)
-  const path = pathValue(input.path)
+  const tabKey = text(input.tabKey)
+  const dashboardKey = text(input.dashboardKey)
+  const dashboardTab = text(input.dashboardTab)
+  const path = normalizedPath(input.path)
 
   if (tabKey) {
-    const matched = channel.tabs.find(
+    const direct = channel.tabs.find(
       (tab) => tab.tabKey === tabKey || tab.dashboardTab === tabKey,
     )
-    if (matched) return matched
+    if (direct) return direct
   }
 
   if (dashboardTab) {
-    const matched = channel.tabs.find(
+    const legacy = channel.tabs.find(
       (tab) =>
         tab.dashboardTab === dashboardTab &&
-        (!dashboardKey ||
-          !tab.dashboardKey ||
-          tab.dashboardKey === dashboardKey),
+        (!dashboardKey || !tab.dashboardKey || tab.dashboardKey === dashboardKey),
     )
-    if (matched) return matched
+    if (legacy) return legacy
   }
 
   const routeMatches = channel.tabs.filter((tab) => tab.route === path)
   if (routeMatches.length === 1) return routeMatches[0] ?? null
 
   if (routeMatches.length > 1 && dashboardKey) {
-    const matched = routeMatches.find(
+    const legacy = routeMatches.find(
       (tab) => !tab.dashboardKey || tab.dashboardKey === dashboardKey,
     )
-    if (matched) return matched
+    if (legacy) return legacy
   }
 
   return (
@@ -255,6 +252,81 @@ function findTab(
     channel.tabs[0] ??
     null
   )
+}
+
+function resolveTabItem(
+  item: ChannelContentItem,
+  channel: Omit<ResolvedChannel, 'defaultTab' | 'tutorial' | 'tabs'>,
+): ResolvedTab | null {
+  const tabKey = text(item.tabKey)
+  if (!tabKey) return null
+
+  const label = text(item.label) || text(item.title) || tabKey
+  const title = text(item.title) || label
+  const description = text(item.description) || channel.description
+  const summary = text(item.summary) || channel.summary
+  const narrative = text(item.narrative) || channel.narrative
+  const dashboardKey = text(item.dashboardKey) || channel.dashboardKey
+  const dashboardTab = text(item.dashboardTab) || tabKey
+  const image = imagePath(
+    item.image,
+    channel.channelKey,
+    tabKey,
+    dashboardKey,
+    dashboardTab,
+  )
+  const tutorial =
+    item.tutorial?.enabled === false
+      ? null
+      : {
+          key: tabKey,
+          title: text(item.tutorial?.title) || title,
+          body:
+            text(item.tutorial?.body) ||
+            description ||
+            summary ||
+            narrative ||
+            title,
+          image: tutorialImage(item.tutorial?.image, image),
+          underConstruction:
+            item.tutorial?.underConstruction === true ||
+            text(item.status) === 'under-construction' ||
+            undefined,
+        }
+
+  return {
+    key: tabKey,
+    channelKey: channel.channelKey,
+    tabKey,
+    dashboardKey,
+    dashboardTab,
+    label,
+    title,
+    room: text(item.room) || channel.room,
+    subtitle: text(item.subtitle) || channel.subtitle,
+    description,
+    summary,
+    narrative,
+    tooltip: text(item.tooltip) || channel.tooltip,
+    icon: text(item.icon) || channel.icon,
+    image,
+    route: normalizedRoute(item.route) || channel.route,
+    component: text(item.component),
+    modelType: text(item.modelType),
+    sort: order(item.sort),
+    cards: item.cards ?? null,
+    tutorial,
+    requiredBeforeNext: Array.isArray(item.requiredBeforeNext)
+      ? item.requiredBeforeNext
+      : [],
+    requiredRole: text(item.requiredRole) || channel.requiredRole,
+    requiredPermission:
+      text(item.requiredPermission) || channel.requiredPermission,
+    loadingMessage: text(item.loadingMessage) || channel.loadingMessage,
+    refreshLabel: text(item.refreshLabel) || channel.refreshLabel,
+    dottiTip: dialogue(item.dottiTip, item.dottitip) || channel.dottiTip,
+    amiTip: dialogue(item.amiTip, item.amitip) || channel.amiTip,
+  }
 }
 
 export function resolveChannels(
@@ -268,171 +340,78 @@ export function resolveChannels(
   )
 
   return channelItems
-    .map((channel): ResolvedChannel | null => {
-      const channelKey = stringValue(channel.channelKey)
+    .map((item): ResolvedChannel | null => {
+      const channelKey = text(item.channelKey)
       if (!channelKey) return null
 
-      const channelLabel =
-        stringValue(channel.label) || stringValue(channel.title) || channelKey
-      const channelTitle = stringValue(channel.title) || channelLabel
-      const channelRoom = stringValue(channel.room) || channelTitle
-      const channelSubtitle = stringValue(channel.subtitle)
-      const channelDescription = stringValue(channel.description)
-      const channelSummary = stringValue(channel.summary)
-      const channelNarrative = stringValue(channel.narrative)
-      const channelTooltip = stringValue(channel.tooltip)
-      const channelIcon = stringValue(channel.icon) || 'kind-icon:folder'
-      const channelRoute = routeValue(channel.route) || `/${channelKey}`
-      const channelDashboardKey = stringValue(channel.dashboardKey)
-      const channelRole = stringValue(channel.requiredRole)
-      const channelPermission = stringValue(channel.requiredPermission)
-      const channelLoadingMessage =
-        stringValue(channel.loadingMessage) || `Loading ${channelLabel}…`
-      const channelRefreshLabel =
-        stringValue(channel.refreshLabel) || `Refresh ${channelLabel}`
-      const channelDottiTip = tipValue(channel.dottiTip, channel.dottitip)
-      const channelAmiTip = tipValue(channel.amiTip, channel.amitip)
-      const channelImage = imageValue(channel.image, channelKey)
+      const label = text(item.label) || text(item.title) || channelKey
+      const base = {
+        key: channelKey,
+        channelKey,
+        dashboardKey: text(item.dashboardKey),
+        label,
+        title: text(item.title) || label,
+        room: text(item.room) || text(item.title) || label,
+        subtitle: text(item.subtitle),
+        description: text(item.description),
+        summary: text(item.summary),
+        narrative: text(item.narrative),
+        tooltip: text(item.tooltip),
+        icon: text(item.icon) || 'kind-icon:folder',
+        image: imagePath(item.image, channelKey),
+        route: normalizedRoute(item.route) || `/${channelKey}`,
+        sort: order(item.sort),
+        requiredRole: text(item.requiredRole),
+        requiredPermission: text(item.requiredPermission),
+        loadingMessage: text(item.loadingMessage) || `Loading ${label}…`,
+        refreshLabel: text(item.refreshLabel) || `Refresh ${label}`,
+        dottiTip: dialogue(item.dottiTip, item.dottitip),
+        amiTip: dialogue(item.amiTip, item.amitip),
+      }
 
       const tabs = tabItems
-        .filter((tab) => stringValue(tab.channelKey) === channelKey)
-        .map((tab): ResolvedTab | null => {
-          const tabKey = stringValue(tab.tabKey)
-          if (!tabKey) return null
-
-          const label =
-            stringValue(tab.label) || stringValue(tab.title) || tabKey
-          const dashboardKey =
-            stringValue(tab.dashboardKey) || channelDashboardKey
-          const dashboardTab = stringValue(tab.dashboardTab) || tabKey
-          const title = stringValue(tab.title) || label
-          const description =
-            stringValue(tab.description) || channelDescription
-          const summary = stringValue(tab.summary) || channelSummary
-          const narrative = stringValue(tab.narrative) || channelNarrative
-          const image = imageValue(
-            tab.image,
-            channelKey,
-            tabKey,
-            dashboardKey,
-            dashboardTab,
-          )
-          const tutorial = tab.tutorial?.enabled === false
-            ? null
-            : {
-                key: tabKey,
-                title: stringValue(tab.tutorial?.title) || title,
-                body:
-                  stringValue(tab.tutorial?.body) ||
-                  description ||
-                  summary ||
-                  narrative ||
-                  title,
-                image: tutorialImageValue(tab.tutorial?.image, image),
-                underConstruction:
-                  tab.tutorial?.underConstruction === true ||
-                  stringValue(tab.status) === 'under-construction' ||
-                  undefined,
-              }
-
-          return {
-            key: tabKey,
-            channelKey,
-            tabKey,
-            dashboardKey,
-            dashboardTab,
-            label,
-            title,
-            room: stringValue(tab.room) || channelRoom,
-            subtitle: stringValue(tab.subtitle) || channelSubtitle,
-            description,
-            summary,
-            narrative,
-            tooltip: stringValue(tab.tooltip) || channelTooltip,
-            icon: stringValue(tab.icon) || channelIcon,
-            image,
-            route: routeValue(tab.route) || channelRoute,
-            component: stringValue(tab.component),
-            modelType: stringValue(tab.modelType),
-            sort: sortValue(tab.sort),
-            cards: tab.cards ?? channel.cards ?? null,
-            tutorial,
-            requiredBeforeNext: Array.isArray(tab.requiredBeforeNext)
-              ? tab.requiredBeforeNext
-              : [],
-            requiredRole: stringValue(tab.requiredRole) || channelRole,
-            requiredPermission:
-              stringValue(tab.requiredPermission) || channelPermission,
-            loadingMessage:
-              stringValue(tab.loadingMessage) || channelLoadingMessage,
-            refreshLabel:
-              stringValue(tab.refreshLabel) || channelRefreshLabel,
-            dottiTip:
-              tipValue(tab.dottiTip, tab.dottitip) || channelDottiTip,
-            amiTip: tipValue(tab.amiTip, tab.amitip) || channelAmiTip,
-          }
-        })
+        .filter((tab) => text(tab.channelKey) === channelKey)
+        .map((tab) => resolveTabItem(tab, base))
         .filter((tab): tab is ResolvedTab => tab !== null)
         .sort((a, b) => a.sort - b.sort || a.label.localeCompare(b.label))
 
-      const requestedDefault = stringValue(channel.defaultTab)
+      const requestedDefault = text(item.defaultTab)
       const defaultTab = tabs.some((tab) => tab.tabKey === requestedDefault)
         ? requestedDefault
         : tabs[0]?.tabKey || ''
       const tutorialSections = tabs
         .map((tab) => tab.tutorial)
         .filter(
-          (tutorial): tutorial is ResolvedTutorialSection => tutorial !== null,
+          (section): section is ResolvedTutorialSection => section !== null,
         )
-      const tutorial = channel.tutorial?.enabled === false
-        ? null
-        : {
-            key: channelKey,
-            title:
-              stringValue(channel.tutorial?.title) || channelTitle,
-            hero: tutorialImageValue(
-              channel.tutorial?.hero,
-              tutorialSections[0]?.image || channelImage,
-            ),
-            overview:
-              stringValue(channel.tutorial?.overview) ||
-              channelDescription ||
-              channelSummary ||
-              channelNarrative ||
-              channelTitle,
-            tagline:
-              stringValue(channel.tutorial?.tagline) || channelSubtitle,
-            earnings: stringValue(channel.tutorial?.earnings),
-            underConstruction:
-              channel.tutorial?.underConstruction === true ||
-              stringValue(channel.status) === 'under-construction' ||
-              undefined,
-            sections: tutorialSections,
-          }
+      const tutorial =
+        item.tutorial?.enabled === false
+          ? null
+          : {
+              key: channelKey,
+              title: text(item.tutorial?.title) || base.title,
+              hero: tutorialImage(
+                item.tutorial?.hero,
+                tutorialSections[0]?.image || base.image,
+              ),
+              overview:
+                text(item.tutorial?.overview) ||
+                base.description ||
+                base.summary ||
+                base.narrative ||
+                base.title,
+              tagline: text(item.tutorial?.tagline) || base.subtitle,
+              earnings: text(item.tutorial?.earnings),
+              underConstruction:
+                item.tutorial?.underConstruction === true ||
+                text(item.status) === 'under-construction' ||
+                undefined,
+              sections: tutorialSections,
+            }
 
       return {
-        key: channelKey,
-        channelKey,
-        dashboardKey: channelDashboardKey,
-        label: channelLabel,
-        title: channelTitle,
-        room: channelRoom,
-        subtitle: channelSubtitle,
-        description: channelDescription,
-        summary: channelSummary,
-        narrative: channelNarrative,
-        tooltip: channelTooltip,
-        icon: channelIcon,
-        image: channelImage,
-        route: channelRoute,
+        ...base,
         defaultTab,
-        sort: sortValue(channel.sort),
-        requiredRole: channelRole,
-        requiredPermission: channelPermission,
-        loadingMessage: channelLoadingMessage,
-        refreshLabel: channelRefreshLabel,
-        dottiTip: channelDottiTip,
-        amiTip: channelAmiTip,
         tutorial,
         tabs,
       }
@@ -446,26 +425,26 @@ export function filterChannelsByRole(
   role: string,
 ): ResolvedChannel[] {
   return channels
-    .filter((channel) => matchesRole(channel.requiredRole, role))
+    .filter((channel) => roleAllows(channel.requiredRole, role))
     .map((channel) => {
       const tabs = channel.tabs.filter((tab) =>
-        matchesRole(tab.requiredRole, role),
+        roleAllows(tab.requiredRole, role),
       )
-      const tutorial = channel.tutorial
-        ? {
-            ...channel.tutorial,
-            sections: tabs
-              .map((tab) => tab.tutorial)
-              .filter(
-                (item): item is ResolvedTutorialSection => item !== null,
-              ),
-          }
-        : null
 
       return {
         ...channel,
         tabs,
-        tutorial,
+        tutorial: channel.tutorial
+          ? {
+              ...channel.tutorial,
+              sections: tabs
+                .map((tab) => tab.tutorial)
+                .filter(
+                  (section): section is ResolvedTutorialSection =>
+                    section !== null,
+                ),
+            }
+          : null,
       }
     })
 }
@@ -474,9 +453,9 @@ export function resolveChannelLocation(
   channels: ResolvedChannel[],
   input: ChannelLocationInput,
 ): ResolvedChannelLocation | null {
-  const channelKey = stringValue(input.channelKey)
-  const dashboardKey = stringValue(input.dashboardKey)
-  const path = pathValue(input.path)
+  const channelKey = text(input.channelKey)
+  const dashboardKey = text(input.dashboardKey)
+  const path = normalizedPath(input.path)
 
   let channel = channelKey
     ? channels.find(
@@ -490,19 +469,19 @@ export function resolveChannelLocation(
   }
 
   if (!channel) {
-    const tabMatches = channels.flatMap((item) =>
+    const matches = channels.flatMap((item) =>
       item.tabs
         .filter((tab) => tab.route === path)
         .map((tab) => ({ channel: item, tab })),
     )
 
-    if (tabMatches.length === 1) return tabMatches[0] ?? null
+    if (matches.length === 1) return matches[0] ?? null
 
-    if (tabMatches.length > 1 && dashboardKey) {
-      const matched = tabMatches.find(
+    if (matches.length > 1 && dashboardKey) {
+      const legacy = matches.find(
         ({ tab }) => !tab.dashboardKey || tab.dashboardKey === dashboardKey,
       )
-      if (matched) return matched
+      if (legacy) return legacy
     }
   }
 
@@ -514,10 +493,10 @@ export function resolveChannelLocation(
     )
   }
 
-  if (!channel) return null
-
-  return {
-    channel,
-    tab: findTab(channel, input),
-  }
+  return channel
+    ? {
+        channel,
+        tab: resolveTab(channel, input),
+      }
+    : null
 }

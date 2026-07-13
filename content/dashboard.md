@@ -1,13 +1,15 @@
 ---
 title: 'Human'
 room: 'Dashboard Room'
-subtitle: "Your Private Page"
-description: 'This is your space!'
+subtitle: 'Your Private Page'
+description: This is your space!
 image: splash/dashboard.png
 icon: kind-icon:settings
-tooltip: user customizations and art sharing settings here.
-dottitip: 'Everyone needs a personal space all to their own.'
-amitip: "Even I've got a bungalo in the cloud where I unwind."
+tooltip: User customizations and art sharing settings live here.
+dottiTip: Everyone needs a personal space all to their own.
+amiTip: Even I've got a bungalow in the cloud where I unwind.
+channelKey: home
+tabKey: dashboard
 dashboardKey: user
 dashboardTab: dashboard
 cards: navCards

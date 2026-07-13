@@ -4,10 +4,11 @@
 // These feed usdToMana() in the gate, so they only need to be roughly
 // proportional to actual cost — the peg converts to whole mana.
 export function estimateArtCostUsd(opts: {
-  engine: string // 'a1111' | 'comfy' | 'flux' | 'kontext' | 'openai' | 'charsheet' | 'hunyuan'
+  engine: string // 'a1111' | 'comfy' | 'flux' | 'kontext' | 'openai' | 'charsheet' | 'hunyuan' | 'ltx' | 'wan'
   steps?: number | null
   width?: number | null
   height?: number | null
+  frames?: number | null // video engines only
 }): number {
   // Hosted API image — fixed per-image ballpark.
   if (opts.engine === 'openai') return 0.04
@@ -18,6 +19,14 @@ export function estimateArtCostUsd(opts: {
   const w = opts.width ?? 1024
   const h = opts.height ?? 1024
   const megapixels = (w * h) / 1_000_000
+
+  // Video (ltx/wan): every frame is roughly a diffusion pass, so bill by frame
+  // count × per-frame GPU cost, scaled by resolution. A 6s clip is far heavier
+  // than a single still, so it should cost far more mana.
+  if (opts.engine === 'ltx' || opts.engine === 'wan') {
+    const frames = Math.max(1, opts.frames ?? 120)
+    return 0.01 + frames * megapixels * 0.0004 + steps * 0.0002
+  }
 
   // 3D mesh generation is much heavier than a 2D image.
   if (opts.engine === 'hunyuan') {

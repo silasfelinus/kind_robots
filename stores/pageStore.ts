@@ -3,11 +3,20 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { ContentCollectionItem } from '@nuxt/content'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import type { NavigationCard } from '@/stores/helpers/channelContent'
+import {
+  channelTabsToCards,
+  navigationCardsToBuilderCards,
+} from '@/stores/helpers/channelCards'
+import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { useSheetStore } from '@/stores/sheetStore'
 
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
-export type WorkspaceCardsInput = string | BuilderCard[]
+export type WorkspaceCardsInput =
+  | string
+  | BuilderCard[]
+  | NavigationCard[]
 export type PageNarratorKind = 'bot' | 'character'
 export type PageNarratorRef =
   | string
@@ -48,6 +57,25 @@ function normalizeImagePath(path: string): string {
 }
 
 function isBuilderCardArray(value: unknown): value is BuilderCard[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (entry) =>
+        entry &&
+        typeof entry === 'object' &&
+        'key' in entry &&
+        'label' in entry &&
+        'title' in entry &&
+        'icon' in entry &&
+        'tagline' in entry &&
+        'narrative' in entry &&
+        'restoresFields' in entry &&
+        'steps' in entry,
+    )
+  )
+}
+
+function isNavigationCardArray(value: unknown): value is NavigationCard[] {
   return (
     Array.isArray(value) &&
     value.every(
@@ -108,12 +136,6 @@ export const usePageStore = defineStore('pageStore', () => {
     return getCardsKey(value)
   })
 
-  const cards = computed<BuilderCard[]>(() => {
-    if (overrideCards.value !== null) return overrideCards.value
-    const value = currentPage.value?.cards
-    return isBuilderCardArray(value) ? value : []
-  })
-
   const meta = computed(() => ({
     title: getString(currentPage.value?.title) || 'Robots',
     room: getString(currentPage.value?.room) || 'Kind Robots',
@@ -151,6 +173,27 @@ export const usePageStore = defineStore('pageStore', () => {
     loadingMessage: getString(currentPage.value?.loadingMessage),
     refreshLabel: getString(currentPage.value?.refreshLabel),
   }))
+
+  const cards = computed<BuilderCard[]>(() => {
+    if (overrideCards.value !== null) return overrideCards.value
+
+    const value = currentPage.value?.cards
+    if (isBuilderCardArray(value)) return value
+    if (isNavigationCardArray(value)) {
+      return navigationCardsToBuilderCards(value)
+    }
+
+    const channelContentStore = useChannelContentStore()
+    const location = channelContentStore.resolveLocation({
+      channelKey: meta.value.channelKey,
+      tabKey: meta.value.tabKey,
+      dashboardKey: meta.value.dashboardKey,
+      dashboardTab: meta.value.dashboardTab,
+      path: currentPage.value?.path,
+    })
+
+    return location?.channel ? channelTabsToCards(location.channel) : []
+  })
 
   function syncDashboardShellFromPage(): void {
     const navStore = useNavStore()

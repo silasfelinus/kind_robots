@@ -123,14 +123,31 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
 
   function getChannel(channelKey: string) {
     const normalized = channelKey.trim()
+    if (!normalized) return null
+
+    const direct = visibleChannels.value.find(
+      (channel) =>
+        channel.channelKey === normalized ||
+        channel.dashboardKey === normalized,
+    )
+    if (direct) return direct
+
+    const tabMatches = visibleChannels.value.filter((channel) =>
+      channel.tabs.some((tab) => tab.dashboardKey === normalized),
+    )
+
+    if (tabMatches.length <= 1) return tabMatches[0] ?? null
 
     return (
-      visibleChannels.value.find(
-        (channel) =>
-          channel.channelKey === normalized ||
-          channel.dashboardKey === normalized ||
-          channel.tabs.some((tab) => tab.dashboardKey === normalized),
-      ) ?? null
+      tabMatches.find((channel) =>
+        channel.tabs.some(
+          (tab) =>
+            tab.dashboardKey === normalized &&
+            tab.route === `/${normalized}`,
+        ),
+      ) ??
+      tabMatches[0] ??
+      null
     )
   }
 

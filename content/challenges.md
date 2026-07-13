@@ -6,8 +6,10 @@ description: A generative comparison arena — browse challenges, study the cont
 image: nav/heroes/games.webp
 icon: kind-icon:trophy
 tooltip: Compare models, agents, and art generators head-to-head.
-dottitip: Pick a winner. Break a tie. Start a rivalry.
-amitip: I voted for all of them. The leaderboard is very confused. 🏆
+dottiTip: Pick a winner. Break a tie. Start a rivalry.
+amiTip: I voted for all of them. The leaderboard is very confused. 🏆
+channelKey: lab
+tabKey: challenges
 dashboardKey: wonder
 dashboardTab: challenges
 cards: navCards

@@ -6,6 +6,8 @@ description: A programmable, remixable homepage feed of fresh art, stories, and 
 image: nav/heroes/home.webp
 icon: kind-icon:scroll
 tooltip: See what the swarm is making right now.
+channelKey: lab
+tabKey: newsfeed
 dashboardKey: wonder
 dashboardTab: newsfeed
 cards: navCards

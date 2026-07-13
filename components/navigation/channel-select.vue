@@ -173,6 +173,9 @@ const expandedChannelKey = ref('')
 await channelContentStore.initialize()
 
 const visibleChannels = computed(() => channelContentStore.visibleChannels)
+const requestedTabKey = computed(() => {
+  return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
+})
 
 const fallbackChannel: ResolvedChannel = {
   key: 'home',
@@ -204,7 +207,7 @@ const fallbackChannel: ResolvedChannel = {
 const resolvedLocation = computed(() =>
   channelContentStore.resolveLocation({
     channelKey: pageStore.channelKey,
-    tabKey: pageStore.tabKey,
+    tabKey: requestedTabKey.value || pageStore.tabKey,
     dashboardKey: pageStore.dashboardKey,
     dashboardTab: pageStore.dashboardTab,
     path: route.path,
@@ -217,6 +220,11 @@ const activeChannel = computed<ResolvedChannel>(() => {
 
 const activeTab = computed<ResolvedTab | null>(() => {
   const channel = activeChannel.value
+  const requested = channel.tabs.find(
+    (tab) => tab.tabKey === requestedTabKey.value,
+  )
+  if (requested) return requested
+
   const locatedTab = resolvedLocation.value?.tab
   const locatedOnChildRoute =
     locatedTab &&
@@ -291,6 +299,28 @@ function setSheetFromTab(tab: ResolvedTab): void {
   })
 }
 
+function tabSharesRoute(channel: ResolvedChannel, tab: ResolvedTab): boolean {
+  return channel.tabs.filter((item) => item.route === tab.route).length > 1
+}
+
+function navigateToTab(channel: ResolvedChannel, tab: ResolvedTab): void {
+  if (!tab.route) return
+
+  if (tabSharesRoute(channel, tab)) {
+    if (route.path === tab.route && requestedTabKey.value === tab.tabKey) return
+
+    void router.push({
+      path: tab.route,
+      query: { tab: tab.tabKey },
+    })
+    return
+  }
+
+  if (route.path !== tab.route || requestedTabKey.value) {
+    void router.push(tab.route)
+  }
+}
+
 function selectChannel(channel: ResolvedChannel): void {
   const tab = destinationTab(channel)
 
@@ -310,11 +340,7 @@ function selectTab(channel: ResolvedChannel, tab: ResolvedTab): void {
   channelContentStore.setActiveTab(channel.channelKey, tab.tabKey)
   syncLegacyTab(tab)
   setSheetFromTab(tab)
-
-  if (tab.route && tab.route !== route.path) {
-    void router.push(tab.route)
-  }
-
+  navigateToTab(channel, tab)
   closeDropdown()
 }
 

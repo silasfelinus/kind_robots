@@ -98,9 +98,11 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       lastError.value = null
 
       try {
-        const content = await queryCollection('content').all()
+        const content = await queryCollection('channels').all()
 
-        items.value = (content as ChannelContentItem[]).filter(
+        items.value = (
+          content as unknown as ChannelContentItem[]
+        ).filter(
           (item) => item.contentType === 'channel' || item.contentType === 'tab',
         )
         normalizeActiveTabs()

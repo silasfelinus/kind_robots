@@ -39,9 +39,15 @@ export function filterChannelsByPermission(
       const tabs = channel.tabs.filter((tab) =>
         permissionAllows(tab.requiredPermission, context),
       )
+      const defaultTab = tabs.some(
+        (tab) => tab.tabKey === channel.defaultTab,
+      )
+        ? channel.defaultTab
+        : tabs[0]?.tabKey || ''
 
       return {
         ...channel,
+        defaultTab,
         tabs,
         tutorial: channel.tutorial
           ? {

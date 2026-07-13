@@ -21,133 +21,53 @@
 
       <channel-select class="shrink-0" />
 
-      <div v-if="resolvedTabs.length" class="dropdown min-w-0 flex-1">
-        <button
-          tabindex="0"
-          type="button"
-          class="btn relative flex h-10 min-h-10 w-full max-w-full items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
+      <section
+        class="relative flex h-10 min-h-10 min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
+      >
+        <img
+          v-if="activeTabConfig.image"
+          :src="activeTabConfig.image"
+          :alt="activeTabConfig.title || activeTabConfig.label"
+          class="absolute inset-0 -z-10 h-full w-full object-cover opacity-15 xl:opacity-20"
+        />
+
+        <span
+          class="absolute inset-0 -z-10 bg-linear-to-r from-base-100/95 via-base-100/80 to-base-100/40"
+        />
+
+        <span
+          class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
         >
           <img
             v-if="activeTabConfig.image"
             :src="activeTabConfig.image"
             :alt="activeTabConfig.title || activeTabConfig.label"
-            class="absolute inset-0 -z-10 h-full w-full object-cover opacity-15 xl:opacity-20"
+            class="h-full w-full object-cover"
           />
-
           <span
-            class="absolute inset-0 -z-10 bg-linear-to-r from-base-100/95 via-base-100/80 to-base-100/40"
-          />
-
-          <span
-            class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
+            class="absolute inset-0 flex items-center justify-center bg-base-content/20"
           >
-            <img
-              v-if="activeTabConfig.image"
-              :src="activeTabConfig.image"
-              :alt="activeTabConfig.title || activeTabConfig.label"
-              class="h-full w-full object-cover"
+            <Icon
+              :name="activeTabConfig.icon || fallbackIcon"
+              class="h-4 w-4 text-base-100 drop-shadow xl:h-5 xl:w-5"
             />
-            <span
-              class="absolute inset-0 flex items-center justify-center bg-base-content/20"
-            >
-              <Icon
-                :name="activeTabConfig.icon || fallbackIcon"
-                class="h-4 w-4 text-base-100 drop-shadow xl:h-5 xl:w-5"
-              />
-            </span>
+          </span>
+        </span>
+
+        <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
+          <span
+            v-if="shellTitle"
+            class="max-w-full truncate text-[0.58rem] font-black uppercase tracking-wide text-primary/70"
+          >
+            {{ shellTitle }}
           </span>
 
-          <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
-            <span
-              v-if="shellTitle"
-              class="max-w-full truncate text-[0.58rem] font-black uppercase tracking-wide text-primary/70"
-            >
-              {{ shellTitle }}
-            </span>
-
-            <span
-              class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg"
-            >
-              {{ activeTitle }}
-            </span>
+          <span
+            class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg"
+          >
+            {{ activeTitle }}
           </span>
-
-          <Icon
-            name="kind-icon:chevron-down"
-            class="h-3.5 w-3.5 shrink-0 text-base-content/50 xl:h-4 xl:w-4"
-          />
-        </button>
-
-        <ul
-          tabindex="0"
-          class="menu dropdown-content z-40 mt-2 max-h-80 w-[min(24rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
-        >
-          <li v-for="tab in resolvedTabs" :key="tab.tabKey">
-            <button
-              type="button"
-              class="flex min-h-12 items-center gap-2 rounded-xl xl:min-h-14"
-              :class="
-                activeTabKey === tab.tabKey
-                  ? 'active bg-primary text-primary-content'
-                  : ''
-              "
-              @click="selectTabFromDropdown(tab.tabKey)"
-            >
-              <span
-                class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-base-200 xl:h-10 xl:w-10"
-              >
-                <img
-                  v-if="tab.image"
-                  :src="tab.image"
-                  :alt="tab.title || tab.label"
-                  class="h-full w-full object-cover"
-                />
-
-                <span
-                  class="absolute inset-0 flex items-center justify-center bg-base-content/20"
-                >
-                  <Icon
-                    :name="tab.icon || fallbackIcon"
-                    class="h-4 w-4 text-base-100 drop-shadow"
-                  />
-                </span>
-              </span>
-
-              <span class="flex min-w-0 flex-col items-start">
-                <span
-                  class="max-w-full truncate text-sm font-black xl:text-base"
-                >
-                  {{ tab.label }}
-                </span>
-
-                <span
-                  v-if="tab.summary || tab.description"
-                  class="line-clamp-1 text-xs font-medium opacity-70"
-                >
-                  {{ tab.summary || tab.description }}
-                </span>
-              </span>
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <section
-        v-else
-        class="flex min-w-0 flex-1 flex-col justify-center leading-tight"
-      >
-        <p
-          v-if="shellTitle"
-          class="truncate text-[0.58rem] font-black uppercase tracking-wide text-primary/70 xl:text-xs"
-        >
-          {{ shellTitle }}
-        </p>
-
-        <h1
-          class="truncate text-sm font-black text-base-content sm:text-base xl:text-xl"
-        >
-          {{ activeTitle }}
-        </h1>
+        </span>
       </section>
 
       <section
@@ -314,25 +234,6 @@ function setSheetFromTab(tab: ResolvedTab): void {
     icon: tab.icon,
     image: tab.image,
   })
-}
-
-function selectTabFromDropdown(tabKey: string): void {
-  const channel = resolvedChannel.value
-  const tab = resolvedTabs.value.find((item) => item.tabKey === tabKey)
-  if (!channel || !tab) return
-
-  channelContentStore.setActiveTab(channel.channelKey, tab.tabKey)
-  syncLegacyTab(tab, 'workspace-header content tab')
-  setSheetFromTab(tab)
-
-  if (tab.route && tab.route !== route.path) {
-    void router.push(tab.route)
-  }
-
-  if (typeof document !== 'undefined') {
-    const el = document.activeElement as HTMLElement | null
-    el?.blur()
-  }
 }
 
 function goBack(): void {

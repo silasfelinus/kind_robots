@@ -5,6 +5,10 @@ import {
   resolveChannels,
   type ChannelContentItem,
 } from '@/stores/helpers/channelContent'
+import {
+  filterChannelsByPermission,
+  navigationPermissions,
+} from '@/stores/helpers/navigationAccess'
 
 const items: ChannelContentItem[] = [
   {
@@ -41,6 +45,7 @@ const items: ChannelContentItem[] = [
     route: '/builder',
     sort: 20,
     amiTip: 'Tab Ami line.',
+    requiredPermission: 'member',
   },
   {
     contentType: 'channel',
@@ -152,13 +157,71 @@ assert.deepEqual(
   'non-admin users should not receive the Admin channel',
 )
 
+const guestAccess = {
+  role: 'USER',
+  permissions: navigationPermissions({
+    isLoggedIn: false,
+    isMember: false,
+    isFamily: false,
+    showMature: false,
+    isAdmin: false,
+  }),
+  isAdmin: false,
+}
+const guestChannels = filterChannelsByPermission(userChannels, guestAccess)
+assert.deepEqual(
+  guestChannels
+    .find((channel) => channel.channelKey === 'build')
+    ?.tabs.map((tab) => tab.tabKey),
+  ['character'],
+  'guests should not receive member-gated tabs',
+)
+
+const memberAccess = {
+  role: 'USER',
+  permissions: navigationPermissions({
+    isLoggedIn: true,
+    isMember: true,
+    isFamily: false,
+    showMature: false,
+    isAdmin: false,
+  }),
+  isAdmin: false,
+}
+const memberChannels = filterChannelsByPermission(userChannels, memberAccess)
+assert.deepEqual(
+  memberChannels
+    .find((channel) => channel.channelKey === 'build')
+    ?.tabs.map((tab) => tab.tabKey),
+  ['character', 'art'],
+  'members should receive member-gated tabs',
+)
+
 const adminChannels = filterChannelsByRole(channels, 'ADMIN')
 assert.deepEqual(
   adminChannels.map((channel) => channel.channelKey),
   ['home', 'build', 'admin'],
-  'administrators should receive all channels',
+  'administrators should receive all role-gated channels',
+)
+const adminAccess = {
+  role: 'ADMIN',
+  permissions: navigationPermissions({
+    isLoggedIn: true,
+    isMember: false,
+    isFamily: false,
+    showMature: false,
+    isAdmin: true,
+  }),
+  isAdmin: true,
+}
+assert.deepEqual(
+  filterChannelsByPermission(adminChannels, adminAccess)
+    .find((channel) => channel.channelKey === 'build')
+    ?.tabs.map((tab) => tab.tabKey),
+  ['character', 'art'],
+  'administrators should bypass capability gates',
 )
 
 console.log(
-  `Channel resolver contract passed: ${channels.length} channels, ${build.tabs.length} shared-route Build tabs, dialogue inheritance and role filtering verified.`,
+  `Channel resolver contract passed: ${channels.length} channels, ${build.tabs.length} shared-route Build tabs, dialogue inheritance, role filtering, and capability gates verified.`,
 )

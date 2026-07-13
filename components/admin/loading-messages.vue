@@ -5,32 +5,40 @@
     :class="{ 'loading-overlay--fade': fadeOverlay }"
     @transitionend="handleTransitionEnd"
   >
-    <NuxtImg
-      src="/images/kindlogo_new.webp"
-      alt="Kind Robots"
-      class="loading-logo"
-      :width="320"
-      :height="320"
-      format="webp"
-      :quality="72"
-      preload
-      loading="eager"
-      fetchpriority="high"
-      decoding="async"
-    />
+    <div class="loading-content">
+      <div class="loading-logo-frame">
+        <NuxtImg
+          src="/images/kindlogo_new.webp"
+          alt="Kind Robots"
+          class="loading-logo"
+          :class="{ 'loading-logo--ready': logoLoaded }"
+          :width="420"
+          :height="420"
+          format="webp"
+          :quality="76"
+          preload
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          @load="logoLoaded = true"
+        />
+      </div>
 
-    <div class="loading-status">
-      <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
+      <div class="loading-status">
+        <span class="loading-spinner-slot" aria-hidden="true">
+          <Icon name="kind-icon:bubble-loading" class="bubble-loader" />
+        </span>
 
-      <transition name="loader-message" mode="out-in">
-        <div
-          :key="messageKey"
-          class="loading-message"
-          aria-live="polite"
-        >
-          {{ currentMessage }}
-        </div>
-      </transition>
+        <transition name="loader-message" mode="out-in">
+          <div
+            :key="messageKey"
+            class="loading-message"
+            aria-live="polite"
+          >
+            {{ currentMessage }}
+          </div>
+        </transition>
+      </div>
     </div>
   </div>
 </template>
@@ -52,6 +60,8 @@ const currentMessage = ref('Building Kind Robots...')
 const messageKey = ref(0)
 const fadeOverlay = ref(false)
 const minimumSequenceComplete = ref(false)
+const logoLoaded = ref(false)
+const hiddenEmitted = ref(false)
 
 const FIRST_MESSAGE_MS = 850
 const SLOW_LOAD_MESSAGE_MS = 1500
@@ -88,6 +98,12 @@ function clearRotation() {
   if (!rotationIntervalId) return
   clearInterval(rotationIntervalId)
   rotationIntervalId = null
+}
+
+function emitHiddenOnce() {
+  if (hiddenEmitted.value) return
+  hiddenEmitted.value = true
+  emit('hidden')
 }
 
 function doFade() {
@@ -151,19 +167,11 @@ async function runVisualSequence() {
   }, ROTATING_MESSAGE_MS)
 }
 
-const hiddenEmitted = ref(false)
-
-function emitHiddenOnce() {
-  if (hiddenEmitted.value) return
-  hiddenEmitted.value = true
-  emit('hidden')
-}
-
 watch(
   () => props.storesReady,
   (ready) => {
     if (ready) scheduleFade()
-  },
+  }
 )
 
 onMounted(async () => {
@@ -192,11 +200,8 @@ onBeforeUnmount(() => {
   position: fixed;
   inset: 0;
   z-index: 40;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 0.75rem;
+  display: grid;
+  place-items: center;
   padding: 1.5rem;
   background: #000;
   opacity: 1;
@@ -211,24 +216,64 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
+.loading-content {
+  display: grid;
+  width: min(94vw, 48rem);
+  grid-template-rows: clamp(14rem, 34vw, 21rem) 8rem;
+  place-items: center;
+}
+
+.loading-logo-frame {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+}
+
 .loading-logo {
-  width: clamp(9rem, 24vw, 14rem);
+  width: clamp(12rem, 30vw, 19rem);
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0.9rem 1.8rem rgba(255, 255, 255, 0.16));
+  opacity: 0;
+  transform: translateY(0.35rem) scale(0.96);
+  transition:
+    opacity 0.55s ease,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 1rem 2rem rgba(255, 255, 255, 0.18));
+  will-change: opacity, transform;
+}
+
+.loading-logo--ready {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.loading-overlay--fade .loading-logo {
+  opacity: 0;
+  transform: translateY(-0.25rem) scale(1.025);
 }
 
 .loading-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
+  display: grid;
+  width: 100%;
+  min-height: 8rem;
+  grid-template-rows: 4rem 4rem;
+  place-items: center;
+  gap: 0;
+}
+
+.loading-spinner-slot {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
 }
 
 .loading-message {
+  display: flex;
+  width: fit-content;
   max-width: min(90vw, 44rem);
   min-height: 3.75rem;
-  display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.65rem 1.2rem;
@@ -243,8 +288,11 @@ onBeforeUnmount(() => {
 }
 
 .bubble-loader {
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  display: block;
+  width: 4rem;
+  height: 4rem;
   color: #ffffff;
+  font-size: 4rem;
   filter: drop-shadow(0 0 0.75rem rgba(255, 255, 255, 0.22));
 }
 

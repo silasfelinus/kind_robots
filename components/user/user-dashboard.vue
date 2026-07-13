@@ -121,6 +121,8 @@
           </div>
         </div>
 
+        <animation-selector />
+
         <div
           v-if="!isGuest"
           class="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
@@ -192,7 +194,7 @@ watch(
   () => userStore.user?.id,
   () => {
     configureUserImageUpload()
-  },
+  }
 )
 
 const logout = async () => {

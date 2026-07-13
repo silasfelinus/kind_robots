@@ -1,5 +1,5 @@
 // /middleware/navigation-access.global.ts
-import { resolveChannelLocation } from '@/stores/helpers/channelContent'
+import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteAccess'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -73,32 +73,21 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const requestedTab =
     typeof to.query.tab === 'string' ? to.query.tab.trim() : ''
-  const requested = resolveChannelLocation(channelContentStore.channels, {
-    path: to.path,
-    tabKey: requestedTab,
-  })
+  const access = evaluateNavigationRouteAccess(
+    channelContentStore.channels,
+    channelContentStore.visibleChannels,
+    {
+      path: to.path,
+      tabKey: requestedTab,
+    },
+  )
 
   // Routes outside the content navigation graph are not this middleware's job.
-  if (!requested) return
+  if (!access.matched || access.allowed) return
 
-  const visibleChannel = channelContentStore.visibleChannels.find(
-    (channel) => channel.channelKey === requested.channel.channelKey,
-  )
-  const visibleTab = requested.tab
-    ? visibleChannel?.tabs.find(
-        (tab) => tab.tabKey === requested.tab?.tabKey,
-      )
-    : null
-
-  if (visibleChannel && (!requested.tab || visibleTab)) return
-
-  const requiredRole =
-    requested.tab?.requiredRole || requested.channel.requiredRole
-  const requiredPermission =
-    requested.tab?.requiredPermission || requested.channel.requiredPermission
   const requiresAccount =
-    Boolean(requiredRole && requiredRole !== 'GUEST') ||
-    accountPermissions.has(requiredPermission.toLowerCase())
+    Boolean(access.requiredRole && access.requiredRole !== 'GUEST') ||
+    accountPermissions.has(access.requiredPermission.toLowerCase())
 
   if (!userStore.isLoggedIn && requiresAccount && to.path !== '/login') {
     rememberReturnPath(to.fullPath)

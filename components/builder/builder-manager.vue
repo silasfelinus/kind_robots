@@ -136,57 +136,32 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
+import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
-import {
-  dashboardConfigs,
-  getDashboardTabConfig,
-  isDashboardTabKey,
-  type DashboardTabConfig,
-} from '@/stores/helpers/dashboardHelper'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 
-type BuilderTabConfig = DashboardTabConfig & {
-  modelType?: string
-  route?: string
-  requiredBeforeNext?: string[]
-}
-
 const store = useBuilderStore()
+const channelContentStore = useChannelContentStore()
 const navStore = useNavStore()
-
-const dashboardKey = 'builder'
 const showResetConfirm = ref(false)
 
-const builderConfig = computed(() => {
-  return dashboardConfigs.builder
-})
+await channelContentStore.initialize()
 
-const defaultBuilderTab = computed(() => {
-  return builderConfig.value.defaultTab
-})
+const builderChannel = computed(() =>
+  channelContentStore.getChannel('build'),
+)
 
-const activeTab = computed(() => {
-  const selectedTab = navStore.getDashboardTab(dashboardKey)
+const defaultBuilderTab = computed(
+  () => builderChannel.value?.defaultTab || 'character',
+)
 
-  if (isDashboardTabKey(dashboardKey, selectedTab)) {
-    return selectedTab
-  }
+const activeTab = computed(() =>
+  channelContentStore.getActiveTab('build') || defaultBuilderTab.value,
+)
 
-  return defaultBuilderTab.value
-})
-
-const activeTabConfig = computed<BuilderTabConfig>(() => {
-  const tabConfig = getDashboardTabConfig(dashboardKey, activeTab.value)
-
-  return (
-    (tabConfig as BuilderTabConfig | null) ||
-    (getDashboardTabConfig(
-      dashboardKey,
-      defaultBuilderTab.value,
-    ) as BuilderTabConfig | null) ||
-    (builderConfig.value.tabs[0] as BuilderTabConfig)
-  )
-})
+const activeTabConfig = computed(() =>
+  channelContentStore.getTab('build', activeTab.value),
+)
 
 const isBuilderActive = computed(() => {
   return store.activeConfig.modelType !== 'builder' && store.cards.length > 0
@@ -200,9 +175,7 @@ const showSplash = computed(() => {
   )
 })
 
-const showBuilderControls = computed(() => {
-  return isBuilderActive.value
-})
+const showBuilderControls = computed(() => isBuilderActive.value)
 
 const fallbackIcon = computed(() => {
   if (activeTab.value === 'art') return 'kind-icon:palette'
@@ -210,7 +183,7 @@ const fallbackIcon = computed(() => {
 })
 
 const headerIcon = computed(() => {
-  return activeTabConfig.value.icon || fallbackIcon.value
+  return activeTabConfig.value?.icon || fallbackIcon.value
 })
 
 const fallbackTitle = computed(() => {
@@ -225,7 +198,7 @@ const title = computed(() => {
     sheetTitle ||
     store.activeConfig.title ||
     store.splash.title ||
-    activeTabConfig.value.title ||
+    activeTabConfig.value?.title ||
     fallbackTitle.value
   )
 })
@@ -245,8 +218,9 @@ const subtitle = computed(() => {
   return (
     store.splash.tagline ||
     store.activeConfig.label ||
-    activeTabConfig.value.summary ||
-    activeTabConfig.value.label ||
+    activeTabConfig.value?.summary ||
+    activeTabConfig.value?.description ||
+    activeTabConfig.value?.label ||
     fallbackSubtitle.value
   )
 })
@@ -264,16 +238,47 @@ async function syncBuilder(): Promise<void> {
   }
 }
 
+function syncLegacyBuilderTab(tabKey: string): void {
+  const tab = channelContentStore.getTab('build', tabKey)
+  if (!tab?.dashboardTab) return
+
+  const legacyTabs = navStore.getDashboardTabs('builder')
+  if (!legacyTabs.some((item) => item.key === tab.dashboardTab)) return
+
+  navStore.setDashboardTab(
+    'builder',
+    tab.dashboardTab,
+    'builder-manager content sync',
+  )
+}
+
 function resetBuilder(): void {
   store.resetBuilder(true)
   showResetConfirm.value = false
 }
 
-watch(activeTab, syncBuilder)
+watch(activeTab, async (tabKey) => {
+  syncLegacyBuilderTab(tabKey)
+  await syncBuilder()
+})
+
+watch(
+  () => navStore.getDashboardTab('builder'),
+  (legacyTab) => {
+    const tab = builderChannel.value?.tabs.find(
+      (item) => item.dashboardTab === legacyTab,
+    )
+
+    if (tab && tab.tabKey !== activeTab.value) {
+      channelContentStore.setActiveTab('build', tab.tabKey)
+    }
+  },
+)
 
 onMounted(async () => {
   ensureBuildersRegistered()
   store.hydrate()
+  syncLegacyBuilderTab(activeTab.value)
   await syncBuilder()
 })
 </script>

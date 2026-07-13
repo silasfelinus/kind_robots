@@ -30,9 +30,9 @@
       tabindex="0"
       class="menu dropdown-content z-110 mt-2 max-h-[min(32rem,calc(100dvh-5rem))] w-[min(14rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
     >
-      <li v-for="channel in allChannels" :key="channel.key">
+      <li v-for="channel in visibleChannels" :key="channel.channelKey">
         <NuxtLink
-          :to="channel.path"
+          :to="channel.route"
           class="flex min-h-11 items-center gap-2 rounded-xl xl:min-h-12"
           :class="
             isChannelActive(channel) ? 'bg-primary text-primary-content' : ''
@@ -56,79 +56,65 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-
-type ChannelRoute = {
-  key: string
-  label: string
-  path: string
-  icon: string
-}
+import {
+  resolveChannels,
+  type ResolvedChannel,
+  type ChannelContentItem,
+} from '@/stores/helpers/channelContent'
+import { useUserStore } from '@/stores/userStore'
 
 const route = useRoute()
+const userStore = useUserStore()
 
-const allChannels: ChannelRoute[] = [
-  { key: 'home', label: 'Home', path: '/', icon: 'kind-icon:home' },
-
-  {
-    key: 'conductor',
-    label: 'Conductor',
-    path: '/conductor',
-    icon: 'kind-icon:gearhammer',
-  },
-  { key: 'art', label: 'Art', path: '/art', icon: 'kind-icon:palette' },
-
-  {
-    key: 'builder',
-    label: 'Builder',
-    path: '/builder',
-    icon: 'kind-icon:blueprint',
-  },
-
-  {
-    key: 'bots',
-    label: 'Narrators',
-    path: '/bots',
-    icon: 'kind-icon:robot-color',
-  },
-  { key: 'dreams', label: 'Dreams', path: '/dreams', icon: 'kind-icon:moon' },
-  {
-    key: 'characters',
-    label: 'Characters',
-    path: '/characters',
-    icon: 'kind-icon:mask',
-  },
-
-  {
-    key: 'rewards',
-    label: 'Rewards',
-    path: '/rewards',
-    icon: 'kind-icon:trophy',
-  },
-  {
-    key: 'scenarios',
-    label: 'Stories',
-    path: '/stories',
-    icon: 'kind-icon:story',
-  },
-  { key: 'lab', label: 'Lab', path: '/memory', icon: 'kind-icon:dungeon' },
-  {
-    key: 'sanctuary',
-    label: 'Sanctuary',
-    path: '/sanctuary',
-    icon: 'kind-icon:butterfly',
-  },
-]
-
-const fallbackChannel: ChannelRoute = allChannels[0]!
-
-const activeChannel = computed<ChannelRoute>(
+const { data: navigationContent } = await useAsyncData(
+  'navigation-content',
   () =>
-    allChannels.find((channel) => isChannelActive(channel)) ?? fallbackChannel,
+    queryCollection('content')
+      .where('contentType', 'IN', ['channel', 'tab'])
+      .all(),
 )
 
-function isChannelActive(channel: ChannelRoute): boolean {
-  if (route.path === channel.path) return true
-  return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
+const allChannels = computed(() =>
+  resolveChannels((navigationContent.value ?? []) as ChannelContentItem[]),
+)
+
+const visibleChannels = computed(() =>
+  allChannels.value.filter(
+    (channel) =>
+      !channel.requiredRole || channel.requiredRole === userStore.role,
+  ),
+)
+
+const fallbackChannel: ResolvedChannel = {
+  channelKey: 'home',
+  label: 'Home',
+  title: 'Home',
+  subtitle: '',
+  description: '',
+  summary: '',
+  narrative: '',
+  icon: 'kind-icon:home',
+  image: '/images/channels/home/channel.webp',
+  route: '/',
+  defaultTab: 'dashboard',
+  sort: 0,
+  requiredRole: '',
+  requiredPermission: '',
+  dottiTip: '',
+  amiTip: '',
+  tabs: [],
+}
+
+const activeChannel = computed<ResolvedChannel>(
+  () =>
+    visibleChannels.value.find((channel) => isChannelActive(channel)) ??
+    visibleChannels.value[0] ??
+    fallbackChannel,
+)
+
+function isChannelActive(channel: ResolvedChannel): boolean {
+  if (route.path === channel.route) return true
+  return channel.route !== '/' && route.path.startsWith(`${channel.route}/`)
 }
 
 function closeDropdown(): void {

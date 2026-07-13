@@ -3,6 +3,7 @@ import { resolveChannelLocation } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useUserStore } from '@/stores/userStore'
 
+const navigationReturnStorageKey = 'kindrobots:navigation-return-to'
 const accountPermissions = new Set([
   'authenticated',
   'member',
@@ -10,6 +11,37 @@ const accountPermissions = new Set([
   'mature',
   'admin',
 ])
+
+function safeReturnPath(value: unknown): string {
+  if (typeof value !== 'string') return ''
+
+  const path = value.trim()
+  return path.startsWith('/') && !path.startsWith('//') ? path : ''
+}
+
+function storedReturnPath(): string {
+  try {
+    return safeReturnPath(sessionStorage.getItem(navigationReturnStorageKey))
+  } catch {
+    return ''
+  }
+}
+
+function rememberReturnPath(path: string): void {
+  try {
+    sessionStorage.setItem(navigationReturnStorageKey, path)
+  } catch {}
+}
+
+function consumeReturnPath(): string {
+  const path = storedReturnPath()
+
+  try {
+    sessionStorage.removeItem(navigationReturnStorageKey)
+  } catch {}
+
+  return path
+}
 
 export default defineNuxtRouteMiddleware(async (to) => {
   if (import.meta.server) return
@@ -21,6 +53,23 @@ export default defineNuxtRouteMiddleware(async (to) => {
     userStore.initialize(),
     channelContentStore.initialize(),
   ])
+
+  const requestedLoginReturn = safeReturnPath(to.query.redirect)
+
+  if (userStore.isLoggedIn && to.path === '/login' && requestedLoginReturn) {
+    return navigateTo(requestedLoginReturn, { replace: true })
+  }
+
+  // The existing login page sends successful sessions to /dashboard. Resume a
+  // previously denied channel destination from there without coupling the login
+  // component to the navigation system.
+  if (userStore.isLoggedIn && to.path === '/dashboard') {
+    const returnPath = consumeReturnPath()
+
+    if (returnPath && returnPath !== to.fullPath) {
+      return navigateTo(returnPath, { replace: true })
+    }
+  }
 
   const requestedTab =
     typeof to.query.tab === 'string' ? to.query.tab.trim() : ''
@@ -52,6 +101,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
     accountPermissions.has(requiredPermission.toLowerCase())
 
   if (!userStore.isLoggedIn && requiresAccount && to.path !== '/login') {
+    rememberReturnPath(to.fullPath)
+
     return navigateTo({
       path: '/login',
       query: {

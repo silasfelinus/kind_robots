@@ -238,27 +238,12 @@ async function syncBuilder(): Promise<void> {
   }
 }
 
-function syncLegacyBuilderTab(tabKey: string): void {
-  const tab = channelContentStore.getTab('build', tabKey)
-  if (!tab?.dashboardTab) return
-
-  const legacyTabs = navStore.getDashboardTabs('builder')
-  if (!legacyTabs.some((item) => item.key === tab.dashboardTab)) return
-
-  navStore.setDashboardTab(
-    'builder',
-    tab.dashboardTab,
-    'builder-manager content sync',
-  )
-}
-
 function resetBuilder(): void {
   store.resetBuilder(true)
   showResetConfirm.value = false
 }
 
-watch(activeTab, async (tabKey) => {
-  syncLegacyBuilderTab(tabKey)
+watch(activeTab, async () => {
   await syncBuilder()
 })
 
@@ -278,7 +263,6 @@ watch(
 onMounted(async () => {
   ensureBuildersRegistered()
   store.hydrate()
-  syncLegacyBuilderTab(activeTab.value)
   await syncBuilder()
 })
 </script>

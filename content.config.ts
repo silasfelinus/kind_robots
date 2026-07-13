@@ -72,8 +72,11 @@ const sharedNavigationSchema = z.object({
   tooltip: z.string().optional(),
   dottiTip: z.string().optional(),
   amiTip: z.string().optional(),
-  dottitip: z.string().optional(),
-  amitip: z.string().optional(),
+  // NOTE: SQLite column names are case-insensitive, so a lowercase `dottitip`/
+  // `amitip` field here collides with `dottiTip`/`amiTip` above and makes the
+  // collection's CREATE TABLE fail ("duplicate column name"), which leaves the
+  // content tables uncreated and 500s every page. Keep a single canonical
+  // camelCase key; legacy lowercase frontmatter is normalized in content files.
   summary: z.string().optional(),
   narrative: z.string().optional(),
   sort: z.union([z.string(), z.number()]).optional(),

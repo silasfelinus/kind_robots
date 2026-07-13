@@ -43,3 +43,6 @@ jobs:
 
       - name: Channel resolver contract
         run: npm run test:channel-resolver
+
+      - name: Channel artwork audit
+        run: npm run audit:channel-assets

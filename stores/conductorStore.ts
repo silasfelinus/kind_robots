@@ -134,7 +134,15 @@ export const useConductorStore = defineStore('conductor', () => {
     pending.value = true
     error.value = null
     try {
-      data.value = await $fetch<ConductorData>('/api/conductor/projects')
+      const response = await performFetch<ConductorData>(
+        '/api/conductor/projects',
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Conductor projects fetch failed')
+      }
+
+      data.value = response.data
       clearLegacyVotes()
     } catch (cause) {
       error.value = fallbackProjects.length

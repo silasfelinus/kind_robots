@@ -2,6 +2,7 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { validateApiKey } from '~/server/utils/validateKey'
 import {
   buildChallengeLeaderboard,
   scoreChallengeReactions,
@@ -14,6 +15,9 @@ export default defineEventHandler(async (event) => {
     if (!slug) {
       throw createError({ statusCode: 400, message: 'Challenge slug is required.' })
     }
+
+    const auth = await validateApiKey(event)
+    const currentUserId = auth.isValid && auth.user ? auth.user.id : null
 
     const challenge = await prisma.challenge.findUnique({
       where: { slug },
@@ -49,7 +53,7 @@ export default defineEventHandler(async (event) => {
             Character: true,
             Scenario: true,
             Reactions: {
-              select: { reactionType: true },
+              select: { userId: true, reactionType: true },
             },
           },
           orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
@@ -73,13 +77,21 @@ export default defineEventHandler(async (event) => {
       message: 'Challenge fetched successfully.',
       data: {
         ...challenge,
-        Submissions: challenge.Submissions.map((submission) => ({
-          ...submission,
-          score: scoreChallengeReactions(submission.Reactions),
-          rank: submission.contenderId
-            ? rankByContender.get(submission.contenderId) ?? null
-            : null,
-        })),
+        Submissions: challenge.Submissions.map((submission) => {
+          const { Reactions, ...submissionData } = submission
+
+          return {
+            ...submissionData,
+            score: scoreChallengeReactions(Reactions),
+            rank: submission.contenderId
+              ? rankByContender.get(submission.contenderId) ?? null
+              : null,
+            myReaction: currentUserId
+              ? Reactions.find((reaction) => reaction.userId === currentUserId)
+                  ?.reactionType ?? null
+              : null,
+          }
+        }),
         leaderboard,
       },
       statusCode: 200,

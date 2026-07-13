@@ -4,6 +4,7 @@
   "scripts": {
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
+    "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
     "facet:alias": "prisma generate && tsx utils/scripts/setFacetAliases.ts",
     "trim:dry": "node utils/scripts/trim.mjs --dry-run",
     "trim": "node utils/scripts/trim.mjs",

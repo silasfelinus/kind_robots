@@ -290,12 +290,14 @@ export const usePageStore = defineStore('pageStore', () => {
   }
 
   function setPage(newPage: ContentCollectionItem): void {
+    const resolvedPath = (newPage as WorkspacePage).path ?? ''
+
     page.value = newPage
     workspaceCardKey.value = ''
     overrideCards.value = null
     ready.value = true
     isLoading.value = false
-    lastResolvedPath.value = (newPage as WorkspacePage).path ?? ''
+    lastResolvedPath.value = resolvedPath
 
     useSheetStore().clearSheet()
 
@@ -303,7 +305,9 @@ export const usePageStore = defineStore('pageStore', () => {
 
     if (!initialized.value || !channelContentStore.initialized) {
       void initialize().then(() => {
-        if (page.value === newPage) syncDashboardShellFromPage()
+        if (lastResolvedPath.value === resolvedPath) {
+          syncDashboardShellFromPage()
+        }
       })
     }
   }

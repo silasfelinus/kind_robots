@@ -225,7 +225,10 @@ function getAdaptiveCount(name: AdaptiveProfileName): number {
 
   return Math.min(
     maximum,
-    Math.max(Math.min(minimums[name], maximum), Math.round(maximum * PROFILE_COUNT_RATIOS[name]))
+    Math.max(
+      Math.min(minimums[name], maximum),
+      Math.round(maximum * PROFILE_COUNT_RATIOS[name])
+    )
   )
 }
 
@@ -250,7 +253,9 @@ function buildAdaptiveProfile(name: AdaptiveProfileName): PerformanceProfile {
 function buildCustomProfile(): PerformanceProfile {
   return {
     name: 'custom',
-    count: respectsReducedMotion() ? 0 : Math.max(0, Math.round(settings.value.count)),
+    count: respectsReducedMotion()
+      ? 0
+      : Math.max(0, Math.round(settings.value.count)),
     fps: Math.max(15, settings.value.fps),
     size: settings.value.size,
     speed: settings.value.movementSpeed
@@ -259,7 +264,6 @@ function buildCustomProfile(): PerformanceProfile {
 
 function createWingStyle(flapVariance: number): CSSProperties {
   return {
-    background: '',
     animationDuration: `${Math.round(settings.value.flapSpeedMs * flapVariance)}ms`
   }
 }
@@ -359,7 +363,10 @@ function samplePerformance(rawDelta: number, now: number): number {
   const samples = frameSamples
   frameSamples = []
 
-  const currentBudget = Math.max(1000 / Math.max(profile.value.fps, 1), 1000 / 60)
+  const currentBudget = Math.max(
+    1000 / Math.max(profile.value.fps, 1),
+    1000 / 60
+  )
   const average =
     samples.reduce((total, delta) => total + delta, 0) / samples.length
   const p90 = getPercentile(samples, 0.9)
@@ -398,7 +405,10 @@ function samplePerformance(rawDelta: number, now: number): number {
   }
 
   const nextProfile = buildAdaptiveProfile(nextProfileName)
-  const nextBudget = Math.max(1000 / Math.max(nextProfile.fps, 1), 1000 / 60)
+  const nextBudget = Math.max(
+    1000 / Math.max(nextProfile.fps, 1),
+    1000 / 60
+  )
   const canSustainNextProfile =
     average <= nextBudget * 1.25 &&
     p90 <= nextBudget * 1.65 &&
@@ -490,8 +500,14 @@ function getFadeOpacity(butterfly: ButterflyParticle, now: number): number {
   const phase = (now / cycleMs) * Math.PI * 2 + butterfly.fadePhase
   const wave = 0.5 - Math.cos(phase) * 0.5
   const eased = wave * wave * (3 - 2 * wave)
-  const minimum = Math.min(settings.value.minOpacity, settings.value.maxOpacity)
-  const maximum = Math.max(settings.value.minOpacity, settings.value.maxOpacity)
+  const minimum = Math.min(
+    settings.value.minOpacity,
+    settings.value.maxOpacity
+  )
+  const maximum = Math.max(
+    settings.value.minOpacity,
+    settings.value.maxOpacity
+  )
 
   return minimum + (maximum - minimum) * eased
 }

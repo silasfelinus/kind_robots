@@ -2,6 +2,8 @@
 contentType: tab
 channelKey: lab
 tabKey: experiments
+dashboardKey: wonder
+dashboardTab: memory-dungeon
 label: Experiments
 title: Lab Experiments
 subtitle: Prototypes, games, and unusual tools

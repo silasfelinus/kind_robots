@@ -35,7 +35,9 @@
           :to="channel.route"
           class="flex min-h-11 items-center gap-2 rounded-xl xl:min-h-12"
           :class="
-            isChannelActive(channel) ? 'bg-primary text-primary-content' : ''
+            activeChannel.channelKey === channel.channelKey
+              ? 'bg-primary text-primary-content'
+              : ''
           "
           @click="closeDropdown"
         >
@@ -56,43 +58,30 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import {
-  resolveChannels,
-  type ResolvedChannel,
-  type ChannelContentItem,
-} from '@/stores/helpers/channelContent'
-import { useUserStore } from '@/stores/userStore'
+import type { ResolvedChannel } from '@/stores/helpers/channelContent'
+import { useChannelContentStore } from '@/stores/channelContentStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const route = useRoute()
-const userStore = useUserStore()
+const pageStore = usePageStore()
+const channelContentStore = useChannelContentStore()
 
-const { data: navigationContent } = await useAsyncData(
-  'navigation-content',
-  () =>
-    queryCollection('content')
-      .where('contentType', 'IN', ['channel', 'tab'])
-      .all(),
-)
+await channelContentStore.initialize()
 
-const allChannels = computed(() =>
-  resolveChannels((navigationContent.value ?? []) as ChannelContentItem[]),
-)
-
-const visibleChannels = computed(() =>
-  allChannels.value.filter(
-    (channel) =>
-      !channel.requiredRole || channel.requiredRole === userStore.role,
-  ),
-)
+const visibleChannels = computed(() => channelContentStore.visibleChannels)
 
 const fallbackChannel: ResolvedChannel = {
+  key: 'home',
   channelKey: 'home',
+  dashboardKey: 'user',
   label: 'Home',
   title: 'Home',
+  room: 'Kind Robots',
   subtitle: '',
   description: '',
   summary: '',
   narrative: '',
+  tooltip: '',
   icon: 'kind-icon:home',
   image: '/images/channels/home/channel.webp',
   route: '/',
@@ -100,22 +89,24 @@ const fallbackChannel: ResolvedChannel = {
   sort: 0,
   requiredRole: '',
   requiredPermission: '',
+  loadingMessage: 'Loading Home…',
+  refreshLabel: 'Refresh Home',
   dottiTip: '',
   amiTip: '',
   tabs: [],
 }
 
-const activeChannel = computed<ResolvedChannel>(
-  () =>
-    visibleChannels.value.find((channel) => isChannelActive(channel)) ??
-    visibleChannels.value[0] ??
-    fallbackChannel,
-)
+const activeChannel = computed<ResolvedChannel>(() => {
+  const location = channelContentStore.resolveLocation({
+    channelKey: pageStore.channelKey,
+    tabKey: pageStore.tabKey,
+    dashboardKey: pageStore.dashboardKey,
+    dashboardTab: pageStore.dashboardTab,
+    path: route.path,
+  })
 
-function isChannelActive(channel: ResolvedChannel): boolean {
-  if (route.path === channel.route) return true
-  return channel.route !== '/' && route.path.startsWith(`${channel.route}/`)
-}
+  return location?.channel ?? visibleChannels.value[0] ?? fallbackChannel
+})
 
 function closeDropdown(): void {
   if (typeof document !== 'undefined') {

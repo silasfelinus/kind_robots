@@ -9,6 +9,11 @@ import {
   type ChannelLocationInput,
   type ResolvedChannelLocation,
 } from '@/stores/helpers/channelContent'
+import {
+  filterChannelsByPermission,
+  navigationPermissions,
+  type NavigationAccessContext,
+} from '@/stores/helpers/navigationAccess'
 import { useUserStore } from '@/stores/userStore'
 import { handleError } from '@/stores/utils'
 
@@ -59,9 +64,29 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
   const userStore = useUserStore()
 
   const channels = computed(() => resolveChannels(items.value))
-  const visibleChannels = computed(() =>
-    filterChannelsByRole(channels.value, userStore.role),
-  )
+  const accessContext = computed<NavigationAccessContext>(() => {
+    const isAdmin = userStore.isAdmin
+
+    return {
+      role: isAdmin ? 'ADMIN' : userStore.role,
+      permissions: navigationPermissions({
+        isLoggedIn: userStore.isLoggedIn,
+        isMember: userStore.isMember,
+        isFamily: userStore.isFamily,
+        showMature: userStore.showMature,
+        isAdmin,
+      }),
+      isAdmin,
+    }
+  })
+  const visibleChannels = computed(() => {
+    const roleFiltered = filterChannelsByRole(
+      channels.value,
+      accessContext.value.role,
+    )
+
+    return filterChannelsByPermission(roleFiltered, accessContext.value)
+  })
 
   function syncActiveTabs(): void {
     if (!isClient) return
@@ -264,6 +289,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     items,
     channels,
     visibleChannels,
+    accessContext,
     activeTabs,
     activeTabsHydrated,
     initialized,

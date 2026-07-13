@@ -5,7 +5,7 @@ tabKey: dream
 dashboardKey: builder
 dashboardTab: dream
 label: World
- title: World Builder
+title: World Builder
 subtitle: Grow a place from a tiny idea
 description: Build worlds, settings, conflicts, locations, and reusable story fuel.
 icon: kind-icon:moon

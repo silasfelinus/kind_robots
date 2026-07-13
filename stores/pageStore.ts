@@ -126,6 +126,7 @@ export const usePageStore = defineStore('pageStore', () => {
   const workspaceCardKey = ref('')
   const lastResolvedPath = ref('')
   const overrideCards = ref<BuilderCard[] | null>(null)
+  const initializePromise = ref<Promise<void> | null>(null)
 
   const channelContentStore = useChannelContentStore()
 
@@ -262,13 +263,26 @@ export const usePageStore = defineStore('pageStore', () => {
   }
 
   async function initialize(force = false): Promise<void> {
+    if (initializePromise.value && !force) return initializePromise.value
     if (initialized.value && !force) return
 
-    await channelContentStore.initialize(force)
-    initialized.value = true
-    ready.value = true
+    initializePromise.value = (async () => {
+      const navStore = useNavStore()
 
-    if (page.value) syncDashboardShellFromPage()
+      await navStore.initialize(force)
+      await channelContentStore.initialize(force)
+
+      initialized.value = true
+      ready.value = true
+
+      if (page.value) syncDashboardShellFromPage()
+    })()
+
+    try {
+      await initializePromise.value
+    } finally {
+      initializePromise.value = null
+    }
   }
 
   function setLoading(value: boolean): void {
@@ -287,8 +301,8 @@ export const usePageStore = defineStore('pageStore', () => {
 
     syncDashboardShellFromPage()
 
-    if (!channelContentStore.initialized) {
-      void channelContentStore.initialize().then(() => {
+    if (!initialized.value || !channelContentStore.initialized) {
+      void initialize().then(() => {
         if (page.value === newPage) syncDashboardShellFromPage()
       })
     }
@@ -362,6 +376,7 @@ export const usePageStore = defineStore('pageStore', () => {
     cardsKey,
     workspaceCardKey,
     lastResolvedPath,
+    initializePromise,
     resolvedLocation,
     resolvedChannel,
     resolvedTab,

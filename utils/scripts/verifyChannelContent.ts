@@ -25,6 +25,7 @@ const expectedChannels = [
   'admin',
 ]
 
+const navigationKeyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
 const contentDirectory = resolve(repositoryRoot, 'content')
@@ -95,8 +96,27 @@ async function readDocument(file: string): Promise<NavigationDocument> {
   }
 }
 
-function addError(errors: string[], document: NavigationDocument, message: string) {
+function addError(
+  errors: string[],
+  document: NavigationDocument,
+  message: string,
+) {
   errors.push(`${document.file}: ${message}`)
+}
+
+function validateKey(
+  errors: string[],
+  document: NavigationDocument,
+  label: string,
+  value: string,
+) {
+  if (value && !navigationKeyPattern.test(value)) {
+    addError(
+      errors,
+      document,
+      `${label} must be lowercase kebab-case for shareable URLs: ${value}`,
+    )
+  }
 }
 
 async function main() {
@@ -107,8 +127,11 @@ async function main() {
     (document) => document.contentType === 'channel',
   )
   const tabs = documents.filter((document) => document.contentType === 'tab')
-  const channelsByKey = new Map(channels.map((channel) => [channel.channelKey, channel]))
+  const channelsByKey = new Map(
+    channels.map((channel) => [channel.channelKey, channel]),
+  )
   const tabsByLocation = new Map<string, NavigationDocument>()
+  const tabsByChannelRoute = new Map<string, NavigationDocument[]>()
 
   for (const document of documents) {
     if (!document.contentType) {
@@ -122,12 +145,16 @@ async function main() {
     if (!['channel', 'tab'].includes(document.contentType)) {
       addError(errors, document, `invalid contentType ${document.contentType}`)
     }
+
+    validateKey(errors, document, 'channelKey', document.channelKey)
   }
 
   for (const channel of channels) {
     if (!channel.defaultTab) {
       addError(errors, channel, 'missing defaultTab')
     }
+
+    validateKey(errors, channel, 'defaultTab', channel.defaultTab)
 
     if (!channel.route.startsWith('/')) {
       addError(errors, channel, 'route must start with /')
@@ -142,7 +169,11 @@ async function main() {
 
   for (const channel of channels) {
     if (!expectedChannels.includes(channel.channelKey)) {
-      addError(errors, channel, `unexpected top-level channel ${channel.channelKey}`)
+      addError(
+        errors,
+        channel,
+        `unexpected top-level channel ${channel.channelKey}`,
+      )
     }
   }
 
@@ -151,6 +182,8 @@ async function main() {
       addError(errors, tab, 'missing tabKey')
       continue
     }
+
+    validateKey(errors, tab, 'tabKey', tab.tabKey)
 
     if (!channelsByKey.has(tab.channelKey)) {
       addError(errors, tab, `unknown parent channel ${tab.channelKey}`)
@@ -168,6 +201,11 @@ async function main() {
     } else {
       tabsByLocation.set(location, tab)
     }
+
+    const routeLocation = `${tab.channelKey}:${tab.route}`
+    const routeTabs = tabsByChannelRoute.get(routeLocation) ?? []
+    routeTabs.push(tab)
+    tabsByChannelRoute.set(routeLocation, routeTabs)
   }
 
   for (const channel of channels) {
@@ -180,7 +218,9 @@ async function main() {
 
   for (const [slug, placement] of Object.entries(PROJECT_PLACEMENTS)) {
     if (!channelsByKey.has(placement.channelKey)) {
-      errors.push(`${slug}: project placement uses unknown channel ${placement.channelKey}`)
+      errors.push(
+        `${slug}: project placement uses unknown channel ${placement.channelKey}`,
+      )
     }
 
     const location = `${placement.channelKey}/${placement.tabKey}`
@@ -205,21 +245,30 @@ async function main() {
       continue
     }
 
+    validateKey(errors, page, 'channelKey', page.channelKey)
+    validateKey(errors, page, 'tabKey', page.tabKey)
+
     const location = `${page.channelKey}/${page.tabKey}`
     if (!tabsByLocation.has(location)) {
       addError(errors, page, `references unknown tab ${location}`)
     }
   }
 
+  const sharedRouteGroups = Array.from(tabsByChannelRoute.values()).filter(
+    (routeTabs) => routeTabs.length > 1,
+  )
+
   if (errors.length) {
-    console.error(`Channel content contract failed with ${errors.length} error(s):`)
+    console.error(
+      `Channel content contract failed with ${errors.length} error(s):`,
+    )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1
     return
   }
 
   console.log(
-    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements.`,
+    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements, ${sharedRouteGroups.length} shared-route tab groups using ?tab= addressing.`,
   )
 }
 

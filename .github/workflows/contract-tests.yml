@@ -1,10 +1,7 @@
 name: Contract Tests
 
-# Fast, DB-free contract checks (conductor art-generator-connect/t-018).
-# Runs the pure-string tsx verifiers that assert cross-repo data contracts
-# — currently the art-request YAML indentation contract that conductor's
-# PyYAML parser depends on (server/utils/artRequestYaml.ts). No database or
-# Nuxt build needed, so this stays fast and can gate every PR.
+# Fast, DB-free contract checks for cross-repo and content-driven contracts.
+# No database or Nuxt build is needed, so these can gate every pull request.
 
 on:
   push:
@@ -36,7 +33,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
         env:
-          CYPRESS_INSTALL_BINARY: '0' # cypress unused in this job
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
+
+      - name: Channel content contract
+        run: npm run test:channel-content
+
+      - name: Channel resolver contract
+        run: npm run test:channel-resolver
+
+      - name: Navigation route access contract
+        run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
+
+      - name: Channel artwork audit
+        run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
+
+      - name: Upload channel artwork report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: channel-artwork-audit
+          path: channel-artwork-audit.txt
+          if-no-files-found: error
+          retention-days: 14

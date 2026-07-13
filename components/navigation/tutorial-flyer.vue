@@ -1,8 +1,6 @@
 <!-- /components/navigation/tutorial-flyer.vue -->
 <template>
-  <!-- Inline: lightweight, single-column on sm, image+text two-up on lg/xl -->
   <div v-if="inline && config" class="flex flex-col gap-4">
-    <!-- Lead image -->
     <img
       v-if="heroImage"
       :src="heroImage"
@@ -11,7 +9,6 @@
       class="w-full rounded-2xl object-cover shadow-sm md:max-h-72 lg:max-h-80"
     />
 
-    <!-- Overview text -->
     <div class="flex flex-col gap-3">
       <p
         class="text-sm font-medium leading-relaxed text-base-content/80 md:text-base"
@@ -34,7 +31,6 @@
       </div>
     </div>
 
-    <!-- Sections: image then text, side-by-side only on lg+ -->
     <section
       v-for="section in config.sections"
       :key="section.key"
@@ -75,7 +71,6 @@
     </section>
   </div>
 
-  <!-- Modal: unchanged full-flyer experience -->
   <Transition v-else name="tutorial-fade">
     <div
       v-if="visible && config"
@@ -92,7 +87,6 @@
         :aria-modal="true"
         :aria-label="`${config.title} tutorial`"
       >
-        <!-- Hero band -->
         <header
           class="relative shrink-0 overflow-hidden border-b border-base-300/60 bg-linear-to-br from-primary/10 via-base-200/50 to-secondary/10 px-5 pb-5 pt-6 sm:px-7 sm:pt-7"
         >
@@ -151,7 +145,6 @@
             </div>
           </div>
 
-          <!-- Step progress -->
           <div
             v-if="stepCount > 1"
             class="relative mt-5 flex items-center gap-2"
@@ -171,7 +164,6 @@
         </header>
 
         <div class="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
-          <!-- Overview -->
           <section
             class="rounded-2xl border border-base-300/60 bg-base-200/50 p-4 sm:p-5"
           >
@@ -199,7 +191,6 @@
             </div>
           </section>
 
-          <!-- Steps -->
           <ol class="mt-5 space-y-3">
             <li
               v-for="(section, index) in config.sections"
@@ -285,18 +276,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useTutorialStore } from '~/stores/tutorialStore'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { useChannelContentStore } from '@/stores/channelContentStore'
+import { useTutorialStore } from '@/stores/tutorialStore'
 import {
   getTutorialChannel,
   getTutorialHero,
   isTutorialChannelKey,
-  type TutorialChannelKey,
-} from '~/stores/helpers/tutorialCards'
+} from '@/stores/helpers/tutorialCards'
 
 const props = withDefaults(
   defineProps<{
-    channel: TutorialChannelKey | string
+    channel: string
     autoOpen?: boolean
     inline?: boolean
   }>(),
@@ -306,29 +297,48 @@ const props = withDefaults(
   },
 )
 
+const channelContentStore = useChannelContentStore()
 const tutorialStore = useTutorialStore()
 
-const channelKey = computed<TutorialChannelKey | null>(() => {
-  return isTutorialChannelKey(props.channel) ? props.channel : null
-})
+await channelContentStore.initialize()
 
+const requestedChannelKey = computed(() => props.channel.trim())
+const contentChannel = computed(() =>
+  channelContentStore.getChannel(requestedChannelKey.value),
+)
+const legacyChannelKey = computed(() =>
+  isTutorialChannelKey(requestedChannelKey.value)
+    ? requestedChannelKey.value
+    : null,
+)
+const channelKey = computed(
+  () =>
+    contentChannel.value?.channelKey ||
+    legacyChannelKey.value ||
+    requestedChannelKey.value ||
+    null,
+)
 const config = computed(() => {
-  return channelKey.value ? getTutorialChannel(channelKey.value) : null
+  if (contentChannel.value?.tutorial) return contentChannel.value.tutorial
+  if (legacyChannelKey.value) return getTutorialChannel(legacyChannelKey.value)
+  return null
 })
-
 const heroImage = computed(() => {
-  return channelKey.value ? getTutorialHero(channelKey.value) : null
+  if (contentChannel.value?.tutorial?.hero) {
+    return contentChannel.value.tutorial.hero
+  }
+
+  return legacyChannelKey.value
+    ? getTutorialHero(legacyChannelKey.value)
+    : null
 })
-
 const stepCount = computed(() => config.value?.sections?.length ?? 0)
-
 const visible = computed(() => {
-  if (!channelKey.value) return false
+  if (!channelKey.value || !config.value) return false
   if (props.inline) return true
 
   return tutorialStore.activeChannel === channelKey.value
 })
-
 const showNextTime = computed({
   get: () => {
     return channelKey.value
@@ -352,7 +362,6 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-// Lock body scroll while the modal flyer is open.
 watch(
   () => visible.value && !props.inline,
   (isModalOpen) => {
@@ -365,6 +374,7 @@ onMounted(() => {
   if (typeof window !== 'undefined') {
     window.addEventListener('keydown', onKeydown)
   }
+
   if (!props.inline && props.autoOpen && channelKey.value) {
     tutorialStore.maybeAutoOpen(channelKey.value)
   }
@@ -374,6 +384,7 @@ onBeforeUnmount(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('keydown', onKeydown)
   }
+
   if (typeof document !== 'undefined') {
     document.body.style.overflow = ''
   }
@@ -381,7 +392,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Open/close transition for the modal layer */
 .tutorial-fade-enter-active,
 .tutorial-fade-leave-active {
   transition: opacity 0.2s ease;

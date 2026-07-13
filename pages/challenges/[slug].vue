@@ -102,8 +102,15 @@
               <span class="text-xs font-black uppercase tracking-[0.2em] text-base-content/45">
                 Difficulty
               </span>
-              <span class="mt-2 text-2xl tracking-widest text-warning" :aria-label="`Difficulty ${challenge.difficulty} of 5`">
-                <span v-for="star in 5" :key="star" :class="star > challenge.difficulty ? 'opacity-20' : ''">★</span>
+              <span
+                class="mt-2 text-2xl tracking-widest text-warning"
+                :aria-label="`Difficulty ${challenge.difficulty} of 5`"
+              >
+                <span
+                  v-for="star in 5"
+                  :key="star"
+                  :class="star > challenge.difficulty ? 'opacity-20' : ''"
+                >★</span>
               </span>
               <span class="mt-3 text-5xl font-black italic text-primary">VS</span>
             </div>
@@ -184,10 +191,15 @@
                   </p>
                 </div>
                 <div class="text-right">
-                  <p class="text-2xl font-black" :class="scoreClass(submission.score.netScore)">
+                  <p
+                    class="text-2xl font-black"
+                    :class="scoreClass(submission.score.netScore)"
+                  >
                     {{ signedScore(submission.score.netScore) }}
                   </p>
-                  <p class="text-[0.65rem] font-black uppercase tracking-wider text-base-content/40">
+                  <p
+                    class="text-[0.65rem] font-black uppercase tracking-wider text-base-content/40"
+                  >
                     {{ submission.score.votes }} votes
                   </p>
                 </div>
@@ -211,7 +223,9 @@
                   <h3 class="mt-2 text-2xl font-black">
                     {{ entityTitle(submission.Character, 'Unnamed character') }}
                   </h3>
-                  <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+                  <p
+                    class="mt-3 whitespace-pre-line text-sm leading-relaxed text-base-content/70"
+                  >
                     {{ entityDescription(submission.Character) }}
                   </p>
                 </div>
@@ -226,7 +240,9 @@
                   <h3 class="mt-2 text-2xl font-black">
                     {{ entityTitle(submission.Scenario, 'Untitled scenario') }}
                   </h3>
-                  <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+                  <p
+                    class="mt-3 whitespace-pre-line text-sm leading-relaxed text-base-content/70"
+                  >
                     {{ entityDescription(submission.Scenario) }}
                   </p>
                 </div>
@@ -247,7 +263,11 @@
                     type="button"
                     @click="toggleExpanded(submission.id)"
                   >
-                    {{ expandedIds.has(submission.id) ? 'Show less' : 'Read full entry' }}
+                    {{
+                      expandedIds.has(submission.id)
+                        ? 'Show less'
+                        : 'Read full entry'
+                    }}
                   </button>
                 </div>
 
@@ -262,10 +282,14 @@
                   v-if="submission.promptUsed"
                   class="collapse collapse-arrow mt-4 rounded-2xl border border-base-300 bg-base-100"
                 >
-                  <summary class="collapse-title min-h-0 py-3 text-xs font-black uppercase tracking-wider">
+                  <summary
+                    class="collapse-title min-h-0 py-3 text-xs font-black uppercase tracking-wider"
+                  >
                     Exact prompt used
                   </summary>
-                  <div class="collapse-content whitespace-pre-line text-xs text-base-content/65">
+                  <div
+                    class="collapse-content whitespace-pre-line text-xs text-base-content/65"
+                  >
                     {{ submission.promptUsed }}
                   </div>
                 </details>
@@ -292,7 +316,9 @@
                 </div>
 
                 <div>
-                  <p class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.2em] text-base-content/45">
+                  <p
+                    class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.2em] text-base-content/45"
+                  >
                     Cast or change your vote
                   </p>
                   <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -301,11 +327,25 @@
                       :key="reaction.value"
                       type="button"
                       class="btn btn-sm rounded-xl"
-                      :class="submission.myReaction === reaction.value ? reaction.activeClass : 'btn-ghost border border-base-300'"
-                      :disabled="!isLoggedIn || votingSubmissionId === submission.id || challenge.status === 'CLOSED'"
+                      :class="
+                        submission.myReaction === reaction.value
+                          ? reaction.activeClass
+                          : 'btn-ghost border border-base-300'
+                      "
+                      :disabled="
+                        !isLoggedIn ||
+                        votingSubmissionId === submission.id ||
+                        challenge.status === 'CLOSED'
+                      "
                       @click="vote(submission.id, reaction.value)"
                     >
-                      <span v-if="votingSubmissionId === submission.id && pendingReaction === reaction.value" class="loading loading-spinner loading-xs" />
+                      <span
+                        v-if="
+                          votingSubmissionId === submission.id &&
+                          pendingReaction === reaction.value
+                        "
+                        class="loading loading-spinner loading-xs"
+                      />
                       <span v-else>{{ reaction.icon }}</span>
                       {{ reaction.label }}
                     </button>
@@ -338,7 +378,10 @@
               </p>
               <h2 class="mt-1 text-2xl font-black uppercase">Challenge rankings</h2>
             </div>
-            <NuxtLink to="/challenges/leaderboard" class="btn btn-ghost btn-sm rounded-xl">
+            <NuxtLink
+              to="/challenges/leaderboard"
+              class="btn btn-ghost btn-sm rounded-xl"
+            >
               Full championship table →
             </NuxtLink>
           </div>
@@ -349,19 +392,27 @@
               :key="entry.contenderId"
               class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 px-4 py-3"
             >
-              <span class="grid size-9 place-items-center rounded-xl bg-primary/10 font-black text-primary">
+              <span
+                class="grid size-9 place-items-center rounded-xl bg-primary/10 font-black text-primary"
+              >
                 #{{ entry.rank }}
               </span>
               <div class="min-w-0">
                 <p class="truncate font-black">{{ entry.name }}</p>
                 <p class="text-xs text-base-content/45">
-                  {{ entry.submissions }} {{ entry.submissions === 1 ? 'entry' : 'entries' }} · {{ entry.score.votes }} votes
+                  {{ entry.submissions }}
+                  {{ entry.submissions === 1 ? 'entry' : 'entries' }} ·
+                  {{ entry.score.votes }} votes
                 </p>
               </div>
               <span class="hidden text-xs font-bold text-base-content/45 sm:inline">
-                ♥ {{ entry.score.loved }} · 👏 {{ entry.score.clapped }} · 👎 {{ entry.score.booed }} · ✕ {{ entry.score.hated }}
+                ♥ {{ entry.score.loved }} · 👏 {{ entry.score.clapped }} · 👎
+                {{ entry.score.booed }} · ✕ {{ entry.score.hated }}
               </span>
-              <span class="text-lg font-black" :class="scoreClass(entry.score.netScore)">
+              <span
+                class="text-lg font-black"
+                :class="scoreClass(entry.score.netScore)"
+              >
                 {{ signedScore(entry.score.netScore) }}
               </span>
             </div>
@@ -513,7 +564,12 @@ function entityTitle(entity: LinkedEntity, fallback: string) {
 }
 
 function entityDescription(entity: LinkedEntity) {
-  return entity.description || entity.flavorText || entity.content || 'No description supplied.'
+  return (
+    entity.description ||
+    entity.flavorText ||
+    entity.content ||
+    'No description supplied.'
+  )
 }
 
 function signedScore(score: number) {
@@ -578,7 +634,7 @@ async function vote(submissionId: number, reactionType: ReactionType) {
       `/api/challenges/submissions/${submissionId}/reaction`,
       {
         method: 'POST',
-        body: { reactionType },
+        body: JSON.stringify({ reactionType }),
       },
     )
 

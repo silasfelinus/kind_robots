@@ -9,7 +9,7 @@ tooltip: Our animation controller for AMI, our website's digital avatar
 dottiTip: AMI, how many butterflies are you exactly?
 amiTip: Yes.
 channelKey: sanctuary
-tabKey: about
+tabKey: sanctuary
 dashboardKey: giftshop
 dashboardTab: sanctuary
 cards: navCards

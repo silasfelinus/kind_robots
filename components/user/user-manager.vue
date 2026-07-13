@@ -16,8 +16,17 @@
         Refresh
       </button>
 
+      <NuxtLink
+        v-if="!isLoggedIn"
+        to="/login"
+        class="btn btn-primary btn-sm rounded-xl"
+      >
+        <Icon name="kind-icon:login" class="size-4" />
+        Log In
+      </NuxtLink>
+
       <button
-        v-if="!isGuest"
+        v-else
         class="btn btn-error btn-sm rounded-xl"
         type="button"
         :disabled="isLoggingOut"
@@ -45,7 +54,7 @@
     </div>
 
     <section
-      v-if="activeTab === 'dashboard' && isGuest"
+      v-if="activeTab === 'dashboard' && !isLoggedIn"
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 rounded-2xl border border-base-300 bg-base-200 p-8"
     >
       <div class="flex flex-col items-center gap-3 text-center">
@@ -166,7 +175,7 @@ const activeTab = computed<UserTab>(() => {
     : fallbackTab
 })
 
-const isGuest = computed(() => userStore.isGuest)
+const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 async function refreshManagerData(force = false) {
   isLoadingManager.value = true
@@ -196,7 +205,7 @@ async function logout(): Promise<void> {
   isLoggingOut.value = true
 
   try {
-    await userStore.logout()
+    userStore.logout()
     await navigateTo('/login', { replace: true })
   } finally {
     isLoggingOut.value = false

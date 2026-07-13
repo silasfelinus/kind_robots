@@ -1,7 +1,6 @@
 ---
 contentType: channel
 channelKey: admin
-dashboardKey: art
 label: Admin
 title: Admin
 room: Control Room

@@ -1,7 +1,6 @@
 ---
 contentType: channel
 channelKey: lab
-dashboardKey: wonder
 label: Lab
 title: Lab
 room: Wonder Lab

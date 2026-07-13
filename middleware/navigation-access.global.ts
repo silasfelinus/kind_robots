@@ -3,6 +3,14 @@ import { resolveChannelLocation } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useUserStore } from '@/stores/userStore'
 
+const accountPermissions = new Set([
+  'authenticated',
+  'member',
+  'family',
+  'mature',
+  'admin',
+])
+
 export default defineNuxtRouteMiddleware(async (to) => {
   if (import.meta.server) return
 
@@ -34,6 +42,24 @@ export default defineNuxtRouteMiddleware(async (to) => {
     : null
 
   if (visibleChannel && (!requested.tab || visibleTab)) return
+
+  const requiredRole =
+    requested.tab?.requiredRole || requested.channel.requiredRole
+  const requiredPermission =
+    requested.tab?.requiredPermission || requested.channel.requiredPermission
+  const requiresAccount =
+    Boolean(requiredRole && requiredRole !== 'GUEST') ||
+    accountPermissions.has(requiredPermission.toLowerCase())
+
+  if (!userStore.isLoggedIn && requiresAccount && to.path !== '/login') {
+    return navigateTo({
+      path: '/login',
+      query: {
+        redirect: to.fullPath,
+      },
+      replace: true,
+    })
+  }
 
   // Avoid an impossible redirect loop if Home is ever accidentally gated.
   if (to.path === '/') return

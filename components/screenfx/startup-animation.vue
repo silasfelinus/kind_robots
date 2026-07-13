@@ -21,7 +21,7 @@ import {
   onMounted,
   ref,
   resolveComponent,
-  watch
+  watch,
 } from 'vue'
 import { useAnimationStore, type AnimationEffectId } from '@/stores/animationStore'
 import { useAnimationPreferenceStore } from '@/stores/animationPreferenceStore'
@@ -35,13 +35,13 @@ const resolvedEffectId = ref<AnimationEffectId | null>(null)
 const renderEffect = ref(false)
 const isFading = ref(false)
 
+const FADE_MS = 650
+
 let fadeTimer: ReturnType<typeof setTimeout> | null = null
 
-const componentsMap: Record<
-  AnimationEffectId,
-  ReturnType<typeof resolveComponent>
+const componentsMap: Partial<
+  Record<AnimationEffectId, ReturnType<typeof resolveComponent>>
 > = {
-  'aurora-effect': resolveComponent('LazyAuroraEffect'),
   'starfield-effect': resolveComponent('LazyStarfieldEffect'),
   'constellation-effect': resolveComponent('LazyConstellationEffect'),
   'wishing-stars': resolveComponent('LazyWishingStars'),
@@ -68,7 +68,7 @@ const componentsMap: Record<
   'ascii-aquarium': resolveComponent('LazyAsciiAquarium'),
   'pacbot-effect': resolveComponent('LazyPacbotEffect'),
   'pocket-gremlin': resolveComponent('LazyPocketGremlin'),
-  'siege-engine': resolveComponent('LazySiegeEngine')
+  'siege-engine': resolveComponent('LazySiegeEngine'),
 }
 
 const currentComponent = computed(() => {
@@ -86,7 +86,9 @@ function selectEffect(): void {
   preferenceStore.initialize()
 
   const availableIds = animationStore.safeEffects
-    .filter((effect) => !effect.blocksInput)
+    .filter(
+      (effect) => !effect.blocksInput && componentsMap[effect.id] !== undefined,
+    )
     .map((effect) => effect.id)
 
   resolvedEffectId.value = preferenceStore.resolveStartupEffect(availableIds)
@@ -104,7 +106,7 @@ function fadeOut(): void {
     renderEffect.value = false
     isFading.value = false
     fadeTimer = null
-  }, 850)
+  }, FADE_MS)
 }
 
 watch(
@@ -117,7 +119,7 @@ watch(
     }
 
     fadeOut()
-  }
+  },
 )
 
 onMounted(() => {
@@ -137,9 +139,10 @@ onBeforeUnmount(() => {
   overflow: hidden;
   pointer-events: none;
   opacity: 1;
-  transition: opacity 850ms ease;
+  transition: opacity 650ms ease;
   transform: translateZ(0);
   contain: layout paint style;
+  will-change: opacity;
 }
 
 .startup-animation--fading {

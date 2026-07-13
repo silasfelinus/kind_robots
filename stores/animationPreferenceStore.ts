@@ -133,7 +133,17 @@ export const useAnimationPreferenceStore = defineStore(
 
     function persist(): void {
       if (!import.meta.client || !initialized.value) return
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
+      } catch {
+        return
+      }
+    }
+
+    function applyPreferences(next: AnimationPreferences): void {
+      preferences.startupEffect = next.startupEffect
+      Object.assign(preferences.butterflies, next.butterflies)
     }
 
     function initialize(): void {
@@ -141,11 +151,11 @@ export const useAnimationPreferenceStore = defineStore(
 
       try {
         const stored = localStorage.getItem(STORAGE_KEY)
-        const next = sanitizePreferences(stored ? JSON.parse(stored) : null)
-        Object.assign(preferences, next)
-        Object.assign(preferences.butterflies, next.butterflies)
+        applyPreferences(
+          sanitizePreferences(stored ? JSON.parse(stored) : null)
+        )
       } catch {
-        Object.assign(preferences, structuredClone(DEFAULT_PREFERENCES))
+        applyPreferences(structuredClone(DEFAULT_PREFERENCES))
       }
 
       initialized.value = true
@@ -173,9 +183,7 @@ export const useAnimationPreferenceStore = defineStore(
     }
 
     function reset(): void {
-      const next = structuredClone(DEFAULT_PREFERENCES)
-      preferences.startupEffect = next.startupEffect
-      Object.assign(preferences.butterflies, next.butterflies)
+      applyPreferences(structuredClone(DEFAULT_PREFERENCES))
       initialized.value = true
       persist()
     }

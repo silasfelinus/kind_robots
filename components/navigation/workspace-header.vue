@@ -1,4 +1,4 @@
-<!-- /components/content/navigation/workspace-header.vue -->
+<!-- /components/navigation/workspace-header.vue -->
 <template>
   <header
     class="relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-base-300/70 bg-base-100/95 shadow-sm backdrop-blur"
@@ -21,7 +21,6 @@
 
       <channel-select class="shrink-0" />
 
-      <!-- Unified tab selector — same layout at every breakpoint, scales up on larger screens -->
       <div v-if="resolvedTabs.length" class="dropdown min-w-0 flex-1">
         <button
           tabindex="0"
@@ -48,7 +47,6 @@
               :alt="activeTabConfig.title || activeTabConfig.label"
               class="h-full w-full object-cover"
             />
-
             <span
               class="absolute inset-0 flex items-center justify-center bg-base-content/20"
             >
@@ -84,16 +82,16 @@
           tabindex="0"
           class="menu dropdown-content z-40 mt-2 max-h-80 w-[min(24rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         >
-          <li v-for="tab in resolvedTabs" :key="tab.key">
+          <li v-for="tab in resolvedTabs" :key="tab.tabKey">
             <button
               type="button"
               class="flex min-h-12 items-center gap-2 rounded-xl xl:min-h-14"
               :class="
-                activeTabKey === tab.key
+                activeTabKey === tab.tabKey
                   ? 'active bg-primary text-primary-content'
                   : ''
               "
-              @click="selectTabFromDropdown(tab.key)"
+              @click="selectTabFromDropdown(tab.tabKey)"
             >
               <span
                 class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-base-200 xl:h-10 xl:w-10"
@@ -123,10 +121,10 @@
                 </span>
 
                 <span
-                  v-if="tab.summary"
+                  v-if="tab.summary || tab.description"
                   class="line-clamp-1 text-xs font-medium opacity-70"
                 >
-                  {{ tab.summary }}
+                  {{ tab.summary || tab.description }}
                 </span>
               </span>
             </button>
@@ -166,23 +164,30 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  isDashboardKey,
-  type DashboardKey,
-  type DashboardTabConfig,
-} from '@/stores/helpers/dashboardHelper'
+import { isDashboardKey } from '@/stores/helpers/dashboardHelper'
+import type { ResolvedTab } from '@/stores/helpers/channelContent'
+import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useSheetStore } from '@/stores/sheetStore'
 
 const fallbackIcon = 'kind-icon:sparkles'
 
+const channelContentStore = useChannelContentStore()
 const navStore = useNavStore()
 const pageStore = usePageStore()
+const sheetStore = useSheetStore()
 const router = useRouter()
 const route = useRoute()
 
+await channelContentStore.initialize()
+
 const shellTitle = computed(
-  () => pageStore.room || pageStore.title || 'Kind Robots',
+  () =>
+    resolvedChannel.value?.room ||
+    pageStore.room ||
+    pageStore.title ||
+    'Kind Robots',
 )
 
 const shellSummary = computed(
@@ -191,82 +196,73 @@ const shellSummary = computed(
 
 const showBackButton = computed(() => navStore.canGoBack)
 
-const resolvedDashboardKey = computed<DashboardKey | null>(() => {
-  const shellKey = navStore.dashboardShell.dashboardKey
+const resolvedLocation = computed(() =>
+  channelContentStore.resolveLocation({
+    channelKey: pageStore.channelKey,
+    tabKey: pageStore.tabKey,
+    dashboardKey: pageStore.dashboardKey,
+    dashboardTab: pageStore.dashboardTab,
+    path: route.path,
+  }),
+)
 
-  if (shellKey && isDashboardKey(shellKey)) {
-    return shellKey
-  }
-
-  const pageKey = (pageStore.dashboardKey || '').trim()
-
-  return pageKey && isDashboardKey(pageKey) ? pageKey : null
-})
-
-const resolvedTabs = computed<DashboardTabConfig[]>(() => {
-  const key = resolvedDashboardKey.value
-  return key ? navStore.getDashboardTabs(key) : []
-})
-
-const routeRequestedTabKey = computed(() => {
-  const tabKey = (pageStore.dashboardTab || '').trim()
-  if (!tabKey) return ''
-
-  const tabExists = resolvedTabs.value.some((tab) => tab.key === tabKey)
-  return tabExists ? tabKey : ''
-})
+const resolvedChannel = computed(() => resolvedLocation.value?.channel ?? null)
+const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
 
 const activeTabKey = computed(() => {
-  const key = resolvedDashboardKey.value
-  if (!key) return ''
+  const channel = resolvedChannel.value
+  if (!channel) return ''
 
-  const storedTab = navStore.getDashboardTab(key)
+  const locatedTab = resolvedLocation.value?.tab
+  const locatedOnChildRoute =
+    locatedTab &&
+    locatedTab.route === route.path &&
+    locatedTab.route !== channel.route
 
-  const storedTabExists = resolvedTabs.value.some(
-    (tab) => tab.key === storedTab,
-  )
+  if (locatedOnChildRoute) return locatedTab.tabKey
 
-  if (storedTabExists) {
-    return storedTab
-  }
+  const stored = channelContentStore.getActiveTab(channel.channelKey)
+  if (stored && channel.tabs.some((tab) => tab.tabKey === stored)) return stored
 
-  const contentTab = navStore.dashboardShell.activeTabHint
-
-  const contentTabExists = resolvedTabs.value.some(
-    (tab) => tab.key === contentTab,
-  )
-
-  if (contentTabExists) {
-    return contentTab
-  }
-
-  return resolvedTabs.value[0]?.key || ''
+  return locatedTab?.tabKey || channel.defaultTab || channel.tabs[0]?.tabKey || ''
 })
 
-const activeTabConfig = computed<DashboardTabConfig>(() => {
-  const matched = resolvedTabs.value.find(
-    (tab) => tab.key === activeTabKey.value,
+const fallbackTab: ResolvedTab = {
+  key: 'overview',
+  channelKey: 'home',
+  tabKey: 'overview',
+  dashboardKey: '',
+  dashboardTab: '',
+  label: pageStore.title || 'Overview',
+  title: pageStore.title || 'Overview',
+  room: pageStore.room || 'Kind Robots',
+  subtitle: shellSummary.value,
+  description: shellSummary.value,
+  summary: shellSummary.value,
+  narrative: shellSummary.value || pageStore.title || 'Overview',
+  tooltip: pageStore.tooltip,
+  icon: fallbackIcon,
+  image: pageStore.image || '',
+  route: pageStore.currentPage?.path || '/',
+  component: '',
+  modelType: '',
+  sort: 0,
+  cards: null,
+  requiredBeforeNext: [],
+  requiredRole: '',
+  requiredPermission: '',
+  loadingMessage: pageStore.loadingMessage || 'Loading…',
+  refreshLabel: pageStore.refreshLabel || 'Refresh',
+  dottiTip: pageStore.dottiTip,
+  amiTip: pageStore.amiTip,
+}
+
+const activeTabConfig = computed<ResolvedTab>(() => {
+  return (
+    resolvedTabs.value.find((tab) => tab.tabKey === activeTabKey.value) ??
+    resolvedTabs.value[0] ??
+    fallbackTab
   )
-
-  if (matched) return matched
-
-  const firstTab = resolvedTabs.value[0]
-
-  if (firstTab) return firstTab
-
-  const title = pageStore.title || 'Overview'
-  const summary = shellSummary.value || ''
-
-  return {
-    key: activeTabKey.value || 'overview',
-    label: title,
-    icon: fallbackIcon,
-    title,
-    summary,
-    narrative: summary || title,
-    image: pageStore.image || '',
-    route: pageStore.currentPage?.path || '/',
-  }
 })
 
 const activeTitle = computed(
@@ -278,33 +274,58 @@ const activeTitle = computed(
 
 watch(
   () => ({
-    dashboardKey: resolvedDashboardKey.value,
-    dashboardTab: routeRequestedTabKey.value,
+    channelKey: resolvedChannel.value?.channelKey || '',
+    tabKey: resolvedLocation.value?.tab?.tabKey || '',
+    path: route.path,
   }),
-  ({ dashboardKey, dashboardTab }) => {
-    if (!dashboardKey || !dashboardTab) return
+  ({ channelKey, tabKey }) => {
+    if (!channelKey || !tabKey) return
 
-    const currentTab = navStore.getDashboardTab(dashboardKey)
-    if (currentTab === dashboardTab) return
+    const tab = resolvedTabs.value.find((item) => item.tabKey === tabKey)
+    if (!tab) return
 
-    navStore.setDashboardTab(
-      dashboardKey,
-      dashboardTab,
-      'dashboard-header route-enforced tab',
-    )
+    channelContentStore.setActiveTab(channelKey, tabKey)
+    syncLegacyTab(tab, 'workspace-header route sync')
+    setSheetFromTab(tab)
   },
   { immediate: true },
 )
 
-function selectTabFromDropdown(tabKey: string): void {
-  setTab(tabKey)
+function syncLegacyTab(tab: ResolvedTab, reason: string): void {
+  if (!tab.dashboardKey || !isDashboardKey(tab.dashboardKey)) return
 
-  // When a tab lives on its own route (a project page stitched into this
-  // channel), navigate there. Tabs that share the current channel route keep
-  // rendering inline via the channel manager, so behavior is unchanged for them.
-  const tab = resolvedTabs.value.find((entry) => entry.key === tabKey)
-  if (tab?.route && tab.route !== route.path) {
-    router.push(tab.route)
+  const legacyTabs = navStore.getDashboardTabs(tab.dashboardKey)
+  const legacyTab = tab.dashboardTab || tab.tabKey
+
+  if (!legacyTabs.some((item) => item.key === legacyTab)) return
+
+  navStore.setDashboardTab(tab.dashboardKey, legacyTab, reason)
+}
+
+function setSheetFromTab(tab: ResolvedTab): void {
+  sheetStore.setSheetFromTab({
+    key: tab.tabKey,
+    label: tab.label,
+    title: tab.title,
+    summary: tab.summary,
+    description: tab.description,
+    narrative: tab.narrative,
+    icon: tab.icon,
+    image: tab.image,
+  })
+}
+
+function selectTabFromDropdown(tabKey: string): void {
+  const channel = resolvedChannel.value
+  const tab = resolvedTabs.value.find((item) => item.tabKey === tabKey)
+  if (!channel || !tab) return
+
+  channelContentStore.setActiveTab(channel.channelKey, tab.tabKey)
+  syncLegacyTab(tab, 'workspace-header content tab')
+  setSheetFromTab(tab)
+
+  if (tab.route && tab.route !== route.path) {
+    void router.push(tab.route)
   }
 
   if (typeof document !== 'undefined') {
@@ -313,18 +334,11 @@ function selectTabFromDropdown(tabKey: string): void {
   }
 }
 
-function setTab(tabKey: string): void {
-  const key = resolvedDashboardKey.value
-  if (!key) return
-
-  navStore.setDashboardTab(key, tabKey, 'dashboard-header tab button')
-}
-
 function goBack(): void {
   const path = navStore.backPath
 
   if (path) {
-    router.push(path)
+    void router.push(path)
     return
   }
 

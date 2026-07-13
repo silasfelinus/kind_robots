@@ -1,6 +1,6 @@
 // /stores/pageStore.ts
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { ContentCollectionItem } from '@nuxt/content'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import type { NavigationCard } from '@/stores/helpers/channelContent'
@@ -127,6 +127,8 @@ export const usePageStore = defineStore('pageStore', () => {
   const lastResolvedPath = ref('')
   const overrideCards = ref<BuilderCard[] | null>(null)
 
+  const channelContentStore = useChannelContentStore()
+
   const currentPage = computed(() => page.value as WorkspacePage | null)
 
   const layout = computed<PageLayoutKey>(() => 'default')
@@ -174,6 +176,28 @@ export const usePageStore = defineStore('pageStore', () => {
     refreshLabel: getString(currentPage.value?.refreshLabel),
   }))
 
+  const resolvedLocation = computed(() =>
+    channelContentStore.resolveActiveLocation({
+      channelKey: meta.value.channelKey,
+      tabKey: meta.value.tabKey,
+      dashboardKey: meta.value.dashboardKey,
+      dashboardTab: meta.value.dashboardTab,
+      path: currentPage.value?.path || lastResolvedPath.value,
+    }),
+  )
+
+  const resolvedChannel = computed(
+    () => resolvedLocation.value?.channel ?? null,
+  )
+  const resolvedTab = computed(() => resolvedLocation.value?.tab ?? null)
+
+  const activeChannelKey = computed(
+    () => resolvedChannel.value?.channelKey || meta.value.channelKey,
+  )
+  const activeTabKey = computed(
+    () => resolvedTab.value?.tabKey || meta.value.tabKey,
+  )
+
   const cards = computed<BuilderCard[]>(() => {
     if (overrideCards.value !== null) return overrideCards.value
 
@@ -183,39 +207,68 @@ export const usePageStore = defineStore('pageStore', () => {
       return navigationCardsToBuilderCards(value)
     }
 
-    const channelContentStore = useChannelContentStore()
-    const location = channelContentStore.resolveLocation({
-      channelKey: meta.value.channelKey,
-      tabKey: meta.value.tabKey,
-      dashboardKey: meta.value.dashboardKey,
-      dashboardTab: meta.value.dashboardTab,
-      path: currentPage.value?.path,
-    })
-
-    return location?.channel ? channelTabsToCards(location.channel) : []
+    return resolvedChannel.value
+      ? channelTabsToCards(resolvedChannel.value)
+      : []
   })
 
-  function syncDashboardShellFromPage(): void {
-    const navStore = useNavStore()
+  function setSheetFromResolvedTab(): void {
+    const tab = resolvedTab.value
+    if (!tab) return
 
-    navStore.setDashboardShellFromContent({
-      title: meta.value.title,
-      subtitle: meta.value.subtitle,
-      description: meta.value.description,
-      summary: meta.value.summary,
-      dashboardKey: meta.value.dashboardKey,
-      dashboardTab: meta.value.dashboardTab,
-      cards: cardsKey.value,
-      loadingMessage: meta.value.loadingMessage,
-      refreshLabel: meta.value.refreshLabel,
+    useSheetStore().setSheetFromTab({
+      key: tab.tabKey,
+      label: tab.label,
+      title: tab.title,
+      summary: tab.summary,
+      description: tab.description,
+      narrative: tab.narrative,
+      icon: tab.icon,
+      image: tab.image,
     })
   }
 
-  function initialize(): void {
-    if (initialized.value) return
+  function syncDashboardShellFromPage(): void {
+    const navStore = useNavStore()
+    const channel = resolvedChannel.value
+    const tab = resolvedTab.value
 
+    if (channel && tab) {
+      channelContentStore.setActiveTab(channel.channelKey, tab.tabKey)
+    }
+
+    const tabCards = typeof tab?.cards === 'string' ? tab.cards.trim() : ''
+
+    navStore.setDashboardShellFromContent({
+      title: tab?.title || channel?.title || meta.value.title,
+      subtitle: tab?.subtitle || channel?.subtitle || meta.value.subtitle,
+      description:
+        tab?.description || channel?.description || meta.value.description,
+      summary: tab?.summary || channel?.summary || meta.value.summary,
+      dashboardKey:
+        tab?.dashboardKey || channel?.dashboardKey || meta.value.dashboardKey,
+      dashboardTab:
+        tab?.dashboardTab || tab?.tabKey || meta.value.dashboardTab,
+      cards: tabCards || cardsKey.value,
+      loadingMessage:
+        tab?.loadingMessage ||
+        channel?.loadingMessage ||
+        meta.value.loadingMessage,
+      refreshLabel:
+        tab?.refreshLabel || channel?.refreshLabel || meta.value.refreshLabel,
+    })
+
+    setSheetFromResolvedTab()
+  }
+
+  async function initialize(force = false): Promise<void> {
+    if (initialized.value && !force) return
+
+    await channelContentStore.initialize(force)
     initialized.value = true
     ready.value = true
+
+    if (page.value) syncDashboardShellFromPage()
   }
 
   function setLoading(value: boolean): void {
@@ -233,6 +286,12 @@ export const usePageStore = defineStore('pageStore', () => {
     useSheetStore().clearSheet()
 
     syncDashboardShellFromPage()
+
+    if (!channelContentStore.initialized) {
+      void channelContentStore.initialize().then(() => {
+        if (page.value === newPage) syncDashboardShellFromPage()
+      })
+    }
   }
 
   function clearPage(): void {
@@ -273,6 +332,24 @@ export const usePageStore = defineStore('pageStore', () => {
     overrideCards.value = null
   }
 
+  watch(
+    () => ({
+      channelKey: activeChannelKey.value,
+      tabKey: activeTabKey.value,
+    }),
+    (next, previous) => {
+      if (!page.value) return
+      if (
+        next.channelKey === previous.channelKey &&
+        next.tabKey === previous.tabKey
+      ) {
+        return
+      }
+
+      syncDashboardShellFromPage()
+    },
+  )
+
   return {
     page,
     currentPage,
@@ -285,6 +362,11 @@ export const usePageStore = defineStore('pageStore', () => {
     cardsKey,
     workspaceCardKey,
     lastResolvedPath,
+    resolvedLocation,
+    resolvedChannel,
+    resolvedTab,
+    activeChannelKey,
+    activeTabKey,
 
     setPage,
     clearPage,

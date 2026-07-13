@@ -2,6 +2,8 @@
 contentType: tab
 channelKey: plan
 tabKey: projects
+dashboardKey: conductor
+dashboardTab: conductor
 label: Projects
 title: Project Planner
 subtitle: Organize the work that matters

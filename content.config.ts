@@ -32,7 +32,7 @@ const tutorialSchema = z.object({
   underConstruction: z.boolean().optional(),
 })
 
-const contentSchema = z.object({
+const sharedNavigationSchema = z.object({
   title: z.string().optional(),
   label: z.string().optional(),
   room: z.string().optional(),
@@ -45,12 +45,9 @@ const contentSchema = z.object({
   amiTip: z.string().optional(),
   dottitip: z.string().optional(),
   amitip: z.string().optional(),
-  narrator: narratorSchema.optional(),
-  artPrompt: z.string().optional(),
   summary: z.string().optional(),
   narrative: z.string().optional(),
   sort: z.union([z.string(), z.number()]).optional(),
-  contentType: z.enum(['page', 'channel', 'tab']).default('page'),
   channelKey: z.string().optional(),
   tabKey: z.string().optional(),
   dashboardKey: z.string().optional(),
@@ -68,50 +65,23 @@ const contentSchema = z.object({
   status: z.string().optional(),
   loadingMessage: z.string().optional(),
   refreshLabel: z.string().optional(),
-  footer: z.string().optional(),
-  footerState: z.string().optional(),
-
-  path: z.string(),
-
-  seo: z
-    .intersection(
-      z.object({
-        title: z.string().optional(),
-        description: z.string().optional(),
-        meta: z.array(z.record(z.string(), z.any())).optional(),
-        link: z.array(z.record(z.string(), z.any())).optional(),
-      }),
-      z.record(z.string(), z.any()),
-    )
-    .default({}),
-
-  body: z.object({
-    type: z.string(),
-    children: z.any(),
-    toc: z.any(),
-  }),
-
-  navigation: z
-    .union([
-      z.boolean(),
-      z.object({
-        title: z.string(),
-        icon: z.string(),
-        description: z.string(),
-      }),
-    ])
-    .default(false),
 })
 
-export type ContentType = z.infer<typeof contentSchema> & {
-  seo?: {
-    title?: string
-    description?: string
-    meta?: Record<string, any>[]
-    link?: Record<string, any>[]
-    [key: string]: any
-  }
-}
+const pageSchema = sharedNavigationSchema.extend({
+  contentType: z.literal('page').default('page'),
+  narrator: narratorSchema.optional(),
+  artPrompt: z.string().optional(),
+  footer: z.string().optional(),
+  footerState: z.string().optional(),
+})
+
+const channelSchema = sharedNavigationSchema.extend({
+  contentType: z.enum(['channel', 'tab']),
+  channelKey: z.string(),
+})
+
+export type ContentType = z.infer<typeof pageSchema>
+export type ChannelContentType = z.infer<typeof channelSchema>
 
 export type PageNarratorRef =
   | string
@@ -147,8 +117,22 @@ export default defineContentConfig({
   collections: {
     content: defineCollection({
       type: 'page',
-      source: '**/*.md',
-      schema: contentSchema,
+      source: {
+        include: '**/*.md',
+        exclude: ['channels/**'],
+      },
+      schema: pageSchema,
+    }),
+    channels: defineCollection({
+      type: 'data',
+      source: 'channels/**/*.md',
+      schema: channelSchema,
+      indexes: [
+        { columns: ['contentType'] },
+        { columns: ['channelKey'] },
+        { columns: ['channelKey', 'tabKey'] },
+        { columns: ['sort'] },
+      ],
     }),
   },
 })

@@ -1,7 +1,6 @@
 ---
 contentType: channel
 channelKey: sanctuary
-dashboardKey: giftshop
 label: Sanctuary
 title: Sanctuary
 room: Butterfly Sanctuary

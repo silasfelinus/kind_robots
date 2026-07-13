@@ -2,6 +2,8 @@
 contentType: tab
 channelKey: admin
 tabKey: artjob
+dashboardKey: art
+dashboardTab: artjob
 label: ArtJob
 title: ArtJob Pipeline
 subtitle: Manage the generation queue

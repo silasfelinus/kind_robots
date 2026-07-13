@@ -13,6 +13,7 @@ type NavigationDocument = {
   tabKey: string
   defaultTab: string
   route: string
+  requiredPermission: string
 }
 
 const expectedChannels = [
@@ -24,7 +25,13 @@ const expectedChannels = [
   'sanctuary',
   'admin',
 ]
-
+const allowedPermissions = new Set([
+  'authenticated',
+  'member',
+  'family',
+  'mature',
+  'admin',
+])
 const navigationKeyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
@@ -93,6 +100,7 @@ async function readDocument(file: string): Promise<NavigationDocument> {
     tabKey: frontMatter.tabKey ?? '',
     defaultTab: frontMatter.defaultTab ?? '',
     route: frontMatter.route ?? '',
+    requiredPermission: (frontMatter.requiredPermission ?? '').toLowerCase(),
   }
 }
 
@@ -115,6 +123,22 @@ function validateKey(
       errors,
       document,
       `${label} must be lowercase kebab-case for shareable URLs: ${value}`,
+    )
+  }
+}
+
+function validatePermission(
+  errors: string[],
+  document: NavigationDocument,
+): void {
+  if (
+    document.requiredPermission &&
+    !allowedPermissions.has(document.requiredPermission)
+  ) {
+    addError(
+      errors,
+      document,
+      `unknown requiredPermission ${document.requiredPermission}; expected one of ${Array.from(allowedPermissions).join(', ')}`,
     )
   }
 }
@@ -147,6 +171,7 @@ async function main() {
     }
 
     validateKey(errors, document, 'channelKey', document.channelKey)
+    validatePermission(errors, document)
   }
 
   for (const channel of channels) {
@@ -236,6 +261,8 @@ async function main() {
   let placedPages = 0
 
   for (const page of pageDocuments) {
+    validatePermission(errors, page)
+
     if (!page.channelKey && !page.tabKey) continue
 
     placedPages += 1
@@ -268,7 +295,7 @@ async function main() {
   }
 
   console.log(
-    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements, ${sharedRouteGroups.length} shared-route tab groups using ?tab= addressing.`,
+    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements, ${sharedRouteGroups.length} shared-route tab groups using ?tab= addressing, and ${allowedPermissions.size} supported capability names.`,
   )
 }
 

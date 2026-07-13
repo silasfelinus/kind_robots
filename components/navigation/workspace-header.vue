@@ -102,10 +102,14 @@ const route = useRoute()
 
 await channelContentStore.initialize()
 
+const requestedTabKey = computed(() => {
+  return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
+})
+
 const resolvedLocation = computed(() =>
   channelContentStore.resolveLocation({
     channelKey: pageStore.channelKey,
-    tabKey: pageStore.tabKey,
+    tabKey: requestedTabKey.value || pageStore.tabKey,
     dashboardKey: pageStore.dashboardKey,
     dashboardTab: pageStore.dashboardTab,
     path: route.path,
@@ -132,6 +136,13 @@ const showBackButton = computed(() => navStore.canGoBack)
 const activeTabKey = computed(() => {
   const channel = resolvedChannel.value
   if (!channel) return ''
+
+  if (
+    requestedTabKey.value &&
+    channel.tabs.some((tab) => tab.tabKey === requestedTabKey.value)
+  ) {
+    return requestedTabKey.value
+  }
 
   const locatedTab = resolvedLocation.value?.tab
   const locatedOnChildRoute =
@@ -196,8 +207,9 @@ const activeTitle = computed(
 watch(
   () => ({
     channelKey: resolvedChannel.value?.channelKey || '',
-    tabKey: resolvedLocation.value?.tab?.tabKey || '',
+    tabKey: activeTabKey.value,
     path: route.path,
+    queryTab: requestedTabKey.value,
   }),
   ({ channelKey, tabKey }) => {
     if (!channelKey || !tabKey) return

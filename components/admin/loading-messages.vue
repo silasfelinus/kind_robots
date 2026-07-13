@@ -12,10 +12,10 @@
           alt="Kind Robots"
           class="loading-logo"
           :class="{ 'loading-logo--ready': logoLoaded }"
-          :width="420"
-          :height="420"
+          :width="720"
+          :height="720"
           format="webp"
-          :quality="76"
+          :quality="82"
           preload
           loading="eager"
           fetchpriority="high"
@@ -66,8 +66,8 @@ const hiddenEmitted = ref(false)
 const FIRST_MESSAGE_MS = 850
 const SLOW_LOAD_MESSAGE_MS = 1500
 const ROTATING_MESSAGE_MS = 1600
-const READY_HOLD_MS = 250
-const MIN_TOTAL_MS = 1650
+const READY_HOLD_MS = 350
+const MIN_TOTAL_MS = 1800
 const OVERLAY_FADE_MS = 650
 
 const startTime = Date.now()
@@ -83,6 +83,7 @@ function wait(ms: number) {
       resolve()
       return
     }
+
     setTimeout(resolve, ms)
   })
 }
@@ -171,7 +172,7 @@ watch(
   () => props.storesReady,
   (ready) => {
     if (ready) scheduleFade()
-  }
+  },
 )
 
 onMounted(async () => {
@@ -202,10 +203,10 @@ onBeforeUnmount(() => {
   z-index: 40;
   display: grid;
   place-items: center;
-  padding: 1.5rem;
+  padding: 1rem;
   background: #000;
   opacity: 1;
-  transition: opacity 0.65s ease;
+  transition: opacity 650ms ease;
   pointer-events: auto;
   contain: layout paint style;
   will-change: opacity;
@@ -218,8 +219,8 @@ onBeforeUnmount(() => {
 
 .loading-content {
   display: grid;
-  width: min(94vw, 48rem);
-  grid-template-rows: clamp(14rem, 34vw, 21rem) 8rem;
+  width: min(98vw, 64rem);
+  grid-template-rows: clamp(20rem, 58vw, 36rem) 8rem;
   place-items: center;
 }
 
@@ -231,15 +232,15 @@ onBeforeUnmount(() => {
 }
 
 .loading-logo {
-  width: clamp(12rem, 30vw, 19rem);
+  width: clamp(20rem, 58vw, 34rem);
   height: auto;
   object-fit: contain;
   opacity: 0;
-  transform: translateY(0.35rem) scale(0.96);
+  transform: translateY(0.75rem) scale(0.92);
   transition:
-    opacity 0.55s ease,
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  filter: drop-shadow(0 1rem 2rem rgba(255, 255, 255, 0.18));
+    opacity 900ms ease,
+    transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 1.5rem 3rem rgba(255, 255, 255, 0.2));
   will-change: opacity, transform;
 }
 
@@ -250,7 +251,8 @@ onBeforeUnmount(() => {
 
 .loading-overlay--fade .loading-logo {
   opacity: 0;
-  transform: translateY(-0.25rem) scale(1.025);
+  transform: translateY(-0.5rem) scale(1.04);
+  transition-duration: 650ms;
 }
 
 .loading-status {
@@ -259,7 +261,6 @@ onBeforeUnmount(() => {
   min-height: 8rem;
   grid-template-rows: 4rem 4rem;
   place-items: center;
-  gap: 0;
 }
 
 .loading-spinner-slot {
@@ -278,7 +279,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 0.65rem 1.2rem;
   background: rgba(0, 0, 0, 0.78);
-  color: #ffffff;
+  color: #fff;
   font-size: clamp(1.05rem, 2vw, 1.75rem);
   font-weight: 700;
   text-align: center;
@@ -291,7 +292,7 @@ onBeforeUnmount(() => {
   display: block;
   width: 4rem;
   height: 4rem;
-  color: #ffffff;
+  color: #fff;
   font-size: 4rem;
   filter: drop-shadow(0 0 0.75rem rgba(255, 255, 255, 0.22));
 }
@@ -299,8 +300,8 @@ onBeforeUnmount(() => {
 .loader-message-enter-active,
 .loader-message-leave-active {
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    opacity 200ms ease,
+    transform 200ms ease;
 }
 
 .loader-message-enter-from,

@@ -182,6 +182,19 @@ const route = useRoute()
 
 await channelContentStore.initialize()
 
+const resolvedLocation = computed(() =>
+  channelContentStore.resolveLocation({
+    channelKey: pageStore.channelKey,
+    tabKey: pageStore.tabKey,
+    dashboardKey: pageStore.dashboardKey,
+    dashboardTab: pageStore.dashboardTab,
+    path: route.path,
+  }),
+)
+
+const resolvedChannel = computed(() => resolvedLocation.value?.channel ?? null)
+const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
+
 const shellTitle = computed(
   () =>
     resolvedChannel.value?.room ||
@@ -195,19 +208,6 @@ const shellSummary = computed(
 )
 
 const showBackButton = computed(() => navStore.canGoBack)
-
-const resolvedLocation = computed(() =>
-  channelContentStore.resolveLocation({
-    channelKey: pageStore.channelKey,
-    tabKey: pageStore.tabKey,
-    dashboardKey: pageStore.dashboardKey,
-    dashboardTab: pageStore.dashboardTab,
-    path: route.path,
-  }),
-)
-
-const resolvedChannel = computed(() => resolvedLocation.value?.channel ?? null)
-const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
 
 const activeTabKey = computed(() => {
   const channel = resolvedChannel.value
@@ -248,6 +248,7 @@ const fallbackTab: ResolvedTab = {
   modelType: '',
   sort: 0,
   cards: null,
+  tutorial: null,
   requiredBeforeNext: [],
   requiredRole: '',
   requiredPermission: '',

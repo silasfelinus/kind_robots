@@ -10,6 +10,16 @@ const narratorSchema = z.union([
   }),
 ])
 
+const navigationCardSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  image: z.string().optional(),
+  route: z.string().optional(),
+  action: z.string().optional(),
+})
+
 const contentSchema = z.object({
   title: z.string().optional(),
   room: z.string().optional(),
@@ -18,15 +28,30 @@ const contentSchema = z.object({
   icon: z.string().optional(),
   image: z.string().optional(),
   tooltip: z.string().optional(),
+  dottiTip: z.string().optional(),
+  amiTip: z.string().optional(),
   dottitip: z.string().optional(),
   amitip: z.string().optional(),
   narrator: narratorSchema.optional(),
   artPrompt: z.string().optional(),
   summary: z.string().optional(),
-  sort: z.string().optional(),
+  narrative: z.string().optional(),
+  sort: z.union([z.string(), z.number()]).optional(),
+  contentType: z.enum(['page', 'channel', 'tab']).default('page'),
+  channelKey: z.string().optional(),
+  tabKey: z.string().optional(),
   dashboardKey: z.string().optional(),
   dashboardTab: z.string().optional(),
-  cards: z.string().optional(),
+  defaultTab: z.string().optional(),
+  route: z.string().optional(),
+  component: z.string().optional(),
+  modelType: z.string().optional(),
+  cards: z.union([z.string(), z.array(navigationCardSchema)]).optional(),
+  requiredBeforeNext: z.array(z.string()).optional(),
+  requiredRole: z.string().optional(),
+  requiredPermission: z.string().optional(),
+  visible: z.boolean().default(true),
+  status: z.string().optional(),
   loadingMessage: z.string().optional(),
   refreshLabel: z.string().optional(),
   footer: z.string().optional(),
@@ -89,10 +114,12 @@ export type PageBrief = {
   icon: string
   image: string
   tooltip: string
-  dottitip: string
-  amitip: string
+  dottiTip: string
+  amiTip: string
   narrator?: PageNarratorRef
   artPrompt: string
+  channelKey?: string
+  tabKey?: string
   dashboardKey?: string
   summary?: string
   dashboardTab?: string

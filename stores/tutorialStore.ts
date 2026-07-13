@@ -1,6 +1,5 @@
 // /stores/tutorialStore.ts
 import { defineStore } from 'pinia'
-import { tutorialChannelKeys } from './helpers/tutorialCards'
 
 const STORAGE_KEY = 'kindrobots:tutorial-state:v1'
 
@@ -13,9 +12,7 @@ type TutorialState = {
 }
 
 function defaultShowMap(): Record<TutorialChannelKey, boolean> {
-  return Object.fromEntries(
-    tutorialChannelKeys.map((key) => [key, true]),
-  ) as Record<TutorialChannelKey, boolean>
+  return {}
 }
 
 export const useTutorialStore = defineStore('tutorialStore', {

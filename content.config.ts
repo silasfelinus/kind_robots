@@ -77,7 +77,7 @@ const sharedNavigationSchema = z.object({
 })
 
 const pageSchema = sharedNavigationSchema.extend({
-  contentType: z.literal('page').default('page'),
+  contentType: z.enum(['page', 'channel', 'tab']).default('page'),
   narrator: narratorSchema.optional(),
   artPrompt: z.string().optional(),
   footer: z.string().optional(),
@@ -88,6 +88,7 @@ const pageSchema = sharedNavigationSchema.extend({
 const channelSchema = sharedNavigationSchema.extend({
   contentType: z.enum(['channel', 'tab']),
   channelKey: z.string(),
+  navigation: contentNavigationSchema.default(false),
 })
 
 export type ContentType = z.infer<typeof pageSchema>
@@ -134,7 +135,7 @@ export default defineContentConfig({
       schema: pageSchema,
     }),
     channels: defineCollection({
-      type: 'data',
+      type: 'page',
       source: 'channels/**/*.md',
       schema: channelSchema,
       indexes: [

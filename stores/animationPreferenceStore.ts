@@ -46,11 +46,11 @@ function clamp(value: unknown, min: number, max: number, fallback: number): numb
 }
 
 function sanitizePreferences(value: unknown): AnimationPreferences {
-  const source =
+  const source: Partial<AnimationPreferences> =
     value && typeof value === 'object'
       ? (value as Partial<AnimationPreferences>)
       : {}
-  const butterflies =
+  const butterflies: Partial<ButterflyAnimationPreferences> =
     source.butterflies && typeof source.butterflies === 'object'
       ? source.butterflies
       : {}

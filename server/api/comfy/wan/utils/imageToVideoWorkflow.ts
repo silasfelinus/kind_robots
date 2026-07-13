@@ -7,9 +7,9 @@
 // NAME only; the enqueue endpoint ships the base64 in the ArtJob payload's
 // `images` array and the home relay uploads them before running the graph.
 //
-// The model filenames below are the common ComfyUI WAN 2.1/2.2 i2v defaults.
-// They are centralised as constants so the relay operator can retune them to
-// whatever WAN build is installed on the home Comfy without touching the graph.
+// The model filenames below are verified against the home Comfy install
+// (Z:/ai/models, 2026-07). They are centralised as constants so the relay
+// operator can retune them to a different WAN build without touching the graph.
 
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
@@ -45,8 +45,12 @@ export const WAN_DEFAULT_CFG = 6
 export const WAN_DEFAULT_SAMPLER = 'uni_pc'
 export const WAN_DEFAULT_SCHEDULER = 'simple'
 
-// WAN model files — adjust to match the home Comfy install if needed.
-export const WAN_UNET = 'wan2.1_i2v_480p_14B_fp8_e4m3fn.safetensors'
+// WAN 2.1 i2v 480p single-model stack, matched to the installed files:
+//   - diffusion model is the fp16 build (no fp8 i2v file is installed)
+//   - umt5-xxl fp8 text encoder, wan 2.1 vae, standard ViT-H clip vision
+// The WAN 2.2 A14B high/low-noise pair is also installed but needs a two-model
+// sampler chain this single-UNETLoader graph doesn't build, so it's not used.
+export const WAN_UNET = 'wan2.1_i2v_480p_14B_fp16.safetensors'
 export const WAN_CLIP = 'umt5_xxl_fp8_e4m3fn_scaled.safetensors'
 export const WAN_VAE = 'wan_2.1_vae.safetensors'
 export const WAN_CLIP_VISION = 'clip_vision_h.safetensors'

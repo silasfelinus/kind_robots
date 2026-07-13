@@ -152,21 +152,16 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { isDashboardKey } from '@/stores/helpers/dashboardHelper'
 import type {
   ResolvedChannel,
   ResolvedTab,
 } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
-import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
-import { useSheetStore } from '@/stores/sheetStore'
 
 const route = useRoute()
 const router = useRouter()
-const navStore = useNavStore()
 const pageStore = usePageStore()
-const sheetStore = useSheetStore()
 const channelContentStore = useChannelContentStore()
 const expandedChannelKey = ref('')
 
@@ -204,18 +199,8 @@ const fallbackChannel: ResolvedChannel = {
   tabs: [],
 }
 
-const resolvedLocation = computed(() =>
-  channelContentStore.resolveLocation({
-    channelKey: pageStore.channelKey,
-    tabKey: requestedTabKey.value || pageStore.tabKey,
-    dashboardKey: pageStore.dashboardKey,
-    dashboardTab: pageStore.dashboardTab,
-    path: route.path,
-  }),
-)
-
 const activeChannel = computed<ResolvedChannel>(() => {
-  return resolvedLocation.value?.channel ?? visibleChannels.value[0] ?? fallbackChannel
+  return pageStore.resolvedChannel ?? visibleChannels.value[0] ?? fallbackChannel
 })
 
 const activeTab = computed<ResolvedTab | null>(() => {
@@ -225,19 +210,17 @@ const activeTab = computed<ResolvedTab | null>(() => {
   )
   if (requested) return requested
 
-  const locatedTab = resolvedLocation.value?.tab
-  const locatedOnChildRoute =
-    locatedTab &&
-    locatedTab.route === route.path &&
-    locatedTab.route !== channel.route
-
-  if (locatedOnChildRoute) return locatedTab
+  if (
+    pageStore.resolvedTab &&
+    pageStore.resolvedTab.channelKey === channel.channelKey
+  ) {
+    return pageStore.resolvedTab
+  }
 
   const storedTabKey = channelContentStore.getActiveTab(channel.channelKey)
 
   return (
     channel.tabs.find((tab) => tab.tabKey === storedTabKey) ??
-    locatedTab ??
     channel.tabs.find((tab) => tab.tabKey === channel.defaultTab) ??
     channel.tabs[0] ??
     null
@@ -273,30 +256,6 @@ function isActiveTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
 function toggleChannel(channelKey: string): void {
   expandedChannelKey.value =
     expandedChannelKey.value === channelKey ? '' : channelKey
-}
-
-function syncLegacyTab(tab: ResolvedTab): void {
-  if (!tab.dashboardKey || !isDashboardKey(tab.dashboardKey)) return
-
-  const legacyTabs = navStore.getDashboardTabs(tab.dashboardKey)
-  const legacyTab = tab.dashboardTab || tab.tabKey
-
-  if (!legacyTabs.some((item) => item.key === legacyTab)) return
-
-  navStore.setDashboardTab(tab.dashboardKey, legacyTab, 'channel submenu navigation')
-}
-
-function setSheetFromTab(tab: ResolvedTab): void {
-  sheetStore.setSheetFromTab({
-    key: tab.tabKey,
-    label: tab.label,
-    title: tab.title,
-    summary: tab.summary,
-    description: tab.description,
-    narrative: tab.narrative,
-    icon: tab.icon,
-    image: tab.image,
-  })
 }
 
 function tabSharesRoute(channel: ResolvedChannel, tab: ResolvedTab): boolean {
@@ -338,8 +297,6 @@ function selectChannel(channel: ResolvedChannel): void {
 
 function selectTab(channel: ResolvedChannel, tab: ResolvedTab): void {
   channelContentStore.setActiveTab(channel.channelKey, tab.tabKey)
-  syncLegacyTab(tab)
-  setSheetFromTab(tab)
   navigateToTab(channel, tab)
   closeDropdown()
 }

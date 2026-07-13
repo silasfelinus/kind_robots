@@ -10,6 +10,26 @@ const narratorSchema = z.union([
   }),
 ])
 
+const navigationRoleSchema = z.enum([
+  'SYSTEM',
+  'USER',
+  'ASSISTANT',
+  'ADMIN',
+  'GUEST',
+  'BOT',
+  'DESIGNER',
+  'CHILD',
+  'FAMILY',
+])
+
+const navigationPermissionSchema = z.enum([
+  'authenticated',
+  'member',
+  'family',
+  'mature',
+  'admin',
+])
+
 const navigationCardSchema = z.object({
   key: z.string(),
   label: z.string(),
@@ -68,8 +88,8 @@ const sharedNavigationSchema = z.object({
   cards: z.union([z.string(), z.array(navigationCardSchema)]).optional(),
   tutorial: tutorialSchema.optional(),
   requiredBeforeNext: z.array(z.string()).optional(),
-  requiredRole: z.string().optional(),
-  requiredPermission: z.string().optional(),
+  requiredRole: navigationRoleSchema.optional(),
+  requiredPermission: navigationPermissionSchema.optional(),
   visible: z.boolean().default(true),
   status: z.string().optional(),
   loadingMessage: z.string().optional(),

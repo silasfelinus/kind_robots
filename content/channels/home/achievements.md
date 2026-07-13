@@ -11,6 +11,7 @@ description: Track personal achievements and the jellybeans hidden throughout Ki
 icon: kind-icon:trophy
 route: /achievements
 sort: 20
+requiredPermission: authenticated
 ---
 
 Your progress, discoveries, and laboratory-floor candy collection live at Home.

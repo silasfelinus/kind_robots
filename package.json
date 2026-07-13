@@ -34,6 +34,7 @@
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts",
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
+    "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"

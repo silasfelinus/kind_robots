@@ -11,11 +11,14 @@ type ComfyEngine =
   | 'charsheet'
   | 'hunyuan'
   | 'ltx'
+  | 'wan'
 
 interface ComfyGateInput {
   steps?: number | null
   width?: number | null
   height?: number | null
+  // Video engines (ltx/wan) bill by frame count; still engines leave this null.
+  frames?: number | null
   serverId?: number | null
   engine?: ComfyEngine
 }
@@ -54,6 +57,7 @@ export async function authAndGate(
       steps: input.steps,
       width: input.width,
       height: input.height,
+      frames: input.frames,
     }),
     serverId: input.serverId ?? null,
   })

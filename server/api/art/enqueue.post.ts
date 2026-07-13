@@ -29,10 +29,33 @@ import {
   buildKontextWorkflow,
   getKontextImageExtension,
 } from '../comfy/kontext/utils/workflow'
+import {
+  buildLtxImageToVideoWorkflow,
+  ltxFrameCount,
+  LTX_DEFAULT_WIDTH,
+  LTX_DEFAULT_HEIGHT,
+  LTX_DEFAULT_DURATION,
+  LTX_DEFAULT_FRAME_RATE,
+} from '../comfy/ltx/utils/imageToVideoWorkflow'
+import {
+  buildWanImageToVideoWorkflow,
+  wanFrameCount,
+  WAN_DEFAULT_WIDTH,
+  WAN_DEFAULT_HEIGHT,
+  WAN_DEFAULT_DURATION,
+  WAN_DEFAULT_FRAME_RATE,
+} from '../comfy/wan/utils/imageToVideoWorkflow'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 
 // The queueable engines. `openai` is handled synchronously elsewhere.
-type EnqueueEngine = 'a1111' | 'comfy' | 'flux' | 'kontext'
+// `ltx` and `wan` are image-to-video engines (media: 'video').
+type EnqueueEngine = 'a1111' | 'comfy' | 'flux' | 'kontext' | 'ltx' | 'wan'
+
+const VIDEO_ENGINES = new Set<EnqueueEngine>(['ltx', 'wan'])
+
+// Sensible negative prompt for video so callers can omit it.
+const DEFAULT_VIDEO_NEGATIVE =
+  'low quality, blurry, distorted, jittery, flickering, watermark, text, logo'
 
 // GenerateArtData-shaped body (a superset; only the fields used per engine are
 // read). Mirrors stores/artStore.ts GenerateArtData.
@@ -63,14 +86,28 @@ type ArtEnqueueRequest = {
   priority?: number | null
   // Kontext (image-to-image) source.
   sourceImageBase64?: string | null
+  // Video (ltx / wan) inputs. Both images optional; if neither is given the
+  // engine falls back to a text-driven clip.
+  firstImageBase64?: string | null
+  secondImageBase64?: string | null
+  durationSeconds?: number | null
+  fps?: number | null
+  frameRate?: number | null
+  loop?: boolean | null
 }
 
-// ComfyEngine used by the mana gate — a1111 shares comfy's base 2D cost.
-const GATE_ENGINE: Record<EnqueueEngine, 'comfy' | 'flux' | 'kontext'> = {
+// ComfyEngine used by the mana gate — a1111 shares comfy's base 2D cost, and
+// the video engines bill against their own cost tiers.
+const GATE_ENGINE: Record<
+  EnqueueEngine,
+  'comfy' | 'flux' | 'kontext' | 'ltx' | 'wan'
+> = {
   a1111: 'comfy',
   comfy: 'comfy',
   flux: 'flux',
   kontext: 'kontext',
+  ltx: 'ltx',
+  wan: 'wan',
 }
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -82,7 +119,9 @@ function normalizeEngine(value: unknown): EnqueueEngine {
     engine === 'a1111' ||
     engine === 'comfy' ||
     engine === 'flux' ||
-    engine === 'kontext'
+    engine === 'kontext' ||
+    engine === 'ltx' ||
+    engine === 'wan'
   ) {
     return engine
   }
@@ -92,7 +131,7 @@ function normalizeEngine(value: unknown): EnqueueEngine {
     message:
       engine === 'openai'
         ? 'OpenAI generation is synchronous; call /api/chats/openai/images/generate instead of enqueuing.'
-        : `Unsupported enqueue engine "${engine}". Use a1111, comfy, flux, or kontext.`,
+        : `Unsupported enqueue engine "${engine}". Use a1111, comfy, flux, kontext, ltx, or wan.`,
   })
 }
 
@@ -116,11 +155,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Video clips bill by frame count (duration × fps), so heavier clips cost
+    // more mana. Non-video engines leave this null and bill per-image.
+    const videoFrames = VIDEO_ENGINES.has(engine)
+      ? resolveVideoFrames(engine, body)
+      : null
+
     const gate = await authAndGate(event, {
       engine: GATE_ENGINE[engine],
       steps: body?.steps ?? null,
       width: body?.width ?? null,
       height: body?.height ?? null,
+      frames: videoFrames,
       serverId: body?.serverId ?? null,
     })
 
@@ -217,6 +263,10 @@ function buildJobPayload(
     }
   }
 
+  if (engine === 'ltx' || engine === 'wan') {
+    return buildVideoJobPayload(engine, ctx)
+  }
+
   if (engine === 'flux') {
     const { workflow } = buildFluxWorkflowFromRequest({
       variant: body.variant ?? null,
@@ -294,5 +344,178 @@ function buildJobPayload(
   return {
     jobEngine: 'COMFY',
     payload: { workflow, promptString, save },
+  }
+}
+
+// A named image the relay uploads to Comfy before running the workflow.
+type QueuedImage = { name: string; imageData: string }
+
+function normalizeVideoImage(raw: string, slot: 'first' | 'last'): QueuedImage {
+  const trimmed = raw.trim()
+  const normalized = trimmed.startsWith('data:image/')
+    ? trimmed
+    : `data:image/png;base64,${trimmed}`
+  const extension = getKontextImageExtension(normalized)
+  const name = `kr_video_${slot}_${crypto.randomUUID()}.${extension}`
+
+  return { name, imageData: normalized }
+}
+
+// Resolve the requested clip length into concrete frames for the target engine.
+// Used both for mana billing (before the payload is built) and inside the
+// payload builder, so keep it pure and cheap.
+function resolveVideoFrames(
+  engine: EnqueueEngine,
+  body: ArtEnqueueRequest | null | undefined,
+): number {
+  const fps = clampNumber(
+    body?.fps ?? body?.frameRate,
+    engine === 'wan' ? WAN_DEFAULT_FRAME_RATE : LTX_DEFAULT_FRAME_RATE,
+    1,
+    60,
+  )
+  const duration = clampNumber(
+    body?.durationSeconds,
+    engine === 'wan' ? WAN_DEFAULT_DURATION : LTX_DEFAULT_DURATION,
+    0.25,
+    30,
+  )
+
+  return engine === 'wan'
+    ? wanFrameCount(duration, fps)
+    : ltxFrameCount(duration, fps)
+}
+
+function clampNumber(
+  value: number | null | undefined,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  const n =
+    typeof value === 'number' && Number.isFinite(value) ? value : fallback
+  return Math.min(max, Math.max(min, n))
+}
+
+// Build a COMFY ArtJob payload for an image-to-video engine (ltx | wan). The
+// payload mirrors the kontext queue contract — a `workflow` plus a named
+// `images` array the relay uploads first — and adds a `media: 'video'` marker
+// plus the clip settings so the relay/save path can treat the output as video.
+function buildVideoJobPayload(
+  engine: 'ltx' | 'wan',
+  ctx: { body: ArtEnqueueRequest; promptString: string; save: SaveBlock },
+): { jobEngine: 'COMFY'; payload: Record<string, unknown> } {
+  const { body, promptString, save } = ctx
+  const isWan = engine === 'wan'
+
+  const width = clampNumber(
+    body.width,
+    isWan ? WAN_DEFAULT_WIDTH : LTX_DEFAULT_WIDTH,
+    64,
+    2048,
+  )
+  const height = clampNumber(
+    body.height,
+    isWan ? WAN_DEFAULT_HEIGHT : LTX_DEFAULT_HEIGHT,
+    64,
+    2048,
+  )
+  const frameRate = clampNumber(
+    body.fps ?? body.frameRate,
+    isWan ? WAN_DEFAULT_FRAME_RATE : LTX_DEFAULT_FRAME_RATE,
+    1,
+    60,
+  )
+  const duration = clampNumber(
+    body.durationSeconds,
+    isWan ? WAN_DEFAULT_DURATION : LTX_DEFAULT_DURATION,
+    0.25,
+    30,
+  )
+  const negativePrompt = body.negativePrompt?.trim() || DEFAULT_VIDEO_NEGATIVE
+
+  const images: QueuedImage[] = []
+  let firstImageName: string | null = null
+  let lastImageName: string | null = null
+
+  if (body.firstImageBase64?.trim()) {
+    const first = normalizeVideoImage(body.firstImageBase64, 'first')
+    firstImageName = first.name
+    images.push(first)
+  }
+
+  if (body.secondImageBase64?.trim()) {
+    const last = normalizeVideoImage(body.secondImageBase64, 'last')
+    lastImageName = last.name
+    images.push(last)
+  }
+
+  if (!firstImageName) {
+    throw createError({
+      statusCode: 400,
+      message:
+        'Video generation needs at least a first image. Send "firstImageBase64".',
+    })
+  }
+
+  const loop = Boolean(body.loop)
+  const frames = isWan
+    ? wanFrameCount(duration, frameRate)
+    : ltxFrameCount(duration, frameRate)
+
+  const workflow = isWan
+    ? buildWanImageToVideoWorkflow({
+        prompt: promptString,
+        negativePrompt,
+        firstImageName,
+        lastImageName,
+        width,
+        height,
+        duration,
+        frameRate,
+        seed: body.seed ?? null,
+        steps: body.steps ?? null,
+        cfg: body.cfg ?? null,
+        sampler: body.sampler ?? null,
+        scheduler: body.scheduler ?? null,
+      })
+    : buildLtxImageToVideoWorkflow({
+        prompt: promptString,
+        negativePrompt,
+        firstImageName,
+        lastImageName,
+        width,
+        height,
+        duration,
+        frameRate,
+        seed: body.seed ?? null,
+        steps: body.steps ?? null,
+        cfg: body.cfg ?? null,
+        sampler: body.sampler ?? null,
+      })
+
+  return {
+    jobEngine: 'COMFY',
+    payload: {
+      workflow,
+      promptString,
+      images,
+      // Marks this ArtJob as video so the relay/save path stores the output as
+      // a clip (mp4/webm) rather than a still. The relay reads `video` for the
+      // playback hints (loop, fps, duration, frame count).
+      media: 'video',
+      video: {
+        model: engine,
+        loop,
+        fps: frameRate,
+        durationSeconds: duration,
+        frames,
+        width,
+        height,
+        hasFirstImage: Boolean(firstImageName),
+        hasLastImage: Boolean(lastImageName),
+      },
+      save,
+    },
   }
 }

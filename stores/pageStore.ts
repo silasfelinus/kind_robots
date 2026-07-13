@@ -18,6 +18,9 @@ export type PageNarratorRef =
 
 export type WorkspacePage = ContentCollectionItem & {
   cards?: WorkspaceCardsInput
+  contentType?: 'page' | 'channel' | 'tab'
+  channelKey?: string
+  tabKey?: string
   dashboardKey?: string
   dashboardTab?: string
   loadingMessage?: string
@@ -25,6 +28,8 @@ export type WorkspacePage = ContentCollectionItem & {
   room?: string
   subtitle?: string
   tooltip?: string
+  dottiTip?: string
+  amiTip?: string
   dottitip?: string
   amitip?: string
   narrator?: PageNarratorRef
@@ -121,13 +126,28 @@ export const usePageStore = defineStore('pageStore', () => {
       getString(currentPage.value?.image) || '/images/botcafe.webp',
     ),
     tooltip: getString(currentPage.value?.tooltip),
-    dottitip: getString(currentPage.value?.dottitip),
-    amitip: getString(currentPage.value?.amitip),
+    dottiTip:
+      getString(currentPage.value?.dottiTip) ||
+      getString(currentPage.value?.dottitip),
+    amiTip:
+      getString(currentPage.value?.amiTip) ||
+      getString(currentPage.value?.amitip),
     narrator: getNarratorRef(currentPage.value?.narrator),
     artPrompt: getString(currentPage.value?.artPrompt),
     sort: currentPage.value?.sort ?? '',
-    dashboardKey: getString(currentPage.value?.dashboardKey),
-    dashboardTab: getString(currentPage.value?.dashboardTab),
+    contentType: getString(currentPage.value?.contentType),
+    channelKey:
+      getString(currentPage.value?.channelKey) ||
+      getString(currentPage.value?.dashboardKey),
+    tabKey:
+      getString(currentPage.value?.tabKey) ||
+      getString(currentPage.value?.dashboardTab),
+    dashboardKey:
+      getString(currentPage.value?.dashboardKey) ||
+      getString(currentPage.value?.channelKey),
+    dashboardTab:
+      getString(currentPage.value?.dashboardTab) ||
+      getString(currentPage.value?.tabKey),
     loadingMessage: getString(currentPage.value?.loadingMessage),
     refreshLabel: getString(currentPage.value?.refreshLabel),
   }))
@@ -240,11 +260,16 @@ export const usePageStore = defineStore('pageStore', () => {
     icon: computed(() => meta.value.icon),
     image: computed(() => meta.value.image),
     tooltip: computed(() => meta.value.tooltip),
-    dottitip: computed(() => meta.value.dottitip),
-    amitip: computed(() => meta.value.amitip),
+    dottiTip: computed(() => meta.value.dottiTip),
+    amiTip: computed(() => meta.value.amiTip),
+    dottitip: computed(() => meta.value.dottiTip),
+    amitip: computed(() => meta.value.amiTip),
     narrator: computed(() => meta.value.narrator),
     artPrompt: computed(() => meta.value.artPrompt),
     sort: computed(() => meta.value.sort),
+    contentType: computed(() => meta.value.contentType),
+    channelKey: computed(() => meta.value.channelKey),
+    tabKey: computed(() => meta.value.tabKey),
     dashboardKey: computed(() => meta.value.dashboardKey),
     dashboardTab: computed(() => meta.value.dashboardTab),
     loadingMessage: computed(() => meta.value.loadingMessage),

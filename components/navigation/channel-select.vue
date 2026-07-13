@@ -5,7 +5,8 @@
       tabindex="0"
       type="button"
       class="flex h-10 min-h-10 shrink-0 items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
-      :title="`Channel: ${activeChannel.label}`"
+      :title="`Navigate ${activeChannel.label}`"
+      aria-haspopup="menu"
     >
       <span
         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
@@ -16,8 +17,16 @@
         />
       </span>
 
-      <span class="truncate text-sm font-black sm:text-base xl:text-lg">
-        {{ activeChannel.label }}
+      <span class="flex min-w-0 flex-col items-start leading-tight">
+        <span class="truncate text-sm font-black sm:text-base xl:text-lg">
+          {{ activeChannel.label }}
+        </span>
+        <span
+          v-if="activeTab"
+          class="hidden max-w-32 truncate text-[0.62rem] font-bold text-base-content/55 sm:block xl:max-w-40 xl:text-xs"
+        >
+          {{ activeTab.label }}
+        </span>
       </span>
 
       <Icon
@@ -28,113 +37,291 @@
 
     <ul
       tabindex="0"
-      class="menu dropdown-content z-110 mt-2 max-h-[min(32rem,calc(100dvh-5rem))] w-[min(14rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+      class="menu dropdown-content z-110 mt-2 max-h-[min(38rem,calc(100dvh-5rem))] w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
     >
-      <li v-for="channel in allChannels" :key="channel.key">
-        <NuxtLink
-          :to="channel.path"
-          class="flex min-h-11 items-center gap-2 rounded-xl xl:min-h-12"
+      <li
+        v-for="channel in visibleChannels"
+        :key="channel.channelKey"
+        class="channel-menu-item"
+      >
+        <div
+          class="flex min-h-12 w-full items-stretch overflow-hidden rounded-xl"
           :class="
-            isChannelActive(channel) ? 'bg-primary text-primary-content' : ''
+            activeChannel.channelKey === channel.channelKey
+              ? 'bg-primary text-primary-content'
+              : 'hover:bg-base-200'
           "
-          @click="closeDropdown"
         >
-          <span
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-base-300/50 bg-base-200 xl:h-9 xl:w-9"
+          <button
+            type="button"
+            class="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
+            @click="selectChannel(channel)"
           >
-            <Icon :name="channel.icon" class="h-4 w-4 shrink-0" />
-          </span>
-          <span class="truncate text-sm font-black xl:text-base">
-            {{ channel.label }}
-          </span>
-        </NuxtLink>
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300/50 bg-base-200 text-base-content xl:h-10 xl:w-10"
+            >
+              <Icon :name="channel.icon" class="h-4 w-4 shrink-0" />
+            </span>
+
+            <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
+              <span class="max-w-full truncate text-sm font-black xl:text-base">
+                {{ channel.label }}
+              </span>
+              <span class="max-w-full truncate text-xs font-semibold opacity-65">
+                {{ destinationTab(channel)?.label || channel.title }}
+              </span>
+            </span>
+          </button>
+
+          <button
+            v-if="channel.tabs.length > 1"
+            type="button"
+            class="flex w-10 shrink-0 items-center justify-center border-l border-current/10"
+            :aria-label="`Show ${channel.label} tabs`"
+            :aria-expanded="expandedChannelKey === channel.channelKey"
+            @click.stop="toggleChannel(channel.channelKey)"
+          >
+            <Icon
+              name="kind-icon:chevron-right"
+              class="h-4 w-4 transition-transform"
+              :class="
+                expandedChannelKey === channel.channelKey ? 'rotate-90' : ''
+              "
+            />
+          </button>
+        </div>
+
+        <ul
+          v-if="channel.tabs.length > 1"
+          class="channel-submenu menu ml-5 mt-1 border-l border-base-300 pl-2"
+          :class="
+            expandedChannelKey === channel.channelKey
+              ? 'channel-submenu-open'
+              : ''
+          "
+        >
+          <li v-for="tab in channel.tabs" :key="tab.tabKey">
+            <button
+              type="button"
+              class="flex min-h-11 items-center gap-2 rounded-xl"
+              :class="
+                isActiveTab(channel, tab)
+                  ? 'active bg-secondary text-secondary-content'
+                  : ''
+              "
+              @click="selectTab(channel, tab)"
+            >
+              <span
+                class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200"
+              >
+                <img
+                  v-if="tab.image"
+                  :src="tab.image"
+                  :alt="tab.title || tab.label"
+                  class="h-full w-full object-cover"
+                />
+                <span
+                  class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+                >
+                  <Icon
+                    :name="tab.icon || channel.icon"
+                    class="h-4 w-4 text-base-100 drop-shadow"
+                  />
+                </span>
+              </span>
+
+              <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
+                <span class="max-w-full truncate text-sm font-black">
+                  {{ tab.label }}
+                </span>
+                <span
+                  v-if="tab.summary || tab.description"
+                  class="line-clamp-1 text-xs font-medium opacity-65"
+                >
+                  {{ tab.summary || tab.description }}
+                </span>
+              </span>
+            </button>
+          </li>
+        </ul>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-type ChannelRoute = {
-  key: string
-  label: string
-  path: string
-  icon: string
-}
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import type {
+  ResolvedChannel,
+  ResolvedTab,
+} from '@/stores/helpers/channelContent'
+import { useChannelContentStore } from '@/stores/channelContentStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const route = useRoute()
+const router = useRouter()
+const pageStore = usePageStore()
+const channelContentStore = useChannelContentStore()
+const expandedChannelKey = ref('')
 
-const allChannels: ChannelRoute[] = [
-  { key: 'home', label: 'Home', path: '/', icon: 'kind-icon:home' },
+await channelContentStore.initialize()
 
-  {
-    key: 'conductor',
-    label: 'Conductor',
-    path: '/conductor',
-    icon: 'kind-icon:gearhammer',
-  },
-  { key: 'art', label: 'Art', path: '/art', icon: 'kind-icon:palette' },
+const visibleChannels = computed(() => channelContentStore.visibleChannels)
+const requestedTabKey = computed(() => {
+  return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
+})
 
-  {
-    key: 'builder',
-    label: 'Builder',
-    path: '/builder',
-    icon: 'kind-icon:blueprint',
-  },
+const fallbackChannel: ResolvedChannel = {
+  key: 'home',
+  channelKey: 'home',
+  dashboardKey: 'user',
+  label: 'Home',
+  title: 'Home',
+  room: 'Kind Robots',
+  subtitle: '',
+  description: '',
+  summary: '',
+  narrative: '',
+  tooltip: '',
+  icon: 'kind-icon:home',
+  image: '/images/channels/home/channel.webp',
+  route: '/',
+  defaultTab: 'dashboard',
+  sort: 0,
+  requiredRole: '',
+  requiredPermission: '',
+  loadingMessage: 'Loading Home…',
+  refreshLabel: 'Refresh Home',
+  dottiTip: '',
+  amiTip: '',
+  tutorial: null,
+  tabs: [],
+}
 
-  {
-    key: 'bots',
-    label: 'Narrators',
-    path: '/bots',
-    icon: 'kind-icon:robot-color',
-  },
-  { key: 'dreams', label: 'Dreams', path: '/dreams', icon: 'kind-icon:moon' },
-  {
-    key: 'characters',
-    label: 'Characters',
-    path: '/characters',
-    icon: 'kind-icon:mask',
-  },
+const activeChannel = computed<ResolvedChannel>(() => {
+  return pageStore.resolvedChannel ?? visibleChannels.value[0] ?? fallbackChannel
+})
 
-  {
-    key: 'rewards',
-    label: 'Rewards',
-    path: '/rewards',
-    icon: 'kind-icon:trophy',
-  },
-  {
-    key: 'scenarios',
-    label: 'Stories',
-    path: '/stories',
-    icon: 'kind-icon:story',
-  },
-  { key: 'lab', label: 'Lab', path: '/memory', icon: 'kind-icon:dungeon' },
-  {
-    key: 'sanctuary',
-    label: 'Sanctuary',
-    path: '/sanctuary',
-    icon: 'kind-icon:butterfly',
-  },
-]
+const activeTab = computed<ResolvedTab | null>(() => {
+  const channel = activeChannel.value
+  const requested = channel.tabs.find(
+    (tab) => tab.tabKey === requestedTabKey.value,
+  )
+  if (requested) return requested
 
-const fallbackChannel: ChannelRoute = allChannels[0]!
+  if (
+    pageStore.resolvedTab &&
+    pageStore.resolvedTab.channelKey === channel.channelKey
+  ) {
+    return pageStore.resolvedTab
+  }
 
-const activeChannel = computed<ChannelRoute>(
-  () =>
-    allChannels.find((channel) => isChannelActive(channel)) ?? fallbackChannel,
+  const storedTabKey = channelContentStore.getActiveTab(channel.channelKey)
+
+  return (
+    channel.tabs.find((tab) => tab.tabKey === storedTabKey) ??
+    channel.tabs.find((tab) => tab.tabKey === channel.defaultTab) ??
+    channel.tabs[0] ??
+    null
+  )
+})
+
+watch(
+  () => activeChannel.value.channelKey,
+  (channelKey) => {
+    expandedChannelKey.value = channelKey
+  },
+  { immediate: true },
 )
 
-function isChannelActive(channel: ChannelRoute): boolean {
-  if (route.path === channel.path) return true
-  return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
+function destinationTab(channel: ResolvedChannel): ResolvedTab | null {
+  const storedTabKey = channelContentStore.getActiveTab(channel.channelKey)
+
+  return (
+    channel.tabs.find((tab) => tab.tabKey === storedTabKey) ??
+    channel.tabs.find((tab) => tab.tabKey === channel.defaultTab) ??
+    channel.tabs[0] ??
+    null
+  )
+}
+
+function isActiveTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
+  return (
+    activeChannel.value.channelKey === channel.channelKey &&
+    activeTab.value?.tabKey === tab.tabKey
+  )
+}
+
+function toggleChannel(channelKey: string): void {
+  expandedChannelKey.value =
+    expandedChannelKey.value === channelKey ? '' : channelKey
+}
+
+function tabSharesRoute(channel: ResolvedChannel, tab: ResolvedTab): boolean {
+  return channel.tabs.filter((item) => item.route === tab.route).length > 1
+}
+
+function navigateToTab(channel: ResolvedChannel, tab: ResolvedTab): void {
+  if (!tab.route) return
+
+  if (tabSharesRoute(channel, tab)) {
+    if (route.path === tab.route && requestedTabKey.value === tab.tabKey) return
+
+    void router.push({
+      path: tab.route,
+      query: { tab: tab.tabKey },
+    })
+    return
+  }
+
+  if (route.path !== tab.route || requestedTabKey.value) {
+    void router.push(tab.route)
+  }
+}
+
+function selectChannel(channel: ResolvedChannel): void {
+  const tab = destinationTab(channel)
+
+  if (tab) {
+    selectTab(channel, tab)
+    return
+  }
+
+  if (channel.route && channel.route !== route.path) {
+    void router.push(channel.route)
+  }
+
+  closeDropdown()
+}
+
+function selectTab(channel: ResolvedChannel, tab: ResolvedTab): void {
+  channelContentStore.setActiveTab(channel.channelKey, tab.tabKey)
+  navigateToTab(channel, tab)
+  closeDropdown()
 }
 
 function closeDropdown(): void {
-  if (typeof document !== 'undefined') {
-    const el = document.activeElement as HTMLElement | null
-    el?.blur()
-  }
+  if (typeof document === 'undefined') return
+
+  const element = document.activeElement as HTMLElement | null
+  element?.blur()
 }
 </script>
+
+<style scoped>
+.channel-submenu {
+  display: none;
+}
+
+.channel-submenu-open,
+.channel-menu-item:focus-within > .channel-submenu {
+  display: flex;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .channel-menu-item:hover > .channel-submenu {
+    display: flex;
+  }
+}
+</style>

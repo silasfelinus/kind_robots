@@ -7,10 +7,12 @@ image: splash/dreams.png
 icon: kind-icon:moon
 tooltip: A shared room where prompts, images, and chat bend the experience together.
 sort: highlight
-dottitip: Users can now steer the dream together. I'm a little nervous about what they'll build
-amitip: Good. Dreams built by committee are how mythology happens.
+dottiTip: Users can now steer the dream together. I'm a little nervous about what they'll build.
+amiTip: Good. Dreams built by committee are how mythology happens.
+channelKey: play
+tabKey: dreams
 dashboardKey: dream
-dashboardTab: locations
+dashboardTab: dreams
 cards: dreamCards
 loadingMessage: Loading locations...
 refreshLabel: Refresh Locations

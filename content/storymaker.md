@@ -6,6 +6,8 @@ description: Weave characters, places, and treasures into a collaborative, narra
 image: nav/heroes/scenario.webp
 icon: kind-icon:story
 tooltip: Weave your cast and settings into one story.
+channelKey: play
+tabKey: storymaker
 dashboardKey: scenario
 dashboardTab: storymaker
 cards: navCards

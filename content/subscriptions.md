@@ -6,12 +6,14 @@ description: Subscribe to keep Kind Robots dreaming! Monthly support helps us pl
 image: splash/plans.png
 icon: kind-icon:rocket
 tooltip: Ongoing support makes long-term imagination possible.
-amitip: We're basically a butterfly-powered nonprofit with server bills.
-dottitip: Subscriptions are the adult version of putting a star sticker on our forehead.
+amiTip: We're basically a butterfly-powered nonprofit with server bills.
+dottiTip: Subscriptions are the adult version of putting a star sticker on our forehead.
+channelKey: sanctuary
+tabKey: subscriptions
 dashboardKey: giftshop
 dashboardTab: subscriptions
 cards: navCards
-loadingMessage: Loading plans....
+loadingMessage: Loading plans...
 refreshLabel: Refresh plans
 ---
 

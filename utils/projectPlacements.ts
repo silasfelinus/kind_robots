@@ -1,131 +1,149 @@
 // /utils/projectPlacements.ts
 //
-// Canonical placement for every project surface: conductor slug -> the channel
-// (dashboardKey), tab (dashboardTab), the in-app route, and the launch pointer.
-// This is the single source of truth used to backfill the Project DB rows
-// (channelKey / tabKey / liveUrl) via POST /api/projects/apply-placements, and it
-// mirrors the tabs registered in stores/helpers/dashboardHelper.ts.
-//
-// liveUrl is the internal Kind Robots route by default (so the Conductor "Open
-// Project" action lands on the styled page). Bridge projects still expose their
-// external app from their own page.
+// Canonical placement for every project surface: conductor slug -> channelKey,
+// tabKey, in-app route, and launch pointer. Channel and tab names mirror the
+// Nuxt Content documents under /content/channels.
 
 export type ProjectPlacement = {
-  /** dashboardKey / Project.channelKey */
   channelKey: string
-  /** dashboardTab / Project.tabKey */
   tabKey: string
-  /** In-app route the page lives at (also the default liveUrl). */
   route: string
-  /** Explicit launch pointer when it differs from `route` (e.g. external app). */
   liveUrl?: string
 }
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
-  // Flagship + newly stitched surfaces
-  'coloring-book': { channelKey: 'art', tabKey: 'coloring', route: '/coloring' },
+  'coloring-book': {
+    channelKey: 'play',
+    tabKey: 'coloring',
+    route: '/coloring',
+  },
   'challenge-center': {
-    channelKey: 'wonder',
+    channelKey: 'lab',
     tabKey: 'challenges',
     route: '/challenges',
   },
   wishmaster: {
-    channelKey: 'conductor',
+    channelKey: 'plan',
     tabKey: 'wishmaster',
     route: '/wishmaster',
   },
-  appmaker: { channelKey: 'conductor', tabKey: 'appmaker', route: '/appmaker' },
+  appmaker: {
+    channelKey: 'plan',
+    tabKey: 'appmaker',
+    route: '/appmaker',
+  },
   serendipity: {
-    channelKey: 'scenario',
+    channelKey: 'play',
     tabKey: 'serendipity',
     route: '/serendipity',
   },
   'mermaids-of-venice': {
-    channelKey: 'giftshop',
+    channelKey: 'sanctuary',
     tabKey: 'mermaids',
     route: '/mermaids',
   },
   'model-builder': {
-    channelKey: 'builder',
+    channelKey: 'build',
     tabKey: 'model-builder',
     route: '/model-builder',
   },
   storymaker: {
-    channelKey: 'scenario',
+    channelKey: 'play',
     tabKey: 'storymaker',
     route: '/storymaker',
   },
-  sketchy: { channelKey: 'academy', tabKey: 'sketchy', route: '/sketchy' },
-  packmaker: { channelKey: 'builder', tabKey: 'packs', route: '/packs' },
-  davinci: { channelKey: 'wonder', tabKey: 'davinci', route: '/davinci' },
+  sketchy: {
+    channelKey: 'lab',
+    tabKey: 'sketchy',
+    route: '/sketchy',
+  },
+  packmaker: {
+    channelKey: 'build',
+    tabKey: 'packs',
+    route: '/packs',
+  },
+  davinci: {
+    channelKey: 'lab',
+    tabKey: 'davinci',
+    route: '/davinci',
+  },
   'media-watchlist': {
-    channelKey: 'wonder',
+    channelKey: 'lab',
     tabKey: 'watchlist',
     route: '/watchlist',
   },
-  'coat-dance': { channelKey: 'art', tabKey: 'coat-dance', route: '/coat-dance' },
+  'coat-dance': {
+    channelKey: 'lab',
+    tabKey: 'coat-dance',
+    route: '/coat-dance',
+  },
   'ruler-hooked': {
-    channelKey: 'wonder',
+    channelKey: 'lab',
     tabKey: 'ruler-hooked',
     route: '/ruler-hooked',
   },
-  newsfeed: { channelKey: 'wonder', tabKey: 'newsfeed', route: '/newsfeed' },
+  newsfeed: {
+    channelKey: 'lab',
+    tabKey: 'newsfeed',
+    route: '/newsfeed',
+  },
   'humboldt-scoop': {
-    channelKey: 'wonder',
+    channelKey: 'lab',
     tabKey: 'humboldt-scoop',
     route: '/humboldt-scoop',
   },
   'humboldt-scoop-cms': {
-    channelKey: 'conductor',
+    channelKey: 'admin',
     tabKey: 'scoop-cms',
     route: '/scoop-cms',
   },
   'conductor-app': {
-    channelKey: 'conductor',
+    channelKey: 'plan',
     tabKey: 'conductor-app',
     route: '/conductor-app',
   },
   'alexa-integration': {
-    channelKey: 'wonder',
+    channelKey: 'lab',
     tabKey: 'voice-lab',
     route: '/voice-lab',
   },
-
-  // Already-complete surfaces (recorded so their DB rows carry placement too)
   'superkate-services-calculator': {
-    channelKey: 'art',
+    channelKey: 'build',
     tabKey: 'stylist',
     route: '/stylist',
   },
   'superkate-hairstyle-ai': {
-    channelKey: 'art',
+    channelKey: 'build',
     tabKey: 'stylist',
     route: '/stylist',
   },
   'digital-storefront': {
-    channelKey: 'giftshop',
+    channelKey: 'sanctuary',
     tabKey: 'giftshop',
     route: '/sanctuary',
   },
   'ai-art-academy': {
-    channelKey: 'academy',
-    tabKey: 'timeline',
+    channelKey: 'play',
+    tabKey: 'academy',
     route: '/academy',
   },
   brainstorm: {
-    channelKey: 'brainstorm',
+    channelKey: 'build',
     tabKey: 'brainstorm',
     route: '/brainstorm',
   },
-  'mural-design': { channelKey: 'wonder', tabKey: 'mural', route: '/mural' },
+  'mural-design': {
+    channelKey: 'lab',
+    tabKey: 'mural',
+    route: '/mural',
+  },
   conductor: {
-    channelKey: 'conductor',
-    tabKey: 'conductor',
+    channelKey: 'plan',
+    tabKey: 'projects',
     route: '/conductor',
   },
 }
 
-/** Resolve a placement by conductor slug (or project slug), if one exists. */
 export function getProjectPlacement(
   slug: string | null | undefined,
 ): ProjectPlacement | null {
@@ -133,7 +151,6 @@ export function getProjectPlacement(
   return PROJECT_PLACEMENTS[slug] ?? null
 }
 
-/** The launch pointer for a placement: explicit liveUrl, else the route. */
 export function placementLiveUrl(placement: ProjectPlacement): string {
   return placement.liveUrl ?? placement.route
 }

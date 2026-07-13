@@ -1,4 +1,4 @@
-<!-- /components/content/navigation/workspace-header.vue -->
+<!-- /components/navigation/workspace-header.vue -->
 <template>
   <header
     class="relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-base-300/70 bg-base-100/95 shadow-sm backdrop-blur"
@@ -21,135 +21,53 @@
 
       <channel-select class="shrink-0" />
 
-      <!-- Unified tab selector — same layout at every breakpoint, scales up on larger screens -->
-      <div v-if="resolvedTabs.length" class="dropdown min-w-0 flex-1">
-        <button
-          tabindex="0"
-          type="button"
-          class="btn relative flex h-10 min-h-10 w-full max-w-full items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
+      <section
+        class="relative flex h-10 min-h-10 min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
+      >
+        <img
+          v-if="activeTabConfig.image"
+          :src="activeTabConfig.image"
+          :alt="activeTabConfig.title || activeTabConfig.label"
+          class="absolute inset-0 -z-10 h-full w-full object-cover opacity-15 xl:opacity-20"
+        />
+
+        <span
+          class="absolute inset-0 -z-10 bg-linear-to-r from-base-100/95 via-base-100/80 to-base-100/40"
+        />
+
+        <span
+          class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
         >
           <img
             v-if="activeTabConfig.image"
             :src="activeTabConfig.image"
             :alt="activeTabConfig.title || activeTabConfig.label"
-            class="absolute inset-0 -z-10 h-full w-full object-cover opacity-15 xl:opacity-20"
+            class="h-full w-full object-cover"
           />
-
           <span
-            class="absolute inset-0 -z-10 bg-linear-to-r from-base-100/95 via-base-100/80 to-base-100/40"
-          />
-
-          <span
-            class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
+            class="absolute inset-0 flex items-center justify-center bg-base-content/20"
           >
-            <img
-              v-if="activeTabConfig.image"
-              :src="activeTabConfig.image"
-              :alt="activeTabConfig.title || activeTabConfig.label"
-              class="h-full w-full object-cover"
+            <Icon
+              :name="activeTabConfig.icon || fallbackIcon"
+              class="h-4 w-4 text-base-100 drop-shadow xl:h-5 xl:w-5"
             />
+          </span>
+        </span>
 
-            <span
-              class="absolute inset-0 flex items-center justify-center bg-base-content/20"
-            >
-              <Icon
-                :name="activeTabConfig.icon || fallbackIcon"
-                class="h-4 w-4 text-base-100 drop-shadow xl:h-5 xl:w-5"
-              />
-            </span>
+        <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
+          <span
+            v-if="shellTitle"
+            class="max-w-full truncate text-[0.58rem] font-black uppercase tracking-wide text-primary/70"
+          >
+            {{ shellTitle }}
           </span>
 
-          <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
-            <span
-              v-if="shellTitle"
-              class="max-w-full truncate text-[0.58rem] font-black uppercase tracking-wide text-primary/70"
-            >
-              {{ shellTitle }}
-            </span>
-
-            <span
-              class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg"
-            >
-              {{ activeTitle }}
-            </span>
+          <span
+            class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg"
+          >
+            {{ activeTitle }}
           </span>
-
-          <Icon
-            name="kind-icon:chevron-down"
-            class="h-3.5 w-3.5 shrink-0 text-base-content/50 xl:h-4 xl:w-4"
-          />
-        </button>
-
-        <ul
-          tabindex="0"
-          class="menu dropdown-content z-40 mt-2 max-h-80 w-[min(24rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
-        >
-          <li v-for="tab in resolvedTabs" :key="tab.key">
-            <button
-              type="button"
-              class="flex min-h-12 items-center gap-2 rounded-xl xl:min-h-14"
-              :class="
-                activeTabKey === tab.key
-                  ? 'active bg-primary text-primary-content'
-                  : ''
-              "
-              @click="selectTabFromDropdown(tab.key)"
-            >
-              <span
-                class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-base-200 xl:h-10 xl:w-10"
-              >
-                <img
-                  v-if="tab.image"
-                  :src="tab.image"
-                  :alt="tab.title || tab.label"
-                  class="h-full w-full object-cover"
-                />
-
-                <span
-                  class="absolute inset-0 flex items-center justify-center bg-base-content/20"
-                >
-                  <Icon
-                    :name="tab.icon || fallbackIcon"
-                    class="h-4 w-4 text-base-100 drop-shadow"
-                  />
-                </span>
-              </span>
-
-              <span class="flex min-w-0 flex-col items-start">
-                <span
-                  class="max-w-full truncate text-sm font-black xl:text-base"
-                >
-                  {{ tab.label }}
-                </span>
-
-                <span
-                  v-if="tab.summary"
-                  class="line-clamp-1 text-xs font-medium opacity-70"
-                >
-                  {{ tab.summary }}
-                </span>
-              </span>
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <section
-        v-else
-        class="flex min-w-0 flex-1 flex-col justify-center leading-tight"
-      >
-        <p
-          v-if="shellTitle"
-          class="truncate text-[0.58rem] font-black uppercase tracking-wide text-primary/70 xl:text-xs"
-        >
-          {{ shellTitle }}
-        </p>
-
-        <h1
-          class="truncate text-sm font-black text-base-content sm:text-base xl:text-xl"
-        >
-          {{ activeTitle }}
-        </h1>
+        </span>
       </section>
 
       <section
@@ -166,23 +84,34 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  isDashboardKey,
-  type DashboardKey,
-  type DashboardTabConfig,
-} from '@/stores/helpers/dashboardHelper'
+import type { ResolvedTab } from '@/stores/helpers/channelContent'
+import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 
 const fallbackIcon = 'kind-icon:sparkles'
 
+const channelContentStore = useChannelContentStore()
 const navStore = useNavStore()
 const pageStore = usePageStore()
 const router = useRouter()
 const route = useRoute()
 
+await channelContentStore.initialize()
+
+const requestedTabKey = computed(() => {
+  return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
+})
+
+const resolvedChannel = computed(() => pageStore.resolvedChannel)
+const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
+
 const shellTitle = computed(
-  () => pageStore.room || pageStore.title || 'Kind Robots',
+  () =>
+    resolvedChannel.value?.room ||
+    pageStore.room ||
+    pageStore.title ||
+    'Kind Robots',
 )
 
 const shellSummary = computed(
@@ -191,82 +120,67 @@ const shellSummary = computed(
 
 const showBackButton = computed(() => navStore.canGoBack)
 
-const resolvedDashboardKey = computed<DashboardKey | null>(() => {
-  const shellKey = navStore.dashboardShell.dashboardKey
-
-  if (shellKey && isDashboardKey(shellKey)) {
-    return shellKey
-  }
-
-  const pageKey = (pageStore.dashboardKey || '').trim()
-
-  return pageKey && isDashboardKey(pageKey) ? pageKey : null
-})
-
-const resolvedTabs = computed<DashboardTabConfig[]>(() => {
-  const key = resolvedDashboardKey.value
-  return key ? navStore.getDashboardTabs(key) : []
-})
-
-const routeRequestedTabKey = computed(() => {
-  const tabKey = (pageStore.dashboardTab || '').trim()
-  if (!tabKey) return ''
-
-  const tabExists = resolvedTabs.value.some((tab) => tab.key === tabKey)
-  return tabExists ? tabKey : ''
-})
-
 const activeTabKey = computed(() => {
-  const key = resolvedDashboardKey.value
-  if (!key) return ''
+  const channel = resolvedChannel.value
+  if (!channel) return ''
 
-  const storedTab = navStore.getDashboardTab(key)
-
-  const storedTabExists = resolvedTabs.value.some(
-    (tab) => tab.key === storedTab,
-  )
-
-  if (storedTabExists) {
-    return storedTab
+  if (
+    requestedTabKey.value &&
+    channel.tabs.some((tab) => tab.tabKey === requestedTabKey.value)
+  ) {
+    return requestedTabKey.value
   }
 
-  const contentTab = navStore.dashboardShell.activeTabHint
-
-  const contentTabExists = resolvedTabs.value.some(
-    (tab) => tab.key === contentTab,
-  )
-
-  if (contentTabExists) {
-    return contentTab
+  if (
+    pageStore.resolvedTab &&
+    pageStore.resolvedTab.channelKey === channel.channelKey
+  ) {
+    return pageStore.resolvedTab.tabKey
   }
 
-  return resolvedTabs.value[0]?.key || ''
+  const stored = channelContentStore.getActiveTab(channel.channelKey)
+  if (stored && channel.tabs.some((tab) => tab.tabKey === stored)) return stored
+
+  return channel.defaultTab || channel.tabs[0]?.tabKey || ''
 })
 
-const activeTabConfig = computed<DashboardTabConfig>(() => {
-  const matched = resolvedTabs.value.find(
-    (tab) => tab.key === activeTabKey.value,
+const fallbackTab: ResolvedTab = {
+  key: 'overview',
+  channelKey: 'home',
+  tabKey: 'overview',
+  dashboardKey: '',
+  dashboardTab: '',
+  label: pageStore.title || 'Overview',
+  title: pageStore.title || 'Overview',
+  room: pageStore.room || 'Kind Robots',
+  subtitle: shellSummary.value,
+  description: shellSummary.value,
+  summary: shellSummary.value,
+  narrative: shellSummary.value || pageStore.title || 'Overview',
+  tooltip: pageStore.tooltip,
+  icon: fallbackIcon,
+  image: pageStore.image || '',
+  route: pageStore.currentPage?.path || '/',
+  component: '',
+  modelType: '',
+  sort: 0,
+  cards: null,
+  tutorial: null,
+  requiredBeforeNext: [],
+  requiredRole: '',
+  requiredPermission: '',
+  loadingMessage: pageStore.loadingMessage || 'Loading…',
+  refreshLabel: pageStore.refreshLabel || 'Refresh',
+  dottiTip: pageStore.dottiTip,
+  amiTip: pageStore.amiTip,
+}
+
+const activeTabConfig = computed<ResolvedTab>(() => {
+  return (
+    resolvedTabs.value.find((tab) => tab.tabKey === activeTabKey.value) ??
+    resolvedTabs.value[0] ??
+    fallbackTab
   )
-
-  if (matched) return matched
-
-  const firstTab = resolvedTabs.value[0]
-
-  if (firstTab) return firstTab
-
-  const title = pageStore.title || 'Overview'
-  const summary = shellSummary.value || ''
-
-  return {
-    key: activeTabKey.value || 'overview',
-    label: title,
-    icon: fallbackIcon,
-    title,
-    summary,
-    narrative: summary || title,
-    image: pageStore.image || '',
-    route: pageStore.currentPage?.path || '/',
-  }
 })
 
 const activeTitle = computed(
@@ -278,53 +192,24 @@ const activeTitle = computed(
 
 watch(
   () => ({
-    dashboardKey: resolvedDashboardKey.value,
-    dashboardTab: routeRequestedTabKey.value,
+    channelKey: resolvedChannel.value?.channelKey || '',
+    tabKey: activeTabKey.value,
+    path: route.path,
+    queryTab: requestedTabKey.value,
   }),
-  ({ dashboardKey, dashboardTab }) => {
-    if (!dashboardKey || !dashboardTab) return
+  ({ channelKey, tabKey }) => {
+    if (!channelKey || !tabKey) return
 
-    const currentTab = navStore.getDashboardTab(dashboardKey)
-    if (currentTab === dashboardTab) return
-
-    navStore.setDashboardTab(
-      dashboardKey,
-      dashboardTab,
-      'dashboard-header route-enforced tab',
-    )
+    channelContentStore.setActiveTab(channelKey, tabKey)
   },
   { immediate: true },
 )
-
-function selectTabFromDropdown(tabKey: string): void {
-  setTab(tabKey)
-
-  // When a tab lives on its own route (a project page stitched into this
-  // channel), navigate there. Tabs that share the current channel route keep
-  // rendering inline via the channel manager, so behavior is unchanged for them.
-  const tab = resolvedTabs.value.find((entry) => entry.key === tabKey)
-  if (tab?.route && tab.route !== route.path) {
-    router.push(tab.route)
-  }
-
-  if (typeof document !== 'undefined') {
-    const el = document.activeElement as HTMLElement | null
-    el?.blur()
-  }
-}
-
-function setTab(tabKey: string): void {
-  const key = resolvedDashboardKey.value
-  if (!key) return
-
-  navStore.setDashboardTab(key, tabKey, 'dashboard-header tab button')
-}
 
 function goBack(): void {
   const path = navStore.backPath
 
   if (path) {
-    router.push(path)
+    void router.push(path)
     return
   }
 

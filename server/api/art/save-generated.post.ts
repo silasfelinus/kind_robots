@@ -23,7 +23,35 @@ type SaveGeneratedRequestData = RequestData &
     imageBase64: string
     serverId?: number | null
     serverName?: string | null
+    // Set by the relay for image-to-video jobs so the resulting ArtImage is
+    // stored as a clip (mp4/webm/gif) rather than a still. `imageBase64` then
+    // carries the encoded video bytes (base64 or data URL). Omitted/unknown
+    // values leave the ArtImage at its default image fileType.
+    fileType?: string | null
   }
+
+// File types the relay is allowed to stamp on an ArtImage. Video types unlock
+// the video-generator playback path (stores/videoStore.ts artImageToVideoSrc
+// reads fileType to pick data:video/… vs data:image/…).
+const ALLOWED_FILE_TYPES = new Set([
+  'png',
+  'jpg',
+  'jpeg',
+  'webp',
+  'gif',
+  'mp4',
+  'webm',
+  'mov',
+  'mkv',
+])
+
+// Normalize a caller-supplied fileType to a known, lowercase, dot-less token.
+// Returns null for anything unrecognized so we never persist junk.
+function normalizeFileType(raw: string | null | undefined): string | null {
+  if (!raw) return null
+  const token = String(raw).trim().toLowerCase().replace(/^\./, '')
+  return ALLOWED_FILE_TYPES.has(token) ? token : null
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -101,6 +129,8 @@ export default defineEventHandler(async (event) => {
       requestData.cfgHalf ?? false,
     )
 
+    const fileType = normalizeFileType(requestData.fileType)
+
     const savedImage = await saveImage(
       requestData.imageBase64,
       validatedData.userId ?? user.id,
@@ -125,6 +155,9 @@ export default defineEventHandler(async (event) => {
       data: {
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
+        // Video jobs stamp mp4/webm here so the front-end plays the clip; a
+        // still leaves this undefined and keeps saveImage's png default.
+        ...(fileType ? { fileType } : {}),
         checkpoint: resolvedCheckpoint.checkpoint,
         checkpointResourceId: resolvedCheckpoint.checkpointResourceId,
         sampler: requestData.sampler ?? null,

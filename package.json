@@ -43,10 +43,12 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",
+    "@nuxt/icon": "^2.2.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "24.x",
     "@vitejs/plugin-vue": "^6.0.6",
+    "cypress": "^15.13.1",
     "daisyui": "^5.5.19",
     "dotenv": "^17.2.3",
     "eslint": "^10.2.0",
@@ -82,7 +84,8 @@
   },
   "overrides": {
     "vue": "^3.5.13",
-    "oxc-parser": "0.117.0"
+    "oxc-parser": "0.117.0",
+    "@hono/node-server": "^1.19.13"
   },
   "type": "module",
   "engines": {

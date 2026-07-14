@@ -1,7 +1,11 @@
 // /stores/artJobStore.ts
 import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
-import type { ArtImage, ArtJob } from '~/prisma/generated/prisma/client'
+import type {
+  ArtImage,
+  ArtJob,
+  Prisma,
+} from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 
 export type ArtJobStatus =
@@ -14,7 +18,7 @@ export type ArtJobStatus =
 export type ArtFeedbackSource = 'CURATOR' | 'HUMAN'
 export type ArtFeedbackVerdict = 'PROMOTE' | 'REVISE' | 'REJECT'
 
-export type ArtJobFeedback = {
+export type ArtJobFeedback = Prisma.JsonObject & {
   source: ArtFeedbackSource
   verdict: ArtFeedbackVerdict
   score: number | null
@@ -26,13 +30,13 @@ export type ArtJobFeedback = {
   userId: number | null
 }
 
-export type ArtJobCuration = {
+export type ArtJobCuration = Prisma.JsonObject & {
   curator?: ArtJobFeedback
   human?: ArtJobFeedback
   history?: ArtJobFeedback[]
 }
 
-export type ArtJobPayload = Record<string, unknown> & {
+export type ArtJobPayload = Prisma.JsonObject & {
   curation?: ArtJobCuration
 }
 

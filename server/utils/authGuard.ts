@@ -22,6 +22,10 @@ function readBearerToken(event: H3Event): string {
     .trim()
 }
 
+function readUserApiKey(event: H3Event): string {
+  return (getHeader(event, 'x-api-key') || readBearerToken(event)).trim()
+}
+
 function readBetaAdminToken(event: H3Event): string {
   return (
     getHeader(event, 'x-beta-admin-token') ||
@@ -58,16 +62,8 @@ async function getUserById(id: number): Promise<AuthUser | null> {
 async function validateJwtAuth(token: string): Promise<AuthGuardResult | null> {
   if (!token) return null
 
-  // Only attempt JWT verification on a JWT-shaped token (header.payload.sig).
-  // A user apiKey or beta-admin token is not a JWT; running it through the JWT
-  // verifier just logs a noisy "Operation failed" and — critically — must not
-  // prevent the apiKey/beta-admin fallbacks in requireMachineUser from running.
   if (token.split('.').length !== 3) return null
 
-  // An expired or otherwise invalid JWT is NOT fatal here: it simply means "not
-  // authenticated via JWT". Swallow any throw so requireMachineUser can fall
-  // through to the apiKey / beta-admin token instead of surfacing a 500/JWT
-  // error to a machine caller that also holds a valid long-lived credential.
   let verification: Awaited<ReturnType<typeof verifyJwtToken>>
   try {
     verification = await verifyJwtToken(token)
@@ -131,26 +127,20 @@ async function validateUserApiKeyAuth(
 export async function getOptionalApiUser(
   event: H3Event,
 ): Promise<AuthGuardResult | null> {
-  const token = readBearerToken(event)
+  const bearerToken = readBearerToken(event)
+  const userApiKey = readUserApiKey(event)
 
-  return (await validateJwtAuth(token)) ?? (await validateBetaAdminAuth(event))
+  return (
+    (await validateJwtAuth(bearerToken)) ??
+    (await validateUserApiKeyAuth(userApiKey)) ??
+    (await validateBetaAdminAuth(event))
+  )
 }
 
-/**
- * Machine-friendly variant of requireApiUser: accepts a session JWT, a
- * long-lived user apiKey (parity with /api/art/generate and textGate), or
- * the beta admin token. For automation callers (conductor scripts, the home
- * relay agent) that hold static credentials rather than browser sessions.
- */
 export async function requireMachineUser(
   event: H3Event,
 ): Promise<AuthGuardResult> {
-  const token = readBearerToken(event)
-
-  const auth =
-    (await validateJwtAuth(token)) ??
-    (await validateUserApiKeyAuth(token)) ??
-    (await validateBetaAdminAuth(event))
+  const auth = await getOptionalApiUser(event)
 
   if (!auth) {
     throw createError({

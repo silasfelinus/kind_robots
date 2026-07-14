@@ -1,7 +1,7 @@
 // /stores/animationPreferenceStore.ts
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-import type { AnimationEffectId } from './animationStore'
+import { isAnimationEffectId, type AnimationEffectId } from './animationStore'
 
 export type StartupAnimationChoice = AnimationEffectId | 'random' | 'none'
 
@@ -45,6 +45,14 @@ function clamp(value: unknown, min: number, max: number, fallback: number): numb
   return Math.min(max, Math.max(min, parsed))
 }
 
+function sanitizeStartupEffect(value: unknown): StartupAnimationChoice {
+  if (value === 'random' || value === 'none' || isAnimationEffectId(value)) {
+    return value
+  }
+
+  return DEFAULT_PREFERENCES.startupEffect
+}
+
 function sanitizePreferences(value: unknown): AnimationPreferences {
   const source: Partial<AnimationPreferences> =
     value && typeof value === 'object'
@@ -56,10 +64,7 @@ function sanitizePreferences(value: unknown): AnimationPreferences {
       : {}
 
   return {
-    startupEffect:
-      typeof source.startupEffect === 'string'
-        ? (source.startupEffect as StartupAnimationChoice)
-        : DEFAULT_PREFERENCES.startupEffect,
+    startupEffect: sanitizeStartupEffect(source.startupEffect),
     butterflies: {
       adaptive:
         typeof butterflies.adaptive === 'boolean'
@@ -163,7 +168,7 @@ export const useAnimationPreferenceStore = defineStore(
     }
 
     function setStartupEffect(value: StartupAnimationChoice): void {
-      preferences.startupEffect = value
+      preferences.startupEffect = sanitizeStartupEffect(value)
       persist()
     }
 

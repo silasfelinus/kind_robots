@@ -521,6 +521,7 @@ import { useServerStore } from '@/stores/serverStore'
 import {
   STYLE_CATEGORY_ICONS,
   styleEntryKey,
+  COLORING_STYLES,
 } from '@/stores/helpers/styleHelper'
 import type { StyleCategory, StyleEntry } from '@/stores/helpers/styleHelper'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
@@ -693,24 +694,8 @@ const BUILTIN_STYLES: StyleEntry[] = [
     category: 'Ink',
     previewImageSrc: '/images/styler/fae-ink.webp',
   },
-  // Coloring-book conversions. Prompt-only (no LoRA): Kontext turns any photo
-  // or finished design into printable line art. This folds in the old
-  // image-editor's intent — "turn a picture into something you can color" —
-  // as first-class styles instead of a separate throwaway page.
-  {
-    slug: 'coloring-page',
-    triggerPhrase:
-      'Convert this image into a clean black-and-white coloring book page: crisp bold black outlines on a pure white background, no shading, no grayscale, no color fills — just clear line art ready to be colored in',
-    label: 'Coloring Page',
-    category: 'Line Art',
-  },
-  {
-    slug: 'coloring-bold',
-    triggerPhrase:
-      'Convert this image into a simple bold coloring book page for young children: thick clean black outlines, large open areas, minimal fine detail, no shading and no color on a pure white background',
-    label: 'Bold Coloring',
-    category: 'Line Art',
-  },
+  // Coloring-book conversions (shared with the dedicated /coloring-page maker).
+  ...COLORING_STYLES,
   {
     loraPath: 'FLUX/Claymation.safetensors',
     loraWeight: 1,

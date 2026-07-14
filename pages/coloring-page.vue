@@ -25,10 +25,30 @@
       </p>
     </header>
 
-    <art-styler :styles="COLORING_STYLES" :show-close="false" />
+    <art-styler
+      :styles="COLORING_STYLES"
+      :source-image-id="sourceImageId"
+      selected-style-key="coloring-page"
+      :show-close="false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from '#app'
 import { COLORING_STYLES } from '@/stores/helpers/styleHelper'
+
+const route = useRoute()
+
+// Deep link from a gallery image card: /coloring-page?imageId=123 lands here
+// with that image already loaded as the source and "Coloring Page" preselected,
+// so it's one tap to generate.
+const sourceImageId = computed<number | null>(() => {
+  const raw = Array.isArray(route.query.imageId)
+    ? route.query.imageId[0]
+    : route.query.imageId
+  const id = Number(raw)
+  return Number.isInteger(id) && id > 0 ? id : null
+})
 </script>

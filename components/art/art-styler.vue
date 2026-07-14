@@ -538,8 +538,19 @@ const props = withDefaults(
     showClose?: boolean
     /** Preselect a style by its key (slug/loraPath/label) — e.g. Academy lesson CTA. */
     selectedStyleKey?: string | null
+    /**
+     * Preselect a gallery ArtImage as the source by id — e.g. the "Make
+     * coloring page" one-tap from an image card. Loaded on mount.
+     */
+    sourceImageId?: number | null
   }>(),
-  { serverId: null, styles: null, showClose: true, selectedStyleKey: null },
+  {
+    serverId: null,
+    styles: null,
+    showClose: true,
+    selectedStyleKey: null,
+    sourceImageId: null,
+  },
 )
 
 const emit = defineEmits<{
@@ -1270,8 +1281,51 @@ watch(
   { immediate: true },
 )
 
+// Preselect a gallery image passed by id (e.g. the "Make coloring page" deep
+// link). We only need the thumbnail for the preview here — runStyleTransfer
+// lazily fetches the full imageData when the user generates.
+async function applySourceImageId(
+  id: number | null | undefined,
+): Promise<void> {
+  if (!id || id <= 0) return
+
+  uploadedImageData.value = null
+  resultImage.value = null
+
+  try {
+    const fetched = await artStore.getArtImageById(id, {
+      includeImageData: false,
+      includeThumbnailData: true,
+    })
+
+    if (!fetched) return
+
+    const hydrated = fetched as ArtImage & { thumbnailData?: string | null }
+
+    if (hydrated.thumbnailData) {
+      galleryThumbs.value = {
+        ...galleryThumbs.value,
+        [id]: `data:image/${hydrated.fileType || 'png'};base64,${hydrated.thumbnailData}`,
+      }
+    }
+
+    selectedSourceImage.value = fetched
+    sourceTab.value = 'gallery'
+  } catch {
+    // Non-fatal: the user can still pick a source manually.
+  }
+}
+
+watch(
+  () => props.sourceImageId,
+  (id) => {
+    void applySourceImageId(id)
+  },
+)
+
 onMounted(() => {
   void hydrateFromResourceStore()
+  void applySourceImageId(props.sourceImageId)
 })
 </script>
 

@@ -264,8 +264,8 @@ export type UserRelationWhereInput = {
   status?: Prisma.EnumRelationStatusFilter<"UserRelation"> | $Enums.RelationStatus
   note?: Prisma.StringNullableFilter<"UserRelation"> | string | null
   pairId?: Prisma.IntNullableFilter<"UserRelation"> | number | null
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   RelatedUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type UserRelationOrderByWithRelationInput = {
@@ -278,8 +278,8 @@ export type UserRelationOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   pairId?: Prisma.SortOrderInput | Prisma.SortOrder
-  User?: Prisma.UserOrderByWithRelationInput
   RelatedUser?: Prisma.UserOrderByWithRelationInput
+  User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.UserRelationOrderByRelevanceInput
 }
 
@@ -297,8 +297,8 @@ export type UserRelationWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumRelationStatusFilter<"UserRelation"> | $Enums.RelationStatus
   note?: Prisma.StringNullableFilter<"UserRelation"> | string | null
   pairId?: Prisma.IntNullableFilter<"UserRelation"> | number | null
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   RelatedUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId_relatedUserId_type">
 
 export type UserRelationOrderByWithAggregationInput = {
@@ -340,8 +340,8 @@ export type UserRelationCreateInput = {
   status?: $Enums.RelationStatus
   note?: string | null
   pairId?: number | null
-  User: Prisma.UserCreateNestedOneWithoutRelationsOwnedInput
   RelatedUser: Prisma.UserCreateNestedOneWithoutRelationsReceivedInput
+  User: Prisma.UserCreateNestedOneWithoutRelationsOwnedInput
 }
 
 export type UserRelationUncheckedCreateInput = {
@@ -363,8 +363,8 @@ export type UserRelationUpdateInput = {
   status?: Prisma.EnumRelationStatusFieldUpdateOperationsInput | $Enums.RelationStatus
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  User?: Prisma.UserUpdateOneRequiredWithoutRelationsOwnedNestedInput
   RelatedUser?: Prisma.UserUpdateOneRequiredWithoutRelationsReceivedNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutRelationsOwnedNestedInput
 }
 
 export type UserRelationUncheckedUpdateInput = {
@@ -484,13 +484,6 @@ export type UserRelationSumOrderByAggregateInput = {
   pairId?: Prisma.SortOrder
 }
 
-export type UserRelationCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput> | Prisma.UserRelationCreateWithoutUserInput[] | Prisma.UserRelationUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserRelationCreateOrConnectWithoutUserInput | Prisma.UserRelationCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.UserRelationCreateManyUserInputEnvelope
-  connect?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
-}
-
 export type UserRelationCreateNestedManyWithoutRelatedUserInput = {
   create?: Prisma.XOR<Prisma.UserRelationCreateWithoutRelatedUserInput, Prisma.UserRelationUncheckedCreateWithoutRelatedUserInput> | Prisma.UserRelationCreateWithoutRelatedUserInput[] | Prisma.UserRelationUncheckedCreateWithoutRelatedUserInput[]
   connectOrCreate?: Prisma.UserRelationCreateOrConnectWithoutRelatedUserInput | Prisma.UserRelationCreateOrConnectWithoutRelatedUserInput[]
@@ -498,7 +491,7 @@ export type UserRelationCreateNestedManyWithoutRelatedUserInput = {
   connect?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
 }
 
-export type UserRelationUncheckedCreateNestedManyWithoutUserInput = {
+export type UserRelationCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput> | Prisma.UserRelationCreateWithoutUserInput[] | Prisma.UserRelationUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.UserRelationCreateOrConnectWithoutUserInput | Prisma.UserRelationCreateOrConnectWithoutUserInput[]
   createMany?: Prisma.UserRelationCreateManyUserInputEnvelope
@@ -512,18 +505,11 @@ export type UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput = {
   connect?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
 }
 
-export type UserRelationUpdateManyWithoutUserNestedInput = {
+export type UserRelationUncheckedCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput> | Prisma.UserRelationCreateWithoutUserInput[] | Prisma.UserRelationUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.UserRelationCreateOrConnectWithoutUserInput | Prisma.UserRelationCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.UserRelationUpsertWithWhereUniqueWithoutUserInput | Prisma.UserRelationUpsertWithWhereUniqueWithoutUserInput[]
   createMany?: Prisma.UserRelationCreateManyUserInputEnvelope
-  set?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
-  disconnect?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
-  delete?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
   connect?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
-  update?: Prisma.UserRelationUpdateWithWhereUniqueWithoutUserInput | Prisma.UserRelationUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.UserRelationUpdateManyWithWhereWithoutUserInput | Prisma.UserRelationUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
 }
 
 export type UserRelationUpdateManyWithoutRelatedUserNestedInput = {
@@ -540,7 +526,7 @@ export type UserRelationUpdateManyWithoutRelatedUserNestedInput = {
   deleteMany?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
 }
 
-export type UserRelationUncheckedUpdateManyWithoutUserNestedInput = {
+export type UserRelationUpdateManyWithoutUserNestedInput = {
   create?: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput> | Prisma.UserRelationCreateWithoutUserInput[] | Prisma.UserRelationUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.UserRelationCreateOrConnectWithoutUserInput | Prisma.UserRelationCreateOrConnectWithoutUserInput[]
   upsert?: Prisma.UserRelationUpsertWithWhereUniqueWithoutUserInput | Prisma.UserRelationUpsertWithWhereUniqueWithoutUserInput[]
@@ -568,43 +554,26 @@ export type UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput = {
   deleteMany?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
 }
 
+export type UserRelationUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput> | Prisma.UserRelationCreateWithoutUserInput[] | Prisma.UserRelationUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserRelationCreateOrConnectWithoutUserInput | Prisma.UserRelationCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.UserRelationUpsertWithWhereUniqueWithoutUserInput | Prisma.UserRelationUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.UserRelationCreateManyUserInputEnvelope
+  set?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
+  disconnect?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
+  delete?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
+  connect?: Prisma.UserRelationWhereUniqueInput | Prisma.UserRelationWhereUniqueInput[]
+  update?: Prisma.UserRelationUpdateWithWhereUniqueWithoutUserInput | Prisma.UserRelationUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.UserRelationUpdateManyWithWhereWithoutUserInput | Prisma.UserRelationUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
+}
+
 export type EnumRelationTypeFieldUpdateOperationsInput = {
   set?: $Enums.RelationType
 }
 
 export type EnumRelationStatusFieldUpdateOperationsInput = {
   set?: $Enums.RelationStatus
-}
-
-export type UserRelationCreateWithoutUserInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  type: $Enums.RelationType
-  status?: $Enums.RelationStatus
-  note?: string | null
-  pairId?: number | null
-  RelatedUser: Prisma.UserCreateNestedOneWithoutRelationsReceivedInput
-}
-
-export type UserRelationUncheckedCreateWithoutUserInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  relatedUserId: number
-  type: $Enums.RelationType
-  status?: $Enums.RelationStatus
-  note?: string | null
-  pairId?: number | null
-}
-
-export type UserRelationCreateOrConnectWithoutUserInput = {
-  where: Prisma.UserRelationWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput>
-}
-
-export type UserRelationCreateManyUserInputEnvelope = {
-  data: Prisma.UserRelationCreateManyUserInput | Prisma.UserRelationCreateManyUserInput[]
-  skipDuplicates?: boolean
 }
 
 export type UserRelationCreateWithoutRelatedUserInput = {
@@ -638,35 +607,35 @@ export type UserRelationCreateManyRelatedUserInputEnvelope = {
   skipDuplicates?: boolean
 }
 
-export type UserRelationUpsertWithWhereUniqueWithoutUserInput = {
+export type UserRelationCreateWithoutUserInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  type: $Enums.RelationType
+  status?: $Enums.RelationStatus
+  note?: string | null
+  pairId?: number | null
+  RelatedUser: Prisma.UserCreateNestedOneWithoutRelationsReceivedInput
+}
+
+export type UserRelationUncheckedCreateWithoutUserInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  relatedUserId: number
+  type: $Enums.RelationType
+  status?: $Enums.RelationStatus
+  note?: string | null
+  pairId?: number | null
+}
+
+export type UserRelationCreateOrConnectWithoutUserInput = {
   where: Prisma.UserRelationWhereUniqueInput
-  update: Prisma.XOR<Prisma.UserRelationUpdateWithoutUserInput, Prisma.UserRelationUncheckedUpdateWithoutUserInput>
   create: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput>
 }
 
-export type UserRelationUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.UserRelationWhereUniqueInput
-  data: Prisma.XOR<Prisma.UserRelationUpdateWithoutUserInput, Prisma.UserRelationUncheckedUpdateWithoutUserInput>
-}
-
-export type UserRelationUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.UserRelationScalarWhereInput
-  data: Prisma.XOR<Prisma.UserRelationUpdateManyMutationInput, Prisma.UserRelationUncheckedUpdateManyWithoutUserInput>
-}
-
-export type UserRelationScalarWhereInput = {
-  AND?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
-  OR?: Prisma.UserRelationScalarWhereInput[]
-  NOT?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
-  id?: Prisma.IntFilter<"UserRelation"> | number
-  createdAt?: Prisma.DateTimeFilter<"UserRelation"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableFilter<"UserRelation"> | Date | string | null
-  userId?: Prisma.IntFilter<"UserRelation"> | number
-  relatedUserId?: Prisma.IntFilter<"UserRelation"> | number
-  type?: Prisma.EnumRelationTypeFilter<"UserRelation"> | $Enums.RelationType
-  status?: Prisma.EnumRelationStatusFilter<"UserRelation"> | $Enums.RelationStatus
-  note?: Prisma.StringNullableFilter<"UserRelation"> | string | null
-  pairId?: Prisma.IntNullableFilter<"UserRelation"> | number | null
+export type UserRelationCreateManyUserInputEnvelope = {
+  data: Prisma.UserRelationCreateManyUserInput | Prisma.UserRelationCreateManyUserInput[]
+  skipDuplicates?: boolean
 }
 
 export type UserRelationUpsertWithWhereUniqueWithoutRelatedUserInput = {
@@ -685,15 +654,35 @@ export type UserRelationUpdateManyWithWhereWithoutRelatedUserInput = {
   data: Prisma.XOR<Prisma.UserRelationUpdateManyMutationInput, Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserInput>
 }
 
-export type UserRelationCreateManyUserInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  relatedUserId: number
-  type: $Enums.RelationType
-  status?: $Enums.RelationStatus
-  note?: string | null
-  pairId?: number | null
+export type UserRelationScalarWhereInput = {
+  AND?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
+  OR?: Prisma.UserRelationScalarWhereInput[]
+  NOT?: Prisma.UserRelationScalarWhereInput | Prisma.UserRelationScalarWhereInput[]
+  id?: Prisma.IntFilter<"UserRelation"> | number
+  createdAt?: Prisma.DateTimeFilter<"UserRelation"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"UserRelation"> | Date | string | null
+  userId?: Prisma.IntFilter<"UserRelation"> | number
+  relatedUserId?: Prisma.IntFilter<"UserRelation"> | number
+  type?: Prisma.EnumRelationTypeFilter<"UserRelation"> | $Enums.RelationType
+  status?: Prisma.EnumRelationStatusFilter<"UserRelation"> | $Enums.RelationStatus
+  note?: Prisma.StringNullableFilter<"UserRelation"> | string | null
+  pairId?: Prisma.IntNullableFilter<"UserRelation"> | number | null
+}
+
+export type UserRelationUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserRelationWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserRelationUpdateWithoutUserInput, Prisma.UserRelationUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserRelationCreateWithoutUserInput, Prisma.UserRelationUncheckedCreateWithoutUserInput>
+}
+
+export type UserRelationUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserRelationWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserRelationUpdateWithoutUserInput, Prisma.UserRelationUncheckedUpdateWithoutUserInput>
+}
+
+export type UserRelationUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.UserRelationScalarWhereInput
+  data: Prisma.XOR<Prisma.UserRelationUpdateManyMutationInput, Prisma.UserRelationUncheckedUpdateManyWithoutUserInput>
 }
 
 export type UserRelationCreateManyRelatedUserInput = {
@@ -707,36 +696,15 @@ export type UserRelationCreateManyRelatedUserInput = {
   pairId?: number | null
 }
 
-export type UserRelationUpdateWithoutUserInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumRelationTypeFieldUpdateOperationsInput | $Enums.RelationType
-  status?: Prisma.EnumRelationStatusFieldUpdateOperationsInput | $Enums.RelationStatus
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  RelatedUser?: Prisma.UserUpdateOneRequiredWithoutRelationsReceivedNestedInput
-}
-
-export type UserRelationUncheckedUpdateWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  relatedUserId?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumRelationTypeFieldUpdateOperationsInput | $Enums.RelationType
-  status?: Prisma.EnumRelationStatusFieldUpdateOperationsInput | $Enums.RelationStatus
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type UserRelationUncheckedUpdateManyWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  relatedUserId?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumRelationTypeFieldUpdateOperationsInput | $Enums.RelationType
-  status?: Prisma.EnumRelationStatusFieldUpdateOperationsInput | $Enums.RelationStatus
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+export type UserRelationCreateManyUserInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  relatedUserId: number
+  type: $Enums.RelationType
+  status?: $Enums.RelationStatus
+  note?: string | null
+  pairId?: number | null
 }
 
 export type UserRelationUpdateWithoutRelatedUserInput = {
@@ -771,6 +739,38 @@ export type UserRelationUncheckedUpdateManyWithoutRelatedUserInput = {
   pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
+export type UserRelationUpdateWithoutUserInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  type?: Prisma.EnumRelationTypeFieldUpdateOperationsInput | $Enums.RelationType
+  status?: Prisma.EnumRelationStatusFieldUpdateOperationsInput | $Enums.RelationStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  RelatedUser?: Prisma.UserUpdateOneRequiredWithoutRelationsReceivedNestedInput
+}
+
+export type UserRelationUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relatedUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumRelationTypeFieldUpdateOperationsInput | $Enums.RelationType
+  status?: Prisma.EnumRelationStatusFieldUpdateOperationsInput | $Enums.RelationStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type UserRelationUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relatedUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumRelationTypeFieldUpdateOperationsInput | $Enums.RelationType
+  status?: Prisma.EnumRelationStatusFieldUpdateOperationsInput | $Enums.RelationStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pairId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
 
 
 export type UserRelationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -783,8 +783,8 @@ export type UserRelationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   status?: boolean
   note?: boolean
   pairId?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   RelatedUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userRelation"]>
 
 
@@ -803,15 +803,15 @@ export type UserRelationSelectScalar = {
 
 export type UserRelationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "relatedUserId" | "type" | "status" | "note" | "pairId", ExtArgs["result"]["userRelation"]>
 export type UserRelationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   RelatedUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $UserRelationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserRelation"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
     RelatedUser: Prisma.$UserPayload<ExtArgs>
+    User: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1163,8 +1163,8 @@ readonly fields: UserRelationFieldRefs;
  */
 export interface Prisma__UserRelationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   RelatedUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

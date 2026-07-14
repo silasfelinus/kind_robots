@@ -204,16 +204,16 @@ export type ScenarioFacetWhereInput = {
   scenarioId?: Prisma.IntFilter<"ScenarioFacet"> | number
   facetId?: Prisma.IntFilter<"ScenarioFacet"> | number
   createdAt?: Prisma.DateTimeFilter<"ScenarioFacet"> | Date | string
-  Scenario?: Prisma.XOR<Prisma.ScenarioScalarRelationFilter, Prisma.ScenarioWhereInput>
   Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
+  Scenario?: Prisma.XOR<Prisma.ScenarioScalarRelationFilter, Prisma.ScenarioWhereInput>
 }
 
 export type ScenarioFacetOrderByWithRelationInput = {
   scenarioId?: Prisma.SortOrder
   facetId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  Scenario?: Prisma.ScenarioOrderByWithRelationInput
   Facet?: Prisma.FacetOrderByWithRelationInput
+  Scenario?: Prisma.ScenarioOrderByWithRelationInput
 }
 
 export type ScenarioFacetWhereUniqueInput = Prisma.AtLeast<{
@@ -224,8 +224,8 @@ export type ScenarioFacetWhereUniqueInput = Prisma.AtLeast<{
   scenarioId?: Prisma.IntFilter<"ScenarioFacet"> | number
   facetId?: Prisma.IntFilter<"ScenarioFacet"> | number
   createdAt?: Prisma.DateTimeFilter<"ScenarioFacet"> | Date | string
-  Scenario?: Prisma.XOR<Prisma.ScenarioScalarRelationFilter, Prisma.ScenarioWhereInput>
   Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
+  Scenario?: Prisma.XOR<Prisma.ScenarioScalarRelationFilter, Prisma.ScenarioWhereInput>
 }, "scenarioId_facetId">
 
 export type ScenarioFacetOrderByWithAggregationInput = {
@@ -250,8 +250,8 @@ export type ScenarioFacetScalarWhereWithAggregatesInput = {
 
 export type ScenarioFacetCreateInput = {
   createdAt?: Date | string
-  Scenario: Prisma.ScenarioCreateNestedOneWithoutFacetLinksInput
   Facet: Prisma.FacetCreateNestedOneWithoutScenarioLinksInput
+  Scenario: Prisma.ScenarioCreateNestedOneWithoutFacetLinksInput
 }
 
 export type ScenarioFacetUncheckedCreateInput = {
@@ -262,8 +262,8 @@ export type ScenarioFacetUncheckedCreateInput = {
 
 export type ScenarioFacetUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Scenario?: Prisma.ScenarioUpdateOneRequiredWithoutFacetLinksNestedInput
   Facet?: Prisma.FacetUpdateOneRequiredWithoutScenarioLinksNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneRequiredWithoutFacetLinksNestedInput
 }
 
 export type ScenarioFacetUncheckedUpdateInput = {
@@ -542,8 +542,8 @@ export type ScenarioFacetSelect<ExtArgs extends runtime.Types.Extensions.Interna
   scenarioId?: boolean
   facetId?: boolean
   createdAt?: boolean
-  Scenario?: boolean | Prisma.ScenarioDefaultArgs<ExtArgs>
   Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
+  Scenario?: boolean | Prisma.ScenarioDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scenarioFacet"]>
 
 
@@ -556,15 +556,15 @@ export type ScenarioFacetSelectScalar = {
 
 export type ScenarioFacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"scenarioId" | "facetId" | "createdAt", ExtArgs["result"]["scenarioFacet"]>
 export type ScenarioFacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Scenario?: boolean | Prisma.ScenarioDefaultArgs<ExtArgs>
   Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
+  Scenario?: boolean | Prisma.ScenarioDefaultArgs<ExtArgs>
 }
 
 export type $ScenarioFacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ScenarioFacet"
   objects: {
-    Scenario: Prisma.$ScenarioPayload<ExtArgs>
     Facet: Prisma.$FacetPayload<ExtArgs>
+    Scenario: Prisma.$ScenarioPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     scenarioId: number
@@ -910,8 +910,8 @@ readonly fields: ScenarioFacetFieldRefs;
  */
 export interface Prisma__ScenarioFacetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Scenario<T extends Prisma.ScenarioDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScenarioDefaultArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Facet<T extends Prisma.FacetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacetDefaultArgs<ExtArgs>>): Prisma.Prisma__FacetClient<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Scenario<T extends Prisma.ScenarioDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScenarioDefaultArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

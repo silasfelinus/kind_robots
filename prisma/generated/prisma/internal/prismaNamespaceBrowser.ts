@@ -250,17 +250,8 @@ export const ArtImageScalarFieldEnum = {
   designer: 'designer',
   genres: 'genres',
   imagePath: 'imagePath',
-  heroPath: 'heroPath',
-  cardPath: 'cardPath',
-  iconPath: 'iconPath',
-  thumbnailPath: 'thumbnailPath',
-  heroData: 'heroData',
-  cardData: 'cardData',
-  iconData: 'iconData',
-  thumbnailData: 'thumbnailData',
   isMature: 'isMature',
   isPublic: 'isPublic',
-  isActive: 'isActive',
   negativePrompt: 'negativePrompt',
   path: 'path',
   promptString: 'promptString',
@@ -270,7 +261,16 @@ export const ArtImageScalarFieldEnum = {
   serverName: 'serverName',
   serverUrl: 'serverUrl',
   steps: 'steps',
-  artPrompt: 'artPrompt'
+  isActive: 'isActive',
+  artPrompt: 'artPrompt',
+  cardData: 'cardData',
+  cardPath: 'cardPath',
+  heroData: 'heroData',
+  heroPath: 'heroPath',
+  iconData: 'iconData',
+  iconPath: 'iconPath',
+  thumbnailData: 'thumbnailData',
+  thumbnailPath: 'thumbnailPath'
 } as const
 
 export type ArtImageScalarFieldEnum = (typeof ArtImageScalarFieldEnum)[keyof typeof ArtImageScalarFieldEnum]
@@ -282,15 +282,15 @@ export const ArtCollectionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   userId: 'userId',
   label: 'label',
-  slug: 'slug',
-  parentFolder: 'parentFolder',
   isMature: 'isMature',
   isPublic: 'isPublic',
-  imagePath: 'imagePath',
   description: 'description',
   username: 'username',
   isActive: 'isActive',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  slug: 'slug',
+  parentFolder: 'parentFolder'
 } as const
 
 export type ArtCollectionScalarFieldEnum = (typeof ArtCollectionScalarFieldEnum)[keyof typeof ArtCollectionScalarFieldEnum]
@@ -302,14 +302,11 @@ export const BotScalarFieldEnum = {
   updatedAt: 'updatedAt',
   BotType: 'BotType',
   name: 'name',
-  slug: 'slug',
   subtitle: 'subtitle',
   description: 'description',
   avatarImage: 'avatarImage',
   botIntro: 'botIntro',
   userIntro: 'userIntro',
-  narrativeVoice: 'narrativeVoice',
-  forgeIntro: 'forgeIntro',
   prompt: 'prompt',
   trainingPath: 'trainingPath',
   theme: 'theme',
@@ -321,7 +318,6 @@ export const BotScalarFieldEnum = {
   underConstruction: 'underConstruction',
   canDelete: 'canDelete',
   userId: 'userId',
-  imagePath: 'imagePath',
   designer: 'designer',
   serverId: 'serverId',
   serverName: 'serverName',
@@ -329,6 +325,10 @@ export const BotScalarFieldEnum = {
   isMature: 'isMature',
   isActive: 'isActive',
   artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  forgeIntro: 'forgeIntro',
+  narrativeVoice: 'narrativeVoice',
+  slug: 'slug',
   chatBorderImage: 'chatBorderImage'
 } as const
 
@@ -340,7 +340,6 @@ export const CharacterScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   name: 'name',
-  slug: 'slug',
   achievements: 'achievements',
   alignment: 'alignment',
   experience: 'experience',
@@ -370,7 +369,8 @@ export const CharacterScalarFieldEnum = {
   role: 'role',
   title: 'title',
   wits: 'wits',
-  gender: 'gender'
+  gender: 'gender',
+  slug: 'slug'
 } as const
 
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]
@@ -380,7 +380,6 @@ export const ChatScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  readAt: 'readAt',
   type: 'type',
   sender: 'sender',
   recipient: 'recipient',
@@ -404,8 +403,9 @@ export const ChatScalarFieldEnum = {
   serverId: 'serverId',
   serverName: 'serverName',
   dreamId: 'dreamId',
-  projectId: 'projectId',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  readAt: 'readAt',
+  projectId: 'projectId'
 } as const
 
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
@@ -468,17 +468,17 @@ export const CompositionScalarFieldEnum = {
   rewardBlurb: 'rewardBlurb',
   narrativeText: 'narrativeText',
   artPrompt: 'artPrompt',
+  userId: 'userId',
+  artImageId: 'artImageId',
   imagePath: 'imagePath',
-  wishText: 'wishText',
+  approvedAt: 'approvedAt',
+  bountyId: 'bountyId',
+  manaCharged: 'manaCharged',
+  outputDreamId: 'outputDreamId',
   status: 'status',
   stepLog: 'stepLog',
   userApproved: 'userApproved',
-  approvedAt: 'approvedAt',
-  manaCharged: 'manaCharged',
-  bountyId: 'bountyId',
-  userId: 'userId',
-  artImageId: 'artImageId',
-  outputDreamId: 'outputDreamId'
+  wishText: 'wishText'
 } as const
 
 export type CompositionScalarFieldEnum = (typeof CompositionScalarFieldEnum)[keyof typeof CompositionScalarFieldEnum]
@@ -490,26 +490,26 @@ export const DreamScalarFieldEnum = {
   updatedAt: 'updatedAt',
   title: 'title',
   slug: 'slug',
-  dreamType: 'dreamType',
   description: 'description',
-  pitch: 'pitch',
-  flavorText: 'flavorText',
-  examples: 'examples',
-  artPrompt: 'artPrompt',
-  imagePath: 'imagePath',
-  cardPath: 'cardPath',
-  heroPath: 'heroPath',
-  allowReviews: 'allowReviews',
-  highlightImage: 'highlightImage',
-  icon: 'icon',
-  designer: 'designer',
-  creationSource: 'creationSource',
   userId: 'userId',
+  artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive',
-  artImageId: 'artImageId',
-  artCollectionId: 'artCollectionId',
+  artPrompt: 'artPrompt',
+  creationSource: 'creationSource',
+  designer: 'designer',
+  dreamType: 'dreamType',
+  examples: 'examples',
+  flavorText: 'flavorText',
+  highlightImage: 'highlightImage',
+  icon: 'icon',
+  imagePath: 'imagePath',
+  pitch: 'pitch',
+  allowReviews: 'allowReviews',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
   narratorId: 'narratorId'
 } as const
 
@@ -808,7 +808,6 @@ export const PitchSheetScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   dreamId: 'dreamId',
-  projectId: 'projectId',
   layoutKey: 'layoutKey',
   title: 'title',
   subtitle: 'subtitle',
@@ -838,7 +837,8 @@ export const PitchSheetScalarFieldEnum = {
   isPublic: 'isPublic',
   isActive: 'isActive',
   isMature: 'isMature',
-  designer: 'designer'
+  designer: 'designer',
+  projectId: 'projectId'
 } as const
 
 export type PitchSheetScalarFieldEnum = (typeof PitchSheetScalarFieldEnum)[keyof typeof PitchSheetScalarFieldEnum]
@@ -892,15 +892,15 @@ export const ReactionScalarFieldEnum = {
   rewardId: 'rewardId',
   chatId: 'chatId',
   dreamId: 'dreamId',
-  projectId: 'projectId',
-  facetId: 'facetId',
   artCollectionId: 'artCollectionId',
   butterflyId: 'butterflyId',
   characterId: 'characterId',
   scenarioId: 'scenarioId',
   themeId: 'themeId',
   compositionId: 'compositionId',
-  challengeSubmissionId: 'challengeSubmissionId'
+  challengeSubmissionId: 'challengeSubmissionId',
+  projectId: 'projectId',
+  facetId: 'facetId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -911,7 +911,6 @@ export const ResourceScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   name: 'name',
-  slug: 'slug',
   customLabel: 'customLabel',
   MediaPath: 'MediaPath',
   customUrl: 'customUrl',
@@ -923,12 +922,13 @@ export const ResourceScalarFieldEnum = {
   resourceType: 'resourceType',
   userId: 'userId',
   artImageId: 'artImageId',
-  imagePath: 'imagePath',
   generation: 'generation',
   supportedServer: 'supportedServer',
   isPublic: 'isPublic',
   isActive: 'isActive',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  slug: 'slug'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]
@@ -938,22 +938,22 @@ export const RewardScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  name: 'name',
-  slug: 'slug',
-  description: 'description',
-  flavorText: 'flavorText',
-  effect: 'effect',
   icon: 'icon',
   collection: 'collection',
   rarity: 'rarity',
-  rewardType: 'rewardType',
   userId: 'userId',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
-  artPrompt: 'artPrompt',
   isMature: 'isMature',
   isPublic: 'isPublic',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  artPrompt: 'artPrompt',
+  rewardType: 'rewardType',
+  description: 'description',
+  effect: 'effect',
+  flavorText: 'flavorText',
+  name: 'name',
+  slug: 'slug'
 } as const
 
 export type RewardScalarFieldEnum = (typeof RewardScalarFieldEnum)[keyof typeof RewardScalarFieldEnum]
@@ -964,7 +964,6 @@ export const ScenarioScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   title: 'title',
-  slug: 'slug',
   description: 'description',
   intros: 'intros',
   userId: 'userId',
@@ -978,11 +977,12 @@ export const ScenarioScalarFieldEnum = {
   isPublic: 'isPublic',
   isActive: 'isActive',
   difficulty: 'difficulty',
-  tier: 'tier',
   group: 'group',
   secretNotes: 'secretNotes',
+  tier: 'tier',
   cast: 'cast',
-  outputType: 'outputType'
+  outputType: 'outputType',
+  slug: 'slug'
 } as const
 
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
@@ -995,31 +995,31 @@ export const ServerScalarFieldEnum = {
   title: 'title',
   label: 'label',
   description: 'description',
-  category: 'category',
   serverType: 'serverType',
-  accessMode: 'accessMode',
-  authType: 'authType',
+  category: 'category',
   baseUrl: 'baseUrl',
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
-  apiLink: 'apiLink',
-  apiKey: 'apiKey',
-  apiKeyName: 'apiKeyName',
-  model: 'model',
-  notes: 'notes',
-  designer: 'designer',
-  version: 'version',
-  sortOrder: 'sortOrder',
   userId: 'userId',
   isPublic: 'isPublic',
   isOfficial: 'isOfficial',
   isDefault: 'isDefault',
   isActive: 'isActive',
   isEditable: 'isEditable',
-  isMature: 'isMature',
+  apiKeyName: 'apiKeyName',
+  apiLink: 'apiLink',
+  model: 'model',
+  apiKey: 'apiKey',
+  designer: 'designer',
+  version: 'version',
+  notes: 'notes',
+  sortOrder: 'sortOrder',
   lastCheckedAt: 'lastCheckedAt',
   lastStatus: 'lastStatus',
-  artPrompt: 'artPrompt'
+  accessMode: 'accessMode',
+  isMature: 'isMature',
+  artPrompt: 'artPrompt',
+  authType: 'authType'
 } as const
 
 export type ServerScalarFieldEnum = (typeof ServerScalarFieldEnum)[keyof typeof ServerScalarFieldEnum]
@@ -1170,21 +1170,21 @@ export const UserScalarFieldEnum = {
   hiddenServerIds: 'hiddenServerIds',
   isActive: 'isActive',
   artPrompt: 'artPrompt',
-  manaCap: 'manaCap',
-  lastManaRefill: 'lastManaRefill',
-  signupBonusGiven: 'signupBonusGiven',
   isGuest: 'isGuest',
+  lastManaRefill: 'lastManaRefill',
+  manaCap: 'manaCap',
+  signupBonusGiven: 'signupBonusGiven',
   referralCode: 'referralCode',
-  listInDirectory: 'listInDirectory',
   allowFriendRequests: 'allowFriendRequests',
-  messagePolicy: 'messagePolicy',
-  newsletterFrequency: 'newsletterFrequency',
-  newsletterConfirmedAt: 'newsletterConfirmedAt',
   brevoContactId: 'brevoContactId',
   isRestricted: 'isRestricted',
+  listInDirectory: 'listInDirectory',
+  messagePolicy: 'messagePolicy',
+  newsletterConfirmedAt: 'newsletterConfirmedAt',
+  newsletterFrequency: 'newsletterFrequency',
   restrictedAt: 'restrictedAt',
-  restrictedReason: 'restrictedReason',
-  restrictedById: 'restrictedById'
+  restrictedById: 'restrictedById',
+  restrictedReason: 'restrictedReason'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -1231,10 +1231,10 @@ export const ArtJobScalarFieldEnum = {
   claimedAt: 'claimedAt',
   claimedBy: 'claimedBy',
   projectSlug: 'projectSlug',
-  projectId: 'projectId',
   artImageId: 'artImageId',
   error: 'error',
-  userId: 'userId'
+  userId: 'userId',
+  projectId: 'projectId'
 } as const
 
 export type ArtJobScalarFieldEnum = (typeof ArtJobScalarFieldEnum)[keyof typeof ArtJobScalarFieldEnum]
@@ -1295,8 +1295,8 @@ export const TodoScalarFieldEnum = {
   imagePath: 'imagePath',
   userId: 'userId',
   dreamId: 'dreamId',
-  projectId: 'projectId',
-  order: 'order'
+  order: 'order',
+  projectId: 'projectId'
 } as const
 
 export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
@@ -1326,17 +1326,17 @@ export const ChallengeSubmissionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   challengeId: 'challengeId',
   botId: 'botId',
-  contenderId: 'contenderId',
-  variantKey: 'variantKey',
-  promptUsed: 'promptUsed',
-  settings: 'settings',
-  randomSelections: 'randomSelections',
   agentModel: 'agentModel',
   outputText: 'outputText',
   artImageId: 'artImageId',
   characterId: 'characterId',
   scenarioId: 'scenarioId',
-  status: 'status'
+  status: 'status',
+  contenderId: 'contenderId',
+  variantKey: 'variantKey',
+  promptUsed: 'promptUsed',
+  settings: 'settings',
+  randomSelections: 'randomSelections'
 } as const
 
 export type ChallengeSubmissionScalarFieldEnum = (typeof ChallengeSubmissionScalarFieldEnum)[keyof typeof ChallengeSubmissionScalarFieldEnum]
@@ -1556,21 +1556,6 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const NullableJsonNullValueInput = {
-  DbNull: DbNull,
-  JsonNull: JsonNull
-} as const
-
-export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -1587,28 +1572,14 @@ export const FacetAliasOrderByRelevanceFieldEnum = {
 export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelevanceFieldEnum)[keyof typeof FacetAliasOrderByRelevanceFieldEnum]
 
 
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
   sourceType: 'sourceType',
   sourceLabel: 'sourceLabel',
+  sourceSnapshot: 'sourceSnapshot',
   recipeKey: 'recipeKey',
-  recipeVersion: 'recipeVersion'
+  recipeVersion: 'recipeVersion',
+  selections: 'selections',
+  usageInfo: 'usageInfo'
 } as const
 
 export type ModelBuildRunOrderByRelevanceFieldEnum = (typeof ModelBuildRunOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRunOrderByRelevanceFieldEnum]
@@ -1619,9 +1590,11 @@ export const ModelBuildItemOrderByRelevanceFieldEnum = {
   label: 'label',
   generation: 'generation',
   targetType: 'targetType',
+  stageStatuses: 'stageStatuses',
   pitch: 'pitch',
   fieldsDraft: 'fieldsDraft',
   promptDraft: 'promptDraft',
+  relationshipDraft: 'relationshipDraft',
   staleReason: 'staleReason',
   error: 'error',
   idempotencyKey: 'idempotencyKey'
@@ -1637,9 +1610,11 @@ export const ModelBuildArtifactOrderByRelevanceFieldEnum = {
   seed: 'seed',
   prompt: 'prompt',
   negativePrompt: 'negativePrompt',
+  workflow: 'workflow',
   format: 'format',
   draftPath: 'draftPath',
-  promotedPath: 'promotedPath'
+  promotedPath: 'promotedPath',
+  usageInfo: 'usageInfo'
 } as const
 
 export type ModelBuildArtifactOrderByRelevanceFieldEnum = (typeof ModelBuildArtifactOrderByRelevanceFieldEnum)[keyof typeof ModelBuildArtifactOrderByRelevanceFieldEnum]
@@ -1647,6 +1622,8 @@ export type ModelBuildArtifactOrderByRelevanceFieldEnum = (typeof ModelBuildArti
 
 export const ModelBuildRevisionOrderByRelevanceFieldEnum = {
   stage: 'stage',
+  previousPayload: 'previousPayload',
+  nextPayload: 'nextPayload',
   actor: 'actor',
   reason: 'reason'
 } as const
@@ -1662,21 +1639,21 @@ export const ArtImageOrderByRelevanceFieldEnum = {
   designer: 'designer',
   genres: 'genres',
   imagePath: 'imagePath',
-  heroPath: 'heroPath',
-  cardPath: 'cardPath',
-  iconPath: 'iconPath',
-  thumbnailPath: 'thumbnailPath',
-  heroData: 'heroData',
-  cardData: 'cardData',
-  iconData: 'iconData',
-  thumbnailData: 'thumbnailData',
   negativePrompt: 'negativePrompt',
   path: 'path',
   promptString: 'promptString',
   sampler: 'sampler',
   serverName: 'serverName',
   serverUrl: 'serverUrl',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  cardData: 'cardData',
+  cardPath: 'cardPath',
+  heroData: 'heroData',
+  heroPath: 'heroPath',
+  iconData: 'iconData',
+  iconPath: 'iconPath',
+  thumbnailData: 'thumbnailData',
+  thumbnailPath: 'thumbnailPath'
 } as const
 
 export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevanceFieldEnum)[keyof typeof ArtImageOrderByRelevanceFieldEnum]
@@ -1684,12 +1661,12 @@ export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevance
 
 export const ArtCollectionOrderByRelevanceFieldEnum = {
   label: 'label',
-  slug: 'slug',
-  parentFolder: 'parentFolder',
-  imagePath: 'imagePath',
   description: 'description',
   username: 'username',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  slug: 'slug',
+  parentFolder: 'parentFolder'
 } as const
 
 export type ArtCollectionOrderByRelevanceFieldEnum = (typeof ArtCollectionOrderByRelevanceFieldEnum)[keyof typeof ArtCollectionOrderByRelevanceFieldEnum]
@@ -1698,14 +1675,11 @@ export type ArtCollectionOrderByRelevanceFieldEnum = (typeof ArtCollectionOrderB
 export const BotOrderByRelevanceFieldEnum = {
   BotType: 'BotType',
   name: 'name',
-  slug: 'slug',
   subtitle: 'subtitle',
   description: 'description',
   avatarImage: 'avatarImage',
   botIntro: 'botIntro',
   userIntro: 'userIntro',
-  narrativeVoice: 'narrativeVoice',
-  forgeIntro: 'forgeIntro',
   prompt: 'prompt',
   trainingPath: 'trainingPath',
   theme: 'theme',
@@ -1713,10 +1687,13 @@ export const BotOrderByRelevanceFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
-  imagePath: 'imagePath',
   designer: 'designer',
   serverName: 'serverName',
   artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  forgeIntro: 'forgeIntro',
+  narrativeVoice: 'narrativeVoice',
+  slug: 'slug',
   chatBorderImage: 'chatBorderImage'
 } as const
 
@@ -1725,7 +1702,6 @@ export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)
 
 export const CharacterOrderByRelevanceFieldEnum = {
   name: 'name',
-  slug: 'slug',
   achievements: 'achievements',
   alignment: 'alignment',
   class: 'class',
@@ -1742,7 +1718,8 @@ export const CharacterOrderByRelevanceFieldEnum = {
   presentation: 'presentation',
   role: 'role',
   title: 'title',
-  gender: 'gender'
+  gender: 'gender',
+  slug: 'slug'
 } as const
 
 export type CharacterOrderByRelevanceFieldEnum = (typeof CharacterOrderByRelevanceFieldEnum)[keyof typeof CharacterOrderByRelevanceFieldEnum]
@@ -1765,7 +1742,8 @@ export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnu
 export const CodeOrderByRelevanceFieldEnum = {
   title: 'title',
   description: 'description',
-  icon: 'icon'
+  icon: 'icon',
+  graph: 'graph'
 } as const
 
 export type CodeOrderByRelevanceFieldEnum = (typeof CodeOrderByRelevanceFieldEnum)[keyof typeof CodeOrderByRelevanceFieldEnum]
@@ -1794,6 +1772,7 @@ export const CompositionOrderByRelevanceFieldEnum = {
   narrativeText: 'narrativeText',
   artPrompt: 'artPrompt',
   imagePath: 'imagePath',
+  stepLog: 'stepLog',
   wishText: 'wishText'
 } as const
 
@@ -1804,16 +1783,16 @@ export const DreamOrderByRelevanceFieldEnum = {
   title: 'title',
   slug: 'slug',
   description: 'description',
-  pitch: 'pitch',
-  flavorText: 'flavorText',
-  examples: 'examples',
   artPrompt: 'artPrompt',
-  imagePath: 'imagePath',
-  cardPath: 'cardPath',
-  heroPath: 'heroPath',
+  designer: 'designer',
+  examples: 'examples',
+  flavorText: 'flavorText',
   highlightImage: 'highlightImage',
   icon: 'icon',
-  designer: 'designer'
+  imagePath: 'imagePath',
+  pitch: 'pitch',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath'
 } as const
 
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
@@ -1880,6 +1859,7 @@ export const ExpressionMediaOrderByRelevanceFieldEnum = {
   imagePath: 'imagePath',
   videoPath: 'videoPath',
   message: 'message',
+  additionalPhrases: 'additionalPhrases',
   designer: 'designer',
   artPrompt: 'artPrompt'
 } as const
@@ -1952,7 +1932,8 @@ export type NarratorTopicOrderByRelevanceFieldEnum = (typeof NarratorTopicOrderB
 export const NarratorThreadOrderByRelevanceFieldEnum = {
   title: 'title',
   openingText: 'openingText',
-  guidance: 'guidance'
+  guidance: 'guidance',
+  starterPrompts: 'starterPrompts'
 } as const
 
 export type NarratorThreadOrderByRelevanceFieldEnum = (typeof NarratorThreadOrderByRelevanceFieldEnum)[keyof typeof NarratorThreadOrderByRelevanceFieldEnum]
@@ -1982,6 +1963,7 @@ export const PitchSheetOrderByRelevanceFieldEnum = {
   imagePath: 'imagePath',
   icon: 'icon',
   colorTheme: 'colorTheme',
+  extraData: 'extraData',
   designer: 'designer'
 } as const
 
@@ -2008,7 +1990,6 @@ export type ReactionOrderByRelevanceFieldEnum = (typeof ReactionOrderByRelevance
 
 export const ResourceOrderByRelevanceFieldEnum = {
   name: 'name',
-  slug: 'slug',
   customLabel: 'customLabel',
   MediaPath: 'MediaPath',
   customUrl: 'customUrl',
@@ -2016,24 +1997,25 @@ export const ResourceOrderByRelevanceFieldEnum = {
   huggingUrl: 'huggingUrl',
   localPath: 'localPath',
   description: 'description',
-  imagePath: 'imagePath',
   generation: 'generation',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  imagePath: 'imagePath',
+  slug: 'slug'
 } as const
 
 export type ResourceOrderByRelevanceFieldEnum = (typeof ResourceOrderByRelevanceFieldEnum)[keyof typeof ResourceOrderByRelevanceFieldEnum]
 
 
 export const RewardOrderByRelevanceFieldEnum = {
-  name: 'name',
-  slug: 'slug',
-  description: 'description',
-  flavorText: 'flavorText',
-  effect: 'effect',
   icon: 'icon',
   collection: 'collection',
   imagePath: 'imagePath',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  description: 'description',
+  effect: 'effect',
+  flavorText: 'flavorText',
+  name: 'name',
+  slug: 'slug'
 } as const
 
 export type RewardOrderByRelevanceFieldEnum = (typeof RewardOrderByRelevanceFieldEnum)[keyof typeof RewardOrderByRelevanceFieldEnum]
@@ -2041,7 +2023,6 @@ export type RewardOrderByRelevanceFieldEnum = (typeof RewardOrderByRelevanceFiel
 
 export const ScenarioOrderByRelevanceFieldEnum = {
   title: 'title',
-  slug: 'slug',
   description: 'description',
   intros: 'intros',
   imagePath: 'imagePath',
@@ -2049,9 +2030,11 @@ export const ScenarioOrderByRelevanceFieldEnum = {
   artPrompt: 'artPrompt',
   genres: 'genres',
   inspirations: 'inspirations',
-  tier: 'tier',
   group: 'group',
-  secretNotes: 'secretNotes'
+  secretNotes: 'secretNotes',
+  tier: 'tier',
+  cast: 'cast',
+  slug: 'slug'
 } as const
 
 export type ScenarioOrderByRelevanceFieldEnum = (typeof ScenarioOrderByRelevanceFieldEnum)[keyof typeof ScenarioOrderByRelevanceFieldEnum]
@@ -2065,13 +2048,13 @@ export const ServerOrderByRelevanceFieldEnum = {
   baseUrl: 'baseUrl',
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
-  apiLink: 'apiLink',
-  apiKey: 'apiKey',
   apiKeyName: 'apiKeyName',
+  apiLink: 'apiLink',
   model: 'model',
-  notes: 'notes',
+  apiKey: 'apiKey',
   designer: 'designer',
   version: 'version',
+  notes: 'notes',
   artPrompt: 'artPrompt'
 } as const
 
@@ -2106,6 +2089,7 @@ export const SocialPostOrderByRelevanceFieldEnum = {
   designer: 'designer',
   title: 'title',
   body: 'body',
+  mediaUrls: 'mediaUrls',
   sourceType: 'sourceType'
 } as const
 
@@ -2192,6 +2176,7 @@ export type StylistAppointmentOrderByRelevanceFieldEnum = (typeof StylistAppoint
 
 
 export const ArtJobOrderByRelevanceFieldEnum = {
+  payload: 'payload',
   claimedBy: 'claimedBy',
   projectSlug: 'projectSlug',
   error: 'error'
@@ -2243,10 +2228,12 @@ export type ChallengeOrderByRelevanceFieldEnum = (typeof ChallengeOrderByRelevan
 
 
 export const ChallengeSubmissionOrderByRelevanceFieldEnum = {
+  agentModel: 'agentModel',
+  outputText: 'outputText',
   variantKey: 'variantKey',
   promptUsed: 'promptUsed',
-  agentModel: 'agentModel',
-  outputText: 'outputText'
+  settings: 'settings',
+  randomSelections: 'randomSelections'
 } as const
 
 export type ChallengeSubmissionOrderByRelevanceFieldEnum = (typeof ChallengeSubmissionOrderByRelevanceFieldEnum)[keyof typeof ChallengeSubmissionOrderByRelevanceFieldEnum]
@@ -2258,6 +2245,7 @@ export const ContenderOrderByRelevanceFieldEnum = {
   provider: 'provider',
   model: 'model',
   generator: 'generator',
+  defaultSettings: 'defaultSettings',
   description: 'description'
 } as const
 
@@ -2270,7 +2258,8 @@ export const LifeRunOrderByRelevanceFieldEnum = {
   protagonistName: 'protagonistName',
   genre: 'genre',
   outcomeKey: 'outcomeKey',
-  summary: 'summary'
+  summary: 'summary',
+  statsSnapshot: 'statsSnapshot'
 } as const
 
 export type LifeRunOrderByRelevanceFieldEnum = (typeof LifeRunOrderByRelevanceFieldEnum)[keyof typeof LifeRunOrderByRelevanceFieldEnum]
@@ -2279,7 +2268,8 @@ export type LifeRunOrderByRelevanceFieldEnum = (typeof LifeRunOrderByRelevanceFi
 export const LifeChoiceOrderByRelevanceFieldEnum = {
   prompt: 'prompt',
   choiceText: 'choiceText',
-  resultText: 'resultText'
+  resultText: 'resultText',
+  effects: 'effects'
 } as const
 
 export type LifeChoiceOrderByRelevanceFieldEnum = (typeof LifeChoiceOrderByRelevanceFieldEnum)[keyof typeof LifeChoiceOrderByRelevanceFieldEnum]
@@ -2299,7 +2289,8 @@ export const LifeEndingOrderByRelevanceFieldEnum = {
   summary: 'summary',
   icon: 'icon',
   heroImage: 'heroImage',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  metadata: 'metadata'
 } as const
 
 export type LifeEndingOrderByRelevanceFieldEnum = (typeof LifeEndingOrderByRelevanceFieldEnum)[keyof typeof LifeEndingOrderByRelevanceFieldEnum]
@@ -2311,10 +2302,18 @@ export const LifeAchievementOrderByRelevanceFieldEnum = {
   conditionKey: 'conditionKey',
   description: 'description',
   icon: 'icon',
-  imagePath: 'imagePath'
+  imagePath: 'imagePath',
+  metadata: 'metadata'
 } as const
 
 export type LifeAchievementOrderByRelevanceFieldEnum = (typeof LifeAchievementOrderByRelevanceFieldEnum)[keyof typeof LifeAchievementOrderByRelevanceFieldEnum]
+
+
+export const LifeAchievementUnlockOrderByRelevanceFieldEnum = {
+  data: 'data'
+} as const
+
+export type LifeAchievementUnlockOrderByRelevanceFieldEnum = (typeof LifeAchievementUnlockOrderByRelevanceFieldEnum)[keyof typeof LifeAchievementUnlockOrderByRelevanceFieldEnum]
 
 
 export const LifeRunArtOrderByRelevanceFieldEnum = {

@@ -42,6 +42,8 @@ export type ModelBuildRevisionMinAggregateOutputType = {
   createdAt: Date | null
   itemId: number | null
   stage: string | null
+  previousPayload: string | null
+  nextPayload: string | null
   actor: string | null
   reason: string | null
 }
@@ -51,6 +53,8 @@ export type ModelBuildRevisionMaxAggregateOutputType = {
   createdAt: Date | null
   itemId: number | null
   stage: string | null
+  previousPayload: string | null
+  nextPayload: string | null
   actor: string | null
   reason: string | null
 }
@@ -83,6 +87,8 @@ export type ModelBuildRevisionMinAggregateInputType = {
   createdAt?: true
   itemId?: true
   stage?: true
+  previousPayload?: true
+  nextPayload?: true
   actor?: true
   reason?: true
 }
@@ -92,6 +98,8 @@ export type ModelBuildRevisionMaxAggregateInputType = {
   createdAt?: true
   itemId?: true
   stage?: true
+  previousPayload?: true
+  nextPayload?: true
   actor?: true
   reason?: true
 }
@@ -199,8 +207,8 @@ export type ModelBuildRevisionGroupByOutputType = {
   createdAt: Date
   itemId: number
   stage: string
-  previousPayload: runtime.JsonValue | null
-  nextPayload: runtime.JsonValue | null
+  previousPayload: string | null
+  nextPayload: string | null
   actor: string | null
   reason: string | null
   _count: ModelBuildRevisionCountAggregateOutputType | null
@@ -233,8 +241,8 @@ export type ModelBuildRevisionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ModelBuildRevision"> | Date | string
   itemId?: Prisma.IntFilter<"ModelBuildRevision"> | number
   stage?: Prisma.StringFilter<"ModelBuildRevision"> | string
-  previousPayload?: Prisma.JsonNullableFilter<"ModelBuildRevision">
-  nextPayload?: Prisma.JsonNullableFilter<"ModelBuildRevision">
+  previousPayload?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
+  nextPayload?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   actor?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   reason?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   Item?: Prisma.XOR<Prisma.ModelBuildItemScalarRelationFilter, Prisma.ModelBuildItemWhereInput>
@@ -261,8 +269,8 @@ export type ModelBuildRevisionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ModelBuildRevision"> | Date | string
   itemId?: Prisma.IntFilter<"ModelBuildRevision"> | number
   stage?: Prisma.StringFilter<"ModelBuildRevision"> | string
-  previousPayload?: Prisma.JsonNullableFilter<"ModelBuildRevision">
-  nextPayload?: Prisma.JsonNullableFilter<"ModelBuildRevision">
+  previousPayload?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
+  nextPayload?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   actor?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   reason?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   Item?: Prisma.XOR<Prisma.ModelBuildItemScalarRelationFilter, Prisma.ModelBuildItemWhereInput>
@@ -292,8 +300,8 @@ export type ModelBuildRevisionScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ModelBuildRevision"> | Date | string
   itemId?: Prisma.IntWithAggregatesFilter<"ModelBuildRevision"> | number
   stage?: Prisma.StringWithAggregatesFilter<"ModelBuildRevision"> | string
-  previousPayload?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildRevision">
-  nextPayload?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildRevision">
+  previousPayload?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRevision"> | string | null
+  nextPayload?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRevision"> | string | null
   actor?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRevision"> | string | null
   reason?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRevision"> | string | null
 }
@@ -301,8 +309,8 @@ export type ModelBuildRevisionScalarWhereWithAggregatesInput = {
 export type ModelBuildRevisionCreateInput = {
   createdAt?: Date | string
   stage: string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: string | null
+  nextPayload?: string | null
   actor?: string | null
   reason?: string | null
   Item: Prisma.ModelBuildItemCreateNestedOneWithoutRevisionsInput
@@ -313,8 +321,8 @@ export type ModelBuildRevisionUncheckedCreateInput = {
   createdAt?: Date | string
   itemId: number
   stage: string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: string | null
+  nextPayload?: string | null
   actor?: string | null
   reason?: string | null
 }
@@ -322,8 +330,8 @@ export type ModelBuildRevisionUncheckedCreateInput = {
 export type ModelBuildRevisionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Item?: Prisma.ModelBuildItemUpdateOneRequiredWithoutRevisionsNestedInput
@@ -334,8 +342,8 @@ export type ModelBuildRevisionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   itemId?: Prisma.IntFieldUpdateOperationsInput | number
   stage?: Prisma.StringFieldUpdateOperationsInput | string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -345,8 +353,8 @@ export type ModelBuildRevisionCreateManyInput = {
   createdAt?: Date | string
   itemId: number
   stage: string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: string | null
+  nextPayload?: string | null
   actor?: string | null
   reason?: string | null
 }
@@ -354,8 +362,8 @@ export type ModelBuildRevisionCreateManyInput = {
 export type ModelBuildRevisionUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -365,8 +373,8 @@ export type ModelBuildRevisionUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   itemId?: Prisma.IntFieldUpdateOperationsInput | number
   stage?: Prisma.StringFieldUpdateOperationsInput | string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -408,6 +416,8 @@ export type ModelBuildRevisionMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   itemId?: Prisma.SortOrder
   stage?: Prisma.SortOrder
+  previousPayload?: Prisma.SortOrder
+  nextPayload?: Prisma.SortOrder
   actor?: Prisma.SortOrder
   reason?: Prisma.SortOrder
 }
@@ -417,6 +427,8 @@ export type ModelBuildRevisionMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   itemId?: Prisma.SortOrder
   stage?: Prisma.SortOrder
+  previousPayload?: Prisma.SortOrder
+  nextPayload?: Prisma.SortOrder
   actor?: Prisma.SortOrder
   reason?: Prisma.SortOrder
 }
@@ -471,8 +483,8 @@ export type ModelBuildRevisionUncheckedUpdateManyWithoutItemNestedInput = {
 export type ModelBuildRevisionCreateWithoutItemInput = {
   createdAt?: Date | string
   stage: string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: string | null
+  nextPayload?: string | null
   actor?: string | null
   reason?: string | null
 }
@@ -481,8 +493,8 @@ export type ModelBuildRevisionUncheckedCreateWithoutItemInput = {
   id?: number
   createdAt?: Date | string
   stage: string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: string | null
+  nextPayload?: string | null
   actor?: string | null
   reason?: string | null
 }
@@ -521,8 +533,8 @@ export type ModelBuildRevisionScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ModelBuildRevision"> | Date | string
   itemId?: Prisma.IntFilter<"ModelBuildRevision"> | number
   stage?: Prisma.StringFilter<"ModelBuildRevision"> | string
-  previousPayload?: Prisma.JsonNullableFilter<"ModelBuildRevision">
-  nextPayload?: Prisma.JsonNullableFilter<"ModelBuildRevision">
+  previousPayload?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
+  nextPayload?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   actor?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
   reason?: Prisma.StringNullableFilter<"ModelBuildRevision"> | string | null
 }
@@ -531,8 +543,8 @@ export type ModelBuildRevisionCreateManyItemInput = {
   id?: number
   createdAt?: Date | string
   stage: string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: string | null
+  nextPayload?: string | null
   actor?: string | null
   reason?: string | null
 }
@@ -540,8 +552,8 @@ export type ModelBuildRevisionCreateManyItemInput = {
 export type ModelBuildRevisionUpdateWithoutItemInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -550,8 +562,8 @@ export type ModelBuildRevisionUncheckedUpdateWithoutItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -560,8 +572,8 @@ export type ModelBuildRevisionUncheckedUpdateManyWithoutItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stage?: Prisma.StringFieldUpdateOperationsInput | string
-  previousPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  nextPayload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previousPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextPayload?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -608,8 +620,8 @@ export type $ModelBuildRevisionPayload<ExtArgs extends runtime.Types.Extensions.
     createdAt: Date
     itemId: number
     stage: string
-    previousPayload: runtime.JsonValue | null
-    nextPayload: runtime.JsonValue | null
+    previousPayload: string | null
+    nextPayload: string | null
     actor: string | null
     reason: string | null
   }, ExtArgs["result"]["modelBuildRevision"]>
@@ -986,8 +998,8 @@ export interface ModelBuildRevisionFieldRefs {
   readonly createdAt: Prisma.FieldRef<"ModelBuildRevision", 'DateTime'>
   readonly itemId: Prisma.FieldRef<"ModelBuildRevision", 'Int'>
   readonly stage: Prisma.FieldRef<"ModelBuildRevision", 'String'>
-  readonly previousPayload: Prisma.FieldRef<"ModelBuildRevision", 'Json'>
-  readonly nextPayload: Prisma.FieldRef<"ModelBuildRevision", 'Json'>
+  readonly previousPayload: Prisma.FieldRef<"ModelBuildRevision", 'String'>
+  readonly nextPayload: Prisma.FieldRef<"ModelBuildRevision", 'String'>
   readonly actor: Prisma.FieldRef<"ModelBuildRevision", 'String'>
   readonly reason: Prisma.FieldRef<"ModelBuildRevision", 'String'>
 }

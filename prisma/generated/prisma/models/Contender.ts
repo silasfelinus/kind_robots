@@ -46,6 +46,7 @@ export type ContenderMinAggregateOutputType = {
   provider: string | null
   model: string | null
   generator: string | null
+  defaultSettings: string | null
   description: string | null
   avatarImageId: number | null
   isActive: boolean | null
@@ -61,6 +62,7 @@ export type ContenderMaxAggregateOutputType = {
   provider: string | null
   model: string | null
   generator: string | null
+  defaultSettings: string | null
   description: string | null
   avatarImageId: number | null
   isActive: boolean | null
@@ -104,6 +106,7 @@ export type ContenderMinAggregateInputType = {
   provider?: true
   model?: true
   generator?: true
+  defaultSettings?: true
   description?: true
   avatarImageId?: true
   isActive?: true
@@ -119,6 +122,7 @@ export type ContenderMaxAggregateInputType = {
   provider?: true
   model?: true
   generator?: true
+  defaultSettings?: true
   description?: true
   avatarImageId?: true
   isActive?: true
@@ -237,7 +241,7 @@ export type ContenderGroupByOutputType = {
   provider: string | null
   model: string | null
   generator: string | null
-  defaultSettings: runtime.JsonValue | null
+  defaultSettings: string | null
   description: string | null
   avatarImageId: number | null
   isActive: boolean
@@ -276,12 +280,12 @@ export type ContenderWhereInput = {
   provider?: Prisma.StringNullableFilter<"Contender"> | string | null
   model?: Prisma.StringNullableFilter<"Contender"> | string | null
   generator?: Prisma.StringNullableFilter<"Contender"> | string | null
-  defaultSettings?: Prisma.JsonNullableFilter<"Contender">
+  defaultSettings?: Prisma.StringNullableFilter<"Contender"> | string | null
   description?: Prisma.StringNullableFilter<"Contender"> | string | null
   avatarImageId?: Prisma.IntNullableFilter<"Contender"> | number | null
   isActive?: Prisma.BoolFilter<"Contender"> | boolean
-  AvatarImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Submissions?: Prisma.ChallengeSubmissionListRelationFilter
+  AvatarImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
 }
 
 export type ContenderOrderByWithRelationInput = {
@@ -298,8 +302,8 @@ export type ContenderOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  AvatarImage?: Prisma.ArtImageOrderByWithRelationInput
   Submissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
+  AvatarImage?: Prisma.ArtImageOrderByWithRelationInput
   _relevance?: Prisma.ContenderOrderByRelevanceInput
 }
 
@@ -316,12 +320,12 @@ export type ContenderWhereUniqueInput = Prisma.AtLeast<{
   provider?: Prisma.StringNullableFilter<"Contender"> | string | null
   model?: Prisma.StringNullableFilter<"Contender"> | string | null
   generator?: Prisma.StringNullableFilter<"Contender"> | string | null
-  defaultSettings?: Prisma.JsonNullableFilter<"Contender">
+  defaultSettings?: Prisma.StringNullableFilter<"Contender"> | string | null
   description?: Prisma.StringNullableFilter<"Contender"> | string | null
   avatarImageId?: Prisma.IntNullableFilter<"Contender"> | number | null
   isActive?: Prisma.BoolFilter<"Contender"> | boolean
-  AvatarImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Submissions?: Prisma.ChallengeSubmissionListRelationFilter
+  AvatarImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
 }, "id" | "slug">
 
 export type ContenderOrderByWithAggregationInput = {
@@ -358,7 +362,7 @@ export type ContenderScalarWhereWithAggregatesInput = {
   provider?: Prisma.StringNullableWithAggregatesFilter<"Contender"> | string | null
   model?: Prisma.StringNullableWithAggregatesFilter<"Contender"> | string | null
   generator?: Prisma.StringNullableWithAggregatesFilter<"Contender"> | string | null
-  defaultSettings?: Prisma.JsonNullableWithAggregatesFilter<"Contender">
+  defaultSettings?: Prisma.StringNullableWithAggregatesFilter<"Contender"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Contender"> | string | null
   avatarImageId?: Prisma.IntNullableWithAggregatesFilter<"Contender"> | number | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Contender"> | boolean
@@ -373,11 +377,11 @@ export type ContenderCreateInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   isActive?: boolean
-  AvatarImage?: Prisma.ArtImageCreateNestedOneWithoutContendersInput
   Submissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutContenderInput
+  AvatarImage?: Prisma.ArtImageCreateNestedOneWithoutContendersInput
 }
 
 export type ContenderUncheckedCreateInput = {
@@ -390,7 +394,7 @@ export type ContenderUncheckedCreateInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   avatarImageId?: number | null
   isActive?: boolean
@@ -406,11 +410,11 @@ export type ContenderUpdateInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  AvatarImage?: Prisma.ArtImageUpdateOneWithoutContendersNestedInput
   Submissions?: Prisma.ChallengeSubmissionUpdateManyWithoutContenderNestedInput
+  AvatarImage?: Prisma.ArtImageUpdateOneWithoutContendersNestedInput
 }
 
 export type ContenderUncheckedUpdateInput = {
@@ -423,7 +427,7 @@ export type ContenderUncheckedUpdateInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -440,7 +444,7 @@ export type ContenderCreateManyInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   avatarImageId?: number | null
   isActive?: boolean
@@ -455,7 +459,7 @@ export type ContenderUpdateManyMutationInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -470,7 +474,7 @@ export type ContenderUncheckedUpdateManyInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -528,6 +532,7 @@ export type ContenderMaxOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
   generator?: Prisma.SortOrder
+  defaultSettings?: Prisma.SortOrder
   description?: Prisma.SortOrder
   avatarImageId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -543,6 +548,7 @@ export type ContenderMinOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
   generator?: Prisma.SortOrder
+  defaultSettings?: Prisma.SortOrder
   description?: Prisma.SortOrder
   avatarImageId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -624,7 +630,7 @@ export type ContenderCreateWithoutAvatarImageInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   isActive?: boolean
   Submissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutContenderInput
@@ -640,7 +646,7 @@ export type ContenderUncheckedCreateWithoutAvatarImageInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   isActive?: boolean
   Submissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutContenderInput
@@ -685,7 +691,7 @@ export type ContenderScalarWhereInput = {
   provider?: Prisma.StringNullableFilter<"Contender"> | string | null
   model?: Prisma.StringNullableFilter<"Contender"> | string | null
   generator?: Prisma.StringNullableFilter<"Contender"> | string | null
-  defaultSettings?: Prisma.JsonNullableFilter<"Contender">
+  defaultSettings?: Prisma.StringNullableFilter<"Contender"> | string | null
   description?: Prisma.StringNullableFilter<"Contender"> | string | null
   avatarImageId?: Prisma.IntNullableFilter<"Contender"> | number | null
   isActive?: Prisma.BoolFilter<"Contender"> | boolean
@@ -700,7 +706,7 @@ export type ContenderCreateWithoutSubmissionsInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   isActive?: boolean
   AvatarImage?: Prisma.ArtImageCreateNestedOneWithoutContendersInput
@@ -716,7 +722,7 @@ export type ContenderUncheckedCreateWithoutSubmissionsInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   avatarImageId?: number | null
   isActive?: boolean
@@ -747,7 +753,7 @@ export type ContenderUpdateWithoutSubmissionsInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   AvatarImage?: Prisma.ArtImageUpdateOneWithoutContendersNestedInput
@@ -763,7 +769,7 @@ export type ContenderUncheckedUpdateWithoutSubmissionsInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -779,7 +785,7 @@ export type ContenderCreateManyAvatarImageInput = {
   provider?: string | null
   model?: string | null
   generator?: string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: string | null
   description?: string | null
   isActive?: boolean
 }
@@ -793,7 +799,7 @@ export type ContenderUpdateWithoutAvatarImageInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Submissions?: Prisma.ChallengeSubmissionUpdateManyWithoutContenderNestedInput
@@ -809,7 +815,7 @@ export type ContenderUncheckedUpdateWithoutAvatarImageInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Submissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutContenderNestedInput
@@ -825,7 +831,7 @@ export type ContenderUncheckedUpdateManyWithoutAvatarImageInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  defaultSettings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -875,8 +881,8 @@ export type ContenderSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   description?: boolean
   avatarImageId?: boolean
   isActive?: boolean
-  AvatarImage?: boolean | Prisma.Contender$AvatarImageArgs<ExtArgs>
   Submissions?: boolean | Prisma.Contender$SubmissionsArgs<ExtArgs>
+  AvatarImage?: boolean | Prisma.Contender$AvatarImageArgs<ExtArgs>
   _count?: boolean | Prisma.ContenderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contender"]>
 
@@ -900,16 +906,16 @@ export type ContenderSelectScalar = {
 
 export type ContenderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "slug" | "name" | "kind" | "provider" | "model" | "generator" | "defaultSettings" | "description" | "avatarImageId" | "isActive", ExtArgs["result"]["contender"]>
 export type ContenderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  AvatarImage?: boolean | Prisma.Contender$AvatarImageArgs<ExtArgs>
   Submissions?: boolean | Prisma.Contender$SubmissionsArgs<ExtArgs>
+  AvatarImage?: boolean | Prisma.Contender$AvatarImageArgs<ExtArgs>
   _count?: boolean | Prisma.ContenderCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ContenderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Contender"
   objects: {
-    AvatarImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Submissions: Prisma.$ChallengeSubmissionPayload<ExtArgs>[]
+    AvatarImage: Prisma.$ArtImagePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -921,7 +927,7 @@ export type $ContenderPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     provider: string | null
     model: string | null
     generator: string | null
-    defaultSettings: runtime.JsonValue | null
+    defaultSettings: string | null
     description: string | null
     avatarImageId: number | null
     isActive: boolean
@@ -1265,8 +1271,8 @@ readonly fields: ContenderFieldRefs;
  */
 export interface Prisma__ContenderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  AvatarImage<T extends Prisma.Contender$AvatarImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contender$AvatarImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Submissions<T extends Prisma.Contender$SubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contender$SubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengeSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  AvatarImage<T extends Prisma.Contender$AvatarImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contender$AvatarImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1305,7 +1311,7 @@ export interface ContenderFieldRefs {
   readonly provider: Prisma.FieldRef<"Contender", 'String'>
   readonly model: Prisma.FieldRef<"Contender", 'String'>
   readonly generator: Prisma.FieldRef<"Contender", 'String'>
-  readonly defaultSettings: Prisma.FieldRef<"Contender", 'Json'>
+  readonly defaultSettings: Prisma.FieldRef<"Contender", 'String'>
   readonly description: Prisma.FieldRef<"Contender", 'String'>
   readonly avatarImageId: Prisma.FieldRef<"Contender", 'Int'>
   readonly isActive: Prisma.FieldRef<"Contender", 'Boolean'>
@@ -1657,25 +1663,6 @@ export type ContenderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * Contender.AvatarImage
- */
-export type Contender$AvatarImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtImage
-   */
-  select?: Prisma.ArtImageSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtImage
-   */
-  omit?: Prisma.ArtImageOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtImageInclude<ExtArgs> | null
-  where?: Prisma.ArtImageWhereInput
-}
-
-/**
  * Contender.Submissions
  */
 export type Contender$SubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1697,6 +1684,25 @@ export type Contender$SubmissionsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ChallengeSubmissionScalarFieldEnum | Prisma.ChallengeSubmissionScalarFieldEnum[]
+}
+
+/**
+ * Contender.AvatarImage
+ */
+export type Contender$AvatarImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtImage
+   */
+  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtImage
+   */
+  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtImageInclude<ExtArgs> | null
+  where?: Prisma.ArtImageWhereInput
 }
 
 /**

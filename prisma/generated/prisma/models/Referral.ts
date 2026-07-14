@@ -236,8 +236,8 @@ export type ReferralWhereInput = {
   referredId?: Prisma.IntFilter<"Referral"> | number
   codeUsed?: Prisma.StringNullableFilter<"Referral"> | string | null
   cutRate?: Prisma.FloatFilter<"Referral"> | number
-  Referrer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Referred?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  Referrer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type ReferralOrderByWithRelationInput = {
@@ -247,8 +247,8 @@ export type ReferralOrderByWithRelationInput = {
   referredId?: Prisma.SortOrder
   codeUsed?: Prisma.SortOrderInput | Prisma.SortOrder
   cutRate?: Prisma.SortOrder
-  Referrer?: Prisma.UserOrderByWithRelationInput
   Referred?: Prisma.UserOrderByWithRelationInput
+  Referrer?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ReferralOrderByRelevanceInput
 }
 
@@ -262,8 +262,8 @@ export type ReferralWhereUniqueInput = Prisma.AtLeast<{
   referrerId?: Prisma.IntFilter<"Referral"> | number
   codeUsed?: Prisma.StringNullableFilter<"Referral"> | string | null
   cutRate?: Prisma.FloatFilter<"Referral"> | number
-  Referrer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Referred?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  Referrer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "referredId">
 
 export type ReferralOrderByWithAggregationInput = {
@@ -296,8 +296,8 @@ export type ReferralCreateInput = {
   createdAt?: Date | string
   codeUsed?: string | null
   cutRate?: number
-  Referrer: Prisma.UserCreateNestedOneWithoutReferralsMadeInput
   Referred: Prisma.UserCreateNestedOneWithoutReferredByInput
+  Referrer: Prisma.UserCreateNestedOneWithoutReferralsMadeInput
 }
 
 export type ReferralUncheckedCreateInput = {
@@ -313,8 +313,8 @@ export type ReferralUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   codeUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutRate?: Prisma.FloatFieldUpdateOperationsInput | number
-  Referrer?: Prisma.UserUpdateOneRequiredWithoutReferralsMadeNestedInput
   Referred?: Prisma.UserUpdateOneRequiredWithoutReferredByNestedInput
+  Referrer?: Prisma.UserUpdateOneRequiredWithoutReferralsMadeNestedInput
 }
 
 export type ReferralUncheckedUpdateInput = {
@@ -350,15 +350,15 @@ export type ReferralUncheckedUpdateManyInput = {
   cutRate?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
+export type ReferralNullableScalarRelationFilter = {
+  is?: Prisma.ReferralWhereInput | null
+  isNot?: Prisma.ReferralWhereInput | null
+}
+
 export type ReferralListRelationFilter = {
   every?: Prisma.ReferralWhereInput
   some?: Prisma.ReferralWhereInput
   none?: Prisma.ReferralWhereInput
-}
-
-export type ReferralNullableScalarRelationFilter = {
-  is?: Prisma.ReferralWhereInput | null
-  isNot?: Prisma.ReferralWhereInput | null
 }
 
 export type ReferralOrderByRelationAggregateInput = {
@@ -412,20 +412,13 @@ export type ReferralSumOrderByAggregateInput = {
   cutRate?: Prisma.SortOrder
 }
 
-export type ReferralCreateNestedManyWithoutReferrerInput = {
-  create?: Prisma.XOR<Prisma.ReferralCreateWithoutReferrerInput, Prisma.ReferralUncheckedCreateWithoutReferrerInput> | Prisma.ReferralCreateWithoutReferrerInput[] | Prisma.ReferralUncheckedCreateWithoutReferrerInput[]
-  connectOrCreate?: Prisma.ReferralCreateOrConnectWithoutReferrerInput | Prisma.ReferralCreateOrConnectWithoutReferrerInput[]
-  createMany?: Prisma.ReferralCreateManyReferrerInputEnvelope
-  connect?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
-}
-
 export type ReferralCreateNestedOneWithoutReferredInput = {
   create?: Prisma.XOR<Prisma.ReferralCreateWithoutReferredInput, Prisma.ReferralUncheckedCreateWithoutReferredInput>
   connectOrCreate?: Prisma.ReferralCreateOrConnectWithoutReferredInput
   connect?: Prisma.ReferralWhereUniqueInput
 }
 
-export type ReferralUncheckedCreateNestedManyWithoutReferrerInput = {
+export type ReferralCreateNestedManyWithoutReferrerInput = {
   create?: Prisma.XOR<Prisma.ReferralCreateWithoutReferrerInput, Prisma.ReferralUncheckedCreateWithoutReferrerInput> | Prisma.ReferralCreateWithoutReferrerInput[] | Prisma.ReferralUncheckedCreateWithoutReferrerInput[]
   connectOrCreate?: Prisma.ReferralCreateOrConnectWithoutReferrerInput | Prisma.ReferralCreateOrConnectWithoutReferrerInput[]
   createMany?: Prisma.ReferralCreateManyReferrerInputEnvelope
@@ -438,18 +431,11 @@ export type ReferralUncheckedCreateNestedOneWithoutReferredInput = {
   connect?: Prisma.ReferralWhereUniqueInput
 }
 
-export type ReferralUpdateManyWithoutReferrerNestedInput = {
+export type ReferralUncheckedCreateNestedManyWithoutReferrerInput = {
   create?: Prisma.XOR<Prisma.ReferralCreateWithoutReferrerInput, Prisma.ReferralUncheckedCreateWithoutReferrerInput> | Prisma.ReferralCreateWithoutReferrerInput[] | Prisma.ReferralUncheckedCreateWithoutReferrerInput[]
   connectOrCreate?: Prisma.ReferralCreateOrConnectWithoutReferrerInput | Prisma.ReferralCreateOrConnectWithoutReferrerInput[]
-  upsert?: Prisma.ReferralUpsertWithWhereUniqueWithoutReferrerInput | Prisma.ReferralUpsertWithWhereUniqueWithoutReferrerInput[]
   createMany?: Prisma.ReferralCreateManyReferrerInputEnvelope
-  set?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
-  disconnect?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
-  delete?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
   connect?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
-  update?: Prisma.ReferralUpdateWithWhereUniqueWithoutReferrerInput | Prisma.ReferralUpdateWithWhereUniqueWithoutReferrerInput[]
-  updateMany?: Prisma.ReferralUpdateManyWithWhereWithoutReferrerInput | Prisma.ReferralUpdateManyWithWhereWithoutReferrerInput[]
-  deleteMany?: Prisma.ReferralScalarWhereInput | Prisma.ReferralScalarWhereInput[]
 }
 
 export type ReferralUpdateOneWithoutReferredNestedInput = {
@@ -462,7 +448,7 @@ export type ReferralUpdateOneWithoutReferredNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ReferralUpdateToOneWithWhereWithoutReferredInput, Prisma.ReferralUpdateWithoutReferredInput>, Prisma.ReferralUncheckedUpdateWithoutReferredInput>
 }
 
-export type ReferralUncheckedUpdateManyWithoutReferrerNestedInput = {
+export type ReferralUpdateManyWithoutReferrerNestedInput = {
   create?: Prisma.XOR<Prisma.ReferralCreateWithoutReferrerInput, Prisma.ReferralUncheckedCreateWithoutReferrerInput> | Prisma.ReferralCreateWithoutReferrerInput[] | Prisma.ReferralUncheckedCreateWithoutReferrerInput[]
   connectOrCreate?: Prisma.ReferralCreateOrConnectWithoutReferrerInput | Prisma.ReferralCreateOrConnectWithoutReferrerInput[]
   upsert?: Prisma.ReferralUpsertWithWhereUniqueWithoutReferrerInput | Prisma.ReferralUpsertWithWhereUniqueWithoutReferrerInput[]
@@ -486,12 +472,46 @@ export type ReferralUncheckedUpdateOneWithoutReferredNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ReferralUpdateToOneWithWhereWithoutReferredInput, Prisma.ReferralUpdateWithoutReferredInput>, Prisma.ReferralUncheckedUpdateWithoutReferredInput>
 }
 
+export type ReferralUncheckedUpdateManyWithoutReferrerNestedInput = {
+  create?: Prisma.XOR<Prisma.ReferralCreateWithoutReferrerInput, Prisma.ReferralUncheckedCreateWithoutReferrerInput> | Prisma.ReferralCreateWithoutReferrerInput[] | Prisma.ReferralUncheckedCreateWithoutReferrerInput[]
+  connectOrCreate?: Prisma.ReferralCreateOrConnectWithoutReferrerInput | Prisma.ReferralCreateOrConnectWithoutReferrerInput[]
+  upsert?: Prisma.ReferralUpsertWithWhereUniqueWithoutReferrerInput | Prisma.ReferralUpsertWithWhereUniqueWithoutReferrerInput[]
+  createMany?: Prisma.ReferralCreateManyReferrerInputEnvelope
+  set?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
+  disconnect?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
+  delete?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
+  connect?: Prisma.ReferralWhereUniqueInput | Prisma.ReferralWhereUniqueInput[]
+  update?: Prisma.ReferralUpdateWithWhereUniqueWithoutReferrerInput | Prisma.ReferralUpdateWithWhereUniqueWithoutReferrerInput[]
+  updateMany?: Prisma.ReferralUpdateManyWithWhereWithoutReferrerInput | Prisma.ReferralUpdateManyWithWhereWithoutReferrerInput[]
+  deleteMany?: Prisma.ReferralScalarWhereInput | Prisma.ReferralScalarWhereInput[]
+}
+
 export type FloatFieldUpdateOperationsInput = {
   set?: number
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type ReferralCreateWithoutReferredInput = {
+  createdAt?: Date | string
+  codeUsed?: string | null
+  cutRate?: number
+  Referrer: Prisma.UserCreateNestedOneWithoutReferralsMadeInput
+}
+
+export type ReferralUncheckedCreateWithoutReferredInput = {
+  id?: number
+  createdAt?: Date | string
+  referrerId: number
+  codeUsed?: string | null
+  cutRate?: number
+}
+
+export type ReferralCreateOrConnectWithoutReferredInput = {
+  where: Prisma.ReferralWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReferralCreateWithoutReferredInput, Prisma.ReferralUncheckedCreateWithoutReferredInput>
 }
 
 export type ReferralCreateWithoutReferrerInput = {
@@ -519,24 +539,30 @@ export type ReferralCreateManyReferrerInputEnvelope = {
   skipDuplicates?: boolean
 }
 
-export type ReferralCreateWithoutReferredInput = {
-  createdAt?: Date | string
-  codeUsed?: string | null
-  cutRate?: number
-  Referrer: Prisma.UserCreateNestedOneWithoutReferralsMadeInput
-}
-
-export type ReferralUncheckedCreateWithoutReferredInput = {
-  id?: number
-  createdAt?: Date | string
-  referrerId: number
-  codeUsed?: string | null
-  cutRate?: number
-}
-
-export type ReferralCreateOrConnectWithoutReferredInput = {
-  where: Prisma.ReferralWhereUniqueInput
+export type ReferralUpsertWithoutReferredInput = {
+  update: Prisma.XOR<Prisma.ReferralUpdateWithoutReferredInput, Prisma.ReferralUncheckedUpdateWithoutReferredInput>
   create: Prisma.XOR<Prisma.ReferralCreateWithoutReferredInput, Prisma.ReferralUncheckedCreateWithoutReferredInput>
+  where?: Prisma.ReferralWhereInput
+}
+
+export type ReferralUpdateToOneWithWhereWithoutReferredInput = {
+  where?: Prisma.ReferralWhereInput
+  data: Prisma.XOR<Prisma.ReferralUpdateWithoutReferredInput, Prisma.ReferralUncheckedUpdateWithoutReferredInput>
+}
+
+export type ReferralUpdateWithoutReferredInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  codeUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  Referrer?: Prisma.UserUpdateOneRequiredWithoutReferralsMadeNestedInput
+}
+
+export type ReferralUncheckedUpdateWithoutReferredInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  referrerId?: Prisma.IntFieldUpdateOperationsInput | number
+  codeUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutRate?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type ReferralUpsertWithWhereUniqueWithoutReferrerInput = {
@@ -565,32 +591,6 @@ export type ReferralScalarWhereInput = {
   referredId?: Prisma.IntFilter<"Referral"> | number
   codeUsed?: Prisma.StringNullableFilter<"Referral"> | string | null
   cutRate?: Prisma.FloatFilter<"Referral"> | number
-}
-
-export type ReferralUpsertWithoutReferredInput = {
-  update: Prisma.XOR<Prisma.ReferralUpdateWithoutReferredInput, Prisma.ReferralUncheckedUpdateWithoutReferredInput>
-  create: Prisma.XOR<Prisma.ReferralCreateWithoutReferredInput, Prisma.ReferralUncheckedCreateWithoutReferredInput>
-  where?: Prisma.ReferralWhereInput
-}
-
-export type ReferralUpdateToOneWithWhereWithoutReferredInput = {
-  where?: Prisma.ReferralWhereInput
-  data: Prisma.XOR<Prisma.ReferralUpdateWithoutReferredInput, Prisma.ReferralUncheckedUpdateWithoutReferredInput>
-}
-
-export type ReferralUpdateWithoutReferredInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  codeUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cutRate?: Prisma.FloatFieldUpdateOperationsInput | number
-  Referrer?: Prisma.UserUpdateOneRequiredWithoutReferralsMadeNestedInput
-}
-
-export type ReferralUncheckedUpdateWithoutReferredInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  referrerId?: Prisma.IntFieldUpdateOperationsInput | number
-  codeUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cutRate?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type ReferralCreateManyReferrerInput = {
@@ -633,8 +633,8 @@ export type ReferralSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   referredId?: boolean
   codeUsed?: boolean
   cutRate?: boolean
-  Referrer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Referred?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  Referrer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["referral"]>
 
 
@@ -650,15 +650,15 @@ export type ReferralSelectScalar = {
 
 export type ReferralOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "referrerId" | "referredId" | "codeUsed" | "cutRate", ExtArgs["result"]["referral"]>
 export type ReferralInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Referrer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Referred?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  Referrer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $ReferralPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Referral"
   objects: {
-    Referrer: Prisma.$UserPayload<ExtArgs>
     Referred: Prisma.$UserPayload<ExtArgs>
+    Referrer: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1007,8 +1007,8 @@ readonly fields: ReferralFieldRefs;
  */
 export interface Prisma__ReferralClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Referrer<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Referred<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Referrer<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

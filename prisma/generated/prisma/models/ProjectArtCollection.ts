@@ -204,16 +204,16 @@ export type ProjectArtCollectionWhereInput = {
   projectId?: Prisma.IntFilter<"ProjectArtCollection"> | number
   artCollectionId?: Prisma.IntFilter<"ProjectArtCollection"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectArtCollection"> | Date | string
-  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionScalarRelationFilter, Prisma.ArtCollectionWhereInput>
+  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }
 
 export type ProjectArtCollectionOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  Project?: Prisma.ProjectOrderByWithRelationInput
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
+  Project?: Prisma.ProjectOrderByWithRelationInput
 }
 
 export type ProjectArtCollectionWhereUniqueInput = Prisma.AtLeast<{
@@ -224,8 +224,8 @@ export type ProjectArtCollectionWhereUniqueInput = Prisma.AtLeast<{
   projectId?: Prisma.IntFilter<"ProjectArtCollection"> | number
   artCollectionId?: Prisma.IntFilter<"ProjectArtCollection"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectArtCollection"> | Date | string
-  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionScalarRelationFilter, Prisma.ArtCollectionWhereInput>
+  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }, "projectId_artCollectionId">
 
 export type ProjectArtCollectionOrderByWithAggregationInput = {
@@ -250,8 +250,8 @@ export type ProjectArtCollectionScalarWhereWithAggregatesInput = {
 
 export type ProjectArtCollectionCreateInput = {
   createdAt?: Date | string
-  Project: Prisma.ProjectCreateNestedOneWithoutArtCollectionLinksInput
   ArtCollection: Prisma.ArtCollectionCreateNestedOneWithoutProjectLinksInput
+  Project: Prisma.ProjectCreateNestedOneWithoutArtCollectionLinksInput
 }
 
 export type ProjectArtCollectionUncheckedCreateInput = {
@@ -262,8 +262,8 @@ export type ProjectArtCollectionUncheckedCreateInput = {
 
 export type ProjectArtCollectionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Project?: Prisma.ProjectUpdateOneRequiredWithoutArtCollectionLinksNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneRequiredWithoutProjectLinksNestedInput
+  Project?: Prisma.ProjectUpdateOneRequiredWithoutArtCollectionLinksNestedInput
 }
 
 export type ProjectArtCollectionUncheckedUpdateInput = {
@@ -542,8 +542,8 @@ export type ProjectArtCollectionSelect<ExtArgs extends runtime.Types.Extensions.
   projectId?: boolean
   artCollectionId?: boolean
   createdAt?: boolean
-  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.ArtCollectionDefaultArgs<ExtArgs>
+  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projectArtCollection"]>
 
 
@@ -556,15 +556,15 @@ export type ProjectArtCollectionSelectScalar = {
 
 export type ProjectArtCollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"projectId" | "artCollectionId" | "createdAt", ExtArgs["result"]["projectArtCollection"]>
 export type ProjectArtCollectionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.ArtCollectionDefaultArgs<ExtArgs>
+  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
 
 export type $ProjectArtCollectionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProjectArtCollection"
   objects: {
-    Project: Prisma.$ProjectPayload<ExtArgs>
     ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs>
+    Project: Prisma.$ProjectPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     projectId: number
@@ -910,8 +910,8 @@ readonly fields: ProjectArtCollectionFieldRefs;
  */
 export interface Prisma__ProjectArtCollectionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ArtCollection<T extends Prisma.ArtCollectionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtCollectionDefaultArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

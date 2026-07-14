@@ -244,8 +244,8 @@ export type LifeRunArtWhereInput = {
   chapter?: Prisma.IntNullableFilter<"LifeRunArt"> | number | null
   sceneType?: Prisma.EnumLifeArtSceneTypeFilter<"LifeRunArt"> | $Enums.LifeArtSceneType
   prompt?: Prisma.StringFilter<"LifeRunArt"> | string
-  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
   ArtImage?: Prisma.XOR<Prisma.ArtImageScalarRelationFilter, Prisma.ArtImageWhereInput>
+  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
 }
 
 export type LifeRunArtOrderByWithRelationInput = {
@@ -256,8 +256,8 @@ export type LifeRunArtOrderByWithRelationInput = {
   chapter?: Prisma.SortOrderInput | Prisma.SortOrder
   sceneType?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
-  LifeRun?: Prisma.LifeRunOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
+  LifeRun?: Prisma.LifeRunOrderByWithRelationInput
   _relevance?: Prisma.LifeRunArtOrderByRelevanceInput
 }
 
@@ -272,8 +272,8 @@ export type LifeRunArtWhereUniqueInput = Prisma.AtLeast<{
   chapter?: Prisma.IntNullableFilter<"LifeRunArt"> | number | null
   sceneType?: Prisma.EnumLifeArtSceneTypeFilter<"LifeRunArt"> | $Enums.LifeArtSceneType
   prompt?: Prisma.StringFilter<"LifeRunArt"> | string
-  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
   ArtImage?: Prisma.XOR<Prisma.ArtImageScalarRelationFilter, Prisma.ArtImageWhereInput>
+  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
 }, "id">
 
 export type LifeRunArtOrderByWithAggregationInput = {
@@ -309,8 +309,8 @@ export type LifeRunArtCreateInput = {
   chapter?: number | null
   sceneType?: $Enums.LifeArtSceneType
   prompt: string
-  LifeRun: Prisma.LifeRunCreateNestedOneWithoutArtInput
   ArtImage: Prisma.ArtImageCreateNestedOneWithoutLifeRunArtInput
+  LifeRun: Prisma.LifeRunCreateNestedOneWithoutArtInput
 }
 
 export type LifeRunArtUncheckedCreateInput = {
@@ -328,8 +328,8 @@ export type LifeRunArtUpdateInput = {
   chapter?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sceneType?: Prisma.EnumLifeArtSceneTypeFieldUpdateOperationsInput | $Enums.LifeArtSceneType
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutArtNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneRequiredWithoutLifeRunArtNestedInput
+  LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutArtNestedInput
 }
 
 export type LifeRunArtUncheckedUpdateInput = {
@@ -696,8 +696,8 @@ export type LifeRunArtSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   chapter?: boolean
   sceneType?: boolean
   prompt?: boolean
-  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
   ArtImage?: boolean | Prisma.ArtImageDefaultArgs<ExtArgs>
+  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lifeRunArt"]>
 
 
@@ -714,15 +714,15 @@ export type LifeRunArtSelectScalar = {
 
 export type LifeRunArtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "lifeRunId" | "artImageId" | "chapter" | "sceneType" | "prompt", ExtArgs["result"]["lifeRunArt"]>
 export type LifeRunArtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
   ArtImage?: boolean | Prisma.ArtImageDefaultArgs<ExtArgs>
+  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
 }
 
 export type $LifeRunArtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LifeRunArt"
   objects: {
-    LifeRun: Prisma.$LifeRunPayload<ExtArgs>
     ArtImage: Prisma.$ArtImagePayload<ExtArgs>
+    LifeRun: Prisma.$LifeRunPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1072,8 +1072,8 @@ readonly fields: LifeRunArtFieldRefs;
  */
 export interface Prisma__LifeRunArtClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  LifeRun<T extends Prisma.LifeRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRunDefaultArgs<ExtArgs>>): Prisma.Prisma__LifeRunClient<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.ArtImageDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImageDefaultArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  LifeRun<T extends Prisma.LifeRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRunDefaultArgs<ExtArgs>>): Prisma.Prisma__LifeRunClient<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

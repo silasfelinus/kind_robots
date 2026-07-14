@@ -58,6 +58,7 @@ export type ExpressionMediaMinAggregateOutputType = {
   botId: number | null
   characterId: number | null
   message: string | null
+  additionalPhrases: string | null
   isActive: boolean | null
   designer: string | null
   artPrompt: string | null
@@ -78,6 +79,7 @@ export type ExpressionMediaMaxAggregateOutputType = {
   botId: number | null
   characterId: number | null
   message: string | null
+  additionalPhrases: string | null
   isActive: boolean | null
   designer: string | null
   artPrompt: string | null
@@ -135,6 +137,7 @@ export type ExpressionMediaMinAggregateInputType = {
   botId?: true
   characterId?: true
   message?: true
+  additionalPhrases?: true
   isActive?: true
   designer?: true
   artPrompt?: true
@@ -155,6 +158,7 @@ export type ExpressionMediaMaxAggregateInputType = {
   botId?: true
   characterId?: true
   message?: true
+  additionalPhrases?: true
   isActive?: true
   designer?: true
   artPrompt?: true
@@ -283,7 +287,7 @@ export type ExpressionMediaGroupByOutputType = {
   botId: number | null
   characterId: number | null
   message: string | null
-  additionalPhrases: runtime.JsonValue | null
+  additionalPhrases: string | null
   isActive: boolean
   designer: string | null
   artPrompt: string | null
@@ -327,13 +331,13 @@ export type ExpressionMediaWhereInput = {
   botId?: Prisma.IntNullableFilter<"ExpressionMedia"> | number | null
   characterId?: Prisma.IntNullableFilter<"ExpressionMedia"> | number | null
   message?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
-  additionalPhrases?: Prisma.JsonNullableFilter<"ExpressionMedia">
+  additionalPhrases?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
   isActive?: Prisma.BoolFilter<"ExpressionMedia"> | boolean
   designer?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
 }
 
 export type ExpressionMediaOrderByWithRelationInput = {
@@ -355,9 +359,9 @@ export type ExpressionMediaOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Bot?: Prisma.BotOrderByWithRelationInput
   Character?: Prisma.CharacterOrderByWithRelationInput
-  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   _relevance?: Prisma.ExpressionMediaOrderByRelevanceInput
 }
 
@@ -381,13 +385,13 @@ export type ExpressionMediaWhereUniqueInput = Prisma.AtLeast<{
   botId?: Prisma.IntNullableFilter<"ExpressionMedia"> | number | null
   characterId?: Prisma.IntNullableFilter<"ExpressionMedia"> | number | null
   message?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
-  additionalPhrases?: Prisma.JsonNullableFilter<"ExpressionMedia">
+  additionalPhrases?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
   isActive?: Prisma.BoolFilter<"ExpressionMedia"> | boolean
   designer?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
 }, "id" | "artImageId" | "botId_expressionKey" | "characterId_expressionKey">
 
 export type ExpressionMediaOrderByWithAggregationInput = {
@@ -434,7 +438,7 @@ export type ExpressionMediaScalarWhereWithAggregatesInput = {
   botId?: Prisma.IntNullableWithAggregatesFilter<"ExpressionMedia"> | number | null
   characterId?: Prisma.IntNullableWithAggregatesFilter<"ExpressionMedia"> | number | null
   message?: Prisma.StringNullableWithAggregatesFilter<"ExpressionMedia"> | string | null
-  additionalPhrases?: Prisma.JsonNullableWithAggregatesFilter<"ExpressionMedia">
+  additionalPhrases?: Prisma.StringNullableWithAggregatesFilter<"ExpressionMedia"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"ExpressionMedia"> | boolean
   designer?: Prisma.StringNullableWithAggregatesFilter<"ExpressionMedia"> | string | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"ExpressionMedia"> | string | null
@@ -451,13 +455,13 @@ export type ExpressionMediaCreateInput = {
   imagePath?: string | null
   videoPath?: string | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutExpressionMediaInput
   Bot?: Prisma.BotCreateNestedOneWithoutExpressionMediaInput
   Character?: Prisma.CharacterCreateNestedOneWithoutExpressionMediaInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutExpressionMediaInput
 }
 
 export type ExpressionMediaUncheckedCreateInput = {
@@ -475,7 +479,7 @@ export type ExpressionMediaUncheckedCreateInput = {
   botId?: number | null
   characterId?: number | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -492,13 +496,13 @@ export type ExpressionMediaUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutExpressionMediaNestedInput
   Bot?: Prisma.BotUpdateOneWithoutExpressionMediaNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutExpressionMediaNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutExpressionMediaNestedInput
 }
 
 export type ExpressionMediaUncheckedUpdateInput = {
@@ -516,7 +520,7 @@ export type ExpressionMediaUncheckedUpdateInput = {
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -537,7 +541,7 @@ export type ExpressionMediaCreateManyInput = {
   botId?: number | null
   characterId?: number | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -554,7 +558,7 @@ export type ExpressionMediaUpdateManyMutationInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -575,7 +579,7 @@ export type ExpressionMediaUncheckedUpdateManyInput = {
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -655,6 +659,7 @@ export type ExpressionMediaMaxOrderByAggregateInput = {
   botId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  additionalPhrases?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -675,6 +680,7 @@ export type ExpressionMediaMinOrderByAggregateInput = {
   botId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  additionalPhrases?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -822,7 +828,7 @@ export type ExpressionMediaCreateWithoutArtImageInput = {
   imagePath?: string | null
   videoPath?: string | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -844,7 +850,7 @@ export type ExpressionMediaUncheckedCreateWithoutArtImageInput = {
   botId?: number | null
   characterId?: number | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -877,7 +883,7 @@ export type ExpressionMediaUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -899,7 +905,7 @@ export type ExpressionMediaUncheckedUpdateWithoutArtImageInput = {
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -916,12 +922,12 @@ export type ExpressionMediaCreateWithoutBotInput = {
   imagePath?: string | null
   videoPath?: string | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
-  Character?: Prisma.CharacterCreateNestedOneWithoutExpressionMediaInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutExpressionMediaInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutExpressionMediaInput
 }
 
 export type ExpressionMediaUncheckedCreateWithoutBotInput = {
@@ -938,7 +944,7 @@ export type ExpressionMediaUncheckedCreateWithoutBotInput = {
   artImageId?: number | null
   characterId?: number | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -988,7 +994,7 @@ export type ExpressionMediaScalarWhereInput = {
   botId?: Prisma.IntNullableFilter<"ExpressionMedia"> | number | null
   characterId?: Prisma.IntNullableFilter<"ExpressionMedia"> | number | null
   message?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
-  additionalPhrases?: Prisma.JsonNullableFilter<"ExpressionMedia">
+  additionalPhrases?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
   isActive?: Prisma.BoolFilter<"ExpressionMedia"> | boolean
   designer?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"ExpressionMedia"> | string | null
@@ -1005,12 +1011,12 @@ export type ExpressionMediaCreateWithoutCharacterInput = {
   imagePath?: string | null
   videoPath?: string | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
-  Bot?: Prisma.BotCreateNestedOneWithoutExpressionMediaInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutExpressionMediaInput
+  Bot?: Prisma.BotCreateNestedOneWithoutExpressionMediaInput
 }
 
 export type ExpressionMediaUncheckedCreateWithoutCharacterInput = {
@@ -1027,7 +1033,7 @@ export type ExpressionMediaUncheckedCreateWithoutCharacterInput = {
   artImageId?: number | null
   botId?: number | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -1073,7 +1079,7 @@ export type ExpressionMediaCreateManyBotInput = {
   artImageId?: number | null
   characterId?: number | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -1090,12 +1096,12 @@ export type ExpressionMediaUpdateWithoutBotInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Character?: Prisma.CharacterUpdateOneWithoutExpressionMediaNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutExpressionMediaNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutExpressionMediaNestedInput
 }
 
 export type ExpressionMediaUncheckedUpdateWithoutBotInput = {
@@ -1112,7 +1118,7 @@ export type ExpressionMediaUncheckedUpdateWithoutBotInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1132,7 +1138,7 @@ export type ExpressionMediaUncheckedUpdateManyWithoutBotInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1152,7 +1158,7 @@ export type ExpressionMediaCreateManyCharacterInput = {
   artImageId?: number | null
   botId?: number | null
   message?: string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: string | null
   isActive?: boolean
   designer?: string | null
   artPrompt?: string | null
@@ -1169,12 +1175,12 @@ export type ExpressionMediaUpdateWithoutCharacterInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Bot?: Prisma.BotUpdateOneWithoutExpressionMediaNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutExpressionMediaNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutExpressionMediaNestedInput
 }
 
 export type ExpressionMediaUncheckedUpdateWithoutCharacterInput = {
@@ -1191,7 +1197,7 @@ export type ExpressionMediaUncheckedUpdateWithoutCharacterInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1211,7 +1217,7 @@ export type ExpressionMediaUncheckedUpdateManyWithoutCharacterInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  additionalPhrases?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  additionalPhrases?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1238,9 +1244,9 @@ export type ExpressionMediaSelect<ExtArgs extends runtime.Types.Extensions.Inter
   isActive?: boolean
   designer?: boolean
   artPrompt?: boolean
+  ArtImage?: boolean | Prisma.ExpressionMedia$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.ExpressionMedia$BotArgs<ExtArgs>
   Character?: boolean | Prisma.ExpressionMedia$CharacterArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.ExpressionMedia$ArtImageArgs<ExtArgs>
 }, ExtArgs["result"]["expressionMedia"]>
 
 
@@ -1268,17 +1274,17 @@ export type ExpressionMediaSelectScalar = {
 
 export type ExpressionMediaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "expression" | "kind" | "label" | "emoticon" | "expressionKey" | "imagePath" | "videoPath" | "artImageId" | "botId" | "characterId" | "message" | "additionalPhrases" | "isActive" | "designer" | "artPrompt", ExtArgs["result"]["expressionMedia"]>
 export type ExpressionMediaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ArtImage?: boolean | Prisma.ExpressionMedia$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.ExpressionMedia$BotArgs<ExtArgs>
   Character?: boolean | Prisma.ExpressionMedia$CharacterArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.ExpressionMedia$ArtImageArgs<ExtArgs>
 }
 
 export type $ExpressionMediaPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ExpressionMedia"
   objects: {
+    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Bot: Prisma.$BotPayload<ExtArgs> | null
     Character: Prisma.$CharacterPayload<ExtArgs> | null
-    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1295,7 +1301,7 @@ export type $ExpressionMediaPayload<ExtArgs extends runtime.Types.Extensions.Int
     botId: number | null
     characterId: number | null
     message: string | null
-    additionalPhrases: runtime.JsonValue | null
+    additionalPhrases: string | null
     isActive: boolean
     designer: string | null
     artPrompt: string | null
@@ -1639,9 +1645,9 @@ readonly fields: ExpressionMediaFieldRefs;
  */
 export interface Prisma__ExpressionMediaClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  ArtImage<T extends Prisma.ExpressionMedia$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpressionMedia$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Bot<T extends Prisma.ExpressionMedia$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpressionMedia$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Character<T extends Prisma.ExpressionMedia$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpressionMedia$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ArtImage<T extends Prisma.ExpressionMedia$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpressionMedia$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1685,7 +1691,7 @@ export interface ExpressionMediaFieldRefs {
   readonly botId: Prisma.FieldRef<"ExpressionMedia", 'Int'>
   readonly characterId: Prisma.FieldRef<"ExpressionMedia", 'Int'>
   readonly message: Prisma.FieldRef<"ExpressionMedia", 'String'>
-  readonly additionalPhrases: Prisma.FieldRef<"ExpressionMedia", 'Json'>
+  readonly additionalPhrases: Prisma.FieldRef<"ExpressionMedia", 'String'>
   readonly isActive: Prisma.FieldRef<"ExpressionMedia", 'Boolean'>
   readonly designer: Prisma.FieldRef<"ExpressionMedia", 'String'>
   readonly artPrompt: Prisma.FieldRef<"ExpressionMedia", 'String'>
@@ -2037,6 +2043,25 @@ export type ExpressionMediaDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
+ * ExpressionMedia.ArtImage
+ */
+export type ExpressionMedia$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtImage
+   */
+  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtImage
+   */
+  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtImageInclude<ExtArgs> | null
+  where?: Prisma.ArtImageWhereInput
+}
+
+/**
  * ExpressionMedia.Bot
  */
 export type ExpressionMedia$BotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2072,25 +2097,6 @@ export type ExpressionMedia$CharacterArgs<ExtArgs extends runtime.Types.Extensio
    */
   include?: Prisma.CharacterInclude<ExtArgs> | null
   where?: Prisma.CharacterWhereInput
-}
-
-/**
- * ExpressionMedia.ArtImage
- */
-export type ExpressionMedia$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtImage
-   */
-  select?: Prisma.ArtImageSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtImage
-   */
-  omit?: Prisma.ArtImageOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtImageInclude<ExtArgs> | null
-  where?: Prisma.ArtImageWhereInput
 }
 
 /**

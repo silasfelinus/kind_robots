@@ -57,11 +57,13 @@ export type ModelBuildArtifactMinAggregateOutputType = {
   negativePrompt: string | null
   width: number | null
   height: number | null
+  workflow: string | null
   format: string | null
   artImageId: number | null
   draftPath: string | null
   promotedPath: string | null
   reviewState: $Enums.ModelBuildReviewState | null
+  usageInfo: string | null
 }
 
 export type ModelBuildArtifactMaxAggregateOutputType = {
@@ -77,11 +79,13 @@ export type ModelBuildArtifactMaxAggregateOutputType = {
   negativePrompt: string | null
   width: number | null
   height: number | null
+  workflow: string | null
   format: string | null
   artImageId: number | null
   draftPath: string | null
   promotedPath: string | null
   reviewState: $Enums.ModelBuildReviewState | null
+  usageInfo: string | null
 }
 
 export type ModelBuildArtifactCountAggregateOutputType = {
@@ -137,11 +141,13 @@ export type ModelBuildArtifactMinAggregateInputType = {
   negativePrompt?: true
   width?: true
   height?: true
+  workflow?: true
   format?: true
   artImageId?: true
   draftPath?: true
   promotedPath?: true
   reviewState?: true
+  usageInfo?: true
 }
 
 export type ModelBuildArtifactMaxAggregateInputType = {
@@ -157,11 +163,13 @@ export type ModelBuildArtifactMaxAggregateInputType = {
   negativePrompt?: true
   width?: true
   height?: true
+  workflow?: true
   format?: true
   artImageId?: true
   draftPath?: true
   promotedPath?: true
   reviewState?: true
+  usageInfo?: true
 }
 
 export type ModelBuildArtifactCountAggregateInputType = {
@@ -286,13 +294,13 @@ export type ModelBuildArtifactGroupByOutputType = {
   negativePrompt: string | null
   width: number | null
   height: number | null
-  workflow: runtime.JsonValue | null
+  workflow: string | null
   format: string | null
   artImageId: number | null
   draftPath: string | null
   promotedPath: string | null
   reviewState: $Enums.ModelBuildReviewState
-  usageInfo: runtime.JsonValue | null
+  usageInfo: string | null
   _count: ModelBuildArtifactCountAggregateOutputType | null
   _avg: ModelBuildArtifactAvgAggregateOutputType | null
   _sum: ModelBuildArtifactSumAggregateOutputType | null
@@ -331,13 +339,13 @@ export type ModelBuildArtifactWhereInput = {
   negativePrompt?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   width?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
   height?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
-  workflow?: Prisma.JsonNullableFilter<"ModelBuildArtifact">
+  workflow?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   format?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
   draftPath?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   promotedPath?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFilter<"ModelBuildArtifact"> | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.JsonNullableFilter<"ModelBuildArtifact">
+  usageInfo?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   Item?: Prisma.XOR<Prisma.ModelBuildItemScalarRelationFilter, Prisma.ModelBuildItemWhereInput>
 }
 
@@ -381,13 +389,13 @@ export type ModelBuildArtifactWhereUniqueInput = Prisma.AtLeast<{
   negativePrompt?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   width?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
   height?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
-  workflow?: Prisma.JsonNullableFilter<"ModelBuildArtifact">
+  workflow?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   format?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
   draftPath?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   promotedPath?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFilter<"ModelBuildArtifact"> | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.JsonNullableFilter<"ModelBuildArtifact">
+  usageInfo?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   Item?: Prisma.XOR<Prisma.ModelBuildItemScalarRelationFilter, Prisma.ModelBuildItemWhereInput>
 }, "id">
 
@@ -434,13 +442,13 @@ export type ModelBuildArtifactScalarWhereWithAggregatesInput = {
   negativePrompt?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildArtifact"> | string | null
   width?: Prisma.IntNullableWithAggregatesFilter<"ModelBuildArtifact"> | number | null
   height?: Prisma.IntNullableWithAggregatesFilter<"ModelBuildArtifact"> | number | null
-  workflow?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildArtifact">
+  workflow?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildArtifact"> | string | null
   format?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildArtifact"> | string | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"ModelBuildArtifact"> | number | null
   draftPath?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildArtifact"> | string | null
   promotedPath?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildArtifact"> | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateWithAggregatesFilter<"ModelBuildArtifact"> | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildArtifact">
+  usageInfo?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildArtifact"> | string | null
 }
 
 export type ModelBuildArtifactCreateInput = {
@@ -454,13 +462,13 @@ export type ModelBuildArtifactCreateInput = {
   negativePrompt?: string | null
   width?: number | null
   height?: number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: string | null
   format?: string | null
   artImageId?: number | null
   draftPath?: string | null
   promotedPath?: string | null
   reviewState?: $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: string | null
   Item: Prisma.ModelBuildItemCreateNestedOneWithoutArtifactsInput
 }
 
@@ -477,13 +485,13 @@ export type ModelBuildArtifactUncheckedCreateInput = {
   negativePrompt?: string | null
   width?: number | null
   height?: number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: string | null
   format?: string | null
   artImageId?: number | null
   draftPath?: string | null
   promotedPath?: string | null
   reviewState?: $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: string | null
 }
 
 export type ModelBuildArtifactUpdateInput = {
@@ -497,13 +505,13 @@ export type ModelBuildArtifactUpdateInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   format?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   draftPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promotedPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFieldUpdateOperationsInput | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Item?: Prisma.ModelBuildItemUpdateOneRequiredWithoutArtifactsNestedInput
 }
 
@@ -520,13 +528,13 @@ export type ModelBuildArtifactUncheckedUpdateInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   format?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   draftPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promotedPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFieldUpdateOperationsInput | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelBuildArtifactCreateManyInput = {
@@ -542,13 +550,13 @@ export type ModelBuildArtifactCreateManyInput = {
   negativePrompt?: string | null
   width?: number | null
   height?: number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: string | null
   format?: string | null
   artImageId?: number | null
   draftPath?: string | null
   promotedPath?: string | null
   reviewState?: $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: string | null
 }
 
 export type ModelBuildArtifactUpdateManyMutationInput = {
@@ -562,13 +570,13 @@ export type ModelBuildArtifactUpdateManyMutationInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   format?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   draftPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promotedPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFieldUpdateOperationsInput | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelBuildArtifactUncheckedUpdateManyInput = {
@@ -584,13 +592,13 @@ export type ModelBuildArtifactUncheckedUpdateManyInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   format?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   draftPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promotedPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFieldUpdateOperationsInput | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelBuildArtifactListRelationFilter = {
@@ -652,11 +660,13 @@ export type ModelBuildArtifactMaxOrderByAggregateInput = {
   negativePrompt?: Prisma.SortOrder
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
+  workflow?: Prisma.SortOrder
   format?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   draftPath?: Prisma.SortOrder
   promotedPath?: Prisma.SortOrder
   reviewState?: Prisma.SortOrder
+  usageInfo?: Prisma.SortOrder
 }
 
 export type ModelBuildArtifactMinOrderByAggregateInput = {
@@ -672,11 +682,13 @@ export type ModelBuildArtifactMinOrderByAggregateInput = {
   negativePrompt?: Prisma.SortOrder
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
+  workflow?: Prisma.SortOrder
   format?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   draftPath?: Prisma.SortOrder
   promotedPath?: Prisma.SortOrder
   reviewState?: Prisma.SortOrder
+  usageInfo?: Prisma.SortOrder
 }
 
 export type ModelBuildArtifactSumOrderByAggregateInput = {
@@ -744,13 +756,13 @@ export type ModelBuildArtifactCreateWithoutItemInput = {
   negativePrompt?: string | null
   width?: number | null
   height?: number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: string | null
   format?: string | null
   artImageId?: number | null
   draftPath?: string | null
   promotedPath?: string | null
   reviewState?: $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: string | null
 }
 
 export type ModelBuildArtifactUncheckedCreateWithoutItemInput = {
@@ -765,13 +777,13 @@ export type ModelBuildArtifactUncheckedCreateWithoutItemInput = {
   negativePrompt?: string | null
   width?: number | null
   height?: number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: string | null
   format?: string | null
   artImageId?: number | null
   draftPath?: string | null
   promotedPath?: string | null
   reviewState?: $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: string | null
 }
 
 export type ModelBuildArtifactCreateOrConnectWithoutItemInput = {
@@ -816,13 +828,13 @@ export type ModelBuildArtifactScalarWhereInput = {
   negativePrompt?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   width?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
   height?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
-  workflow?: Prisma.JsonNullableFilter<"ModelBuildArtifact">
+  workflow?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   format?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ModelBuildArtifact"> | number | null
   draftPath?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   promotedPath?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFilter<"ModelBuildArtifact"> | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.JsonNullableFilter<"ModelBuildArtifact">
+  usageInfo?: Prisma.StringNullableFilter<"ModelBuildArtifact"> | string | null
 }
 
 export type ModelBuildArtifactCreateManyItemInput = {
@@ -837,13 +849,13 @@ export type ModelBuildArtifactCreateManyItemInput = {
   negativePrompt?: string | null
   width?: number | null
   height?: number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: string | null
   format?: string | null
   artImageId?: number | null
   draftPath?: string | null
   promotedPath?: string | null
   reviewState?: $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: string | null
 }
 
 export type ModelBuildArtifactUpdateWithoutItemInput = {
@@ -857,13 +869,13 @@ export type ModelBuildArtifactUpdateWithoutItemInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   format?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   draftPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promotedPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFieldUpdateOperationsInput | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelBuildArtifactUncheckedUpdateWithoutItemInput = {
@@ -878,13 +890,13 @@ export type ModelBuildArtifactUncheckedUpdateWithoutItemInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   format?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   draftPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promotedPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFieldUpdateOperationsInput | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ModelBuildArtifactUncheckedUpdateManyWithoutItemInput = {
@@ -899,13 +911,13 @@ export type ModelBuildArtifactUncheckedUpdateManyWithoutItemInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workflow?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workflow?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   format?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   draftPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promotedPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewState?: Prisma.EnumModelBuildReviewStateFieldUpdateOperationsInput | $Enums.ModelBuildReviewState
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -980,13 +992,13 @@ export type $ModelBuildArtifactPayload<ExtArgs extends runtime.Types.Extensions.
     negativePrompt: string | null
     width: number | null
     height: number | null
-    workflow: runtime.JsonValue | null
+    workflow: string | null
     format: string | null
     artImageId: number | null
     draftPath: string | null
     promotedPath: string | null
     reviewState: $Enums.ModelBuildReviewState
-    usageInfo: runtime.JsonValue | null
+    usageInfo: string | null
   }, ExtArgs["result"]["modelBuildArtifact"]>
   composites: {}
 }
@@ -1369,13 +1381,13 @@ export interface ModelBuildArtifactFieldRefs {
   readonly negativePrompt: Prisma.FieldRef<"ModelBuildArtifact", 'String'>
   readonly width: Prisma.FieldRef<"ModelBuildArtifact", 'Int'>
   readonly height: Prisma.FieldRef<"ModelBuildArtifact", 'Int'>
-  readonly workflow: Prisma.FieldRef<"ModelBuildArtifact", 'Json'>
+  readonly workflow: Prisma.FieldRef<"ModelBuildArtifact", 'String'>
   readonly format: Prisma.FieldRef<"ModelBuildArtifact", 'String'>
   readonly artImageId: Prisma.FieldRef<"ModelBuildArtifact", 'Int'>
   readonly draftPath: Prisma.FieldRef<"ModelBuildArtifact", 'String'>
   readonly promotedPath: Prisma.FieldRef<"ModelBuildArtifact", 'String'>
   readonly reviewState: Prisma.FieldRef<"ModelBuildArtifact", 'ModelBuildReviewState'>
-  readonly usageInfo: Prisma.FieldRef<"ModelBuildArtifact", 'Json'>
+  readonly usageInfo: Prisma.FieldRef<"ModelBuildArtifact", 'String'>
 }
     
 

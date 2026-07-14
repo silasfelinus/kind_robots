@@ -30,20 +30,20 @@ export type ChallengeSubmissionAvgAggregateOutputType = {
   id: number | null
   challengeId: number | null
   botId: number | null
-  contenderId: number | null
   artImageId: number | null
   characterId: number | null
   scenarioId: number | null
+  contenderId: number | null
 }
 
 export type ChallengeSubmissionSumAggregateOutputType = {
   id: number | null
   challengeId: number | null
   botId: number | null
-  contenderId: number | null
   artImageId: number | null
   characterId: number | null
   scenarioId: number | null
+  contenderId: number | null
 }
 
 export type ChallengeSubmissionMinAggregateOutputType = {
@@ -52,15 +52,17 @@ export type ChallengeSubmissionMinAggregateOutputType = {
   updatedAt: Date | null
   challengeId: number | null
   botId: number | null
-  contenderId: number | null
-  variantKey: string | null
-  promptUsed: string | null
   agentModel: string | null
   outputText: string | null
   artImageId: number | null
   characterId: number | null
   scenarioId: number | null
   status: $Enums.ChallengeSubmissionStatus | null
+  contenderId: number | null
+  variantKey: string | null
+  promptUsed: string | null
+  settings: string | null
+  randomSelections: string | null
 }
 
 export type ChallengeSubmissionMaxAggregateOutputType = {
@@ -69,15 +71,17 @@ export type ChallengeSubmissionMaxAggregateOutputType = {
   updatedAt: Date | null
   challengeId: number | null
   botId: number | null
-  contenderId: number | null
-  variantKey: string | null
-  promptUsed: string | null
   agentModel: string | null
   outputText: string | null
   artImageId: number | null
   characterId: number | null
   scenarioId: number | null
   status: $Enums.ChallengeSubmissionStatus | null
+  contenderId: number | null
+  variantKey: string | null
+  promptUsed: string | null
+  settings: string | null
+  randomSelections: string | null
 }
 
 export type ChallengeSubmissionCountAggregateOutputType = {
@@ -86,17 +90,17 @@ export type ChallengeSubmissionCountAggregateOutputType = {
   updatedAt: number
   challengeId: number
   botId: number
-  contenderId: number
-  variantKey: number
-  promptUsed: number
-  settings: number
-  randomSelections: number
   agentModel: number
   outputText: number
   artImageId: number
   characterId: number
   scenarioId: number
   status: number
+  contenderId: number
+  variantKey: number
+  promptUsed: number
+  settings: number
+  randomSelections: number
   _all: number
 }
 
@@ -105,20 +109,20 @@ export type ChallengeSubmissionAvgAggregateInputType = {
   id?: true
   challengeId?: true
   botId?: true
-  contenderId?: true
   artImageId?: true
   characterId?: true
   scenarioId?: true
+  contenderId?: true
 }
 
 export type ChallengeSubmissionSumAggregateInputType = {
   id?: true
   challengeId?: true
   botId?: true
-  contenderId?: true
   artImageId?: true
   characterId?: true
   scenarioId?: true
+  contenderId?: true
 }
 
 export type ChallengeSubmissionMinAggregateInputType = {
@@ -127,15 +131,17 @@ export type ChallengeSubmissionMinAggregateInputType = {
   updatedAt?: true
   challengeId?: true
   botId?: true
-  contenderId?: true
-  variantKey?: true
-  promptUsed?: true
   agentModel?: true
   outputText?: true
   artImageId?: true
   characterId?: true
   scenarioId?: true
   status?: true
+  contenderId?: true
+  variantKey?: true
+  promptUsed?: true
+  settings?: true
+  randomSelections?: true
 }
 
 export type ChallengeSubmissionMaxAggregateInputType = {
@@ -144,15 +150,17 @@ export type ChallengeSubmissionMaxAggregateInputType = {
   updatedAt?: true
   challengeId?: true
   botId?: true
-  contenderId?: true
-  variantKey?: true
-  promptUsed?: true
   agentModel?: true
   outputText?: true
   artImageId?: true
   characterId?: true
   scenarioId?: true
   status?: true
+  contenderId?: true
+  variantKey?: true
+  promptUsed?: true
+  settings?: true
+  randomSelections?: true
 }
 
 export type ChallengeSubmissionCountAggregateInputType = {
@@ -161,17 +169,17 @@ export type ChallengeSubmissionCountAggregateInputType = {
   updatedAt?: true
   challengeId?: true
   botId?: true
-  contenderId?: true
-  variantKey?: true
-  promptUsed?: true
-  settings?: true
-  randomSelections?: true
   agentModel?: true
   outputText?: true
   artImageId?: true
   characterId?: true
   scenarioId?: true
   status?: true
+  contenderId?: true
+  variantKey?: true
+  promptUsed?: true
+  settings?: true
+  randomSelections?: true
   _all?: true
 }
 
@@ -267,17 +275,17 @@ export type ChallengeSubmissionGroupByOutputType = {
   updatedAt: Date | null
   challengeId: number
   botId: number | null
-  contenderId: number | null
-  variantKey: string
-  promptUsed: string | null
-  settings: runtime.JsonValue | null
-  randomSelections: runtime.JsonValue | null
   agentModel: string | null
   outputText: string | null
   artImageId: number | null
   characterId: number | null
   scenarioId: number | null
   status: $Enums.ChallengeSubmissionStatus
+  contenderId: number | null
+  variantKey: string
+  promptUsed: string | null
+  settings: string | null
+  randomSelections: string | null
   _count: ChallengeSubmissionCountAggregateOutputType | null
   _avg: ChallengeSubmissionAvgAggregateOutputType | null
   _sum: ChallengeSubmissionSumAggregateOutputType | null
@@ -309,22 +317,22 @@ export type ChallengeSubmissionWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"ChallengeSubmission"> | Date | string | null
   challengeId?: Prisma.IntFilter<"ChallengeSubmission"> | number
   botId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
-  contenderId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
-  variantKey?: Prisma.StringFilter<"ChallengeSubmission"> | string
-  promptUsed?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
-  settings?: Prisma.JsonNullableFilter<"ChallengeSubmission">
-  randomSelections?: Prisma.JsonNullableFilter<"ChallengeSubmission">
   agentModel?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   outputText?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   characterId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFilter<"ChallengeSubmission"> | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.XOR<Prisma.ChallengeScalarRelationFilter, Prisma.ChallengeWhereInput>
-  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  Contender?: Prisma.XOR<Prisma.ContenderNullableScalarRelationFilter, Prisma.ContenderWhereInput> | null
+  contenderId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
+  variantKey?: Prisma.StringFilter<"ChallengeSubmission"> | string
+  promptUsed?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
+  settings?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
+  randomSelections?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
+  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
+  Challenge?: Prisma.XOR<Prisma.ChallengeScalarRelationFilter, Prisma.ChallengeWhereInput>
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
+  Contender?: Prisma.XOR<Prisma.ContenderNullableScalarRelationFilter, Prisma.ContenderWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
 }
@@ -335,22 +343,22 @@ export type ChallengeSubmissionOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   challengeId?: Prisma.SortOrder
   botId?: Prisma.SortOrderInput | Prisma.SortOrder
-  contenderId?: Prisma.SortOrderInput | Prisma.SortOrder
-  variantKey?: Prisma.SortOrder
-  promptUsed?: Prisma.SortOrderInput | Prisma.SortOrder
-  settings?: Prisma.SortOrderInput | Prisma.SortOrder
-  randomSelections?: Prisma.SortOrderInput | Prisma.SortOrder
   agentModel?: Prisma.SortOrderInput | Prisma.SortOrder
   outputText?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   characterId?: Prisma.SortOrderInput | Prisma.SortOrder
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
-  Challenge?: Prisma.ChallengeOrderByWithRelationInput
-  Bot?: Prisma.BotOrderByWithRelationInput
-  Contender?: Prisma.ContenderOrderByWithRelationInput
+  contenderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  promptUsed?: Prisma.SortOrderInput | Prisma.SortOrder
+  settings?: Prisma.SortOrderInput | Prisma.SortOrder
+  randomSelections?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
+  Bot?: Prisma.BotOrderByWithRelationInput
+  Challenge?: Prisma.ChallengeOrderByWithRelationInput
   Character?: Prisma.CharacterOrderByWithRelationInput
+  Contender?: Prisma.ContenderOrderByWithRelationInput
   Scenario?: Prisma.ScenarioOrderByWithRelationInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.ChallengeSubmissionOrderByRelevanceInput
@@ -366,22 +374,22 @@ export type ChallengeSubmissionWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"ChallengeSubmission"> | Date | string | null
   challengeId?: Prisma.IntFilter<"ChallengeSubmission"> | number
   botId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
-  contenderId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
-  variantKey?: Prisma.StringFilter<"ChallengeSubmission"> | string
-  promptUsed?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
-  settings?: Prisma.JsonNullableFilter<"ChallengeSubmission">
-  randomSelections?: Prisma.JsonNullableFilter<"ChallengeSubmission">
   agentModel?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   outputText?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   characterId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFilter<"ChallengeSubmission"> | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.XOR<Prisma.ChallengeScalarRelationFilter, Prisma.ChallengeWhereInput>
-  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  Contender?: Prisma.XOR<Prisma.ContenderNullableScalarRelationFilter, Prisma.ContenderWhereInput> | null
+  contenderId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
+  variantKey?: Prisma.StringFilter<"ChallengeSubmission"> | string
+  promptUsed?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
+  settings?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
+  randomSelections?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
+  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
+  Challenge?: Prisma.XOR<Prisma.ChallengeScalarRelationFilter, Prisma.ChallengeWhereInput>
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
+  Contender?: Prisma.XOR<Prisma.ContenderNullableScalarRelationFilter, Prisma.ContenderWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
 }, "id" | "challengeId_contenderId_variantKey">
@@ -392,17 +400,17 @@ export type ChallengeSubmissionOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   challengeId?: Prisma.SortOrder
   botId?: Prisma.SortOrderInput | Prisma.SortOrder
-  contenderId?: Prisma.SortOrderInput | Prisma.SortOrder
-  variantKey?: Prisma.SortOrder
-  promptUsed?: Prisma.SortOrderInput | Prisma.SortOrder
-  settings?: Prisma.SortOrderInput | Prisma.SortOrder
-  randomSelections?: Prisma.SortOrderInput | Prisma.SortOrder
   agentModel?: Prisma.SortOrderInput | Prisma.SortOrder
   outputText?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   characterId?: Prisma.SortOrderInput | Prisma.SortOrder
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  contenderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  promptUsed?: Prisma.SortOrderInput | Prisma.SortOrder
+  settings?: Prisma.SortOrderInput | Prisma.SortOrder
+  randomSelections?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ChallengeSubmissionCountOrderByAggregateInput
   _avg?: Prisma.ChallengeSubmissionAvgOrderByAggregateInput
   _max?: Prisma.ChallengeSubmissionMaxOrderByAggregateInput
@@ -419,34 +427,34 @@ export type ChallengeSubmissionScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ChallengeSubmission"> | Date | string | null
   challengeId?: Prisma.IntWithAggregatesFilter<"ChallengeSubmission"> | number
   botId?: Prisma.IntNullableWithAggregatesFilter<"ChallengeSubmission"> | number | null
-  contenderId?: Prisma.IntNullableWithAggregatesFilter<"ChallengeSubmission"> | number | null
-  variantKey?: Prisma.StringWithAggregatesFilter<"ChallengeSubmission"> | string
-  promptUsed?: Prisma.StringNullableWithAggregatesFilter<"ChallengeSubmission"> | string | null
-  settings?: Prisma.JsonNullableWithAggregatesFilter<"ChallengeSubmission">
-  randomSelections?: Prisma.JsonNullableWithAggregatesFilter<"ChallengeSubmission">
   agentModel?: Prisma.StringNullableWithAggregatesFilter<"ChallengeSubmission"> | string | null
   outputText?: Prisma.StringNullableWithAggregatesFilter<"ChallengeSubmission"> | string | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"ChallengeSubmission"> | number | null
   characterId?: Prisma.IntNullableWithAggregatesFilter<"ChallengeSubmission"> | number | null
   scenarioId?: Prisma.IntNullableWithAggregatesFilter<"ChallengeSubmission"> | number | null
   status?: Prisma.EnumChallengeSubmissionStatusWithAggregatesFilter<"ChallengeSubmission"> | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.IntNullableWithAggregatesFilter<"ChallengeSubmission"> | number | null
+  variantKey?: Prisma.StringWithAggregatesFilter<"ChallengeSubmission"> | string
+  promptUsed?: Prisma.StringNullableWithAggregatesFilter<"ChallengeSubmission"> | string | null
+  settings?: Prisma.StringNullableWithAggregatesFilter<"ChallengeSubmission"> | string | null
+  randomSelections?: Prisma.StringNullableWithAggregatesFilter<"ChallengeSubmission"> | string | null
 }
 
 export type ChallengeSubmissionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
-  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChallengeSubmissionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
+  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChallengeSubmissionsInput
+  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutChallengeSubmissionsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChallengeSubmissionInput
 }
@@ -457,35 +465,35 @@ export type ChallengeSubmissionUncheckedCreateInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput
 }
 
 export type ChallengeSubmissionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
-  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
+  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChallengeSubmissionsNestedInput
+  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutChallengeSubmissionsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChallengeSubmissionNestedInput
 }
@@ -496,17 +504,17 @@ export type ChallengeSubmissionUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -516,29 +524,29 @@ export type ChallengeSubmissionCreateManyInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionUncheckedUpdateManyInput = {
@@ -547,17 +555,17 @@ export type ChallengeSubmissionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionListRelationFilter = {
@@ -593,27 +601,27 @@ export type ChallengeSubmissionCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   challengeId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  contenderId?: Prisma.SortOrder
-  variantKey?: Prisma.SortOrder
-  promptUsed?: Prisma.SortOrder
-  settings?: Prisma.SortOrder
-  randomSelections?: Prisma.SortOrder
   agentModel?: Prisma.SortOrder
   outputText?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  contenderId?: Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  promptUsed?: Prisma.SortOrder
+  settings?: Prisma.SortOrder
+  randomSelections?: Prisma.SortOrder
 }
 
 export type ChallengeSubmissionAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   challengeId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  contenderId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  contenderId?: Prisma.SortOrder
 }
 
 export type ChallengeSubmissionMaxOrderByAggregateInput = {
@@ -622,15 +630,17 @@ export type ChallengeSubmissionMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   challengeId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  contenderId?: Prisma.SortOrder
-  variantKey?: Prisma.SortOrder
-  promptUsed?: Prisma.SortOrder
   agentModel?: Prisma.SortOrder
   outputText?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  contenderId?: Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  promptUsed?: Prisma.SortOrder
+  settings?: Prisma.SortOrder
+  randomSelections?: Prisma.SortOrder
 }
 
 export type ChallengeSubmissionMinOrderByAggregateInput = {
@@ -639,25 +649,27 @@ export type ChallengeSubmissionMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   challengeId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  contenderId?: Prisma.SortOrder
-  variantKey?: Prisma.SortOrder
-  promptUsed?: Prisma.SortOrder
   agentModel?: Prisma.SortOrder
   outputText?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  contenderId?: Prisma.SortOrder
+  variantKey?: Prisma.SortOrder
+  promptUsed?: Prisma.SortOrder
+  settings?: Prisma.SortOrder
+  randomSelections?: Prisma.SortOrder
 }
 
 export type ChallengeSubmissionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   challengeId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  contenderId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  contenderId?: Prisma.SortOrder
 }
 
 export type ChallengeSubmissionCreateNestedManyWithoutArtImageInput = {
@@ -935,17 +947,17 @@ export type ChallengeSubmissionUncheckedUpdateManyWithoutContenderNestedInput = 
 export type ChallengeSubmissionCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
-  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
+  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChallengeSubmissionsInput
+  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutChallengeSubmissionsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChallengeSubmissionInput
 }
@@ -956,16 +968,16 @@ export type ChallengeSubmissionUncheckedCreateWithoutArtImageInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput
 }
 
@@ -1004,33 +1016,33 @@ export type ChallengeSubmissionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"ChallengeSubmission"> | Date | string | null
   challengeId?: Prisma.IntFilter<"ChallengeSubmission"> | number
   botId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
-  contenderId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
-  variantKey?: Prisma.StringFilter<"ChallengeSubmission"> | string
-  promptUsed?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
-  settings?: Prisma.JsonNullableFilter<"ChallengeSubmission">
-  randomSelections?: Prisma.JsonNullableFilter<"ChallengeSubmission">
   agentModel?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   outputText?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   characterId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFilter<"ChallengeSubmission"> | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.IntNullableFilter<"ChallengeSubmission"> | number | null
+  variantKey?: Prisma.StringFilter<"ChallengeSubmission"> | string
+  promptUsed?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
+  settings?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
+  randomSelections?: Prisma.StringNullableFilter<"ChallengeSubmission"> | string | null
 }
 
 export type ChallengeSubmissionCreateWithoutBotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
-  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChallengeSubmissionsInput
+  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChallengeSubmissionsInput
+  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutChallengeSubmissionsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChallengeSubmissionInput
 }
@@ -1040,17 +1052,17 @@ export type ChallengeSubmissionUncheckedCreateWithoutBotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   challengeId: number
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput
 }
 
@@ -1083,17 +1095,17 @@ export type ChallengeSubmissionUpdateManyWithWhereWithoutBotInput = {
 export type ChallengeSubmissionCreateWithoutCharacterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
-  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChallengeSubmissionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
+  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
+  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutChallengeSubmissionsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChallengeSubmissionInput
 }
@@ -1104,16 +1116,16 @@ export type ChallengeSubmissionUncheckedCreateWithoutCharacterInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput
 }
 
@@ -1146,18 +1158,18 @@ export type ChallengeSubmissionUpdateManyWithWhereWithoutCharacterInput = {
 export type ChallengeSubmissionCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
-  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChallengeSubmissionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
+  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChallengeSubmissionsInput
+  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutChallengeSubmissionsInput
 }
 
@@ -1167,17 +1179,17 @@ export type ChallengeSubmissionUncheckedCreateWithoutReactionsInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionCreateOrConnectWithoutReactionsInput = {
@@ -1199,18 +1211,18 @@ export type ChallengeSubmissionUpdateToOneWithWhereWithoutReactionsInput = {
 export type ChallengeSubmissionUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
-  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
+  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChallengeSubmissionsNestedInput
+  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutChallengeSubmissionsNestedInput
 }
 
@@ -1220,34 +1232,34 @@ export type ChallengeSubmissionUncheckedUpdateWithoutReactionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionCreateWithoutScenarioInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
-  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChallengeSubmissionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
+  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChallengeSubmissionsInput
+  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChallengeSubmissionInput
 }
 
@@ -1257,16 +1269,16 @@ export type ChallengeSubmissionUncheckedCreateWithoutScenarioInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput
 }
 
@@ -1299,17 +1311,17 @@ export type ChallengeSubmissionUpdateManyWithWhereWithoutScenarioInput = {
 export type ChallengeSubmissionCreateWithoutChallengeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
-  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChallengeSubmissionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChallengeSubmissionsInput
+  Contender?: Prisma.ContenderCreateNestedOneWithoutSubmissionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutChallengeSubmissionsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChallengeSubmissionInput
 }
@@ -1319,17 +1331,17 @@ export type ChallengeSubmissionUncheckedCreateWithoutChallengeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput
 }
 
@@ -1362,16 +1374,16 @@ export type ChallengeSubmissionUpdateManyWithWhereWithoutChallengeInput = {
 export type ChallengeSubmissionCreateWithoutContenderInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   status?: $Enums.ChallengeSubmissionStatus
-  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutChallengeSubmissionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutChallengeSubmissionsInput
+  Challenge: Prisma.ChallengeCreateNestedOneWithoutSubmissionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutChallengeSubmissionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutChallengeSubmissionsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutChallengeSubmissionInput
@@ -1383,16 +1395,16 @@ export type ChallengeSubmissionUncheckedCreateWithoutContenderInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutChallengeSubmissionInput
 }
 
@@ -1428,32 +1440,32 @@ export type ChallengeSubmissionCreateManyArtImageInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
-  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
+  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChallengeSubmissionsNestedInput
+  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutChallengeSubmissionsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChallengeSubmissionNestedInput
 }
@@ -1464,16 +1476,16 @@ export type ChallengeSubmissionUncheckedUpdateWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -1483,16 +1495,16 @@ export type ChallengeSubmissionUncheckedUpdateManyWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionCreateManyBotInput = {
@@ -1500,33 +1512,33 @@ export type ChallengeSubmissionCreateManyBotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   challengeId: number
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionUpdateWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
-  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput
+  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChallengeSubmissionsNestedInput
+  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutChallengeSubmissionsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChallengeSubmissionNestedInput
 }
@@ -1536,17 +1548,17 @@ export type ChallengeSubmissionUncheckedUpdateWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -1555,17 +1567,17 @@ export type ChallengeSubmissionUncheckedUpdateManyWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionCreateManyCharacterInput = {
@@ -1574,32 +1586,32 @@ export type ChallengeSubmissionCreateManyCharacterInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionUpdateWithoutCharacterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
-  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
+  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
+  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutChallengeSubmissionsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChallengeSubmissionNestedInput
 }
@@ -1610,16 +1622,16 @@ export type ChallengeSubmissionUncheckedUpdateWithoutCharacterInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -1629,16 +1641,16 @@ export type ChallengeSubmissionUncheckedUpdateManyWithoutCharacterInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionCreateManyScenarioInput = {
@@ -1647,33 +1659,33 @@ export type ChallengeSubmissionCreateManyScenarioInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionUpdateWithoutScenarioInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
-  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
+  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChallengeSubmissionsNestedInput
+  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -1683,16 +1695,16 @@ export type ChallengeSubmissionUncheckedUpdateWithoutScenarioInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -1702,16 +1714,16 @@ export type ChallengeSubmissionUncheckedUpdateManyWithoutScenarioInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionCreateManyChallengeInput = {
@@ -1719,33 +1731,33 @@ export type ChallengeSubmissionCreateManyChallengeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   botId?: number | null
-  contenderId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  contenderId?: number | null
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionUpdateWithoutChallengeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
-  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChallengeSubmissionsNestedInput
+  Contender?: Prisma.ContenderUpdateOneWithoutSubmissionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutChallengeSubmissionsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChallengeSubmissionNestedInput
 }
@@ -1755,17 +1767,17 @@ export type ChallengeSubmissionUncheckedUpdateWithoutChallengeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -1774,17 +1786,17 @@ export type ChallengeSubmissionUncheckedUpdateManyWithoutChallengeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  contenderId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChallengeSubmissionCreateManyContenderInput = {
@@ -1793,31 +1805,31 @@ export type ChallengeSubmissionCreateManyContenderInput = {
   updatedAt?: Date | string | null
   challengeId: number
   botId?: number | null
-  variantKey?: string
-  promptUsed?: string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: string | null
   outputText?: string | null
   artImageId?: number | null
   characterId?: number | null
   scenarioId?: number | null
   status?: $Enums.ChallengeSubmissionStatus
+  variantKey?: string
+  promptUsed?: string | null
+  settings?: string | null
+  randomSelections?: string | null
 }
 
 export type ChallengeSubmissionUpdateWithoutContenderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
-  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutChallengeSubmissionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutChallengeSubmissionsNestedInput
+  Challenge?: Prisma.ChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutChallengeSubmissionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutChallengeSubmissionsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutChallengeSubmissionNestedInput
@@ -1829,16 +1841,16 @@ export type ChallengeSubmissionUncheckedUpdateWithoutContenderInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutChallengeSubmissionNestedInput
 }
 
@@ -1848,16 +1860,16 @@ export type ChallengeSubmissionUncheckedUpdateManyWithoutContenderInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   challengeId?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
-  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  randomSelections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   agentModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outputText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumChallengeSubmissionStatusFieldUpdateOperationsInput | $Enums.ChallengeSubmissionStatus
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  promptUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  randomSelections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1897,22 +1909,22 @@ export type ChallengeSubmissionSelect<ExtArgs extends runtime.Types.Extensions.I
   updatedAt?: boolean
   challengeId?: boolean
   botId?: boolean
-  contenderId?: boolean
-  variantKey?: boolean
-  promptUsed?: boolean
-  settings?: boolean
-  randomSelections?: boolean
   agentModel?: boolean
   outputText?: boolean
   artImageId?: boolean
   characterId?: boolean
   scenarioId?: boolean
   status?: boolean
-  Challenge?: boolean | Prisma.ChallengeDefaultArgs<ExtArgs>
-  Bot?: boolean | Prisma.ChallengeSubmission$BotArgs<ExtArgs>
-  Contender?: boolean | Prisma.ChallengeSubmission$ContenderArgs<ExtArgs>
+  contenderId?: boolean
+  variantKey?: boolean
+  promptUsed?: boolean
+  settings?: boolean
+  randomSelections?: boolean
   ArtImage?: boolean | Prisma.ChallengeSubmission$ArtImageArgs<ExtArgs>
+  Bot?: boolean | Prisma.ChallengeSubmission$BotArgs<ExtArgs>
+  Challenge?: boolean | Prisma.ChallengeDefaultArgs<ExtArgs>
   Character?: boolean | Prisma.ChallengeSubmission$CharacterArgs<ExtArgs>
+  Contender?: boolean | Prisma.ChallengeSubmission$ContenderArgs<ExtArgs>
   Scenario?: boolean | Prisma.ChallengeSubmission$ScenarioArgs<ExtArgs>
   Reactions?: boolean | Prisma.ChallengeSubmission$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ChallengeSubmissionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1926,26 +1938,26 @@ export type ChallengeSubmissionSelectScalar = {
   updatedAt?: boolean
   challengeId?: boolean
   botId?: boolean
-  contenderId?: boolean
-  variantKey?: boolean
-  promptUsed?: boolean
-  settings?: boolean
-  randomSelections?: boolean
   agentModel?: boolean
   outputText?: boolean
   artImageId?: boolean
   characterId?: boolean
   scenarioId?: boolean
   status?: boolean
+  contenderId?: boolean
+  variantKey?: boolean
+  promptUsed?: boolean
+  settings?: boolean
+  randomSelections?: boolean
 }
 
-export type ChallengeSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "challengeId" | "botId" | "contenderId" | "variantKey" | "promptUsed" | "settings" | "randomSelections" | "agentModel" | "outputText" | "artImageId" | "characterId" | "scenarioId" | "status", ExtArgs["result"]["challengeSubmission"]>
+export type ChallengeSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "challengeId" | "botId" | "agentModel" | "outputText" | "artImageId" | "characterId" | "scenarioId" | "status" | "contenderId" | "variantKey" | "promptUsed" | "settings" | "randomSelections", ExtArgs["result"]["challengeSubmission"]>
 export type ChallengeSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Challenge?: boolean | Prisma.ChallengeDefaultArgs<ExtArgs>
-  Bot?: boolean | Prisma.ChallengeSubmission$BotArgs<ExtArgs>
-  Contender?: boolean | Prisma.ChallengeSubmission$ContenderArgs<ExtArgs>
   ArtImage?: boolean | Prisma.ChallengeSubmission$ArtImageArgs<ExtArgs>
+  Bot?: boolean | Prisma.ChallengeSubmission$BotArgs<ExtArgs>
+  Challenge?: boolean | Prisma.ChallengeDefaultArgs<ExtArgs>
   Character?: boolean | Prisma.ChallengeSubmission$CharacterArgs<ExtArgs>
+  Contender?: boolean | Prisma.ChallengeSubmission$ContenderArgs<ExtArgs>
   Scenario?: boolean | Prisma.ChallengeSubmission$ScenarioArgs<ExtArgs>
   Reactions?: boolean | Prisma.ChallengeSubmission$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ChallengeSubmissionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1954,11 +1966,11 @@ export type ChallengeSubmissionInclude<ExtArgs extends runtime.Types.Extensions.
 export type $ChallengeSubmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ChallengeSubmission"
   objects: {
-    Challenge: Prisma.$ChallengePayload<ExtArgs>
-    Bot: Prisma.$BotPayload<ExtArgs> | null
-    Contender: Prisma.$ContenderPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
+    Bot: Prisma.$BotPayload<ExtArgs> | null
+    Challenge: Prisma.$ChallengePayload<ExtArgs>
     Character: Prisma.$CharacterPayload<ExtArgs> | null
+    Contender: Prisma.$ContenderPayload<ExtArgs> | null
     Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
   }
@@ -1968,17 +1980,17 @@ export type $ChallengeSubmissionPayload<ExtArgs extends runtime.Types.Extensions
     updatedAt: Date | null
     challengeId: number
     botId: number | null
-    contenderId: number | null
-    variantKey: string
-    promptUsed: string | null
-    settings: runtime.JsonValue | null
-    randomSelections: runtime.JsonValue | null
     agentModel: string | null
     outputText: string | null
     artImageId: number | null
     characterId: number | null
     scenarioId: number | null
     status: $Enums.ChallengeSubmissionStatus
+    contenderId: number | null
+    variantKey: string
+    promptUsed: string | null
+    settings: string | null
+    randomSelections: string | null
   }, ExtArgs["result"]["challengeSubmission"]>
   composites: {}
 }
@@ -2319,11 +2331,11 @@ readonly fields: ChallengeSubmissionFieldRefs;
  */
 export interface Prisma__ChallengeSubmissionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Challenge<T extends Prisma.ChallengeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeDefaultArgs<ExtArgs>>): Prisma.Prisma__ChallengeClient<runtime.Types.Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  Bot<T extends Prisma.ChallengeSubmission$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Contender<T extends Prisma.ChallengeSubmission$ContenderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$ContenderArgs<ExtArgs>>): Prisma.Prisma__ContenderClient<runtime.Types.Result.GetResult<Prisma.$ContenderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.ChallengeSubmission$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Bot<T extends Prisma.ChallengeSubmission$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Challenge<T extends Prisma.ChallengeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeDefaultArgs<ExtArgs>>): Prisma.Prisma__ChallengeClient<runtime.Types.Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Character<T extends Prisma.ChallengeSubmission$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Contender<T extends Prisma.ChallengeSubmission$ContenderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$ContenderArgs<ExtArgs>>): Prisma.Prisma__ContenderClient<runtime.Types.Result.GetResult<Prisma.$ContenderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Scenario<T extends Prisma.ChallengeSubmission$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Reactions<T extends Prisma.ChallengeSubmission$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChallengeSubmission$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2360,17 +2372,17 @@ export interface ChallengeSubmissionFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"ChallengeSubmission", 'DateTime'>
   readonly challengeId: Prisma.FieldRef<"ChallengeSubmission", 'Int'>
   readonly botId: Prisma.FieldRef<"ChallengeSubmission", 'Int'>
-  readonly contenderId: Prisma.FieldRef<"ChallengeSubmission", 'Int'>
-  readonly variantKey: Prisma.FieldRef<"ChallengeSubmission", 'String'>
-  readonly promptUsed: Prisma.FieldRef<"ChallengeSubmission", 'String'>
-  readonly settings: Prisma.FieldRef<"ChallengeSubmission", 'Json'>
-  readonly randomSelections: Prisma.FieldRef<"ChallengeSubmission", 'Json'>
   readonly agentModel: Prisma.FieldRef<"ChallengeSubmission", 'String'>
   readonly outputText: Prisma.FieldRef<"ChallengeSubmission", 'String'>
   readonly artImageId: Prisma.FieldRef<"ChallengeSubmission", 'Int'>
   readonly characterId: Prisma.FieldRef<"ChallengeSubmission", 'Int'>
   readonly scenarioId: Prisma.FieldRef<"ChallengeSubmission", 'Int'>
   readonly status: Prisma.FieldRef<"ChallengeSubmission", 'ChallengeSubmissionStatus'>
+  readonly contenderId: Prisma.FieldRef<"ChallengeSubmission", 'Int'>
+  readonly variantKey: Prisma.FieldRef<"ChallengeSubmission", 'String'>
+  readonly promptUsed: Prisma.FieldRef<"ChallengeSubmission", 'String'>
+  readonly settings: Prisma.FieldRef<"ChallengeSubmission", 'String'>
+  readonly randomSelections: Prisma.FieldRef<"ChallengeSubmission", 'String'>
 }
     
 
@@ -2719,44 +2731,6 @@ export type ChallengeSubmissionDeleteManyArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
- * ChallengeSubmission.Bot
- */
-export type ChallengeSubmission$BotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Bot
-   */
-  select?: Prisma.BotSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Bot
-   */
-  omit?: Prisma.BotOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.BotInclude<ExtArgs> | null
-  where?: Prisma.BotWhereInput
-}
-
-/**
- * ChallengeSubmission.Contender
- */
-export type ChallengeSubmission$ContenderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Contender
-   */
-  select?: Prisma.ContenderSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Contender
-   */
-  omit?: Prisma.ContenderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ContenderInclude<ExtArgs> | null
-  where?: Prisma.ContenderWhereInput
-}
-
-/**
  * ChallengeSubmission.ArtImage
  */
 export type ChallengeSubmission$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2776,6 +2750,25 @@ export type ChallengeSubmission$ArtImageArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
+ * ChallengeSubmission.Bot
+ */
+export type ChallengeSubmission$BotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Bot
+   */
+  select?: Prisma.BotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Bot
+   */
+  omit?: Prisma.BotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotInclude<ExtArgs> | null
+  where?: Prisma.BotWhereInput
+}
+
+/**
  * ChallengeSubmission.Character
  */
 export type ChallengeSubmission$CharacterArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2792,6 +2785,25 @@ export type ChallengeSubmission$CharacterArgs<ExtArgs extends runtime.Types.Exte
    */
   include?: Prisma.CharacterInclude<ExtArgs> | null
   where?: Prisma.CharacterWhereInput
+}
+
+/**
+ * ChallengeSubmission.Contender
+ */
+export type ChallengeSubmission$ContenderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Contender
+   */
+  select?: Prisma.ContenderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Contender
+   */
+  omit?: Prisma.ContenderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContenderInclude<ExtArgs> | null
+  where?: Prisma.ContenderWhereInput
 }
 
 /**

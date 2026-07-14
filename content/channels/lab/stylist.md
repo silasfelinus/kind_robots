@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: build
+channelKey: lab
 tabKey: stylist
 dashboardKey: art
 dashboardTab: stylist

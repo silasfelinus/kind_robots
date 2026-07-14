@@ -10,6 +10,7 @@ icon: kind-icon:dungeon
 route: /memory
 defaultTab: experiments
 sort: 50
+requiredRole: ADMIN
 loadingMessage: Loading experiments...
 refreshLabel: Refresh Lab
 dottiTip: Lab projects are allowed to be strange before they become useful.

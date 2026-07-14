@@ -10,7 +10,7 @@
     "trim": "node utils/scripts/trim.mjs",
     "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && node --max-old-space-size=8192 ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p tsconfig.json",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
-    "vercel-build": "prisma generate && prisma migrate deploy && node --max-old-space-size=8192 node_modules/.bin/nuxt build",
+    "vercel-build": "prisma generate && node scripts/prisma-migrate-deploy.mjs && node --max-old-space-size=8192 node_modules/.bin/nuxt build",
     "dev": "nuxt dev --host",
     "build": "nuxi prepare && prisma generate && nuxi build",
     "start": "nuxi start",

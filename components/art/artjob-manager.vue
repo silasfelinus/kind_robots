@@ -1116,13 +1116,13 @@ function canCurate(job: ArtJob): boolean {
 }
 
 function hasCuratorVerdict(job: ArtJob): boolean {
-  return Boolean(asRecord(payloadRecord(job).curation).curator)
+  return Boolean(asRecord(payloadRecord(job).curation)?.curator)
 }
 
 // Conductor's curator verdict/score, once it has scored a finished job — surfaced
 // on the queue card so the queue and the trainer panel agree at a glance.
 function curatorFeedback(job: ArtJob): JsonRecord | null {
-  return asRecord(asRecord(payloadRecord(job).curation).curator)
+  return asRecord(asRecord(payloadRecord(job).curation)?.curator)
 }
 
 function curatorVerdict(job: ArtJob): string {

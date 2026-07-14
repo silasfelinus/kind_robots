@@ -1,13 +1,13 @@
-<!-- /components/content/screenfx/animation-tester.vue -->
+<!-- /components/screenfx/animation-tester.vue -->
 <template>
   <div
-    class="animation-tester-container bg-base-200 p-8 rounded-lg max-w-lg mx-auto"
+    class="animation-tester-container mx-auto max-w-lg rounded-2xl bg-base-200 p-8"
   >
-    <h2 class="text-4xl font-bold mb-6 text-primary">Animation Tester</h2>
+    <h2 class="mb-6 text-4xl font-bold text-primary">Animation Tester</h2>
 
-    <div class="text-lg mb-4 font-bold text-info">
+    <div class="mb-4 text-lg font-bold text-info">
       Current Animation:
-      <span v-if="isAnimating">{{ currentAnimationLabel }}</span>
+      <span v-if="animationStore.isActive">{{ currentAnimationLabel }}</span>
       <span v-else>None</span>
     </div>
 
@@ -18,10 +18,11 @@
         class="btn text-white"
         :class="{
           'bg-secondary hover:bg-secondary-focus':
-            currentAnimation !== effect.id,
+            animationStore.activeEffectId !== effect.id,
           'bg-primary hover:bg-primary-focus':
-            currentAnimation === effect.id && isAnimating,
+            animationStore.activeEffectId === effect.id && animationStore.isActive,
         }"
+        type="button"
         @click="startAnimation(effect.id)"
       >
         Start {{ effect.label }} Animation
@@ -30,7 +31,8 @@
 
     <div class="mt-6">
       <button
-        class="btn bg-accent hover:bg-accent-focus text-white"
+        class="btn bg-accent text-white hover:bg-accent-focus"
+        type="button"
         @click="startRandomAnimation"
       >
         Start Random Animation
@@ -39,96 +41,56 @@
 
     <div class="mt-6">
       <button
-        class="btn bg-error hover:bg-error-focus text-white"
-        @click="stopAnimation"
+        class="btn bg-error text-white hover:bg-error-focus"
+        type="button"
+        @click="animationStore.stop()"
       >
         Stop Animation
       </button>
-    </div>
-
-    <div v-if="errorMessage" class="mt-6 text-error text-lg font-semibold">
-      {{ errorMessage }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import { useDisplayStore } from '@/stores/displayStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import type { EffectId } from '@/stores/displayStore'
+import { computed } from 'vue'
+import {
+  useAnimationStore,
+  type AnimationEffectId,
+} from '@/stores/animationStore'
 
-const displayStore = useDisplayStore()
-const errorStore = useErrorStore()
+const animationStore = useAnimationStore()
 
-const errorMessage = ref<string | null>(null)
+const effects = computed(() => animationStore.safeEffects)
 
-const effects = ref<Array<{ id: EffectId; label: string }>>([
-  { id: 'bubble-effect', label: 'Bubble Fiesta' },
-  { id: 'fizzy-bubbles', label: 'Fizzy Lifting' },
-  { id: 'rain-effect', label: 'Rainmaker' },
-  { id: 'butterfly-animation', label: 'Butterfly Scouts' },
-])
-
-const isAnimating = computed(() => displayStore.isAnimating)
-const currentAnimation = computed(() => displayStore.currentAnimation)
 const currentAnimationLabel = computed(() => {
-  const effect = effects.value.find((e) => e.id === currentAnimation.value)
-  return effect ? effect.label : 'None'
+  return animationStore.activeEffect?.label || 'None'
 })
 
-watch(
-  () => errorStore.getError,
-  (newError) => {
-    if (newError) {
-      errorMessage.value = `Error: ${newError}`
-    } else {
-      errorMessage.value = null
-    }
-  },
-)
+function startAnimation(effectId: AnimationEffectId): void {
+  const effect = effects.value.find((entry) => entry.id === effectId)
+  if (!effect) return
 
-const startAnimation = (animationId: EffectId) => {
-  try {
-    displayStore.toggleAnimationById(animationId)
-  } catch (error) {
-    reportError('Failed to start the animation', error)
-  }
+  animationStore.start({
+    effectId,
+    message: `${effect.label} test`,
+    durationMs: null,
+  })
 }
 
-const startRandomAnimation = () => {
-  try {
-    displayStore.toggleRandomAnimation()
-  } catch (error) {
-    reportError('Failed to start a random animation', error)
-  }
-}
+function startRandomAnimation(): void {
+  const available = effects.value
+  if (!available.length) return
 
-const stopAnimation = () => {
-  try {
-    displayStore.stopAnimation()
-  } catch (error) {
-    reportError('Failed to stop the animation', error)
-  }
-}
+  const effect = available[Math.floor(Math.random() * available.length)]
+  if (!effect) return
 
-const reportError = (contextMessage: string, error: unknown) => {
-  const message = error instanceof Error ? error.message : 'Unknown error'
-  errorStore.setError(ErrorType.GENERAL_ERROR, `${contextMessage}: ${message}`)
+  startAnimation(effect.id)
 }
 </script>
 
 <style scoped>
 .animation-tester-container {
-  padding: 2rem;
-  background-color: var(--bg-base-200);
-  border-radius: 0.5rem;
   max-width: 400px;
-  margin: auto;
-}
-
-.text-error {
-  color: var(--error);
 }
 
 .btn {

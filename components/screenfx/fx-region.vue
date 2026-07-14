@@ -65,33 +65,19 @@ interface SurfaceEntry {
 }
 
 function entriesForPlacement(placement: FxPlacement): SurfaceEntry[] {
+  if (!animationStore.screenSurfaces[props.region][placement]) return []
+
   const entries: SurfaceEntry[] = []
   const seen = new Set<AnimationEffectId>()
 
-  if (animationStore.screenSurfaces[props.region][placement]) {
-    animationStore.screenEffects.forEach((effect) => {
-      const component = componentsMap.get(effect.id)
+  animationStore.screenEffects.forEach((effect) => {
+    const component = componentsMap.get(effect.id)
 
-      if (!component || seen.has(effect.id)) return
+    if (!component || seen.has(effect.id)) return
 
-      seen.add(effect.id)
-      entries.push({ key: `fx-${effect.id}`, id: effect.id, component })
-    })
-  }
-
-  const generationActive =
-    animationStore.isActive &&
-    animationStore.activeEffectId &&
-    animationStore.generationSurfaces[props.region][placement]
-
-  if (generationActive && animationStore.activeEffectId) {
-    const id = animationStore.activeEffectId
-    const component = componentsMap.get(id)
-
-    if (component && !seen.has(id)) {
-      entries.push({ key: `gen-${id}`, id, component })
-    }
-  }
+    seen.add(effect.id)
+    entries.push({ key: `fx-${effect.id}`, id: effect.id, component })
+  })
 
   return entries
 }

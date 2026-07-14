@@ -259,6 +259,46 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
+export const MessagePolicy = {
+  EVERYONE: 'EVERYONE',
+  FRIENDS: 'FRIENDS',
+  NONE: 'NONE'
+} as const
+
+export type MessagePolicy = (typeof MessagePolicy)[keyof typeof MessagePolicy]
+
+
+export const NewsletterFrequency = {
+  NEVER: 'NEVER',
+  SPECIAL: 'SPECIAL',
+  MONTHLY: 'MONTHLY',
+  WEEKLY: 'WEEKLY',
+  DAILY: 'DAILY'
+} as const
+
+export type NewsletterFrequency = (typeof NewsletterFrequency)[keyof typeof NewsletterFrequency]
+
+
+export const AuthTokenPurpose = {
+  EMAIL_VERIFY: 'EMAIL_VERIFY',
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  NEWSLETTER_CONFIRM: 'NEWSLETTER_CONFIRM'
+} as const
+
+export type AuthTokenPurpose = (typeof AuthTokenPurpose)[keyof typeof AuthTokenPurpose]
+
+
+export const NotificationType = {
+  MESSAGE: 'MESSAGE',
+  FRIEND_REQUEST: 'FRIEND_REQUEST',
+  FRIEND_ACCEPT: 'FRIEND_ACCEPT',
+  ADMIN: 'ADMIN',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
 export const ChatType = {
   ToBot: 'ToBot',
   BotResponse: 'BotResponse',

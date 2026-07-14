@@ -37,6 +37,7 @@ export type UserAvgAggregateOutputType = {
   preferredArtServerId: number | null
   preferredTextServerId: number | null
   manaCap: number | null
+  restrictedById: number | null
 }
 
 export type UserSumAggregateOutputType = {
@@ -50,6 +51,7 @@ export type UserSumAggregateOutputType = {
   preferredArtServerId: number | null
   preferredTextServerId: number | null
   manaCap: number | null
+  restrictedById: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -111,6 +113,16 @@ export type UserMinAggregateOutputType = {
   signupBonusGiven: boolean | null
   isGuest: boolean | null
   referralCode: string | null
+  listInDirectory: boolean | null
+  allowFriendRequests: boolean | null
+  messagePolicy: $Enums.MessagePolicy | null
+  newsletterFrequency: $Enums.NewsletterFrequency | null
+  newsletterConfirmedAt: Date | null
+  brevoContactId: string | null
+  isRestricted: boolean | null
+  restrictedAt: Date | null
+  restrictedReason: string | null
+  restrictedById: number | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -172,6 +184,16 @@ export type UserMaxAggregateOutputType = {
   signupBonusGiven: boolean | null
   isGuest: boolean | null
   referralCode: string | null
+  listInDirectory: boolean | null
+  allowFriendRequests: boolean | null
+  messagePolicy: $Enums.MessagePolicy | null
+  newsletterFrequency: $Enums.NewsletterFrequency | null
+  newsletterConfirmedAt: Date | null
+  brevoContactId: string | null
+  isRestricted: boolean | null
+  restrictedAt: Date | null
+  restrictedReason: string | null
+  restrictedById: number | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -233,6 +255,16 @@ export type UserCountAggregateOutputType = {
   signupBonusGiven: number
   isGuest: number
   referralCode: number
+  listInDirectory: number
+  allowFriendRequests: number
+  messagePolicy: number
+  newsletterFrequency: number
+  newsletterConfirmedAt: number
+  brevoContactId: number
+  isRestricted: number
+  restrictedAt: number
+  restrictedReason: number
+  restrictedById: number
   _all: number
 }
 
@@ -248,6 +280,7 @@ export type UserAvgAggregateInputType = {
   preferredArtServerId?: true
   preferredTextServerId?: true
   manaCap?: true
+  restrictedById?: true
 }
 
 export type UserSumAggregateInputType = {
@@ -261,6 +294,7 @@ export type UserSumAggregateInputType = {
   preferredArtServerId?: true
   preferredTextServerId?: true
   manaCap?: true
+  restrictedById?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -322,6 +356,16 @@ export type UserMinAggregateInputType = {
   signupBonusGiven?: true
   isGuest?: true
   referralCode?: true
+  listInDirectory?: true
+  allowFriendRequests?: true
+  messagePolicy?: true
+  newsletterFrequency?: true
+  newsletterConfirmedAt?: true
+  brevoContactId?: true
+  isRestricted?: true
+  restrictedAt?: true
+  restrictedReason?: true
+  restrictedById?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -383,6 +427,16 @@ export type UserMaxAggregateInputType = {
   signupBonusGiven?: true
   isGuest?: true
   referralCode?: true
+  listInDirectory?: true
+  allowFriendRequests?: true
+  messagePolicy?: true
+  newsletterFrequency?: true
+  newsletterConfirmedAt?: true
+  brevoContactId?: true
+  isRestricted?: true
+  restrictedAt?: true
+  restrictedReason?: true
+  restrictedById?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -444,6 +498,16 @@ export type UserCountAggregateInputType = {
   signupBonusGiven?: true
   isGuest?: true
   referralCode?: true
+  listInDirectory?: true
+  allowFriendRequests?: true
+  messagePolicy?: true
+  newsletterFrequency?: true
+  newsletterConfirmedAt?: true
+  brevoContactId?: true
+  isRestricted?: true
+  restrictedAt?: true
+  restrictedReason?: true
+  restrictedById?: true
   _all?: true
 }
 
@@ -592,6 +656,16 @@ export type UserGroupByOutputType = {
   signupBonusGiven: boolean
   isGuest: boolean
   referralCode: string | null
+  listInDirectory: boolean
+  allowFriendRequests: boolean
+  messagePolicy: $Enums.MessagePolicy
+  newsletterFrequency: $Enums.NewsletterFrequency
+  newsletterConfirmedAt: Date | null
+  brevoContactId: string | null
+  isRestricted: boolean
+  restrictedAt: Date | null
+  restrictedReason: string | null
+  restrictedById: number | null
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -676,6 +750,16 @@ export type UserWhereInput = {
   signupBonusGiven?: Prisma.BoolFilter<"User"> | boolean
   isGuest?: Prisma.BoolFilter<"User"> | boolean
   referralCode?: Prisma.StringNullableFilter<"User"> | string | null
+  listInDirectory?: Prisma.BoolFilter<"User"> | boolean
+  allowFriendRequests?: Prisma.BoolFilter<"User"> | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFilter<"User"> | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFilter<"User"> | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  brevoContactId?: Prisma.StringNullableFilter<"User"> | string | null
+  isRestricted?: Prisma.BoolFilter<"User"> | boolean
+  restrictedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
+  restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
   ManaTransactions?: Prisma.ManaTransactionListRelationFilter
   KarmaTransactions?: Prisma.KarmaTransactionListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
@@ -712,6 +796,11 @@ export type UserWhereInput = {
   ArtJobs?: Prisma.ArtJobListRelationFilter
   StylistClients?: Prisma.StylistClientListRelationFilter
   StylistAppointments?: Prisma.StylistAppointmentListRelationFilter
+  AuthTokens?: Prisma.AuthTokenListRelationFilter
+  ConversationsIn?: Prisma.ConversationParticipantListRelationFilter
+  SentMessages?: Prisma.DirectMessageListRelationFilter
+  Notifications?: Prisma.NotificationListRelationFilter
+  ActedNotifications?: Prisma.NotificationListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -773,6 +862,16 @@ export type UserOrderByWithRelationInput = {
   signupBonusGiven?: Prisma.SortOrder
   isGuest?: Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  listInDirectory?: Prisma.SortOrder
+  allowFriendRequests?: Prisma.SortOrder
+  messagePolicy?: Prisma.SortOrder
+  newsletterFrequency?: Prisma.SortOrder
+  newsletterConfirmedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  brevoContactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isRestricted?: Prisma.SortOrder
+  restrictedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  restrictedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  restrictedById?: Prisma.SortOrderInput | Prisma.SortOrder
   ManaTransactions?: Prisma.ManaTransactionOrderByRelationAggregateInput
   KarmaTransactions?: Prisma.KarmaTransactionOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
@@ -809,6 +908,11 @@ export type UserOrderByWithRelationInput = {
   ArtJobs?: Prisma.ArtJobOrderByRelationAggregateInput
   StylistClients?: Prisma.StylistClientOrderByRelationAggregateInput
   StylistAppointments?: Prisma.StylistAppointmentOrderByRelationAggregateInput
+  AuthTokens?: Prisma.AuthTokenOrderByRelationAggregateInput
+  ConversationsIn?: Prisma.ConversationParticipantOrderByRelationAggregateInput
+  SentMessages?: Prisma.DirectMessageOrderByRelationAggregateInput
+  Notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  ActedNotifications?: Prisma.NotificationOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -874,6 +978,16 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   lastManaRefill?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   signupBonusGiven?: Prisma.BoolFilter<"User"> | boolean
   isGuest?: Prisma.BoolFilter<"User"> | boolean
+  listInDirectory?: Prisma.BoolFilter<"User"> | boolean
+  allowFriendRequests?: Prisma.BoolFilter<"User"> | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFilter<"User"> | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFilter<"User"> | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  brevoContactId?: Prisma.StringNullableFilter<"User"> | string | null
+  isRestricted?: Prisma.BoolFilter<"User"> | boolean
+  restrictedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
+  restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
   ManaTransactions?: Prisma.ManaTransactionListRelationFilter
   KarmaTransactions?: Prisma.KarmaTransactionListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
@@ -910,6 +1024,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   ArtJobs?: Prisma.ArtJobListRelationFilter
   StylistClients?: Prisma.StylistClientListRelationFilter
   StylistAppointments?: Prisma.StylistAppointmentListRelationFilter
+  AuthTokens?: Prisma.AuthTokenListRelationFilter
+  ConversationsIn?: Prisma.ConversationParticipantListRelationFilter
+  SentMessages?: Prisma.DirectMessageListRelationFilter
+  Notifications?: Prisma.NotificationListRelationFilter
+  ActedNotifications?: Prisma.NotificationListRelationFilter
 }, "id" | "username" | "email" | "referralCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -971,6 +1090,16 @@ export type UserOrderByWithAggregationInput = {
   signupBonusGiven?: Prisma.SortOrder
   isGuest?: Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  listInDirectory?: Prisma.SortOrder
+  allowFriendRequests?: Prisma.SortOrder
+  messagePolicy?: Prisma.SortOrder
+  newsletterFrequency?: Prisma.SortOrder
+  newsletterConfirmedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  brevoContactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isRestricted?: Prisma.SortOrder
+  restrictedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  restrictedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  restrictedById?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -1040,6 +1169,16 @@ export type UserScalarWhereWithAggregatesInput = {
   signupBonusGiven?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isGuest?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  listInDirectory?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  allowFriendRequests?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyWithAggregatesFilter<"User"> | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyWithAggregatesFilter<"User"> | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  brevoContactId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  isRestricted?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  restrictedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  restrictedReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  restrictedById?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
 }
 
 export type UserCreateInput = {
@@ -1099,6 +1238,16 @@ export type UserCreateInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -1135,6 +1284,11 @@ export type UserCreateInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -1196,6 +1350,16 @@ export type UserUncheckedCreateInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -1231,6 +1395,11 @@ export type UserUncheckedCreateInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserUpdateInput = {
@@ -1290,6 +1459,16 @@ export type UserUpdateInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -1326,6 +1505,11 @@ export type UserUpdateInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -1387,6 +1571,16 @@ export type UserUncheckedUpdateInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -1422,6 +1616,11 @@ export type UserUncheckedUpdateInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1483,6 +1682,16 @@ export type UserCreateManyInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -1542,6 +1751,16 @@ export type UserUpdateManyMutationInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -1603,6 +1822,16 @@ export type UserUncheckedUpdateManyInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -1690,6 +1919,16 @@ export type UserCountOrderByAggregateInput = {
   signupBonusGiven?: Prisma.SortOrder
   isGuest?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  listInDirectory?: Prisma.SortOrder
+  allowFriendRequests?: Prisma.SortOrder
+  messagePolicy?: Prisma.SortOrder
+  newsletterFrequency?: Prisma.SortOrder
+  newsletterConfirmedAt?: Prisma.SortOrder
+  brevoContactId?: Prisma.SortOrder
+  isRestricted?: Prisma.SortOrder
+  restrictedAt?: Prisma.SortOrder
+  restrictedReason?: Prisma.SortOrder
+  restrictedById?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
@@ -1703,6 +1942,7 @@ export type UserAvgOrderByAggregateInput = {
   preferredArtServerId?: Prisma.SortOrder
   preferredTextServerId?: Prisma.SortOrder
   manaCap?: Prisma.SortOrder
+  restrictedById?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -1764,6 +2004,16 @@ export type UserMaxOrderByAggregateInput = {
   signupBonusGiven?: Prisma.SortOrder
   isGuest?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  listInDirectory?: Prisma.SortOrder
+  allowFriendRequests?: Prisma.SortOrder
+  messagePolicy?: Prisma.SortOrder
+  newsletterFrequency?: Prisma.SortOrder
+  newsletterConfirmedAt?: Prisma.SortOrder
+  brevoContactId?: Prisma.SortOrder
+  isRestricted?: Prisma.SortOrder
+  restrictedAt?: Prisma.SortOrder
+  restrictedReason?: Prisma.SortOrder
+  restrictedById?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -1825,6 +2075,16 @@ export type UserMinOrderByAggregateInput = {
   signupBonusGiven?: Prisma.SortOrder
   isGuest?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  listInDirectory?: Prisma.SortOrder
+  allowFriendRequests?: Prisma.SortOrder
+  messagePolicy?: Prisma.SortOrder
+  newsletterFrequency?: Prisma.SortOrder
+  newsletterConfirmedAt?: Prisma.SortOrder
+  brevoContactId?: Prisma.SortOrder
+  isRestricted?: Prisma.SortOrder
+  restrictedAt?: Prisma.SortOrder
+  restrictedReason?: Prisma.SortOrder
+  restrictedById?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
@@ -1838,6 +2098,7 @@ export type UserSumOrderByAggregateInput = {
   preferredArtServerId?: Prisma.SortOrder
   preferredTextServerId?: Prisma.SortOrder
   manaCap?: Prisma.SortOrder
+  restrictedById?: Prisma.SortOrder
 }
 
 export type UserCreateNestedOneWithoutArtImagesInput = {
@@ -2264,6 +2525,14 @@ export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
 }
 
+export type EnumMessagePolicyFieldUpdateOperationsInput = {
+  set?: $Enums.MessagePolicy
+}
+
+export type EnumNewsletterFrequencyFieldUpdateOperationsInput = {
+  set?: $Enums.NewsletterFrequency
+}
+
 export type UserCreateNestedOneWithoutStylistClientsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutStylistClientsInput, Prisma.UserUncheckedCreateWithoutStylistClientsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutStylistClientsInput
@@ -2420,6 +2689,78 @@ export type UserUpdateOneRequiredWithoutLifeAchievementUnlocksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLifeAchievementUnlocksInput, Prisma.UserUpdateWithoutLifeAchievementUnlocksInput>, Prisma.UserUncheckedUpdateWithoutLifeAchievementUnlocksInput>
 }
 
+export type UserCreateNestedOneWithoutAuthTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthTokensInput, Prisma.UserUncheckedCreateWithoutAuthTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAuthTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthTokensInput, Prisma.UserUncheckedCreateWithoutAuthTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthTokensInput
+  upsert?: Prisma.UserUpsertWithoutAuthTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuthTokensInput, Prisma.UserUpdateWithoutAuthTokensInput>, Prisma.UserUncheckedUpdateWithoutAuthTokensInput>
+}
+
+export type UserCreateNestedOneWithoutConversationsInInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConversationsInInput, Prisma.UserUncheckedCreateWithoutConversationsInInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConversationsInInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutConversationsInNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConversationsInInput, Prisma.UserUncheckedCreateWithoutConversationsInInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConversationsInInput
+  upsert?: Prisma.UserUpsertWithoutConversationsInInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutConversationsInInput, Prisma.UserUpdateWithoutConversationsInInput>, Prisma.UserUncheckedUpdateWithoutConversationsInInput>
+}
+
+export type UserCreateNestedOneWithoutSentMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSentMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
+  upsert?: Prisma.UserUpsertWithoutSentMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentMessagesInput, Prisma.UserUpdateWithoutSentMessagesInput>, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+}
+
+export type UserCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutActedNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActedNotificationsInput, Prisma.UserUncheckedCreateWithoutActedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActedNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type UserUpdateOneWithoutActedNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActedNotificationsInput, Prisma.UserUncheckedCreateWithoutActedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActedNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutActedNotificationsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutActedNotificationsInput, Prisma.UserUpdateWithoutActedNotificationsInput>, Prisma.UserUncheckedUpdateWithoutActedNotificationsInput>
+}
+
 export type UserCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2477,6 +2818,16 @@ export type UserCreateWithoutArtImagesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -2512,6 +2863,11 @@ export type UserCreateWithoutArtImagesInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutArtImagesInput = {
@@ -2573,6 +2929,16 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -2607,6 +2973,11 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutArtImagesInput = {
@@ -2671,6 +3042,16 @@ export type UserCreateWithoutArtImageInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -2706,6 +3087,11 @@ export type UserCreateWithoutArtImageInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutArtImageInput = {
@@ -2766,6 +3152,16 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -2801,6 +3197,11 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutArtImageInput = {
@@ -2881,6 +3282,16 @@ export type UserUpdateWithoutArtImagesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -2916,6 +3327,11 @@ export type UserUpdateWithoutArtImagesInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImagesInput = {
@@ -2977,6 +3393,16 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -3011,6 +3437,11 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutArtImageInput = {
@@ -3091,6 +3522,16 @@ export type UserScalarWhereInput = {
   signupBonusGiven?: Prisma.BoolFilter<"User"> | boolean
   isGuest?: Prisma.BoolFilter<"User"> | boolean
   referralCode?: Prisma.StringNullableFilter<"User"> | string | null
+  listInDirectory?: Prisma.BoolFilter<"User"> | boolean
+  allowFriendRequests?: Prisma.BoolFilter<"User"> | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFilter<"User"> | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFilter<"User"> | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  brevoContactId?: Prisma.StringNullableFilter<"User"> | string | null
+  isRestricted?: Prisma.BoolFilter<"User"> | boolean
+  restrictedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
+  restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
 }
 
 export type UserCreateWithoutArtCollectionsInput = {
@@ -3150,6 +3591,16 @@ export type UserCreateWithoutArtCollectionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -3185,6 +3636,11 @@ export type UserCreateWithoutArtCollectionsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutArtCollectionsInput = {
@@ -3246,6 +3702,16 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -3280,6 +3746,11 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutArtCollectionsInput = {
@@ -3355,6 +3826,16 @@ export type UserUpdateWithoutArtCollectionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -3390,6 +3871,11 @@ export type UserUpdateWithoutArtCollectionsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtCollectionsInput = {
@@ -3451,6 +3937,16 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -3485,6 +3981,11 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutBotsInput = {
@@ -3544,6 +4045,16 @@ export type UserCreateWithoutBotsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -3579,6 +4090,11 @@ export type UserCreateWithoutBotsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutBotsInput = {
@@ -3640,6 +4156,16 @@ export type UserUncheckedCreateWithoutBotsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -3674,6 +4200,11 @@ export type UserUncheckedCreateWithoutBotsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutBotsInput = {
@@ -3749,6 +4280,16 @@ export type UserUpdateWithoutBotsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -3784,6 +4325,11 @@ export type UserUpdateWithoutBotsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBotsInput = {
@@ -3845,6 +4391,16 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -3879,6 +4435,11 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutCharactersInput = {
@@ -3938,6 +4499,16 @@ export type UserCreateWithoutCharactersInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -3973,6 +4544,11 @@ export type UserCreateWithoutCharactersInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutCharactersInput = {
@@ -4034,6 +4610,16 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -4068,6 +4654,11 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutCharactersInput = {
@@ -4143,6 +4734,16 @@ export type UserUpdateWithoutCharactersInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -4178,6 +4779,11 @@ export type UserUpdateWithoutCharactersInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharactersInput = {
@@ -4239,6 +4845,16 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -4273,6 +4889,11 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutChatsInput = {
@@ -4332,6 +4953,16 @@ export type UserCreateWithoutChatsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -4367,6 +4998,11 @@ export type UserCreateWithoutChatsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutChatsInput = {
@@ -4428,6 +5064,16 @@ export type UserUncheckedCreateWithoutChatsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -4462,6 +5108,11 @@ export type UserUncheckedCreateWithoutChatsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutChatsInput = {
@@ -4537,6 +5188,16 @@ export type UserUpdateWithoutChatsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -4572,6 +5233,11 @@ export type UserUpdateWithoutChatsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatsInput = {
@@ -4633,6 +5299,16 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -4667,6 +5343,11 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutCodesInput = {
@@ -4726,6 +5407,16 @@ export type UserCreateWithoutCodesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -4761,6 +5452,11 @@ export type UserCreateWithoutCodesInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutCodesInput = {
@@ -4822,6 +5518,16 @@ export type UserUncheckedCreateWithoutCodesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -4856,6 +5562,11 @@ export type UserUncheckedCreateWithoutCodesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutCodesInput = {
@@ -4931,6 +5642,16 @@ export type UserUpdateWithoutCodesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -4966,6 +5687,11 @@ export type UserUpdateWithoutCodesInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCodesInput = {
@@ -5027,6 +5753,16 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -5061,6 +5797,11 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutCompositionsInput = {
@@ -5120,6 +5861,16 @@ export type UserCreateWithoutCompositionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -5155,6 +5906,11 @@ export type UserCreateWithoutCompositionsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutCompositionsInput = {
@@ -5216,6 +5972,16 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -5250,6 +6016,11 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutCompositionsInput = {
@@ -5325,6 +6096,16 @@ export type UserUpdateWithoutCompositionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -5360,6 +6141,11 @@ export type UserUpdateWithoutCompositionsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompositionsInput = {
@@ -5421,6 +6207,16 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -5455,6 +6251,11 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutDreamsInput = {
@@ -5514,6 +6315,16 @@ export type UserCreateWithoutDreamsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -5549,6 +6360,11 @@ export type UserCreateWithoutDreamsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutDreamsInput = {
@@ -5610,6 +6426,16 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -5644,6 +6470,11 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutDreamsInput = {
@@ -5719,6 +6550,16 @@ export type UserUpdateWithoutDreamsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -5754,6 +6595,11 @@ export type UserUpdateWithoutDreamsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDreamsInput = {
@@ -5815,6 +6661,16 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -5849,6 +6705,11 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutProjectsInput = {
@@ -5908,6 +6769,16 @@ export type UserCreateWithoutProjectsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -5943,6 +6814,11 @@ export type UserCreateWithoutProjectsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutProjectsInput = {
@@ -6004,6 +6880,16 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -6038,6 +6924,11 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutProjectsInput = {
@@ -6113,6 +7004,16 @@ export type UserUpdateWithoutProjectsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -6148,6 +7049,11 @@ export type UserUpdateWithoutProjectsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -6209,6 +7115,16 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -6243,6 +7159,11 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutFacetsInput = {
@@ -6302,6 +7223,16 @@ export type UserCreateWithoutFacetsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -6337,6 +7268,11 @@ export type UserCreateWithoutFacetsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutFacetsInput = {
@@ -6398,6 +7334,16 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -6432,6 +7378,11 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutFacetsInput = {
@@ -6507,6 +7458,16 @@ export type UserUpdateWithoutFacetsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -6542,6 +7503,11 @@ export type UserUpdateWithoutFacetsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFacetsInput = {
@@ -6603,6 +7569,16 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -6637,6 +7613,11 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutLogsInput = {
@@ -6696,6 +7677,16 @@ export type UserCreateWithoutLogsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -6731,6 +7722,11 @@ export type UserCreateWithoutLogsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutLogsInput = {
@@ -6792,6 +7788,16 @@ export type UserUncheckedCreateWithoutLogsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -6826,6 +7832,11 @@ export type UserUncheckedCreateWithoutLogsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutLogsInput = {
@@ -6901,6 +7912,16 @@ export type UserUpdateWithoutLogsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -6936,6 +7957,11 @@ export type UserUpdateWithoutLogsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogsInput = {
@@ -6997,6 +8023,16 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -7031,6 +8067,11 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutManaTransactionsInput = {
@@ -7090,6 +8131,16 @@ export type UserCreateWithoutManaTransactionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -7125,6 +8176,11 @@ export type UserCreateWithoutManaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutManaTransactionsInput = {
@@ -7186,6 +8242,16 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -7220,6 +8286,11 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutManaTransactionsInput = {
@@ -7295,6 +8366,16 @@ export type UserUpdateWithoutManaTransactionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -7330,6 +8411,11 @@ export type UserUpdateWithoutManaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManaTransactionsInput = {
@@ -7391,6 +8477,16 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -7425,6 +8521,11 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutAchievementsInput = {
@@ -7484,6 +8585,16 @@ export type UserCreateWithoutAchievementsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -7519,6 +8630,11 @@ export type UserCreateWithoutAchievementsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutAchievementsInput = {
@@ -7580,6 +8696,16 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -7614,6 +8740,11 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutAchievementsInput = {
@@ -7689,6 +8820,16 @@ export type UserUpdateWithoutAchievementsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -7724,6 +8865,11 @@ export type UserUpdateWithoutAchievementsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAchievementsInput = {
@@ -7785,6 +8931,16 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -7819,6 +8975,11 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutPitchSheetsInput = {
@@ -7878,6 +9039,16 @@ export type UserCreateWithoutPitchSheetsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -7913,6 +9084,11 @@ export type UserCreateWithoutPitchSheetsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutPitchSheetsInput = {
@@ -7974,6 +9150,16 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -8008,6 +9194,11 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutPitchSheetsInput = {
@@ -8083,6 +9274,16 @@ export type UserUpdateWithoutPitchSheetsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -8118,6 +9319,11 @@ export type UserUpdateWithoutPitchSheetsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPitchSheetsInput = {
@@ -8179,6 +9385,16 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -8213,6 +9429,11 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutPromptsInput = {
@@ -8272,6 +9493,16 @@ export type UserCreateWithoutPromptsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -8307,6 +9538,11 @@ export type UserCreateWithoutPromptsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutPromptsInput = {
@@ -8368,6 +9604,16 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -8402,6 +9648,11 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutPromptsInput = {
@@ -8466,6 +9717,16 @@ export type UserCreateWithoutClaimedPromptsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -8501,6 +9762,11 @@ export type UserCreateWithoutClaimedPromptsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutClaimedPromptsInput = {
@@ -8562,6 +9828,16 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -8596,6 +9872,11 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutClaimedPromptsInput = {
@@ -8671,6 +9952,16 @@ export type UserUpdateWithoutPromptsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -8706,6 +9997,11 @@ export type UserUpdateWithoutPromptsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPromptsInput = {
@@ -8767,6 +10063,16 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -8801,6 +10107,11 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutClaimedPromptsInput = {
@@ -8871,6 +10182,16 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -8906,6 +10227,11 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
@@ -8967,6 +10293,16 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -9001,6 +10337,11 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutReactionsInput = {
@@ -9060,6 +10401,16 @@ export type UserCreateWithoutReactionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -9095,6 +10446,11 @@ export type UserCreateWithoutReactionsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutReactionsInput = {
@@ -9156,6 +10512,16 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -9190,6 +10556,11 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutReactionsInput = {
@@ -9265,6 +10636,16 @@ export type UserUpdateWithoutReactionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -9300,6 +10681,11 @@ export type UserUpdateWithoutReactionsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReactionsInput = {
@@ -9361,6 +10747,16 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -9395,6 +10791,11 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutResourcesInput = {
@@ -9454,6 +10855,16 @@ export type UserCreateWithoutResourcesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -9489,6 +10900,11 @@ export type UserCreateWithoutResourcesInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutResourcesInput = {
@@ -9550,6 +10966,16 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -9584,6 +11010,11 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutResourcesInput = {
@@ -9659,6 +11090,16 @@ export type UserUpdateWithoutResourcesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -9694,6 +11135,11 @@ export type UserUpdateWithoutResourcesInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourcesInput = {
@@ -9755,6 +11201,16 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -9789,6 +11245,11 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutRewardsInput = {
@@ -9848,6 +11309,16 @@ export type UserCreateWithoutRewardsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -9883,6 +11354,11 @@ export type UserCreateWithoutRewardsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutRewardsInput = {
@@ -9944,6 +11420,16 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -9978,6 +11464,11 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutRewardsInput = {
@@ -10053,6 +11544,16 @@ export type UserUpdateWithoutRewardsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -10088,6 +11589,11 @@ export type UserUpdateWithoutRewardsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardsInput = {
@@ -10149,6 +11655,16 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -10183,6 +11699,11 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutScenariosInput = {
@@ -10242,6 +11763,16 @@ export type UserCreateWithoutScenariosInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -10277,6 +11808,11 @@ export type UserCreateWithoutScenariosInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutScenariosInput = {
@@ -10338,6 +11874,16 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -10372,6 +11918,11 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutScenariosInput = {
@@ -10447,6 +11998,16 @@ export type UserUpdateWithoutScenariosInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -10482,6 +12043,11 @@ export type UserUpdateWithoutScenariosInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutScenariosInput = {
@@ -10543,6 +12109,16 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -10577,6 +12153,11 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutServersInput = {
@@ -10636,6 +12217,16 @@ export type UserCreateWithoutServersInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -10671,6 +12262,11 @@ export type UserCreateWithoutServersInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutServersInput = {
@@ -10732,6 +12328,16 @@ export type UserUncheckedCreateWithoutServersInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -10766,6 +12372,11 @@ export type UserUncheckedCreateWithoutServersInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutServersInput = {
@@ -10841,6 +12452,16 @@ export type UserUpdateWithoutServersInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -10876,6 +12497,11 @@ export type UserUpdateWithoutServersInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutServersInput = {
@@ -10937,6 +12563,16 @@ export type UserUncheckedUpdateWithoutServersInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -10971,6 +12607,11 @@ export type UserUncheckedUpdateWithoutServersInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutSmartIconsInput = {
@@ -11030,6 +12671,16 @@ export type UserCreateWithoutSmartIconsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -11065,6 +12716,11 @@ export type UserCreateWithoutSmartIconsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutSmartIconsInput = {
@@ -11126,6 +12782,16 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -11160,6 +12826,11 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutSmartIconsInput = {
@@ -11235,6 +12906,16 @@ export type UserUpdateWithoutSmartIconsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -11270,6 +12951,11 @@ export type UserUpdateWithoutSmartIconsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSmartIconsInput = {
@@ -11331,6 +13017,16 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -11365,6 +13061,11 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutSocialPostsInput = {
@@ -11424,6 +13125,16 @@ export type UserCreateWithoutSocialPostsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -11459,6 +13170,11 @@ export type UserCreateWithoutSocialPostsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutSocialPostsInput = {
@@ -11520,6 +13236,16 @@ export type UserUncheckedCreateWithoutSocialPostsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -11554,6 +13280,11 @@ export type UserUncheckedCreateWithoutSocialPostsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutSocialPostsInput = {
@@ -11629,6 +13360,16 @@ export type UserUpdateWithoutSocialPostsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -11664,6 +13405,11 @@ export type UserUpdateWithoutSocialPostsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSocialPostsInput = {
@@ -11725,6 +13471,16 @@ export type UserUncheckedUpdateWithoutSocialPostsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -11759,6 +13515,11 @@ export type UserUncheckedUpdateWithoutSocialPostsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutThemesInput = {
@@ -11818,6 +13579,16 @@ export type UserCreateWithoutThemesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -11853,6 +13624,11 @@ export type UserCreateWithoutThemesInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutThemesInput = {
@@ -11914,6 +13690,16 @@ export type UserUncheckedCreateWithoutThemesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -11948,6 +13734,11 @@ export type UserUncheckedCreateWithoutThemesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutThemesInput = {
@@ -12023,6 +13814,16 @@ export type UserUpdateWithoutThemesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -12058,6 +13859,11 @@ export type UserUpdateWithoutThemesInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutThemesInput = {
@@ -12119,6 +13925,16 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -12153,6 +13969,11 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutStylistClientsInput = {
@@ -12212,6 +14033,16 @@ export type UserCreateWithoutStylistClientsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -12247,6 +14078,11 @@ export type UserCreateWithoutStylistClientsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutStylistClientsInput = {
@@ -12308,6 +14144,16 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -12342,6 +14188,11 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutStylistClientsInput = {
@@ -12417,6 +14268,16 @@ export type UserUpdateWithoutStylistClientsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -12452,6 +14313,11 @@ export type UserUpdateWithoutStylistClientsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStylistClientsInput = {
@@ -12513,6 +14379,16 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -12547,6 +14423,11 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutStylistAppointmentsInput = {
@@ -12606,6 +14487,16 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -12641,6 +14532,11 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
@@ -12702,6 +14598,16 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -12736,6 +14642,11 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutStylistAppointmentsInput = {
@@ -12811,6 +14722,16 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -12846,6 +14767,11 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
@@ -12907,6 +14833,16 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -12941,6 +14877,11 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutArtJobsInput = {
@@ -13000,6 +14941,16 @@ export type UserCreateWithoutArtJobsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -13035,6 +14986,11 @@ export type UserCreateWithoutArtJobsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutArtJobsInput = {
@@ -13096,6 +15052,16 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -13130,6 +15096,11 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutArtJobsInput = {
@@ -13205,6 +15176,16 @@ export type UserUpdateWithoutArtJobsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -13240,6 +15221,11 @@ export type UserUpdateWithoutArtJobsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtJobsInput = {
@@ -13301,6 +15287,16 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -13335,6 +15331,11 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutKarmaTransactionsInput = {
@@ -13394,6 +15395,16 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -13429,6 +15440,11 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
@@ -13490,6 +15506,16 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -13524,6 +15550,11 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutKarmaTransactionsInput = {
@@ -13599,6 +15630,16 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -13634,6 +15675,11 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
@@ -13695,6 +15741,16 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -13729,6 +15785,11 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutReferralsMadeInput = {
@@ -13788,6 +15849,16 @@ export type UserCreateWithoutReferralsMadeInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -13823,6 +15894,11 @@ export type UserCreateWithoutReferralsMadeInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutReferralsMadeInput = {
@@ -13884,6 +15960,16 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -13918,6 +16004,11 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutReferralsMadeInput = {
@@ -13982,6 +16073,16 @@ export type UserCreateWithoutReferredByInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -14017,6 +16118,11 @@ export type UserCreateWithoutReferredByInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutReferredByInput = {
@@ -14078,6 +16184,16 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -14112,6 +16228,11 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutReferredByInput = {
@@ -14187,6 +16308,16 @@ export type UserUpdateWithoutReferralsMadeInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -14222,6 +16353,11 @@ export type UserUpdateWithoutReferralsMadeInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsMadeInput = {
@@ -14283,6 +16419,16 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -14317,6 +16463,11 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutReferredByInput = {
@@ -14387,6 +16538,16 @@ export type UserUpdateWithoutReferredByInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -14422,6 +16583,11 @@ export type UserUpdateWithoutReferredByInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferredByInput = {
@@ -14483,6 +16649,16 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -14517,6 +16693,11 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutRelationsOwnedInput = {
@@ -14576,6 +16757,16 @@ export type UserCreateWithoutRelationsOwnedInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -14611,6 +16802,11 @@ export type UserCreateWithoutRelationsOwnedInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutRelationsOwnedInput = {
@@ -14672,6 +16868,16 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -14706,6 +16912,11 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutRelationsOwnedInput = {
@@ -14770,6 +16981,16 @@ export type UserCreateWithoutRelationsReceivedInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -14805,6 +17026,11 @@ export type UserCreateWithoutRelationsReceivedInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutRelationsReceivedInput = {
@@ -14866,6 +17092,16 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -14900,6 +17136,11 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutRelationsReceivedInput = {
@@ -14975,6 +17216,16 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -15010,6 +17261,11 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
@@ -15071,6 +17327,16 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -15105,6 +17371,11 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutRelationsReceivedInput = {
@@ -15175,6 +17446,16 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -15210,6 +17491,11 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
@@ -15271,6 +17557,16 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -15305,6 +17601,11 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutChallengesInput = {
@@ -15364,6 +17665,16 @@ export type UserCreateWithoutChallengesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -15399,6 +17710,11 @@ export type UserCreateWithoutChallengesInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutChallengesInput = {
@@ -15460,6 +17776,16 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -15494,6 +17820,11 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutChallengesInput = {
@@ -15569,6 +17900,16 @@ export type UserUpdateWithoutChallengesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -15604,6 +17945,11 @@ export type UserUpdateWithoutChallengesInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChallengesInput = {
@@ -15665,6 +18011,16 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -15699,6 +18055,11 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutLifeRunsInput = {
@@ -15758,6 +18119,16 @@ export type UserCreateWithoutLifeRunsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -15793,6 +18164,11 @@ export type UserCreateWithoutLifeRunsInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutLifeRunsInput = {
@@ -15854,6 +18230,16 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -15888,6 +18274,11 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutLifeRunsInput = {
@@ -15963,6 +18354,16 @@ export type UserUpdateWithoutLifeRunsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -15998,6 +18399,11 @@ export type UserUpdateWithoutLifeRunsInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeRunsInput = {
@@ -16059,6 +18465,16 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -16093,6 +18509,11 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutLifeAchievementUnlocksInput = {
@@ -16152,6 +18573,16 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -16187,6 +18618,11 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
@@ -16248,6 +18684,16 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -16282,6 +18728,11 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutLifeAchievementUnlocksInput = {
@@ -16357,6 +18808,16 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -16392,6 +18853,11 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
@@ -16453,6 +18919,16 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -16487,6 +18963,2281 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutAuthTokensInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutAuthTokensInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutAuthTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthTokensInput, Prisma.UserUncheckedCreateWithoutAuthTokensInput>
+}
+
+export type UserUpsertWithoutAuthTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuthTokensInput, Prisma.UserUncheckedUpdateWithoutAuthTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthTokensInput, Prisma.UserUncheckedCreateWithoutAuthTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuthTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuthTokensInput, Prisma.UserUncheckedUpdateWithoutAuthTokensInput>
+}
+
+export type UserUpdateWithoutAuthTokensInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuthTokensInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutConversationsInInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutConversationsInInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutConversationsInInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutConversationsInInput, Prisma.UserUncheckedCreateWithoutConversationsInInput>
+}
+
+export type UserUpsertWithoutConversationsInInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutConversationsInInput, Prisma.UserUncheckedUpdateWithoutConversationsInInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutConversationsInInput, Prisma.UserUncheckedCreateWithoutConversationsInInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutConversationsInInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutConversationsInInput, Prisma.UserUncheckedUpdateWithoutConversationsInInput>
+}
+
+export type UserUpdateWithoutConversationsInInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutConversationsInInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutSentMessagesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutSentMessagesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutSentMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+}
+
+export type UserUpsertWithoutSentMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSentMessagesInput, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSentMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSentMessagesInput, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+}
+
+export type UserUpdateWithoutSentMessagesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSentMessagesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutNotificationsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutNotificationsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+}
+
+export type UserCreateWithoutActedNotificationsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutActedNotificationsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutActedNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutActedNotificationsInput, Prisma.UserUncheckedCreateWithoutActedNotificationsInput>
+}
+
+export type UserUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type UserUpdateWithoutNotificationsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserUpsertWithoutActedNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutActedNotificationsInput, Prisma.UserUncheckedUpdateWithoutActedNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutActedNotificationsInput, Prisma.UserUncheckedCreateWithoutActedNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutActedNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutActedNotificationsInput, Prisma.UserUncheckedUpdateWithoutActedNotificationsInput>
+}
+
+export type UserUpdateWithoutActedNotificationsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutActedNotificationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyArtImageInput = {
@@ -16547,6 +21298,16 @@ export type UserCreateManyArtImageInput = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: string | null
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Date | string | null
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  restrictedAt?: Date | string | null
+  restrictedReason?: string | null
+  restrictedById?: number | null
 }
 
 export type UserUpdateWithoutArtImageInput = {
@@ -16606,6 +21367,16 @@ export type UserUpdateWithoutArtImageInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -16641,6 +21412,11 @@ export type UserUpdateWithoutArtImageInput = {
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImageInput = {
@@ -16701,6 +21477,16 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -16736,6 +21522,11 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutArtImageInput = {
@@ -16796,6 +21587,16 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
   signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -16838,6 +21639,11 @@ export type UserCountOutputType = {
   ArtJobs: number
   StylistClients: number
   StylistAppointments: number
+  AuthTokens: number
+  ConversationsIn: number
+  SentMessages: number
+  Notifications: number
+  ActedNotifications: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -16875,6 +21681,11 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   ArtJobs?: boolean | UserCountOutputTypeCountArtJobsArgs
   StylistClients?: boolean | UserCountOutputTypeCountStylistClientsArgs
   StylistAppointments?: boolean | UserCountOutputTypeCountStylistAppointmentsArgs
+  AuthTokens?: boolean | UserCountOutputTypeCountAuthTokensArgs
+  ConversationsIn?: boolean | UserCountOutputTypeCountConversationsInArgs
+  SentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
+  Notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+  ActedNotifications?: boolean | UserCountOutputTypeCountActedNotificationsArgs
 }
 
 /**
@@ -17125,6 +21936,41 @@ export type UserCountOutputTypeCountStylistAppointmentsArgs<ExtArgs extends runt
   where?: Prisma.StylistAppointmentWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAuthTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuthTokenWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountConversationsInArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ConversationParticipantWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSentMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DirectMessageWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountActedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -17185,6 +22031,16 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: boolean
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: boolean
+  newsletterFrequency?: boolean
+  newsletterConfirmedAt?: boolean
+  brevoContactId?: boolean
+  isRestricted?: boolean
+  restrictedAt?: boolean
+  restrictedReason?: boolean
+  restrictedById?: boolean
   ManaTransactions?: boolean | Prisma.User$ManaTransactionsArgs<ExtArgs>
   KarmaTransactions?: boolean | Prisma.User$KarmaTransactionsArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
@@ -17221,6 +22077,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
   StylistClients?: boolean | Prisma.User$StylistClientsArgs<ExtArgs>
   StylistAppointments?: boolean | Prisma.User$StylistAppointmentsArgs<ExtArgs>
+  AuthTokens?: boolean | Prisma.User$AuthTokensArgs<ExtArgs>
+  ConversationsIn?: boolean | Prisma.User$ConversationsInArgs<ExtArgs>
+  SentMessages?: boolean | Prisma.User$SentMessagesArgs<ExtArgs>
+  Notifications?: boolean | Prisma.User$NotificationsArgs<ExtArgs>
+  ActedNotifications?: boolean | Prisma.User$ActedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -17285,9 +22146,19 @@ export type UserSelectScalar = {
   signupBonusGiven?: boolean
   isGuest?: boolean
   referralCode?: boolean
+  listInDirectory?: boolean
+  allowFriendRequests?: boolean
+  messagePolicy?: boolean
+  newsletterFrequency?: boolean
+  newsletterConfirmedAt?: boolean
+  brevoContactId?: boolean
+  isRestricted?: boolean
+  restrictedAt?: boolean
+  restrictedReason?: boolean
+  restrictedById?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "manaCap" | "lastManaRefill" | "signupBonusGiven" | "isGuest" | "referralCode", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "manaCap" | "lastManaRefill" | "signupBonusGiven" | "isGuest" | "referralCode" | "listInDirectory" | "allowFriendRequests" | "messagePolicy" | "newsletterFrequency" | "newsletterConfirmedAt" | "brevoContactId" | "isRestricted" | "restrictedAt" | "restrictedReason" | "restrictedById", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ManaTransactions?: boolean | Prisma.User$ManaTransactionsArgs<ExtArgs>
   KarmaTransactions?: boolean | Prisma.User$KarmaTransactionsArgs<ExtArgs>
@@ -17325,6 +22196,11 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
   StylistClients?: boolean | Prisma.User$StylistClientsArgs<ExtArgs>
   StylistAppointments?: boolean | Prisma.User$StylistAppointmentsArgs<ExtArgs>
+  AuthTokens?: boolean | Prisma.User$AuthTokensArgs<ExtArgs>
+  ConversationsIn?: boolean | Prisma.User$ConversationsInArgs<ExtArgs>
+  SentMessages?: boolean | Prisma.User$SentMessagesArgs<ExtArgs>
+  Notifications?: boolean | Prisma.User$NotificationsArgs<ExtArgs>
+  ActedNotifications?: boolean | Prisma.User$ActedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -17367,6 +22243,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     ArtJobs: Prisma.$ArtJobPayload<ExtArgs>[]
     StylistClients: Prisma.$StylistClientPayload<ExtArgs>[]
     StylistAppointments: Prisma.$StylistAppointmentPayload<ExtArgs>[]
+    AuthTokens: Prisma.$AuthTokenPayload<ExtArgs>[]
+    ConversationsIn: Prisma.$ConversationParticipantPayload<ExtArgs>[]
+    SentMessages: Prisma.$DirectMessagePayload<ExtArgs>[]
+    Notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    ActedNotifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -17427,6 +22308,16 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     signupBonusGiven: boolean
     isGuest: boolean
     referralCode: string | null
+    listInDirectory: boolean
+    allowFriendRequests: boolean
+    messagePolicy: $Enums.MessagePolicy
+    newsletterFrequency: $Enums.NewsletterFrequency
+    newsletterConfirmedAt: Date | null
+    brevoContactId: string | null
+    isRestricted: boolean
+    restrictedAt: Date | null
+    restrictedReason: string | null
+    restrictedById: number | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -17803,6 +22694,11 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   ArtJobs<T extends Prisma.User$ArtJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   StylistClients<T extends Prisma.User$StylistClientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$StylistClientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StylistClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   StylistAppointments<T extends Prisma.User$StylistAppointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$StylistAppointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StylistAppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  AuthTokens<T extends Prisma.User$AuthTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AuthTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ConversationsIn<T extends Prisma.User$ConversationsInArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ConversationsInArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConversationParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  SentMessages<T extends Prisma.User$SentMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Notifications<T extends Prisma.User$NotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$NotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ActedNotifications<T extends Prisma.User$ActedNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ActedNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17890,6 +22786,16 @@ export interface UserFieldRefs {
   readonly signupBonusGiven: Prisma.FieldRef<"User", 'Boolean'>
   readonly isGuest: Prisma.FieldRef<"User", 'Boolean'>
   readonly referralCode: Prisma.FieldRef<"User", 'String'>
+  readonly listInDirectory: Prisma.FieldRef<"User", 'Boolean'>
+  readonly allowFriendRequests: Prisma.FieldRef<"User", 'Boolean'>
+  readonly messagePolicy: Prisma.FieldRef<"User", 'MessagePolicy'>
+  readonly newsletterFrequency: Prisma.FieldRef<"User", 'NewsletterFrequency'>
+  readonly newsletterConfirmedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly brevoContactId: Prisma.FieldRef<"User", 'String'>
+  readonly isRestricted: Prisma.FieldRef<"User", 'Boolean'>
+  readonly restrictedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly restrictedReason: Prisma.FieldRef<"User", 'String'>
+  readonly restrictedById: Prisma.FieldRef<"User", 'Int'>
 }
     
 
@@ -19089,6 +23995,126 @@ export type User$StylistAppointmentsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.StylistAppointmentScalarFieldEnum | Prisma.StylistAppointmentScalarFieldEnum[]
+}
+
+/**
+ * User.AuthTokens
+ */
+export type User$AuthTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuthToken
+   */
+  select?: Prisma.AuthTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuthToken
+   */
+  omit?: Prisma.AuthTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuthTokenInclude<ExtArgs> | null
+  where?: Prisma.AuthTokenWhereInput
+  orderBy?: Prisma.AuthTokenOrderByWithRelationInput | Prisma.AuthTokenOrderByWithRelationInput[]
+  cursor?: Prisma.AuthTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuthTokenScalarFieldEnum | Prisma.AuthTokenScalarFieldEnum[]
+}
+
+/**
+ * User.ConversationsIn
+ */
+export type User$ConversationsInArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ConversationParticipant
+   */
+  select?: Prisma.ConversationParticipantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ConversationParticipant
+   */
+  omit?: Prisma.ConversationParticipantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversationParticipantInclude<ExtArgs> | null
+  where?: Prisma.ConversationParticipantWhereInput
+  orderBy?: Prisma.ConversationParticipantOrderByWithRelationInput | Prisma.ConversationParticipantOrderByWithRelationInput[]
+  cursor?: Prisma.ConversationParticipantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ConversationParticipantScalarFieldEnum | Prisma.ConversationParticipantScalarFieldEnum[]
+}
+
+/**
+ * User.SentMessages
+ */
+export type User$SentMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DirectMessage
+   */
+  select?: Prisma.DirectMessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DirectMessage
+   */
+  omit?: Prisma.DirectMessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DirectMessageInclude<ExtArgs> | null
+  where?: Prisma.DirectMessageWhereInput
+  orderBy?: Prisma.DirectMessageOrderByWithRelationInput | Prisma.DirectMessageOrderByWithRelationInput[]
+  cursor?: Prisma.DirectMessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DirectMessageScalarFieldEnum | Prisma.DirectMessageScalarFieldEnum[]
+}
+
+/**
+ * User.Notifications
+ */
+export type User$NotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.ActedNotifications
+ */
+export type User$ActedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

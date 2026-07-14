@@ -112,7 +112,12 @@ export const ModelName = {
   LifeEnding: 'LifeEnding',
   LifeAchievement: 'LifeAchievement',
   LifeAchievementUnlock: 'LifeAchievementUnlock',
-  LifeRunArt: 'LifeRunArt'
+  LifeRunArt: 'LifeRunArt',
+  AuthToken: 'AuthToken',
+  Conversation: 'Conversation',
+  ConversationParticipant: 'ConversationParticipant',
+  DirectMessage: 'DirectMessage',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1169,7 +1174,17 @@ export const UserScalarFieldEnum = {
   lastManaRefill: 'lastManaRefill',
   signupBonusGiven: 'signupBonusGiven',
   isGuest: 'isGuest',
-  referralCode: 'referralCode'
+  referralCode: 'referralCode',
+  listInDirectory: 'listInDirectory',
+  allowFriendRequests: 'allowFriendRequests',
+  messagePolicy: 'messagePolicy',
+  newsletterFrequency: 'newsletterFrequency',
+  newsletterConfirmedAt: 'newsletterConfirmedAt',
+  brevoContactId: 'brevoContactId',
+  isRestricted: 'isRestricted',
+  restrictedAt: 'restrictedAt',
+  restrictedReason: 'restrictedReason',
+  restrictedById: 'restrictedById'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -1463,6 +1478,74 @@ export const LifeRunArtScalarFieldEnum = {
 } as const
 
 export type LifeRunArtScalarFieldEnum = (typeof LifeRunArtScalarFieldEnum)[keyof typeof LifeRunArtScalarFieldEnum]
+
+
+export const AuthTokenScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  userId: 'userId',
+  token: 'token',
+  purpose: 'purpose',
+  consumedAt: 'consumedAt'
+} as const
+
+export type AuthTokenScalarFieldEnum = (typeof AuthTokenScalarFieldEnum)[keyof typeof AuthTokenScalarFieldEnum]
+
+
+export const ConversationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  isGroup: 'isGroup',
+  title: 'title',
+  lastMessageAt: 'lastMessageAt'
+} as const
+
+export type ConversationScalarFieldEnum = (typeof ConversationScalarFieldEnum)[keyof typeof ConversationScalarFieldEnum]
+
+
+export const ConversationParticipantScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  userId: 'userId',
+  joinedAt: 'joinedAt',
+  lastReadAt: 'lastReadAt',
+  isMuted: 'isMuted',
+  isArchived: 'isArchived'
+} as const
+
+export type ConversationParticipantScalarFieldEnum = (typeof ConversationParticipantScalarFieldEnum)[keyof typeof ConversationParticipantScalarFieldEnum]
+
+
+export const DirectMessageScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  conversationId: 'conversationId',
+  senderId: 'senderId',
+  content: 'content',
+  isMature: 'isMature',
+  editedAt: 'editedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type DirectMessageScalarFieldEnum = (typeof DirectMessageScalarFieldEnum)[keyof typeof DirectMessageScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  linkPath: 'linkPath',
+  actorId: 'actorId',
+  entityId: 'entityId',
+  isRead: 'isRead'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2084,7 +2167,9 @@ export const UserOrderByRelevanceFieldEnum = {
   vibes: 'vibes',
   hiddenServerIds: 'hiddenServerIds',
   artPrompt: 'artPrompt',
-  referralCode: 'referralCode'
+  referralCode: 'referralCode',
+  brevoContactId: 'brevoContactId',
+  restrictedReason: 'restrictedReason'
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
@@ -2237,4 +2322,34 @@ export const LifeRunArtOrderByRelevanceFieldEnum = {
 } as const
 
 export type LifeRunArtOrderByRelevanceFieldEnum = (typeof LifeRunArtOrderByRelevanceFieldEnum)[keyof typeof LifeRunArtOrderByRelevanceFieldEnum]
+
+
+export const AuthTokenOrderByRelevanceFieldEnum = {
+  token: 'token'
+} as const
+
+export type AuthTokenOrderByRelevanceFieldEnum = (typeof AuthTokenOrderByRelevanceFieldEnum)[keyof typeof AuthTokenOrderByRelevanceFieldEnum]
+
+
+export const ConversationOrderByRelevanceFieldEnum = {
+  title: 'title'
+} as const
+
+export type ConversationOrderByRelevanceFieldEnum = (typeof ConversationOrderByRelevanceFieldEnum)[keyof typeof ConversationOrderByRelevanceFieldEnum]
+
+
+export const DirectMessageOrderByRelevanceFieldEnum = {
+  content: 'content'
+} as const
+
+export type DirectMessageOrderByRelevanceFieldEnum = (typeof DirectMessageOrderByRelevanceFieldEnum)[keyof typeof DirectMessageOrderByRelevanceFieldEnum]
+
+
+export const NotificationOrderByRelevanceFieldEnum = {
+  title: 'title',
+  body: 'body',
+  linkPath: 'linkPath'
+} as const
+
+export type NotificationOrderByRelevanceFieldEnum = (typeof NotificationOrderByRelevanceFieldEnum)[keyof typeof NotificationOrderByRelevanceFieldEnum]
 

@@ -41,7 +41,11 @@
           </p>
 
           <p class="truncate text-xs text-base-content/60">
-{{ userStore.isLoggedIn ? `${userStore.role} · Logged in` : 'Not logged in' }}
+            {{
+              userStore.isLoggedIn
+                ? `${userStore.role} · Logged in`
+                : 'Not logged in'
+            }}
           </p>
         </div>
       </header>

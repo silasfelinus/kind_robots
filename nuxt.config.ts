@@ -90,6 +90,14 @@ export default defineNuxtConfig({
     authSecret: process.env.AUTH_SECRET || '',
     jwtSecret: process.env.JWT_SECRET || '',
     serverSecretKey: process.env.SERVER_SECRET_KEY || '',
+    // Brevo (Sendinblue) transactional email + newsletter contact sync.
+    brevoApiKey: process.env.BREVO_API_KEY || '',
+    brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || 'hello@kindrobots.org',
+    brevoSenderName: process.env.BREVO_SENDER_NAME || 'Kind Robots',
+    brevoNewsletterListId: process.env.BREVO_NEWSLETTER_LIST_ID || '',
+    public: {
+      appBaseUrl: process.env.APP_BASE_URL || 'https://kindrobots.org',
+    },
   },
 
   devtools: {

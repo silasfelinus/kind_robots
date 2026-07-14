@@ -97,6 +97,17 @@ jobs:
           CYPRESS_BETA_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
           CYPRESS_API_KEY: ${{ secrets.CYPRESS_API_KEY }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_TIMING_LOG: '1'
+
+      - name: Upload Cypress diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-diagnostics
+          path: |
+            .cypress-cache/timing-latest.json
+            .cypress-cache/seed-cleanup-latest.json
+          if-no-files-found: warn
 
       - name: Upload Cypress screenshots on failure
         if: failure()

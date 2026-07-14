@@ -65,9 +65,6 @@ function buildDatabaseUrl(url: string): string {
     parsed.searchParams.set('connectionLimit', String(connectionLimit))
   }
 
-  // ProxySQL can close a socket between rapid borrows. Validate every
-  // connection before use so stale sockets are discarded before Prisma sends
-  // a command. Set DATABASE_MIN_DELAY_VALIDATION_MS to relax this if needed.
   if (!parsed.searchParams.has('minDelayValidation')) {
     parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
   }
@@ -97,7 +94,6 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const resolvedUrl = buildDatabaseUrl(url)
   const sslCa = readDatabaseSslCa()
 
-  // Preserve the existing URL-based adapter behavior unless a custom CA is set.
   if (!sslCa) return resolvedUrl
 
   const parsed = new URL(resolvedUrl)
@@ -106,10 +102,6 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const tlsOptions: TlsConnectionOptions = {
     ca: sslCa,
     rejectUnauthorized: true,
-
-    // MariaDB starts TLS over an existing socket and otherwise asks Node to
-    // verify the certificate against "localhost". Verify against the actual
-    // DATABASE_URL host instead.
     checkServerIdentity: (_connectorHostname, certificate) =>
       checkServerIdentity(parsed.hostname, certificate),
   }
@@ -140,12 +132,77 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   }
 }
 
-export const prisma =
+const retryableDatabaseMessages = [
+  'Cannot execute new commands: connection closed',
+  'pool timeout: failed to retrieve a connection from pool',
+  'Max connect timeout reached',
+]
+
+const transientRetryAttempts = readNonNegativeInteger(
+  process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
+  2,
+)
+const transientRetryDelayMs = readPositiveInteger(
+  process.env.DATABASE_TRANSIENT_RETRY_DELAY_MS,
+  100,
+)
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message
+
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String(error.message)
+  }
+
+  return String(error)
+}
+
+function isRetryableDatabaseError(error: unknown): boolean {
+  const message = errorMessage(error)
+  return retryableDatabaseMessages.some((candidate) => message.includes(candidate))
+}
+
+const delay = (milliseconds: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
+
+const basePrisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter: new PrismaMariaDb(buildDatabaseConfig(databaseUrl)),
   })
 
-globalForPrisma.prisma = prisma
+globalForPrisma.prisma = basePrisma
+
+export const prisma = basePrisma.$extends({
+  name: 'transient-database-retry',
+  query: {
+    async $allOperations({ model, operation, args, query }) {
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          return await query(args)
+        } catch (error: unknown) {
+          if (
+            !isRetryableDatabaseError(error) ||
+            attempt >= transientRetryAttempts
+          ) {
+            throw error
+          }
+
+          const retryNumber = attempt + 1
+          const waitMs = transientRetryDelayMs * retryNumber
+          console.warn('[prisma:transient-retry]', {
+            model: model ?? 'raw',
+            operation,
+            retry: retryNumber,
+            maxRetries: transientRetryAttempts,
+            waitMs,
+            message: errorMessage(error),
+          })
+          await delay(waitMs)
+        }
+      }
+    },
+  },
+})
 
 export default prisma

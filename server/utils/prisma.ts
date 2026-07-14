@@ -34,7 +34,7 @@ function buildDatabaseUrl(url: string): string {
   )
   const connectionLimit = readPositiveInteger(
     process.env.DATABASE_CONNECTION_LIMIT,
-    2,
+    10,
   )
 
   if (!parsed.searchParams.has('connectTimeout')) {
@@ -96,7 +96,7 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ),
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
-      2,
+      10,
     ),
     ssl: {
       ca: sslCa,

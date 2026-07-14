@@ -33,6 +33,8 @@ import {
 import { useAnimationPreferenceStore } from '@/stores/animationPreferenceStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
+defineOptions({ inheritAttrs: false })
+
 const animationStore = useAnimationStore()
 const preferenceStore = useAnimationPreferenceStore()
 const butterflyStore = useButterflyStore()

@@ -22,6 +22,16 @@
       </button>
 
       <button
+        v-if="showActions && allowColoringPage && (selected || compact)"
+        class="rounded-full bg-base-100 p-2 text-accent shadow transition hover:bg-accent hover:text-accent-content"
+        type="button"
+        title="Make coloring page"
+        @click.stop="makeColoringPage"
+      >
+        <Icon name="kind-icon:paintbrush" class="h-4 w-4" />
+      </button>
+
+      <button
         v-if="
           showActions &&
           allowCopyPrompt &&
@@ -325,6 +335,7 @@ const props = withDefaults(
     allowEdit?: boolean
     allowDelete?: boolean
     allowCopyPrompt?: boolean
+    allowColoringPage?: boolean
     autoLoadImage?: boolean
     fallbackImage?: string
   }>(),
@@ -345,6 +356,7 @@ const props = withDefaults(
     allowEdit: true,
     allowDelete: true,
     allowCopyPrompt: true,
+    allowColoringPage: true,
     autoLoadImage: true,
     fallbackImage: '/images/backtree.webp',
   },
@@ -383,6 +395,12 @@ const appUrl = computed(() => {
 })
 
 const displayImage = computed(() => localImage.value || props.artImage)
+
+// One-tap deep link to the Coloring Page Maker with this image preselected as
+// the source (art-styler reads ?imageId and loads it).
+function makeColoringPage() {
+  void navigateTo(`/coloring-page?imageId=${displayImage.value.id}`)
+}
 
 const cardTitle = computed(
   () =>

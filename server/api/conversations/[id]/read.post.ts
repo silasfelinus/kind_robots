@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
     const { user } = await requireApiUser(event)
     const conversationId = Number(event.context.params?.id)
     if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid conversation id.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid conversation id.',
+      })
     }
 
     const membership = await prisma.conversationParticipant.findUnique({
@@ -19,7 +22,10 @@ export default defineEventHandler(async (event) => {
       select: { id: true },
     })
     if (!membership) {
-      throw createError({ statusCode: 403, message: 'You are not in this conversation.' })
+      throw createError({
+        statusCode: 403,
+        message: 'You are not in this conversation.',
+      })
     }
 
     await prisma.conversationParticipant.update({
@@ -31,6 +37,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Failed to mark read.' }
+    return {
+      success: false,
+      message: handled.message || 'Failed to mark read.',
+    }
   }
 })

@@ -14,7 +14,10 @@ export default defineEventHandler(async (event) => {
 
     const targetId = Number(recipientId)
     if (!Number.isInteger(targetId) || targetId <= 0) {
-      throw createError({ statusCode: 400, message: 'recipientId is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'recipientId is required.',
+      })
     }
 
     const gate = await canMessage(user.id, targetId)
@@ -35,7 +38,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (existing) {
-      return { success: true, message: 'Conversation ready.', data: { id: existing.id, created: false } }
+      return {
+        success: true,
+        message: 'Conversation ready.',
+        data: { id: existing.id, created: false },
+      }
     }
 
     const created = await prisma.conversation.create({
@@ -48,10 +55,17 @@ export default defineEventHandler(async (event) => {
       select: { id: true },
     })
 
-    return { success: true, message: 'Conversation started.', data: { id: created.id, created: true } }
+    return {
+      success: true,
+      message: 'Conversation started.',
+      data: { id: created.id, created: true },
+    }
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Failed to start conversation.' }
+    return {
+      success: false,
+      message: handled.message || 'Failed to start conversation.',
+    }
   }
 })

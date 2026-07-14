@@ -39,7 +39,10 @@
         class="btn btn-primary btn-sm rounded-xl"
         :disabled="account.isSaving || !email"
       >
-        <span v-if="account.isSaving" class="loading loading-spinner loading-xs" />
+        <span
+          v-if="account.isSaving"
+          class="loading loading-spinner loading-xs"
+        />
         Send reset link
       </button>
     </form>
@@ -60,7 +63,9 @@
         />
       </label>
       <label class="flex flex-col gap-1">
-        <span class="text-sm font-bold text-base-content/70">Confirm password</span>
+        <span class="text-sm font-bold text-base-content/70"
+          >Confirm password</span
+        >
         <input
           v-model="confirm"
           type="password"
@@ -73,7 +78,10 @@
         class="btn btn-primary btn-sm rounded-xl"
         :disabled="account.isSaving || next.length < 8 || next !== confirm"
       >
-        <span v-if="account.isSaving" class="loading loading-spinner loading-xs" />
+        <span
+          v-if="account.isSaving"
+          class="loading loading-spinner loading-xs"
+        />
         Set new password
       </button>
     </form>
@@ -81,10 +89,16 @@
     <div
       v-if="feedback"
       class="rounded-2xl border p-3 text-sm font-semibold"
-      :class="ok ? 'border-success/40 bg-success/10 text-success' : 'border-error/40 bg-error/10 text-error'"
+      :class="
+        ok
+          ? 'border-success/40 bg-success/10 text-success'
+          : 'border-error/40 bg-error/10 text-error'
+      "
     >
       {{ feedback }}
-      <NuxtLink v-if="ok && hasToken" to="/login" class="link ml-1">Sign in →</NuxtLink>
+      <NuxtLink v-if="ok && hasToken" to="/login" class="link ml-1"
+        >Sign in →</NuxtLink
+      >
     </div>
   </section>
 </template>

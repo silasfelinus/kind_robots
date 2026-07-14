@@ -46,13 +46,19 @@ export default defineEventHandler(async (event) => {
     if ('messagePolicy' in body) {
       const policy = String(body.messagePolicy).toUpperCase() as MessagePolicy
       if (!VALID_POLICIES.includes(policy)) {
-        throw createError({ statusCode: 400, message: 'Invalid messagePolicy.' })
+        throw createError({
+          statusCode: 400,
+          message: 'Invalid messagePolicy.',
+        })
       }
       data.messagePolicy = policy
     }
 
     if (Object.keys(data).length === 0) {
-      throw createError({ statusCode: 400, message: 'No consent fields provided.' })
+      throw createError({
+        statusCode: 400,
+        message: 'No consent fields provided.',
+      })
     }
 
     const updated = await prisma.user.update({
@@ -68,7 +74,11 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return { success: true, message: 'Consent settings updated.', data: updated }
+    return {
+      success: true,
+      message: 'Consent settings updated.',
+      data: updated,
+    }
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500

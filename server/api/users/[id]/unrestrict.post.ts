@@ -35,7 +35,10 @@ export default defineEventHandler(async (event) => {
       select: { id: true, username: true, isRestricted: true },
     })
 
-    await logAdminAction(admin, `Lifted restriction on ${target.username} (#${userId}).`)
+    await logAdminAction(
+      admin,
+      `Lifted restriction on ${target.username} (#${userId}).`,
+    )
 
     return {
       success: true,

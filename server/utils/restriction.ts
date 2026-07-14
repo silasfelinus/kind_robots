@@ -37,17 +37,35 @@ export async function notInRestricted(
  */
 export async function privatizeUserContent(userId: number): Promise<void> {
   await prisma.$transaction([
-    prisma.artImage.updateMany({ where: { userId }, data: { isPublic: false } }),
+    prisma.artImage.updateMany({
+      where: { userId },
+      data: { isPublic: false },
+    }),
     prisma.chat.updateMany({ where: { userId }, data: { isPublic: false } }),
-    prisma.socialPost.updateMany({ where: { userId }, data: { isPublic: false } }),
+    prisma.socialPost.updateMany({
+      where: { userId },
+      data: { isPublic: false },
+    }),
     prisma.dream.updateMany({ where: { userId }, data: { isPublic: false } }),
     prisma.prompt.updateMany({ where: { userId }, data: { isPublic: false } }),
-    prisma.scenario.updateMany({ where: { userId }, data: { isPublic: false } }),
-    prisma.character.updateMany({ where: { userId }, data: { isPublic: false } }),
-    prisma.composition.updateMany({ where: { userId }, data: { isPublic: false } }),
+    prisma.scenario.updateMany({
+      where: { userId },
+      data: { isPublic: false },
+    }),
+    prisma.character.updateMany({
+      where: { userId },
+      data: { isPublic: false },
+    }),
+    prisma.composition.updateMany({
+      where: { userId },
+      data: { isPublic: false },
+    }),
     prisma.theme.updateMany({ where: { userId }, data: { isPublic: false } }),
     prisma.bot.updateMany({ where: { userId }, data: { isPublic: false } }),
     prisma.reward.updateMany({ where: { userId }, data: { isPublic: false } }),
-    prisma.resource.updateMany({ where: { userId }, data: { isPublic: false } }),
+    prisma.resource.updateMany({
+      where: { userId },
+      data: { isPublic: false },
+    }),
   ])
 }

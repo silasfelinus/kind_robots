@@ -23,7 +23,8 @@ const VALID_ROLES: Role[] = [
 
 function toBool(v: unknown): boolean | undefined {
   if (typeof v === 'boolean') return v
-  if (typeof v === 'string') return ['true', '1', 'yes', 'on'].includes(v.toLowerCase())
+  if (typeof v === 'string')
+    return ['true', '1', 'yes', 'on'].includes(v.toLowerCase())
   return undefined
 }
 
@@ -42,7 +43,10 @@ export default defineEventHandler(async (event) => {
     if ('Role' in body) {
       const role = String(body.Role).toUpperCase() as Role
       if (!VALID_ROLES.includes(role)) {
-        throw createError({ statusCode: 400, message: `Invalid role: ${role}.` })
+        throw createError({
+          statusCode: 400,
+          message: `Invalid role: ${role}.`,
+        })
       }
       data.Role = role
       changes.push(`role=${role}`)
@@ -65,7 +69,10 @@ export default defineEventHandler(async (event) => {
     }
 
     if (Object.keys(data).length === 0) {
-      throw createError({ statusCode: 400, message: 'No admin-updatable fields provided.' })
+      throw createError({
+        statusCode: 400,
+        message: 'No admin-updatable fields provided.',
+      })
     }
 
     const updated = await prisma.user.update({

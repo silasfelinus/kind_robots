@@ -14,7 +14,10 @@ export default defineEventHandler(async (event) => {
     const { user } = await requireApiUser(event)
     const conversationId = Number(event.context.params?.id)
     if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid conversation id.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid conversation id.',
+      })
     }
 
     const { content, isMature } = await readBody<{
@@ -23,7 +26,10 @@ export default defineEventHandler(async (event) => {
     }>(event)
     const text = String(content || '').trim()
     if (!text) {
-      throw createError({ statusCode: 400, message: 'Message content is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Message content is required.',
+      })
     }
 
     const participants = await prisma.conversationParticipant.findMany({
@@ -32,11 +38,16 @@ export default defineEventHandler(async (event) => {
     })
     const isMember = participants.some((p) => p.userId === user.id)
     if (!isMember) {
-      throw createError({ statusCode: 403, message: 'You are not in this conversation.' })
+      throw createError({
+        statusCode: 403,
+        message: 'You are not in this conversation.',
+      })
     }
 
     // Consent re-check against the other participant(s) at send time.
-    const others = participants.map((p) => p.userId).filter((id) => id !== user.id)
+    const others = participants
+      .map((p) => p.userId)
+      .filter((id) => id !== user.id)
     for (const otherId of others) {
       const gate = await canMessage(user.id, otherId)
       if (!gate.ok) {
@@ -52,7 +63,14 @@ export default defineEventHandler(async (event) => {
         isMature: isMature === true,
       },
       include: {
-        Sender: { select: { id: true, username: true, avatarImage: true, artImageId: true } },
+        Sender: {
+          select: {
+            id: true,
+            username: true,
+            avatarImage: true,
+            artImageId: true,
+          },
+        },
       },
     })
 
@@ -87,6 +105,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Failed to send message.' }
+    return {
+      success: false,
+      message: handled.message || 'Failed to send message.',
+    }
   }
 })

@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
 
     const { newPassword } = await readBody<{ newPassword?: string }>(event)
     if (!newPassword) {
-      throw createError({ statusCode: 400, message: 'newPassword is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'newPassword is required.',
+      })
     }
     const check = validatePassword(newPassword)
     if (!check.isValid) {
@@ -34,14 +37,26 @@ export default defineEventHandler(async (event) => {
     }
 
     const hashed = await hashPassword(newPassword)
-    await prisma.user.update({ where: { id: userId }, data: { password: hashed } })
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashed },
+    })
 
-    await logAdminAction(admin, `Reset password for ${target.username} (#${userId}).`)
+    await logAdminAction(
+      admin,
+      `Reset password for ${target.username} (#${userId}).`,
+    )
 
-    return { success: true, message: `Password updated for ${target.username}.` }
+    return {
+      success: true,
+      message: `Password updated for ${target.username}.`,
+    }
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Password reset failed.' }
+    return {
+      success: false,
+      message: handled.message || 'Password reset failed.',
+    }
   }
 })

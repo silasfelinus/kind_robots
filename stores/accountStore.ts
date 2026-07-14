@@ -123,9 +123,13 @@ export const useAccountStore = defineStore('accountStore', () => {
   async function setNewsletterFrequency(
     frequency: NewsletterFrequency,
   ): Promise<ActionResult> {
-    const result = await run('setNewsletterFrequency', '/api/newsletter/subscribe', {
-      frequency,
-    })
+    const result = await run(
+      'setNewsletterFrequency',
+      '/api/newsletter/subscribe',
+      {
+        frequency,
+      },
+    )
     if (result.success) {
       // Frequency is stored immediately; confirmation clears the opt-in gate.
       patchLocalUser({
@@ -143,7 +147,10 @@ export const useAccountStore = defineStore('accountStore', () => {
       {},
     )
     if (result.success) {
-      patchLocalUser({ newsletterFrequency: 'NEVER', newsletterConfirmedAt: null })
+      patchLocalUser({
+        newsletterFrequency: 'NEVER',
+        newsletterConfirmedAt: null,
+      })
     }
     return result
   }

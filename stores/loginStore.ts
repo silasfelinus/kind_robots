@@ -85,7 +85,10 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   })
 
   const activeAccount = computed(() => {
-    return accounts.value.find((account) => account.userId === activeUserId.value) ?? null
+    return (
+      accounts.value.find((account) => account.userId === activeUserId.value) ??
+      null
+    )
   })
 
   const otherAccounts = computed(() => {
@@ -168,7 +171,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     persist()
   }
   async function switchToAccount(userId: number) {
-    const account = accounts.value.find((candidate) => candidate.userId === userId)
+    const account = accounts.value.find(
+      (candidate) => candidate.userId === userId,
+    )
 
     if (!account) {
       lastError.value = 'Saved login was not found.'
@@ -259,7 +264,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     userId: number,
     relationship: LoginRelationship,
   ) {
-    const account = accounts.value.find((candidate) => candidate.userId === userId)
+    const account = accounts.value.find(
+      (candidate) => candidate.userId === userId,
+    )
 
     if (!account) {
       return
@@ -270,7 +277,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   }
 
   function updateAccountLabel(userId: number, label: string) {
-    const account = accounts.value.find((candidate) => candidate.userId === userId)
+    const account = accounts.value.find(
+      (candidate) => candidate.userId === userId,
+    )
 
     if (!account) {
       return
@@ -281,7 +290,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   }
 
   function removeAccount(userId: number) {
-    accounts.value = accounts.value.filter((account) => account.userId !== userId)
+    accounts.value = accounts.value.filter(
+      (account) => account.userId !== userId,
+    )
 
     if (activeUserId.value === userId) {
       activeUserId.value = currentUserId.value

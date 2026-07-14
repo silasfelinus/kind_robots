@@ -8,11 +8,14 @@
 -->
 <template>
   <section class="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4">
-    <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <header
+      class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+    >
       <div>
         <h1 class="text-2xl font-black">User Admin</h1>
         <p class="text-sm text-base-content/70">
-          {{ store.roster.length }} users · manage roles, maturity, access, and logins.
+          {{ store.roster.length }} users · manage roles, maturity, access, and
+          logins.
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
@@ -22,7 +25,10 @@
           placeholder="Search name, email, id…"
           class="input input-bordered input-sm w-48 rounded-xl bg-base-200"
         />
-        <select v-model="store.roleFilter" class="select select-bordered select-sm rounded-xl bg-base-200">
+        <select
+          v-model="store.roleFilter"
+          class="select select-bordered select-sm rounded-xl bg-base-200"
+        >
           <option value="ALL">All roles</option>
           <option v-for="r in ROLES" :key="r" :value="r">{{ r }}</option>
         </select>
@@ -32,10 +38,16 @@
       </div>
     </header>
 
-    <div v-if="store.lastMessage" class="rounded-xl border border-success/40 bg-success/10 p-2 text-sm text-success">
+    <div
+      v-if="store.lastMessage"
+      class="rounded-xl border border-success/40 bg-success/10 p-2 text-sm text-success"
+    >
       {{ store.lastMessage }}
     </div>
-    <div v-if="store.lastError" class="rounded-xl border border-error/40 bg-error/10 p-2 text-sm text-error">
+    <div
+      v-if="store.lastError"
+      class="rounded-xl border border-error/40 bg-error/10 p-2 text-sm text-error"
+    >
       {{ store.lastError }}
     </div>
 
@@ -62,7 +74,11 @@
               <div class="flex items-center gap-2">
                 <div class="avatar">
                   <div class="h-8 w-8 rounded-full bg-base-300">
-                    <img v-if="u.avatarImage" :src="u.avatarImage" :alt="u.username" />
+                    <img
+                      v-if="u.avatarImage"
+                      :src="u.avatarImage"
+                      :alt="u.username"
+                    />
                   </div>
                 </div>
                 <div class="min-w-0">
@@ -86,10 +102,14 @@
                 <span class="max-w-[12rem] truncate">{{ u.email || '—' }}</span>
                 <Icon
                   v-if="u.email"
-                  :name="u.emailVerified ? 'kind-icon:check' : 'kind-icon:message'"
+                  :name="
+                    u.emailVerified ? 'kind-icon:check' : 'kind-icon:message'
+                  "
                   class="h-4 w-4 shrink-0"
                   :class="u.emailVerified ? 'text-success' : 'text-warning'"
-                  :title="u.emailVerified ? 'Verified' : 'Click to force-verify'"
+                  :title="
+                    u.emailVerified ? 'Verified' : 'Click to force-verify'
+                  "
                   role="button"
                   @click="!u.emailVerified && onForceVerify(u.id)"
                 />
@@ -110,7 +130,10 @@
                 class="toggle toggle-xs toggle-error"
                 :checked="u.isRestricted"
                 :disabled="store.isSaving"
-                :title="u.restrictedReason || 'Shadow-restrict: auto-private everything'"
+                :title="
+                  u.restrictedReason ||
+                  'Shadow-restrict: auto-private everything'
+                "
                 @change="onRestrict(u)"
               />
             </td>
@@ -135,7 +158,9 @@
             </td>
           </tr>
           <tr v-if="!store.isLoading && store.filtered.length === 0">
-            <td colspan="6" class="py-6 text-center text-base-content/50">No users match.</td>
+            <td colspan="6" class="py-6 text-center text-base-content/50">
+              No users match.
+            </td>
           </tr>
         </tbody>
       </table>
@@ -146,23 +171,50 @@
       <div class="modal-box rounded-2xl">
         <h3 class="mb-3 text-lg font-black">Create user</h3>
         <div class="flex flex-col gap-3">
-          <input v-model="createForm.username" placeholder="username" class="input input-bordered rounded-xl bg-base-200" />
-          <input v-model="createForm.email" type="email" placeholder="email (optional)" class="input input-bordered rounded-xl bg-base-200" />
-          <input v-model="createForm.password" type="password" placeholder="password (optional, min 8)" class="input input-bordered rounded-xl bg-base-200" />
+          <input
+            v-model="createForm.username"
+            placeholder="username"
+            class="input input-bordered rounded-xl bg-base-200"
+          />
+          <input
+            v-model="createForm.email"
+            type="email"
+            placeholder="email (optional)"
+            class="input input-bordered rounded-xl bg-base-200"
+          />
+          <input
+            v-model="createForm.password"
+            type="password"
+            placeholder="password (optional, min 8)"
+            class="input input-bordered rounded-xl bg-base-200"
+          />
           <div class="flex items-center gap-3">
-            <select v-model="createForm.Role" class="select select-bordered rounded-xl bg-base-200">
+            <select
+              v-model="createForm.Role"
+              class="select select-bordered rounded-xl bg-base-200"
+            >
               <option v-for="r in ROLES" :key="r" :value="r">{{ r }}</option>
             </select>
             <label class="label cursor-pointer gap-2">
               <span class="label-text">Mature</span>
-              <input v-model="createForm.showMature" type="checkbox" class="toggle toggle-sm toggle-primary" />
+              <input
+                v-model="createForm.showMature"
+                type="checkbox"
+                class="toggle toggle-sm toggle-primary"
+              />
             </label>
           </div>
           <p v-if="createError" class="text-sm text-error">{{ createError }}</p>
         </div>
         <div class="modal-action">
-          <button class="btn btn-ghost rounded-xl" @click="closeCreate">Cancel</button>
-          <button class="btn btn-primary rounded-xl" :disabled="store.isSaving || !createForm.username" @click="onCreate">
+          <button class="btn btn-ghost rounded-xl" @click="closeCreate">
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary rounded-xl"
+            :disabled="store.isSaving || !createForm.username"
+            @click="onCreate"
+          >
             Create
           </button>
         </div>
@@ -175,13 +227,25 @@
       <div class="modal-box rounded-2xl">
         <h3 class="mb-1 text-lg font-black">Reset password</h3>
         <p class="mb-3 text-sm text-base-content/70">
-          Set a new password for <strong>{{ pwTarget?.username }}</strong>.
+          Set a new password for <strong>{{ pwTarget?.username }}</strong
+          >.
         </p>
-        <input v-model="newPassword" type="password" placeholder="New password (min 8)" class="input input-bordered w-full rounded-xl bg-base-200" />
+        <input
+          v-model="newPassword"
+          type="password"
+          placeholder="New password (min 8)"
+          class="input input-bordered w-full rounded-xl bg-base-200"
+        />
         <p v-if="pwError" class="mt-2 text-sm text-error">{{ pwError }}</p>
         <div class="modal-action">
-          <button class="btn btn-ghost rounded-xl" @click="closePassword">Cancel</button>
-          <button class="btn btn-primary rounded-xl" :disabled="store.isSaving || newPassword.length < 8" @click="onSetPassword">
+          <button class="btn btn-ghost rounded-xl" @click="closePassword">
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary rounded-xl"
+            :disabled="store.isSaving || newPassword.length < 8"
+            @click="onSetPassword"
+          >
             Save password
           </button>
         </div>
@@ -231,7 +295,9 @@ function onRole(userId: number, evt: Event) {
   store.updateAdmin(userId, { Role: (evt.target as HTMLSelectElement).value })
 }
 function onMature(userId: number, evt: Event) {
-  store.updateAdmin(userId, { showMature: (evt.target as HTMLInputElement).checked })
+  store.updateAdmin(userId, {
+    showMature: (evt.target as HTMLInputElement).checked,
+  })
 }
 function onForceVerify(userId: number) {
   store.updateAdmin(userId, { emailVerified: true })
@@ -254,7 +320,13 @@ async function onRestrict(u: AdminUser) {
 
 function openCreate() {
   createError.value = ''
-  Object.assign(createForm, { username: '', email: '', password: '', Role: 'USER', showMature: false })
+  Object.assign(createForm, {
+    username: '',
+    email: '',
+    password: '',
+    Role: 'USER',
+    showMature: false,
+  })
   createDialog.value?.showModal()
 }
 function closeCreate() {

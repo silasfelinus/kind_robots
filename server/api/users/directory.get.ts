@@ -65,6 +65,10 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Failed to load directory.', data: [] }
+    return {
+      success: false,
+      message: handled.message || 'Failed to load directory.',
+      data: [],
+    }
   }
 })

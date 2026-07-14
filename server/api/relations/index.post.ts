@@ -55,7 +55,10 @@ export default defineEventHandler(async (event) => {
 
   // Look up the requester once for notification labels + the target's consent.
   const [me, target] = await Promise.all([
-    prisma.user.findUnique({ where: { id: userId }, select: { username: true } }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    }),
     prisma.user.findUnique({
       where: { id: relatedUserId },
       select: { username: true, allowFriendRequests: true },
@@ -69,7 +72,10 @@ export default defineEventHandler(async (event) => {
   // Respect the target's consent to receive friend requests.
   if (type === 'FRIEND' && target.allowFriendRequests === false) {
     setResponseStatus(event, 403)
-    return { success: false, message: 'This user is not accepting friend requests.' }
+    return {
+      success: false,
+      message: 'This user is not accepting friend requests.',
+    }
   }
 
   // FRIEND only: if the target already sent ME a pending FRIEND request, both

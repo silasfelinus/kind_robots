@@ -1,54 +1,26 @@
 // /stores/animationStore.ts
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
+import {
+  animationEffects,
+  type AnimationEffect,
+  type AnimationEffectId,
+  type FxRegion,
+} from './animationCatalog'
 
-export type FxRegion = 'header' | 'sheet' | 'page' | 'hand'
+export {
+  getAnimationComponentName,
+  isAnimationEffectId,
+  type AnimationEffect,
+  type AnimationEffectId,
+  type FxRegion,
+} from './animationCatalog'
+
 export type FxPlacement = 'behind' | 'front'
 export type FxPlacementState = 'off' | FxPlacement
 export type FxSurfaceMap = Record<FxRegion, Record<FxPlacement, boolean>>
 
 export const FX_REGIONS: FxRegion[] = ['header', 'sheet', 'page', 'hand']
-
-export type AnimationEffectId =
-  | 'starfield-effect'
-  | 'constellation-effect'
-  | 'wishing-stars'
-  | 'orbit-effect'
-  | 'butterfly-animation'
-  | 'firefly-effect'
-  | 'rain-effect'
-  | 'snow-effect'
-  | 'fizzy-bubbles'
-  | 'ripple-effect'
-  | 'floating-hearts'
-  | 'plasma-effect'
-  | 'pixel-rain'
-  | 'matrix-rain'
-  | 'glitch-effect'
-  | 'kaleidoscope-effect'
-  | 'toaster-effect'
-  | 'fireworks-effect'
-  | 'lightning-effect'
-  | 'fire-effect'
-  | 'nyan-trail'
-  | 'pixel-explosion'
-  | 'wandering-creatures'
-  | 'ascii-aquarium'
-  | 'pacbot-effect'
-  | 'pocket-gremlin'
-  | 'siege-engine'
-
-export interface AnimationEffect {
-  id: AnimationEffectId
-  label: string
-  reveal: string
-  icon: string
-  tooltip: string
-  color: string
-  generationSafe: boolean
-  blocksInput?: boolean
-  preferredSurface?: FxRegion | 'fullscreen'
-}
 
 export interface AnimationLayerOptions {
   effectId?: AnimationEffectId
@@ -98,295 +70,8 @@ function mergeSurfaces(
   return merged
 }
 
-const allEffects: AnimationEffect[] = [
-  {
-    id: 'starfield-effect',
-    label: 'Warp Drive',
-    reveal: 'Hyperspace!',
-    icon: 'kind-icon:star',
-    tooltip: 'Punch it, Chewie ✨',
-    color: '#6366f1',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'constellation-effect',
-    label: 'Constellation',
-    reveal: 'Star map',
-    icon: 'kind-icon:sparkle',
-    tooltip: 'Drifting stars connect into patterns 🔭',
-    color: '#60a5fa',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'wishing-stars',
-    label: 'Wishing Stars',
-    reveal: '✨ Wish granted',
-    icon: 'kind-icon:star',
-    tooltip: 'Shooting stars streak across the sky 🌠',
-    color: '#fbbf24',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'orbit-effect',
-    label: 'Orrery',
-    reveal: 'Solar system',
-    icon: 'kind-icon:orbit',
-    tooltip: 'Glowing orbs trace orbital paths 🪐',
-    color: '#a855f7',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'butterfly-animation',
-    label: 'Butterfly Scouts',
-    reveal: 'Happy butterflies',
-    icon: 'kind-icon:butterfly',
-    tooltip: 'Release AMI into the world 🦋',
-    color: '#e879f9',
-    generationSafe: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'firefly-effect',
-    label: 'Fireflies',
-    reveal: 'Golden hour',
-    icon: 'kind-icon:sparkle',
-    tooltip: 'Organic warm glow drifting through the dark 🌿',
-    color: '#f59e0b',
-    generationSafe: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'rain-effect',
-    label: 'Rainmaker',
-    reveal: 'Just a drizzle',
-    icon: 'kind-icon:raindrop',
-    tooltip: "Rain doesn't have to be sad 🌧️",
-    color: '#7ba7c0',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'snow-effect',
-    label: 'Snow Globe',
-    reveal: 'Cozy ❄️',
-    icon: 'kind-icon:snowflake',
-    tooltip: 'Soft particle snowfall ❄️',
-    color: '#93c5fd',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'floating-hearts',
-    label: 'Love Bomb',
-    reveal: 'So much love',
-    icon: 'kind-icon:heart',
-    tooltip: 'Click anywhere to burst 💖',
-    color: '#f43f5e',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'fizzy-bubbles',
-    label: 'Fizzy Lifting',
-    reveal: 'Carbonation!',
-    icon: 'kind-icon:soda',
-    tooltip: 'Float away with fizzy bubbles 🍾',
-    color: '#38bdf8',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'ripple-effect',
-    label: 'Ripple',
-    reveal: 'Still waters',
-    icon: 'kind-icon:raindrop',
-    tooltip: 'Move your cursor to ripple the surface 💧',
-    color: '#0ea5e9',
-    generationSafe: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'fireworks-effect',
-    label: 'Fireworks',
-    reveal: '🎆 Celebration!',
-    icon: 'kind-icon:sparkle',
-    tooltip: 'Click anywhere to fire 🎆',
-    color: '#ef4444',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'lightning-effect',
-    label: 'Storm Caller',
-    reveal: 'Feel the power',
-    icon: 'kind-icon:lightning',
-    tooltip: 'Recursive arc strikes from the sky ⚡',
-    color: '#eab308',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'fire-effect',
-    label: 'Wildfire',
-    reveal: 'Everything is fine',
-    icon: 'kind-icon:flame',
-    tooltip: 'This is fine 🔥',
-    color: '#ea580c',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'glitch-effect',
-    label: 'Glitch',
-    reveal: 'ERR_404',
-    icon: 'kind-icon:lightning',
-    tooltip: 'Signal corruption detected 📺',
-    color: '#7c3aed',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'kaleidoscope-effect',
-    label: 'Kaleidoscope',
-    reveal: 'Infinite mirror',
-    icon: 'kind-icon:gem',
-    tooltip: 'Sacred geometry in motion 🔮',
-    color: '#9333ea',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'plasma-effect',
-    label: 'Plasma',
-    reveal: 'Sine wave soup',
-    icon: 'kind-icon:wave',
-    tooltip: 'Summed sine waves, After Dark plasma 🌊',
-    color: '#8b5cf6',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'nyan-trail',
-    label: 'Nyan Trail',
-    reveal: 'Nyan nyan nyan',
-    icon: 'kind-icon:rainbow',
-    tooltip: 'Rainbow particle trail follows your cursor 🌈',
-    color: '#ec4899',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'matrix-rain',
-    label: 'Matrix Rain',
-    reveal: 'There is no spoon',
-    icon: 'kind-icon:code',
-    tooltip: 'Follow the white rabbit 🐇',
-    color: '#22c55e',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'pixel-rain',
-    label: 'Pixel Rain',
-    reveal: "It's raining bits",
-    icon: 'kind-icon:pixel',
-    tooltip: 'Retro pixel blocks fall and pile up 🕹️',
-    color: '#06b6d4',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'pixel-explosion',
-    label: 'Pixel Smash',
-    reveal: 'Everything is pixels',
-    icon: 'kind-icon:pixel',
-    tooltip: 'Click anything to shatter it into pixels 💥',
-    color: '#dc2626',
-    generationSafe: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'wandering-creatures',
-    label: 'Creatures',
-    reveal: 'They live here now',
-    icon: 'kind-icon:butterfly',
-    tooltip: 'Critters with distinct personalities roam the screen 🐾',
-    color: '#10b981',
-    generationSafe: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'toaster-effect',
-    label: 'Flying Toasters',
-    reveal: 'Toast incoming!',
-    icon: 'kind-icon:toast',
-    tooltip: 'After Dark tribute, the original screensaver 🍞',
-    color: '#f97316',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
-  {
-    id: 'ascii-aquarium',
-    label: 'Aquarium',
-    reveal: 'Glub glub',
-    icon: 'kind-icon:fish',
-    tooltip: 'Click to feed, Move cursor to spook 🐠',
-    color: '#06b6d4',
-    generationSafe: false,
-    blocksInput: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'pacbot-effect',
-    label: 'Pac-Bot',
-    reveal: 'Nom nom nom',
-    icon: 'kind-icon:robot',
-    tooltip:
-      'Move to leave crumbs, Click for power, Dbl-click for crumb storm 🤖',
-    color: '#eab308',
-    generationSafe: false,
-    blocksInput: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'pocket-gremlin',
-    label: 'Gremlin',
-    reveal: 'beep?',
-    icon: 'kind-icon:ghost',
-    tooltip: 'Click it to pet it, Ignore it at your peril 👾',
-    color: '#a78bfa',
-    generationSafe: false,
-    blocksInput: true,
-    preferredSurface: 'page',
-  },
-  {
-    id: 'siege-engine',
-    label: 'Siege Engine',
-    reveal: 'FIRE!!!',
-    icon: 'kind-icon:flame',
-    tooltip: 'Hold to charge, Release to launch 🪨',
-    color: '#b45309',
-    generationSafe: false,
-    blocksInput: true,
-    preferredSurface: 'page',
-  },
-]
-
-export function isAnimationEffectId(
-  value: unknown,
-): value is AnimationEffectId {
-  return (
-    typeof value === 'string' &&
-    allEffects.some((effect) => effect.id === value)
-  )
-}
-
 function pickRandomEffect(): AnimationEffectId {
-  const safeEffects = allEffects.filter((effect) => effect.generationSafe)
+  const safeEffects = animationEffects.filter((effect) => effect.generationSafe)
   const index = Math.floor(Math.random() * safeEffects.length)
   return safeEffects[index]?.id || 'starfield-effect'
 }
@@ -420,7 +105,7 @@ export const useAnimationStore = defineStore('animationStore', () => {
     screenSurfaces: defaultScreenSurfaces(),
   })
 
-  const effects = computed(() => allEffects)
+  const effects = computed(() => animationEffects)
 
   const safeEffects = computed(() => {
     return effects.value.filter((effect) => effect.generationSafe)
@@ -495,8 +180,6 @@ export const useAnimationStore = defineStore('animationStore', () => {
     region: FxRegion,
     placement: FxPlacementState,
   ): void {
-    // Placements are mutually exclusive per region: setting one clears the
-    // other, and 'off' clears both.
     state.screenSurfaces[region] = {
       behind: placement === 'behind',
       front: placement === 'front',

@@ -23,7 +23,11 @@ import {
   resolveComponent,
   watch,
 } from 'vue'
-import { useAnimationStore, type AnimationEffectId } from '@/stores/animationStore'
+import {
+  getAnimationComponentName,
+  useAnimationStore,
+  type AnimationEffectId,
+} from '@/stores/animationStore'
 import { useAnimationPreferenceStore } from '@/stores/animationPreferenceStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
@@ -39,41 +43,19 @@ const FADE_MS = 650
 
 let fadeTimer: ReturnType<typeof setTimeout> | null = null
 
-const componentsMap: Partial<
-  Record<AnimationEffectId, ReturnType<typeof resolveComponent>>
-> = {
-  'starfield-effect': resolveComponent('LazyStarfieldEffect'),
-  'constellation-effect': resolveComponent('LazyConstellationEffect'),
-  'wishing-stars': resolveComponent('LazyWishingStars'),
-  'orbit-effect': resolveComponent('LazyOrbitEffect'),
-  'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
-  'firefly-effect': resolveComponent('LazyFireflyEffect'),
-  'rain-effect': resolveComponent('LazyRainEffect'),
-  'snow-effect': resolveComponent('LazySnowEffect'),
-  'floating-hearts': resolveComponent('LazyFloatingHearts'),
-  'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
-  'ripple-effect': resolveComponent('LazyRippleEffect'),
-  'fireworks-effect': resolveComponent('LazyFireworksEffect'),
-  'lightning-effect': resolveComponent('LazyLightningEffect'),
-  'fire-effect': resolveComponent('LazyFireEffect'),
-  'glitch-effect': resolveComponent('LazyGlitchEffect'),
-  'kaleidoscope-effect': resolveComponent('LazyKaleidoscopeEffect'),
-  'plasma-effect': resolveComponent('LazyPlasmaEffect'),
-  'nyan-trail': resolveComponent('LazyNyanTrail'),
-  'matrix-rain': resolveComponent('LazyMatrixRain'),
-  'pixel-rain': resolveComponent('LazyPixelRain'),
-  'pixel-explosion': resolveComponent('LazyPixelExplosion'),
-  'wandering-creatures': resolveComponent('LazyWanderingCreatures'),
-  'toaster-effect': resolveComponent('LazyToasterEffect'),
-  'ascii-aquarium': resolveComponent('LazyAsciiAquarium'),
-  'pacbot-effect': resolveComponent('LazyPacbotEffect'),
-  'pocket-gremlin': resolveComponent('LazyPocketGremlin'),
-  'siege-engine': resolveComponent('LazySiegeEngine'),
-}
+const componentsMap = new Map<
+  AnimationEffectId,
+  ReturnType<typeof resolveComponent>
+>(
+  animationStore.effects.map((effect) => [
+    effect.id,
+    resolveComponent(getAnimationComponentName(effect.id)),
+  ]),
+)
 
 const currentComponent = computed(() => {
   if (!resolvedEffectId.value) return null
-  return componentsMap[resolvedEffectId.value] || null
+  return componentsMap.get(resolvedEffectId.value) || null
 })
 
 function clearFadeTimer(): void {
@@ -86,9 +68,7 @@ function selectEffect(): void {
   preferenceStore.initialize()
 
   const availableIds = animationStore.safeEffects
-    .filter(
-      (effect) => !effect.blocksInput && componentsMap[effect.id] !== undefined,
-    )
+    .filter((effect) => !effect.blocksInput && componentsMap.has(effect.id))
     .map((effect) => effect.id)
 
   resolvedEffectId.value = preferenceStore.resolveStartupEffect(availableIds)

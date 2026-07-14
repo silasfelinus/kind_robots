@@ -63,7 +63,16 @@
               rel="noopener"
               class="shrink-0"
             >
+              <video
+                v-if="jobImageKind(job) === 'video'"
+                :src="jobImageSrc(job)"
+                class="h-28 w-24 rounded-2xl border border-base-300 object-cover"
+                muted
+                playsinline
+                preload="metadata"
+              />
               <img
+                v-else
                 :src="jobImageSrc(job)"
                 class="h-28 w-24 rounded-2xl border border-base-300 object-cover"
                 alt="curated generated art"
@@ -71,9 +80,10 @@
             </a>
             <div
               v-else
-              class="flex h-28 w-24 shrink-0 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-2 text-center text-[10px] uppercase tracking-wide text-base-content/40"
+              :title="jobImageDiag(job)"
+              class="flex h-28 w-24 shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl border border-dashed border-base-300 bg-base-100 p-2 text-center text-[10px] uppercase tracking-wide text-base-content/40"
             >
-              Loading art
+              <span>{{ jobImageReason(job) || 'Loading art' }}</span>
             </div>
 
             <div class="min-w-0 flex-1">
@@ -306,6 +316,41 @@ function humanFeedback(job: ArtJobRecord): ArtJobFeedback | undefined {
 function jobImageSrc(job: ArtJobRecord): string {
   if (typeof job.artImageId !== 'number') return ''
   return artJobStore.imageSrcById[job.artImageId] || ''
+}
+
+function jobImageInfo(job: ArtJobRecord) {
+  if (typeof job.artImageId !== 'number') return null
+  return artJobStore.imageInfoById[job.artImageId] || null
+}
+
+function jobImageKind(job: ArtJobRecord): string {
+  return jobImageInfo(job)?.kind ?? 'none'
+}
+
+// Short keyword under the placeholder; '' while the image is still loading.
+function jobImageReason(job: ArtJobRecord): string {
+  const info = jobImageInfo(job)
+  if (!info || info.kind !== 'none') return ''
+  const d = info.diag
+  if (!d.hasImageData && d.imagePath === '(none)' && d.path === '(none)') return 'no bytes stored'
+  if (d.imageDataShape === 'unusable') return 'bad imageData'
+  if (d.imagePath !== '(none)' || d.path !== '(none)') return 'unresolved path'
+  return 'no source'
+}
+
+// Full field dump for the hover tooltip — what the row actually holds.
+function jobImageDiag(job: ArtJobRecord): string {
+  const info = jobImageInfo(job)
+  if (!info) return `ArtImage ${job.artImageId ?? '—'}: not loaded yet`
+  const d = info.diag
+  return [
+    `reason: ${info.reason}`,
+    `kind: ${info.kind}  ·  used: ${d.usedField}`,
+    `imageData: ${d.hasImageData ? d.imageDataShape : 'empty'}`,
+    `fileType: ${d.fileType}`,
+    `imagePath: ${d.imagePath}`,
+    `path: ${d.path}`,
+  ].join('\n')
 }
 
 function jobPrompt(job: ArtJobRecord): string {

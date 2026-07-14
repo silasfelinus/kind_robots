@@ -201,7 +201,16 @@
                 :title="`Open ArtImage ${job.artImageId}`"
                 class="shrink-0"
               >
+                <video
+                  v-if="jobImageKind(job) === 'video'"
+                  :src="jobImageSrc(job)"
+                  class="h-24 w-20 rounded-2xl border border-base-300 object-cover sm:h-28 sm:w-24"
+                  muted
+                  playsinline
+                  preload="metadata"
+                />
                 <img
+                  v-else
                   :src="jobImageSrc(job)"
                   class="h-24 w-20 rounded-2xl border border-base-300 object-cover sm:h-28 sm:w-24"
                   alt="generated art"
@@ -209,9 +218,14 @@
               </a>
               <div
                 v-else
-                class="flex h-24 w-20 shrink-0 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 text-center text-[10px] font-semibold uppercase tracking-wide text-base-content/40 sm:h-28 sm:w-24"
+                :title="jobImageDiag(job)"
+                class="flex h-24 w-20 shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl border border-dashed border-base-300 bg-base-100 px-1 text-center text-[10px] font-semibold uppercase tracking-wide text-base-content/40 sm:h-28 sm:w-24"
               >
-                {{ jobPlaceholder(job) }}
+                <span>{{ jobPlaceholder(job) }}</span>
+                <span
+                  v-if="jobImageReason(job)"
+                  class="text-[8px] font-normal normal-case leading-tight text-base-content/50"
+                >{{ jobImageReason(job) }}</span>
               </div>
 
               <div class="min-w-0 flex-1">
@@ -916,6 +930,44 @@ function statusClass(status: string): string {
 function jobImageSrc(job: { artImageId?: number | null }): string {
   if (typeof job.artImageId !== 'number') return ''
   return artJobStore.imageSrcById[job.artImageId] || ''
+}
+
+function jobImageInfo(job: { artImageId?: number | null }) {
+  if (typeof job.artImageId !== 'number') return null
+  return artJobStore.imageInfoById[job.artImageId] || null
+}
+
+// 'video' → render <video>; 'image' → <img>; anything else → placeholder.
+function jobImageKind(job: { artImageId?: number | null }): string {
+  return jobImageInfo(job)?.kind ?? 'none'
+}
+
+// Short keyword shown under the placeholder label so a blank tile at a glance
+// says WHY (no bytes vs. bad data vs. unresolved path) rather than just "No image".
+function jobImageReason(job: { artImageId?: number | null }): string {
+  const info = jobImageInfo(job)
+  if (!info || info.kind !== 'none') return ''
+  const d = info.diag
+  if (!d.hasImageData && d.imagePath === '(none)' && d.path === '(none)') return 'no bytes stored'
+  if (d.imageDataShape === 'unusable') return 'bad imageData'
+  if (d.imagePath !== '(none)' || d.path !== '(none)') return 'unresolved path'
+  return 'no source'
+}
+
+// Full field dump for the hover tooltip — the "show output of the path file" ask:
+// exactly what the row holds so a blank can be traced to missing bytes vs. format.
+function jobImageDiag(job: { artImageId?: number | null }): string {
+  const info = jobImageInfo(job)
+  if (!info) return `ArtImage ${job.artImageId ?? '—'}: not loaded yet`
+  const d = info.diag
+  return [
+    `reason: ${info.reason}`,
+    `kind: ${info.kind}  ·  used: ${d.usedField}`,
+    `imageData: ${d.hasImageData ? d.imageDataShape : 'empty'}`,
+    `fileType: ${d.fileType}`,
+    `imagePath: ${d.imagePath}`,
+    `path: ${d.path}`,
+  ].join('\n')
 }
 
 function jobStatusClass(status: string): string {

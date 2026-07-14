@@ -164,6 +164,20 @@
             <span class="text-[11px] text-base-content/50">
               {{ stats?.imagesCreatedInWindow ?? 0 }} imgs / {{ windowHours }}h
             </span>
+            <button
+              v-if="uncuratedJobs.length"
+              type="button"
+              class="btn btn-secondary btn-xs rounded-2xl"
+              :disabled="bulkCurating"
+              :title="`Ask Conductor to curate ${uncuratedJobs.length} finished job(s) shown here`"
+              @click="requestBulkCuration"
+            >
+              <span
+                v-if="bulkCurating"
+                class="loading loading-spinner loading-xs"
+              />
+              Curate finished ({{ uncuratedJobs.length }})
+            </button>
           </div>
           <div class="flex flex-wrap gap-1">
             <button
@@ -246,6 +260,24 @@
                         ? 'replace asset'
                         : 'new attempt'
                     }}
+                  </span>
+                  <span
+                    v-if="curatorVerdict(job)"
+                    class="badge badge-xs rounded-2xl"
+                    :class="curatorBadgeClass(job)"
+                    :title="`Conductor curated this job${
+                      curatorScore(job) !== null
+                        ? ` — ${curatorScore(job)}/100`
+                        : ''
+                    }`"
+                  >
+                    curator: {{ curatorVerdict(job)?.toLowerCase() }}
+                    <span
+                      v-if="curatorScore(job) !== null"
+                      class="ml-1 font-mono opacity-80"
+                    >
+                      {{ curatorScore(job) }}
+                    </span>
                   </span>
                 </div>
 
@@ -493,6 +525,25 @@
                     </li>
                   </ul>
                 </details>
+                <button
+                  v-if="canCurate(job)"
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-2xl"
+                  :class="curationRequested(job) ? 'text-success' : ''"
+                  :disabled="isRequestingCuration(job.id) || curationRequested(job)"
+                  :title="
+                    curationRequested(job)
+                      ? 'Conductor has this job queued for curation'
+                      : 'Ask Conductor to score this finished render and add a curator verdict'
+                  "
+                  @click="requestCuration(job)"
+                >
+                  <span
+                    v-if="isRequestingCuration(job.id)"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  {{ curationRequested(job) ? 'Curation requested' : 'Request curation' }}
+                </button>
                 <button
                   v-if="job.status !== 'DONE'"
                   type="button"
@@ -983,6 +1034,76 @@ function isRetrying(jobId: number): boolean {
 
 async function retryJob(job: ArtJob, mode: ArtJobRetryMode): Promise<void> {
   await artJobStore.reenqueueJob(job.id, mode)
+}
+
+// Only finished jobs with a generated ArtImage can be curated (the curator scores
+// the rendered pixels) — same gate the feedback endpoint enforces.
+function canCurate(job: ArtJob): boolean {
+  return job.status === 'DONE' && typeof job.artImageId === 'number'
+}
+
+function hasCuratorVerdict(job: ArtJob): boolean {
+  return Boolean(asRecord(payloadRecord(job).curation).curator)
+}
+
+// Conductor's curator verdict/score, once it has scored a finished job — surfaced
+// on the queue card so the queue and the trainer panel agree at a glance.
+function curatorFeedback(job: ArtJob): JsonRecord | null {
+  return asRecord(asRecord(payloadRecord(job).curation).curator)
+}
+
+function curatorVerdict(job: ArtJob): string {
+  const verdict = curatorFeedback(job)?.verdict
+  return typeof verdict === 'string' ? verdict.toUpperCase() : ''
+}
+
+function curatorScore(job: ArtJob): number | null {
+  const score = curatorFeedback(job)?.score
+  return typeof score === 'number' ? score : null
+}
+
+function curatorBadgeClass(job: ArtJob): string {
+  const verdict = curatorVerdict(job)
+  if (verdict === 'PROMOTE') return 'badge-success'
+  if (verdict === 'REVISE') return 'badge-warning'
+  if (verdict === 'REJECT') return 'badge-error'
+  return 'badge-ghost'
+}
+
+function curationRequested(job: ArtJob): boolean {
+  return (
+    hasCuratorVerdict(job) ||
+    artJobStore.curationRequestedIds.includes(job.id)
+  )
+}
+
+function isRequestingCuration(jobId: number): boolean {
+  return artJobStore.curationRequestingIds.includes(jobId)
+}
+
+// Curatable jobs currently loaded that Conductor has not already curated or been
+// asked to curate — the bulk button's target set.
+const uncuratedJobs = computed(() =>
+  artJobStore.jobs.filter(
+    (job) => canCurate(job) && !curationRequested(job),
+  ),
+)
+
+const bulkCurating = ref(false)
+
+async function requestCuration(job: ArtJob): Promise<void> {
+  await artJobStore.requestCuration(job.id)
+}
+
+async function requestBulkCuration(): Promise<void> {
+  const ids = uncuratedJobs.value.map((job) => job.id)
+  if (!ids.length) return
+  bulkCurating.value = true
+  try {
+    await artJobStore.requestCuration(ids)
+  } finally {
+    bulkCurating.value = false
+  }
 }
 
 function askToOverwrite(job: ArtJob): void {

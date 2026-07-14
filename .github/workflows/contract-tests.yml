@@ -47,6 +47,11 @@ jobs:
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 
+      - name: Challenge Center seed validation (dry run, no database)
+        run: |
+          npm run test:seed-challenges
+          npm run test:seed-contenders
+
       - name: Channel artwork audit
         run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
 

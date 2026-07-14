@@ -3,14 +3,8 @@ import prisma from './prisma'
 
 export type UserPurgeCounts = Record<string, number>
 
-// Deletes a user together with their owned content. Since the explicit
-// onDelete pass, the schema itself no longer blocks user deletion: content
-// relations (ArtCollection, Code, Dream, ...) orphan via SET NULL and
-// user-scoped rows (reactions, ledgers, relations, referrals) cascade. This
-// helper exists so an account wipe removes the content outright instead of
-// stranding orphans — that orphan pile-up is exactly the test-fixture bloat
-// this was built to stop. The explicit deletes on cascading tables are
-// redundant with the DB but kept for the per-table counts they report.
+// Delete the account and the content it owns instead of relying on SET NULL,
+// which turns disposable Cypress fixtures into permanent orphan records.
 export async function deleteUserWithOwnedData(
   userId: number,
 ): Promise<UserPurgeCounts> {
@@ -35,8 +29,6 @@ export async function deleteUserWithOwnedData(
       )
       track('reactions', await tx.reaction.deleteMany({ where: { userId } }))
 
-      // ChallengeSubmission -> Challenge is RESTRICT: clear submissions on the
-      // user's challenges before the challenges themselves.
       const challenges = await tx.challenge.findMany({
         where: { userId },
         select: { id: true },
@@ -45,11 +37,16 @@ export async function deleteUserWithOwnedData(
         track(
           'challengeSubmissions',
           await tx.challengeSubmission.deleteMany({
-            where: { challengeId: { in: challenges.map((c) => c.id) } },
+            where: { challengeId: { in: challenges.map((challenge) => challenge.id) } },
           }),
         )
       }
       track('challenges', await tx.challenge.deleteMany({ where: { userId } }))
+
+      // Delete dependent conversational rows before their bots.
+      track('chats', await tx.chat.deleteMany({ where: { userId } }))
+      track('bots', await tx.bot.deleteMany({ where: { userId } }))
+      track('rewards', await tx.reward.deleteMany({ where: { userId } }))
 
       track(
         'artCollections',
@@ -65,7 +62,12 @@ export async function deleteUserWithOwnedData(
         'socialPosts',
         await tx.socialPost.deleteMany({ where: { userId } }),
       )
+
+      // ArtImages may reference prompts and servers, so remove them first.
       track('artImages', await tx.artImage.deleteMany({ where: { userId } }))
+      track('prompts', await tx.prompt.deleteMany({ where: { userId } }))
+      track('servers', await tx.server.deleteMany({ where: { userId } }))
+
       track(
         'manaTransactions',
         await tx.manaTransaction.deleteMany({ where: { userId } }),
@@ -80,7 +82,6 @@ export async function deleteUserWithOwnedData(
       )
 
       await tx.user.delete({ where: { id: userId } })
-
       return counts
     },
     { timeout: 30000 },

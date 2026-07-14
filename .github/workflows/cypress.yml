@@ -33,13 +33,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Wait for Vercel to finish deploying THIS commit before tests hit production.
-      # A blind sleep used to race the deploy: `vercel-build` runs `prisma migrate
-      # deploy` during the build, so there is a window where the schema has already
-      # changed but the previous serverless functions are still being served. Tests
-      # landing in that window hit a code/DB mismatch (e.g. the subFolder ->
-      # parentFolder rename returned 500s). Instead, poll /api/version until
-      # production reports the pushed commit as live, then run.
       - name: Wait for deploy to go live
         env:
           BASE_URL: https://kind-robots.vercel.app
@@ -89,7 +82,7 @@ jobs:
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
-          install: false # already installed above
+          install: false
           browser: chrome
           record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
         env:
@@ -101,6 +94,10 @@ jobs:
           CYPRESS_SYNTHETIC_SOURCE: github-actions-cypress
           CYPRESS_SYNTHETIC_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
 
+      - name: Verify Cypress cleanup
+        if: always()
+        run: node scripts/verify-cypress-cleanup.mjs
+
       - name: Upload Cypress diagnostic reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -109,6 +106,7 @@ jobs:
           path: |
             .cypress-cache/timing-latest.json
             .cypress-cache/seed-cleanup-latest.json
+            .cypress-cache/orphan-user-sweep-latest.json
           if-no-files-found: warn
 
       - name: Upload Cypress screenshots on failure

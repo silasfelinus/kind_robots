@@ -46,9 +46,9 @@
 import { computed, resolveComponent } from 'vue'
 import {
   getAnimationComponentName,
-  useAnimationStore,
   type AnimationEffectId,
-} from '@/stores/animationStore'
+} from '@/stores/animationCatalog'
+import { useAnimationStore } from '@/stores/animationStore'
 
 const animationStore = useAnimationStore()
 

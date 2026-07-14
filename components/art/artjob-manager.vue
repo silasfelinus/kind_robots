@@ -216,9 +216,7 @@
 
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="font-mono text-xs font-semibold"
-                    >#{{ job.id }}</span
-                  >
+                  <span class="font-mono text-xs font-semibold">#{{ job.id }}</span>
                   <span
                     class="badge badge-xs rounded-2xl"
                     :class="jobStatusClass(job.status)"
@@ -234,14 +232,27 @@
                   >
                     {{ job.projectSlug }}
                   </span>
+                  <span
+                    v-if="jobRetryMode(job)"
+                    class="badge badge-xs rounded-2xl"
+                    :class="
+                      jobRetryMode(job) === 'OVERWRITE'
+                        ? 'badge-warning'
+                        : 'badge-info'
+                    "
+                  >
+                    {{
+                      jobRetryMode(job) === 'OVERWRITE'
+                        ? 'replace asset'
+                        : 'new attempt'
+                    }}
+                  </span>
                 </div>
 
                 <p
                   class="mt-2 whitespace-pre-wrap break-words text-sm font-medium leading-relaxed"
                 >
-                  {{
-                    jobPrompt(job) || 'Prompt unavailable for this legacy job.'
-                  }}
+                  {{ jobPrompt(job) || 'Prompt unavailable for this legacy job.' }}
                 </p>
 
                 <div class="mt-2 flex flex-wrap gap-1">
@@ -275,6 +286,21 @@
               class="rounded-2xl border border-error/30 bg-error/10 p-2 text-xs text-error"
             >
               {{ job.error }}
+            </div>
+
+            <div
+              v-if="jobRetryMode(job)"
+              class="rounded-2xl border border-info/30 bg-info/10 p-2 text-xs"
+            >
+              <span v-if="jobRetryMode(job) === 'OVERWRITE'">
+                This attempt will replace ArtImage #{{ jobRetryTarget(job) }} while
+                preserving that canonical id. The prior render will be archived
+                for job/trainer history.
+              </span>
+              <span v-else>
+                This is a fresh output derived from job #{{ jobRetrySource(job) }}.
+                It will create a separate ArtImage.
+              </span>
             </div>
 
             <details class="rounded-2xl border border-base-300 bg-base-100">
@@ -354,6 +380,19 @@
                       </span>
                     </div>
                   </div>
+                  <div
+                    v-if="jobRetryMode(job)"
+                    class="rounded-xl bg-base-200/60 p-2 sm:col-span-2"
+                  >
+                    <div
+                      class="text-[10px] uppercase tracking-wide text-base-content/50"
+                    >
+                      Retry lineage
+                    </div>
+                    <div class="mt-1 text-xs font-medium">
+                      {{ retryLineage(job) }}
+                    </div>
+                  </div>
                 </div>
 
                 <div v-if="jobSettings(job).length">
@@ -408,23 +447,60 @@
               <div class="text-[11px] text-base-content/50">
                 Attempt {{ job.attempts }} · priority {{ job.priority }}
               </div>
-              <div class="flex flex-wrap gap-1">
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-2xl"
-                  title="Clone into a fresh job"
-                  @click="artJobStore.reenqueueJob(job.id)"
-                >
-                  Re-run
-                </button>
+              <div class="flex flex-wrap items-center gap-1">
+                <details class="dropdown dropdown-end">
+                  <summary
+                    class="btn btn-ghost btn-xs rounded-2xl"
+                    :class="{ 'btn-disabled': isRetrying(job.id) }"
+                  >
+                    <span
+                      v-if="isRetrying(job.id)"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    Try again
+                  </summary>
+                  <ul
+                    class="menu dropdown-content z-30 mt-1 w-72 rounded-2xl border border-base-300 bg-base-100 p-2 text-xs shadow-xl"
+                  >
+                    <li>
+                      <button
+                        type="button"
+                        :disabled="isRetrying(job.id)"
+                        @click="retryJob(job, 'NEW_OUTPUT')"
+                      >
+                        <span>
+                          <strong>Make a new output</strong>
+                          <span class="block text-[11px] opacity-60">
+                            Fresh seed, separate ArtImage, original stays intact.
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                    <li v-if="job.status === 'DONE' && job.artImageId">
+                      <button
+                        type="button"
+                        class="text-warning"
+                        :disabled="isRetrying(job.id)"
+                        @click="askToOverwrite(job)"
+                      >
+                        <span>
+                          <strong>Replace ArtImage #{{ job.artImageId }}</strong>
+                          <span class="block text-[11px] opacity-70">
+                            Keep the id and links; archive the current render.
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  </ul>
+                </details>
                 <button
                   v-if="job.status !== 'DONE'"
                   type="button"
                   class="btn btn-ghost btn-xs rounded-2xl"
-                  title="Reset this job to PENDING"
+                  title="Reset this same job to PENDING after a failure or stale claim"
                   @click="artJobStore.requeueJob(job.id)"
                 >
-                  Requeue
+                  Resume job
                 </button>
                 <button
                   v-if="job.status !== 'DONE' && job.status !== 'CANCELLED'"
@@ -447,13 +523,71 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="overwriteJob"
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="overwrite-art-title"
+      @click.self="overwriteJob = null"
+    >
+      <div
+        class="w-full max-w-lg rounded-3xl border border-warning/40 bg-base-100 p-5 shadow-2xl"
+      >
+        <h3 id="overwrite-art-title" class="text-lg font-semibold">
+          Replace ArtImage #{{ overwriteJob.artImageId }}?
+        </h3>
+        <p class="mt-2 text-sm leading-relaxed text-base-content/70">
+          The server will generate a fresh attempt and keep this ArtImage id, so
+          every Dream, Bot, Reward, collection, or other record linked to it sees
+          the replacement. The current pixels are archived under a new ArtImage id
+          and historical ArtJobs keep pointing to that archived render.
+        </p>
+        <div class="mt-3 rounded-2xl bg-base-200 p-3 text-xs">
+          <div class="font-semibold">Prompt</div>
+          <p class="mt-1 line-clamp-4 whitespace-pre-wrap">
+            {{ jobPrompt(overwriteJob) || 'Prompt unavailable.' }}
+          </p>
+        </div>
+        <p class="mt-3 text-xs text-base-content/60">
+          Concrete seeds are refreshed automatically so this is a real new attempt,
+          not a byte-for-byte rerun.
+        </p>
+        <div class="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-2xl"
+            @click="overwriteJob = null"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-warning btn-sm rounded-2xl"
+            :disabled="isRetrying(overwriteJob.id)"
+            @click="confirmOverwrite"
+          >
+            <span
+              v-if="isRetrying(overwriteJob.id)"
+              class="loading loading-spinner loading-xs"
+            />
+            Generate and replace
+          </button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { ArtJob } from '~/prisma/generated/prisma/client'
-import { useArtJobStore, type ArtJobStatus } from '@/stores/artJobStore'
+import {
+  useArtJobStore,
+  type ArtJobRetryMode,
+  type ArtJobStatus,
+} from '@/stores/artJobStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -468,6 +602,7 @@ const userStore = useUserStore()
 const selectedWindow = ref(24)
 const checkingServerId = ref<number | null>(null)
 const copiedJobId = ref<number | null>(null)
+const overwriteJob = ref<ArtJob | null>(null)
 
 const statusFilters: (ArtJobStatus | 'ALL')[] = [
   'PENDING',
@@ -502,6 +637,10 @@ function scalarToString(value: unknown): string {
 
 function payloadRecord(job: ArtJob): JsonRecord {
   return asRecord(job.payload) ?? {}
+}
+
+function retryRecord(job: ArtJob): JsonRecord {
+  return asRecord(payloadRecord(job).retry) ?? {}
 }
 
 function directScalar(record: JsonRecord, keys: string[]): string {
@@ -635,6 +774,41 @@ function jobOutput(job: ArtJob): string {
   if (job.artImageId) return `${dimensions} · ArtImage #${job.artImageId}`
   if (job.status === 'DONE') return `${dimensions} · output record missing`
   return `${dimensions} · awaiting generated output`
+}
+
+function jobRetryMode(job: ArtJob): ArtJobRetryMode | null {
+  const mode = directScalar(retryRecord(job), ['mode']).toUpperCase()
+  return mode === 'NEW_OUTPUT' || mode === 'OVERWRITE' ? mode : null
+}
+
+function jobRetrySource(job: ArtJob): number | null {
+  const value = Number(retryRecord(job).sourceJobId)
+  return Number.isInteger(value) && value > 0 ? value : null
+}
+
+function jobRetryTarget(job: ArtJob): number | null {
+  const value = Number(retryRecord(job).targetArtImageId)
+  return Number.isInteger(value) && value > 0 ? value : null
+}
+
+function retryLineage(job: ArtJob): string {
+  const retry = retryRecord(job)
+  const mode = jobRetryMode(job)
+  const source = jobRetrySource(job)
+  const root = Number(retry.rootJobId)
+  const target = jobRetryTarget(job)
+  const archived = Number(retry.archivedArtImageId)
+  const parts = [
+    mode === 'OVERWRITE' ? 'replace canonical asset' : 'create new output',
+    source ? `source job #${source}` : '',
+    Number.isInteger(root) && root > 0 ? `root job #${root}` : '',
+    target ? `target ArtImage #${target}` : '',
+    Number.isInteger(archived) && archived > 0
+      ? `prior render archived as ArtImage #${archived}`
+      : '',
+    retry.refreshSeed === true ? 'fresh seeds' : '',
+  ]
+  return parts.filter(Boolean).join(' · ')
 }
 
 function jobSummaryChips(job: ArtJob): string[] {
@@ -801,6 +975,25 @@ function formatDateTime(value: string | Date | null): string {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+function isRetrying(jobId: number): boolean {
+  return artJobStore.retryingJobIds.includes(jobId)
+}
+
+async function retryJob(job: ArtJob, mode: ArtJobRetryMode): Promise<void> {
+  await artJobStore.reenqueueJob(job.id, mode)
+}
+
+function askToOverwrite(job: ArtJob): void {
+  overwriteJob.value = job
+}
+
+async function confirmOverwrite(): Promise<void> {
+  const job = overwriteJob.value
+  if (!job) return
+  const queued = await artJobStore.reenqueueJob(job.id, 'OVERWRITE')
+  if (queued) overwriteJob.value = null
 }
 
 async function copyPrompt(job: ArtJob): Promise<void> {

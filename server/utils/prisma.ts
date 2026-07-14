@@ -1,6 +1,10 @@
 // /server/utils/prisma.ts
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import {
+  checkServerIdentity,
+  type ConnectionOptions as TlsConnectionOptions,
+} from 'node:tls'
 
 type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
 
@@ -65,10 +69,7 @@ function buildDatabaseUrl(url: string): string {
   // connection before use so stale sockets are discarded before Prisma sends
   // a command. Set DATABASE_MIN_DELAY_VALIDATION_MS to relax this if needed.
   if (!parsed.searchParams.has('minDelayValidation')) {
-    parsed.searchParams.set(
-      'minDelayValidation',
-      String(minDelayValidation),
-    )
+    parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
   }
 
   return parsed.toString()
@@ -102,6 +103,17 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const parsed = new URL(resolvedUrl)
   const database = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
 
+  const tlsOptions: TlsConnectionOptions = {
+    ca: sslCa,
+    rejectUnauthorized: true,
+
+    // MariaDB starts TLS over an existing socket and otherwise asks Node to
+    // verify the certificate against "localhost". Verify against the actual
+    // DATABASE_URL host instead.
+    checkServerIdentity: (_connectorHostname, certificate) =>
+      checkServerIdentity(parsed.hostname, certificate),
+  }
+
   return {
     host: parsed.hostname,
     port: readPositiveInteger(parsed.port, 3_306),
@@ -124,9 +136,7 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
       parsed.searchParams.get('minDelayValidation') ?? undefined,
       0,
     ),
-    ssl: {
-      ca: sslCa,
-    },
+    ssl: tlsOptions,
   }
 }
 

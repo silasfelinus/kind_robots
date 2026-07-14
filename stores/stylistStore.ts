@@ -41,6 +41,17 @@ export type StylistRunInput = {
   clientId?: number | null // StylistClient id from the synced book, if known
   before: string // data URL of the source photo
   prompt: string
+  // Generation controls (all optional; omitted keys use the backend defaults).
+  // originalWeight 0..1 = how much of the client's own photo to preserve (face,
+  // identity, framing). negativePrompt enables the real-negative CFGGuider path.
+  // maskData is a hair/region mask data URL (white = change, black = keep).
+  originalWeight?: number
+  negativePrompt?: string
+  cfg?: number
+  guidance?: number
+  steps?: number
+  seed?: number
+  maskData?: string
 }
 
 /**
@@ -244,6 +255,17 @@ export const useStylistStore = defineStore('stylistStore', () => {
           body: JSON.stringify({
             prompt: input.prompt,
             imageData: before,
+            // Identity/quality controls — only sent when set so the backend
+            // defaults still apply to an untouched request.
+            ...(input.originalWeight !== undefined
+              ? { originalWeight: input.originalWeight }
+              : {}),
+            ...(input.negativePrompt ? { negativePrompt: input.negativePrompt } : {}),
+            ...(input.cfg !== undefined ? { cfg: input.cfg } : {}),
+            ...(input.guidance !== undefined ? { guidance: input.guidance } : {}),
+            ...(input.steps !== undefined ? { steps: input.steps } : {}),
+            ...(input.seed !== undefined ? { seed: input.seed } : {}),
+            ...(input.maskData ? { maskData: input.maskData } : {}),
             // Private: never public, never in the memory game.
             isPublic: false,
             isMature: false,

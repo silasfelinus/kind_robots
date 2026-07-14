@@ -178,6 +178,64 @@
       </p>
     </div>
 
+    <!-- How much to keep them looking like themselves -->
+    <div class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-black text-base-content">How much should it still look like them?</span>
+        <span class="text-xs font-bold text-primary">{{ preserveLabel }}</span>
+      </div>
+      <input
+        v-model.number="preserveStrength"
+        type="range"
+        min="0"
+        max="0.8"
+        step="0.05"
+        class="range range-primary range-xs"
+      />
+      <div class="flex justify-between text-[10px] text-base-content/50">
+        <span>Bolder change</span>
+        <span>Keep it them</span>
+      </div>
+      <label class="flex items-start gap-2 pt-1">
+        <input v-model="protectIdentity" type="checkbox" class="checkbox checkbox-xs checkbox-primary mt-0.5" />
+        <span class="text-xs text-base-content/70">
+          Extra-protect the face &amp; identity (a little slower — guards against turning
+          them into someone else)
+        </span>
+      </label>
+      <button
+        type="button"
+        class="text-left text-[11px] text-base-content/50 underline"
+        @click="advancedOpen = !advancedOpen"
+      >
+        {{ advancedOpen ? 'Hide' : 'Show' }} advanced settings
+      </button>
+      <div v-if="advancedOpen" class="grid grid-cols-2 gap-2">
+        <label class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold text-base-content/60">Prompt strength (guidance)</span>
+          <input
+            v-model.number="guidanceValue"
+            type="number"
+            min="1"
+            max="6"
+            step="0.5"
+            class="input input-xs input-bordered w-full"
+          />
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold text-base-content/60">Steps</span>
+          <input
+            v-model.number="stepsValue"
+            type="number"
+            min="8"
+            max="40"
+            step="1"
+            class="input input-xs input-bordered w-full"
+          />
+        </label>
+      </div>
+    </div>
+
     <!-- Action -->
     <button
       type="button"
@@ -380,6 +438,27 @@ const changeStyle = ref(false)
 const styleValue = ref('')
 const enhanceImage = ref(false)
 const extraNotes = ref('')
+
+// Identity/quality controls. preserveStrength is the "weight from the original
+// picture": 0 fully reimagines (legacy Kontext), higher keeps the client's own
+// face/framing. Defaults lean toward preservation — the studio's complaint was
+// over-modification. All are live-tunable per render.
+const preserveStrength = ref(0.3)
+const protectIdentity = ref(false)
+const advancedOpen = ref(false)
+const guidanceValue = ref(2.5)
+const stepsValue = ref(20)
+
+const IDENTITY_NEGATIVE =
+  'different person, changed facial features, changed identity, distorted face, ' +
+  'deformed, disfigured, extra fingers, plastic skin, over-smoothed skin, ' +
+  'lowres, blurry, watermark, text'
+
+const preserveLabel = computed(() => {
+  if (preserveStrength.value <= 0.1) return 'Bold'
+  if (preserveStrength.value >= 0.5) return 'Very close'
+  return 'Balanced'
+})
 
 const hasAnyChange = computed(
   () => changeColor.value || changeStyle.value || enhanceImage.value,
@@ -593,6 +672,10 @@ function submit() {
     clientId: bookClient.value?.id ?? null,
     before: sourceImageData.value,
     prompt: buildPrompt(),
+    originalWeight: preserveStrength.value,
+    guidance: guidanceValue.value,
+    steps: stepsValue.value,
+    ...(protectIdentity.value ? { negativePrompt: IDENTITY_NEGATIVE } : {}),
   })
 }
 

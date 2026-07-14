@@ -459,6 +459,11 @@ export const useUserStore = defineStore('userStore', () => {
         })
 
         if (res.success && res.data) {
+          if (res.data.id === 10) {
+            lastError.value = 'Guest sessions are not authenticated.'
+            return 'invalid'
+          }
+
           await setUser(res.data)
 
           if (stayLoggedIn.value && token.value) {
@@ -686,8 +691,11 @@ export const useUserStore = defineStore('userStore', () => {
 
       const loginData = normalizeLoginData(res.data)
 
-      if (!loginData.user?.id) {
-        const message = 'Login response did not include a valid user.'
+      if (!loginData.user?.id || loginData.user.id === 10) {
+        const message =
+          loginData.user?.id === 10
+            ? 'Kind Guest is not a login account.'
+            : 'Login response did not include a valid user.'
         handleError(new Error(message), 'login')
         lastError.value = message
         return { success: false, message }

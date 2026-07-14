@@ -35,122 +35,133 @@
       />
     </button>
 
-    <ul
-      tabindex="0"
-      class="menu dropdown-content z-110 mt-2 max-h-[min(38rem,calc(100dvh-5rem))] w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
-    >
-      <li
-        v-for="channel in visibleChannels"
-        :key="channel.channelKey"
-        class="channel-menu-item"
+    <div tabindex="0" class="dropdown-content z-110 mt-2">
+      <ul
+        ref="channelMenu"
+        class="menu max-h-[min(38rem,calc(100dvh-5rem))] w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        @scroll="closeChannelTabs"
       >
-        <div
-          class="flex min-h-12 w-full items-stretch overflow-hidden rounded-xl"
-          :class="
-            activeChannel.channelKey === channel.channelKey
-              ? 'bg-primary text-primary-content'
-              : 'hover:bg-base-200'
-          "
+        <li
+          v-for="channel in visibleChannels"
+          :key="channel.channelKey"
+          class="channel-menu-item"
+          @mouseenter="showChannelTabs(channel, $event)"
+          @focusin="showChannelTabs(channel, $event)"
         >
-          <button
-            type="button"
-            class="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
-            @click="selectChannel(channel)"
+          <div
+            class="flex min-h-12 w-full items-stretch overflow-hidden rounded-xl"
+            :class="
+              activeChannel.channelKey === channel.channelKey
+                ? 'bg-primary text-primary-content'
+                : 'hover:bg-base-200'
+            "
           >
-            <span
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300/50 bg-base-200 text-base-content xl:h-10 xl:w-10"
-            >
-              <Icon :name="channel.icon" class="h-4 w-4 shrink-0" />
-            </span>
-
-            <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
-              <span class="max-w-full truncate text-sm font-black xl:text-base">
-                {{ channel.label }}
-              </span>
-              <span class="max-w-full truncate text-xs font-semibold opacity-65">
-                {{ destinationTab(channel)?.label || channel.title }}
-              </span>
-            </span>
-          </button>
-
-          <button
-            v-if="channel.tabs.length > 1"
-            type="button"
-            class="flex w-10 shrink-0 items-center justify-center border-l border-current/10"
-            :aria-label="`Show ${channel.label} tabs`"
-            :aria-expanded="expandedChannelKey === channel.channelKey"
-            @click.stop="toggleChannel(channel.channelKey)"
-          >
-            <Icon
-              name="kind-icon:chevron-right"
-              class="h-4 w-4 transition-transform"
-              :class="
-                expandedChannelKey === channel.channelKey ? 'rotate-90' : ''
-              "
-            />
-          </button>
-        </div>
-
-        <ul
-          v-if="channel.tabs.length > 1"
-          class="channel-submenu menu ml-5 mt-1 border-l border-base-300 pl-2"
-          :class="
-            expandedChannelKey === channel.channelKey
-              ? 'channel-submenu-open'
-              : ''
-          "
-        >
-          <li v-for="tab in channel.tabs" :key="tab.tabKey">
             <button
               type="button"
-              class="flex min-h-11 items-center gap-2 rounded-xl"
-              :class="
-                isActiveTab(channel, tab)
-                  ? 'active bg-secondary text-secondary-content'
-                  : ''
-              "
-              @click="selectTab(channel, tab)"
+              class="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
+              @click="selectChannel(channel)"
             >
               <span
-                class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300/50 bg-base-200 text-base-content xl:h-10 xl:w-10"
               >
-                <img
-                  v-if="tab.image"
-                  :src="tab.image"
-                  :alt="tab.title || tab.label"
-                  class="h-full w-full object-cover"
-                />
-                <span
-                  class="absolute inset-0 flex items-center justify-center bg-base-content/20"
-                >
-                  <Icon
-                    :name="tab.icon || channel.icon"
-                    class="h-4 w-4 text-base-100 drop-shadow"
-                  />
-                </span>
+                <Icon :name="channel.icon" class="h-4 w-4 shrink-0" />
               </span>
 
-              <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
-                <span class="max-w-full truncate text-sm font-black">
-                  {{ tab.label }}
+              <span
+                class="flex min-w-0 flex-1 flex-col items-start leading-tight"
+              >
+                <span
+                  class="max-w-full truncate text-sm font-black xl:text-base"
+                >
+                  {{ channel.label }}
                 </span>
                 <span
-                  v-if="tab.summary || tab.description"
-                  class="line-clamp-1 text-xs font-medium opacity-65"
+                  class="max-w-full truncate text-xs font-semibold opacity-65"
                 >
-                  {{ tab.summary || tab.description }}
+                  {{ destinationTab(channel)?.label || channel.title }}
                 </span>
               </span>
             </button>
-          </li>
-        </ul>
-      </li>
-    </ul>
+
+            <button
+              v-if="channel.tabs.length > 1"
+              type="button"
+              class="flex w-10 shrink-0 items-center justify-center border-l border-current/10"
+              :aria-label="'Show ' + channel.label + ' tabs'"
+              :aria-expanded="expandedChannelKey === channel.channelKey"
+              @click.stop="toggleChannel(channel, $event)"
+            >
+              <Icon
+                name="kind-icon:chevron-right"
+                class="h-4 w-4 transition-transform"
+                :class="
+                  expandedChannelKey === channel.channelKey ? 'rotate-90' : ''
+                "
+              />
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <ul
+        v-if="expandedChannel"
+        ref="channelFlyout"
+        class="channel-submenu menu absolute left-0 z-120 max-h-[min(32rem,calc(100dvh-5rem))] w-[min(22rem,calc(100vw-1rem))] overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl md:left-[calc(100%+0.5rem)] md:w-80"
+        :style="{ top: `${channelFlyoutTop}px` }"
+        :aria-label="expandedChannel.label + ' tabs'"
+      >
+        <li v-for="tab in expandedChannel.tabs" :key="tab.tabKey">
+          <button
+            type="button"
+            class="flex min-h-11 items-center gap-2 rounded-xl"
+            :class="
+              isActiveTab(expandedChannel, tab)
+                ? 'active bg-secondary text-secondary-content'
+                : ''
+            "
+            @click="selectTab(expandedChannel, tab)"
+          >
+            <span
+              class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200"
+            >
+              <img
+                v-if="tab.image"
+                :src="tab.image"
+                :alt="tab.title || tab.label"
+                class="h-full w-full object-cover"
+              />
+              <span
+                class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+              >
+                <Icon
+                  :name="tab.icon || expandedChannel.icon"
+                  class="h-4 w-4 text-base-100 drop-shadow"
+                />
+              </span>
+            </span>
+
+            <span
+              class="flex min-w-0 flex-1 flex-col items-start leading-tight"
+            >
+              <span class="max-w-full truncate text-sm font-black">
+                {{ tab.label }}
+              </span>
+              <span
+                v-if="tab.summary || tab.description"
+                class="line-clamp-1 text-xs font-medium opacity-65"
+              >
+                {{ tab.summary || tab.description }}
+              </span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type {
   ResolvedChannel,
@@ -164,10 +175,20 @@ const router = useRouter()
 const pageStore = usePageStore()
 const channelContentStore = useChannelContentStore()
 const expandedChannelKey = ref('')
+const channelMenu = ref<HTMLElement | null>(null)
+const channelFlyout = ref<HTMLElement | null>(null)
+const channelFlyoutTop = ref(0)
 
 await channelContentStore.initialize()
 
 const visibleChannels = computed(() => channelContentStore.visibleChannels)
+const expandedChannel = computed<ResolvedChannel | null>(() => {
+  return (
+    visibleChannels.value.find(
+      (channel) => channel.channelKey === expandedChannelKey.value,
+    ) ?? null
+  )
+})
 const requestedTabKey = computed(() => {
   return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
 })
@@ -227,14 +248,6 @@ const activeTab = computed<ResolvedTab | null>(() => {
   )
 })
 
-watch(
-  () => activeChannel.value.channelKey,
-  (channelKey) => {
-    expandedChannelKey.value = channelKey
-  },
-  { immediate: true },
-)
-
 function destinationTab(channel: ResolvedChannel): ResolvedTab | null {
   const storedTabKey = channelContentStore.getActiveTab(channel.channelKey)
 
@@ -253,9 +266,49 @@ function isActiveTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
   )
 }
 
-function toggleChannel(channelKey: string): void {
-  expandedChannelKey.value =
-    expandedChannelKey.value === channelKey ? '' : channelKey
+function closeChannelTabs(): void {
+  expandedChannelKey.value = ''
+}
+
+function positionChannelTabs(event: Event): void {
+  const menu = channelMenu.value
+  const target = (event.currentTarget as HTMLElement | null)?.closest(
+    '.channel-menu-item',
+  )
+
+  if (!menu || !(target instanceof HTMLElement)) return
+
+  const menuRect = menu.getBoundingClientRect()
+  const targetRect = target.getBoundingClientRect()
+
+  channelFlyoutTop.value = Math.max(0, targetRect.top - menuRect.top)
+
+  void nextTick(() => {
+    const flyout = channelFlyout.value
+    if (!flyout) return
+
+    const maxTop = Math.max(0, menu.clientHeight - flyout.offsetHeight)
+    channelFlyoutTop.value = Math.min(channelFlyoutTop.value, maxTop)
+  })
+}
+
+function showChannelTabs(channel: ResolvedChannel, event: Event): void {
+  if (channel.tabs.length <= 1) {
+    closeChannelTabs()
+    return
+  }
+
+  expandedChannelKey.value = channel.channelKey
+  positionChannelTabs(event)
+}
+
+function toggleChannel(channel: ResolvedChannel, event: Event): void {
+  if (expandedChannelKey.value === channel.channelKey) {
+    closeChannelTabs()
+    return
+  }
+
+  showChannelTabs(channel, event)
 }
 
 function tabSharesRoute(channel: ResolvedChannel, tab: ResolvedTab): boolean {
@@ -302,6 +355,7 @@ function selectTab(channel: ResolvedChannel, tab: ResolvedTab): void {
 }
 
 function closeDropdown(): void {
+  closeChannelTabs()
   if (typeof document === 'undefined') return
 
   const element = document.activeElement as HTMLElement | null
@@ -309,19 +363,3 @@ function closeDropdown(): void {
 }
 </script>
 
-<style scoped>
-.channel-submenu {
-  display: none;
-}
-
-.channel-submenu-open,
-.channel-menu-item:focus-within > .channel-submenu {
-  display: flex;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .channel-menu-item:hover > .channel-submenu {
-    display: flex;
-  }
-}
-</style>

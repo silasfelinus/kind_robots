@@ -27,7 +27,7 @@ function tutorialImage(channelKey: string, sectionKey: string): string {
   return getTutorialImagePath(channelKey, sectionKey)
 }
 
-export type ExtraTutorialKey = 'conductor' | 'mural'
+export type ExtraTutorialKey = 'conductor' | 'mural' | 'challenges'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -413,6 +413,23 @@ export const tutorialChannels = {
     ],
   },
 
+  challenges: {
+    key: 'challenges',
+    title: 'Challenge Center',
+    hero: tutorialImage('challenges', 'challenges'),
+    tagline: 'Two enter. The swarm decides.',
+    overview:
+      'Challenge Center pits contenders — providers, models, generators, or prompt variants — against each other on the same prompt. Browse open matchups, cast a LOVED/CLAPPED/BOOED/HATED reaction on any entry, and watch the leaderboard settle the argument.',
+    sections: [
+      {
+        key: 'challenges',
+        title: 'Challenge Arena',
+        body: 'Filter by challenge type and status, open a matchup to see contenders head to head, cast reactions once logged in, and check the live leaderboard.',
+        image: tutorialImage('challenges', 'challenges'),
+      },
+    ],
+  },
+
   conductor: {
     key: 'conductor',
     title: 'Conductor',
@@ -445,6 +462,7 @@ const tutorialRouteMap = {
   ...footerRouteMap,
   conductor: '/conductor',
   mural: '/mural',
+  challenges: '/challenges',
 } as const satisfies Record<TutorialChannelKey, string>
 
 export function isTutorialChannelKey(

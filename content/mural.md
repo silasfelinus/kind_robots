@@ -7,8 +7,10 @@ image: dashboard-tabs/wonder/mural.webp
 tooltip: Color the mural plan, save paint IDs, and test the palette before anyone opens a can.
 icon: kind-icon:paintbrush
 sort: wonder
-dottitip: "Can a coloring page become project management?"
-amitip: "Yes, but only if the paint swatches stop wandering off like tiny chromatic ferrets."
+dottiTip: Can a coloring page become project management?
+amiTip: Yes, but only if the paint swatches stop wandering off like tiny chromatic ferrets.
+channelKey: lab
+tabKey: mural
 dashboardKey: wonder
 dashboardTab: mural
 cards: labCards

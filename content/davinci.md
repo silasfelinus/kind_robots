@@ -6,6 +6,8 @@ description: A generative life-and-legacy simulation of ambition, craft, and riv
 image: nav/heroes/games.webp
 icon: kind-icon:castle
 tooltip: Seed a life, make choices, and see what legacy you leave.
+channelKey: lab
+tabKey: davinci
 dashboardKey: wonder
 dashboardTab: davinci
 cards: navCards

@@ -7,6 +7,8 @@ image: nav/heroes/facets.webp
 icon: kind-icon:tag
 tooltip: Manage the reusable creative building blocks shared across the site.
 sort: utility
+channelKey: play
+tabKey: facets
 dashboardKey: facets
 dashboardTab: library
 loadingMessage: Loading facets...

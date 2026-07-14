@@ -6,6 +6,8 @@ description: A structured log of films and shows to queue, watch, and finish.
 image: nav/heroes/games.webp
 icon: kind-icon:movie
 tooltip: Queue it now so you actually watch it later.
+channelKey: lab
+tabKey: watchlist
 dashboardKey: wonder
 dashboardTab: watchlist
 cards: navCards

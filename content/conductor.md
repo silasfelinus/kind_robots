@@ -1,5 +1,5 @@
 ---
-title: Conductor
+title: Plan
 room: Conductor
 subtitle: Conductor Cockpit
 description: Project progress, pitch voting, task gates, roadmap state, and Portos setup.
@@ -7,11 +7,13 @@ image: nav/heroes/conductor.webp
 tooltip: Review Conductor state and configure Portos.
 icon: kind-icon:gearhammer
 sort: highlight
+channelKey: plan
+tabKey: projects
 dashboardKey: conductor
 dashboardTab: conductor
 cards: conductorCards
-loadingMessage: Loading conductor...
-refreshLabel: Refresh Conductor
+loadingMessage: Loading plans...
+refreshLabel: Refresh Plan
 ---
 
 :conductor-manager

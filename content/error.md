@@ -6,8 +6,8 @@ description: "We couldn’t find the page you were looking for. It might have be
 image: splash/error.png
 icon: kind-icon:error
 tooltip: This page doesn't exist, but you're still in good company.
-dottitip: "Looks like someone misplaced a link."
-amitip: "Or maybe this is a secret room… with no walls!"
+dottiTip: "Looks like someone misplaced a link."
+amiTip: "Or maybe this is a secret room… with no walls!"
 sort: error
 ---
 

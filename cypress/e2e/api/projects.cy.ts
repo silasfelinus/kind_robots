@@ -29,8 +29,8 @@ describe('Project API', () => {
         flavorText: 'Project rows are real now.',
         status: 'ACTIVE',
         priority: 'HIGH',
-        channelKey: 'conductor',
-        tabKey: slug,
+        channelKey: 'plan',
+        tabKey: 'projects',
         isPublic: false,
       },
     }).then((response) => {
@@ -39,7 +39,8 @@ describe('Project API', () => {
       expect(response.body.data.slug).to.eq(slug)
       expect(response.body.data.status).to.eq('ACTIVE')
       expect(response.body.data.priority).to.eq('HIGH')
-      expect(response.body.data.channelKey).to.eq('conductor')
+      expect(response.body.data.channelKey).to.eq('plan')
+      expect(response.body.data.tabKey).to.eq('projects')
       projectId = response.body.data.id
     })
   })
@@ -62,7 +63,11 @@ describe('Project API', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data).to.be.an('array')
-      expect(response.body.data.some((project: { id: number }) => project.id === projectId)).to.be.true
+      expect(
+        response.body.data.some(
+          (project: { id: number }) => project.id === projectId,
+        ),
+      ).to.be.true
     })
   })
 
@@ -73,16 +78,16 @@ describe('Project API', () => {
       headers: { Authorization: `Bearer ${token}` },
       body: {
         priority: 'LOW',
-        channelKey: 'projects',
-        tabKey: `${slug}-updated`,
-        liveUrl: '/projects/cypress',
+        channelKey: 'lab',
+        tabKey: 'challenges',
+        liveUrl: '/challenges',
         allowReviews: true,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data.priority).to.eq('LOW')
-      expect(response.body.data.channelKey).to.eq('projects')
-      expect(response.body.data.tabKey).to.eq(`${slug}-updated`)
+      expect(response.body.data.channelKey).to.eq('lab')
+      expect(response.body.data.tabKey).to.eq('challenges')
       expect(response.body.data.allowReviews).to.be.true
     })
   })

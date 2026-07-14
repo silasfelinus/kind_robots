@@ -6,8 +6,10 @@ description: A roguelite memory card game where AI art becomes a tiny dungeon cr
 image: 'background/memorydungeon.png'
 icon: kind-icon:brain
 tooltip: 'A memory game with lives, levels, powerups, surprise loot, and weird dungeon flavor.'
-dottitip: 'AMI, I upgraded the memory game into a dungeon crawler. There are lives, levels, rewards, and probably goblins.'
-amitip: 'Excellent. Nothing improves cognitive training like treasure chests and suspiciously judgmental rectangles.'
+dottiTip: 'AMI, I upgraded the memory game into a dungeon crawler. There are lives, levels, rewards, and probably goblins.'
+amiTip: 'Excellent. Nothing improves cognitive training like treasure chests and suspiciously judgmental rectangles.'
+channelKey: lab
+tabKey: experiments
 dashboardKey: wonder
 dashboardTab: memory-dungeon
 cards: labCards

@@ -9,6 +9,10 @@ import type {
   Project,
 } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import {
+  PROJECT_PLACEMENTS,
+  placementLiveUrl,
+} from '~/utils/projectPlacements'
 
 export type ProjectWithRelations = Project & {
   Manager?: Pick<
@@ -40,6 +44,18 @@ export type ProjectListOptions = {
   search?: string
   take?: number
   skip?: number
+}
+
+export type ProjectPlacementFailure = {
+  slug: string
+  message: string
+}
+
+export type ApplyPlacementsResult = {
+  updated: string[]
+  unchanged: string[]
+  missing: string[]
+  failed: ProjectPlacementFailure[]
 }
 
 function queryString(options: ProjectListOptions): string {
@@ -199,6 +215,63 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   }
 
+  // Backfill channelKey / tabKey / liveUrl on loaded Project rows from the
+  // canonical PROJECT_PLACEMENTS map, using the existing PATCH endpoint (which is
+  // admin/owner-gated server-side). Runs over projects already in the store, so
+  // load them (admin: includeInactive) before calling. liveUrl is only filled
+  // when empty unless overwriteLiveUrl is set. Individual PATCH failures are
+  // reported per slug so the rest of the migration can continue.
+  async function applyPlacements(
+    overwriteLiveUrl = false,
+  ): Promise<ApplyPlacementsResult> {
+    const updated: string[] = []
+    const unchanged: string[] = []
+    const missing: string[] = []
+    const failed: ProjectPlacementFailure[] = []
+
+    for (const [slug, placement] of Object.entries(PROJECT_PLACEMENTS)) {
+      const project =
+        projectForSlug(slug) ??
+        projects.value.find((entry) => entry.conductorSlug === slug) ??
+        null
+      if (!project) {
+        missing.push(slug)
+        continue
+      }
+
+      const nextLiveUrl =
+        overwriteLiveUrl || !project.liveUrl
+          ? placementLiveUrl(placement)
+          : project.liveUrl
+
+      if (
+        project.channelKey === placement.channelKey &&
+        project.tabKey === placement.tabKey &&
+        project.liveUrl === nextLiveUrl
+      ) {
+        unchanged.push(slug)
+        continue
+      }
+
+      try {
+        await updateProject(project.id, {
+          channelKey: placement.channelKey,
+          tabKey: placement.tabKey,
+          liveUrl: nextLiveUrl,
+        })
+        updated.push(slug)
+      } catch (cause) {
+        failed.push({
+          slug,
+          message:
+            cause instanceof Error ? cause.message : 'Unknown Project update error',
+        })
+      }
+    }
+
+    return { updated, unchanged, missing, failed }
+  }
+
   return {
     projects,
     selectedProject,
@@ -215,5 +288,6 @@ export const useProjectStore = defineStore('projectStore', () => {
     createProject,
     updateProject,
     archiveProject,
+    applyPlacements,
   }
 })

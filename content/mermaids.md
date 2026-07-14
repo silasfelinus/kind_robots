@@ -6,8 +6,10 @@ description: Silas Knight's novel — the book itself, a note from the author, a
 image: utility/mermaids/mermaids1.jpg
 icon: kind-icon:mermaid
 tooltip: Six years of hand-carved words about gods moonlighting as street performers. The only AI on this page is the paragraph that admits it.
-dottitip: A whole novel and not one robot in it? Bold choice, honestly.
-amitip: I checked every canal. Zero butterflies, but the mermaids seemed nice. 🧜✨
+dottiTip: A whole novel and not one robot in it? Bold choice, honestly.
+amiTip: I checked every canal. Zero butterflies, but the mermaids seemed nice. 🧜✨
+channelKey: sanctuary
+tabKey: mermaids
 dashboardKey: giftshop
 dashboardTab: mermaids
 cards: navCards

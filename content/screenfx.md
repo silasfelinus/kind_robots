@@ -7,8 +7,10 @@ image: splash/screenfx.png
 tooltip: Test visual effects, animation overlays, and screen interactions from one flashy little control room.
 icon: kind-icon:sparkles
 sort: highlight
-dottitip: "AMI, should we really give them buttons that affect the whole screen?"
-amitip: "Absolutely. What's the worst that could happen? Besides everything becoming butterflies. Which is arguably an improvement."
+dottiTip: AMI, should we really give them buttons that affect the whole screen?
+amiTip: Absolutely. What's the worst that could happen? Besides everything becoming butterflies.
+channelKey: lab
+tabKey: screen-fx
 dashboardKey: wonder
 dashboardTab: screen-fx
 cards: labCards

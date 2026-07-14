@@ -1,144 +1,257 @@
 <!-- /components/conductor/challenge-center-page.vue -->
 <!--
-  Public front page for the Challenge Center project. Browses generative
-  challenges from /api/challenges, opens one to see its contenders' submissions,
-  and surfaces the leaderboard. Art submissions reuse <image-card> (with its
-  built-in reactions for voting). Degrades to a friendly empty state before any
-  challenges are seeded.
+  Public Challenge Center browser. The content route at /challenges renders this
+  component; individual cards link to the dedicated /challenges/[slug] arena.
 -->
 <template>
   <ProjectFrontPage slug="challenge-center" :fallback="config">
     <template #interactive>
       <section
-        class="rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm"
+        class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
       >
-        <div class="mb-3 flex items-center gap-2">
-          <Icon name="kind-icon:trophy" class="size-5 text-primary" />
-          <h3
-            class="text-sm font-black uppercase tracking-wide text-base-content/70"
-          >
-            The Arena
-          </h3>
-          <button
-            v-if="selected"
-            type="button"
-            class="btn btn-ghost btn-xs ml-auto rounded-lg"
-            @click="selected = null"
-          >
-            <Icon name="kind-icon:chevron-left" class="size-3.5" />All
-            challenges
-          </button>
-          <button
-            v-else
-            type="button"
-            class="btn btn-ghost btn-xs ml-auto rounded-lg"
-            :disabled="loading"
-            @click="loadChallenges"
-          >
-            <span v-if="loading" class="loading loading-spinner loading-xs" />
-            <Icon v-else name="kind-icon:refresh" class="size-3.5" />
-          </button>
-        </div>
-
-        <!-- Loading -->
-        <div
-          v-if="loading && !challenges.length"
-          class="grid gap-3 sm:grid-cols-2"
+        <header
+          class="relative isolate overflow-hidden border-b border-base-300 bg-gradient-to-br from-primary/20 via-base-100 to-secondary/20 p-5 sm:p-7"
         >
           <div
-            v-for="n in 4"
-            :key="n"
-            class="h-24 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+            class="pointer-events-none absolute -right-14 -top-20 size-52 rounded-full border-[28px] border-primary/10"
           />
-        </div>
+          <div
+            class="pointer-events-none absolute -bottom-24 -left-10 size-56 rounded-full border-[34px] border-secondary/10"
+          />
 
-        <!-- Challenge list -->
-        <div v-else-if="!selected" class="grid gap-3 sm:grid-cols-2">
-          <button
-            v-for="ch in challenges"
-            :key="ch.id"
-            type="button"
-            class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-4 text-left transition-all hover:border-primary/40 hover:shadow-md"
-            @click="openChallenge(ch)"
-          >
-            <div class="flex items-center gap-2">
-              <span class="badge badge-primary badge-sm rounded-lg">{{
-                ch.challengeType
-              }}</span>
-              <span class="badge badge-ghost badge-sm rounded-lg"
-                >difficulty {{ ch.difficulty }}</span
-              >
-              <span
-                class="badge badge-sm ml-auto rounded-lg"
-                :class="ch.status === 'OPEN' ? 'badge-success' : 'badge-ghost'"
-                >{{ ch.status }}</span
-              >
-            </div>
-            <p class="font-black leading-tight">{{ ch.title }}</p>
-            <p class="line-clamp-2 text-xs text-base-content/60">
-              {{ ch.promptText }}
-            </p>
-            <span class="text-xs font-semibold text-primary/70"
-              >{{ ch.Submissions?.length || 0 }} contenders →</span
+          <div class="relative flex flex-wrap items-start gap-4">
+            <div
+              class="grid size-14 shrink-0 place-items-center rounded-2xl border border-primary/30 bg-base-100/80 shadow-lg backdrop-blur"
             >
-          </button>
-          <p
-            v-if="!challenges.length"
-            class="col-span-full py-10 text-center text-sm text-base-content/50"
-          >
-            No challenges are open yet. The arena is being set up — check back
-            soon.
-          </p>
-        </div>
+              <Icon name="kind-icon:trophy" class="size-8 text-primary" />
+            </div>
 
-        <!-- Selected challenge detail -->
-        <div v-else class="space-y-4">
-          <div class="rounded-2xl border border-base-300 bg-base-200/50 p-4">
-            <h4 class="text-lg font-black">{{ selected.title }}</h4>
-            <p class="mt-1 text-sm text-base-content/70">
-              {{ selected.promptText }}
-            </p>
+            <div class="min-w-0 flex-1">
+              <p
+                class="text-xs font-black uppercase tracking-[0.28em] text-primary"
+              >
+                Select your matchup
+              </p>
+              <h3 class="mt-1 text-2xl font-black uppercase sm:text-4xl">
+                The Arena
+              </h3>
+              <p class="mt-2 max-w-2xl text-sm text-base-content/65">
+                Every contender gets the same challenge. Pick a division, study
+                the fight card, then enter the arena to judge the submissions.
+              </p>
+            </div>
+
+            <div class="flex gap-2">
+              <NuxtLink
+                to="/challenges/leaderboard"
+                class="btn btn-outline btn-sm rounded-xl"
+              >
+                <Icon name="kind-icon:trophy" class="size-4" />
+                Rankings
+              </NuxtLink>
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm rounded-xl"
+                :disabled="loading"
+                aria-label="Refresh challenges"
+                @click="loadChallenges"
+              >
+                <span
+                  v-if="loading"
+                  class="loading loading-spinner loading-sm"
+                />
+                <Icon v-else name="kind-icon:refresh" class="size-4" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div class="space-y-5 p-4 sm:p-6">
+          <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+            <fieldset>
+              <legend
+                class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.22em] text-base-content/50"
+              >
+                Division
+              </legend>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="option in typeOptions"
+                  :key="option.value"
+                  type="button"
+                  class="btn btn-sm rounded-xl"
+                  :class="
+                    typeFilter === option.value
+                      ? 'btn-primary shadow-md'
+                      : 'btn-ghost border border-base-300'
+                  "
+                  @click="typeFilter = option.value"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend
+                class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.22em] text-base-content/50"
+              >
+                Fight status
+              </legend>
+              <div class="join">
+                <button
+                  v-for="option in statusOptions"
+                  :key="option"
+                  type="button"
+                  class="btn btn-sm join-item"
+                  :class="statusFilter === option ? 'btn-secondary' : 'btn-ghost'"
+                  @click="statusFilter = option"
+                >
+                  {{ option }}
+                </button>
+              </div>
+            </fieldset>
           </div>
 
-          <p
-            class="text-xs font-semibold uppercase tracking-wide text-base-content/50"
+          <div
+            v-if="errorMessage"
+            role="alert"
+            class="alert alert-warning rounded-2xl text-sm"
           >
-            Contenders
-          </p>
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <article
-              v-for="sub in selected.Submissions || []"
-              :key="sub.id"
-              class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
+            <Icon name="kind-icon:warning" class="size-5" />
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <div
+            v-if="loading && !challenges.length"
+            class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+          >
+            <div
+              v-for="n in 6"
+              :key="n"
+              class="h-64 animate-pulse rounded-3xl border border-base-300 bg-base-200"
+            />
+          </div>
+
+          <div
+            v-else-if="challenges.length"
+            class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+          >
+            <NuxtLink
+              v-for="(challenge, index) in challenges"
+              :key="challenge.id"
+              :to="`/challenges/${challenge.slug}`"
+              class="group relative flex min-h-64 flex-col overflow-hidden rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             >
-              <image-card
-                v-if="sub.ArtImage"
-                :art-image="sub.ArtImage"
-                compact
-                :show-prompt="false"
-                :show-meta="false"
+              <div
+                class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent opacity-60 transition group-hover:opacity-100"
               />
-              <p
-                v-else-if="sub.outputText"
-                class="whitespace-pre-wrap text-sm text-base-content/75"
+              <div
+                class="pointer-events-none absolute -right-8 -top-8 text-8xl font-black text-base-content/[0.035]"
               >
-                {{ sub.outputText }}
-              </p>
-              <p v-else class="text-xs italic text-base-content/40">
-                Submission pending render.
-              </p>
-              <p
-                v-if="sub.agentModel"
-                class="text-xs font-semibold text-base-content/50"
-              >
-                {{ sub.agentModel }}
-              </p>
-            </article>
-            <p
-              v-if="!selected.Submissions || !selected.Submissions.length"
-              class="col-span-full py-8 text-center text-sm text-base-content/50"
-            >
-              No contenders have entered this challenge yet.
+                {{ String(index + 1).padStart(2, '0') }}
+              </div>
+
+              <div class="relative flex flex-wrap items-center gap-2">
+                <span class="badge badge-primary badge-sm rounded-lg font-black">
+                  {{ challenge.challengeType }}
+                </span>
+                <span
+                  class="badge badge-sm rounded-lg font-black"
+                  :class="statusClass(challenge.status)"
+                >
+                  {{ challenge.status }}
+                </span>
+                <span
+                  class="ml-auto text-[0.65rem] font-black uppercase tracking-[0.18em] text-base-content/40"
+                >
+                  Fight {{ String(index + 1).padStart(2, '0') }}
+                </span>
+              </div>
+
+              <div class="relative mt-5 flex-1">
+                <h4
+                  class="text-xl font-black uppercase leading-tight transition group-hover:text-primary"
+                >
+                  {{ challenge.title }}
+                </h4>
+                <p class="mt-3 line-clamp-3 text-sm text-base-content/65">
+                  {{ challenge.promptText }}
+                </p>
+              </div>
+
+              <div class="relative mt-5 space-y-3 border-t border-base-300 pt-4">
+                <div class="flex items-center justify-between gap-3 text-xs">
+                  <span class="font-black uppercase tracking-wider text-base-content/45">
+                    Difficulty
+                  </span>
+                  <span
+                    class="flex gap-0.5 text-base-content/20"
+                    :aria-label="`Difficulty ${challenge.difficulty} of 5`"
+                  >
+                    <span
+                      v-for="star in 5"
+                      :key="star"
+                      :class="star <= challenge.difficulty ? 'text-warning' : ''"
+                      aria-hidden="true"
+                    >★</span>
+                  </span>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 text-xs">
+                  <span class="font-black uppercase tracking-wider text-base-content/45">
+                    Entrants
+                  </span>
+                  <span class="font-black">
+                    {{ challenge.submissionCount }}
+                  </span>
+                </div>
+
+                <div
+                  class="flex min-h-11 items-center gap-3 rounded-2xl border border-base-300 bg-base-200/50 px-3 py-2"
+                >
+                  <div
+                    class="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
+                  >
+                    <Icon name="kind-icon:trophy" class="size-4" />
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p
+                      class="text-[0.6rem] font-black uppercase tracking-[0.18em] text-base-content/40"
+                    >
+                      Current leader
+                    </p>
+                    <p class="truncate text-xs font-black">
+                      {{ leaderLabel(challenge.slug) }}
+                    </p>
+                  </div>
+                  <span
+                    v-if="leaders[challenge.slug]"
+                    class="badge badge-ghost badge-sm rounded-lg font-black"
+                  >
+                    {{ signedScore(leaders[challenge.slug]?.netScore || 0) }}
+                  </span>
+                </div>
+
+                <div
+                  class="flex items-center justify-between text-xs font-black uppercase tracking-wider text-primary"
+                >
+                  <span>Enter matchup</span>
+                  <span class="transition-transform group-hover:translate-x-1">→</span>
+                </div>
+              </div>
+            </NuxtLink>
+          </div>
+
+          <div
+            v-else
+            class="rounded-3xl border border-dashed border-base-300 bg-base-200/40 px-6 py-16 text-center"
+          >
+            <Icon name="kind-icon:trophy" class="mx-auto size-10 text-primary/50" />
+            <h4 class="mt-4 text-lg font-black uppercase">No fights on this card</h4>
+            <p class="mx-auto mt-2 max-w-md text-sm text-base-content/55">
+              Try another division or status. The seeded challenges remain in the
+              arena even when this particular bracket is empty.
             </p>
           </div>
         </div>
@@ -148,54 +261,150 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import type { ArtImage } from '~/prisma/generated/prisma/client'
+import { onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 
-type Submission = {
-  id: number
-  agentModel?: string | null
-  outputText?: string | null
-  ArtImage?: ArtImage | null
-}
-type Challenge = {
+type ChallengeType =
+  | 'ALL'
+  | 'ART'
+  | 'TEXT'
+  | 'CHARACTER'
+  | 'SCENARIO'
+  | 'REASONING'
+
+type ChallengeStatus = 'OPEN' | 'JUDGING' | 'CLOSED'
+
+type ChallengeListItem = {
   id: number
   slug: string
   title: string
-  challengeType: string
+  challengeType: Exclude<ChallengeType, 'ALL'>
   difficulty: number
-  status: string
+  status: ChallengeStatus
   promptText: string
-  Submissions?: Submission[]
+  submissionCount: number
 }
 
-const challenges = ref<Challenge[]>([])
-const selected = ref<Challenge | null>(null)
+type LeaderPreview = {
+  name: string
+  netScore: number
+  votes: number
+}
+
+type LeaderboardResponse = {
+  challenge: {
+    id: number
+    slug: string
+    title: string
+    challengeType: string
+    status: string
+  }
+  leaderboard: Array<{
+    contenderId: number
+    name: string
+    rank: number
+    score: {
+      votes: number
+      netScore: number
+    }
+  }>
+}
+
+const typeOptions: Array<{ value: ChallengeType; label: string }> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'ART', label: 'Art' },
+  { value: 'TEXT', label: 'Text' },
+  { value: 'CHARACTER', label: 'Characters' },
+  { value: 'SCENARIO', label: 'Scenarios' },
+  { value: 'REASONING', label: 'Reasoning' },
+]
+
+const statusOptions: ChallengeStatus[] = ['OPEN', 'JUDGING', 'CLOSED']
+
+const typeFilter = ref<ChallengeType>('ALL')
+const statusFilter = ref<ChallengeStatus>('OPEN')
+const challenges = ref<ChallengeListItem[]>([])
+const leaders = ref<Record<string, LeaderPreview | null>>({})
 const loading = ref(false)
+const errorMessage = ref('')
+let requestSequence = 0
+
+function statusClass(status: ChallengeStatus) {
+  if (status === 'OPEN') return 'badge-success'
+  if (status === 'JUDGING') return 'badge-warning'
+  return 'badge-ghost'
+}
+
+function signedScore(score: number) {
+  return score > 0 ? `+${score}` : String(score)
+}
+
+function leaderLabel(slug: string) {
+  const leader = leaders.value[slug]
+  if (leader) return `${leader.name} · ${leader.votes} votes`
+  return 'Awaiting the first contender'
+}
+
+async function loadLeaderPreviews(
+  list: ChallengeListItem[],
+  sequence: number,
+) {
+  await Promise.allSettled(
+    list.map(async (challenge) => {
+      const response = await performFetch<LeaderboardResponse>(
+        `/api/challenges/${challenge.slug}/leaderboard`,
+      )
+
+      if (sequence !== requestSequence) return
+
+      const top = response.success ? response.data?.leaderboard?.[0] : undefined
+      leaders.value[challenge.slug] = top
+        ? {
+            name: top.name,
+            netScore: top.score.netScore,
+            votes: top.score.votes,
+          }
+        : null
+    }),
+  )
+}
 
 async function loadChallenges() {
+  const sequence = ++requestSequence
   loading.value = true
+  errorMessage.value = ''
+
+  const params = new URLSearchParams({ status: statusFilter.value })
+  if (typeFilter.value !== 'ALL') params.set('type', typeFilter.value)
+
   try {
-    const res = await performFetch<Challenge[]>('/api/challenges')
-    if (res.success && res.data) challenges.value = res.data
-  } catch {
-    /* empty-state UI covers this */
+    const response = await performFetch<ChallengeListItem[]>(
+      `/api/challenges?${params.toString()}`,
+    )
+
+    if (sequence !== requestSequence) return
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Could not load the fight card.')
+    }
+
+    challenges.value = response.data
+    leaders.value = {}
+    void loadLeaderPreviews(response.data, sequence)
+  } catch (error: unknown) {
+    if (sequence !== requestSequence) return
+    challenges.value = []
+    errorMessage.value =
+      error instanceof Error
+        ? error.message
+        : 'The arena could not load its challenges.'
   } finally {
-    loading.value = false
+    if (sequence === requestSequence) loading.value = false
   }
 }
 
-async function openChallenge(ch: Challenge) {
-  selected.value = ch
-  try {
-    const res = await performFetch<Challenge>(`/api/challenges/${ch.slug}`)
-    if (res.success && res.data) selected.value = res.data
-  } catch {
-    /* keep the summary we already have */
-  }
-}
-
+watch([typeFilter, statusFilter], loadChallenges)
 onMounted(loadChallenges)
 
 const config: ProjectFrontConfig = {
@@ -225,9 +434,11 @@ const config: ProjectFrontConfig = {
     done: [
       'Challenge / submission / contender schema + API',
       'Seed + leaderboard endpoints',
+      'Filtered fight-card browser',
     ],
     next: [
-      'Voting reactions surfaced inline',
+      'Dedicated voting arena',
+      'Championship leaderboard',
       'Automated contender submissions',
     ],
   },

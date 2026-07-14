@@ -186,6 +186,30 @@
         >
       </template>
 
+      <!-- Backfill channelKey / tabKey / liveUrl on project rows (admin) -->
+      <template v-if="userStore.isAdmin && viewMode === 'overview'">
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs gap-1 rounded-lg border border-base-300"
+          :disabled="applyingPlacements"
+          title="Backfill channelKey / tabKey / liveUrl on project rows from the canonical placement map"
+          @click="applyPlacementsAction"
+        >
+          <span
+            v-if="applyingPlacements"
+            class="loading loading-spinner loading-xs"
+          />
+          <Icon v-else name="kind-icon:link" class="size-3" />
+          Placements
+        </button>
+        <span
+          v-if="placementsMessage"
+          class="text-xs"
+          :class="placementsError ? 'text-error' : 'text-success'"
+          >{{ placementsMessage }}</span
+        >
+      </template>
+
       <!-- Kaizen philosophy popup -->
       <KaizenPopup />
 
@@ -1932,6 +1956,10 @@ import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
 import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
+import {
+  getProjectPlacement,
+  placementLiveUrl,
+} from '~/utils/projectPlacements'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import ConductorArtGallery from '@/components/pages/conductor-art-gallery.vue'
 import ConductorProjectChat from '@/components/pages/conductor-project-chat.vue'
@@ -1980,6 +2008,10 @@ const projectGalleryMode = ref<GalleryMode>('cards')
 const syncingMissing = ref(false)
 const syncMessage = ref('')
 const syncError = ref(false)
+
+const applyingPlacements = ref(false)
+const placementsMessage = ref('')
+const placementsError = ref(false)
 
 const showNewProjectForm = ref(false)
 const newProjectTitle = ref('')
@@ -2393,6 +2425,7 @@ async function syncMissingProjects() {
       const project = conductorStore.projects.find(
         (entry) => entry.slug === slug,
       )
+      const placement = getProjectPlacement(slug)
       await projectStore.createProject({
         title: project?.name || slug,
         slug,
@@ -2400,6 +2433,14 @@ async function syncMissingProjects() {
         imagePath: `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`,
         cardPath: `${CONDUCTOR_IMG_BASE}/${slug}-card.webp`,
         heroPath: `${CONDUCTOR_IMG_BASE}/${slug}-hero.webp`,
+        // Seed navigation placement from the canonical map when we know it.
+        ...(placement
+          ? {
+              channelKey: placement.channelKey,
+              tabKey: placement.tabKey,
+              liveUrl: placementLiveUrl(placement),
+            }
+          : {}),
         isPublic: true,
         isMature: false,
         isActive: true,
@@ -2415,6 +2456,27 @@ async function syncMissingProjects() {
     syncMessage.value = 'Sync failed'
   } finally {
     syncingMissing.value = false
+  }
+}
+
+async function applyPlacementsAction() {
+  applyingPlacements.value = true
+  placementsMessage.value = ''
+  placementsError.value = false
+  try {
+    const result = await projectStore.applyPlacements()
+    placementsMessage.value = `Placements: ${result.updated.length} set, ${result.unchanged.length} current${
+      result.missing.length ? `, ${result.missing.length} not synced` : ''
+    }`
+    setTimeout(() => {
+      placementsMessage.value = ''
+    }, 6000)
+  } catch (error) {
+    placementsError.value = true
+    placementsMessage.value =
+      error instanceof Error ? error.message : 'Failed to apply placements'
+  } finally {
+    applyingPlacements.value = false
   }
 }
 

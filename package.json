@@ -4,9 +4,10 @@
   "scripts": {
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
+    "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
     "facet:alias": "prisma generate && tsx utils/scripts/setFacetAliases.ts",
-    "trim:dry": "node ./utils/scripts/trim.mjs --dry-run",
-    "trim": "node ./utils/scripts/trim.mjs",
+    "trim:dry": "node utils/scripts/trim.mjs --dry-run",
+    "trim": "node utils/scripts/trim.mjs",
     "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && node --max-old-space-size=8192 ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p tsconfig.json",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
     "vercel-build": "prisma generate && prisma migrate deploy && node --max-old-space-size=8192 node_modules/.bin/nuxt build",
@@ -33,6 +34,8 @@
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts",
+    "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
+    "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"

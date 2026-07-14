@@ -2,13 +2,15 @@
 title: 'Stories'
 room: 'Story Maker Room'
 subtitle: A multiverse of possibilities
-description: A surreal odyssey powered by ChatGPT.  Craft worlds, weave narratives, and embrace the beautifully bizarre.
+description: A surreal odyssey powered by ChatGPT. Craft worlds, weave narratives, and embrace the beautifully bizarre.
 image: splash/stories.png
 icon: kind-icon:book
-tooltip: Share in a multiverse of possibilties.
+tooltip: Share in a multiverse of possibilities.
 sort: highlight
-dottitip: AMI, is the simulation room ready? We've handed visitors a box of story props, but we forgot to tell them what they're for.
-amitip: Perfect! Nothing fuels creativity like vague instructions and existential confusion. Let's see what they do with it!
+dottiTip: AMI, is the simulation room ready? We've handed visitors a box of story props, but we forgot to tell them what they're for.
+amiTip: Perfect! Nothing fuels creativity like vague instructions and existential confusion. Let's see what they do with it!
+channelKey: play
+tabKey: scenarios
 dashboardKey: scenario
 dashboardTab: scenarios
 cards: scenarioCards

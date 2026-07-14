@@ -1,13 +1,11 @@
 // /stores/artJobStore.ts
-//
-// Admin-only store backing the ArtJob dashboard (the "artjob" tab under the
-// "art" channel). Fetches pipeline stats, ComfyUI/SD uptime, and the job queue
-// from the admin-guarded endpoints, and exposes requeue/cancel actions. Every
-// call hits an endpoint guarded by requireAdminApiUser / admin-or-serverKey, so
-// a non-admin simply gets empty data.
 import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
-import type { ArtImage, ArtJob } from '~/prisma/generated/prisma/client'
+import type {
+  ArtImage,
+  ArtJob,
+  Prisma,
+} from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 
 export type ArtJobStatus =
@@ -16,6 +14,45 @@ export type ArtJobStatus =
   | 'DONE'
   | 'FAILED'
   | 'CANCELLED'
+
+export type ArtFeedbackSource = 'CURATOR' | 'HUMAN'
+export type ArtFeedbackVerdict = 'PROMOTE' | 'REVISE' | 'REJECT'
+
+export type ArtJobFeedback = Prisma.JsonObject & {
+  source: ArtFeedbackSource
+  verdict: ArtFeedbackVerdict
+  score: number | null
+  summary: string | null
+  reasons: string[]
+  tags: string[]
+  rubricKey: string | null
+  createdAt: string
+  userId: number | null
+}
+
+export type ArtJobCuration = Prisma.JsonObject & {
+  curator?: ArtJobFeedback
+  human?: ArtJobFeedback
+  history?: ArtJobFeedback[]
+}
+
+export type ArtJobPayload = Prisma.JsonObject & {
+  curation?: ArtJobCuration
+}
+
+export type ArtJobRecord = Omit<ArtJob, 'payload'> & {
+  payload: ArtJobPayload
+}
+
+export type SubmitArtFeedbackInput = {
+  source: ArtFeedbackSource
+  verdict: ArtFeedbackVerdict
+  score?: number | null
+  summary?: string | null
+  reasons?: string[]
+  tags?: string[]
+  rubricKey?: string | null
+}
 
 export type QueueStats = {
   windowHours: number
@@ -69,31 +106,32 @@ export type ServerUptime = {
 type ArtJobState = {
   stats: QueueStats | null
   uptime: ServerUptime[]
-  jobs: ArtJob[]
-  // Displayable src (data URL or /images path) for a finished job's ArtImage,
-  // keyed by artImageId — so the DONE tab can show the generated art.
+  jobs: ArtJobRecord[]
+  trainerJobs: ArtJobRecord[]
   imageSrcById: Record<number, string>
   jobStatusFilter: ArtJobStatus | 'ALL'
   loadingStats: boolean
   loadingUptime: boolean
   loadingJobs: boolean
+  loadingTrainerJobs: boolean
   error: string | null
   windowHours: number
 }
 
-// How many finished jobs to pull image data for at once (base64 is heavy).
-const MAX_JOB_IMAGES = 48
+const MAX_JOB_IMAGES = 72
 
 export const useArtJobStore = defineStore('artJobStore', () => {
   const state = reactive<ArtJobState>({
     stats: null,
     uptime: [],
     jobs: [],
+    trainerJobs: [],
     imageSrcById: {},
     jobStatusFilter: 'PENDING',
     loadingStats: false,
     loadingUptime: false,
     loadingJobs: false,
+    loadingTrainerJobs: false,
     error: null,
     windowHours: 24,
   })
@@ -137,7 +175,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     state.loadingJobs = true
     try {
       const query = status === 'ALL' ? '' : `?status=${status}`
-      const res = await performFetch<{ jobs: ArtJob[] }>(
+      const res = await performFetch<{ jobs: ArtJobRecord[] }>(
         `/api/art/queue${query}${status === 'ALL' ? '?' : '&'}limit=100`,
       )
       if (res.success && res.data) {
@@ -151,9 +189,25 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  // Turn a finished job's ArtImage into a browser-displayable src: prefer the
-  // base64 imageData (how the relay stores results) as a data URL, else a
-  // normalized /images path.
+  async function fetchTrainerJobs(): Promise<void> {
+    state.loadingTrainerJobs = true
+    try {
+      const res = await performFetch<{ jobs: ArtJobRecord[] }>(
+        '/api/art/queue?status=DONE&limit=200',
+      )
+      if (res.success && res.data) {
+        state.trainerJobs = res.data.jobs.filter((job) => {
+          return Boolean(job.payload?.curation?.curator)
+        })
+        void loadJobImages()
+      } else if (!res.success) {
+        state.error = res.message || 'Failed to load curated jobs.'
+      }
+    } finally {
+      state.loadingTrainerJobs = false
+    }
+  }
+
   function artImageToSrc(image: ArtImage | null | undefined): string {
     if (!image) return ''
     const raw = (image.imageData || '').trim()
@@ -171,13 +225,13 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return ''
   }
 
-  // Load the generated art for the currently-shown finished jobs so the DONE
-  // tab can render thumbnails. Bounded by MAX_JOB_IMAGES since imageData is
-  // heavy; skips ids already loaded.
   async function loadJobImages(): Promise<void> {
-    const ids = state.jobs
-      .filter((j) => j.status === 'DONE' && typeof j.artImageId === 'number')
-      .map((j) => j.artImageId as number)
+    const ids = [...state.jobs, ...state.trainerJobs]
+      .filter((job) => {
+        return job.status === 'DONE' && typeof job.artImageId === 'number'
+      })
+      .map((job) => job.artImageId as number)
+      .filter((id, index, all) => all.indexOf(id) === index)
       .filter((id) => !(id in state.imageSrcById))
       .slice(0, MAX_JOB_IMAGES)
 
@@ -198,13 +252,44 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     )
   }
 
+  function replaceJob(updated: ArtJobRecord): void {
+    const jobIndex = state.jobs.findIndex((job) => job.id === updated.id)
+    if (jobIndex >= 0) state.jobs[jobIndex] = updated
+
+    const trainerIndex = state.trainerJobs.findIndex(
+      (job) => job.id === updated.id,
+    )
+    if (trainerIndex >= 0) state.trainerJobs[trainerIndex] = updated
+  }
+
+  async function submitFeedback(
+    id: number,
+    input: SubmitArtFeedbackInput,
+  ): Promise<boolean> {
+    const res = await performFetch<{ job: ArtJobRecord }>(
+      `/api/art/queue/${id}/feedback`,
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+    )
+
+    if (res.success && res.data?.job) {
+      replaceJob(res.data.job)
+      return true
+    }
+
+    state.error = res.message || `Failed to save feedback for job ${id}.`
+    return false
+  }
+
   async function requeueJob(id: number): Promise<boolean> {
     const res = await performFetch(`/api/art/queue/${id}/requeue`, {
       method: 'POST',
       body: JSON.stringify({}),
     })
     if (res.success) {
-      await Promise.all([fetchJobs(), fetchStats()])
+      await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
       return true
     }
     state.error = res.message || `Failed to requeue job ${id}.`
@@ -217,21 +302,20 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       body: JSON.stringify({}),
     })
     if (res.success) {
-      await Promise.all([fetchJobs(), fetchStats()])
+      await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
       return true
     }
     state.error = res.message || `Failed to cancel job ${id}.`
     return false
   }
 
-  // Re-run: clone the job into a fresh PENDING job (works on DONE too).
   async function reenqueueJob(id: number): Promise<number | null> {
-    const res = await performFetch<{ job: ArtJob }>(
+    const res = await performFetch<{ job: ArtJobRecord }>(
       `/api/art/queue/${id}/reenqueue`,
       { method: 'POST', body: JSON.stringify({}) },
     )
     if (res.success && res.data?.job) {
-      await Promise.all([fetchJobs(), fetchStats()])
+      await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
       return res.data.job.id
     }
     state.error = res.message || `Failed to re-enqueue job ${id}.`
@@ -240,7 +324,12 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
   async function refreshAll(): Promise<void> {
     state.error = null
-    await Promise.all([fetchStats(), fetchUptime(), fetchJobs()])
+    await Promise.all([
+      fetchStats(),
+      fetchUptime(),
+      fetchJobs(),
+      fetchTrainerJobs(),
+    ])
   }
 
   function setWindow(hours: number): void {
@@ -252,6 +341,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     fetchStats,
     fetchUptime,
     fetchJobs,
+    fetchTrainerJobs,
+    submitFeedback,
     requeueJob,
     cancelJob,
     reenqueueJob,

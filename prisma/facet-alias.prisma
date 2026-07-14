@@ -12,6 +12,7 @@ model FacetAlias {
   lookupKey   String    @unique @db.VarChar(255)
   isCanonical Boolean   @default(false)
   isActive    Boolean   @default(true)
+  Facet       Facet     @relation(fields: [facetId], references: [id], onDelete: Cascade)
 
   @@unique([facetId, alias])
   @@index([facetId])

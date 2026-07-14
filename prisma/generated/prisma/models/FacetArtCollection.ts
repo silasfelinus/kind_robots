@@ -204,16 +204,16 @@ export type FacetArtCollectionWhereInput = {
   facetId?: Prisma.IntFilter<"FacetArtCollection"> | number
   artCollectionId?: Prisma.IntFilter<"FacetArtCollection"> | number
   createdAt?: Prisma.DateTimeFilter<"FacetArtCollection"> | Date | string
-  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionScalarRelationFilter, Prisma.ArtCollectionWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }
 
 export type FacetArtCollectionOrderByWithRelationInput = {
   facetId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  Facet?: Prisma.FacetOrderByWithRelationInput
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
+  Facet?: Prisma.FacetOrderByWithRelationInput
 }
 
 export type FacetArtCollectionWhereUniqueInput = Prisma.AtLeast<{
@@ -224,8 +224,8 @@ export type FacetArtCollectionWhereUniqueInput = Prisma.AtLeast<{
   facetId?: Prisma.IntFilter<"FacetArtCollection"> | number
   artCollectionId?: Prisma.IntFilter<"FacetArtCollection"> | number
   createdAt?: Prisma.DateTimeFilter<"FacetArtCollection"> | Date | string
-  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionScalarRelationFilter, Prisma.ArtCollectionWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }, "facetId_artCollectionId">
 
 export type FacetArtCollectionOrderByWithAggregationInput = {
@@ -250,8 +250,8 @@ export type FacetArtCollectionScalarWhereWithAggregatesInput = {
 
 export type FacetArtCollectionCreateInput = {
   createdAt?: Date | string
-  Facet: Prisma.FacetCreateNestedOneWithoutArtCollectionLinksInput
   ArtCollection: Prisma.ArtCollectionCreateNestedOneWithoutFacetLinksInput
+  Facet: Prisma.FacetCreateNestedOneWithoutArtCollectionLinksInput
 }
 
 export type FacetArtCollectionUncheckedCreateInput = {
@@ -262,8 +262,8 @@ export type FacetArtCollectionUncheckedCreateInput = {
 
 export type FacetArtCollectionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Facet?: Prisma.FacetUpdateOneRequiredWithoutArtCollectionLinksNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneRequiredWithoutFacetLinksNestedInput
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutArtCollectionLinksNestedInput
 }
 
 export type FacetArtCollectionUncheckedUpdateInput = {
@@ -542,8 +542,8 @@ export type FacetArtCollectionSelect<ExtArgs extends runtime.Types.Extensions.In
   facetId?: boolean
   artCollectionId?: boolean
   createdAt?: boolean
-  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.ArtCollectionDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["facetArtCollection"]>
 
 
@@ -556,15 +556,15 @@ export type FacetArtCollectionSelectScalar = {
 
 export type FacetArtCollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"facetId" | "artCollectionId" | "createdAt", ExtArgs["result"]["facetArtCollection"]>
 export type FacetArtCollectionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.ArtCollectionDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
 }
 
 export type $FacetArtCollectionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FacetArtCollection"
   objects: {
-    Facet: Prisma.$FacetPayload<ExtArgs>
     ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs>
+    Facet: Prisma.$FacetPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     facetId: number
@@ -910,8 +910,8 @@ readonly fields: FacetArtCollectionFieldRefs;
  */
 export interface Prisma__FacetArtCollectionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Facet<T extends Prisma.FacetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacetDefaultArgs<ExtArgs>>): Prisma.Prisma__FacetClient<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ArtCollection<T extends Prisma.ArtCollectionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtCollectionDefaultArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Facet<T extends Prisma.FacetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacetDefaultArgs<ExtArgs>>): Prisma.Prisma__FacetClient<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

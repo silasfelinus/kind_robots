@@ -28,14 +28,14 @@ export type AggregateServer = {
 
 export type ServerAvgAggregateOutputType = {
   id: number | null
-  sortOrder: number | null
   userId: number | null
+  sortOrder: number | null
 }
 
 export type ServerSumAggregateOutputType = {
   id: number | null
-  sortOrder: number | null
   userId: number | null
+  sortOrder: number | null
 }
 
 export type ServerMinAggregateOutputType = {
@@ -45,31 +45,31 @@ export type ServerMinAggregateOutputType = {
   title: string | null
   label: string | null
   description: string | null
-  category: string | null
   serverType: $Enums.ServerType | null
-  accessMode: $Enums.ServerAccessMode | null
-  authType: $Enums.ServerAuthType | null
+  category: string | null
   baseUrl: string | null
   endpointPath: string | null
   healthPath: string | null
-  apiLink: string | null
-  apiKey: string | null
-  apiKeyName: string | null
-  model: string | null
-  notes: string | null
-  designer: string | null
-  version: string | null
-  sortOrder: number | null
   userId: number | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
   isEditable: boolean | null
-  isMature: boolean | null
+  apiKeyName: string | null
+  apiLink: string | null
+  model: string | null
+  apiKey: string | null
+  designer: string | null
+  version: string | null
+  notes: string | null
+  sortOrder: number | null
   lastCheckedAt: Date | null
   lastStatus: $Enums.ServerStatus | null
+  accessMode: $Enums.ServerAccessMode | null
+  isMature: boolean | null
   artPrompt: string | null
+  authType: $Enums.ServerAuthType | null
 }
 
 export type ServerMaxAggregateOutputType = {
@@ -79,31 +79,31 @@ export type ServerMaxAggregateOutputType = {
   title: string | null
   label: string | null
   description: string | null
-  category: string | null
   serverType: $Enums.ServerType | null
-  accessMode: $Enums.ServerAccessMode | null
-  authType: $Enums.ServerAuthType | null
+  category: string | null
   baseUrl: string | null
   endpointPath: string | null
   healthPath: string | null
-  apiLink: string | null
-  apiKey: string | null
-  apiKeyName: string | null
-  model: string | null
-  notes: string | null
-  designer: string | null
-  version: string | null
-  sortOrder: number | null
   userId: number | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
   isEditable: boolean | null
-  isMature: boolean | null
+  apiKeyName: string | null
+  apiLink: string | null
+  model: string | null
+  apiKey: string | null
+  designer: string | null
+  version: string | null
+  notes: string | null
+  sortOrder: number | null
   lastCheckedAt: Date | null
   lastStatus: $Enums.ServerStatus | null
+  accessMode: $Enums.ServerAccessMode | null
+  isMature: boolean | null
   artPrompt: string | null
+  authType: $Enums.ServerAuthType | null
 }
 
 export type ServerCountAggregateOutputType = {
@@ -113,45 +113,45 @@ export type ServerCountAggregateOutputType = {
   title: number
   label: number
   description: number
-  category: number
   serverType: number
-  accessMode: number
-  authType: number
+  category: number
   baseUrl: number
   endpointPath: number
   healthPath: number
-  apiLink: number
-  apiKey: number
-  apiKeyName: number
-  model: number
-  notes: number
-  designer: number
-  version: number
-  sortOrder: number
   userId: number
   isPublic: number
   isOfficial: number
   isDefault: number
   isActive: number
   isEditable: number
-  isMature: number
+  apiKeyName: number
+  apiLink: number
+  model: number
+  apiKey: number
+  designer: number
+  version: number
+  notes: number
+  sortOrder: number
   lastCheckedAt: number
   lastStatus: number
+  accessMode: number
+  isMature: number
   artPrompt: number
+  authType: number
   _all: number
 }
 
 
 export type ServerAvgAggregateInputType = {
   id?: true
-  sortOrder?: true
   userId?: true
+  sortOrder?: true
 }
 
 export type ServerSumAggregateInputType = {
   id?: true
-  sortOrder?: true
   userId?: true
+  sortOrder?: true
 }
 
 export type ServerMinAggregateInputType = {
@@ -161,31 +161,31 @@ export type ServerMinAggregateInputType = {
   title?: true
   label?: true
   description?: true
-  category?: true
   serverType?: true
-  accessMode?: true
-  authType?: true
+  category?: true
   baseUrl?: true
   endpointPath?: true
   healthPath?: true
-  apiLink?: true
-  apiKey?: true
-  apiKeyName?: true
-  model?: true
-  notes?: true
-  designer?: true
-  version?: true
-  sortOrder?: true
   userId?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
   isActive?: true
   isEditable?: true
-  isMature?: true
+  apiKeyName?: true
+  apiLink?: true
+  model?: true
+  apiKey?: true
+  designer?: true
+  version?: true
+  notes?: true
+  sortOrder?: true
   lastCheckedAt?: true
   lastStatus?: true
+  accessMode?: true
+  isMature?: true
   artPrompt?: true
+  authType?: true
 }
 
 export type ServerMaxAggregateInputType = {
@@ -195,31 +195,31 @@ export type ServerMaxAggregateInputType = {
   title?: true
   label?: true
   description?: true
-  category?: true
   serverType?: true
-  accessMode?: true
-  authType?: true
+  category?: true
   baseUrl?: true
   endpointPath?: true
   healthPath?: true
-  apiLink?: true
-  apiKey?: true
-  apiKeyName?: true
-  model?: true
-  notes?: true
-  designer?: true
-  version?: true
-  sortOrder?: true
   userId?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
   isActive?: true
   isEditable?: true
-  isMature?: true
+  apiKeyName?: true
+  apiLink?: true
+  model?: true
+  apiKey?: true
+  designer?: true
+  version?: true
+  notes?: true
+  sortOrder?: true
   lastCheckedAt?: true
   lastStatus?: true
+  accessMode?: true
+  isMature?: true
   artPrompt?: true
+  authType?: true
 }
 
 export type ServerCountAggregateInputType = {
@@ -229,31 +229,31 @@ export type ServerCountAggregateInputType = {
   title?: true
   label?: true
   description?: true
-  category?: true
   serverType?: true
-  accessMode?: true
-  authType?: true
+  category?: true
   baseUrl?: true
   endpointPath?: true
   healthPath?: true
-  apiLink?: true
-  apiKey?: true
-  apiKeyName?: true
-  model?: true
-  notes?: true
-  designer?: true
-  version?: true
-  sortOrder?: true
   userId?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
   isActive?: true
   isEditable?: true
-  isMature?: true
+  apiKeyName?: true
+  apiLink?: true
+  model?: true
+  apiKey?: true
+  designer?: true
+  version?: true
+  notes?: true
+  sortOrder?: true
   lastCheckedAt?: true
   lastStatus?: true
+  accessMode?: true
+  isMature?: true
   artPrompt?: true
+  authType?: true
   _all?: true
 }
 
@@ -350,31 +350,31 @@ export type ServerGroupByOutputType = {
   title: string
   label: string | null
   description: string | null
-  category: string | null
   serverType: $Enums.ServerType
-  accessMode: $Enums.ServerAccessMode
-  authType: $Enums.ServerAuthType
+  category: string | null
   baseUrl: string | null
   endpointPath: string | null
   healthPath: string | null
-  apiLink: string | null
-  apiKey: string | null
-  apiKeyName: string | null
-  model: string | null
-  notes: string | null
-  designer: string | null
-  version: string | null
-  sortOrder: number
   userId: number | null
   isPublic: boolean
   isOfficial: boolean
   isDefault: boolean
   isActive: boolean
   isEditable: boolean
-  isMature: boolean
+  apiKeyName: string | null
+  apiLink: string | null
+  model: string | null
+  apiKey: string | null
+  designer: string | null
+  version: string | null
+  notes: string | null
+  sortOrder: number
   lastCheckedAt: Date | null
   lastStatus: $Enums.ServerStatus
+  accessMode: $Enums.ServerAccessMode
+  isMature: boolean
   artPrompt: string | null
+  authType: $Enums.ServerAuthType
   _count: ServerCountAggregateOutputType | null
   _avg: ServerAvgAggregateOutputType | null
   _sum: ServerSumAggregateOutputType | null
@@ -407,38 +407,38 @@ export type ServerWhereInput = {
   title?: Prisma.StringFilter<"Server"> | string
   label?: Prisma.StringNullableFilter<"Server"> | string | null
   description?: Prisma.StringNullableFilter<"Server"> | string | null
-  category?: Prisma.StringNullableFilter<"Server"> | string | null
   serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
+  category?: Prisma.StringNullableFilter<"Server"> | string | null
   baseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
-  model?: Prisma.StringNullableFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableFilter<"Server"> | string | null
-  version?: Prisma.StringNullableFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntFilter<"Server"> | number
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
-  isMature?: Prisma.BoolFilter<"Server"> | boolean
+  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableFilter<"Server"> | string | null
+  version?: Prisma.StringNullableFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntFilter<"Server"> | number
   lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFilter<"Server"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Server"> | string | null
+  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Resources?: Prisma.ResourceListRelationFilter
   HealthChecks?: Prisma.ServerHealthCheckListRelationFilter
+  Resources?: Prisma.ResourceListRelationFilter
 }
 
 export type ServerOrderByWithRelationInput = {
@@ -448,38 +448,38 @@ export type ServerOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
   serverType?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  authType?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   baseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   endpointPath?: Prisma.SortOrderInput | Prisma.SortOrder
   healthPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
-  model?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
-  designer?: Prisma.SortOrderInput | Prisma.SortOrder
-  version?: Prisma.SortOrderInput | Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  designer?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  authType?: Prisma.SortOrder
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   Bots?: Prisma.BotOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
-  Resources?: Prisma.ResourceOrderByRelationAggregateInput
   HealthChecks?: Prisma.ServerHealthCheckOrderByRelationAggregateInput
+  Resources?: Prisma.ResourceOrderByRelationAggregateInput
   _relevance?: Prisma.ServerOrderByRelevanceInput
 }
 
@@ -493,38 +493,38 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Server"> | string
   label?: Prisma.StringNullableFilter<"Server"> | string | null
   description?: Prisma.StringNullableFilter<"Server"> | string | null
-  category?: Prisma.StringNullableFilter<"Server"> | string | null
   serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
+  category?: Prisma.StringNullableFilter<"Server"> | string | null
   baseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
-  model?: Prisma.StringNullableFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableFilter<"Server"> | string | null
-  version?: Prisma.StringNullableFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntFilter<"Server"> | number
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
-  isMature?: Prisma.BoolFilter<"Server"> | boolean
+  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableFilter<"Server"> | string | null
+  version?: Prisma.StringNullableFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntFilter<"Server"> | number
   lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFilter<"Server"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Server"> | string | null
+  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Resources?: Prisma.ResourceListRelationFilter
   HealthChecks?: Prisma.ServerHealthCheckListRelationFilter
+  Resources?: Prisma.ResourceListRelationFilter
 }, "id">
 
 export type ServerOrderByWithAggregationInput = {
@@ -534,31 +534,31 @@ export type ServerOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
   serverType?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  authType?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   baseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   endpointPath?: Prisma.SortOrderInput | Prisma.SortOrder
   healthPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
-  model?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
-  designer?: Prisma.SortOrderInput | Prisma.SortOrder
-  version?: Prisma.SortOrderInput | Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  designer?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  authType?: Prisma.SortOrder
   _count?: Prisma.ServerCountOrderByAggregateInput
   _avg?: Prisma.ServerAvgOrderByAggregateInput
   _max?: Prisma.ServerMaxOrderByAggregateInput
@@ -576,31 +576,31 @@ export type ServerScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Server"> | string
   label?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  category?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   serverType?: Prisma.EnumServerTypeWithAggregatesFilter<"Server"> | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeWithAggregatesFilter<"Server"> | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeWithAggregatesFilter<"Server"> | $Enums.ServerAuthType
+  category?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   baseUrl?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  apiLink?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  apiKeyName?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  model?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  version?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntWithAggregatesFilter<"Server"> | number
   userId?: Prisma.IntNullableWithAggregatesFilter<"Server"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isDefault?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isEditable?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
-  isMature?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  apiKeyName?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  model?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  version?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntWithAggregatesFilter<"Server"> | number
   lastCheckedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Server"> | Date | string | null
   lastStatus?: Prisma.EnumServerStatusWithAggregatesFilter<"Server"> | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeWithAggregatesFilter<"Server"> | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  authType?: Prisma.EnumServerAuthTypeWithAggregatesFilter<"Server"> | $Enums.ServerAuthType
 }
 
 export type ServerCreateInput = {
@@ -609,37 +609,37 @@ export type ServerCreateInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutServerInput
   user?: Prisma.UserCreateNestedOneWithoutServersInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
 }
 
 export type ServerUncheckedCreateInput = {
@@ -649,37 +649,37 @@ export type ServerUncheckedCreateInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
 }
 
 export type ServerUpdateInput = {
@@ -688,37 +688,37 @@ export type ServerUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutServerNestedInput
   user?: Prisma.UserUpdateOneWithoutServersNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateInput = {
@@ -728,37 +728,37 @@ export type ServerUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
 }
 
 export type ServerCreateManyInput = {
@@ -768,31 +768,31 @@ export type ServerCreateManyInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
 }
 
 export type ServerUpdateManyMutationInput = {
@@ -801,30 +801,30 @@ export type ServerUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
 }
 
 export type ServerUncheckedUpdateManyInput = {
@@ -834,31 +834,31 @@ export type ServerUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
 }
 
 export type ServerNullableScalarRelationFilter = {
@@ -889,37 +889,37 @@ export type ServerCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   serverType?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  authType?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  designer?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  designer?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
 }
 
 export type ServerAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
 }
 
 export type ServerMaxOrderByAggregateInput = {
@@ -929,31 +929,31 @@ export type ServerMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   serverType?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  authType?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  designer?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  designer?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
 }
 
 export type ServerMinOrderByAggregateInput = {
@@ -963,37 +963,37 @@ export type ServerMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   label?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   serverType?: Prisma.SortOrder
-  accessMode?: Prisma.SortOrder
-  authType?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
-  apiLink?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
-  apiKeyName?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  designer?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
+  apiKeyName?: Prisma.SortOrder
+  apiLink?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  designer?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   lastCheckedAt?: Prisma.SortOrder
   lastStatus?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  authType?: Prisma.SortOrder
 }
 
 export type ServerSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  sortOrder?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
 }
 
 export type ServerScalarRelationFilter = {
@@ -1107,16 +1107,16 @@ export type EnumServerTypeFieldUpdateOperationsInput = {
   set?: $Enums.ServerType
 }
 
+export type EnumServerStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ServerStatus
+}
+
 export type EnumServerAccessModeFieldUpdateOperationsInput = {
   set?: $Enums.ServerAccessMode
 }
 
 export type EnumServerAuthTypeFieldUpdateOperationsInput = {
   set?: $Enums.ServerAuthType
-}
-
-export type EnumServerStatusFieldUpdateOperationsInput = {
-  set?: $Enums.ServerStatus
 }
 
 export type ServerCreateNestedOneWithoutHealthChecksInput = {
@@ -1181,36 +1181,36 @@ export type ServerCreateWithoutArtImagesInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutServerInput
   user?: Prisma.UserCreateNestedOneWithoutServersInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutArtImagesInput = {
@@ -1220,36 +1220,36 @@ export type ServerUncheckedCreateWithoutArtImagesInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
 }
 
 export type ServerCreateOrConnectWithoutArtImagesInput = {
@@ -1274,36 +1274,36 @@ export type ServerUpdateWithoutArtImagesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutServerNestedInput
   user?: Prisma.UserUpdateOneWithoutServersNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutArtImagesInput = {
@@ -1313,36 +1313,36 @@ export type ServerUncheckedUpdateWithoutArtImagesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
 }
 
 export type ServerCreateWithoutBotsInput = {
@@ -1351,36 +1351,36 @@ export type ServerCreateWithoutBotsInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutServerInput
   user?: Prisma.UserCreateNestedOneWithoutServersInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutBotsInput = {
@@ -1390,36 +1390,36 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
 }
 
 export type ServerCreateOrConnectWithoutBotsInput = {
@@ -1444,36 +1444,36 @@ export type ServerUpdateWithoutBotsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutServerNestedInput
   user?: Prisma.UserUpdateOneWithoutServersNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutBotsInput = {
@@ -1483,36 +1483,36 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
 }
 
 export type ServerCreateWithoutChatsInput = {
@@ -1521,36 +1521,36 @@ export type ServerCreateWithoutChatsInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutServerInput
   user?: Prisma.UserCreateNestedOneWithoutServersInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutChatsInput = {
@@ -1560,36 +1560,36 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
 }
 
 export type ServerCreateOrConnectWithoutChatsInput = {
@@ -1614,36 +1614,36 @@ export type ServerUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutServerNestedInput
   user?: Prisma.UserUpdateOneWithoutServersNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutChatsInput = {
@@ -1653,36 +1653,36 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
 }
 
 export type ServerCreateWithoutPromptsInput = {
@@ -1691,36 +1691,36 @@ export type ServerCreateWithoutPromptsInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
   user?: Prisma.UserCreateNestedOneWithoutServersInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutPromptsInput = {
@@ -1730,36 +1730,36 @@ export type ServerUncheckedCreateWithoutPromptsInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
 }
 
 export type ServerCreateOrConnectWithoutPromptsInput = {
@@ -1784,36 +1784,36 @@ export type ServerUpdateWithoutPromptsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
   user?: Prisma.UserUpdateOneWithoutServersNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutPromptsInput = {
@@ -1823,36 +1823,36 @@ export type ServerUncheckedUpdateWithoutPromptsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
 }
 
 export type ServerCreateWithoutResourcesInput = {
@@ -1861,30 +1861,30 @@ export type ServerCreateWithoutResourcesInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
@@ -1900,31 +1900,31 @@ export type ServerUncheckedCreateWithoutResourcesInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
@@ -1963,31 +1963,31 @@ export type ServerScalarWhereInput = {
   title?: Prisma.StringFilter<"Server"> | string
   label?: Prisma.StringNullableFilter<"Server"> | string | null
   description?: Prisma.StringNullableFilter<"Server"> | string | null
-  category?: Prisma.StringNullableFilter<"Server"> | string | null
   serverType?: Prisma.EnumServerTypeFilter<"Server"> | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
+  category?: Prisma.StringNullableFilter<"Server"> | string | null
   baseUrl?: Prisma.StringNullableFilter<"Server"> | string | null
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
-  model?: Prisma.StringNullableFilter<"Server"> | string | null
-  notes?: Prisma.StringNullableFilter<"Server"> | string | null
-  designer?: Prisma.StringNullableFilter<"Server"> | string | null
-  version?: Prisma.StringNullableFilter<"Server"> | string | null
-  sortOrder?: Prisma.IntFilter<"Server"> | number
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
-  isMature?: Prisma.BoolFilter<"Server"> | boolean
+  apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
+  model?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  designer?: Prisma.StringNullableFilter<"Server"> | string | null
+  version?: Prisma.StringNullableFilter<"Server"> | string | null
+  notes?: Prisma.StringNullableFilter<"Server"> | string | null
+  sortOrder?: Prisma.IntFilter<"Server"> | number
   lastCheckedAt?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFilter<"Server"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Server"> | string | null
+  authType?: Prisma.EnumServerAuthTypeFilter<"Server"> | $Enums.ServerAuthType
 }
 
 export type ServerCreateWithoutHealthChecksInput = {
@@ -1996,30 +1996,30 @@ export type ServerCreateWithoutHealthChecksInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
@@ -2035,31 +2035,31 @@ export type ServerUncheckedCreateWithoutHealthChecksInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   userId?: number | null
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
@@ -2089,30 +2089,30 @@ export type ServerUpdateWithoutHealthChecksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
@@ -2128,31 +2128,31 @@ export type ServerUncheckedUpdateWithoutHealthChecksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
@@ -2166,36 +2166,36 @@ export type ServerCreateWithoutUserInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
 }
 
 export type ServerUncheckedCreateWithoutUserInput = {
@@ -2205,36 +2205,36 @@ export type ServerUncheckedCreateWithoutUserInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedCreateNestedManyWithoutServerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
 }
 
 export type ServerCreateOrConnectWithoutUserInput = {
@@ -2269,30 +2269,30 @@ export type ServerUpdateWithoutResourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
@@ -2308,31 +2308,31 @@ export type ServerUncheckedUpdateWithoutResourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
@@ -2347,31 +2347,31 @@ export type ServerUncheckedUpdateManyWithoutResourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
 }
 
 export type ServerCreateManyUserInput = {
@@ -2381,30 +2381,30 @@ export type ServerCreateManyUserInput = {
   title: string
   label?: string | null
   description?: string | null
-  category?: string | null
   serverType?: $Enums.ServerType
-  accessMode?: $Enums.ServerAccessMode
-  authType?: $Enums.ServerAuthType
+  category?: string | null
   baseUrl?: string | null
   endpointPath?: string | null
   healthPath?: string | null
-  apiLink?: string | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-  model?: string | null
-  notes?: string | null
-  designer?: string | null
-  version?: string | null
-  sortOrder?: number
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: string | null
+  apiLink?: string | null
+  model?: string | null
+  apiKey?: string | null
+  designer?: string | null
+  version?: string | null
+  notes?: string | null
+  sortOrder?: number
   lastCheckedAt?: Date | string | null
   lastStatus?: $Enums.ServerStatus
+  accessMode?: $Enums.ServerAccessMode
+  isMature?: boolean
   artPrompt?: string | null
+  authType?: $Enums.ServerAuthType
 }
 
 export type ServerUpdateWithoutUserInput = {
@@ -2413,36 +2413,36 @@ export type ServerUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateWithoutUserInput = {
@@ -2452,36 +2452,36 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
   HealthChecks?: Prisma.ServerHealthCheckUncheckedUpdateManyWithoutServerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
 }
 
 export type ServerUncheckedUpdateManyWithoutUserInput = {
@@ -2491,30 +2491,30 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastStatus?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authType?: Prisma.EnumServerAuthTypeFieldUpdateOperationsInput | $Enums.ServerAuthType
 }
 
 
@@ -2527,8 +2527,8 @@ export type ServerCountOutputType = {
   Bots: number
   Chats: number
   Prompts: number
-  Resources: number
   HealthChecks: number
+  Resources: number
 }
 
 export type ServerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2536,8 +2536,8 @@ export type ServerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   Bots?: boolean | ServerCountOutputTypeCountBotsArgs
   Chats?: boolean | ServerCountOutputTypeCountChatsArgs
   Prompts?: boolean | ServerCountOutputTypeCountPromptsArgs
-  Resources?: boolean | ServerCountOutputTypeCountResourcesArgs
   HealthChecks?: boolean | ServerCountOutputTypeCountHealthChecksArgs
+  Resources?: boolean | ServerCountOutputTypeCountResourcesArgs
 }
 
 /**
@@ -2581,15 +2581,15 @@ export type ServerCountOutputTypeCountPromptsArgs<ExtArgs extends runtime.Types.
 /**
  * ServerCountOutputType without action
  */
-export type ServerCountOutputTypeCountResourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ResourceWhereInput
+export type ServerCountOutputTypeCountHealthChecksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ServerHealthCheckWhereInput
 }
 
 /**
  * ServerCountOutputType without action
  */
-export type ServerCountOutputTypeCountHealthChecksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ServerHealthCheckWhereInput
+export type ServerCountOutputTypeCountResourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResourceWhereInput
 }
 
 
@@ -2600,38 +2600,38 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   title?: boolean
   label?: boolean
   description?: boolean
-  category?: boolean
   serverType?: boolean
-  accessMode?: boolean
-  authType?: boolean
+  category?: boolean
   baseUrl?: boolean
   endpointPath?: boolean
   healthPath?: boolean
-  apiLink?: boolean
-  apiKey?: boolean
-  apiKeyName?: boolean
-  model?: boolean
-  notes?: boolean
-  designer?: boolean
-  version?: boolean
-  sortOrder?: boolean
   userId?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: boolean
+  apiLink?: boolean
+  model?: boolean
+  apiKey?: boolean
+  designer?: boolean
+  version?: boolean
+  notes?: boolean
+  sortOrder?: boolean
   lastCheckedAt?: boolean
   lastStatus?: boolean
+  accessMode?: boolean
+  isMature?: boolean
   artPrompt?: boolean
+  authType?: boolean
   ArtImages?: boolean | Prisma.Server$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
   Chats?: boolean | Prisma.Server$ChatsArgs<ExtArgs>
   Prompts?: boolean | Prisma.Server$PromptsArgs<ExtArgs>
   user?: boolean | Prisma.Server$userArgs<ExtArgs>
-  Resources?: boolean | Prisma.Server$ResourcesArgs<ExtArgs>
   HealthChecks?: boolean | Prisma.Server$HealthChecksArgs<ExtArgs>
+  Resources?: boolean | Prisma.Server$ResourcesArgs<ExtArgs>
   _count?: boolean | Prisma.ServerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["server"]>
 
@@ -2644,42 +2644,42 @@ export type ServerSelectScalar = {
   title?: boolean
   label?: boolean
   description?: boolean
-  category?: boolean
   serverType?: boolean
-  accessMode?: boolean
-  authType?: boolean
+  category?: boolean
   baseUrl?: boolean
   endpointPath?: boolean
   healthPath?: boolean
-  apiLink?: boolean
-  apiKey?: boolean
-  apiKeyName?: boolean
-  model?: boolean
-  notes?: boolean
-  designer?: boolean
-  version?: boolean
-  sortOrder?: boolean
   userId?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
-  isMature?: boolean
+  apiKeyName?: boolean
+  apiLink?: boolean
+  model?: boolean
+  apiKey?: boolean
+  designer?: boolean
+  version?: boolean
+  notes?: boolean
+  sortOrder?: boolean
   lastCheckedAt?: boolean
   lastStatus?: boolean
+  accessMode?: boolean
+  isMature?: boolean
   artPrompt?: boolean
+  authType?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "category" | "serverType" | "accessMode" | "authType" | "baseUrl" | "endpointPath" | "healthPath" | "apiLink" | "apiKey" | "apiKeyName" | "model" | "notes" | "designer" | "version" | "sortOrder" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "isMature" | "lastCheckedAt" | "lastStatus" | "artPrompt", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "apiKeyName" | "apiLink" | "model" | "apiKey" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus" | "accessMode" | "isMature" | "artPrompt" | "authType", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImages?: boolean | Prisma.Server$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
   Chats?: boolean | Prisma.Server$ChatsArgs<ExtArgs>
   Prompts?: boolean | Prisma.Server$PromptsArgs<ExtArgs>
   user?: boolean | Prisma.Server$userArgs<ExtArgs>
-  Resources?: boolean | Prisma.Server$ResourcesArgs<ExtArgs>
   HealthChecks?: boolean | Prisma.Server$HealthChecksArgs<ExtArgs>
+  Resources?: boolean | Prisma.Server$ResourcesArgs<ExtArgs>
   _count?: boolean | Prisma.ServerCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2691,8 +2691,8 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
     user: Prisma.$UserPayload<ExtArgs> | null
-    Resources: Prisma.$ResourcePayload<ExtArgs>[]
     HealthChecks: Prisma.$ServerHealthCheckPayload<ExtArgs>[]
+    Resources: Prisma.$ResourcePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2701,31 +2701,31 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     title: string
     label: string | null
     description: string | null
-    category: string | null
     serverType: $Enums.ServerType
-    accessMode: $Enums.ServerAccessMode
-    authType: $Enums.ServerAuthType
+    category: string | null
     baseUrl: string | null
     endpointPath: string | null
     healthPath: string | null
-    apiLink: string | null
-    apiKey: string | null
-    apiKeyName: string | null
-    model: string | null
-    notes: string | null
-    designer: string | null
-    version: string | null
-    sortOrder: number
     userId: number | null
     isPublic: boolean
     isOfficial: boolean
     isDefault: boolean
     isActive: boolean
     isEditable: boolean
-    isMature: boolean
+    apiKeyName: string | null
+    apiLink: string | null
+    model: string | null
+    apiKey: string | null
+    designer: string | null
+    version: string | null
+    notes: string | null
+    sortOrder: number
     lastCheckedAt: Date | null
     lastStatus: $Enums.ServerStatus
+    accessMode: $Enums.ServerAccessMode
+    isMature: boolean
     artPrompt: string | null
+    authType: $Enums.ServerAuthType
   }, ExtArgs["result"]["server"]>
   composites: {}
 }
@@ -3071,8 +3071,8 @@ export interface Prisma__ServerClient<T, Null = never, ExtArgs extends runtime.T
   Chats<T extends Prisma.Server$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Prompts<T extends Prisma.Server$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   user<T extends Prisma.Server$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Resources<T extends Prisma.Server$ResourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ResourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   HealthChecks<T extends Prisma.Server$HealthChecksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$HealthChecksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServerHealthCheckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Resources<T extends Prisma.Server$ResourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ResourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3108,31 +3108,31 @@ export interface ServerFieldRefs {
   readonly title: Prisma.FieldRef<"Server", 'String'>
   readonly label: Prisma.FieldRef<"Server", 'String'>
   readonly description: Prisma.FieldRef<"Server", 'String'>
-  readonly category: Prisma.FieldRef<"Server", 'String'>
   readonly serverType: Prisma.FieldRef<"Server", 'ServerType'>
-  readonly accessMode: Prisma.FieldRef<"Server", 'ServerAccessMode'>
-  readonly authType: Prisma.FieldRef<"Server", 'ServerAuthType'>
+  readonly category: Prisma.FieldRef<"Server", 'String'>
   readonly baseUrl: Prisma.FieldRef<"Server", 'String'>
   readonly endpointPath: Prisma.FieldRef<"Server", 'String'>
   readonly healthPath: Prisma.FieldRef<"Server", 'String'>
-  readonly apiLink: Prisma.FieldRef<"Server", 'String'>
-  readonly apiKey: Prisma.FieldRef<"Server", 'String'>
-  readonly apiKeyName: Prisma.FieldRef<"Server", 'String'>
-  readonly model: Prisma.FieldRef<"Server", 'String'>
-  readonly notes: Prisma.FieldRef<"Server", 'String'>
-  readonly designer: Prisma.FieldRef<"Server", 'String'>
-  readonly version: Prisma.FieldRef<"Server", 'String'>
-  readonly sortOrder: Prisma.FieldRef<"Server", 'Int'>
   readonly userId: Prisma.FieldRef<"Server", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isOfficial: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isDefault: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isEditable: Prisma.FieldRef<"Server", 'Boolean'>
-  readonly isMature: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly apiKeyName: Prisma.FieldRef<"Server", 'String'>
+  readonly apiLink: Prisma.FieldRef<"Server", 'String'>
+  readonly model: Prisma.FieldRef<"Server", 'String'>
+  readonly apiKey: Prisma.FieldRef<"Server", 'String'>
+  readonly designer: Prisma.FieldRef<"Server", 'String'>
+  readonly version: Prisma.FieldRef<"Server", 'String'>
+  readonly notes: Prisma.FieldRef<"Server", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"Server", 'Int'>
   readonly lastCheckedAt: Prisma.FieldRef<"Server", 'DateTime'>
   readonly lastStatus: Prisma.FieldRef<"Server", 'ServerStatus'>
+  readonly accessMode: Prisma.FieldRef<"Server", 'ServerAccessMode'>
+  readonly isMature: Prisma.FieldRef<"Server", 'Boolean'>
   readonly artPrompt: Prisma.FieldRef<"Server", 'String'>
+  readonly authType: Prisma.FieldRef<"Server", 'ServerAuthType'>
 }
     
 
@@ -3596,30 +3596,6 @@ export type Server$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 
 /**
- * Server.Resources
- */
-export type Server$ResourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Resource
-   */
-  select?: Prisma.ResourceSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Resource
-   */
-  omit?: Prisma.ResourceOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ResourceInclude<ExtArgs> | null
-  where?: Prisma.ResourceWhereInput
-  orderBy?: Prisma.ResourceOrderByWithRelationInput | Prisma.ResourceOrderByWithRelationInput[]
-  cursor?: Prisma.ResourceWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ResourceScalarFieldEnum | Prisma.ResourceScalarFieldEnum[]
-}
-
-/**
  * Server.HealthChecks
  */
 export type Server$HealthChecksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3641,6 +3617,30 @@ export type Server$HealthChecksArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ServerHealthCheckScalarFieldEnum | Prisma.ServerHealthCheckScalarFieldEnum[]
+}
+
+/**
+ * Server.Resources
+ */
+export type Server$ResourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Resource
+   */
+  select?: Prisma.ResourceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Resource
+   */
+  omit?: Prisma.ResourceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResourceInclude<ExtArgs> | null
+  where?: Prisma.ResourceWhereInput
+  orderBy?: Prisma.ResourceOrderByWithRelationInput | Prisma.ResourceOrderByWithRelationInput[]
+  cursor?: Prisma.ResourceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResourceScalarFieldEnum | Prisma.ResourceScalarFieldEnum[]
 }
 
 /**

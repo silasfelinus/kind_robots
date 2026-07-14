@@ -248,6 +248,7 @@ export type FacetAliasWhereInput = {
   lookupKey?: Prisma.StringFilter<"FacetAlias"> | string
   isCanonical?: Prisma.BoolFilter<"FacetAlias"> | boolean
   isActive?: Prisma.BoolFilter<"FacetAlias"> | boolean
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }
 
 export type FacetAliasOrderByWithRelationInput = {
@@ -259,6 +260,7 @@ export type FacetAliasOrderByWithRelationInput = {
   lookupKey?: Prisma.SortOrder
   isCanonical?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  Facet?: Prisma.FacetOrderByWithRelationInput
   _relevance?: Prisma.FacetAliasOrderByRelevanceInput
 }
 
@@ -275,6 +277,7 @@ export type FacetAliasWhereUniqueInput = Prisma.AtLeast<{
   alias?: Prisma.StringFilter<"FacetAlias"> | string
   isCanonical?: Prisma.BoolFilter<"FacetAlias"> | boolean
   isActive?: Prisma.BoolFilter<"FacetAlias"> | boolean
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }, "id" | "lookupKey" | "facetId_alias">
 
 export type FacetAliasOrderByWithAggregationInput = {
@@ -310,11 +313,11 @@ export type FacetAliasScalarWhereWithAggregatesInput = {
 export type FacetAliasCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  facetId: number
   alias: string
   lookupKey: string
   isCanonical?: boolean
   isActive?: boolean
+  Facet: Prisma.FacetCreateNestedOneWithoutFacetAliasInput
 }
 
 export type FacetAliasUncheckedCreateInput = {
@@ -331,11 +334,11 @@ export type FacetAliasUncheckedCreateInput = {
 export type FacetAliasUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   alias?: Prisma.StringFieldUpdateOperationsInput | string
   lookupKey?: Prisma.StringFieldUpdateOperationsInput | string
   isCanonical?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutFacetAliasNestedInput
 }
 
 export type FacetAliasUncheckedUpdateInput = {
@@ -363,7 +366,6 @@ export type FacetAliasCreateManyInput = {
 export type FacetAliasUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   alias?: Prisma.StringFieldUpdateOperationsInput | string
   lookupKey?: Prisma.StringFieldUpdateOperationsInput | string
   isCanonical?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -435,12 +437,30 @@ export type FacetAliasSumOrderByAggregateInput = {
   facetId?: Prisma.SortOrder
 }
 
+export type FacetAliasListRelationFilter = {
+  every?: Prisma.FacetAliasWhereInput
+  some?: Prisma.FacetAliasWhereInput
+  none?: Prisma.FacetAliasWhereInput
+}
+
+export type FacetAliasOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type StringFieldUpdateOperationsInput = {
+  set?: string
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -451,12 +471,144 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
+export type FacetAliasCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.FacetAliasCreateWithoutFacetInput, Prisma.FacetAliasUncheckedCreateWithoutFacetInput> | Prisma.FacetAliasCreateWithoutFacetInput[] | Prisma.FacetAliasUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.FacetAliasCreateOrConnectWithoutFacetInput | Prisma.FacetAliasCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.FacetAliasCreateManyFacetInputEnvelope
+  connect?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
+export type FacetAliasUncheckedCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.FacetAliasCreateWithoutFacetInput, Prisma.FacetAliasUncheckedCreateWithoutFacetInput> | Prisma.FacetAliasCreateWithoutFacetInput[] | Prisma.FacetAliasUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.FacetAliasCreateOrConnectWithoutFacetInput | Prisma.FacetAliasCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.FacetAliasCreateManyFacetInputEnvelope
+  connect?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+}
+
+export type FacetAliasUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.FacetAliasCreateWithoutFacetInput, Prisma.FacetAliasUncheckedCreateWithoutFacetInput> | Prisma.FacetAliasCreateWithoutFacetInput[] | Prisma.FacetAliasUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.FacetAliasCreateOrConnectWithoutFacetInput | Prisma.FacetAliasCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.FacetAliasUpsertWithWhereUniqueWithoutFacetInput | Prisma.FacetAliasUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.FacetAliasCreateManyFacetInputEnvelope
+  set?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  disconnect?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  delete?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  connect?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  update?: Prisma.FacetAliasUpdateWithWhereUniqueWithoutFacetInput | Prisma.FacetAliasUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.FacetAliasUpdateManyWithWhereWithoutFacetInput | Prisma.FacetAliasUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.FacetAliasScalarWhereInput | Prisma.FacetAliasScalarWhereInput[]
+}
+
+export type FacetAliasUncheckedUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.FacetAliasCreateWithoutFacetInput, Prisma.FacetAliasUncheckedCreateWithoutFacetInput> | Prisma.FacetAliasCreateWithoutFacetInput[] | Prisma.FacetAliasUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.FacetAliasCreateOrConnectWithoutFacetInput | Prisma.FacetAliasCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.FacetAliasUpsertWithWhereUniqueWithoutFacetInput | Prisma.FacetAliasUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.FacetAliasCreateManyFacetInputEnvelope
+  set?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  disconnect?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  delete?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  connect?: Prisma.FacetAliasWhereUniqueInput | Prisma.FacetAliasWhereUniqueInput[]
+  update?: Prisma.FacetAliasUpdateWithWhereUniqueWithoutFacetInput | Prisma.FacetAliasUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.FacetAliasUpdateManyWithWhereWithoutFacetInput | Prisma.FacetAliasUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.FacetAliasScalarWhereInput | Prisma.FacetAliasScalarWhereInput[]
+}
+
+export type FacetAliasCreateWithoutFacetInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  alias: string
+  lookupKey: string
+  isCanonical?: boolean
+  isActive?: boolean
+}
+
+export type FacetAliasUncheckedCreateWithoutFacetInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  alias: string
+  lookupKey: string
+  isCanonical?: boolean
+  isActive?: boolean
+}
+
+export type FacetAliasCreateOrConnectWithoutFacetInput = {
+  where: Prisma.FacetAliasWhereUniqueInput
+  create: Prisma.XOR<Prisma.FacetAliasCreateWithoutFacetInput, Prisma.FacetAliasUncheckedCreateWithoutFacetInput>
+}
+
+export type FacetAliasCreateManyFacetInputEnvelope = {
+  data: Prisma.FacetAliasCreateManyFacetInput | Prisma.FacetAliasCreateManyFacetInput[]
+  skipDuplicates?: boolean
+}
+
+export type FacetAliasUpsertWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.FacetAliasWhereUniqueInput
+  update: Prisma.XOR<Prisma.FacetAliasUpdateWithoutFacetInput, Prisma.FacetAliasUncheckedUpdateWithoutFacetInput>
+  create: Prisma.XOR<Prisma.FacetAliasCreateWithoutFacetInput, Prisma.FacetAliasUncheckedCreateWithoutFacetInput>
+}
+
+export type FacetAliasUpdateWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.FacetAliasWhereUniqueInput
+  data: Prisma.XOR<Prisma.FacetAliasUpdateWithoutFacetInput, Prisma.FacetAliasUncheckedUpdateWithoutFacetInput>
+}
+
+export type FacetAliasUpdateManyWithWhereWithoutFacetInput = {
+  where: Prisma.FacetAliasScalarWhereInput
+  data: Prisma.XOR<Prisma.FacetAliasUpdateManyMutationInput, Prisma.FacetAliasUncheckedUpdateManyWithoutFacetInput>
+}
+
+export type FacetAliasScalarWhereInput = {
+  AND?: Prisma.FacetAliasScalarWhereInput | Prisma.FacetAliasScalarWhereInput[]
+  OR?: Prisma.FacetAliasScalarWhereInput[]
+  NOT?: Prisma.FacetAliasScalarWhereInput | Prisma.FacetAliasScalarWhereInput[]
+  id?: Prisma.IntFilter<"FacetAlias"> | number
+  createdAt?: Prisma.DateTimeFilter<"FacetAlias"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"FacetAlias"> | Date | string | null
+  facetId?: Prisma.IntFilter<"FacetAlias"> | number
+  alias?: Prisma.StringFilter<"FacetAlias"> | string
+  lookupKey?: Prisma.StringFilter<"FacetAlias"> | string
+  isCanonical?: Prisma.BoolFilter<"FacetAlias"> | boolean
+  isActive?: Prisma.BoolFilter<"FacetAlias"> | boolean
+}
+
+export type FacetAliasCreateManyFacetInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  alias: string
+  lookupKey: string
+  isCanonical?: boolean
+  isActive?: boolean
+}
+
+export type FacetAliasUpdateWithoutFacetInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alias?: Prisma.StringFieldUpdateOperationsInput | string
+  lookupKey?: Prisma.StringFieldUpdateOperationsInput | string
+  isCanonical?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type FacetAliasUncheckedUpdateWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alias?: Prisma.StringFieldUpdateOperationsInput | string
+  lookupKey?: Prisma.StringFieldUpdateOperationsInput | string
+  isCanonical?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type FacetAliasUncheckedUpdateManyWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alias?: Prisma.StringFieldUpdateOperationsInput | string
+  lookupKey?: Prisma.StringFieldUpdateOperationsInput | string
+  isCanonical?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -470,6 +622,7 @@ export type FacetAliasSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   lookupKey?: boolean
   isCanonical?: boolean
   isActive?: boolean
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["facetAlias"]>
 
 
@@ -486,10 +639,15 @@ export type FacetAliasSelectScalar = {
 }
 
 export type FacetAliasOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "facetId" | "alias" | "lookupKey" | "isCanonical" | "isActive", ExtArgs["result"]["facetAlias"]>
+export type FacetAliasInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
+}
 
 export type $FacetAliasPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FacetAlias"
-  objects: {}
+  objects: {
+    Facet: Prisma.$FacetPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     createdAt: Date
@@ -839,6 +997,7 @@ readonly fields: FacetAliasFieldRefs;
  */
 export interface Prisma__FacetAliasClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Facet<T extends Prisma.FacetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacetDefaultArgs<ExtArgs>>): Prisma.Prisma__FacetClient<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -893,6 +1052,10 @@ export type FacetAliasFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
+  /**
    * Filter, which FacetAlias to fetch.
    */
   where: Prisma.FacetAliasWhereUniqueInput
@@ -911,6 +1074,10 @@ export type FacetAliasFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
+  /**
    * Filter, which FacetAlias to fetch.
    */
   where: Prisma.FacetAliasWhereUniqueInput
@@ -928,6 +1095,10 @@ export type FacetAliasFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the FacetAlias
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
   /**
    * Filter, which FacetAlias to fetch.
    */
@@ -977,6 +1148,10 @@ export type FacetAliasFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
+  /**
    * Filter, which FacetAlias to fetch.
    */
   where?: Prisma.FacetAliasWhereInput
@@ -1024,6 +1199,10 @@ export type FacetAliasFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the FacetAlias
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
   /**
    * Filter, which FacetAliases to fetch.
    */
@@ -1073,6 +1252,10 @@ export type FacetAliasCreateArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
+  /**
    * The data needed to create a FacetAlias.
    */
   data: Prisma.XOR<Prisma.FacetAliasCreateInput, Prisma.FacetAliasUncheckedCreateInput>
@@ -1101,6 +1284,10 @@ export type FacetAliasUpdateArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the FacetAlias
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
   /**
    * The data needed to update a FacetAlias.
    */
@@ -1142,6 +1329,10 @@ export type FacetAliasUpsertArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
+  /**
    * The filter to search for the FacetAlias to update in case it exists.
    */
   where: Prisma.FacetAliasWhereUniqueInput
@@ -1167,6 +1358,10 @@ export type FacetAliasDeleteArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the FacetAlias
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
   /**
    * Filter which FacetAlias to delete.
    */
@@ -1199,4 +1394,8 @@ export type FacetAliasDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the FacetAlias
    */
   omit?: Prisma.FacetAliasOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FacetAliasInclude<ExtArgs> | null
 }

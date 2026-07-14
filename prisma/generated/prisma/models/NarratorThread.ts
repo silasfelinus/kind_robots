@@ -49,6 +49,7 @@ export type NarratorThreadMinAggregateOutputType = {
   title: string | null
   openingText: string | null
   guidance: string | null
+  starterPrompts: string | null
   sortOrder: number | null
   isActive: boolean | null
 }
@@ -62,6 +63,7 @@ export type NarratorThreadMaxAggregateOutputType = {
   title: string | null
   openingText: string | null
   guidance: string | null
+  starterPrompts: string | null
   sortOrder: number | null
   isActive: boolean | null
 }
@@ -105,6 +107,7 @@ export type NarratorThreadMinAggregateInputType = {
   title?: true
   openingText?: true
   guidance?: true
+  starterPrompts?: true
   sortOrder?: true
   isActive?: true
 }
@@ -118,6 +121,7 @@ export type NarratorThreadMaxAggregateInputType = {
   title?: true
   openingText?: true
   guidance?: true
+  starterPrompts?: true
   sortOrder?: true
   isActive?: true
 }
@@ -232,7 +236,7 @@ export type NarratorThreadGroupByOutputType = {
   title: string | null
   openingText: string
   guidance: string | null
-  starterPrompts: runtime.JsonValue | null
+  starterPrompts: string | null
   sortOrder: number
   isActive: boolean
   _count: NarratorThreadCountAggregateOutputType | null
@@ -269,7 +273,7 @@ export type NarratorThreadWhereInput = {
   title?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
   openingText?: Prisma.StringFilter<"NarratorThread"> | string
   guidance?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
-  starterPrompts?: Prisma.JsonNullableFilter<"NarratorThread">
+  starterPrompts?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
   sortOrder?: Prisma.IntFilter<"NarratorThread"> | number
   isActive?: Prisma.BoolFilter<"NarratorThread"> | boolean
   Bot?: Prisma.XOR<Prisma.BotScalarRelationFilter, Prisma.BotWhereInput>
@@ -306,7 +310,7 @@ export type NarratorThreadWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
   openingText?: Prisma.StringFilter<"NarratorThread"> | string
   guidance?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
-  starterPrompts?: Prisma.JsonNullableFilter<"NarratorThread">
+  starterPrompts?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
   sortOrder?: Prisma.IntFilter<"NarratorThread"> | number
   isActive?: Prisma.BoolFilter<"NarratorThread"> | boolean
   Bot?: Prisma.XOR<Prisma.BotScalarRelationFilter, Prisma.BotWhereInput>
@@ -344,7 +348,7 @@ export type NarratorThreadScalarWhereWithAggregatesInput = {
   title?: Prisma.StringNullableWithAggregatesFilter<"NarratorThread"> | string | null
   openingText?: Prisma.StringWithAggregatesFilter<"NarratorThread"> | string
   guidance?: Prisma.StringNullableWithAggregatesFilter<"NarratorThread"> | string | null
-  starterPrompts?: Prisma.JsonNullableWithAggregatesFilter<"NarratorThread">
+  starterPrompts?: Prisma.StringNullableWithAggregatesFilter<"NarratorThread"> | string | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"NarratorThread"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"NarratorThread"> | boolean
 }
@@ -355,7 +359,7 @@ export type NarratorThreadCreateInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
   Bot: Prisma.BotCreateNestedOneWithoutNarratorThreadsInput
@@ -371,7 +375,7 @@ export type NarratorThreadUncheckedCreateInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
 }
@@ -382,7 +386,7 @@ export type NarratorThreadUpdateInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Bot?: Prisma.BotUpdateOneRequiredWithoutNarratorThreadsNestedInput
@@ -398,7 +402,7 @@ export type NarratorThreadUncheckedUpdateInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -412,7 +416,7 @@ export type NarratorThreadCreateManyInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
 }
@@ -423,7 +427,7 @@ export type NarratorThreadUpdateManyMutationInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -437,7 +441,7 @@ export type NarratorThreadUncheckedUpdateManyInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -493,6 +497,7 @@ export type NarratorThreadMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   openingText?: Prisma.SortOrder
   guidance?: Prisma.SortOrder
+  starterPrompts?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
@@ -506,6 +511,7 @@ export type NarratorThreadMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   openingText?: Prisma.SortOrder
   guidance?: Prisma.SortOrder
+  starterPrompts?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
@@ -607,7 +613,7 @@ export type NarratorThreadCreateWithoutBotInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
   Topic: Prisma.NarratorTopicCreateNestedOneWithoutThreadsInput
@@ -621,7 +627,7 @@ export type NarratorThreadUncheckedCreateWithoutBotInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
 }
@@ -664,7 +670,7 @@ export type NarratorThreadScalarWhereInput = {
   title?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
   openingText?: Prisma.StringFilter<"NarratorThread"> | string
   guidance?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
-  starterPrompts?: Prisma.JsonNullableFilter<"NarratorThread">
+  starterPrompts?: Prisma.StringNullableFilter<"NarratorThread"> | string | null
   sortOrder?: Prisma.IntFilter<"NarratorThread"> | number
   isActive?: Prisma.BoolFilter<"NarratorThread"> | boolean
 }
@@ -675,7 +681,7 @@ export type NarratorThreadCreateWithoutTopicInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
   Bot: Prisma.BotCreateNestedOneWithoutNarratorThreadsInput
@@ -689,7 +695,7 @@ export type NarratorThreadUncheckedCreateWithoutTopicInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
 }
@@ -728,7 +734,7 @@ export type NarratorThreadCreateManyBotInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
 }
@@ -739,7 +745,7 @@ export type NarratorThreadUpdateWithoutBotInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Topic?: Prisma.NarratorTopicUpdateOneRequiredWithoutThreadsNestedInput
@@ -753,7 +759,7 @@ export type NarratorThreadUncheckedUpdateWithoutBotInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -766,7 +772,7 @@ export type NarratorThreadUncheckedUpdateManyWithoutBotInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -779,7 +785,7 @@ export type NarratorThreadCreateManyTopicInput = {
   title?: string | null
   openingText: string
   guidance?: string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: string | null
   sortOrder?: number
   isActive?: boolean
 }
@@ -790,7 +796,7 @@ export type NarratorThreadUpdateWithoutTopicInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Bot?: Prisma.BotUpdateOneRequiredWithoutNarratorThreadsNestedInput
@@ -804,7 +810,7 @@ export type NarratorThreadUncheckedUpdateWithoutTopicInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -817,7 +823,7 @@ export type NarratorThreadUncheckedUpdateManyWithoutTopicInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openingText?: Prisma.StringFieldUpdateOperationsInput | string
   guidance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  starterPrompts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  starterPrompts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -877,7 +883,7 @@ export type $NarratorThreadPayload<ExtArgs extends runtime.Types.Extensions.Inte
     title: string | null
     openingText: string
     guidance: string | null
-    starterPrompts: runtime.JsonValue | null
+    starterPrompts: string | null
     sortOrder: number
     isActive: boolean
   }, ExtArgs["result"]["narratorThread"]>
@@ -1259,7 +1265,7 @@ export interface NarratorThreadFieldRefs {
   readonly title: Prisma.FieldRef<"NarratorThread", 'String'>
   readonly openingText: Prisma.FieldRef<"NarratorThread", 'String'>
   readonly guidance: Prisma.FieldRef<"NarratorThread", 'String'>
-  readonly starterPrompts: Prisma.FieldRef<"NarratorThread", 'Json'>
+  readonly starterPrompts: Prisma.FieldRef<"NarratorThread", 'String'>
   readonly sortOrder: Prisma.FieldRef<"NarratorThread", 'Int'>
   readonly isActive: Prisma.FieldRef<"NarratorThread", 'Boolean'>
 }

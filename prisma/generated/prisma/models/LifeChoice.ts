@@ -49,6 +49,7 @@ export type LifeChoiceMinAggregateOutputType = {
   prompt: string | null
   choiceText: string | null
   resultText: string | null
+  effects: string | null
 }
 
 export type LifeChoiceMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type LifeChoiceMaxAggregateOutputType = {
   prompt: string | null
   choiceText: string | null
   resultText: string | null
+  effects: string | null
 }
 
 export type LifeChoiceCountAggregateOutputType = {
@@ -99,6 +101,7 @@ export type LifeChoiceMinAggregateInputType = {
   prompt?: true
   choiceText?: true
   resultText?: true
+  effects?: true
 }
 
 export type LifeChoiceMaxAggregateInputType = {
@@ -110,6 +113,7 @@ export type LifeChoiceMaxAggregateInputType = {
   prompt?: true
   choiceText?: true
   resultText?: true
+  effects?: true
 }
 
 export type LifeChoiceCountAggregateInputType = {
@@ -220,7 +224,7 @@ export type LifeChoiceGroupByOutputType = {
   prompt: string
   choiceText: string
   resultText: string | null
-  effects: runtime.JsonValue | null
+  effects: string | null
   _count: LifeChoiceCountAggregateOutputType | null
   _avg: LifeChoiceAvgAggregateOutputType | null
   _sum: LifeChoiceSumAggregateOutputType | null
@@ -255,9 +259,9 @@ export type LifeChoiceWhereInput = {
   prompt?: Prisma.StringFilter<"LifeChoice"> | string
   choiceText?: Prisma.StringFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
-  effects?: Prisma.JsonNullableFilter<"LifeChoice">
-  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
+  effects?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
+  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
 }
 
 export type LifeChoiceOrderByWithRelationInput = {
@@ -270,8 +274,8 @@ export type LifeChoiceOrderByWithRelationInput = {
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrderInput | Prisma.SortOrder
   effects?: Prisma.SortOrderInput | Prisma.SortOrder
-  LifeRun?: Prisma.LifeRunOrderByWithRelationInput
   Chat?: Prisma.ChatOrderByWithRelationInput
+  LifeRun?: Prisma.LifeRunOrderByWithRelationInput
   _relevance?: Prisma.LifeChoiceOrderByRelevanceInput
 }
 
@@ -287,9 +291,9 @@ export type LifeChoiceWhereUniqueInput = Prisma.AtLeast<{
   prompt?: Prisma.StringFilter<"LifeChoice"> | string
   choiceText?: Prisma.StringFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
-  effects?: Prisma.JsonNullableFilter<"LifeChoice">
-  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
+  effects?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
+  LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
 }, "id">
 
 export type LifeChoiceOrderByWithAggregationInput = {
@@ -321,7 +325,7 @@ export type LifeChoiceScalarWhereWithAggregatesInput = {
   prompt?: Prisma.StringWithAggregatesFilter<"LifeChoice"> | string
   choiceText?: Prisma.StringWithAggregatesFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableWithAggregatesFilter<"LifeChoice"> | string | null
-  effects?: Prisma.JsonNullableWithAggregatesFilter<"LifeChoice">
+  effects?: Prisma.StringNullableWithAggregatesFilter<"LifeChoice"> | string | null
 }
 
 export type LifeChoiceCreateInput = {
@@ -330,9 +334,9 @@ export type LifeChoiceCreateInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  LifeRun: Prisma.LifeRunCreateNestedOneWithoutChoicesInput
+  effects?: string | null
   Chat?: Prisma.ChatCreateNestedOneWithoutLifeChoicesInput
+  LifeRun: Prisma.LifeRunCreateNestedOneWithoutChoicesInput
 }
 
 export type LifeChoiceUncheckedCreateInput = {
@@ -344,7 +348,7 @@ export type LifeChoiceUncheckedCreateInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
 }
 
 export type LifeChoiceUpdateInput = {
@@ -353,9 +357,9 @@ export type LifeChoiceUpdateInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutChoicesNestedInput
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chat?: Prisma.ChatUpdateOneWithoutLifeChoicesNestedInput
+  LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutChoicesNestedInput
 }
 
 export type LifeChoiceUncheckedUpdateInput = {
@@ -367,7 +371,7 @@ export type LifeChoiceUncheckedUpdateInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceCreateManyInput = {
@@ -379,7 +383,7 @@ export type LifeChoiceCreateManyInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
 }
 
 export type LifeChoiceUpdateManyMutationInput = {
@@ -388,7 +392,7 @@ export type LifeChoiceUpdateManyMutationInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceUncheckedUpdateManyInput = {
@@ -400,7 +404,7 @@ export type LifeChoiceUncheckedUpdateManyInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceListRelationFilter = {
@@ -447,6 +451,7 @@ export type LifeChoiceMaxOrderByAggregateInput = {
   prompt?: Prisma.SortOrder
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrder
+  effects?: Prisma.SortOrder
 }
 
 export type LifeChoiceMinOrderByAggregateInput = {
@@ -458,6 +463,7 @@ export type LifeChoiceMinOrderByAggregateInput = {
   prompt?: Prisma.SortOrder
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrder
+  effects?: Prisma.SortOrder
 }
 
 export type LifeChoiceSumOrderByAggregateInput = {
@@ -557,7 +563,7 @@ export type LifeChoiceCreateWithoutChatInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
   LifeRun: Prisma.LifeRunCreateNestedOneWithoutChoicesInput
 }
 
@@ -569,7 +575,7 @@ export type LifeChoiceUncheckedCreateWithoutChatInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
 }
 
 export type LifeChoiceCreateOrConnectWithoutChatInput = {
@@ -610,7 +616,7 @@ export type LifeChoiceScalarWhereInput = {
   prompt?: Prisma.StringFilter<"LifeChoice"> | string
   choiceText?: Prisma.StringFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
-  effects?: Prisma.JsonNullableFilter<"LifeChoice">
+  effects?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
 }
 
 export type LifeChoiceCreateWithoutLifeRunInput = {
@@ -619,7 +625,7 @@ export type LifeChoiceCreateWithoutLifeRunInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
   Chat?: Prisma.ChatCreateNestedOneWithoutLifeChoicesInput
 }
 
@@ -631,7 +637,7 @@ export type LifeChoiceUncheckedCreateWithoutLifeRunInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
 }
 
 export type LifeChoiceCreateOrConnectWithoutLifeRunInput = {
@@ -668,7 +674,7 @@ export type LifeChoiceCreateManyChatInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
 }
 
 export type LifeChoiceUpdateWithoutChatInput = {
@@ -677,7 +683,7 @@ export type LifeChoiceUpdateWithoutChatInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutChoicesNestedInput
 }
 
@@ -689,7 +695,7 @@ export type LifeChoiceUncheckedUpdateWithoutChatInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceUncheckedUpdateManyWithoutChatInput = {
@@ -700,7 +706,7 @@ export type LifeChoiceUncheckedUpdateManyWithoutChatInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceCreateManyLifeRunInput = {
@@ -711,7 +717,7 @@ export type LifeChoiceCreateManyLifeRunInput = {
   prompt: string
   choiceText: string
   resultText?: string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: string | null
 }
 
 export type LifeChoiceUpdateWithoutLifeRunInput = {
@@ -720,7 +726,7 @@ export type LifeChoiceUpdateWithoutLifeRunInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chat?: Prisma.ChatUpdateOneWithoutLifeChoicesNestedInput
 }
 
@@ -732,7 +738,7 @@ export type LifeChoiceUncheckedUpdateWithoutLifeRunInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceUncheckedUpdateManyWithoutLifeRunInput = {
@@ -743,7 +749,7 @@ export type LifeChoiceUncheckedUpdateManyWithoutLifeRunInput = {
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effects?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -758,8 +764,8 @@ export type LifeChoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   choiceText?: boolean
   resultText?: boolean
   effects?: boolean
-  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
   Chat?: boolean | Prisma.LifeChoice$ChatArgs<ExtArgs>
+  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lifeChoice"]>
 
 
@@ -778,15 +784,15 @@ export type LifeChoiceSelectScalar = {
 
 export type LifeChoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "lifeRunId" | "chatId" | "chapter" | "prompt" | "choiceText" | "resultText" | "effects", ExtArgs["result"]["lifeChoice"]>
 export type LifeChoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
   Chat?: boolean | Prisma.LifeChoice$ChatArgs<ExtArgs>
+  LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
 }
 
 export type $LifeChoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LifeChoice"
   objects: {
-    LifeRun: Prisma.$LifeRunPayload<ExtArgs>
     Chat: Prisma.$ChatPayload<ExtArgs> | null
+    LifeRun: Prisma.$LifeRunPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -797,7 +803,7 @@ export type $LifeChoicePayload<ExtArgs extends runtime.Types.Extensions.Internal
     prompt: string
     choiceText: string
     resultText: string | null
-    effects: runtime.JsonValue | null
+    effects: string | null
   }, ExtArgs["result"]["lifeChoice"]>
   composites: {}
 }
@@ -1138,8 +1144,8 @@ readonly fields: LifeChoiceFieldRefs;
  */
 export interface Prisma__LifeChoiceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  LifeRun<T extends Prisma.LifeRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRunDefaultArgs<ExtArgs>>): Prisma.Prisma__LifeRunClient<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Chat<T extends Prisma.LifeChoice$ChatArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeChoice$ChatArgs<ExtArgs>>): Prisma.Prisma__ChatClient<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  LifeRun<T extends Prisma.LifeRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRunDefaultArgs<ExtArgs>>): Prisma.Prisma__LifeRunClient<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1177,7 +1183,7 @@ export interface LifeChoiceFieldRefs {
   readonly prompt: Prisma.FieldRef<"LifeChoice", 'String'>
   readonly choiceText: Prisma.FieldRef<"LifeChoice", 'String'>
   readonly resultText: Prisma.FieldRef<"LifeChoice", 'String'>
-  readonly effects: Prisma.FieldRef<"LifeChoice", 'Json'>
+  readonly effects: Prisma.FieldRef<"LifeChoice", 'String'>
 }
     
 

@@ -230,8 +230,8 @@ export type StylistClientWhereInput = {
   userId?: Prisma.IntFilter<"StylistClient"> | number
   name?: Prisma.StringFilter<"StylistClient"> | string
   email?: Prisma.StringNullableFilter<"StylistClient"> | string | null
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Appointments?: Prisma.StylistAppointmentListRelationFilter
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type StylistClientOrderByWithRelationInput = {
@@ -241,8 +241,8 @@ export type StylistClientOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
-  User?: Prisma.UserOrderByWithRelationInput
   Appointments?: Prisma.StylistAppointmentOrderByRelationAggregateInput
+  User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.StylistClientOrderByRelevanceInput
 }
 
@@ -256,8 +256,8 @@ export type StylistClientWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.IntFilter<"StylistClient"> | number
   name?: Prisma.StringFilter<"StylistClient"> | string
   email?: Prisma.StringNullableFilter<"StylistClient"> | string | null
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Appointments?: Prisma.StylistAppointmentListRelationFilter
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type StylistClientOrderByWithAggregationInput = {
@@ -291,8 +291,8 @@ export type StylistClientCreateInput = {
   updatedAt?: Date | string | null
   name: string
   email?: string | null
-  User: Prisma.UserCreateNestedOneWithoutStylistClientsInput
   Appointments?: Prisma.StylistAppointmentCreateNestedManyWithoutClientInput
+  User: Prisma.UserCreateNestedOneWithoutStylistClientsInput
 }
 
 export type StylistClientUncheckedCreateInput = {
@@ -310,8 +310,8 @@ export type StylistClientUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  User?: Prisma.UserUpdateOneRequiredWithoutStylistClientsNestedInput
   Appointments?: Prisma.StylistAppointmentUpdateManyWithoutClientNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutStylistClientsNestedInput
 }
 
 export type StylistClientUncheckedUpdateInput = {
@@ -641,8 +641,8 @@ export type StylistClientSelect<ExtArgs extends runtime.Types.Extensions.Interna
   userId?: boolean
   name?: boolean
   email?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Appointments?: boolean | Prisma.StylistClient$AppointmentsArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.StylistClientCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["stylistClient"]>
 
@@ -659,16 +659,16 @@ export type StylistClientSelectScalar = {
 
 export type StylistClientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "name" | "email", ExtArgs["result"]["stylistClient"]>
 export type StylistClientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Appointments?: boolean | Prisma.StylistClient$AppointmentsArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.StylistClientCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $StylistClientPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StylistClient"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
     Appointments: Prisma.$StylistAppointmentPayload<ExtArgs>[]
+    User: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1017,8 +1017,8 @@ readonly fields: StylistClientFieldRefs;
  */
 export interface Prisma__StylistClientClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Appointments<T extends Prisma.StylistClient$AppointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StylistClient$AppointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StylistAppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

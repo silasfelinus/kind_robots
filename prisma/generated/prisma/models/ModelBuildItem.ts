@@ -58,9 +58,11 @@ export type ModelBuildItemMinAggregateOutputType = {
   quantityIndex: number | null
   targetType: string | null
   targetId: number | null
+  stageStatuses: string | null
   pitch: string | null
   fieldsDraft: string | null
   promptDraft: string | null
+  relationshipDraft: string | null
   staleReason: string | null
   error: string | null
   idempotencyKey: string | null
@@ -79,9 +81,11 @@ export type ModelBuildItemMaxAggregateOutputType = {
   quantityIndex: number | null
   targetType: string | null
   targetId: number | null
+  stageStatuses: string | null
   pitch: string | null
   fieldsDraft: string | null
   promptDraft: string | null
+  relationshipDraft: string | null
   staleReason: string | null
   error: string | null
   idempotencyKey: string | null
@@ -141,9 +145,11 @@ export type ModelBuildItemMinAggregateInputType = {
   quantityIndex?: true
   targetType?: true
   targetId?: true
+  stageStatuses?: true
   pitch?: true
   fieldsDraft?: true
   promptDraft?: true
+  relationshipDraft?: true
   staleReason?: true
   error?: true
   idempotencyKey?: true
@@ -162,9 +168,11 @@ export type ModelBuildItemMaxAggregateInputType = {
   quantityIndex?: true
   targetType?: true
   targetId?: true
+  stageStatuses?: true
   pitch?: true
   fieldsDraft?: true
   promptDraft?: true
+  relationshipDraft?: true
   staleReason?: true
   error?: true
   idempotencyKey?: true
@@ -293,11 +301,11 @@ export type ModelBuildItemGroupByOutputType = {
   quantityIndex: number
   targetType: string | null
   targetId: number | null
-  stageStatuses: runtime.JsonValue
+  stageStatuses: string
   pitch: string | null
   fieldsDraft: string | null
   promptDraft: string | null
-  relationshipDraft: runtime.JsonValue | null
+  relationshipDraft: string | null
   staleReason: string | null
   error: string | null
   idempotencyKey: string | null
@@ -339,17 +347,17 @@ export type ModelBuildItemWhereInput = {
   quantityIndex?: Prisma.IntFilter<"ModelBuildItem"> | number
   targetType?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   targetId?: Prisma.IntNullableFilter<"ModelBuildItem"> | number | null
-  stageStatuses?: Prisma.JsonFilter<"ModelBuildItem">
+  stageStatuses?: Prisma.StringFilter<"ModelBuildItem"> | string
   pitch?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   fieldsDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   promptDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
-  relationshipDraft?: Prisma.JsonNullableFilter<"ModelBuildItem">
+  relationshipDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   staleReason?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   error?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ModelBuildItem"> | number | null
-  Run?: Prisma.XOR<Prisma.ModelBuildRunScalarRelationFilter, Prisma.ModelBuildRunWhereInput>
   Artifacts?: Prisma.ModelBuildArtifactListRelationFilter
+  Run?: Prisma.XOR<Prisma.ModelBuildRunScalarRelationFilter, Prisma.ModelBuildRunWhereInput>
   Revisions?: Prisma.ModelBuildRevisionListRelationFilter
 }
 
@@ -374,8 +382,8 @@ export type ModelBuildItemOrderByWithRelationInput = {
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  Run?: Prisma.ModelBuildRunOrderByWithRelationInput
   Artifacts?: Prisma.ModelBuildArtifactOrderByRelationAggregateInput
+  Run?: Prisma.ModelBuildRunOrderByWithRelationInput
   Revisions?: Prisma.ModelBuildRevisionOrderByRelationAggregateInput
   _relevance?: Prisma.ModelBuildItemOrderByRelevanceInput
 }
@@ -396,16 +404,16 @@ export type ModelBuildItemWhereUniqueInput = Prisma.AtLeast<{
   quantityIndex?: Prisma.IntFilter<"ModelBuildItem"> | number
   targetType?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   targetId?: Prisma.IntNullableFilter<"ModelBuildItem"> | number | null
-  stageStatuses?: Prisma.JsonFilter<"ModelBuildItem">
+  stageStatuses?: Prisma.StringFilter<"ModelBuildItem"> | string
   pitch?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   fieldsDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   promptDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
-  relationshipDraft?: Prisma.JsonNullableFilter<"ModelBuildItem">
+  relationshipDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   staleReason?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   error?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   artImageId?: Prisma.IntNullableFilter<"ModelBuildItem"> | number | null
-  Run?: Prisma.XOR<Prisma.ModelBuildRunScalarRelationFilter, Prisma.ModelBuildRunWhereInput>
   Artifacts?: Prisma.ModelBuildArtifactListRelationFilter
+  Run?: Prisma.XOR<Prisma.ModelBuildRunScalarRelationFilter, Prisma.ModelBuildRunWhereInput>
   Revisions?: Prisma.ModelBuildRevisionListRelationFilter
 }, "id" | "idempotencyKey">
 
@@ -452,11 +460,11 @@ export type ModelBuildItemScalarWhereWithAggregatesInput = {
   quantityIndex?: Prisma.IntWithAggregatesFilter<"ModelBuildItem"> | number
   targetType?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
   targetId?: Prisma.IntNullableWithAggregatesFilter<"ModelBuildItem"> | number | null
-  stageStatuses?: Prisma.JsonWithAggregatesFilter<"ModelBuildItem">
+  stageStatuses?: Prisma.StringWithAggregatesFilter<"ModelBuildItem"> | string
   pitch?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
   fieldsDraft?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
   promptDraft?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
-  relationshipDraft?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildItem">
+  relationshipDraft?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
   staleReason?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
   error?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
   idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildItem"> | string | null
@@ -473,17 +481,17 @@ export type ModelBuildItemCreateInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
   artImageId?: number | null
-  Run: Prisma.ModelBuildRunCreateNestedOneWithoutItemsInput
   Artifacts?: Prisma.ModelBuildArtifactCreateNestedManyWithoutItemInput
+  Run: Prisma.ModelBuildRunCreateNestedOneWithoutItemsInput
   Revisions?: Prisma.ModelBuildRevisionCreateNestedManyWithoutItemInput
 }
 
@@ -499,11 +507,11 @@ export type ModelBuildItemUncheckedCreateInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -522,17 +530,17 @@ export type ModelBuildItemUpdateInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Run?: Prisma.ModelBuildRunUpdateOneRequiredWithoutItemsNestedInput
   Artifacts?: Prisma.ModelBuildArtifactUpdateManyWithoutItemNestedInput
+  Run?: Prisma.ModelBuildRunUpdateOneRequiredWithoutItemsNestedInput
   Revisions?: Prisma.ModelBuildRevisionUpdateManyWithoutItemNestedInput
 }
 
@@ -548,11 +556,11 @@ export type ModelBuildItemUncheckedUpdateInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -573,11 +581,11 @@ export type ModelBuildItemCreateManyInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -594,11 +602,11 @@ export type ModelBuildItemUpdateManyMutationInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -617,11 +625,11 @@ export type ModelBuildItemUncheckedUpdateManyInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -687,9 +695,11 @@ export type ModelBuildItemMaxOrderByAggregateInput = {
   quantityIndex?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
+  stageStatuses?: Prisma.SortOrder
   pitch?: Prisma.SortOrder
   fieldsDraft?: Prisma.SortOrder
   promptDraft?: Prisma.SortOrder
+  relationshipDraft?: Prisma.SortOrder
   staleReason?: Prisma.SortOrder
   error?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
@@ -708,9 +718,11 @@ export type ModelBuildItemMinOrderByAggregateInput = {
   quantityIndex?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
+  stageStatuses?: Prisma.SortOrder
   pitch?: Prisma.SortOrder
   fieldsDraft?: Prisma.SortOrder
   promptDraft?: Prisma.SortOrder
+  relationshipDraft?: Prisma.SortOrder
   staleReason?: Prisma.SortOrder
   error?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
@@ -814,11 +826,11 @@ export type ModelBuildItemCreateWithoutRunInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -838,11 +850,11 @@ export type ModelBuildItemUncheckedCreateWithoutRunInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -892,11 +904,11 @@ export type ModelBuildItemScalarWhereInput = {
   quantityIndex?: Prisma.IntFilter<"ModelBuildItem"> | number
   targetType?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   targetId?: Prisma.IntNullableFilter<"ModelBuildItem"> | number | null
-  stageStatuses?: Prisma.JsonFilter<"ModelBuildItem">
+  stageStatuses?: Prisma.StringFilter<"ModelBuildItem"> | string
   pitch?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   fieldsDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   promptDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
-  relationshipDraft?: Prisma.JsonNullableFilter<"ModelBuildItem">
+  relationshipDraft?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   staleReason?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   error?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"ModelBuildItem"> | string | null
@@ -913,11 +925,11 @@ export type ModelBuildItemCreateWithoutArtifactsInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -938,11 +950,11 @@ export type ModelBuildItemUncheckedCreateWithoutArtifactsInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -976,11 +988,11 @@ export type ModelBuildItemUpdateWithoutArtifactsInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1001,11 +1013,11 @@ export type ModelBuildItemUncheckedUpdateWithoutArtifactsInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1023,17 +1035,17 @@ export type ModelBuildItemCreateWithoutRevisionsInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
   artImageId?: number | null
-  Run: Prisma.ModelBuildRunCreateNestedOneWithoutItemsInput
   Artifacts?: Prisma.ModelBuildArtifactCreateNestedManyWithoutItemInput
+  Run: Prisma.ModelBuildRunCreateNestedOneWithoutItemsInput
 }
 
 export type ModelBuildItemUncheckedCreateWithoutRevisionsInput = {
@@ -1048,11 +1060,11 @@ export type ModelBuildItemUncheckedCreateWithoutRevisionsInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -1086,17 +1098,17 @@ export type ModelBuildItemUpdateWithoutRevisionsInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Run?: Prisma.ModelBuildRunUpdateOneRequiredWithoutItemsNestedInput
   Artifacts?: Prisma.ModelBuildArtifactUpdateManyWithoutItemNestedInput
+  Run?: Prisma.ModelBuildRunUpdateOneRequiredWithoutItemsNestedInput
 }
 
 export type ModelBuildItemUncheckedUpdateWithoutRevisionsInput = {
@@ -1111,11 +1123,11 @@ export type ModelBuildItemUncheckedUpdateWithoutRevisionsInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1134,11 +1146,11 @@ export type ModelBuildItemCreateManyRunInput = {
   quantityIndex?: number
   targetType?: string | null
   targetId?: number | null
-  stageStatuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses: string
   pitch?: string | null
   fieldsDraft?: string | null
   promptDraft?: string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: string | null
   staleReason?: string | null
   error?: string | null
   idempotencyKey?: string | null
@@ -1155,11 +1167,11 @@ export type ModelBuildItemUpdateWithoutRunInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1179,11 +1191,11 @@ export type ModelBuildItemUncheckedUpdateWithoutRunInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1203,11 +1215,11 @@ export type ModelBuildItemUncheckedUpdateManyWithoutRunInput = {
   quantityIndex?: Prisma.IntFieldUpdateOperationsInput | number
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  stageStatuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  stageStatuses?: Prisma.StringFieldUpdateOperationsInput | string
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldsDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  relationshipDraft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  relationshipDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staleReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1275,8 +1287,8 @@ export type ModelBuildItemSelect<ExtArgs extends runtime.Types.Extensions.Intern
   error?: boolean
   idempotencyKey?: boolean
   artImageId?: boolean
-  Run?: boolean | Prisma.ModelBuildRunDefaultArgs<ExtArgs>
   Artifacts?: boolean | Prisma.ModelBuildItem$ArtifactsArgs<ExtArgs>
+  Run?: boolean | Prisma.ModelBuildRunDefaultArgs<ExtArgs>
   Revisions?: boolean | Prisma.ModelBuildItem$RevisionsArgs<ExtArgs>
   _count?: boolean | Prisma.ModelBuildItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["modelBuildItem"]>
@@ -1308,8 +1320,8 @@ export type ModelBuildItemSelectScalar = {
 
 export type ModelBuildItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "runId" | "outputKey" | "label" | "action" | "generation" | "quantityIndex" | "targetType" | "targetId" | "stageStatuses" | "pitch" | "fieldsDraft" | "promptDraft" | "relationshipDraft" | "staleReason" | "error" | "idempotencyKey" | "artImageId", ExtArgs["result"]["modelBuildItem"]>
 export type ModelBuildItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Run?: boolean | Prisma.ModelBuildRunDefaultArgs<ExtArgs>
   Artifacts?: boolean | Prisma.ModelBuildItem$ArtifactsArgs<ExtArgs>
+  Run?: boolean | Prisma.ModelBuildRunDefaultArgs<ExtArgs>
   Revisions?: boolean | Prisma.ModelBuildItem$RevisionsArgs<ExtArgs>
   _count?: boolean | Prisma.ModelBuildItemCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1317,8 +1329,8 @@ export type ModelBuildItemInclude<ExtArgs extends runtime.Types.Extensions.Inter
 export type $ModelBuildItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ModelBuildItem"
   objects: {
-    Run: Prisma.$ModelBuildRunPayload<ExtArgs>
     Artifacts: Prisma.$ModelBuildArtifactPayload<ExtArgs>[]
+    Run: Prisma.$ModelBuildRunPayload<ExtArgs>
     Revisions: Prisma.$ModelBuildRevisionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1333,11 +1345,11 @@ export type $ModelBuildItemPayload<ExtArgs extends runtime.Types.Extensions.Inte
     quantityIndex: number
     targetType: string | null
     targetId: number | null
-    stageStatuses: runtime.JsonValue
+    stageStatuses: string
     pitch: string | null
     fieldsDraft: string | null
     promptDraft: string | null
-    relationshipDraft: runtime.JsonValue | null
+    relationshipDraft: string | null
     staleReason: string | null
     error: string | null
     idempotencyKey: string | null
@@ -1682,8 +1694,8 @@ readonly fields: ModelBuildItemFieldRefs;
  */
 export interface Prisma__ModelBuildItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Run<T extends Prisma.ModelBuildRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ModelBuildRunDefaultArgs<ExtArgs>>): Prisma.Prisma__ModelBuildRunClient<runtime.Types.Result.GetResult<Prisma.$ModelBuildRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Artifacts<T extends Prisma.ModelBuildItem$ArtifactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ModelBuildItem$ArtifactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModelBuildArtifactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Run<T extends Prisma.ModelBuildRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ModelBuildRunDefaultArgs<ExtArgs>>): Prisma.Prisma__ModelBuildRunClient<runtime.Types.Result.GetResult<Prisma.$ModelBuildRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Revisions<T extends Prisma.ModelBuildItem$RevisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ModelBuildItem$RevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModelBuildRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1725,11 +1737,11 @@ export interface ModelBuildItemFieldRefs {
   readonly quantityIndex: Prisma.FieldRef<"ModelBuildItem", 'Int'>
   readonly targetType: Prisma.FieldRef<"ModelBuildItem", 'String'>
   readonly targetId: Prisma.FieldRef<"ModelBuildItem", 'Int'>
-  readonly stageStatuses: Prisma.FieldRef<"ModelBuildItem", 'Json'>
+  readonly stageStatuses: Prisma.FieldRef<"ModelBuildItem", 'String'>
   readonly pitch: Prisma.FieldRef<"ModelBuildItem", 'String'>
   readonly fieldsDraft: Prisma.FieldRef<"ModelBuildItem", 'String'>
   readonly promptDraft: Prisma.FieldRef<"ModelBuildItem", 'String'>
-  readonly relationshipDraft: Prisma.FieldRef<"ModelBuildItem", 'Json'>
+  readonly relationshipDraft: Prisma.FieldRef<"ModelBuildItem", 'String'>
   readonly staleReason: Prisma.FieldRef<"ModelBuildItem", 'String'>
   readonly error: Prisma.FieldRef<"ModelBuildItem", 'String'>
   readonly idempotencyKey: Prisma.FieldRef<"ModelBuildItem", 'String'>

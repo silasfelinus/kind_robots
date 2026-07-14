@@ -51,8 +51,11 @@ export type ModelBuildRunMinAggregateOutputType = {
   sourceType: string | null
   sourceId: number | null
   sourceLabel: string | null
+  sourceSnapshot: string | null
   recipeKey: string | null
   recipeVersion: string | null
+  selections: string | null
+  usageInfo: string | null
   cancelledAt: Date | null
 }
 
@@ -65,8 +68,11 @@ export type ModelBuildRunMaxAggregateOutputType = {
   sourceType: string | null
   sourceId: number | null
   sourceLabel: string | null
+  sourceSnapshot: string | null
   recipeKey: string | null
   recipeVersion: string | null
+  selections: string | null
+  usageInfo: string | null
   cancelledAt: Date | null
 }
 
@@ -110,8 +116,11 @@ export type ModelBuildRunMinAggregateInputType = {
   sourceType?: true
   sourceId?: true
   sourceLabel?: true
+  sourceSnapshot?: true
   recipeKey?: true
   recipeVersion?: true
+  selections?: true
+  usageInfo?: true
   cancelledAt?: true
 }
 
@@ -124,8 +133,11 @@ export type ModelBuildRunMaxAggregateInputType = {
   sourceType?: true
   sourceId?: true
   sourceLabel?: true
+  sourceSnapshot?: true
   recipeKey?: true
   recipeVersion?: true
+  selections?: true
+  usageInfo?: true
   cancelledAt?: true
 }
 
@@ -242,11 +254,11 @@ export type ModelBuildRunGroupByOutputType = {
   sourceType: string
   sourceId: number
   sourceLabel: string | null
-  sourceSnapshot: runtime.JsonValue | null
+  sourceSnapshot: string | null
   recipeKey: string
   recipeVersion: string | null
-  selections: runtime.JsonValue | null
-  usageInfo: runtime.JsonValue | null
+  selections: string | null
+  usageInfo: string | null
   cancelledAt: Date | null
   _count: ModelBuildRunCountAggregateOutputType | null
   _avg: ModelBuildRunAvgAggregateOutputType | null
@@ -282,11 +294,11 @@ export type ModelBuildRunWhereInput = {
   sourceType?: Prisma.StringFilter<"ModelBuildRun"> | string
   sourceId?: Prisma.IntFilter<"ModelBuildRun"> | number
   sourceLabel?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
-  sourceSnapshot?: Prisma.JsonNullableFilter<"ModelBuildRun">
+  sourceSnapshot?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
   recipeKey?: Prisma.StringFilter<"ModelBuildRun"> | string
   recipeVersion?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
-  selections?: Prisma.JsonNullableFilter<"ModelBuildRun">
-  usageInfo?: Prisma.JsonNullableFilter<"ModelBuildRun">
+  selections?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
+  usageInfo?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"ModelBuildRun"> | Date | string | null
   Items?: Prisma.ModelBuildItemListRelationFilter
 }
@@ -322,11 +334,11 @@ export type ModelBuildRunWhereUniqueInput = Prisma.AtLeast<{
   sourceType?: Prisma.StringFilter<"ModelBuildRun"> | string
   sourceId?: Prisma.IntFilter<"ModelBuildRun"> | number
   sourceLabel?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
-  sourceSnapshot?: Prisma.JsonNullableFilter<"ModelBuildRun">
+  sourceSnapshot?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
   recipeKey?: Prisma.StringFilter<"ModelBuildRun"> | string
   recipeVersion?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
-  selections?: Prisma.JsonNullableFilter<"ModelBuildRun">
-  usageInfo?: Prisma.JsonNullableFilter<"ModelBuildRun">
+  selections?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
+  usageInfo?: Prisma.StringNullableFilter<"ModelBuildRun"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"ModelBuildRun"> | Date | string | null
   Items?: Prisma.ModelBuildItemListRelationFilter
 }, "id">
@@ -365,11 +377,11 @@ export type ModelBuildRunScalarWhereWithAggregatesInput = {
   sourceType?: Prisma.StringWithAggregatesFilter<"ModelBuildRun"> | string
   sourceId?: Prisma.IntWithAggregatesFilter<"ModelBuildRun"> | number
   sourceLabel?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRun"> | string | null
-  sourceSnapshot?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildRun">
+  sourceSnapshot?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRun"> | string | null
   recipeKey?: Prisma.StringWithAggregatesFilter<"ModelBuildRun"> | string
   recipeVersion?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRun"> | string | null
-  selections?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildRun">
-  usageInfo?: Prisma.JsonNullableWithAggregatesFilter<"ModelBuildRun">
+  selections?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRun"> | string | null
+  usageInfo?: Prisma.StringNullableWithAggregatesFilter<"ModelBuildRun"> | string | null
   cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ModelBuildRun"> | Date | string | null
 }
 
@@ -381,11 +393,11 @@ export type ModelBuildRunCreateInput = {
   sourceType: string
   sourceId: number
   sourceLabel?: string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: string | null
   recipeKey: string
   recipeVersion?: string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: string | null
+  usageInfo?: string | null
   cancelledAt?: Date | string | null
   Items?: Prisma.ModelBuildItemCreateNestedManyWithoutRunInput
 }
@@ -399,11 +411,11 @@ export type ModelBuildRunUncheckedCreateInput = {
   sourceType: string
   sourceId: number
   sourceLabel?: string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: string | null
   recipeKey: string
   recipeVersion?: string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: string | null
+  usageInfo?: string | null
   cancelledAt?: Date | string | null
   Items?: Prisma.ModelBuildItemUncheckedCreateNestedManyWithoutRunInput
 }
@@ -416,11 +428,11 @@ export type ModelBuildRunUpdateInput = {
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.IntFieldUpdateOperationsInput | number
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipeKey?: Prisma.StringFieldUpdateOperationsInput | string
   recipeVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Items?: Prisma.ModelBuildItemUpdateManyWithoutRunNestedInput
 }
@@ -434,11 +446,11 @@ export type ModelBuildRunUncheckedUpdateInput = {
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.IntFieldUpdateOperationsInput | number
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipeKey?: Prisma.StringFieldUpdateOperationsInput | string
   recipeVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Items?: Prisma.ModelBuildItemUncheckedUpdateManyWithoutRunNestedInput
 }
@@ -452,11 +464,11 @@ export type ModelBuildRunCreateManyInput = {
   sourceType: string
   sourceId: number
   sourceLabel?: string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: string | null
   recipeKey: string
   recipeVersion?: string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: string | null
+  usageInfo?: string | null
   cancelledAt?: Date | string | null
 }
 
@@ -468,11 +480,11 @@ export type ModelBuildRunUpdateManyMutationInput = {
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.IntFieldUpdateOperationsInput | number
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipeKey?: Prisma.StringFieldUpdateOperationsInput | string
   recipeVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -485,11 +497,11 @@ export type ModelBuildRunUncheckedUpdateManyInput = {
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.IntFieldUpdateOperationsInput | number
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipeKey?: Prisma.StringFieldUpdateOperationsInput | string
   recipeVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -531,8 +543,11 @@ export type ModelBuildRunMaxOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
+  sourceSnapshot?: Prisma.SortOrder
   recipeKey?: Prisma.SortOrder
   recipeVersion?: Prisma.SortOrder
+  selections?: Prisma.SortOrder
+  usageInfo?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
 }
 
@@ -545,8 +560,11 @@ export type ModelBuildRunMinOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
+  sourceSnapshot?: Prisma.SortOrder
   recipeKey?: Prisma.SortOrder
   recipeVersion?: Prisma.SortOrder
+  selections?: Prisma.SortOrder
+  usageInfo?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
 }
 
@@ -599,11 +617,11 @@ export type ModelBuildRunCreateWithoutItemsInput = {
   sourceType: string
   sourceId: number
   sourceLabel?: string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: string | null
   recipeKey: string
   recipeVersion?: string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: string | null
+  usageInfo?: string | null
   cancelledAt?: Date | string | null
 }
 
@@ -616,11 +634,11 @@ export type ModelBuildRunUncheckedCreateWithoutItemsInput = {
   sourceType: string
   sourceId: number
   sourceLabel?: string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: string | null
   recipeKey: string
   recipeVersion?: string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: string | null
+  usageInfo?: string | null
   cancelledAt?: Date | string | null
 }
 
@@ -648,11 +666,11 @@ export type ModelBuildRunUpdateWithoutItemsInput = {
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.IntFieldUpdateOperationsInput | number
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipeKey?: Prisma.StringFieldUpdateOperationsInput | string
   recipeVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -665,11 +683,11 @@ export type ModelBuildRunUncheckedUpdateWithoutItemsInput = {
   sourceType?: Prisma.StringFieldUpdateOperationsInput | string
   sourceId?: Prisma.IntFieldUpdateOperationsInput | number
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipeKey?: Prisma.StringFieldUpdateOperationsInput | string
   recipeVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  selections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  usageInfo?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  selections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usageInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -762,11 +780,11 @@ export type $ModelBuildRunPayload<ExtArgs extends runtime.Types.Extensions.Inter
     sourceType: string
     sourceId: number
     sourceLabel: string | null
-    sourceSnapshot: runtime.JsonValue | null
+    sourceSnapshot: string | null
     recipeKey: string
     recipeVersion: string | null
-    selections: runtime.JsonValue | null
-    usageInfo: runtime.JsonValue | null
+    selections: string | null
+    usageInfo: string | null
     cancelledAt: Date | null
   }, ExtArgs["result"]["modelBuildRun"]>
   composites: {}
@@ -1146,11 +1164,11 @@ export interface ModelBuildRunFieldRefs {
   readonly sourceType: Prisma.FieldRef<"ModelBuildRun", 'String'>
   readonly sourceId: Prisma.FieldRef<"ModelBuildRun", 'Int'>
   readonly sourceLabel: Prisma.FieldRef<"ModelBuildRun", 'String'>
-  readonly sourceSnapshot: Prisma.FieldRef<"ModelBuildRun", 'Json'>
+  readonly sourceSnapshot: Prisma.FieldRef<"ModelBuildRun", 'String'>
   readonly recipeKey: Prisma.FieldRef<"ModelBuildRun", 'String'>
   readonly recipeVersion: Prisma.FieldRef<"ModelBuildRun", 'String'>
-  readonly selections: Prisma.FieldRef<"ModelBuildRun", 'Json'>
-  readonly usageInfo: Prisma.FieldRef<"ModelBuildRun", 'Json'>
+  readonly selections: Prisma.FieldRef<"ModelBuildRun", 'String'>
+  readonly usageInfo: Prisma.FieldRef<"ModelBuildRun", 'String'>
   readonly cancelledAt: Prisma.FieldRef<"ModelBuildRun", 'DateTime'>
 }
     

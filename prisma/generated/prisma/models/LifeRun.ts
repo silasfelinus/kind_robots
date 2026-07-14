@@ -69,6 +69,7 @@ export type LifeRunMinAggregateOutputType = {
   endingId: number | null
   outcomeKey: string | null
   summary: string | null
+  statsSnapshot: string | null
 }
 
 export type LifeRunMaxAggregateOutputType = {
@@ -90,6 +91,7 @@ export type LifeRunMaxAggregateOutputType = {
   endingId: number | null
   outcomeKey: string | null
   summary: string | null
+  statsSnapshot: string | null
 }
 
 export type LifeRunCountAggregateOutputType = {
@@ -159,6 +161,7 @@ export type LifeRunMinAggregateInputType = {
   endingId?: true
   outcomeKey?: true
   summary?: true
+  statsSnapshot?: true
 }
 
 export type LifeRunMaxAggregateInputType = {
@@ -180,6 +183,7 @@ export type LifeRunMaxAggregateInputType = {
   endingId?: true
   outcomeKey?: true
   summary?: true
+  statsSnapshot?: true
 }
 
 export type LifeRunCountAggregateInputType = {
@@ -310,7 +314,7 @@ export type LifeRunGroupByOutputType = {
   endingId: number | null
   outcomeKey: string | null
   summary: string | null
-  statsSnapshot: runtime.JsonValue | null
+  statsSnapshot: string | null
   _count: LifeRunCountAggregateOutputType | null
   _avg: LifeRunAvgAggregateOutputType | null
   _sum: LifeRunSumAggregateOutputType | null
@@ -355,17 +359,17 @@ export type LifeRunWhereInput = {
   endingId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
   outcomeKey?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableFilter<"LifeRun"> | string | null
-  statsSnapshot?: Prisma.JsonNullableFilter<"LifeRun">
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
-  Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
-  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
-  Ending?: Prisma.XOR<Prisma.LifeEndingNullableScalarRelationFilter, Prisma.LifeEndingWhereInput> | null
-  Choices?: Prisma.LifeChoiceListRelationFilter
-  Stats?: Prisma.LifeStatListRelationFilter
-  Art?: Prisma.LifeRunArtListRelationFilter
+  statsSnapshot?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   Unlocks?: Prisma.LifeAchievementUnlockListRelationFilter
+  Choices?: Prisma.LifeChoiceListRelationFilter
+  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
+  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
+  Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
+  Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
+  Ending?: Prisma.XOR<Prisma.LifeEndingNullableScalarRelationFilter, Prisma.LifeEndingWhereInput> | null
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  Art?: Prisma.LifeRunArtListRelationFilter
+  Stats?: Prisma.LifeStatListRelationFilter
 }
 
 export type LifeRunOrderByWithRelationInput = {
@@ -388,16 +392,16 @@ export type LifeRunOrderByWithRelationInput = {
   outcomeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   statsSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
-  User?: Prisma.UserOrderByWithRelationInput
-  Dream?: Prisma.DreamOrderByWithRelationInput
-  Character?: Prisma.CharacterOrderByWithRelationInput
-  Bot?: Prisma.BotOrderByWithRelationInput
-  ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
-  Ending?: Prisma.LifeEndingOrderByWithRelationInput
-  Choices?: Prisma.LifeChoiceOrderByRelationAggregateInput
-  Stats?: Prisma.LifeStatOrderByRelationAggregateInput
-  Art?: Prisma.LifeRunArtOrderByRelationAggregateInput
   Unlocks?: Prisma.LifeAchievementUnlockOrderByRelationAggregateInput
+  Choices?: Prisma.LifeChoiceOrderByRelationAggregateInput
+  ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
+  Bot?: Prisma.BotOrderByWithRelationInput
+  Character?: Prisma.CharacterOrderByWithRelationInput
+  Dream?: Prisma.DreamOrderByWithRelationInput
+  Ending?: Prisma.LifeEndingOrderByWithRelationInput
+  User?: Prisma.UserOrderByWithRelationInput
+  Art?: Prisma.LifeRunArtOrderByRelationAggregateInput
+  Stats?: Prisma.LifeStatOrderByRelationAggregateInput
   _relevance?: Prisma.LifeRunOrderByRelevanceInput
 }
 
@@ -423,17 +427,17 @@ export type LifeRunWhereUniqueInput = Prisma.AtLeast<{
   endingId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
   outcomeKey?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableFilter<"LifeRun"> | string | null
-  statsSnapshot?: Prisma.JsonNullableFilter<"LifeRun">
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
-  Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
-  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
-  Ending?: Prisma.XOR<Prisma.LifeEndingNullableScalarRelationFilter, Prisma.LifeEndingWhereInput> | null
-  Choices?: Prisma.LifeChoiceListRelationFilter
-  Stats?: Prisma.LifeStatListRelationFilter
-  Art?: Prisma.LifeRunArtListRelationFilter
+  statsSnapshot?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   Unlocks?: Prisma.LifeAchievementUnlockListRelationFilter
+  Choices?: Prisma.LifeChoiceListRelationFilter
+  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
+  Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
+  Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
+  Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
+  Ending?: Prisma.XOR<Prisma.LifeEndingNullableScalarRelationFilter, Prisma.LifeEndingWhereInput> | null
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  Art?: Prisma.LifeRunArtListRelationFilter
+  Stats?: Prisma.LifeStatListRelationFilter
 }, "id">
 
 export type LifeRunOrderByWithAggregationInput = {
@@ -485,7 +489,7 @@ export type LifeRunScalarWhereWithAggregatesInput = {
   endingId?: Prisma.IntNullableWithAggregatesFilter<"LifeRun"> | number | null
   outcomeKey?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
-  statsSnapshot?: Prisma.JsonNullableWithAggregatesFilter<"LifeRun">
+  statsSnapshot?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
 }
 
 export type LifeRunCreateInput = {
@@ -500,17 +504,17 @@ export type LifeRunCreateInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateInput = {
@@ -532,11 +536,11 @@ export type LifeRunUncheckedCreateInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUpdateInput = {
@@ -551,17 +555,17 @@ export type LifeRunUpdateInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateInput = {
@@ -583,11 +587,11 @@ export type LifeRunUncheckedUpdateInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunCreateManyInput = {
@@ -609,7 +613,7 @@ export type LifeRunCreateManyInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
 }
 
 export type LifeRunUpdateManyMutationInput = {
@@ -624,7 +628,7 @@ export type LifeRunUpdateManyMutationInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunUncheckedUpdateManyInput = {
@@ -646,7 +650,7 @@ export type LifeRunUncheckedUpdateManyInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunListRelationFilter = {
@@ -718,6 +722,7 @@ export type LifeRunMaxOrderByAggregateInput = {
   endingId?: Prisma.SortOrder
   outcomeKey?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  statsSnapshot?: Prisma.SortOrder
 }
 
 export type LifeRunMinOrderByAggregateInput = {
@@ -739,6 +744,7 @@ export type LifeRunMinOrderByAggregateInput = {
   endingId?: Prisma.SortOrder
   outcomeKey?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  statsSnapshot?: Prisma.SortOrder
 }
 
 export type LifeRunSumOrderByAggregateInput = {
@@ -1089,16 +1095,16 @@ export type LifeRunCreateWithoutArtCollectionInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutArtCollectionInput = {
@@ -1119,11 +1125,11 @@ export type LifeRunUncheckedCreateWithoutArtCollectionInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutArtCollectionInput = {
@@ -1174,7 +1180,7 @@ export type LifeRunScalarWhereInput = {
   endingId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
   outcomeKey?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableFilter<"LifeRun"> | string | null
-  statsSnapshot?: Prisma.JsonNullableFilter<"LifeRun">
+  statsSnapshot?: Prisma.StringNullableFilter<"LifeRun"> | string | null
 }
 
 export type LifeRunCreateWithoutBotInput = {
@@ -1189,16 +1195,16 @@ export type LifeRunCreateWithoutBotInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutBotInput = {
@@ -1219,11 +1225,11 @@ export type LifeRunUncheckedCreateWithoutBotInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutBotInput = {
@@ -1264,16 +1270,16 @@ export type LifeRunCreateWithoutCharacterInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutCharacterInput = {
@@ -1294,11 +1300,11 @@ export type LifeRunUncheckedCreateWithoutCharacterInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutCharacterInput = {
@@ -1339,16 +1345,16 @@ export type LifeRunCreateWithoutDreamInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutDreamInput = {
@@ -1369,11 +1375,11 @@ export type LifeRunUncheckedCreateWithoutDreamInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutDreamInput = {
@@ -1414,16 +1420,16 @@ export type LifeRunCreateWithoutUserInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutUserInput = {
@@ -1444,11 +1450,11 @@ export type LifeRunUncheckedCreateWithoutUserInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutUserInput = {
@@ -1489,16 +1495,16 @@ export type LifeRunCreateWithoutChoicesInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutChoicesInput = {
@@ -1520,10 +1526,10 @@ export type LifeRunUncheckedCreateWithoutChoicesInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutChoicesInput = {
@@ -1554,16 +1560,16 @@ export type LifeRunUpdateWithoutChoicesInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutChoicesInput = {
@@ -1585,10 +1591,10 @@ export type LifeRunUncheckedUpdateWithoutChoicesInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunCreateWithoutStatsInput = {
@@ -1603,16 +1609,16 @@ export type LifeRunCreateWithoutStatsInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutStatsInput = {
@@ -1634,10 +1640,10 @@ export type LifeRunUncheckedCreateWithoutStatsInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
-  Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutStatsInput = {
@@ -1668,16 +1674,16 @@ export type LifeRunUpdateWithoutStatsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutStatsInput = {
@@ -1699,10 +1705,10 @@ export type LifeRunUncheckedUpdateWithoutStatsInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
-  Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunCreateWithoutEndingInput = {
@@ -1717,16 +1723,16 @@ export type LifeRunCreateWithoutEndingInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutEndingInput = {
@@ -1747,11 +1753,11 @@ export type LifeRunUncheckedCreateWithoutEndingInput = {
   artCollectionId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutEndingInput = {
@@ -1792,16 +1798,16 @@ export type LifeRunCreateWithoutUnlocksInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  statsSnapshot?: string | null
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutUnlocksInput = {
@@ -1823,10 +1829,10 @@ export type LifeRunUncheckedCreateWithoutUnlocksInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutUnlocksInput = {
@@ -1857,16 +1863,16 @@ export type LifeRunUpdateWithoutUnlocksInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutUnlocksInput = {
@@ -1888,10 +1894,10 @@ export type LifeRunUncheckedUpdateWithoutUnlocksInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunCreateWithoutArtInput = {
@@ -1906,16 +1912,16 @@ export type LifeRunCreateWithoutArtInput = {
   genre?: string | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
-  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
-  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
-  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  statsSnapshot?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunUncheckedCreateWithoutArtInput = {
@@ -1937,10 +1943,10 @@ export type LifeRunUncheckedCreateWithoutArtInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
-  Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
 }
 
 export type LifeRunCreateOrConnectWithoutArtInput = {
@@ -1971,16 +1977,16 @@ export type LifeRunUpdateWithoutArtInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutArtInput = {
@@ -2002,10 +2008,10 @@ export type LifeRunUncheckedUpdateWithoutArtInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunCreateManyArtCollectionInput = {
@@ -2026,7 +2032,7 @@ export type LifeRunCreateManyArtCollectionInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
 }
 
 export type LifeRunUpdateWithoutArtCollectionInput = {
@@ -2041,16 +2047,16 @@ export type LifeRunUpdateWithoutArtCollectionInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutArtCollectionInput = {
@@ -2071,11 +2077,11 @@ export type LifeRunUncheckedUpdateWithoutArtCollectionInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateManyWithoutArtCollectionInput = {
@@ -2096,7 +2102,7 @@ export type LifeRunUncheckedUpdateManyWithoutArtCollectionInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyBotInput = {
@@ -2117,7 +2123,7 @@ export type LifeRunCreateManyBotInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
 }
 
 export type LifeRunUpdateWithoutBotInput = {
@@ -2132,16 +2138,16 @@ export type LifeRunUpdateWithoutBotInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutBotInput = {
@@ -2162,11 +2168,11 @@ export type LifeRunUncheckedUpdateWithoutBotInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateManyWithoutBotInput = {
@@ -2187,7 +2193,7 @@ export type LifeRunUncheckedUpdateManyWithoutBotInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyCharacterInput = {
@@ -2208,7 +2214,7 @@ export type LifeRunCreateManyCharacterInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
 }
 
 export type LifeRunUpdateWithoutCharacterInput = {
@@ -2223,16 +2229,16 @@ export type LifeRunUpdateWithoutCharacterInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutCharacterInput = {
@@ -2253,11 +2259,11 @@ export type LifeRunUncheckedUpdateWithoutCharacterInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateManyWithoutCharacterInput = {
@@ -2278,7 +2284,7 @@ export type LifeRunUncheckedUpdateManyWithoutCharacterInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyDreamInput = {
@@ -2299,7 +2305,7 @@ export type LifeRunCreateManyDreamInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
 }
 
 export type LifeRunUpdateWithoutDreamInput = {
@@ -2314,16 +2320,16 @@ export type LifeRunUpdateWithoutDreamInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutDreamInput = {
@@ -2344,11 +2350,11 @@ export type LifeRunUncheckedUpdateWithoutDreamInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateManyWithoutDreamInput = {
@@ -2369,7 +2375,7 @@ export type LifeRunUncheckedUpdateManyWithoutDreamInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyUserInput = {
@@ -2390,7 +2396,7 @@ export type LifeRunCreateManyUserInput = {
   endingId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
 }
 
 export type LifeRunUpdateWithoutUserInput = {
@@ -2405,16 +2411,16 @@ export type LifeRunUpdateWithoutUserInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutUserInput = {
@@ -2435,11 +2441,11 @@ export type LifeRunUncheckedUpdateWithoutUserInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateManyWithoutUserInput = {
@@ -2460,7 +2466,7 @@ export type LifeRunUncheckedUpdateManyWithoutUserInput = {
   endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyEndingInput = {
@@ -2481,7 +2487,7 @@ export type LifeRunCreateManyEndingInput = {
   artCollectionId?: number | null
   outcomeKey?: string | null
   summary?: string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: string | null
 }
 
 export type LifeRunUpdateWithoutEndingInput = {
@@ -2496,16 +2502,16 @@ export type LifeRunUpdateWithoutEndingInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
-  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutEndingInput = {
@@ -2526,11 +2532,11 @@ export type LifeRunUncheckedUpdateWithoutEndingInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
-  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
-  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
 }
 
 export type LifeRunUncheckedUpdateManyWithoutEndingInput = {
@@ -2551,7 +2557,7 @@ export type LifeRunUncheckedUpdateManyWithoutEndingInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  statsSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -2560,17 +2566,17 @@ export type LifeRunUncheckedUpdateManyWithoutEndingInput = {
  */
 
 export type LifeRunCountOutputType = {
-  Choices: number
-  Stats: number
-  Art: number
   Unlocks: number
+  Choices: number
+  Art: number
+  Stats: number
 }
 
 export type LifeRunCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Choices?: boolean | LifeRunCountOutputTypeCountChoicesArgs
-  Stats?: boolean | LifeRunCountOutputTypeCountStatsArgs
-  Art?: boolean | LifeRunCountOutputTypeCountArtArgs
   Unlocks?: boolean | LifeRunCountOutputTypeCountUnlocksArgs
+  Choices?: boolean | LifeRunCountOutputTypeCountChoicesArgs
+  Art?: boolean | LifeRunCountOutputTypeCountArtArgs
+  Stats?: boolean | LifeRunCountOutputTypeCountStatsArgs
 }
 
 /**
@@ -2586,15 +2592,15 @@ export type LifeRunCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
 /**
  * LifeRunCountOutputType without action
  */
-export type LifeRunCountOutputTypeCountChoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.LifeChoiceWhereInput
+export type LifeRunCountOutputTypeCountUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeAchievementUnlockWhereInput
 }
 
 /**
  * LifeRunCountOutputType without action
  */
-export type LifeRunCountOutputTypeCountStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.LifeStatWhereInput
+export type LifeRunCountOutputTypeCountChoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeChoiceWhereInput
 }
 
 /**
@@ -2607,8 +2613,8 @@ export type LifeRunCountOutputTypeCountArtArgs<ExtArgs extends runtime.Types.Ext
 /**
  * LifeRunCountOutputType without action
  */
-export type LifeRunCountOutputTypeCountUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.LifeAchievementUnlockWhereInput
+export type LifeRunCountOutputTypeCountStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeStatWhereInput
 }
 
 
@@ -2632,16 +2638,16 @@ export type LifeRunSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   outcomeKey?: boolean
   summary?: boolean
   statsSnapshot?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  Dream?: boolean | Prisma.LifeRun$DreamArgs<ExtArgs>
-  Character?: boolean | Prisma.LifeRun$CharacterArgs<ExtArgs>
-  Bot?: boolean | Prisma.LifeRun$BotArgs<ExtArgs>
-  ArtCollection?: boolean | Prisma.LifeRun$ArtCollectionArgs<ExtArgs>
-  Ending?: boolean | Prisma.LifeRun$EndingArgs<ExtArgs>
-  Choices?: boolean | Prisma.LifeRun$ChoicesArgs<ExtArgs>
-  Stats?: boolean | Prisma.LifeRun$StatsArgs<ExtArgs>
-  Art?: boolean | Prisma.LifeRun$ArtArgs<ExtArgs>
   Unlocks?: boolean | Prisma.LifeRun$UnlocksArgs<ExtArgs>
+  Choices?: boolean | Prisma.LifeRun$ChoicesArgs<ExtArgs>
+  ArtCollection?: boolean | Prisma.LifeRun$ArtCollectionArgs<ExtArgs>
+  Bot?: boolean | Prisma.LifeRun$BotArgs<ExtArgs>
+  Character?: boolean | Prisma.LifeRun$CharacterArgs<ExtArgs>
+  Dream?: boolean | Prisma.LifeRun$DreamArgs<ExtArgs>
+  Ending?: boolean | Prisma.LifeRun$EndingArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  Art?: boolean | Prisma.LifeRun$ArtArgs<ExtArgs>
+  Stats?: boolean | Prisma.LifeRun$StatsArgs<ExtArgs>
   _count?: boolean | Prisma.LifeRunCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lifeRun"]>
 
@@ -2671,32 +2677,32 @@ export type LifeRunSelectScalar = {
 
 export type LifeRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "status" | "seed" | "protagonistName" | "currentAge" | "currentChapter" | "genre" | "dreamId" | "characterId" | "botId" | "artCollectionId" | "endingId" | "outcomeKey" | "summary" | "statsSnapshot", ExtArgs["result"]["lifeRun"]>
 export type LifeRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  Dream?: boolean | Prisma.LifeRun$DreamArgs<ExtArgs>
-  Character?: boolean | Prisma.LifeRun$CharacterArgs<ExtArgs>
-  Bot?: boolean | Prisma.LifeRun$BotArgs<ExtArgs>
-  ArtCollection?: boolean | Prisma.LifeRun$ArtCollectionArgs<ExtArgs>
-  Ending?: boolean | Prisma.LifeRun$EndingArgs<ExtArgs>
-  Choices?: boolean | Prisma.LifeRun$ChoicesArgs<ExtArgs>
-  Stats?: boolean | Prisma.LifeRun$StatsArgs<ExtArgs>
-  Art?: boolean | Prisma.LifeRun$ArtArgs<ExtArgs>
   Unlocks?: boolean | Prisma.LifeRun$UnlocksArgs<ExtArgs>
+  Choices?: boolean | Prisma.LifeRun$ChoicesArgs<ExtArgs>
+  ArtCollection?: boolean | Prisma.LifeRun$ArtCollectionArgs<ExtArgs>
+  Bot?: boolean | Prisma.LifeRun$BotArgs<ExtArgs>
+  Character?: boolean | Prisma.LifeRun$CharacterArgs<ExtArgs>
+  Dream?: boolean | Prisma.LifeRun$DreamArgs<ExtArgs>
+  Ending?: boolean | Prisma.LifeRun$EndingArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  Art?: boolean | Prisma.LifeRun$ArtArgs<ExtArgs>
+  Stats?: boolean | Prisma.LifeRun$StatsArgs<ExtArgs>
   _count?: boolean | Prisma.LifeRunCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $LifeRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LifeRun"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
-    Dream: Prisma.$DreamPayload<ExtArgs> | null
-    Character: Prisma.$CharacterPayload<ExtArgs> | null
-    Bot: Prisma.$BotPayload<ExtArgs> | null
-    ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
-    Ending: Prisma.$LifeEndingPayload<ExtArgs> | null
-    Choices: Prisma.$LifeChoicePayload<ExtArgs>[]
-    Stats: Prisma.$LifeStatPayload<ExtArgs>[]
-    Art: Prisma.$LifeRunArtPayload<ExtArgs>[]
     Unlocks: Prisma.$LifeAchievementUnlockPayload<ExtArgs>[]
+    Choices: Prisma.$LifeChoicePayload<ExtArgs>[]
+    ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
+    Bot: Prisma.$BotPayload<ExtArgs> | null
+    Character: Prisma.$CharacterPayload<ExtArgs> | null
+    Dream: Prisma.$DreamPayload<ExtArgs> | null
+    Ending: Prisma.$LifeEndingPayload<ExtArgs> | null
+    User: Prisma.$UserPayload<ExtArgs>
+    Art: Prisma.$LifeRunArtPayload<ExtArgs>[]
+    Stats: Prisma.$LifeStatPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2717,7 +2723,7 @@ export type $LifeRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     endingId: number | null
     outcomeKey: string | null
     summary: string | null
-    statsSnapshot: runtime.JsonValue | null
+    statsSnapshot: string | null
   }, ExtArgs["result"]["lifeRun"]>
   composites: {}
 }
@@ -3058,16 +3064,16 @@ readonly fields: LifeRunFieldRefs;
  */
 export interface Prisma__LifeRunClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  Dream<T extends Prisma.LifeRun$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Character<T extends Prisma.LifeRun$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Bot<T extends Prisma.LifeRun$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ArtCollection<T extends Prisma.LifeRun$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Ending<T extends Prisma.LifeRun$EndingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$EndingArgs<ExtArgs>>): Prisma.Prisma__LifeEndingClient<runtime.Types.Result.GetResult<Prisma.$LifeEndingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Choices<T extends Prisma.LifeRun$ChoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ChoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeChoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Stats<T extends Prisma.LifeRun$StatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$StatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeStatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Art<T extends Prisma.LifeRun$ArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ArtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Unlocks<T extends Prisma.LifeRun$UnlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$UnlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementUnlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Choices<T extends Prisma.LifeRun$ChoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ChoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeChoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ArtCollection<T extends Prisma.LifeRun$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Bot<T extends Prisma.LifeRun$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Character<T extends Prisma.LifeRun$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Dream<T extends Prisma.LifeRun$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Ending<T extends Prisma.LifeRun$EndingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$EndingArgs<ExtArgs>>): Prisma.Prisma__LifeEndingClient<runtime.Types.Result.GetResult<Prisma.$LifeEndingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Art<T extends Prisma.LifeRun$ArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ArtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Stats<T extends Prisma.LifeRun$StatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$StatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeStatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3115,7 +3121,7 @@ export interface LifeRunFieldRefs {
   readonly endingId: Prisma.FieldRef<"LifeRun", 'Int'>
   readonly outcomeKey: Prisma.FieldRef<"LifeRun", 'String'>
   readonly summary: Prisma.FieldRef<"LifeRun", 'String'>
-  readonly statsSnapshot: Prisma.FieldRef<"LifeRun", 'Json'>
+  readonly statsSnapshot: Prisma.FieldRef<"LifeRun", 'String'>
 }
     
 
@@ -3464,98 +3470,27 @@ export type LifeRunDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * LifeRun.Dream
+ * LifeRun.Unlocks
  */
-export type LifeRun$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type LifeRun$UnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Dream
+   * Select specific fields to fetch from the LifeAchievementUnlock
    */
-  select?: Prisma.DreamSelect<ExtArgs> | null
+  select?: Prisma.LifeAchievementUnlockSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Dream
+   * Omit specific fields from the LifeAchievementUnlock
    */
-  omit?: Prisma.DreamOmit<ExtArgs> | null
+  omit?: Prisma.LifeAchievementUnlockOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.DreamInclude<ExtArgs> | null
-  where?: Prisma.DreamWhereInput
-}
-
-/**
- * LifeRun.Character
- */
-export type LifeRun$CharacterArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Character
-   */
-  select?: Prisma.CharacterSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Character
-   */
-  omit?: Prisma.CharacterOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
-  where?: Prisma.CharacterWhereInput
-}
-
-/**
- * LifeRun.Bot
- */
-export type LifeRun$BotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Bot
-   */
-  select?: Prisma.BotSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Bot
-   */
-  omit?: Prisma.BotOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.BotInclude<ExtArgs> | null
-  where?: Prisma.BotWhereInput
-}
-
-/**
- * LifeRun.ArtCollection
- */
-export type LifeRun$ArtCollectionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtCollection
-   */
-  select?: Prisma.ArtCollectionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtCollection
-   */
-  omit?: Prisma.ArtCollectionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtCollectionInclude<ExtArgs> | null
-  where?: Prisma.ArtCollectionWhereInput
-}
-
-/**
- * LifeRun.Ending
- */
-export type LifeRun$EndingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the LifeEnding
-   */
-  select?: Prisma.LifeEndingSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the LifeEnding
-   */
-  omit?: Prisma.LifeEndingOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.LifeEndingInclude<ExtArgs> | null
-  where?: Prisma.LifeEndingWhereInput
+  include?: Prisma.LifeAchievementUnlockInclude<ExtArgs> | null
+  where?: Prisma.LifeAchievementUnlockWhereInput
+  orderBy?: Prisma.LifeAchievementUnlockOrderByWithRelationInput | Prisma.LifeAchievementUnlockOrderByWithRelationInput[]
+  cursor?: Prisma.LifeAchievementUnlockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeAchievementUnlockScalarFieldEnum | Prisma.LifeAchievementUnlockScalarFieldEnum[]
 }
 
 /**
@@ -3583,27 +3518,98 @@ export type LifeRun$ChoicesArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * LifeRun.Stats
+ * LifeRun.ArtCollection
  */
-export type LifeRun$StatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type LifeRun$ArtCollectionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the LifeStat
+   * Select specific fields to fetch from the ArtCollection
    */
-  select?: Prisma.LifeStatSelect<ExtArgs> | null
+  select?: Prisma.ArtCollectionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the LifeStat
+   * Omit specific fields from the ArtCollection
    */
-  omit?: Prisma.LifeStatOmit<ExtArgs> | null
+  omit?: Prisma.ArtCollectionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.LifeStatInclude<ExtArgs> | null
-  where?: Prisma.LifeStatWhereInput
-  orderBy?: Prisma.LifeStatOrderByWithRelationInput | Prisma.LifeStatOrderByWithRelationInput[]
-  cursor?: Prisma.LifeStatWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.LifeStatScalarFieldEnum | Prisma.LifeStatScalarFieldEnum[]
+  include?: Prisma.ArtCollectionInclude<ExtArgs> | null
+  where?: Prisma.ArtCollectionWhereInput
+}
+
+/**
+ * LifeRun.Bot
+ */
+export type LifeRun$BotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Bot
+   */
+  select?: Prisma.BotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Bot
+   */
+  omit?: Prisma.BotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotInclude<ExtArgs> | null
+  where?: Prisma.BotWhereInput
+}
+
+/**
+ * LifeRun.Character
+ */
+export type LifeRun$CharacterArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Character
+   */
+  select?: Prisma.CharacterSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Character
+   */
+  omit?: Prisma.CharacterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  where?: Prisma.CharacterWhereInput
+}
+
+/**
+ * LifeRun.Dream
+ */
+export type LifeRun$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dream
+   */
+  select?: Prisma.DreamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dream
+   */
+  omit?: Prisma.DreamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DreamInclude<ExtArgs> | null
+  where?: Prisma.DreamWhereInput
+}
+
+/**
+ * LifeRun.Ending
+ */
+export type LifeRun$EndingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeEnding
+   */
+  select?: Prisma.LifeEndingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeEnding
+   */
+  omit?: Prisma.LifeEndingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeEndingInclude<ExtArgs> | null
+  where?: Prisma.LifeEndingWhereInput
 }
 
 /**
@@ -3631,27 +3637,27 @@ export type LifeRun$ArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 
 /**
- * LifeRun.Unlocks
+ * LifeRun.Stats
  */
-export type LifeRun$UnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type LifeRun$StatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the LifeAchievementUnlock
+   * Select specific fields to fetch from the LifeStat
    */
-  select?: Prisma.LifeAchievementUnlockSelect<ExtArgs> | null
+  select?: Prisma.LifeStatSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the LifeAchievementUnlock
+   * Omit specific fields from the LifeStat
    */
-  omit?: Prisma.LifeAchievementUnlockOmit<ExtArgs> | null
+  omit?: Prisma.LifeStatOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.LifeAchievementUnlockInclude<ExtArgs> | null
-  where?: Prisma.LifeAchievementUnlockWhereInput
-  orderBy?: Prisma.LifeAchievementUnlockOrderByWithRelationInput | Prisma.LifeAchievementUnlockOrderByWithRelationInput[]
-  cursor?: Prisma.LifeAchievementUnlockWhereUniqueInput
+  include?: Prisma.LifeStatInclude<ExtArgs> | null
+  where?: Prisma.LifeStatWhereInput
+  orderBy?: Prisma.LifeStatOrderByWithRelationInput | Prisma.LifeStatOrderByWithRelationInput[]
+  cursor?: Prisma.LifeStatWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.LifeAchievementUnlockScalarFieldEnum | Prisma.LifeAchievementUnlockScalarFieldEnum[]
+  distinct?: Prisma.LifeStatScalarFieldEnum | Prisma.LifeStatScalarFieldEnum[]
 }
 
 /**

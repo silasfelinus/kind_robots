@@ -204,16 +204,16 @@ export type ProjectArtImageWhereInput = {
   projectId?: Prisma.IntFilter<"ProjectArtImage"> | number
   artImageId?: Prisma.IntFilter<"ProjectArtImage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectArtImage"> | Date | string
-  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   ArtImage?: Prisma.XOR<Prisma.ArtImageScalarRelationFilter, Prisma.ArtImageWhereInput>
+  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }
 
 export type ProjectArtImageOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  Project?: Prisma.ProjectOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
+  Project?: Prisma.ProjectOrderByWithRelationInput
 }
 
 export type ProjectArtImageWhereUniqueInput = Prisma.AtLeast<{
@@ -224,8 +224,8 @@ export type ProjectArtImageWhereUniqueInput = Prisma.AtLeast<{
   projectId?: Prisma.IntFilter<"ProjectArtImage"> | number
   artImageId?: Prisma.IntFilter<"ProjectArtImage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectArtImage"> | Date | string
-  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   ArtImage?: Prisma.XOR<Prisma.ArtImageScalarRelationFilter, Prisma.ArtImageWhereInput>
+  Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }, "projectId_artImageId">
 
 export type ProjectArtImageOrderByWithAggregationInput = {
@@ -250,8 +250,8 @@ export type ProjectArtImageScalarWhereWithAggregatesInput = {
 
 export type ProjectArtImageCreateInput = {
   createdAt?: Date | string
-  Project: Prisma.ProjectCreateNestedOneWithoutArtImageLinksInput
   ArtImage: Prisma.ArtImageCreateNestedOneWithoutProjectLinksInput
+  Project: Prisma.ProjectCreateNestedOneWithoutArtImageLinksInput
 }
 
 export type ProjectArtImageUncheckedCreateInput = {
@@ -262,8 +262,8 @@ export type ProjectArtImageUncheckedCreateInput = {
 
 export type ProjectArtImageUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Project?: Prisma.ProjectUpdateOneRequiredWithoutArtImageLinksNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneRequiredWithoutProjectLinksNestedInput
+  Project?: Prisma.ProjectUpdateOneRequiredWithoutArtImageLinksNestedInput
 }
 
 export type ProjectArtImageUncheckedUpdateInput = {
@@ -542,8 +542,8 @@ export type ProjectArtImageSelect<ExtArgs extends runtime.Types.Extensions.Inter
   projectId?: boolean
   artImageId?: boolean
   createdAt?: boolean
-  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   ArtImage?: boolean | Prisma.ArtImageDefaultArgs<ExtArgs>
+  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projectArtImage"]>
 
 
@@ -556,15 +556,15 @@ export type ProjectArtImageSelectScalar = {
 
 export type ProjectArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"projectId" | "artImageId" | "createdAt", ExtArgs["result"]["projectArtImage"]>
 export type ProjectArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   ArtImage?: boolean | Prisma.ArtImageDefaultArgs<ExtArgs>
+  Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
 
 export type $ProjectArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProjectArtImage"
   objects: {
-    Project: Prisma.$ProjectPayload<ExtArgs>
     ArtImage: Prisma.$ArtImagePayload<ExtArgs>
+    Project: Prisma.$ProjectPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     projectId: number
@@ -910,8 +910,8 @@ readonly fields: ProjectArtImageFieldRefs;
  */
 export interface Prisma__ProjectArtImageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.ArtImageDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImageDefaultArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

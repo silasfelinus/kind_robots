@@ -1,8 +1,0 @@
--- AlterTable
-ALTER TABLE `Dream` MODIFY `dreamType` ENUM('ART', 'BRAINSTORM', 'PROMPTBOT', 'NARRATOR', 'CHARACTER', 'PROJECT', 'REWARD', 'SCENARIO', 'LOCATION', 'PITCH', 'GENRE', 'WISH') NOT NULL DEFAULT 'PITCH';
-
--- AlterTable
-ALTER TABLE `KarmaTransaction` MODIFY `note` TEXT NULL;
-
--- AlterTable
-ALTER TABLE `Prompt` MODIFY `errorMessage` TEXT NULL;

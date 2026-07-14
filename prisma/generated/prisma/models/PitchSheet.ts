@@ -29,17 +29,17 @@ export type AggregatePitchSheet = {
 export type PitchSheetAvgAggregateOutputType = {
   id: number | null
   dreamId: number | null
-  projectId: number | null
   artImageId: number | null
   userId: number | null
+  projectId: number | null
 }
 
 export type PitchSheetSumAggregateOutputType = {
   id: number | null
   dreamId: number | null
-  projectId: number | null
   artImageId: number | null
   userId: number | null
+  projectId: number | null
 }
 
 export type PitchSheetMinAggregateOutputType = {
@@ -47,7 +47,6 @@ export type PitchSheetMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   dreamId: number | null
-  projectId: number | null
   layoutKey: string | null
   title: string | null
   subtitle: string | null
@@ -72,11 +71,13 @@ export type PitchSheetMinAggregateOutputType = {
   artImageId: number | null
   icon: string | null
   colorTheme: string | null
+  extraData: string | null
   userId: number | null
   isPublic: boolean | null
   isActive: boolean | null
   isMature: boolean | null
   designer: string | null
+  projectId: number | null
 }
 
 export type PitchSheetMaxAggregateOutputType = {
@@ -84,7 +85,6 @@ export type PitchSheetMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   dreamId: number | null
-  projectId: number | null
   layoutKey: string | null
   title: string | null
   subtitle: string | null
@@ -109,11 +109,13 @@ export type PitchSheetMaxAggregateOutputType = {
   artImageId: number | null
   icon: string | null
   colorTheme: string | null
+  extraData: string | null
   userId: number | null
   isPublic: boolean | null
   isActive: boolean | null
   isMature: boolean | null
   designer: string | null
+  projectId: number | null
 }
 
 export type PitchSheetCountAggregateOutputType = {
@@ -121,7 +123,6 @@ export type PitchSheetCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   dreamId: number
-  projectId: number
   layoutKey: number
   title: number
   subtitle: number
@@ -152,6 +153,7 @@ export type PitchSheetCountAggregateOutputType = {
   isActive: number
   isMature: number
   designer: number
+  projectId: number
   _all: number
 }
 
@@ -159,17 +161,17 @@ export type PitchSheetCountAggregateOutputType = {
 export type PitchSheetAvgAggregateInputType = {
   id?: true
   dreamId?: true
-  projectId?: true
   artImageId?: true
   userId?: true
+  projectId?: true
 }
 
 export type PitchSheetSumAggregateInputType = {
   id?: true
   dreamId?: true
-  projectId?: true
   artImageId?: true
   userId?: true
+  projectId?: true
 }
 
 export type PitchSheetMinAggregateInputType = {
@@ -177,81 +179,6 @@ export type PitchSheetMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   dreamId?: true
-  projectId?: true
-  layoutKey?: true
-  title?: true
-  subtitle?: true
-  hook?: true
-  pitch?: true
-  highlight1Label?: true
-  highlight1Value?: true
-  highlight1Icon?: true
-  highlight2Label?: true
-  highlight2Value?: true
-  highlight2Icon?: true
-  highlight3Label?: true
-  highlight3Value?: true
-  highlight3Icon?: true
-  detail1Label?: true
-  detail1Body?: true
-  detail2Label?: true
-  detail2Body?: true
-  detail3Label?: true
-  detail3Body?: true
-  imagePath?: true
-  artImageId?: true
-  icon?: true
-  colorTheme?: true
-  userId?: true
-  isPublic?: true
-  isActive?: true
-  isMature?: true
-  designer?: true
-}
-
-export type PitchSheetMaxAggregateInputType = {
-  id?: true
-  createdAt?: true
-  updatedAt?: true
-  dreamId?: true
-  projectId?: true
-  layoutKey?: true
-  title?: true
-  subtitle?: true
-  hook?: true
-  pitch?: true
-  highlight1Label?: true
-  highlight1Value?: true
-  highlight1Icon?: true
-  highlight2Label?: true
-  highlight2Value?: true
-  highlight2Icon?: true
-  highlight3Label?: true
-  highlight3Value?: true
-  highlight3Icon?: true
-  detail1Label?: true
-  detail1Body?: true
-  detail2Label?: true
-  detail2Body?: true
-  detail3Label?: true
-  detail3Body?: true
-  imagePath?: true
-  artImageId?: true
-  icon?: true
-  colorTheme?: true
-  userId?: true
-  isPublic?: true
-  isActive?: true
-  isMature?: true
-  designer?: true
-}
-
-export type PitchSheetCountAggregateInputType = {
-  id?: true
-  createdAt?: true
-  updatedAt?: true
-  dreamId?: true
-  projectId?: true
   layoutKey?: true
   title?: true
   subtitle?: true
@@ -282,6 +209,83 @@ export type PitchSheetCountAggregateInputType = {
   isActive?: true
   isMature?: true
   designer?: true
+  projectId?: true
+}
+
+export type PitchSheetMaxAggregateInputType = {
+  id?: true
+  createdAt?: true
+  updatedAt?: true
+  dreamId?: true
+  layoutKey?: true
+  title?: true
+  subtitle?: true
+  hook?: true
+  pitch?: true
+  highlight1Label?: true
+  highlight1Value?: true
+  highlight1Icon?: true
+  highlight2Label?: true
+  highlight2Value?: true
+  highlight2Icon?: true
+  highlight3Label?: true
+  highlight3Value?: true
+  highlight3Icon?: true
+  detail1Label?: true
+  detail1Body?: true
+  detail2Label?: true
+  detail2Body?: true
+  detail3Label?: true
+  detail3Body?: true
+  imagePath?: true
+  artImageId?: true
+  icon?: true
+  colorTheme?: true
+  extraData?: true
+  userId?: true
+  isPublic?: true
+  isActive?: true
+  isMature?: true
+  designer?: true
+  projectId?: true
+}
+
+export type PitchSheetCountAggregateInputType = {
+  id?: true
+  createdAt?: true
+  updatedAt?: true
+  dreamId?: true
+  layoutKey?: true
+  title?: true
+  subtitle?: true
+  hook?: true
+  pitch?: true
+  highlight1Label?: true
+  highlight1Value?: true
+  highlight1Icon?: true
+  highlight2Label?: true
+  highlight2Value?: true
+  highlight2Icon?: true
+  highlight3Label?: true
+  highlight3Value?: true
+  highlight3Icon?: true
+  detail1Label?: true
+  detail1Body?: true
+  detail2Label?: true
+  detail2Body?: true
+  detail3Label?: true
+  detail3Body?: true
+  imagePath?: true
+  artImageId?: true
+  icon?: true
+  colorTheme?: true
+  extraData?: true
+  userId?: true
+  isPublic?: true
+  isActive?: true
+  isMature?: true
+  designer?: true
+  projectId?: true
   _all?: true
 }
 
@@ -376,7 +380,6 @@ export type PitchSheetGroupByOutputType = {
   createdAt: Date
   updatedAt: Date | null
   dreamId: number | null
-  projectId: number | null
   layoutKey: string
   title: string
   subtitle: string | null
@@ -401,12 +404,13 @@ export type PitchSheetGroupByOutputType = {
   artImageId: number | null
   icon: string | null
   colorTheme: string | null
-  extraData: runtime.JsonValue | null
+  extraData: string | null
   userId: number | null
   isPublic: boolean
   isActive: boolean
   isMature: boolean
   designer: string | null
+  projectId: number | null
   _count: PitchSheetCountAggregateOutputType | null
   _avg: PitchSheetAvgAggregateOutputType | null
   _sum: PitchSheetSumAggregateOutputType | null
@@ -437,7 +441,6 @@ export type PitchSheetWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"PitchSheet"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"PitchSheet"> | Date | string | null
   dreamId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
-  projectId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   layoutKey?: Prisma.StringFilter<"PitchSheet"> | string
   title?: Prisma.StringFilter<"PitchSheet"> | string
   subtitle?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
@@ -462,15 +465,16 @@ export type PitchSheetWhereInput = {
   artImageId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   icon?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
   colorTheme?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
-  extraData?: Prisma.JsonNullableFilter<"PitchSheet">
+  extraData?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
   userId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   isPublic?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isActive?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isMature?: Prisma.BoolFilter<"PitchSheet"> | boolean
   designer?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
+  projectId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
@@ -479,7 +483,6 @@ export type PitchSheetOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
-  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -510,9 +513,10 @@ export type PitchSheetOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Dream?: Prisma.DreamOrderByWithRelationInput
   Project?: Prisma.ProjectOrderByWithRelationInput
-  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.PitchSheetOrderByRelevanceInput
 }
@@ -550,15 +554,15 @@ export type PitchSheetWhereUniqueInput = Prisma.AtLeast<{
   artImageId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   icon?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
   colorTheme?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
-  extraData?: Prisma.JsonNullableFilter<"PitchSheet">
+  extraData?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
   userId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   isPublic?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isActive?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isMature?: Prisma.BoolFilter<"PitchSheet"> | boolean
   designer?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "dreamId" | "projectId">
 
@@ -567,7 +571,6 @@ export type PitchSheetOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
-  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -598,6 +601,7 @@ export type PitchSheetOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PitchSheetCountOrderByAggregateInput
   _avg?: Prisma.PitchSheetAvgOrderByAggregateInput
   _max?: Prisma.PitchSheetMaxOrderByAggregateInput
@@ -613,7 +617,6 @@ export type PitchSheetScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PitchSheet"> | Date | string
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PitchSheet"> | Date | string | null
   dreamId?: Prisma.IntNullableWithAggregatesFilter<"PitchSheet"> | number | null
-  projectId?: Prisma.IntNullableWithAggregatesFilter<"PitchSheet"> | number | null
   layoutKey?: Prisma.StringWithAggregatesFilter<"PitchSheet"> | string
   title?: Prisma.StringWithAggregatesFilter<"PitchSheet"> | string
   subtitle?: Prisma.StringNullableWithAggregatesFilter<"PitchSheet"> | string | null
@@ -638,12 +641,13 @@ export type PitchSheetScalarWhereWithAggregatesInput = {
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"PitchSheet"> | number | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"PitchSheet"> | string | null
   colorTheme?: Prisma.StringNullableWithAggregatesFilter<"PitchSheet"> | string | null
-  extraData?: Prisma.JsonNullableWithAggregatesFilter<"PitchSheet">
+  extraData?: Prisma.StringNullableWithAggregatesFilter<"PitchSheet"> | string | null
   userId?: Prisma.IntNullableWithAggregatesFilter<"PitchSheet"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"PitchSheet"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"PitchSheet"> | boolean
   isMature?: Prisma.BoolWithAggregatesFilter<"PitchSheet"> | boolean
   designer?: Prisma.StringNullableWithAggregatesFilter<"PitchSheet"> | string | null
+  projectId?: Prisma.IntNullableWithAggregatesFilter<"PitchSheet"> | number | null
 }
 
 export type PitchSheetCreateInput = {
@@ -672,14 +676,14 @@ export type PitchSheetCreateInput = {
   imagePath?: string | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
   Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
   User?: Prisma.UserCreateNestedOneWithoutPitchSheetsInput
 }
 
@@ -688,7 +692,6 @@ export type PitchSheetUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   dreamId?: number | null
-  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -713,12 +716,13 @@ export type PitchSheetUncheckedCreateInput = {
   artImageId?: number | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  projectId?: number | null
 }
 
 export type PitchSheetUpdateInput = {
@@ -747,14 +751,14 @@ export type PitchSheetUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
   Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchSheetsNestedInput
 }
 
@@ -763,7 +767,6 @@ export type PitchSheetUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -788,12 +791,13 @@ export type PitchSheetUncheckedUpdateInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type PitchSheetCreateManyInput = {
@@ -801,7 +805,6 @@ export type PitchSheetCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   dreamId?: number | null
-  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -826,12 +829,13 @@ export type PitchSheetCreateManyInput = {
   artImageId?: number | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  projectId?: number | null
 }
 
 export type PitchSheetUpdateManyMutationInput = {
@@ -860,7 +864,7 @@ export type PitchSheetUpdateManyMutationInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -872,7 +876,6 @@ export type PitchSheetUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -897,12 +900,13 @@ export type PitchSheetUncheckedUpdateManyInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type PitchSheetListRelationFilter = {
@@ -931,7 +935,6 @@ export type PitchSheetCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
-  projectId?: Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
@@ -962,14 +965,15 @@ export type PitchSheetCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   designer?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
 }
 
 export type PitchSheetAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
-  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
 }
 
 export type PitchSheetMaxOrderByAggregateInput = {
@@ -977,7 +981,6 @@ export type PitchSheetMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
-  projectId?: Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
@@ -1002,11 +1005,13 @@ export type PitchSheetMaxOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   colorTheme?: Prisma.SortOrder
+  extraData?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   designer?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
 }
 
 export type PitchSheetMinOrderByAggregateInput = {
@@ -1014,7 +1019,6 @@ export type PitchSheetMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
-  projectId?: Prisma.SortOrder
   layoutKey?: Prisma.SortOrder
   title?: Prisma.SortOrder
   subtitle?: Prisma.SortOrder
@@ -1039,19 +1043,21 @@ export type PitchSheetMinOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   colorTheme?: Prisma.SortOrder
+  extraData?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   designer?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
 }
 
 export type PitchSheetSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
-  projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
 }
 
 export type PitchSheetCreateNestedManyWithoutArtImageInput = {
@@ -1228,7 +1234,7 @@ export type PitchSheetCreateWithoutArtImageInput = {
   imagePath?: string | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
@@ -1243,7 +1249,6 @@ export type PitchSheetUncheckedCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   dreamId?: number | null
-  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1267,12 +1272,13 @@ export type PitchSheetUncheckedCreateWithoutArtImageInput = {
   imagePath?: string | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  projectId?: number | null
 }
 
 export type PitchSheetCreateOrConnectWithoutArtImageInput = {
@@ -1309,7 +1315,6 @@ export type PitchSheetScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"PitchSheet"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"PitchSheet"> | Date | string | null
   dreamId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
-  projectId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   layoutKey?: Prisma.StringFilter<"PitchSheet"> | string
   title?: Prisma.StringFilter<"PitchSheet"> | string
   subtitle?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
@@ -1334,12 +1339,13 @@ export type PitchSheetScalarWhereInput = {
   artImageId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   icon?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
   colorTheme?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
-  extraData?: Prisma.JsonNullableFilter<"PitchSheet">
+  extraData?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
   userId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
   isPublic?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isActive?: Prisma.BoolFilter<"PitchSheet"> | boolean
   isMature?: Prisma.BoolFilter<"PitchSheet"> | boolean
   designer?: Prisma.StringNullableFilter<"PitchSheet"> | string | null
+  projectId?: Prisma.IntNullableFilter<"PitchSheet"> | number | null
 }
 
 export type PitchSheetCreateWithoutDreamInput = {
@@ -1368,13 +1374,13 @@ export type PitchSheetCreateWithoutDreamInput = {
   imagePath?: string | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
-  Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
+  Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
   User?: Prisma.UserCreateNestedOneWithoutPitchSheetsInput
 }
 
@@ -1382,7 +1388,6 @@ export type PitchSheetUncheckedCreateWithoutDreamInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1407,12 +1412,13 @@ export type PitchSheetUncheckedCreateWithoutDreamInput = {
   artImageId?: number | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  projectId?: number | null
 }
 
 export type PitchSheetCreateOrConnectWithoutDreamInput = {
@@ -1457,13 +1463,13 @@ export type PitchSheetUpdateWithoutDreamInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
+  Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchSheetsNestedInput
 }
 
@@ -1471,7 +1477,6 @@ export type PitchSheetUncheckedUpdateWithoutDreamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1496,12 +1501,13 @@ export type PitchSheetUncheckedUpdateWithoutDreamInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type PitchSheetCreateWithoutProjectInput = {
@@ -1530,13 +1536,13 @@ export type PitchSheetCreateWithoutProjectInput = {
   imagePath?: string | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
-  Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
   User?: Prisma.UserCreateNestedOneWithoutPitchSheetsInput
 }
 
@@ -1569,7 +1575,7 @@ export type PitchSheetUncheckedCreateWithoutProjectInput = {
   artImageId?: number | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
@@ -1619,13 +1625,13 @@ export type PitchSheetUpdateWithoutProjectInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchSheetsNestedInput
 }
 
@@ -1658,7 +1664,7 @@ export type PitchSheetUncheckedUpdateWithoutProjectInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1692,14 +1698,14 @@ export type PitchSheetCreateWithoutUserInput = {
   imagePath?: string | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutPitchSheetInput
   Project?: Prisma.ProjectCreateNestedOneWithoutPitchSheetInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchSheetsInput
 }
 
 export type PitchSheetUncheckedCreateWithoutUserInput = {
@@ -1707,7 +1713,6 @@ export type PitchSheetUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   dreamId?: number | null
-  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1732,11 +1737,12 @@ export type PitchSheetUncheckedCreateWithoutUserInput = {
   artImageId?: number | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  projectId?: number | null
 }
 
 export type PitchSheetCreateOrConnectWithoutUserInput = {
@@ -1770,7 +1776,6 @@ export type PitchSheetCreateManyArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   dreamId?: number | null
-  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1794,12 +1799,13 @@ export type PitchSheetCreateManyArtImageInput = {
   imagePath?: string | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  projectId?: number | null
 }
 
 export type PitchSheetUpdateWithoutArtImageInput = {
@@ -1828,7 +1834,7 @@ export type PitchSheetUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1843,7 +1849,6 @@ export type PitchSheetUncheckedUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1867,12 +1872,13 @@ export type PitchSheetUncheckedUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type PitchSheetUncheckedUpdateManyWithoutArtImageInput = {
@@ -1880,7 +1886,6 @@ export type PitchSheetUncheckedUpdateManyWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1904,12 +1909,13 @@ export type PitchSheetUncheckedUpdateManyWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type PitchSheetCreateManyUserInput = {
@@ -1917,7 +1923,6 @@ export type PitchSheetCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   dreamId?: number | null
-  projectId?: number | null
   layoutKey?: string
   title: string
   subtitle?: string | null
@@ -1942,11 +1947,12 @@ export type PitchSheetCreateManyUserInput = {
   artImageId?: number | null
   icon?: string | null
   colorTheme?: string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: string | null
   isPublic?: boolean
   isActive?: boolean
   isMature?: boolean
   designer?: string | null
+  projectId?: number | null
 }
 
 export type PitchSheetUpdateWithoutUserInput = {
@@ -1975,14 +1981,14 @@ export type PitchSheetUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutPitchSheetNestedInput
   Project?: Prisma.ProjectUpdateOneWithoutPitchSheetNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchSheetsNestedInput
 }
 
 export type PitchSheetUncheckedUpdateWithoutUserInput = {
@@ -1990,7 +1996,6 @@ export type PitchSheetUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2015,11 +2020,12 @@ export type PitchSheetUncheckedUpdateWithoutUserInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type PitchSheetUncheckedUpdateManyWithoutUserInput = {
@@ -2027,7 +2033,6 @@ export type PitchSheetUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   layoutKey?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2052,11 +2057,12 @@ export type PitchSheetUncheckedUpdateManyWithoutUserInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorTheme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extraData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  extraData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -2066,7 +2072,6 @@ export type PitchSheetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   createdAt?: boolean
   updatedAt?: boolean
   dreamId?: boolean
-  projectId?: boolean
   layoutKey?: boolean
   title?: boolean
   subtitle?: boolean
@@ -2097,9 +2102,10 @@ export type PitchSheetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   isActive?: boolean
   isMature?: boolean
   designer?: boolean
+  projectId?: boolean
+  ArtImage?: boolean | Prisma.PitchSheet$ArtImageArgs<ExtArgs>
   Dream?: boolean | Prisma.PitchSheet$DreamArgs<ExtArgs>
   Project?: boolean | Prisma.PitchSheet$ProjectArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.PitchSheet$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.PitchSheet$UserArgs<ExtArgs>
 }, ExtArgs["result"]["pitchSheet"]>
 
@@ -2110,7 +2116,6 @@ export type PitchSheetSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   dreamId?: boolean
-  projectId?: boolean
   layoutKey?: boolean
   title?: boolean
   subtitle?: boolean
@@ -2141,22 +2146,23 @@ export type PitchSheetSelectScalar = {
   isActive?: boolean
   isMature?: boolean
   designer?: boolean
+  projectId?: boolean
 }
 
-export type PitchSheetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "dreamId" | "projectId" | "layoutKey" | "title" | "subtitle" | "hook" | "pitch" | "highlight1Label" | "highlight1Value" | "highlight1Icon" | "highlight2Label" | "highlight2Value" | "highlight2Icon" | "highlight3Label" | "highlight3Value" | "highlight3Icon" | "detail1Label" | "detail1Body" | "detail2Label" | "detail2Body" | "detail3Label" | "detail3Body" | "imagePath" | "artImageId" | "icon" | "colorTheme" | "extraData" | "userId" | "isPublic" | "isActive" | "isMature" | "designer", ExtArgs["result"]["pitchSheet"]>
+export type PitchSheetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "dreamId" | "layoutKey" | "title" | "subtitle" | "hook" | "pitch" | "highlight1Label" | "highlight1Value" | "highlight1Icon" | "highlight2Label" | "highlight2Value" | "highlight2Icon" | "highlight3Label" | "highlight3Value" | "highlight3Icon" | "detail1Label" | "detail1Body" | "detail2Label" | "detail2Body" | "detail3Label" | "detail3Body" | "imagePath" | "artImageId" | "icon" | "colorTheme" | "extraData" | "userId" | "isPublic" | "isActive" | "isMature" | "designer" | "projectId", ExtArgs["result"]["pitchSheet"]>
 export type PitchSheetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ArtImage?: boolean | Prisma.PitchSheet$ArtImageArgs<ExtArgs>
   Dream?: boolean | Prisma.PitchSheet$DreamArgs<ExtArgs>
   Project?: boolean | Prisma.PitchSheet$ProjectArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.PitchSheet$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.PitchSheet$UserArgs<ExtArgs>
 }
 
 export type $PitchSheetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PitchSheet"
   objects: {
+    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Dream: Prisma.$DreamPayload<ExtArgs> | null
     Project: Prisma.$ProjectPayload<ExtArgs> | null
-    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2164,7 +2170,6 @@ export type $PitchSheetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     createdAt: Date
     updatedAt: Date | null
     dreamId: number | null
-    projectId: number | null
     layoutKey: string
     title: string
     subtitle: string | null
@@ -2189,12 +2194,13 @@ export type $PitchSheetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     artImageId: number | null
     icon: string | null
     colorTheme: string | null
-    extraData: runtime.JsonValue | null
+    extraData: string | null
     userId: number | null
     isPublic: boolean
     isActive: boolean
     isMature: boolean
     designer: string | null
+    projectId: number | null
   }, ExtArgs["result"]["pitchSheet"]>
   composites: {}
 }
@@ -2535,9 +2541,9 @@ readonly fields: PitchSheetFieldRefs;
  */
 export interface Prisma__PitchSheetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  ArtImage<T extends Prisma.PitchSheet$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Dream<T extends Prisma.PitchSheet$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Project<T extends Prisma.PitchSheet$ProjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$ProjectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ArtImage<T extends Prisma.PitchSheet$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.PitchSheet$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PitchSheet$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2572,7 +2578,6 @@ export interface PitchSheetFieldRefs {
   readonly createdAt: Prisma.FieldRef<"PitchSheet", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PitchSheet", 'DateTime'>
   readonly dreamId: Prisma.FieldRef<"PitchSheet", 'Int'>
-  readonly projectId: Prisma.FieldRef<"PitchSheet", 'Int'>
   readonly layoutKey: Prisma.FieldRef<"PitchSheet", 'String'>
   readonly title: Prisma.FieldRef<"PitchSheet", 'String'>
   readonly subtitle: Prisma.FieldRef<"PitchSheet", 'String'>
@@ -2597,12 +2602,13 @@ export interface PitchSheetFieldRefs {
   readonly artImageId: Prisma.FieldRef<"PitchSheet", 'Int'>
   readonly icon: Prisma.FieldRef<"PitchSheet", 'String'>
   readonly colorTheme: Prisma.FieldRef<"PitchSheet", 'String'>
-  readonly extraData: Prisma.FieldRef<"PitchSheet", 'Json'>
+  readonly extraData: Prisma.FieldRef<"PitchSheet", 'String'>
   readonly userId: Prisma.FieldRef<"PitchSheet", 'Int'>
   readonly isPublic: Prisma.FieldRef<"PitchSheet", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"PitchSheet", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"PitchSheet", 'Boolean'>
   readonly designer: Prisma.FieldRef<"PitchSheet", 'String'>
+  readonly projectId: Prisma.FieldRef<"PitchSheet", 'Int'>
 }
     
 
@@ -2951,6 +2957,25 @@ export type PitchSheetDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
+ * PitchSheet.ArtImage
+ */
+export type PitchSheet$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtImage
+   */
+  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtImage
+   */
+  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtImageInclude<ExtArgs> | null
+  where?: Prisma.ArtImageWhereInput
+}
+
+/**
  * PitchSheet.Dream
  */
 export type PitchSheet$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2986,25 +3011,6 @@ export type PitchSheet$ProjectArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   include?: Prisma.ProjectInclude<ExtArgs> | null
   where?: Prisma.ProjectWhereInput
-}
-
-/**
- * PitchSheet.ArtImage
- */
-export type PitchSheet$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtImage
-   */
-  select?: Prisma.ArtImageSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtImage
-   */
-  omit?: Prisma.ArtImageOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtImageInclude<ExtArgs> | null
-  where?: Prisma.ArtImageWhereInput
 }
 
 /**

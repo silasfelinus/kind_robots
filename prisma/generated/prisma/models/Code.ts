@@ -44,6 +44,7 @@ export type CodeMinAggregateOutputType = {
   title: string | null
   description: string | null
   icon: string | null
+  graph: string | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isActive: boolean | null
@@ -58,6 +59,7 @@ export type CodeMaxAggregateOutputType = {
   title: string | null
   description: string | null
   icon: string | null
+  graph: string | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isActive: boolean | null
@@ -99,6 +101,7 @@ export type CodeMinAggregateInputType = {
   title?: true
   description?: true
   icon?: true
+  graph?: true
   isPublic?: true
   isOfficial?: true
   isActive?: true
@@ -113,6 +116,7 @@ export type CodeMaxAggregateInputType = {
   title?: true
   description?: true
   icon?: true
+  graph?: true
   isPublic?: true
   isOfficial?: true
   isActive?: true
@@ -229,7 +233,7 @@ export type CodeGroupByOutputType = {
   title: string
   description: string | null
   icon: string | null
-  graph: runtime.JsonValue
+  graph: string
   isPublic: boolean
   isOfficial: boolean
   isActive: boolean
@@ -267,7 +271,7 @@ export type CodeWhereInput = {
   title?: Prisma.StringFilter<"Code"> | string
   description?: Prisma.StringNullableFilter<"Code"> | string | null
   icon?: Prisma.StringNullableFilter<"Code"> | string | null
-  graph?: Prisma.JsonFilter<"Code">
+  graph?: Prisma.StringFilter<"Code"> | string
   isPublic?: Prisma.BoolFilter<"Code"> | boolean
   isOfficial?: Prisma.BoolFilter<"Code"> | boolean
   isActive?: Prisma.BoolFilter<"Code"> | boolean
@@ -303,7 +307,7 @@ export type CodeWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Code"> | string
   description?: Prisma.StringNullableFilter<"Code"> | string | null
   icon?: Prisma.StringNullableFilter<"Code"> | string | null
-  graph?: Prisma.JsonFilter<"Code">
+  graph?: Prisma.StringFilter<"Code"> | string
   isPublic?: Prisma.BoolFilter<"Code"> | boolean
   isOfficial?: Prisma.BoolFilter<"Code"> | boolean
   isActive?: Prisma.BoolFilter<"Code"> | boolean
@@ -342,7 +346,7 @@ export type CodeScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Code"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Code"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Code"> | string | null
-  graph?: Prisma.JsonWithAggregatesFilter<"Code">
+  graph?: Prisma.StringWithAggregatesFilter<"Code"> | string
   isPublic?: Prisma.BoolWithAggregatesFilter<"Code"> | boolean
   isOfficial?: Prisma.BoolWithAggregatesFilter<"Code"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Code"> | boolean
@@ -355,7 +359,7 @@ export type CodeCreateInput = {
   title: string
   description?: string | null
   icon?: string | null
-  graph: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph: string
   isPublic?: boolean
   isOfficial?: boolean
   isActive?: boolean
@@ -371,7 +375,7 @@ export type CodeUncheckedCreateInput = {
   title: string
   description?: string | null
   icon?: string | null
-  graph: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph: string
   isPublic?: boolean
   isOfficial?: boolean
   isActive?: boolean
@@ -384,7 +388,7 @@ export type CodeUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  graph?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -400,7 +404,7 @@ export type CodeUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  graph?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -415,7 +419,7 @@ export type CodeCreateManyInput = {
   title: string
   description?: string | null
   icon?: string | null
-  graph: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph: string
   isPublic?: boolean
   isOfficial?: boolean
   isActive?: boolean
@@ -428,7 +432,7 @@ export type CodeUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  graph?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -443,7 +447,7 @@ export type CodeUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  graph?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -484,6 +488,7 @@ export type CodeMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  graph?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -498,6 +503,7 @@ export type CodeMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  graph?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -567,7 +573,7 @@ export type CodeCreateWithoutUserInput = {
   title: string
   description?: string | null
   icon?: string | null
-  graph: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph: string
   isPublic?: boolean
   isOfficial?: boolean
   isActive?: boolean
@@ -581,7 +587,7 @@ export type CodeUncheckedCreateWithoutUserInput = {
   title: string
   description?: string | null
   icon?: string | null
-  graph: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph: string
   isPublic?: boolean
   isOfficial?: boolean
   isActive?: boolean
@@ -625,7 +631,7 @@ export type CodeScalarWhereInput = {
   title?: Prisma.StringFilter<"Code"> | string
   description?: Prisma.StringNullableFilter<"Code"> | string | null
   icon?: Prisma.StringNullableFilter<"Code"> | string | null
-  graph?: Prisma.JsonFilter<"Code">
+  graph?: Prisma.StringFilter<"Code"> | string
   isPublic?: Prisma.BoolFilter<"Code"> | boolean
   isOfficial?: Prisma.BoolFilter<"Code"> | boolean
   isActive?: Prisma.BoolFilter<"Code"> | boolean
@@ -639,7 +645,7 @@ export type CodeCreateManyUserInput = {
   title: string
   description?: string | null
   icon?: string | null
-  graph: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph: string
   isPublic?: boolean
   isOfficial?: boolean
   isActive?: boolean
@@ -652,7 +658,7 @@ export type CodeUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  graph?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -666,7 +672,7 @@ export type CodeUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  graph?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -680,7 +686,7 @@ export type CodeUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  graph?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  graph?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -740,7 +746,7 @@ export type $CodePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     title: string
     description: string | null
     icon: string | null
-    graph: runtime.JsonValue
+    graph: string
     isPublic: boolean
     isOfficial: boolean
     isActive: boolean
@@ -1122,7 +1128,7 @@ export interface CodeFieldRefs {
   readonly title: Prisma.FieldRef<"Code", 'String'>
   readonly description: Prisma.FieldRef<"Code", 'String'>
   readonly icon: Prisma.FieldRef<"Code", 'String'>
-  readonly graph: Prisma.FieldRef<"Code", 'Json'>
+  readonly graph: Prisma.FieldRef<"Code", 'String'>
   readonly isPublic: Prisma.FieldRef<"Code", 'Boolean'>
   readonly isOfficial: Prisma.FieldRef<"Code", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Code", 'Boolean'>

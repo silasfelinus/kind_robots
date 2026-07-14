@@ -449,17 +449,17 @@ export type ProjectWhereInput = {
   isPublic?: Prisma.BoolFilter<"Project"> | boolean
   isMature?: Prisma.BoolFilter<"Project"> | boolean
   isActive?: Prisma.BoolFilter<"Project"> | boolean
-  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Manager?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
-  ArtImageLinks?: Prisma.ProjectArtImageListRelationFilter
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionListRelationFilter
+  ArtJobs?: Prisma.ArtJobListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
+  PitchSheet?: Prisma.XOR<Prisma.PitchSheetNullableScalarRelationFilter, Prisma.PitchSheetWhereInput> | null
+  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
+  Manager?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionListRelationFilter
+  ArtImageLinks?: Prisma.ProjectArtImageListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   Todos?: Prisma.TodoListRelationFilter
-  ArtJobs?: Prisma.ArtJobListRelationFilter
-  PitchSheet?: Prisma.XOR<Prisma.PitchSheetNullableScalarRelationFilter, Prisma.PitchSheetWhereInput> | null
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -495,17 +495,17 @@ export type ProjectOrderByWithRelationInput = {
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  User?: Prisma.UserOrderByWithRelationInput
-  Manager?: Prisma.BotOrderByWithRelationInput
-  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
-  ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
-  ArtImageLinks?: Prisma.ProjectArtImageOrderByRelationAggregateInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionOrderByRelationAggregateInput
+  ArtJobs?: Prisma.ArtJobOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
+  PitchSheet?: Prisma.PitchSheetOrderByWithRelationInput
+  ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
+  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
+  Manager?: Prisma.BotOrderByWithRelationInput
+  User?: Prisma.UserOrderByWithRelationInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionOrderByRelationAggregateInput
+  ArtImageLinks?: Prisma.ProjectArtImageOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   Todos?: Prisma.TodoOrderByRelationAggregateInput
-  ArtJobs?: Prisma.ArtJobOrderByRelationAggregateInput
-  PitchSheet?: Prisma.PitchSheetOrderByWithRelationInput
   _relevance?: Prisma.ProjectOrderByRelevanceInput
 }
 
@@ -545,17 +545,17 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   isPublic?: Prisma.BoolFilter<"Project"> | boolean
   isMature?: Prisma.BoolFilter<"Project"> | boolean
   isActive?: Prisma.BoolFilter<"Project"> | boolean
-  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Manager?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
-  ArtImageLinks?: Prisma.ProjectArtImageListRelationFilter
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionListRelationFilter
+  ArtJobs?: Prisma.ArtJobListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
+  PitchSheet?: Prisma.XOR<Prisma.PitchSheetNullableScalarRelationFilter, Prisma.PitchSheetWhereInput> | null
+  ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
+  Manager?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionListRelationFilter
+  ArtImageLinks?: Prisma.ProjectArtImageListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   Todos?: Prisma.TodoListRelationFilter
-  ArtJobs?: Prisma.ArtJobListRelationFilter
-  PitchSheet?: Prisma.XOR<Prisma.PitchSheetNullableScalarRelationFilter, Prisma.PitchSheetWhereInput> | null
 }, "id" | "slug" | "conductorSlug">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -664,17 +664,17 @@ export type ProjectCreateInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -710,13 +710,13 @@ export type ProjectUncheckedCreateInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -747,17 +747,17 @@ export type ProjectUpdateInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -793,13 +793,13 @@ export type ProjectUncheckedUpdateInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -1361,16 +1361,16 @@ export type ProjectCreateWithoutArtImageInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutArtImageInput = {
@@ -1405,13 +1405,13 @@ export type ProjectUncheckedCreateWithoutArtImageInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutArtImageInput = {
@@ -1506,16 +1506,16 @@ export type ProjectCreateWithoutArtCollectionInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutArtCollectionInput = {
@@ -1550,13 +1550,13 @@ export type ProjectUncheckedCreateWithoutArtCollectionInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutArtCollectionInput = {
@@ -1613,16 +1613,16 @@ export type ProjectCreateWithoutManagerInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutManagerInput = {
@@ -1657,13 +1657,13 @@ export type ProjectUncheckedCreateWithoutManagerInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutManagerInput = {
@@ -1720,16 +1720,16 @@ export type ProjectCreateWithoutChatsInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
-  Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
+  Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutChatsInput = {
@@ -1765,12 +1765,12 @@ export type ProjectUncheckedCreateWithoutChatsInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
-  Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
+  Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutChatsInput = {
@@ -1817,16 +1817,16 @@ export type ProjectUpdateWithoutChatsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
-  Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
+  Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutChatsInput = {
@@ -1862,12 +1862,12 @@ export type ProjectUncheckedUpdateWithoutChatsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
-  Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
+  Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutArtImageLinksInput = {
@@ -1898,16 +1898,16 @@ export type ProjectCreateWithoutArtImageLinksInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutArtImageLinksInput = {
@@ -1943,12 +1943,12 @@ export type ProjectUncheckedCreateWithoutArtImageLinksInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutArtImageLinksInput = {
@@ -1995,16 +1995,16 @@ export type ProjectUpdateWithoutArtImageLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutArtImageLinksInput = {
@@ -2040,12 +2040,12 @@ export type ProjectUncheckedUpdateWithoutArtImageLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutArtCollectionLinksInput = {
@@ -2076,16 +2076,16 @@ export type ProjectCreateWithoutArtCollectionLinksInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutArtCollectionLinksInput = {
@@ -2121,12 +2121,12 @@ export type ProjectUncheckedCreateWithoutArtCollectionLinksInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutArtCollectionLinksInput = {
@@ -2173,16 +2173,16 @@ export type ProjectUpdateWithoutArtCollectionLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutArtCollectionLinksInput = {
@@ -2218,12 +2218,12 @@ export type ProjectUncheckedUpdateWithoutArtCollectionLinksInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutPitchSheetInput = {
@@ -2254,16 +2254,16 @@ export type ProjectCreateWithoutPitchSheetInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutPitchSheetInput = {
@@ -2299,12 +2299,12 @@ export type ProjectUncheckedCreateWithoutPitchSheetInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutPitchSheetInput = {
@@ -2351,16 +2351,16 @@ export type ProjectUpdateWithoutPitchSheetInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPitchSheetInput = {
@@ -2396,12 +2396,12 @@ export type ProjectUncheckedUpdateWithoutPitchSheetInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutReactionsInput = {
@@ -2432,16 +2432,16 @@ export type ProjectCreateWithoutReactionsInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
-  Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
   PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
+  Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutReactionsInput = {
@@ -2477,12 +2477,12 @@ export type ProjectUncheckedCreateWithoutReactionsInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
-  Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
   PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
+  Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutReactionsInput = {
@@ -2529,16 +2529,16 @@ export type ProjectUpdateWithoutReactionsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
-  Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
   PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
+  Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutReactionsInput = {
@@ -2574,12 +2574,12 @@ export type ProjectUncheckedUpdateWithoutReactionsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
-  Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
   PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
+  Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutUserInput = {
@@ -2610,16 +2610,16 @@ export type ProjectCreateWithoutUserInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutUserInput = {
@@ -2654,13 +2654,13 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutUserInput = {
@@ -2717,16 +2717,16 @@ export type ProjectCreateWithoutArtJobsInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutArtJobsInput = {
@@ -2762,12 +2762,12 @@ export type ProjectUncheckedCreateWithoutArtJobsInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
+  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   Todos?: Prisma.TodoUncheckedCreateNestedManyWithoutProjectInput
-  PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutArtJobsInput = {
@@ -2814,16 +2814,16 @@ export type ProjectUpdateWithoutArtJobsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutArtJobsInput = {
@@ -2859,12 +2859,12 @@ export type ProjectUncheckedUpdateWithoutArtJobsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutTodosInput = {
@@ -2895,16 +2895,16 @@ export type ProjectCreateWithoutTodosInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
-  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
-  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutProjectInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutProjectInput
   PitchSheet?: Prisma.PitchSheetCreateNestedOneWithoutProjectInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutProjectsPrimaryInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutProjectsPrimaryInput
+  Manager?: Prisma.BotCreateNestedOneWithoutManagedProjectsInput
+  User?: Prisma.UserCreateNestedOneWithoutProjectsInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutProjectInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutTodosInput = {
@@ -2940,12 +2940,12 @@ export type ProjectUncheckedCreateWithoutTodosInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutProjectInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutProjectInput
   PitchSheet?: Prisma.PitchSheetUncheckedCreateNestedOneWithoutProjectInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedCreateNestedManyWithoutProjectInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutProjectInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutTodosInput = {
@@ -2992,16 +2992,16 @@ export type ProjectUpdateWithoutTodosInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
   PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutTodosInput = {
@@ -3037,12 +3037,12 @@ export type ProjectUncheckedUpdateWithoutTodosInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
   PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyArtImageInput = {
@@ -3107,16 +3107,16 @@ export type ProjectUpdateWithoutArtImageInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutArtImageInput = {
@@ -3151,13 +3151,13 @@ export type ProjectUncheckedUpdateWithoutArtImageInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutArtImageInput = {
@@ -3256,16 +3256,16 @@ export type ProjectUpdateWithoutArtCollectionInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutArtCollectionInput = {
@@ -3300,13 +3300,13 @@ export type ProjectUncheckedUpdateWithoutArtCollectionInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutArtCollectionInput = {
@@ -3405,16 +3405,16 @@ export type ProjectUpdateWithoutManagerInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  User?: Prisma.UserUpdateOneWithoutProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutManagerInput = {
@@ -3449,13 +3449,13 @@ export type ProjectUncheckedUpdateWithoutManagerInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutManagerInput = {
@@ -3554,16 +3554,16 @@ export type ProjectUpdateWithoutUserInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
-  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutProjectsPrimaryNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutProjectsPrimaryNestedInput
+  Manager?: Prisma.BotUpdateOneWithoutManagedProjectsNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutUserInput = {
@@ -3598,13 +3598,13 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
-  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutProjectNestedInput
+  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
+  ArtCollectionLinks?: Prisma.ProjectArtCollectionUncheckedUpdateManyWithoutProjectNestedInput
+  ArtImageLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutProjectNestedInput
   Todos?: Prisma.TodoUncheckedUpdateManyWithoutProjectNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutProjectNestedInput
-  PitchSheet?: Prisma.PitchSheetUncheckedUpdateOneWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutUserInput = {
@@ -3647,21 +3647,21 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
  */
 
 export type ProjectCountOutputType = {
-  ArtImageLinks: number
-  ArtCollectionLinks: number
+  ArtJobs: number
   Chats: number
+  ArtCollectionLinks: number
+  ArtImageLinks: number
   Reactions: number
   Todos: number
-  ArtJobs: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  ArtImageLinks?: boolean | ProjectCountOutputTypeCountArtImageLinksArgs
-  ArtCollectionLinks?: boolean | ProjectCountOutputTypeCountArtCollectionLinksArgs
+  ArtJobs?: boolean | ProjectCountOutputTypeCountArtJobsArgs
   Chats?: boolean | ProjectCountOutputTypeCountChatsArgs
+  ArtCollectionLinks?: boolean | ProjectCountOutputTypeCountArtCollectionLinksArgs
+  ArtImageLinks?: boolean | ProjectCountOutputTypeCountArtImageLinksArgs
   Reactions?: boolean | ProjectCountOutputTypeCountReactionsArgs
   Todos?: boolean | ProjectCountOutputTypeCountTodosArgs
-  ArtJobs?: boolean | ProjectCountOutputTypeCountArtJobsArgs
 }
 
 /**
@@ -3677,8 +3677,15 @@ export type ProjectCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
 /**
  * ProjectCountOutputType without action
  */
-export type ProjectCountOutputTypeCountArtImageLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProjectArtImageWhereInput
+export type ProjectCountOutputTypeCountArtJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArtJobWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChatWhereInput
 }
 
 /**
@@ -3691,8 +3698,8 @@ export type ProjectCountOutputTypeCountArtCollectionLinksArgs<ExtArgs extends ru
 /**
  * ProjectCountOutputType without action
  */
-export type ProjectCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ChatWhereInput
+export type ProjectCountOutputTypeCountArtImageLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectArtImageWhereInput
 }
 
 /**
@@ -3707,13 +3714,6 @@ export type ProjectCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Typ
  */
 export type ProjectCountOutputTypeCountTodosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TodoWhereInput
-}
-
-/**
- * ProjectCountOutputType without action
- */
-export type ProjectCountOutputTypeCountArtJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ArtJobWhereInput
 }
 
 
@@ -3750,17 +3750,17 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  User?: boolean | Prisma.Project$UserArgs<ExtArgs>
-  Manager?: boolean | Prisma.Project$ManagerArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.Project$ArtImageArgs<ExtArgs>
-  ArtCollection?: boolean | Prisma.Project$ArtCollectionArgs<ExtArgs>
-  ArtImageLinks?: boolean | Prisma.Project$ArtImageLinksArgs<ExtArgs>
-  ArtCollectionLinks?: boolean | Prisma.Project$ArtCollectionLinksArgs<ExtArgs>
+  ArtJobs?: boolean | Prisma.Project$ArtJobsArgs<ExtArgs>
   Chats?: boolean | Prisma.Project$ChatsArgs<ExtArgs>
+  PitchSheet?: boolean | Prisma.Project$PitchSheetArgs<ExtArgs>
+  ArtCollection?: boolean | Prisma.Project$ArtCollectionArgs<ExtArgs>
+  ArtImage?: boolean | Prisma.Project$ArtImageArgs<ExtArgs>
+  Manager?: boolean | Prisma.Project$ManagerArgs<ExtArgs>
+  User?: boolean | Prisma.Project$UserArgs<ExtArgs>
+  ArtCollectionLinks?: boolean | Prisma.Project$ArtCollectionLinksArgs<ExtArgs>
+  ArtImageLinks?: boolean | Prisma.Project$ArtImageLinksArgs<ExtArgs>
   Reactions?: boolean | Prisma.Project$ReactionsArgs<ExtArgs>
   Todos?: boolean | Prisma.Project$TodosArgs<ExtArgs>
-  ArtJobs?: boolean | Prisma.Project$ArtJobsArgs<ExtArgs>
-  PitchSheet?: boolean | Prisma.Project$PitchSheetArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -3803,34 +3803,34 @@ export type ProjectSelectScalar = {
 
 export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.Project$UserArgs<ExtArgs>
-  Manager?: boolean | Prisma.Project$ManagerArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.Project$ArtImageArgs<ExtArgs>
-  ArtCollection?: boolean | Prisma.Project$ArtCollectionArgs<ExtArgs>
-  ArtImageLinks?: boolean | Prisma.Project$ArtImageLinksArgs<ExtArgs>
-  ArtCollectionLinks?: boolean | Prisma.Project$ArtCollectionLinksArgs<ExtArgs>
+  ArtJobs?: boolean | Prisma.Project$ArtJobsArgs<ExtArgs>
   Chats?: boolean | Prisma.Project$ChatsArgs<ExtArgs>
+  PitchSheet?: boolean | Prisma.Project$PitchSheetArgs<ExtArgs>
+  ArtCollection?: boolean | Prisma.Project$ArtCollectionArgs<ExtArgs>
+  ArtImage?: boolean | Prisma.Project$ArtImageArgs<ExtArgs>
+  Manager?: boolean | Prisma.Project$ManagerArgs<ExtArgs>
+  User?: boolean | Prisma.Project$UserArgs<ExtArgs>
+  ArtCollectionLinks?: boolean | Prisma.Project$ArtCollectionLinksArgs<ExtArgs>
+  ArtImageLinks?: boolean | Prisma.Project$ArtImageLinksArgs<ExtArgs>
   Reactions?: boolean | Prisma.Project$ReactionsArgs<ExtArgs>
   Todos?: boolean | Prisma.Project$TodosArgs<ExtArgs>
-  ArtJobs?: boolean | Prisma.Project$ArtJobsArgs<ExtArgs>
-  PitchSheet?: boolean | Prisma.Project$PitchSheetArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Project"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs> | null
-    Manager: Prisma.$BotPayload<ExtArgs> | null
-    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
-    ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
-    ArtImageLinks: Prisma.$ProjectArtImagePayload<ExtArgs>[]
-    ArtCollectionLinks: Prisma.$ProjectArtCollectionPayload<ExtArgs>[]
+    ArtJobs: Prisma.$ArtJobPayload<ExtArgs>[]
     Chats: Prisma.$ChatPayload<ExtArgs>[]
+    PitchSheet: Prisma.$PitchSheetPayload<ExtArgs> | null
+    ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
+    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
+    Manager: Prisma.$BotPayload<ExtArgs> | null
+    User: Prisma.$UserPayload<ExtArgs> | null
+    ArtCollectionLinks: Prisma.$ProjectArtCollectionPayload<ExtArgs>[]
+    ArtImageLinks: Prisma.$ProjectArtImagePayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
     Todos: Prisma.$TodoPayload<ExtArgs>[]
-    ArtJobs: Prisma.$ArtJobPayload<ExtArgs>[]
-    PitchSheet: Prisma.$PitchSheetPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -4205,17 +4205,17 @@ readonly fields: ProjectFieldRefs;
  */
 export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.Project$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Manager<T extends Prisma.Project$ManagerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ManagerArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ArtImage<T extends Prisma.Project$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ArtCollection<T extends Prisma.Project$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ArtImageLinks<T extends Prisma.Project$ArtImageLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtImageLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  ArtCollectionLinks<T extends Prisma.Project$ArtCollectionLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtCollectionLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ArtJobs<T extends Prisma.Project$ArtJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Chats<T extends Prisma.Project$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  PitchSheet<T extends Prisma.Project$PitchSheetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$PitchSheetArgs<ExtArgs>>): Prisma.Prisma__PitchSheetClient<runtime.Types.Result.GetResult<Prisma.$PitchSheetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ArtCollection<T extends Prisma.Project$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ArtImage<T extends Prisma.Project$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Manager<T extends Prisma.Project$ManagerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ManagerArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.Project$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ArtCollectionLinks<T extends Prisma.Project$ArtCollectionLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtCollectionLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ArtImageLinks<T extends Prisma.Project$ArtImageLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtImageLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Project$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Todos<T extends Prisma.Project$TodosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$TodosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TodoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  ArtJobs<T extends Prisma.Project$ArtJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ArtJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  PitchSheet<T extends Prisma.Project$PitchSheetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$PitchSheetArgs<ExtArgs>>): Prisma.Prisma__PitchSheetClient<runtime.Types.Result.GetResult<Prisma.$PitchSheetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4625,60 +4625,70 @@ export type ProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * Project.User
+ * Project.ArtJobs
  */
-export type Project$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$ArtJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the User
+   * Select specific fields to fetch from the ArtJob
    */
-  select?: Prisma.UserSelect<ExtArgs> | null
+  select?: Prisma.ArtJobSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the User
+   * Omit specific fields from the ArtJob
    */
-  omit?: Prisma.UserOmit<ExtArgs> | null
+  omit?: Prisma.ArtJobOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
+  include?: Prisma.ArtJobInclude<ExtArgs> | null
+  where?: Prisma.ArtJobWhereInput
+  orderBy?: Prisma.ArtJobOrderByWithRelationInput | Prisma.ArtJobOrderByWithRelationInput[]
+  cursor?: Prisma.ArtJobWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArtJobScalarFieldEnum | Prisma.ArtJobScalarFieldEnum[]
 }
 
 /**
- * Project.Manager
+ * Project.Chats
  */
-export type Project$ManagerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Bot
+   * Select specific fields to fetch from the Chat
    */
-  select?: Prisma.BotSelect<ExtArgs> | null
+  select?: Prisma.ChatSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Bot
+   * Omit specific fields from the Chat
    */
-  omit?: Prisma.BotOmit<ExtArgs> | null
+  omit?: Prisma.ChatOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.BotInclude<ExtArgs> | null
-  where?: Prisma.BotWhereInput
+  include?: Prisma.ChatInclude<ExtArgs> | null
+  where?: Prisma.ChatWhereInput
+  orderBy?: Prisma.ChatOrderByWithRelationInput | Prisma.ChatOrderByWithRelationInput[]
+  cursor?: Prisma.ChatWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChatScalarFieldEnum | Prisma.ChatScalarFieldEnum[]
 }
 
 /**
- * Project.ArtImage
+ * Project.PitchSheet
  */
-export type Project$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$PitchSheetArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ArtImage
+   * Select specific fields to fetch from the PitchSheet
    */
-  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  select?: Prisma.PitchSheetSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ArtImage
+   * Omit specific fields from the PitchSheet
    */
-  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  omit?: Prisma.PitchSheetOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ArtImageInclude<ExtArgs> | null
-  where?: Prisma.ArtImageWhereInput
+  include?: Prisma.PitchSheetInclude<ExtArgs> | null
+  where?: Prisma.PitchSheetWhereInput
 }
 
 /**
@@ -4701,27 +4711,60 @@ export type Project$ArtCollectionArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * Project.ArtImageLinks
+ * Project.ArtImage
  */
-export type Project$ArtImageLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProjectArtImage
+   * Select specific fields to fetch from the ArtImage
    */
-  select?: Prisma.ProjectArtImageSelect<ExtArgs> | null
+  select?: Prisma.ArtImageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProjectArtImage
+   * Omit specific fields from the ArtImage
    */
-  omit?: Prisma.ProjectArtImageOmit<ExtArgs> | null
+  omit?: Prisma.ArtImageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProjectArtImageInclude<ExtArgs> | null
-  where?: Prisma.ProjectArtImageWhereInput
-  orderBy?: Prisma.ProjectArtImageOrderByWithRelationInput | Prisma.ProjectArtImageOrderByWithRelationInput[]
-  cursor?: Prisma.ProjectArtImageWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProjectArtImageScalarFieldEnum | Prisma.ProjectArtImageScalarFieldEnum[]
+  include?: Prisma.ArtImageInclude<ExtArgs> | null
+  where?: Prisma.ArtImageWhereInput
+}
+
+/**
+ * Project.Manager
+ */
+export type Project$ManagerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Bot
+   */
+  select?: Prisma.BotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Bot
+   */
+  omit?: Prisma.BotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotInclude<ExtArgs> | null
+  where?: Prisma.BotWhereInput
+}
+
+/**
+ * Project.User
+ */
+export type Project$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**
@@ -4749,27 +4792,27 @@ export type Project$ArtCollectionLinksArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
- * Project.Chats
+ * Project.ArtImageLinks
  */
-export type Project$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Project$ArtImageLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Chat
+   * Select specific fields to fetch from the ProjectArtImage
    */
-  select?: Prisma.ChatSelect<ExtArgs> | null
+  select?: Prisma.ProjectArtImageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Chat
+   * Omit specific fields from the ProjectArtImage
    */
-  omit?: Prisma.ChatOmit<ExtArgs> | null
+  omit?: Prisma.ProjectArtImageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ChatInclude<ExtArgs> | null
-  where?: Prisma.ChatWhereInput
-  orderBy?: Prisma.ChatOrderByWithRelationInput | Prisma.ChatOrderByWithRelationInput[]
-  cursor?: Prisma.ChatWhereUniqueInput
+  include?: Prisma.ProjectArtImageInclude<ExtArgs> | null
+  where?: Prisma.ProjectArtImageWhereInput
+  orderBy?: Prisma.ProjectArtImageOrderByWithRelationInput | Prisma.ProjectArtImageOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectArtImageWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ChatScalarFieldEnum | Prisma.ChatScalarFieldEnum[]
+  distinct?: Prisma.ProjectArtImageScalarFieldEnum | Prisma.ProjectArtImageScalarFieldEnum[]
 }
 
 /**
@@ -4818,49 +4861,6 @@ export type Project$TodosArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.TodoScalarFieldEnum | Prisma.TodoScalarFieldEnum[]
-}
-
-/**
- * Project.ArtJobs
- */
-export type Project$ArtJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtJob
-   */
-  select?: Prisma.ArtJobSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtJob
-   */
-  omit?: Prisma.ArtJobOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtJobInclude<ExtArgs> | null
-  where?: Prisma.ArtJobWhereInput
-  orderBy?: Prisma.ArtJobOrderByWithRelationInput | Prisma.ArtJobOrderByWithRelationInput[]
-  cursor?: Prisma.ArtJobWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ArtJobScalarFieldEnum | Prisma.ArtJobScalarFieldEnum[]
-}
-
-/**
- * Project.PitchSheet
- */
-export type Project$PitchSheetArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the PitchSheet
-   */
-  select?: Prisma.PitchSheetSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the PitchSheet
-   */
-  omit?: Prisma.PitchSheetOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PitchSheetInclude<ExtArgs> | null
-  where?: Prisma.PitchSheetWhereInput
 }
 
 /**

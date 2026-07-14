@@ -45,6 +45,7 @@ export type SocialPostMinAggregateOutputType = {
   designer: string | null
   title: string | null
   body: string | null
+  mediaUrls: string | null
   status: $Enums.PostStatus | null
   sourceType: string | null
   sourceId: number | null
@@ -63,6 +64,7 @@ export type SocialPostMaxAggregateOutputType = {
   designer: string | null
   title: string | null
   body: string | null
+  mediaUrls: string | null
   status: $Enums.PostStatus | null
   sourceType: string | null
   sourceId: number | null
@@ -114,6 +116,7 @@ export type SocialPostMinAggregateInputType = {
   designer?: true
   title?: true
   body?: true
+  mediaUrls?: true
   status?: true
   sourceType?: true
   sourceId?: true
@@ -132,6 +135,7 @@ export type SocialPostMaxAggregateInputType = {
   designer?: true
   title?: true
   body?: true
+  mediaUrls?: true
   status?: true
   sourceType?: true
   sourceId?: true
@@ -256,7 +260,7 @@ export type SocialPostGroupByOutputType = {
   designer: string | null
   title: string
   body: string
-  mediaUrls: runtime.JsonValue | null
+  mediaUrls: string | null
   status: $Enums.PostStatus
   sourceType: string | null
   sourceId: number | null
@@ -298,7 +302,7 @@ export type SocialPostWhereInput = {
   designer?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   title?: Prisma.StringFilter<"SocialPost"> | string
   body?: Prisma.StringFilter<"SocialPost"> | string
-  mediaUrls?: Prisma.JsonNullableFilter<"SocialPost">
+  mediaUrls?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   status?: Prisma.EnumPostStatusFilter<"SocialPost"> | $Enums.PostStatus
   sourceType?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   sourceId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
@@ -344,7 +348,7 @@ export type SocialPostWhereUniqueInput = Prisma.AtLeast<{
   designer?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   title?: Prisma.StringFilter<"SocialPost"> | string
   body?: Prisma.StringFilter<"SocialPost"> | string
-  mediaUrls?: Prisma.JsonNullableFilter<"SocialPost">
+  mediaUrls?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   status?: Prisma.EnumPostStatusFilter<"SocialPost"> | $Enums.PostStatus
   sourceType?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   sourceId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
@@ -392,7 +396,7 @@ export type SocialPostScalarWhereWithAggregatesInput = {
   designer?: Prisma.StringNullableWithAggregatesFilter<"SocialPost"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"SocialPost"> | string
   body?: Prisma.StringWithAggregatesFilter<"SocialPost"> | string
-  mediaUrls?: Prisma.JsonNullableWithAggregatesFilter<"SocialPost">
+  mediaUrls?: Prisma.StringNullableWithAggregatesFilter<"SocialPost"> | string | null
   status?: Prisma.EnumPostStatusWithAggregatesFilter<"SocialPost"> | $Enums.PostStatus
   sourceType?: Prisma.StringNullableWithAggregatesFilter<"SocialPost"> | string | null
   sourceId?: Prisma.IntNullableWithAggregatesFilter<"SocialPost"> | number | null
@@ -410,7 +414,7 @@ export type SocialPostCreateInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -430,7 +434,7 @@ export type SocialPostUncheckedCreateInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -449,7 +453,7 @@ export type SocialPostUpdateInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -469,7 +473,7 @@ export type SocialPostUncheckedUpdateInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -489,7 +493,7 @@ export type SocialPostCreateManyInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -507,7 +511,7 @@ export type SocialPostUpdateManyMutationInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -525,7 +529,7 @@ export type SocialPostUncheckedUpdateManyInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -575,6 +579,7 @@ export type SocialPostMaxOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   title?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  mediaUrls?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
@@ -593,6 +598,7 @@ export type SocialPostMinOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   title?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  mediaUrls?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
@@ -695,7 +701,7 @@ export type SocialPostCreateWithoutTargetsInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -714,7 +720,7 @@ export type SocialPostUncheckedCreateWithoutTargetsInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -748,7 +754,7 @@ export type SocialPostUpdateWithoutTargetsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -767,7 +773,7 @@ export type SocialPostUncheckedUpdateWithoutTargetsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -785,7 +791,7 @@ export type SocialPostCreateWithoutUserInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -804,7 +810,7 @@ export type SocialPostUncheckedCreateWithoutUserInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -852,7 +858,7 @@ export type SocialPostScalarWhereInput = {
   designer?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   title?: Prisma.StringFilter<"SocialPost"> | string
   body?: Prisma.StringFilter<"SocialPost"> | string
-  mediaUrls?: Prisma.JsonNullableFilter<"SocialPost">
+  mediaUrls?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   status?: Prisma.EnumPostStatusFilter<"SocialPost"> | $Enums.PostStatus
   sourceType?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   sourceId?: Prisma.IntNullableFilter<"SocialPost"> | number | null
@@ -871,7 +877,7 @@ export type SocialPostCreateManyUserInput = {
   designer?: string | null
   title: string
   body: string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: string | null
   status?: $Enums.PostStatus
   sourceType?: string | null
   sourceId?: number | null
@@ -888,7 +894,7 @@ export type SocialPostUpdateWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -907,7 +913,7 @@ export type SocialPostUncheckedUpdateWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -926,7 +932,7 @@ export type SocialPostUncheckedUpdateManyWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mediaUrls?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1031,7 +1037,7 @@ export type $SocialPostPayload<ExtArgs extends runtime.Types.Extensions.Internal
     designer: string | null
     title: string
     body: string
-    mediaUrls: runtime.JsonValue | null
+    mediaUrls: string | null
     status: $Enums.PostStatus
     sourceType: string | null
     sourceId: number | null
@@ -1418,7 +1424,7 @@ export interface SocialPostFieldRefs {
   readonly designer: Prisma.FieldRef<"SocialPost", 'String'>
   readonly title: Prisma.FieldRef<"SocialPost", 'String'>
   readonly body: Prisma.FieldRef<"SocialPost", 'String'>
-  readonly mediaUrls: Prisma.FieldRef<"SocialPost", 'Json'>
+  readonly mediaUrls: Prisma.FieldRef<"SocialPost", 'String'>
   readonly status: Prisma.FieldRef<"SocialPost", 'PostStatus'>
   readonly sourceType: Prisma.FieldRef<"SocialPost", 'String'>
   readonly sourceId: Prisma.FieldRef<"SocialPost", 'Int'>

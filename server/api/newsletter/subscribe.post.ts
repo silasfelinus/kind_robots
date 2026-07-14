@@ -9,7 +9,10 @@ import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
 import { createAuthToken } from '../../utils/authToken'
 import { sendNewsletterConfirmEmail } from '../../utils/email'
-import { syncBrevoContact, newsletterFrequencyLabel } from '../../utils/brevoContacts'
+import {
+  syncBrevoContact,
+  newsletterFrequencyLabel,
+} from '../../utils/brevoContacts'
 import type { NewsletterFrequency } from '~/prisma/generated/prisma/client'
 
 const VALID: NewsletterFrequency[] = [
@@ -27,7 +30,10 @@ export default defineEventHandler(async (event) => {
 
     const freq = String(frequency || '').toUpperCase() as NewsletterFrequency
     if (!VALID.includes(freq)) {
-      throw createError({ statusCode: 400, message: 'Invalid newsletter frequency.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid newsletter frequency.',
+      })
     }
 
     const record = await prisma.user.findUnique({
@@ -51,7 +57,11 @@ export default defineEventHandler(async (event) => {
         },
       })
       await syncBrevoContact(updated)
-      return { success: true, message: 'Unsubscribed from updates.', data: { frequency: 'NEVER', pendingConfirmation: false } }
+      return {
+        success: true,
+        message: 'Unsubscribed from updates.',
+        data: { frequency: 'NEVER', pendingConfirmation: false },
+      }
     }
 
     if (!record?.email) {
@@ -85,6 +95,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Subscription failed.' }
+    return {
+      success: false,
+      message: handled.message || 'Subscription failed.',
+    }
   }
 })

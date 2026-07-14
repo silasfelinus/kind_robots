@@ -22,6 +22,10 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Failed to load notifications.', data: { items: [], unreadCount: 0 } }
+    return {
+      success: false,
+      message: handled.message || 'Failed to load notifications.',
+      data: { items: [], unreadCount: 0 },
+    }
   }
 })

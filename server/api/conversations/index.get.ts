@@ -18,7 +18,12 @@ export default defineEventHandler(async (event) => {
             participants: {
               include: {
                 User: {
-                  select: { id: true, username: true, avatarImage: true, artImageId: true },
+                  select: {
+                    id: true,
+                    username: true,
+                    avatarImage: true,
+                    artImageId: true,
+                  },
                 },
               },
             },
@@ -34,7 +39,13 @@ export default defineEventHandler(async (event) => {
         const lastMessage = await prisma.directMessage.findFirst({
           where: { conversationId: convo.id, deletedAt: null },
           orderBy: { createdAt: 'desc' },
-          select: { id: true, content: true, senderId: true, createdAt: true, isMature: true },
+          select: {
+            id: true,
+            content: true,
+            senderId: true,
+            createdAt: true,
+            isMature: true,
+          },
         })
         const unreadCount = await prisma.directMessage.count({
           where: {
@@ -71,6 +82,10 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Failed to load conversations.', data: [] }
+    return {
+      success: false,
+      message: handled.message || 'Failed to load conversations.',
+      data: [],
+    }
   }
 })

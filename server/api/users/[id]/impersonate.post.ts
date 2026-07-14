@@ -21,15 +21,15 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'User not found.' })
     }
     if (target.isActive === false) {
-      throw createError({ statusCode: 400, message: 'That account is inactive.' })
+      throw createError({
+        statusCode: 400,
+        message: 'That account is inactive.',
+      })
     }
 
     const token = await createToken(target)
 
-    await logAdminAction(
-      admin,
-      `Impersonated ${target.username} (#${userId}).`,
-    )
+    await logAdminAction(admin, `Impersonated ${target.username} (#${userId}).`)
 
     return {
       success: true,
@@ -48,6 +48,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Impersonation failed.' }
+    return {
+      success: false,
+      message: handled.message || 'Impersonation failed.',
+    }
   }
 })

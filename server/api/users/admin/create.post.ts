@@ -43,7 +43,10 @@ export default defineEventHandler(async (event) => {
     }
 
     if (await prisma.user.findUnique({ where: { username } })) {
-      throw createError({ statusCode: 409, message: 'Username already exists.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Username already exists.',
+      })
     }
     const email = body.email ? String(body.email).trim().toLowerCase() : null
     if (email && (await prisma.user.findUnique({ where: { email } }))) {

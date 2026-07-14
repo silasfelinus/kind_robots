@@ -44,7 +44,10 @@ export async function createAuthToken(
 
 export type ConsumeResult =
   | { ok: true; userId: number }
-  | { ok: false; reason: 'not-found' | 'expired' | 'consumed' | 'wrong-purpose' }
+  | {
+      ok: false
+      reason: 'not-found' | 'expired' | 'consumed' | 'wrong-purpose'
+    }
 
 /**
  * Validate a token for the expected purpose and, if valid, mark it consumed.
@@ -62,7 +65,8 @@ export async function consumeAuthToken(
   if (!row) return { ok: false, reason: 'not-found' }
   if (row.purpose !== purpose) return { ok: false, reason: 'wrong-purpose' }
   if (row.consumedAt) return { ok: false, reason: 'consumed' }
-  if (row.expiresAt.getTime() < Date.now()) return { ok: false, reason: 'expired' }
+  if (row.expiresAt.getTime() < Date.now())
+    return { ok: false, reason: 'expired' }
 
   await prisma.authToken.update({
     where: { id: row.id },

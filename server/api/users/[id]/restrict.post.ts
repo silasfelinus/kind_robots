@@ -19,7 +19,10 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid user id.' })
     }
     if (userId === admin.id) {
-      throw createError({ statusCode: 400, message: 'You cannot restrict yourself.' })
+      throw createError({
+        statusCode: 400,
+        message: 'You cannot restrict yourself.',
+      })
     }
 
     const { reason } = await readBody<{ reason?: string }>(event)
@@ -40,13 +43,22 @@ export default defineEventHandler(async (event) => {
         restrictedReason: reason ? String(reason).slice(0, 1000) : null,
         restrictedById: admin.id,
       },
-      select: { id: true, username: true, isRestricted: true, restrictedAt: true },
+      select: {
+        id: true,
+        username: true,
+        isRestricted: true,
+        restrictedAt: true,
+      },
     })
 
     await privatizeUserContent(userId)
 
     if (target.email) {
-      await sendRestrictionNotice(target.email, target.name || target.username, reason)
+      await sendRestrictionNotice(
+        target.email,
+        target.name || target.username,
+        reason,
+      )
     }
 
     await logAdminAction(
@@ -54,7 +66,11 @@ export default defineEventHandler(async (event) => {
       `Restricted user ${target.username} (#${userId})${reason ? `: ${reason}` : ''}.`,
     )
 
-    return { success: true, message: `${target.username} restricted.`, data: updated }
+    return {
+      success: true,
+      message: `${target.username} restricted.`,
+      data: updated,
+    }
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500

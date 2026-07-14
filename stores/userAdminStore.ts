@@ -55,7 +55,8 @@ export const useUserAdminStore = defineStore('userAdminStore', () => {
   const filtered = computed(() => {
     const q = search.value.trim().toLowerCase()
     return roster.value.filter((u) => {
-      if (roleFilter.value !== 'ALL' && u.Role !== roleFilter.value) return false
+      if (roleFilter.value !== 'ALL' && u.Role !== roleFilter.value)
+        return false
       if (!q) return true
       return (
         u.username.toLowerCase().includes(q) ||
@@ -79,7 +80,8 @@ export const useUserAdminStore = defineStore('userAdminStore', () => {
     try {
       const res = await performFetch<AdminUser[]>('/api/users/admin')
       roster.value = res.success && Array.isArray(res.data) ? res.data : []
-      if (!res.success) lastError.value = res.message || 'Failed to load roster.'
+      if (!res.success)
+        lastError.value = res.message || 'Failed to load roster.'
     } catch (error) {
       handleError(error, 'loadRoster')
       lastError.value = 'Failed to load roster.'
@@ -104,7 +106,11 @@ export const useUserAdminStore = defineStore('userAdminStore', () => {
       })
       lastMessage.value = res.message || ''
       if (!res.success) lastError.value = res.message || 'Action failed.'
-      return { success: !!res.success, message: res.message || '', data: res.data as T }
+      return {
+        success: !!res.success,
+        message: res.message || '',
+        data: res.data as T,
+      }
     } catch (error) {
       handleError(error, label)
       lastError.value = 'Something went wrong.'
@@ -121,35 +127,57 @@ export const useUserAdminStore = defineStore('userAdminStore', () => {
     Role?: string
     showMature?: boolean
   }): Promise<Result> {
-    const res = await act<AdminUser>('createUser', '/api/users/admin/create', 'POST', payload)
+    const res = await act<AdminUser>(
+      'createUser',
+      '/api/users/admin/create',
+      'POST',
+      payload,
+    )
     if (res.success && res.data) roster.value.push(res.data as AdminUser)
     return res
   }
 
-  async function updateAdmin(userId: number, patch: Record<string, unknown>): Promise<Result> {
+  async function updateAdmin(
+    userId: number,
+    patch: Record<string, unknown>,
+  ): Promise<Result> {
     const res = await act<Partial<AdminUser>>(
       'updateAdmin',
       `/api/users/${userId}/admin`,
       'PATCH',
       patch,
     )
-    if (res.success && res.data) patchLocal(userId, res.data as Partial<AdminUser>)
+    if (res.success && res.data)
+      patchLocal(userId, res.data as Partial<AdminUser>)
     return res
   }
 
   function setPassword(userId: number, newPassword: string): Promise<Result> {
-    return act('setPassword', `/api/users/${userId}/password`, 'POST', { newPassword })
+    return act('setPassword', `/api/users/${userId}/password`, 'POST', {
+      newPassword,
+    })
   }
 
   async function restrict(userId: number, reason?: string): Promise<Result> {
-    const res = await act('restrict', `/api/users/${userId}/restrict`, 'POST', { reason })
-    if (res.success) patchLocal(userId, { isRestricted: true, restrictedReason: reason ?? null })
+    const res = await act('restrict', `/api/users/${userId}/restrict`, 'POST', {
+      reason,
+    })
+    if (res.success)
+      patchLocal(userId, {
+        isRestricted: true,
+        restrictedReason: reason ?? null,
+      })
     return res
   }
 
   async function unrestrict(userId: number): Promise<Result> {
-    const res = await act('unrestrict', `/api/users/${userId}/unrestrict`, 'POST')
-    if (res.success) patchLocal(userId, { isRestricted: false, restrictedReason: null })
+    const res = await act(
+      'unrestrict',
+      `/api/users/${userId}/unrestrict`,
+      'POST',
+    )
+    if (res.success)
+      patchLocal(userId, { isRestricted: false, restrictedReason: null })
     return res
   }
 
@@ -168,7 +196,10 @@ export const useUserAdminStore = defineStore('userAdminStore', () => {
     }>('loginAs', `/api/users/${userId}/impersonate`, 'POST')
 
     if (!res.success || !res.data?.token) {
-      return { success: false, message: res.message || 'Could not log in as user.' }
+      return {
+        success: false,
+        message: res.message || 'Could not log in as user.',
+      }
     }
 
     loginManager.captureCurrentSession('main')

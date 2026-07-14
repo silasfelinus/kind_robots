@@ -15,7 +15,11 @@ export type SendEmailInput = {
   text?: string
 }
 
-export type SendEmailResult = { sent: boolean; skipped?: boolean; error?: string }
+export type SendEmailResult = {
+  sent: boolean
+  skipped?: boolean
+  error?: string
+}
 
 function brevoConfig() {
   const config = useRuntimeConfig()
@@ -115,7 +119,11 @@ export function sendVerificationEmail(to: string, name: string, token: string) {
   })
 }
 
-export function sendPasswordResetEmail(to: string, name: string, token: string) {
+export function sendPasswordResetEmail(
+  to: string,
+  name: string,
+  token: string,
+) {
   const url = `${appBaseUrl()}/reset-password?token=${encodeURIComponent(token)}`
   return sendTransactionalEmail({
     to,
@@ -146,7 +154,11 @@ export function sendNewsletterConfirmEmail(
   })
 }
 
-export function sendRestrictionNotice(to: string, name: string, reason?: string) {
+export function sendRestrictionNotice(
+  to: string,
+  name: string,
+  reason?: string,
+) {
   return sendTransactionalEmail({
     to,
     toName: name,
@@ -154,7 +166,9 @@ export function sendRestrictionNotice(to: string, name: string, reason?: string)
     html: shell(
       'Your account visibility changed',
       `<p>Hi ${escapeHtml(name)}, a moderator has made your Kind Robots content private while we review your account. You can still sign in, but your posts and creations are hidden from the public directory for now.</p>${
-        reason ? `<p style="color:#8a8f9c;font-size:14px;">Reason: ${escapeHtml(reason)}</p>` : ''
+        reason
+          ? `<p style="color:#8a8f9c;font-size:14px;">Reason: ${escapeHtml(reason)}</p>`
+          : ''
       }<p>Questions? Just reply to this email.</p>`,
     ),
   })

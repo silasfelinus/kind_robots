@@ -10,7 +10,10 @@ export default defineEventHandler(async (event) => {
     const { user } = await requireApiUser(event)
     const id = Number(event.context.params?.id)
     if (!Number.isInteger(id) || id <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid notification id.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid notification id.',
+      })
     }
 
     // Scope the update to the owner so nobody can read others' notifications.
@@ -26,6 +29,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Failed to mark read.' }
+    return {
+      success: false,
+      message: handled.message || 'Failed to mark read.',
+    }
   }
 })

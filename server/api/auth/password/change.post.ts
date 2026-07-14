@@ -21,7 +21,10 @@ export default defineEventHandler(async (event) => {
     }>(event)
 
     if (!newPassword) {
-      throw createError({ statusCode: 400, message: 'newPassword is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'newPassword is required.',
+      })
     }
 
     const check = validatePassword(newPassword)
@@ -57,6 +60,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Password change failed.' }
+    return {
+      success: false,
+      message: handled.message || 'Password change failed.',
+    }
   }
 })

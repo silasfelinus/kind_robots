@@ -15,10 +15,16 @@ export default defineEventHandler(async (event) => {
     }>(event)
 
     if (!token) {
-      throw createError({ statusCode: 400, message: 'Reset token is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Reset token is required.',
+      })
     }
     if (!newPassword) {
-      throw createError({ statusCode: 400, message: 'newPassword is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'newPassword is required.',
+      })
     }
 
     const check = validatePassword(newPassword)
@@ -47,6 +53,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Password reset failed.' }
+    return {
+      success: false,
+      message: handled.message || 'Password reset failed.',
+    }
   }
 })

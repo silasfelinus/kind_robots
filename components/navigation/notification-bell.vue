@@ -5,17 +5,26 @@
   users; clicking an item marks it read and follows its linkPath.
 -->
 <template>
-  <div v-if="userStore.isLoggedIn && !userStore.isGuest" class="dropdown dropdown-end">
+  <div
+    v-if="userStore.isLoggedIn && !userStore.isGuest"
+    class="dropdown dropdown-end"
+  >
     <button tabindex="0" class="btn btn-ghost btn-circle" @click="onOpen">
       <div class="indicator">
         <Icon name="kind-icon:ring" class="h-5 w-5" />
-        <span v-if="notifications.unreadCount" class="badge indicator-item badge-primary badge-xs">
+        <span
+          v-if="notifications.unreadCount"
+          class="badge indicator-item badge-primary badge-xs"
+        >
           {{ notifications.unreadCount > 9 ? '9+' : notifications.unreadCount }}
         </span>
       </div>
     </button>
 
-    <div tabindex="0" class="dropdown-content z-50 mt-2 w-80 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl">
+    <div
+      tabindex="0"
+      class="dropdown-content z-50 mt-2 w-80 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+    >
       <div class="flex items-center justify-between px-2 py-1">
         <span class="font-black">Notifications</span>
         <button
@@ -28,7 +37,10 @@
       </div>
 
       <div class="max-h-96 overflow-y-auto">
-        <p v-if="!notifications.items.length" class="px-2 py-6 text-center text-sm text-base-content/50">
+        <p
+          v-if="!notifications.items.length"
+          class="px-2 py-6 text-center text-sm text-base-content/50"
+        >
           You're all caught up.
         </p>
         <button
@@ -42,7 +54,11 @@
             <span v-if="!n.isRead" class="h-2 w-2 rounded-full bg-primary" />
             {{ n.title }}
           </span>
-          <span v-if="n.body" class="line-clamp-2 pl-4 text-xs text-base-content/60">{{ n.body }}</span>
+          <span
+            v-if="n.body"
+            class="line-clamp-2 pl-4 text-xs text-base-content/60"
+            >{{ n.body }}</span
+          >
         </button>
       </div>
     </div>

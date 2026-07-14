@@ -13,7 +13,13 @@ export default defineEventHandler(async (event) => {
 
     const record = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { id: true, email: true, name: true, username: true, emailVerified: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        emailVerified: true,
+      },
     })
 
     if (!record?.email) {
@@ -43,6 +49,9 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500
-    return { success: false, message: handled.message || 'Could not send verification email.' }
+    return {
+      success: false,
+      message: handled.message || 'Could not send verification email.',
+    }
   }
 })

@@ -5,9 +5,7 @@
   from userStore and writes through accountStore's dedicated endpoints.
 -->
 <template>
-  <section
-    class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 sm:p-6"
-  >
+  <section class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 sm:p-6">
     <header class="flex flex-col gap-1">
       <h1 class="text-2xl font-black">Account &amp; Privacy</h1>
       <p class="text-sm text-base-content/70">
@@ -50,7 +48,9 @@
               class="h-5 w-5"
               :class="emailVerified ? 'text-success' : 'text-warning'"
             />
-            <span v-if="!userEmail">No email on file — add one in your profile.</span>
+            <span v-if="!userEmail"
+              >No email on file — add one in your profile.</span
+            >
             <span v-else-if="emailVerified">
               {{ userEmail }} is verified.
             </span>
@@ -67,16 +67,24 @@
               :disabled="account.isSaving"
               @click="onSendVerification"
             >
-              <span v-if="account.isSaving" class="loading loading-spinner loading-xs" />
+              <span
+                v-if="account.isSaving"
+                class="loading loading-spinner loading-xs"
+              />
               Send verification email
             </button>
           </div>
         </div>
 
         <!-- Change password -->
-        <form class="grid grid-cols-1 gap-3 sm:grid-cols-2" @submit.prevent="onChangePassword">
+        <form
+          class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+          @submit.prevent="onChangePassword"
+        >
           <label v-if="hasPassword" class="flex flex-col gap-1 sm:col-span-2">
-            <span class="text-sm font-bold text-base-content/70">Current password</span>
+            <span class="text-sm font-bold text-base-content/70"
+              >Current password</span
+            >
             <input
               v-model="pw.current"
               type="password"
@@ -85,7 +93,9 @@
             />
           </label>
           <label class="flex flex-col gap-1">
-            <span class="text-sm font-bold text-base-content/70">New password</span>
+            <span class="text-sm font-bold text-base-content/70"
+              >New password</span
+            >
             <input
               v-model="pw.next"
               type="password"
@@ -94,7 +104,9 @@
             />
           </label>
           <label class="flex flex-col gap-1">
-            <span class="text-sm font-bold text-base-content/70">Confirm new password</span>
+            <span class="text-sm font-bold text-base-content/70"
+              >Confirm new password</span
+            >
             <input
               v-model="pw.confirm"
               type="password"
@@ -108,10 +120,17 @@
               class="btn btn-primary btn-sm rounded-xl"
               :disabled="account.isSaving || !canSubmitPassword"
             >
-              <span v-if="account.isSaving" class="loading loading-spinner loading-xs" />
+              <span
+                v-if="account.isSaving"
+                class="loading loading-spinner loading-xs"
+              />
               {{ hasPassword ? 'Update password' : 'Set password' }}
             </button>
-            <span v-if="pwFeedback" class="text-sm" :class="pwOk ? 'text-success' : 'text-error'">
+            <span
+              v-if="pwFeedback"
+              class="text-sm"
+              :class="pwOk ? 'text-success' : 'text-error'"
+            >
               {{ pwFeedback }}
             </span>
           </div>
@@ -161,7 +180,9 @@
 
           <label class="flex items-center justify-between gap-4 py-3">
             <span>
-              <span class="block font-semibold">List me in the public directory</span>
+              <span class="block font-semibold"
+                >List me in the public directory</span
+              >
               <span class="block text-xs text-base-content/60">
                 Let others find you on the members page.
               </span>
@@ -210,7 +231,11 @@
             </select>
           </div>
         </div>
-        <p v-if="consentFeedback" class="mt-3 text-sm" :class="consentOk ? 'text-success' : 'text-error'">
+        <p
+          v-if="consentFeedback"
+          class="mt-3 text-sm"
+          :class="consentOk ? 'text-success' : 'text-error'"
+        >
           {{ consentFeedback }}
         </p>
       </div>
@@ -229,7 +254,9 @@
             :key="opt.value"
             type="button"
             class="btn btn-sm rounded-xl"
-            :class="newsletterFreq === opt.value ? 'btn-primary' : 'btn-outline'"
+            :class="
+              newsletterFreq === opt.value ? 'btn-primary' : 'btn-outline'
+            "
             :disabled="account.isSaving"
             @click="onNewsletter(opt.value)"
           >
@@ -245,10 +272,15 @@
             Subscribed — {{ frequencyLabel(newsletterFreq) }}.
           </span>
           <span v-else class="text-warning">
-            Pending — check your email to confirm {{ frequencyLabel(newsletterFreq) }} updates.
+            Pending — check your email to confirm
+            {{ frequencyLabel(newsletterFreq) }} updates.
           </span>
         </p>
-        <p v-if="newsletterFeedback" class="mt-2 text-sm" :class="newsletterOk ? 'text-success' : 'text-error'">
+        <p
+          v-if="newsletterFeedback"
+          class="mt-2 text-sm"
+          :class="newsletterOk ? 'text-success' : 'text-error'"
+        >
           {{ newsletterFeedback }}
         </p>
       </div>
@@ -381,11 +413,15 @@ async function onNewsletter(freq: NewsletterFrequency) {
 const banner = computed<{ ok: boolean; text: string } | null>(() => {
   const v = route.query.verify
   const n = route.query.newsletter
-  if (v === 'success') return { ok: true, text: 'Your email is verified. Thank you!' }
+  if (v === 'success')
+    return { ok: true, text: 'Your email is verified. Thank you!' }
   if (v === 'invalid')
     return { ok: false, text: 'That verification link is invalid or expired.' }
   if (n === 'success')
-    return { ok: true, text: "You're subscribed. We'll only send what you asked for." }
+    return {
+      ok: true,
+      text: "You're subscribed. We'll only send what you asked for.",
+    }
   if (n === 'invalid')
     return { ok: false, text: 'That confirmation link is invalid or expired.' }
   return null

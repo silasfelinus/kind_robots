@@ -61,10 +61,17 @@ export async function canMessage(
   }
 
   if (recipient.messagePolicy === 'NONE') {
-    return { ok: false, status: 403, reason: 'This user is not accepting messages.' }
+    return {
+      ok: false,
+      status: 403,
+      reason: 'This user is not accepting messages.',
+    }
   }
 
-  if (recipient.messagePolicy === 'FRIENDS' && !(await areFriends(senderId, recipientId))) {
+  if (
+    recipient.messagePolicy === 'FRIENDS' &&
+    !(await areFriends(senderId, recipientId))
+  ) {
     return {
       ok: false,
       status: 403,

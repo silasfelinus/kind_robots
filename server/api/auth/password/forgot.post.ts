@@ -9,7 +9,9 @@ import { sendPasswordResetEmail } from '../../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const { email } = await readBody<{ email?: string }>(event)
-  const clean = String(email || '').trim().toLowerCase()
+  const clean = String(email || '')
+    .trim()
+    .toLowerCase()
 
   const generic = {
     success: true,

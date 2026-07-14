@@ -38,9 +38,10 @@ export const useNotificationStore = defineStore('notificationStore', () => {
   async function load(): Promise<void> {
     isLoading.value = true
     try {
-      const res = await performFetch<{ items: AppNotification[]; unreadCount: number }>(
-        '/api/notifications',
-      )
+      const res = await performFetch<{
+        items: AppNotification[]
+        unreadCount: number
+      }>('/api/notifications')
       if (res.success && res.data) {
         items.value = res.data.items ?? []
         unreadCount.value = res.data.unreadCount ?? 0

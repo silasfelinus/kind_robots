@@ -64,15 +64,17 @@ export const useConversationStore = defineStore('conversationStore', () => {
   const unreadTotal = computed(() =>
     conversations.value.reduce((sum, c) => sum + (c.unreadCount || 0), 0),
   )
-  const activeConversation = computed(() =>
-    conversations.value.find((c) => c.id === activeId.value) ?? null,
+  const activeConversation = computed(
+    () => conversations.value.find((c) => c.id === activeId.value) ?? null,
   )
 
   async function loadConversations(): Promise<void> {
     isLoadingList.value = true
     try {
-      const res = await performFetch<ConversationSummary[]>('/api/conversations')
-      conversations.value = res.success && Array.isArray(res.data) ? res.data : []
+      const res =
+        await performFetch<ConversationSummary[]>('/api/conversations')
+      conversations.value =
+        res.success && Array.isArray(res.data) ? res.data : []
     } catch (error) {
       handleError(error, 'loadConversations')
     } finally {

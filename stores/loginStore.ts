@@ -53,8 +53,10 @@ function parseAccounts(value: string | null): ManagedLogin[] {
         typeof account === 'object' &&
         account !== null &&
         typeof account.userId === 'number' &&
+        account.userId !== 10 &&
         typeof account.username === 'string' &&
-        typeof account.token === 'string'
+        typeof account.token === 'string' &&
+        account.token.trim().length > 0
       )
     })
   } catch {
@@ -78,6 +80,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   const lastError = ref<string | null>(null)
 
   const userStore = useUserStore()
+  const currentUserId = computed(() => {
+    return userStore.isLoggedIn ? (userStore.user?.id ?? null) : null
+  })
 
   const activeAccount = computed(() => {
     return accounts.value.find((account) => account.userId === activeUserId.value) ?? null
@@ -85,7 +90,7 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
 
   const otherAccounts = computed(() => {
     return accounts.value
-      .filter((account) => account.userId !== userStore.userId)
+      .filter((account) => account.userId !== currentUserId.value)
       .sort((a, b) => b.lastUsedAt.localeCompare(a.lastUsedAt))
   })
 
@@ -106,12 +111,14 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   function initialize() {
     accounts.value = parseAccounts(getFromLocalStorage(loginStorageKey))
 
-    const storedActiveId = Number(getFromLocalStorage(activeLoginStorageKey))
-    activeUserId.value = Number.isFinite(storedActiveId) ? storedActiveId : null
+    activeUserId.value = currentUserId.value
 
-    if (userStore.user && userStore.token) {
+    if (currentUserId.value && userStore.token) {
       captureCurrentSession()
+      return
     }
+
+    persist()
   }
 
   function open() {
@@ -127,23 +134,25 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   }
 
   function captureCurrentSession(relationship: LoginRelationship = 'testing') {
-    if (!userStore.user || !userStore.token || userStore.user.id === 10) {
+    const currentUser = userStore.user
+
+    if (!userStore.isLoggedIn || !currentUser || !userStore.token) {
       return
     }
 
     const now = new Date().toISOString()
     const existing = accounts.value.find(
-      (account) => account.userId === userStore.user?.id,
+      (account) => account.userId === currentUser.id,
     )
 
     const managedLogin: ManagedLogin = {
-      userId: userStore.user.id,
-      username: userStore.user.username,
-      role: userStore.user.Role ?? 'USER',
+      userId: currentUser.id,
+      username: currentUser.username,
+      role: currentUser.Role ?? 'USER',
       token: userStore.token,
       googleToken: userStore.googleToken,
-      avatarImage: userStore.user.avatarImage,
-      artImageId: userStore.user.artImageId,
+      avatarImage: currentUser.avatarImage,
+      artImageId: currentUser.artImageId,
       label: existing?.label,
       relationship: existing?.relationship ?? relationship,
       lastUsedAt: now,
@@ -179,7 +188,11 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
         force: true,
       })
 
-      if (!userStore.user || userStore.user.id !== account.userId) {
+      if (
+        !userStore.isLoggedIn ||
+        !userStore.user ||
+        userStore.user.id !== account.userId
+      ) {
         throw new Error('That saved login is no longer valid.')
       }
 
@@ -235,9 +248,14 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     accounts.value = accounts.value.filter((account) => account.userId !== userId)
 
     if (activeUserId.value === userId) {
-      activeUserId.value = userStore.user?.id ?? null
+      activeUserId.value = currentUserId.value
     }
 
+    persist()
+  }
+
+  function clearActiveSession() {
+    activeUserId.value = null
     persist()
   }
 
@@ -267,6 +285,7 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     updateAccountRelationship,
     updateAccountLabel,
     removeAccount,
+    clearActiveSession,
     clearSavedAccounts,
   }
 })

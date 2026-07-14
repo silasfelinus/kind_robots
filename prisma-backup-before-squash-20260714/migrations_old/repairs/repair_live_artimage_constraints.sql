@@ -1,0 +1,22 @@
+ALTER TABLE `Chat` DROP FOREIGN KEY `Chat_dreamId_fkey`;
+
+ALTER TABLE `Butterfly` ADD CONSTRAINT `Butterfly_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `Chat` ADD CONSTRAINT `Chat_dreamId_fkey` FOREIGN KEY (`dreamId`) REFERENCES `Dream`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `Component` ADD CONSTRAINT `Component_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `Milestone` ADD CONSTRAINT `Milestone_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `Pitch` ADD CONSTRAINT `Pitch_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `Prompt` ADD CONSTRAINT `Prompt_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `Resource` ADD CONSTRAINT `Resource_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `Reward` ADD CONSTRAINT `Reward_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `User` ADD CONSTRAINT `User_artImageId_fkey` FOREIGN KEY (`artImageId`) REFERENCES `ArtImage`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+CREATE INDEX `Dream_artImageId_fkey` ON `Dream`(`artImageId`);
+DROP INDEX `Dream_artImageId_idx` ON `Dream`;

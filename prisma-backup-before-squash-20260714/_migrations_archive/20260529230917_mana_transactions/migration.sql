@@ -1,0 +1,27 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `isGuest` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `lastManaRefill` DATETIME(3) NULL,
+    ADD COLUMN `manaCap` INTEGER NOT NULL DEFAULT 500,
+    ADD COLUMN `signupBonusGiven` BOOLEAN NOT NULL DEFAULT false,
+    MODIFY `Role` ENUM('SYSTEM', 'USER', 'ASSISTANT', 'ADMIN', 'GUEST', 'BOT', 'DESIGNER', 'CHILD', 'FAMILY') NOT NULL DEFAULT 'USER';
+
+-- CreateTable
+CREATE TABLE `ManaTransaction` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `userId` INTEGER NOT NULL,
+    `amount` INTEGER NOT NULL,
+    `reason` ENUM('SIGNUP_BONUS', 'CYCLE_REFILL', 'GENERATION_ART', 'GENERATION_TEXT', 'SOCIAL_REACTION', 'SOCIAL_SHARE', 'BOUNTY_CREATE', 'BOUNTY_REWARD', 'PURCHASE', 'SUBSCRIPTION_GRANT', 'ADMIN_REFUND', 'KARMA_CONVERSION', 'ADJUSTMENT') NOT NULL,
+    `balanceAfter` INTEGER NOT NULL,
+    `refId` VARCHAR(191) NULL,
+    `note` TEXT NULL,
+    `provider` VARCHAR(191) NULL,
+    `costUsd` DOUBLE NULL,
+    `reversedById` INTEGER NULL,
+
+    INDEX `ManaTransaction_userId_createdAt_idx`(`userId`, `createdAt`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `ManaTransaction` ADD CONSTRAINT `ManaTransaction_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

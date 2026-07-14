@@ -32,6 +32,18 @@ const DREAM_TYPES = [
   'PITCH',
   'WISH',
 ]
+const FACET_KINDS = [
+  'GENRE',
+  'ANIMAL',
+  'COLOR',
+  'THEME',
+  'CORE',
+  'MOOD',
+  'STYLE',
+  'SETTING',
+  'ART_DIRECTION',
+  'OTHER',
+]
 
 // Keyed by the model type (matches SourceTypeKey / the CREATE target types).
 export const MODEL_FIELDS: Record<string, ModelFieldSpec[]> = {
@@ -93,7 +105,7 @@ export const MODEL_FIELDS: Record<string, ModelFieldSpec[]> = {
   ],
   Facet: [
     { key: 'title', label: 'Title', required: true },
-    { key: 'kind', label: 'Kind', default: 'OTHER' },
+    { key: 'kind', label: 'Kind', default: 'OTHER', choices: FACET_KINDS },
     { key: 'description', label: 'Description', prose: true },
     { key: 'examples', label: 'Examples' },
   ],

@@ -31,13 +31,7 @@ export type TestUserAuth = {
 export type TestUserRole = 'primary' | 'second' | 'third'
 
 export type CreateLoggedInTestUserOptions = {
-  /**
-   * Use a brand-new disposable remote user instead of the shared per-run seed user.
-   * Keep this for tests that are specifically about registration, deletion, or hard
-   * ownership isolation. Most API specs should use the shared seed for speed.
-   */
   fresh?: boolean
-  /** Pick a stable seed user. When omitted, the primary seed user is used. */
   role?: TestUserRole
 }
 
@@ -83,31 +77,24 @@ const seedUserForRole = (seed: {
 }, role?: TestUserRole) => {
   if (role === 'second') return seed.secondUser
   if (role === 'third') return seed.thirdUser
-
   return seed.user
 }
 
-export const resetSeedUserCursor = () => {
-  // Backward-compatible no-op. Seed users no longer rotate by default.
-}
+export const resetSeedUserCursor = () => {}
 
 export const getApiEnv = () =>
   cy.env(['API_KEY', 'BETA_ADMIN_TOKEN', 'ADMIN_TOKEN', 'BASE_API_URL']).then((env: CypressApiEnv) => {
     const apiBase = String(env.BASE_API_URL || defaultApiBase).replace(/\/+$/, '')
     const adminToken = String(env.ADMIN_TOKEN || env.BETA_ADMIN_TOKEN || env.API_KEY || '')
-
     expect(apiBase, 'api base').to.be.a('string').and.not.be.empty
     expect(adminToken, 'ADMIN_TOKEN, BETA_ADMIN_TOKEN, or API_KEY').to.be.a('string').and.not.be.empty
-
     return { apiBase, adminToken }
   })
 
 export const extractToken = (body: ApiResponse): string => {
   const data = body.data && typeof body.data === 'object' ? dataFromBody(body) : {}
   const token = String(data.token || body.token || body.user?.token || '')
-
   expect(token, 'login token').to.be.a('string').and.have.length.greaterThan(20)
-
   return token
 }
 
@@ -116,9 +103,7 @@ const dataFromBody = (body: ApiResponse) => body.data as Record<string, unknown>
 export const extractUserId = (body: ApiResponse<RegisterUserData>): number => {
   const data = body.data && typeof body.data === 'object' ? body.data : {}
   const id = bodyNumber(body.user?.id) || bodyNumber(data.id)
-
   expect(id, 'registered user id').to.be.a('number')
-
   return id as number
 }
 
@@ -136,79 +121,61 @@ export const createFreshLoggedInTestUser = () =>
     const email = `${username}@example.com`
     const password = defaultTestPassword
 
-    return cy
-      .request<ApiResponse<RegisterUserData>>({
-        method: 'POST',
-        url: `${apiBase}/users/register`,
+    return cy.request<ApiResponse<RegisterUserData>>({
+      method: 'POST',
+      url: `${apiBase}/users/register`,
+      headers: adminHeaders(adminToken),
+      body: { username, email, password },
+      failOnStatusCode: false,
+    }).then((registerResponse) => {
+      expect(registerResponse.status, JSON.stringify(registerResponse.body)).to.be.oneOf([200, 201])
+      const id = extractUserId(registerResponse.body)
+
+      // Register immediately after creation. This survives a spec-level failure because
+      // the Node-side after:run cleanup owns the request independently of Mocha hooks.
+      cy.task('cypressCleanup:register', {
+        label: `fresh Cypress user ${id}`,
+        method: 'DELETE',
+        url: `${apiBase}/users/${id}`,
         headers: adminHeaders(adminToken),
-        body: {
-          username,
-          email,
-          password,
-        },
+        expectedStatuses: [200, 202, 204, 404],
+      }, { log: false })
+
+      return cy.request<ApiResponse>({
+        method: 'POST',
+        url: `${apiBase}/auth/login`,
+        headers: jsonHeaders(),
+        body: { username, password },
         failOnStatusCode: false,
+      }).then((loginResponse) => {
+        expect(loginResponse.status, JSON.stringify(loginResponse.body)).to.eq(200)
+        expect(loginResponse.body.success, JSON.stringify(loginResponse.body)).to.eq(true)
+        const token = extractToken(loginResponse.body)
+        return { id, username, email, password, token } satisfies TestUserAuth
       })
-      .then((registerResponse) => {
-        expect(registerResponse.status, JSON.stringify(registerResponse.body)).to.be.oneOf([200, 201])
-
-        const id = extractUserId(registerResponse.body)
-
-        return cy
-          .request<ApiResponse>({
-            method: 'POST',
-            url: `${apiBase}/auth/login`,
-            headers: jsonHeaders(),
-            body: {
-              username,
-              password,
-            },
-            failOnStatusCode: false,
-          })
-          .then((loginResponse) => {
-            expect(loginResponse.status, JSON.stringify(loginResponse.body)).to.eq(200)
-            expect(loginResponse.body.success, JSON.stringify(loginResponse.body)).to.eq(true)
-
-            const token = extractToken(loginResponse.body)
-
-            return {
-              id,
-              username,
-              email,
-              password,
-              token,
-            } satisfies TestUserAuth
-          })
-      })
+    })
   })
 
 export const createLoggedInTestUser = (options: CreateLoggedInTestUserOptions = {}) => {
   if (options.fresh) return createFreshLoggedInTestUser()
-
   return getSeedTestUser(options.role)
 }
 
 export const deleteTestUser = (apiBase: string, adminToken: string, userId?: number) => {
-  if (!userId) {
-    return cy.wrap(null)
-  }
+  if (!userId) return cy.wrap(null)
 
   return cy.task<boolean>('cypressSeed:isSeedUser', userId).then((isSeedUser) => {
     if (isSeedUser) return null
-
-    return cy
-      .request({
-        method: 'DELETE',
-        url: `${apiBase}/users/${userId}`,
-        headers: adminHeaders(adminToken),
-        failOnStatusCode: false,
-      })
-      .then((response) => {
-        // Cleanup must actually clean up: a leaked test user is a real
-        // failure, not something to swallow silently.
-        expect(
-          response.status,
-          `delete test user ${userId}: ${JSON.stringify(response.body)}`,
-        ).to.be.oneOf([200, 404])
-      })
+    return cy.request({
+      method: 'DELETE',
+      url: `${apiBase}/users/${userId}`,
+      headers: adminHeaders(adminToken),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(
+        response.status,
+        `delete test user ${userId}: ${JSON.stringify(response.body)}`,
+      ).to.be.oneOf([200, 404])
+    })
   })
 }

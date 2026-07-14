@@ -20,12 +20,12 @@ export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
 
-    const body = await readBody<Record<string, unknown>>(event).catch(
-      () => ({}),
-    )
-    const overrides = sanitizePitchSheetPayload(body || {})
+    const body: Record<string, unknown> = await readBody<
+      Record<string, unknown>
+    >(event).catch(() => ({}))
+    const overrides = sanitizePitchSheetPayload(body)
     const dreamId =
-      body && body.dreamId != null ? Number(body.dreamId) : undefined
+      body.dreamId != null ? Number(body.dreamId) : undefined
 
     // Dream-attached create: verify + delegate to the dream-derived defaults
     // (same behavior as POST /api/sheets/by-dream/{dreamId}).

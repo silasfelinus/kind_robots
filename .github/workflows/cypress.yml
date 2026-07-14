@@ -62,6 +62,30 @@ jobs:
           echo "::error::Production did not serve ${TARGET_SHA} within ${MAX_WAIT}s (last seen: ${live:-unknown})."
           exit 1
 
+      - name: Verify database readiness
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+        run: |
+          echo "Waiting for three consecutive database health checks..."
+          deadline=$(( $(date +%s) + 180 ))
+          consecutive=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            body="$(curl -sf --max-time 15 "${BASE_URL}/api/health/database" || true)"
+            if printf '%s' "$body" | jq -e '.success == true and .statusCode == 200' >/dev/null 2>&1; then
+              consecutive=$(( consecutive + 1 ))
+              echo "  database healthy (${consecutive}/3)"
+              if [ "$consecutive" -ge 3 ]; then
+                exit 0
+              fi
+            else
+              consecutive=0
+              echo "  database unavailable; retrying in 5s..."
+            fi
+            sleep 5
+          done
+          echo "::error::Database did not remain healthy for three consecutive checks."
+          exit 1
+
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:

@@ -24,7 +24,7 @@ export interface AnimationPreferences {
 
 const STORAGE_KEY = 'kind-robots-animation-preferences-v1'
 
-const DEFAULT_PREFERENCES: AnimationPreferences = {
+export const DEFAULT_PREFERENCES: AnimationPreferences = {
   startupEffect: 'butterfly-animation',
   butterflies: {
     adaptive: true,

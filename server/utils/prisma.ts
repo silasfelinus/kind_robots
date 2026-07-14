@@ -2,6 +2,8 @@
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
+type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
+
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
 }
@@ -50,10 +52,62 @@ function buildDatabaseUrl(url: string): string {
   return parsed.toString()
 }
 
+function readDatabaseSslCa(): string | undefined {
+  const encoded = process.env.DATABASE_SSL_CA_BASE64?.trim()
+  if (encoded) {
+    const decoded = Buffer.from(encoded, 'base64').toString('utf8').trim()
+    if (!decoded.includes('BEGIN CERTIFICATE')) {
+      throw new Error('DATABASE_SSL_CA_BASE64 is not a PEM certificate')
+    }
+    return decoded
+  }
+
+  const plain = process.env.DATABASE_SSL_CA?.replace(/\\n/g, '\n').trim()
+  if (!plain) return undefined
+  if (!plain.includes('BEGIN CERTIFICATE')) {
+    throw new Error('DATABASE_SSL_CA is not a PEM certificate')
+  }
+  return plain
+}
+
+function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
+  const resolvedUrl = buildDatabaseUrl(url)
+  const sslCa = readDatabaseSslCa()
+
+  // Preserve the existing URL-based adapter behavior unless a custom CA is set.
+  if (!sslCa) return resolvedUrl
+
+  const parsed = new URL(resolvedUrl)
+  const database = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
+
+  return {
+    host: parsed.hostname,
+    port: readPositiveInteger(parsed.port, 3_306),
+    user: decodeURIComponent(parsed.username),
+    password: decodeURIComponent(parsed.password),
+    database,
+    connectTimeout: readPositiveInteger(
+      parsed.searchParams.get('connectTimeout') ?? undefined,
+      5_000,
+    ),
+    acquireTimeout: readPositiveInteger(
+      parsed.searchParams.get('acquireTimeout') ?? undefined,
+      10_000,
+    ),
+    connectionLimit: readPositiveInteger(
+      parsed.searchParams.get('connectionLimit') ?? undefined,
+      2,
+    ),
+    ssl: {
+      ca: sslCa,
+    },
+  }
+}
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter: new PrismaMariaDb(buildDatabaseUrl(databaseUrl)),
+    adapter: new PrismaMariaDb(buildDatabaseConfig(databaseUrl)),
   })
 
 globalForPrisma.prisma = prisma

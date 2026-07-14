@@ -136,6 +136,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'gravity-garden',
+    label: 'Gravity Garden',
+    reveal: 'The garden noticed you',
+    icon: 'kind-icon:sprout',
+    tooltip: 'Orbiting seeds grow a luminous garden; click for a gravity bloom 🌱',
+    color: '#4ade80',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

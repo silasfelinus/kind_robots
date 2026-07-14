@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `Prompt` ADD COLUMN `botId` INTEGER NULL;
+
+-- AddForeignKey
+ALTER TABLE `Prompt` ADD CONSTRAINT `Prompt_botId_fkey` FOREIGN KEY (`botId`) REFERENCES `Bot`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

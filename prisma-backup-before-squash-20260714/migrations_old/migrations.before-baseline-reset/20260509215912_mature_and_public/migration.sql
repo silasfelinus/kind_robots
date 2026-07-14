@@ -1,0 +1,29 @@
+-- AlterTable
+ALTER TABLE `Bot` ADD COLUMN `isMature` BOOLEAN NOT NULL DEFAULT false,
+    MODIFY `isPublic` BOOLEAN NOT NULL DEFAULT true;
+
+-- AlterTable
+ALTER TABLE `Character` ADD COLUMN `isMature` BOOLEAN NOT NULL DEFAULT false,
+    MODIFY `isPublic` BOOLEAN NOT NULL DEFAULT true;
+
+-- AlterTable
+ALTER TABLE `Prompt` ADD COLUMN `isMature` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `isPublic` BOOLEAN NOT NULL DEFAULT true;
+
+-- AlterTable
+ALTER TABLE `Resource` ADD COLUMN `isPublic` BOOLEAN NOT NULL DEFAULT false;
+
+-- AlterTable
+ALTER TABLE `Reward` ADD COLUMN `isMature` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `isPublic` BOOLEAN NOT NULL DEFAULT true;
+
+-- AlterTable
+ALTER TABLE `Scenario` ADD COLUMN `isMature` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `isPublic` BOOLEAN NOT NULL DEFAULT true;
+
+-- AlterTable
+ALTER TABLE `Server` ADD COLUMN `isMature` BOOLEAN NOT NULL DEFAULT false,
+    MODIFY `isPublic` BOOLEAN NOT NULL DEFAULT true;
+
+-- AlterTable
+ALTER TABLE `SmartIcon` ADD COLUMN `isMature` BOOLEAN NOT NULL DEFAULT false;

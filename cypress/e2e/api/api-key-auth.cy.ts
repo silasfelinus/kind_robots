@@ -11,10 +11,21 @@ type CypressApiKeyEnv = {
   BASE_API_URL?: string
 }
 
+type CurrentUserResponse = {
+  success: boolean
+  data?: {
+    id?: number
+    Role?: string
+    isAdmin?: boolean
+    authKind?: string
+  }
+}
+
 describe('Stored user API key authentication', () => {
   let apiBase = defaultApiBase
   let userApiKey = ''
   let adminApiKey = ''
+  let userId = 0
 
   before(() => {
     cy.env([
@@ -32,25 +43,51 @@ describe('Stored user API key authentication', () => {
         adminApiKey,
         'CYPRESS_BETA_ADMIN_TOKEN or CYPRESS_ADMIN_TOKEN admin apiKey',
       ).to.not.be.empty
+
+      return cy
+        .request<CurrentUserResponse>({
+          url: `${apiBase}/users/me`,
+          headers: apiKeyHeaders(userApiKey),
+          failOnStatusCode: false,
+        })
+        .then((response) => {
+          expect(response.status, JSON.stringify(response.body)).to.eq(200)
+          userId = Number(response.body.data?.id || 0)
+          expect(userId, 'test-user id').to.be.greaterThan(0)
+        })
     })
   })
 
   it('accepts a normal user apiKey through x-api-key', () => {
-    cy.request({
-      url: `${apiBase}/projects?mine=true&includeInactive=true`,
+    cy.request<CurrentUserResponse>({
+      url: `${apiBase}/users/me`,
       headers: apiKeyHeaders(userApiKey),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.success, JSON.stringify(response.body)).to.eq(true)
-      expect(response.body.data).to.be.an('array')
+      expect(response.body.data?.id).to.eq(userId)
+      expect(response.body.data?.authKind).to.eq('user-api-key')
+      expect(response.body.data?.isAdmin).to.eq(false)
     })
   })
 
   it('accepts a normal user apiKey through Bearer authentication', () => {
-    cy.request({
-      url: `${apiBase}/projects?mine=true&includeInactive=true`,
+    cy.request<CurrentUserResponse>({
+      url: `${apiBase}/users/me`,
       headers: bearerHeaders(userApiKey),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
+      expect(response.body.data?.id).to.eq(userId)
+      expect(response.body.data?.authKind).to.eq('user-api-key')
+    })
+  })
+
+  it('accepts the same apiKey in legacy validateApiKey routes', () => {
+    cy.request({
+      url: `${apiBase}/mana/${userId}`,
+      headers: apiKeyHeaders(userApiKey),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status, JSON.stringify(response.body)).to.eq(200)
@@ -82,12 +119,11 @@ describe('Stored user API key authentication', () => {
 
   it('rejects an unknown apiKey', () => {
     cy.request({
-      url: `${apiBase}/projects?mine=true`,
+      url: `${apiBase}/users/me`,
       headers: apiKeyHeaders('invalid-cypress-api-key'),
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status, JSON.stringify(response.body)).to.eq(401)
-      expect(response.body.success, JSON.stringify(response.body)).to.eq(false)
     })
   })
 })

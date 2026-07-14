@@ -8,21 +8,18 @@
 //   npm run seed:twisted-fairy-tales -- --write # create missing ArtJob rows
 
 import 'dotenv/config'
-import { PrismaClient, type Prisma } from './../../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import type { Prisma } from './../../prisma/generated/prisma/client'
+import prisma from './../../server/utils/prisma'
 import { twistedFairyTalesArtPrompts } from './../../stores/seeds/twistedFairyTalesArtPrompts'
 
-const databaseUrl = process.env.DATABASE_URL
-if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-
-const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
 const WRITE = process.argv.includes('--write')
 const USER_ID = Number(process.env.ART_SEED_USER_ID || 1)
 const PROJECT_SLUG = 'twisted-fairy-tales'
 const PRIORITY = 10
 
 function requestIdFromPayload(payload: Prisma.JsonValue): string | null {
-  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload))
+    return null
   const requestId = (payload as Record<string, Prisma.JsonValue>).requestId
   return typeof requestId === 'string' ? requestId : null
 }
@@ -51,7 +48,9 @@ async function main() {
   const existingByRequestId = new Map(
     existingJobs
       .map((job) => [requestIdFromPayload(job.payload), job] as const)
-      .filter((entry): entry is [string, (typeof existingJobs)[number]] => Boolean(entry[0])),
+      .filter((entry): entry is [string, (typeof existingJobs)[number]] =>
+        Boolean(entry[0]),
+      ),
   )
 
   const missing = twistedFairyTalesArtPrompts.filter(
@@ -74,7 +73,9 @@ async function main() {
   }
 
   if (!WRITE) {
-    console.log('\nDry run only. Re-run with --write to create missing ArtJob rows.')
+    console.log(
+      '\nDry run only. Re-run with --write to create missing ArtJob rows.',
+    )
     return
   }
 
@@ -113,7 +114,9 @@ async function main() {
     ),
   )
 
-  console.log(`\nQueued ${created.length} new Twisted Fairy Tales ArtJob row(s).`)
+  console.log(
+    `\nQueued ${created.length} new Twisted Fairy Tales ArtJob row(s).`,
+  )
 }
 
 main()

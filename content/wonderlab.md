@@ -13,6 +13,7 @@ channelKey: lab
 tabKey: museum
 dashboardKey: wonder
 dashboardTab: wonder-lab
+requiredRole: ADMIN
 cards: labCards
 loadingMessage: Loading the museum...
 refreshLabel: Refresh Museum

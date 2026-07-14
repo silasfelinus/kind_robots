@@ -15,7 +15,7 @@
     "build": "nuxi prepare && prisma generate && nuxi build",
     "start": "nuxi start",
     "generate": "nuxi prepare && nuxi generate",
-    "preview": "nuxt preview",
+    "preview": "nuxi preview",
     "lint": "npm run lint:js && npm run lint:prettier",
     "lint:js": "eslint .",
     "lint:prettier": "prettier --check .",
@@ -30,6 +30,7 @@
     "snapshot:fallback": "tsx utils/scripts/snapshotFallback.ts",
     "backfill:slugs": "tsx utils/scripts/backfillSlugs.ts",
     "migrate:art-jobs": "tsx utils/scripts/migratePromptsToArtJobs.ts",
+    "seed:twisted-fairy-tales": "tsx utils/scripts/enqueueTwistedFairyTalesPhaseOne.ts",
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
@@ -42,12 +43,10 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",
-    "@nuxt/icon": "^2.2.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "24.x",
     "@vitejs/plugin-vue": "^6.0.6",
-    "cypress": "^15.13.1",
     "daisyui": "^5.5.19",
     "dotenv": "^17.2.3",
     "eslint": "^10.2.0",
@@ -83,8 +82,7 @@
   },
   "overrides": {
     "vue": "^3.5.13",
-    "oxc-parser": "0.117.0",
-    "@hono/node-server": "^1.19.13"
+    "oxc-parser": "0.117.0"
   },
   "type": "module",
   "engines": {

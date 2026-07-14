@@ -521,6 +521,7 @@ import { useServerStore } from '@/stores/serverStore'
 import {
   STYLE_CATEGORY_ICONS,
   styleEntryKey,
+  COLORING_STYLES,
 } from '@/stores/helpers/styleHelper'
 import type { StyleCategory, StyleEntry } from '@/stores/helpers/styleHelper'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
@@ -693,6 +694,8 @@ const BUILTIN_STYLES: StyleEntry[] = [
     category: 'Ink',
     previewImageSrc: '/images/styler/fae-ink.webp',
   },
+  // Coloring-book conversions (shared with the dedicated /coloring-page maker).
+  ...COLORING_STYLES,
   {
     loraPath: 'FLUX/Claymation.safetensors',
     loraWeight: 1,

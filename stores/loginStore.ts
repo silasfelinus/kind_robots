@@ -167,7 +167,6 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     activeUserId.value = managedLogin.userId
     persist()
   }
-
   async function switchToAccount(userId: number) {
     const account = accounts.value.find((candidate) => candidate.userId === userId)
 

@@ -67,6 +67,13 @@ export type SubmitArtFeedbackInput = {
   rubricKey?: string | null
 }
 
+export type CurateRequestResult = {
+  requested: number[]
+  alreadyQueued: number[]
+  ineligible: number[]
+  missing: number[]
+}
+
 export type QueueStats = {
   windowHours: number
   since: string
@@ -128,6 +135,11 @@ type ArtJobState = {
   loadingJobs: boolean
   loadingTrainerJobs: boolean
   retryingJobIds: number[]
+  // Jobs with a curate-request POST in flight, and jobs a request has been queued
+  // for this session (so the UI can show "Curation requested" before Conductor's
+  // verdict lands in payload.curation.curator).
+  curationRequestingIds: number[]
+  curationRequestedIds: number[]
   error: string | null
   windowHours: number
 }
@@ -147,6 +159,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     loadingJobs: false,
     loadingTrainerJobs: false,
     retryingJobIds: [],
+    curationRequestingIds: [],
+    curationRequestedIds: [],
     error: null,
     windowHours: 24,
   })
@@ -322,6 +336,71 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return false
   }
 
+  // Ask Conductor to curate finished ArtJob(s). Accepts one id or a batch; the
+  // bridge (POST /api/conductor/curate-request) queues them in conductor's
+  // projects/curation/requests.yaml. Conductor's sweep then POSTs source=CURATOR
+  // feedback back, which surfaces in the trainer panel.
+  async function requestCuration(
+    jobIds: number | number[],
+    note?: string,
+  ): Promise<CurateRequestResult | null> {
+    const ids = (Array.isArray(jobIds) ? jobIds : [jobIds]).filter(
+      (id): id is number => Number.isInteger(id) && id > 0,
+    )
+    if (!ids.length) return null
+
+    const inFlight = ids.filter((id) => !state.curationRequestingIds.includes(id))
+    if (!inFlight.length) return null
+    state.curationRequestingIds = [...state.curationRequestingIds, ...inFlight]
+
+    try {
+      const payload =
+        inFlight.length === 1
+          ? { jobId: inFlight[0], note }
+          : { jobIds: inFlight, note }
+      const res = await performFetch<CurateRequestResult>(
+        '/api/conductor/curate-request',
+        { method: 'POST', body: JSON.stringify(payload) },
+      )
+
+      if (res.success && res.data) {
+        const queued = [...res.data.requested, ...res.data.alreadyQueued]
+        const merged = new Set([...state.curationRequestedIds, ...queued])
+        state.curationRequestedIds = [...merged]
+        return res.data
+      }
+
+      state.error = res.message || 'Failed to request curation.'
+      return null
+    } finally {
+      state.curationRequestingIds = state.curationRequestingIds.filter(
+        (id) => !inFlight.includes(id),
+      )
+    }
+  }
+
+  // Trainer empty-state CTA: ask Conductor to curate every uncurated finished job
+  // in the current window (the bridge selects them server-side). Returns how many
+  // were newly queued.
+  async function requestWindowCuration(
+    windowHours: number = state.windowHours,
+    note?: string,
+  ): Promise<CurateRequestResult | null> {
+    const res = await performFetch<CurateRequestResult>(
+      '/api/conductor/curate-request',
+      { method: 'POST', body: JSON.stringify({ window: windowHours, note }) },
+    )
+    if (res.success && res.data) {
+      const queued = [...res.data.requested, ...res.data.alreadyQueued]
+      state.curationRequestedIds = [
+        ...new Set([...state.curationRequestedIds, ...queued]),
+      ]
+      return res.data
+    }
+    state.error = res.message || 'Failed to request curation.'
+    return null
+  }
+
   async function requeueJob(id: number): Promise<boolean> {
     const res = await performFetch(`/api/art/queue/${id}/requeue`, {
       method: 'POST',
@@ -400,6 +479,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     fetchJobs,
     fetchTrainerJobs,
     submitFeedback,
+    requestCuration,
+    requestWindowCuration,
     requeueJob,
     cancelJob,
     reenqueueJob,

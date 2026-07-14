@@ -139,7 +139,6 @@ describe('ArtImage Management API Tests', () => {
       url: artGenerateUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
         Authorization: `Bearer ${invalidToken}`,
       },
       body: {
@@ -164,7 +163,6 @@ describe('ArtImage Management API Tests', () => {
       url: artGenerateUrl,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
         Authorization: `Bearer ${userToken}`,
       },
       timeout: 120000,
@@ -177,7 +175,7 @@ describe('ArtImage Management API Tests', () => {
         cfg: 3,
         cfgHalf: false,
         seed: -1,
-        userId: adminUserId,
+        userId,
         serverId: lolaTestServerId,
         checkpoint: 'realcartoonPony_v1.safetensors',
         sampler: 'Euler',
@@ -209,7 +207,6 @@ describe('ArtImage Management API Tests', () => {
       url: `${artImageUrl}/${fixtureArtImageId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
         Authorization: `Bearer ${userToken}`,
       },
       failOnStatusCode: false,
@@ -354,7 +351,6 @@ describe('ArtImage Management API Tests', () => {
       url: `${artImageUrl}/${fixtureArtImageId}`,
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
         Authorization: `Bearer ${userToken}`,
       },
       failOnStatusCode: false,

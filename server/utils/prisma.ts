@@ -52,6 +52,14 @@ function buildDatabaseUrl(url: string): string {
     process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
     0,
   )
+  const idleTimeout = readPositiveInteger(
+    process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
+    30,
+  )
+  const minimumIdle = readNonNegativeInteger(
+    process.env.DATABASE_MINIMUM_IDLE,
+    0,
+  )
 
   if (!parsed.searchParams.has('connectTimeout')) {
     parsed.searchParams.set('connectTimeout', String(connectTimeout))
@@ -67,6 +75,17 @@ function buildDatabaseUrl(url: string): string {
 
   if (!parsed.searchParams.has('minDelayValidation')) {
     parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
+  }
+
+  // The MariaDB connector defaults minimumIdle to connectionLimit and keeps
+  // those idle sockets for 30 minutes. That is a poor fit for reused Vercel
+  // functions because a warm instance can retain a full pool of dead sockets.
+  if (!parsed.searchParams.has('idleTimeout')) {
+    parsed.searchParams.set('idleTimeout', String(idleTimeout))
+  }
+
+  if (!parsed.searchParams.has('minimumIdle')) {
+    parsed.searchParams.set('minimumIdle', String(minimumIdle))
   }
 
   return parsed.toString()
@@ -98,7 +117,6 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
 
   const parsed = new URL(resolvedUrl)
   const database = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
-
   const tlsOptions: TlsConnectionOptions = {
     ca: sslCa,
     rejectUnauthorized: true,
@@ -128,6 +146,14 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
       parsed.searchParams.get('minDelayValidation') ?? undefined,
       0,
     ),
+    idleTimeout: readPositiveInteger(
+      parsed.searchParams.get('idleTimeout') ?? undefined,
+      30,
+    ),
+    minimumIdle: readNonNegativeInteger(
+      parsed.searchParams.get('minimumIdle') ?? undefined,
+      0,
+    ),
     ssl: tlsOptions,
   }
 }
@@ -140,7 +166,7 @@ const retryableDatabaseMessages = [
 
 const transientRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
-  2,
+  5,
 )
 const transientRetryDelayMs = readPositiveInteger(
   process.env.DATABASE_TRANSIENT_RETRY_DELAY_MS,
@@ -170,7 +196,6 @@ const basePrisma =
   new PrismaClient({
     adapter: new PrismaMariaDb(buildDatabaseConfig(databaseUrl)),
   })
-
 globalForPrisma.prisma = basePrisma
 
 export const prisma = basePrisma.$extends({

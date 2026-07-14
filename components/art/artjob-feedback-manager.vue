@@ -208,12 +208,30 @@
 
       <div
         v-else
-        class="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50"
+        class="flex min-h-56 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50"
       >
         <span v-if="artJobStore.loadingTrainerJobs">Loading curated jobs…</span>
-        <span v-else-if="reviewMode === 'pending'">
-          Nothing is waiting for feedback. Tiny victory parade. 🎉
-        </span>
+        <template v-else-if="reviewMode === 'pending'">
+          <span>
+            Nothing is waiting for feedback. Ask Conductor to curate the day's
+            finished art and it'll show up here.
+          </span>
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm rounded-2xl"
+            :disabled="requestingCuration"
+            @click="requestCuration"
+          >
+            <span
+              v-if="requestingCuration"
+              class="loading loading-spinner loading-xs"
+            />
+            Request Conductor curation
+          </button>
+          <span v-if="curationNote" class="text-xs text-base-content/60">
+            {{ curationNote }}
+          </span>
+        </template>
         <span v-else>No curated jobs match this filter.</span>
       </div>
     </div>
@@ -234,6 +252,8 @@ type ReviewMode = 'pending' | 'reviewed' | 'all'
 const artJobStore = useArtJobStore()
 const reviewMode = ref<ReviewMode>('pending')
 const savingIds = ref<number[]>([])
+const requestingCuration = ref(false)
+const curationNote = ref('')
 const notesByJob = reactive<Record<number, string>>({})
 const tagsByJob = reactive<Record<number, string[]>>({})
 
@@ -366,6 +386,28 @@ async function saveFeedback(
     })
   } finally {
     savingIds.value = savingIds.value.filter((id) => id !== job.id)
+  }
+}
+
+async function requestCuration(): Promise<void> {
+  if (requestingCuration.value) return
+  requestingCuration.value = true
+  curationNote.value = ''
+  try {
+    const result = await artJobStore.requestWindowCuration()
+    if (!result) {
+      curationNote.value =
+        'No finished art in this window to curate yet — generate some first.'
+      return
+    }
+    const queued = result.requested.length + result.alreadyQueued.length
+    curationNote.value = result.requested.length
+      ? `Queued ${result.requested.length} job(s) for Conductor. Verdicts appear here after the next sweep.`
+      : queued
+        ? 'Already queued — waiting on Conductor to curate.'
+        : 'No eligible finished jobs to curate in this window.'
+  } finally {
+    requestingCuration.value = false
   }
 }
 </script>

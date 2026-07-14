@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
       { headers: { Authorization: `Bearer ${access_token}` } },
     )
 
-    const { email, sub: googleId, name, picture } = userInfo
+    const { email, sub: googleId, name, picture, email_verified } = userInfo
 
     if (!email) {
       console.error('[Google Callback] ❌ No email returned from Google')
@@ -72,7 +72,15 @@ export default defineEventHandler(async (event) => {
           googleId,
           username: name || `user-${googleId.substring(0, 8)}`,
           avatarImage: picture,
+          // Google has already verified this address — trust it.
+          emailVerified: email_verified ? new Date() : null,
         },
+      })
+    } else if (email_verified && !user.emailVerified) {
+      // Backfill verification for a returning Google user.
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
       })
     }
 

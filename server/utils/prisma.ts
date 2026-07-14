@@ -1,7 +1,8 @@
 // /server/utils/prisma.ts
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import type { PoolConfig } from 'mariadb'
+
+type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
@@ -69,7 +70,7 @@ function readDatabaseSslCa(): string | undefined {
   return plain
 }
 
-function buildDatabaseConfig(url: string): string | PoolConfig {
+function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const resolvedUrl = buildDatabaseUrl(url)
   const sslCa = readDatabaseSslCa()
 

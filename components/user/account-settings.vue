@@ -46,7 +46,7 @@
         >
           <div class="flex items-center gap-2 text-sm">
             <Icon
-              :name="emailVerified ? 'kind-icon:check' : 'kind-icon:mail'"
+              :name="emailVerified ? 'kind-icon:check' : 'kind-icon:message'"
               class="h-5 w-5"
               :class="emailVerified ? 'text-success' : 'text-warning'"
             />
